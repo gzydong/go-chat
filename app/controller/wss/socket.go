@@ -1,7 +1,6 @@
 package wss
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 	"log"
@@ -27,8 +26,6 @@ func (w *WsController) WsClient(c *gin.Context) {
 		log.Printf("websocket connect error: %s", c.Param("channel"))
 		return
 	}
-
-	fmt.Printf("%#v\n", conn.CloseHandler())
 
 	go recv(conn)
 }
