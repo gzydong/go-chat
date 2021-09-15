@@ -1,10 +1,12 @@
 package wss
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 	"log"
 	"net/http"
+	"time"
 )
 
 type WsController struct {
@@ -33,12 +35,31 @@ func (w *WsController) WsClient(c *gin.Context) {
 func recv(conn *websocket.Conn) {
 	defer conn.Close()
 
+	// 最后一次发送消息的时间
+	lastTime := time.Now().Unix()
+
+	// 创建一个周期性的定时器,用做心跳检测
+	ticker := time.NewTicker(20 * time.Second)
+	go func(conn *websocket.Conn) {
+		for {
+			<-ticker.C
+
+			if time.Now().Unix()-lastTime > 50 {
+				ticker.Stop()
+				conn.Close()
+				fmt.Println("心跳检测超时，连接自动关闭")
+			}
+		}
+	}(conn)
+
 	for {
 		//读取ws中的数据
 		mt, message, err := conn.ReadMessage()
 		if err != nil {
 			break
 		}
+
+		lastTime = time.Now().Unix()
 
 		if string(message) == "ping" {
 			message = []byte("pong")

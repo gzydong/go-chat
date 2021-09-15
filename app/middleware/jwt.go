@@ -43,6 +43,8 @@ func JwtAuth(guard string) gin.HandlerFunc {
 			return
 		}
 
+		// 黑名单判断
+
 		c.Set("jwt", jwt)
 
 		c.Next()
