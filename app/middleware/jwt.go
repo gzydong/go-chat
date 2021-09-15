@@ -9,7 +9,7 @@ import (
 )
 
 // ApiAuth 授权中间件
-// @params guard 是否检测登录信息
+// guard 授权守卫
 func JwtAuth(guard string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		token := getAuthToken(c)
@@ -24,7 +24,7 @@ func JwtAuth(guard string) gin.HandlerFunc {
 
 		jwt, err := helper.ParseJwtToken(token)
 		if err != nil {
-			fmt.Printf("Token 验证失败: %s\n", err.Error())
+			fmt.Printf("Token 验证失败: %s ，[%s]\n", err.Error(), token)
 			c.Abort()
 			c.JSON(http.StatusUnauthorized, gin.H{
 				"code": 40002,
@@ -44,8 +44,6 @@ func JwtAuth(guard string) gin.HandlerFunc {
 		}
 
 		c.Set("jwt", jwt)
-
-		fmt.Printf("jwt.Guard : %#v , jwt.UserID : %#v\n", jwt.Guard, jwt.UserID)
 
 		c.Next()
 	}
