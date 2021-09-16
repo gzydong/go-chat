@@ -18,11 +18,11 @@ type Login struct {
 
 // Login 登录接口
 func (a *AuthController) Login(c *gin.Context) {
-	var json Login
-	if err := c.ShouldBind(&json); err != nil {
-		c.JSON(http.StatusOK, gin.H{"error": err.Error()})
-		return
-	}
+	//var json Login
+	//if err := c.ShouldBind(&json); err != nil {
+	//	c.JSON(http.StatusOK, gin.H{"error": err.Error()})
+	//	return
+	//}
 
 	username := c.PostForm("username")
 	password := c.PostForm("password")
