@@ -83,12 +83,14 @@ func recv(client *socket.WsClient) {
 
 		if string(message) == "ping" {
 			message = []byte("pong")
-		}
 
-		//写入ws数据
-		err = client.Conn.WriteMessage(mt, message)
-		if err != nil {
-			break
+			//写入ws数据
+			err = client.Conn.WriteMessage(mt, message)
+			if err != nil {
+				break
+			}
+
+			continue
 		}
 	}
 }
