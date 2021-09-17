@@ -42,6 +42,8 @@ func (w *WsController) WsClient(c *gin.Context) {
 	conn.SetCloseHandler(func(code int, text string) error {
 		fmt.Println("客户端已关闭 ：", code, text)
 		socket.Manager.DefaultChannel.RemoveClient(client)
+
+		_ = conn.Close()
 		return nil
 	})
 
@@ -59,7 +61,6 @@ func heartbeat(client *socket.WsClient) {
 
 		if time.Now().Unix()-client.LastTime > 50 {
 			ticker.Stop()
-			client.Conn.Close()
 
 			Handler := client.Conn.CloseHandler()
 			_ = Handler(500, "心跳检测超时，连接自动关闭")
