@@ -2,7 +2,9 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"github.com/gin-gonic/gin"
+	"go-chat/app/extend/socket"
 	"go-chat/router"
 	"io"
 	"log"
@@ -26,6 +28,15 @@ func main() {
 		Addr:    ":8080",
 		Handler: route,
 	}
+
+	ticker := time.NewTicker(3 * time.Second)
+	go func() {
+		for {
+			<-ticker.C
+
+			fmt.Printf("当前客户端连接数 :%v\n", socket.Manager.DefaultChannel.ConnectNum)
+		}
+	}()
 
 	go func() {
 		// 服务连接
