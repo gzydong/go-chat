@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"go-chat/app/extend/socket"
+	"go-chat/app/pakg/socket"
 	"go-chat/router"
 	"io"
 	"log"

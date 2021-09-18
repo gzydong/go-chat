@@ -5,7 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 	uuid "github.com/satori/go.uuid"
-	"go-chat/app/extend/socket"
+	"go-chat/app/pakg/socket"
 	"log"
 	"net/http"
 	"time"
