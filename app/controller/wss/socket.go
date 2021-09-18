@@ -25,7 +25,7 @@ func (w *WsController) WsClient(c *gin.Context) {
 
 	conn, err := upGrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
-		log.Printf("websocket connect error: %s", c.Param("channel"))
+		log.Printf("websocket connect error")
 		return
 	}
 
@@ -35,6 +35,8 @@ func (w *WsController) WsClient(c *gin.Context) {
 		UserId:   c.GetInt("user_id"),
 		LastTime: time.Now().Unix(),
 	}
+
+	fmt.Printf("UserID: %#v, UUID: %s\n", client.UserId, client.Uuid)
 
 	socket.Manager.DefaultChannel.RegisterClient(client)
 
@@ -93,5 +95,12 @@ func recv(client *socket.Client) {
 
 			continue
 		}
+
+		client.SendMessage(&socket.Message{
+			Receiver: []string{client.Uuid},
+			IsAll:    false,
+			Event:    "talk_type",
+			Content:  string(message),
+		})
 	}
 }

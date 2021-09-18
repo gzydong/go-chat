@@ -63,5 +63,9 @@ func getAuthToken(c *gin.Context) string {
 		token = c.DefaultQuery("token", "")
 	}
 
+	if len(token) == 0 {
+		token = c.DefaultPostForm("token", "")
+	}
+
 	return token
 }

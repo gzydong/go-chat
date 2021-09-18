@@ -28,3 +28,9 @@ func init() {
 		// 可注册其它渠道...
 	}
 }
+
+func StartServer() {
+	// 开启一个协程消费通道信息
+	// (注)添加新的业务渠道续手动添加消费协程
+	go Manager.DefaultChannel.ConsumerProcess()
+}
