@@ -1,6 +1,8 @@
 package socket
 
 import (
+	"fmt"
+	"golang.org/x/crypto/bcrypt"
 	"sync"
 )
 
@@ -41,6 +43,11 @@ func init() {
 
 // StartServer 启动协程处理推送信息
 func StartServer() {
+
+	password, _ := bcrypt.GenerateFromPassword([]byte("18798276809"), bcrypt.DefaultCost)
+
+	fmt.Println(string(password))
+
 	// 开启一个协程消费通道信息
 	// (注)添加新的业务渠道续手动添加消费协程
 	go Manager.DefaultChannel.ConsumerProcess()

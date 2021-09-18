@@ -73,7 +73,7 @@ func (c *ChannelManager) ConsumerProcess() {
 		case value, ok := <-c.SendChan:
 			if !ok {
 				fmt.Printf("消费通道[%s]，读取数据失败...", c.Name)
-				return
+				break
 			}
 
 			content, _ := jsoniter.Marshal(value)

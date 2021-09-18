@@ -2,13 +2,11 @@ package helper
 
 import (
 	"github.com/dgrijalva/jwt-go"
+	"go-chat/config"
 	"time"
 )
 
-// Jwt 秘钥
-var secret = []byte("836a9c3fea9bba4e0a4d51bd902fbcc5")
-
-// JWT 相关信息
+// Claims 相关信息
 type Claims struct {
 	Guard  string `json:"guard"`
 	UserID int    `json:"user_id"`
@@ -20,7 +18,7 @@ type Claims struct {
 // @params id 登录用户ID
 func GenerateJwtToken(guard string, id int) (map[string]interface{}, error) {
 	// 过期时间
-	expiredAt := time.Now().Add(12 * time.Hour).Unix()
+	expiredAt := time.Now().Add(time.Second * time.Duration(config.GlobalConfig.Jwt.BufferTime)).Unix()
 
 	claims := Claims{
 		Guard:  guard,
@@ -33,7 +31,7 @@ func GenerateJwtToken(guard string, id int) (map[string]interface{}, error) {
 
 	tokenClaims := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
-	token, err := tokenClaims.SignedString(secret)
+	token, err := tokenClaims.SignedString(config.GlobalConfig.Jwt.Secret)
 	if err != nil {
 		return map[string]interface{}{}, err
 	}
@@ -49,7 +47,7 @@ func ParseJwtToken(token string) (*Claims, error) {
 	cla := &Claims{}
 
 	_, err := jwt.ParseWithClaims(token, cla, func(token *jwt.Token) (interface{}, error) {
-		return secret, nil
+		return config.GlobalConfig.Jwt.Secret, nil
 	})
 
 	return cla, err

@@ -1,0 +1,26 @@
+# 配置信息
+
+# Redis 相关配置
+redis:
+  host: 127.0.0.1
+  port: 6379
+  auth: xxxxx
+  database: 1
+  prefix: go_chat
+
+# Mysql 数据库配置
+mysql:
+  host: 127.0.0.1
+  port: 3306
+  charset: utf8
+  username: root
+  password: xxxx
+  database: go_chat
+  collation: utf8_unicode_ci
+  prefix: im_
+
+# Jwt 配置
+jwt:
+  secret: 836c3fea9bba4e04d51bd0fbcc5
+  expires_time: 3600
+  buffer_time: 3600
