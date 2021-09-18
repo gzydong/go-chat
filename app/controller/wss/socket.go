@@ -29,7 +29,7 @@ func (w *WsController) WsClient(c *gin.Context) {
 		return
 	}
 
-	client := &socket.WsClient{
+	client := &socket.Client{
 		Conn:     conn,
 		Uuid:     uuid.NewV4().String(),
 		UserId:   c.GetInt("user_id"),
@@ -52,7 +52,7 @@ func (w *WsController) WsClient(c *gin.Context) {
 }
 
 // heartbeat 心跳检测
-func heartbeat(client *socket.WsClient) {
+func heartbeat(client *socket.Client) {
 	// 创建一个周期性的定时器,用做心跳检测
 	ticker := time.NewTicker(20 * time.Second)
 
@@ -69,7 +69,7 @@ func heartbeat(client *socket.WsClient) {
 }
 
 // recv 消息接收处理
-func recv(client *socket.WsClient) {
+func recv(client *socket.Client) {
 	defer client.Conn.Close()
 
 	for {

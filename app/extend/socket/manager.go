@@ -1,7 +1,6 @@
 package socket
 
 import (
-	"reflect"
 	"sync"
 )
 
@@ -19,20 +18,13 @@ type ChannelGroup struct {
 func init() {
 	Manager = &ChannelGroup{
 		DefaultChannel: &ChannelManager{
-			ChannelName: "default",
+			Name:        "default",
 			Count:       0,
-			Clients:     make(map[string]*WsClient),
+			Clients:     make(map[string]*Client),
 			Lock:        &sync.Mutex{},
+			ChanMessage: make(chan *Message, 1000),
 		},
 
 		// 可注册其它渠道...
-	}
-}
-
-// StartServer 启动服务
-func StartServer() {
-	el := reflect.ValueOf(Manager).Elem()
-	for i := 0; i < el.NumField(); i++ {
-
 	}
 }
