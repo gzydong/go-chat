@@ -4,3 +4,4 @@
 .DS_Store
 runtime/
 config.yaml
+go-chat

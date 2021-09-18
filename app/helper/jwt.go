@@ -1,6 +1,7 @@
 package helper
 
 import (
+	"fmt"
 	"github.com/dgrijalva/jwt-go"
 	"go-chat/config"
 	"time"
@@ -31,8 +32,9 @@ func GenerateJwtToken(guard string, id int) (map[string]interface{}, error) {
 
 	tokenClaims := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
-	token, err := tokenClaims.SignedString(config.GlobalConfig.Jwt.Secret)
+	token, err := tokenClaims.SignedString([]byte(config.GlobalConfig.Jwt.Secret))
 	if err != nil {
+		fmt.Println("====", err.Error())
 		return map[string]interface{}{}, err
 	}
 
@@ -47,7 +49,7 @@ func ParseJwtToken(token string) (*Claims, error) {
 	cla := &Claims{}
 
 	_, err := jwt.ParseWithClaims(token, cla, func(token *jwt.Token) (interface{}, error) {
-		return config.GlobalConfig.Jwt.Secret, nil
+		return []byte(config.GlobalConfig.Jwt.Secret), nil
 	})
 
 	return cla, err
