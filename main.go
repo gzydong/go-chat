@@ -24,8 +24,6 @@ func main() {
 
 	route := router.InitRouter()
 
-	socket.StartServer()
-
 	srv := &http.Server{
 		Addr:    ":8080",
 		Handler: route,
