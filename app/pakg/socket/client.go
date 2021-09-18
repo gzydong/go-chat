@@ -15,9 +15,3 @@ type Client struct {
 func (w *Client) Close(code int, message string) {
 	w.Conn.Close()
 }
-
-// SendMessage 推送消息到消费通道
-func (w *Client) SendMessage(message *Message) {
-	// 这里需要通过反射获取
-	Manager.DefaultChannel.ChanMessage <- message
-}

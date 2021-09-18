@@ -1,19 +1,20 @@
 package socket
 
 import (
-	"encoding/json"
 	"fmt"
 	"github.com/gorilla/websocket"
+	jsoniter "github.com/json-iterator/go"
 	"sync"
 )
 
 // ChannelManager WebSocket 渠道管理（多渠道划分，实现不同业务之间隔离）
 type ChannelManager struct {
-	Name        string             // 渠道名称
-	Count       int                // 渠道客户端连接数统计
-	Clients     map[string]*Client // 客户端列表
-	ChanMessage chan *Message      // 消息发送通道
-	Lock        *sync.Mutex
+	Name     string             // 渠道名称
+	Count    int                // 客户端连接数
+	Clients  map[string]*Client // 客户端列表
+	RecvChan chan []byte        // 消息接收通道
+	SendChan chan *Message      // 消息发送通道
+	Lock     *sync.Mutex        // 并发互斥锁
 }
 
 // RegisterClient 注册客户端
@@ -29,7 +30,7 @@ func (c *ChannelManager) RegisterClient(client *Client) {
 	c.Count++
 }
 
-// RemoveClient 移出客户端
+// RemoveClient 删除客户端
 func (c *ChannelManager) RemoveClient(client *Client) bool {
 	_, ok := c.Clients[client.Uuid]
 	if !ok {
@@ -46,11 +47,16 @@ func (c *ChannelManager) RemoveClient(client *Client) bool {
 	return true
 }
 
-// GetClient 获取指定客户端
+// GetClient 获取客户端
 func (c *ChannelManager) GetClient(uuid string) (*Client, bool) {
 	client, ok := c.Clients[uuid]
 
 	return client, ok
+}
+
+// SendMessage 推送消息到消费通道
+func (c *ChannelManager) SendMessage(message *Message) {
+	c.SendChan <- message
 }
 
 // ConsumerProcess 渠道消费协程
@@ -59,13 +65,18 @@ func (c *ChannelManager) ConsumerProcess() {
 
 	for {
 		select {
-		case value, ok := <-c.ChanMessage:
+		// 处理接收消息
+		case value, ok := <-c.RecvChan:
+			fmt.Println(value, ok)
+
+		// 处理发送消息
+		case value, ok := <-c.SendChan:
 			if !ok {
 				fmt.Printf("消费通道[%s]，读取数据失败...", c.Name)
 				return
 			}
 
-			content, _ := json.Marshal(value)
+			content, _ := jsoniter.Marshal(value)
 
 			// 判断是否推送所有客户端
 			if value.IsAll {

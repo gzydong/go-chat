@@ -11,20 +11,14 @@ type UserController struct {
 
 // Detail 个人用户信息
 func (u *UserController) Detail(c *gin.Context) {
-
-	uuid := c.DefaultQuery("uuid", "")
 	msg := c.DefaultQuery("message", "")
 
-	client, ok := socket.Manager.DefaultChannel.GetClient(uuid)
-
-	if ok {
-		client.SendMessage(&socket.Message{
-			Receiver: make([]string, 0),
-			IsAll:    true,
-			Event:    "talk_type",
-			Content:  msg,
-		})
-	}
+	socket.Manager.DefaultChannel.SendMessage(&socket.Message{
+		Receiver: make([]string, 0),
+		IsAll:    true,
+		Event:    "talk_type",
+		Content:  msg,
+	})
 
 	c.JSON(http.StatusOK, gin.H{
 		"code": 10000,

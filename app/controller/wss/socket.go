@@ -14,8 +14,8 @@ import (
 type WsController struct {
 }
 
-// WsClient 连接客户端
-func (w *WsController) WsClient(c *gin.Context) {
+// SocketIo 连接客户端
+func (w *WsController) SocketIo(c *gin.Context) {
 	upGrader := websocket.Upgrader{
 		CheckOrigin: func(r *http.Request) bool {
 			return true
@@ -96,7 +96,7 @@ func recv(client *socket.Client) {
 			continue
 		}
 
-		client.SendMessage(&socket.Message{
+		socket.Manager.DefaultChannel.SendMessage(&socket.Message{
 			Receiver: []string{client.Uuid},
 			IsAll:    false,
 			Event:    "talk_type",

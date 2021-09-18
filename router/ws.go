@@ -14,5 +14,5 @@ type WsControllerGroup struct {
 func RegisterWsRoute(router *gin.Engine) {
 	ControllerGroup := &WsControllerGroup{}
 
-	router.GET("/ws/socket.io", middleware.JwtAuth("api"), ControllerGroup.WsController.WsClient)
+	router.GET("/ws/socket.io", middleware.JwtAuth("api"), ControllerGroup.WsController.SocketIo)
 }
