@@ -24,6 +24,8 @@ func main() {
 
 	route := router.InitRouter()
 
+	socket.StartServer()
+
 	srv := &http.Server{
 		Addr:    ":8080",
 		Handler: route,
@@ -34,7 +36,7 @@ func main() {
 		for {
 			<-ticker.C
 
-			fmt.Printf("当前客户端连接数 :%v\n", socket.Manager.DefaultChannel.ConnectNum)
+			fmt.Printf("当前客户端连接数 :%v\n", socket.Manager.DefaultChannel.Count)
 		}
 	}()
 

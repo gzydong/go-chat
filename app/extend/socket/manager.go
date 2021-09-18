@@ -1,32 +1,38 @@
 package socket
 
 import (
-	"github.com/gorilla/websocket"
+	"reflect"
 	"sync"
 )
 
-// WsClient WebSocket 客户端连接信息
-type WsClient struct {
-	Conn     *websocket.Conn // 客户端连接
-	Uuid     string          // 客户端唯一标识
-	UserId   int             // 用户ID
-	LastTime int64           // 客户端最后心跳时间
-}
+// 客户端管理实例
+var Manager *ChannelGroup
 
 // 渠道客户端
-type ChannelClient struct {
-	DefaultChannel *ChannelManager
+type ChannelGroup struct {
+	DefaultChannel *ChannelManager // 默认分组
+
+	// 可注册其它渠道...
 }
 
-var Manager *ChannelClient
-
+// 初始化注册分组
 func init() {
-	Manager = &ChannelClient{
+	Manager = &ChannelGroup{
 		DefaultChannel: &ChannelManager{
 			ChannelName: "default",
-			ConnectNum:  0,
+			Count:       0,
 			Clients:     make(map[string]*WsClient),
 			Lock:        &sync.Mutex{},
 		},
+
+		// 可注册其它渠道...
+	}
+}
+
+// StartServer 启动服务
+func StartServer() {
+	el := reflect.ValueOf(Manager).Elem()
+	for i := 0; i < el.NumField(); i++ {
+
 	}
 }

@@ -36,7 +36,7 @@ func (w *WsController) WsClient(c *gin.Context) {
 		LastTime: time.Now().Unix(),
 	}
 
-	socket.Manager.DefaultChannel.PushClient(client)
+	socket.Manager.DefaultChannel.RegisterClient(client)
 
 	// 设置客户端主动断开连接触发事件
 	conn.SetCloseHandler(func(code int, text string) error {
