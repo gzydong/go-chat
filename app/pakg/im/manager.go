@@ -26,14 +26,14 @@ func init() {
 			RecvChan: make(chan []byte, 1000),
 			SendChan: make(chan *Message, 1000),
 		},
-		//AdminChannel: &ChannelManager{
-		//	Name:     "admin",
-		//	Count:    0,
-		//	Clients:  make(map[string]*Client),
-		//	Lock:     &sync.Mutex{},
-		//	RecvChan: make(chan []byte, 0),
-		//	SendChan: make(chan *Message, 0),
-		//},
+		AdminChannel: &ChannelManager{
+			Name:     "admin",
+			Count:    0,
+			Clients:  make(map[string]*Client),
+			Lock:     &sync.Mutex{},
+			RecvChan: make(chan []byte, 0),
+			SendChan: make(chan *Message, 0),
+		},
 
 		// 可注册其它渠道...
 	}

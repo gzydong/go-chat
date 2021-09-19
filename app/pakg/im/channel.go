@@ -32,6 +32,9 @@ func (c *ChannelManager) RegisterClient(client *Client) {
 
 // RemoveClient 删除客户端
 func (c *ChannelManager) RemoveClient(client *Client) bool {
+
+	fmt.Println("====")
+
 	_, ok := c.Clients[client.Uuid]
 	if !ok {
 		return false
