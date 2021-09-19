@@ -1,7 +1,6 @@
 package helper
 
 import (
-	"fmt"
 	"github.com/dgrijalva/jwt-go"
 	"go-chat/config"
 	"time"
@@ -19,7 +18,7 @@ type Claims struct {
 // @params id 登录用户ID
 func GenerateJwtToken(guard string, id int) (map[string]interface{}, error) {
 	// 过期时间
-	expiredAt := time.Now().Add(time.Second * time.Duration(config.GlobalConfig.Jwt.BufferTime)).Unix()
+	expiredAt := time.Now().Add(time.Second * time.Duration(config.GlobalConfig.Jwt.ExpiresTime)).Unix()
 
 	claims := Claims{
 		Guard:  guard,
@@ -34,7 +33,6 @@ func GenerateJwtToken(guard string, id int) (map[string]interface{}, error) {
 
 	token, err := tokenClaims.SignedString([]byte(config.GlobalConfig.Jwt.Secret))
 	if err != nil {
-		fmt.Println("====", err.Error())
 		return map[string]interface{}{}, err
 	}
 

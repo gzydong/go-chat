@@ -1,7 +1,9 @@
 package im
 
 import (
+	"fmt"
 	"sync"
+	"time"
 )
 
 // 客户端管理实例
@@ -46,5 +48,14 @@ func StartServer() {
 	go Manager.DefaultChannel.ConsumerProcess()
 
 	// 暂时用不到预留
-	//go Manager.AdminChannel.ConsumerProcess()
+	go Manager.AdminChannel.ConsumerProcess()
+
+	// 调试信息
+	go func() {
+		for {
+			time.Sleep(time.Second * 2)
+			fmt.Printf("【%s】当前在线人数 : %d 人\n", Manager.DefaultChannel.Name, Manager.DefaultChannel.Count)
+			fmt.Printf("【%s】当前在线人数 : %d 人\n", Manager.AdminChannel.Name, Manager.AdminChannel.Count)
+		}
+	}()
 }

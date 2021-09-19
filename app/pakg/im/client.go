@@ -3,6 +3,7 @@ package im
 import (
 	"github.com/gorilla/websocket"
 	uuid "github.com/satori/go.uuid"
+	"reflect"
 	"time"
 )
 
@@ -94,18 +95,17 @@ func (w *Client) SetCloseHandler(fn func(code int, text string) error) {
 	w.Conn.SetCloseHandler(func(code int, text string) error {
 		_ = fn(code, text)
 
-		//el := reflect.ValueOf(Manager).Elem()
-		//for i := 0; i < el.NumField(); i++ {
-		//	if w.Channel == el.Field(i).Elem().FieldByName("Name").String() {
-		//
-		//		params := make([]reflect.Value, 1)
-		//		params[0] = reflect.ValueOf(w)
-		//
-		//		el.Field(i).Elem().MethodByName("RemoveClient").Call(params)
-		//
-		//		break
-		//	}
-		//}
+		el := reflect.ValueOf(Manager).Elem()
+		for i := 0; i < el.NumField(); i++ {
+			if w.Channel == el.Field(i).Elem().FieldByName("Name").String() {
+				params := make([]reflect.Value, 1)
+				params[0] = reflect.ValueOf(w)
+
+				el.Field(i).MethodByName("RemoveClient").Call(params)
+
+				break
+			}
+		}
 
 		return nil
 	})
