@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 	"github.com/gin-gonic/gin"
-	"go-chat/app/pakg/socket"
+	"go-chat/app/pakg/im"
 	"go-chat/router"
 	"io"
 	"log"
@@ -24,7 +24,7 @@ func main() {
 	route := router.InitRouter()
 
 	// 启动消费协程
-	socket.StartServer()
+	im.StartServer()
 
 	srv := &http.Server{
 		Addr:    ":8080",

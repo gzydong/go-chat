@@ -4,8 +4,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
-	uuid "github.com/satori/go.uuid"
-	"go-chat/app/pakg/socket"
+	"go-chat/app/pakg/im"
 	"log"
 	"net/http"
 	"time"
@@ -29,49 +28,33 @@ func (w *WsController) SocketIo(c *gin.Context) {
 		return
 	}
 
-	client := &socket.Client{
-		Conn:     conn,
-		Uuid:     uuid.NewV4().String(),
-		UserId:   c.GetInt("user_id"),
-		LastTime: time.Now().Unix(),
-	}
+	client := im.NewImClient(conn, c.GetInt("user_id"))
 
 	fmt.Printf("UserID: %#v, UUID: %s\n", client.UserId, client.Uuid)
-
-	socket.Manager.DefaultChannel.RegisterClient(client)
 
 	// 设置客户端主动断开连接触发事件
 	conn.SetCloseHandler(func(code int, text string) error {
 		fmt.Println("客户端已关闭 ：", code, text)
-		socket.Manager.DefaultChannel.RemoveClient(client)
+		im.Manager.DefaultChannel.RemoveClient(client)
 
 		_ = conn.Close()
 		return nil
 	})
 
-	go heartbeat(client)
+	im.Manager.DefaultChannel.RegisterClient(client)
+
+	// 启动客户端心跳检测
+	go client.Heartbeat(func(t *im.Client) bool {
+		fmt.Printf("客户端心跳检测超时[%s]\n", t.Uuid)
+
+		return true
+	})
+
 	go recv(client)
 }
 
-// heartbeat 心跳检测
-func heartbeat(client *socket.Client) {
-	// 创建一个周期性的定时器,用做心跳检测
-	ticker := time.NewTicker(20 * time.Second)
-
-	for {
-		<-ticker.C
-
-		if time.Now().Unix()-client.LastTime > 50 {
-			ticker.Stop()
-
-			Handler := client.Conn.CloseHandler()
-			_ = Handler(500, "心跳检测超时，连接自动关闭")
-		}
-	}
-}
-
 // recv 消息接收处理
-func recv(client *socket.Client) {
+func recv(client *im.Client) {
 	defer client.Conn.Close()
 
 	for {
@@ -96,7 +79,7 @@ func recv(client *socket.Client) {
 			continue
 		}
 
-		socket.Manager.DefaultChannel.SendMessage(&socket.Message{
+		im.Manager.DefaultChannel.SendMessage(&im.Message{
 			Receiver: []string{client.Uuid},
 			IsAll:    false,
 			Event:    "talk_type",

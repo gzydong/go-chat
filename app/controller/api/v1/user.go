@@ -2,7 +2,7 @@ package v1
 
 import (
 	"github.com/gin-gonic/gin"
-	"go-chat/app/pakg/socket"
+	"go-chat/app/pakg/im"
 	"net/http"
 )
 
@@ -13,7 +13,7 @@ type UserController struct {
 func (u *UserController) Detail(c *gin.Context) {
 	msg := c.DefaultQuery("message", "")
 
-	socket.Manager.DefaultChannel.SendMessage(&socket.Message{
+	im.Manager.DefaultChannel.SendMessage(&im.Message{
 		Receiver: make([]string, 0),
 		IsAll:    true,
 		Event:    "talk_type",
