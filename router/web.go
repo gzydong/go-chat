@@ -12,7 +12,7 @@ type WebControllerGroup struct {
 
 // RegisterWebRoute 注册 Web 路由
 func RegisterWebRoute(router *gin.Engine) {
-	ControllerGroup := &WebControllerGroup{}
+	ControllerGroup := new(WebControllerGroup)
 
 	router.GET("/", ControllerGroup.IndexController.Index)
 }

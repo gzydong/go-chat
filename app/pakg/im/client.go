@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/gorilla/websocket"
 	uuid "github.com/satori/go.uuid"
+	"go-chat/app/service"
 	"time"
 )
 
@@ -24,17 +25,18 @@ type Client struct {
 type CloseFunc func(c *Client) bool
 
 // NewImClient ...
-func NewImClient(conn *websocket.Conn, userId int, Channel *ChannelManager) *Client {
+func NewImClient(conn *websocket.Conn, userId int, channel *ChannelManager) *Client {
 	client := &Client{
 		Conn:     conn,
 		Uuid:     uuid.NewV4().String(),
 		UserId:   userId,
 		LastTime: time.Now().Unix(),
-		Channel:  Channel,
+		Channel:  channel,
 	}
 
-	Channel.RegisterClient(client)
+	channel.RegisterClient(client)
 
+	service.NewClientService().Bind(channel.Name, client.Uuid, client.UserId)
 	return client
 }
 
@@ -101,6 +103,8 @@ func (w *Client) SetCloseHandler(fn func(code int, text string) error) {
 		_ = fn(code, text)
 
 		w.Channel.RemoveClient(w)
+
+		service.NewClientService().UnBind(w.Channel.Name, w.Uuid)
 		return nil
 	})
 }

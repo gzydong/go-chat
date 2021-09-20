@@ -17,7 +17,7 @@ type ApiControllerGroup struct {
 
 // RegisterApiRoute 注册 API 路由
 func RegisterApiRoute(router *gin.Engine) {
-	ControllerGroup := &ApiControllerGroup{}
+	ControllerGroup := new(ApiControllerGroup)
 
 	group := router.Group("/api/v1")
 	{
