@@ -88,6 +88,8 @@ func (w *Client) AcceptClient() {
 
 			continue
 		}
+
+		w.Channel.RecvChan <- message
 	}
 }
 

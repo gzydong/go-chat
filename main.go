@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"github.com/gin-gonic/gin"
+	"go-chat/app/cache"
 	"go-chat/app/pakg/im"
 	"go-chat/router"
 	"io"
@@ -52,6 +53,8 @@ func main() {
 	if err := srv.Shutdown(ctx); err != nil {
 		log.Fatal("Server Shutdown Error:", err)
 	}
+
+	cache.CloseRedis()
 
 	log.Println("Server Shutdown")
 }

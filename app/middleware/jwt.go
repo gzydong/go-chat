@@ -1,7 +1,6 @@
 package middleware
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"go-chat/app/helper"
 	"net/http"
@@ -24,8 +23,6 @@ func JwtAuth(guard string) gin.HandlerFunc {
 
 		jwt, err := helper.ParseJwtToken(token)
 		if err != nil {
-			fmt.Printf("Token 验证失败: %s ，[%s]\n", err.Error(), token)
-			c.Abort()
 			c.JSON(http.StatusUnauthorized, gin.H{
 				"code": 40002,
 				"msg":  "Token 信息验证失败!",

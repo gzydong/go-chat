@@ -1,7 +1,6 @@
 package wss
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"go-chat/app/pakg/im"
 	"log"
@@ -53,7 +52,6 @@ func (w *WsController) AdminIo(c *gin.Context) {
 
 	// 启动客户端心跳检测
 	go client.Heartbeat(func(t *im.Client) bool {
-		fmt.Printf("客户端心跳检测超时[%s]\n", t.Uuid)
 		return true
 	})
 

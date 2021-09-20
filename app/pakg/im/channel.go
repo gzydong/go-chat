@@ -40,7 +40,6 @@ func (c *ChannelManager) RemoveClient(client *Client) bool {
 	delete(c.Clients, client.Uuid)
 
 	c.Count--
-
 	return true
 }
 
@@ -58,13 +57,22 @@ func (c *ChannelManager) SendMessage(message *Message) {
 
 // ConsumerProcess 渠道消费协程
 func (c *ChannelManager) ConsumerProcess() {
-	fmt.Println("消费协程已启动: ", c.Name)
+	fmt.Printf("[%s] 消费协程已启动\n", c.Name)
 
 	for {
 		select {
 		// 处理接收消息
 		case value, ok := <-c.RecvChan:
-			fmt.Println(value, ok)
+			if ok {
+				msg := &Message{
+					Receiver: make([]string, 0),
+					IsAll:    true,
+					Event:    "talk",
+					Content:  string(value),
+				}
+
+				c.SendMessage(msg)
+			}
 
 		// 处理发送消息
 		case value, ok := <-c.SendChan:
@@ -89,6 +97,9 @@ func (c *ChannelManager) ConsumerProcess() {
 				}
 			}
 			break
+
+		default:
+
 		}
 	}
 }
