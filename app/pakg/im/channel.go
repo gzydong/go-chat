@@ -22,9 +22,6 @@ func (c *ChannelManager) RegisterClient(client *Client) {
 	c.Lock.Lock()
 	defer c.Lock.Unlock()
 
-	// 设置渠道名称
-	client.Channel = c.Name
-
 	c.Clients[client.Uuid] = client
 
 	c.Count++

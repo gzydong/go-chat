@@ -53,7 +53,7 @@ func StartServer() {
 	// 调试信息
 	go func() {
 		for {
-			time.Sleep(time.Second * 2)
+			time.Sleep(time.Second * 5)
 			fmt.Printf("【%s】当前在线人数 : %d 人\n", Manager.DefaultChannel.Name, Manager.DefaultChannel.Count)
 			fmt.Printf("【%s】当前在线人数 : %d 人\n", Manager.AdminChannel.Name, Manager.AdminChannel.Count)
 		}

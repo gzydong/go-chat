@@ -1,9 +1,9 @@
 package im
 
 import (
+	"fmt"
 	"github.com/gorilla/websocket"
 	uuid "github.com/satori/go.uuid"
-	"reflect"
 	"time"
 )
 
@@ -18,7 +18,7 @@ type Client struct {
 	Uuid     string          // 客户端唯一标识
 	UserId   int             // 用户ID
 	LastTime int64           // 客户端最后心跳时间/心跳检测
-	Channel  string          // 渠道分组
+	Channel  *ChannelManager // 渠道分组
 }
 
 type CloseFunc func(c *Client) bool
@@ -30,7 +30,7 @@ func NewImClient(conn *websocket.Conn, userId int, Channel *ChannelManager) *Cli
 		Uuid:     uuid.NewV4().String(),
 		UserId:   userId,
 		LastTime: time.Now().Unix(),
-		Channel:  Channel.Name,
+		Channel:  Channel,
 	}
 
 	Channel.RegisterClient(client)
@@ -56,13 +56,14 @@ func (w *Client) Heartbeat(fn CloseFunc) {
 		if time.Now().Unix()-w.LastTime > int64(heartbeatIdleTime) {
 			isOk := fn(w)
 			if isOk {
-				w.Close(500, "心跳检测超时，连接自动关闭")
+				w.Close(2000, "心跳检测超时，连接自动关闭")
 				break
 			}
 		}
 	}
 }
 
+// AcceptClient 接收客户端推送信息
 func (w *Client) AcceptClient() {
 	defer w.Conn.Close()
 
@@ -93,20 +94,11 @@ func (w *Client) AcceptClient() {
 // SetCloseHandler 设置客户端关闭回调处理事件
 func (w *Client) SetCloseHandler(fn func(code int, text string) error) {
 	w.Conn.SetCloseHandler(func(code int, text string) error {
+		fmt.Printf("【%s】客户端关闭 %s | 关闭原因：(%d) %s \n", w.Channel.Name, w.Uuid, code, text)
+
 		_ = fn(code, text)
 
-		el := reflect.ValueOf(Manager).Elem()
-		for i := 0; i < el.NumField(); i++ {
-			if w.Channel == el.Field(i).Elem().FieldByName("Name").String() {
-				params := make([]reflect.Value, 1)
-				params[0] = reflect.ValueOf(w)
-
-				el.Field(i).MethodByName("RemoveClient").Call(params)
-
-				break
-			}
-		}
-
+		w.Channel.RemoveClient(w)
 		return nil
 	})
 }

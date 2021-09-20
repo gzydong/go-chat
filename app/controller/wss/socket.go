@@ -23,15 +23,11 @@ func (w *WsController) SocketIo(c *gin.Context) {
 
 	// 设置客户端主动断开连接触发事件
 	client.SetCloseHandler(func(code int, text string) error {
-
-		fmt.Println("客户端已关闭 ：", code, text)
-
 		return nil
 	})
 
 	// 启动客户端心跳检测
 	go client.Heartbeat(func(t *im.Client) bool {
-		fmt.Printf("客户端心跳检测超时[%s]\n", t.Uuid)
 		return true
 	})
 
@@ -52,9 +48,6 @@ func (w *WsController) AdminIo(c *gin.Context) {
 
 	// 设置客户端主动断开连接触发事件
 	client.SetCloseHandler(func(code int, text string) error {
-
-		fmt.Println("客户端已关闭 ：", code, text)
-
 		return nil
 	})
 
