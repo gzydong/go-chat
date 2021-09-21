@@ -5,6 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"go-chat/app/cache"
 	"go-chat/app/pakg/im"
+	"go-chat/config"
 	"go-chat/router"
 	"io"
 	"log"
@@ -37,6 +38,12 @@ func main() {
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Fatalf("listen: %s\n", err)
 		}
+	}()
+
+	// 需要修改
+	go func() {
+		cache.NewServerRun().SetServerRunId(config.GetServerRunId(), time.Now().Unix())
+		time.Sleep(15 * time.Second)
 	}()
 
 	// 等待中断信号以优雅地关闭服务器（设置 5 秒的超时时间）

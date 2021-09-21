@@ -14,8 +14,8 @@ type Claims struct {
 }
 
 // GenerateJwtToken 创建 Jwt Token 的函数
-// @params guard 登录守卫,可区分不同的登录token
-// @params id 登录用户ID
+// guard 登录守卫,可区分不同的登录token
+// id 登录用户ID
 func GenerateJwtToken(guard string, id int) (map[string]interface{}, error) {
 	// 过期时间
 	expiredAt := time.Now().Add(time.Second * time.Duration(config.GlobalConfig.Jwt.ExpiresTime)).Unix()

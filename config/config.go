@@ -32,8 +32,6 @@ func init() {
 	GlobalConfig.Server.RunID = uuid.NewV4().String()
 
 	//fmt.Printf("config %#v\n", GlobalConfig)
-
-	fmt.Println("ServerID:", GetServerRunId())
 }
 
 // GetServerRunId 获取当前服务运行ID(服务重启后会改变)
