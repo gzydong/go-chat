@@ -65,10 +65,10 @@ func (c *ChannelManager) ConsumerProcess() {
 		case value, ok := <-c.RecvChan:
 			if ok {
 				msg := &Message{
-					Receiver: make([]string, 0),
-					IsAll:    true,
-					Event:    "talk",
-					Content:  string(value),
+					Clients: make([]string, 0),
+					IsAll:   true,
+					Event:   "talk",
+					Content: string(value),
 				}
 
 				c.SendMessage(msg)
@@ -89,7 +89,7 @@ func (c *ChannelManager) ConsumerProcess() {
 					_ = client.Conn.WriteMessage(websocket.TextMessage, content)
 				}
 			} else {
-				for _, uuid := range value.Receiver {
+				for _, uuid := range value.Clients {
 					client, ok := c.Clients[uuid]
 					if ok {
 						_ = client.Conn.WriteMessage(websocket.TextMessage, content)

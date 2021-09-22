@@ -14,10 +14,10 @@ func (u *UserController) Detail(c *gin.Context) {
 	msg := c.DefaultQuery("message", "")
 
 	im.Manager.DefaultChannel.SendMessage(&im.Message{
-		Receiver: make([]string, 0),
-		IsAll:    true,
-		Event:    "talk_type",
-		Content:  msg,
+		Clients: make([]string, 0),
+		IsAll:   true,
+		Event:   "talk_type",
+		Content: msg,
 	})
 
 	c.JSON(http.StatusOK, gin.H{

@@ -21,14 +21,12 @@ func (w *WsController) SocketIo(c *gin.Context) {
 	client := im.NewImClient(conn, c.GetInt("user_id"), im.Manager.DefaultChannel)
 
 	// 设置客户端主动断开连接触发事件
-	client.SetCloseHandler(func(code int, text string) error {
-		return nil
+	client.SetCloseHandler(func(code int, text string) {
+
 	})
 
 	// 启动客户端心跳检测
-	go client.Heartbeat(func(t *im.Client) bool {
-		return true
-	})
+	go client.Heartbeat()
 
 	// 创建协程处理接收信息
 	go client.AcceptClient()
@@ -46,14 +44,12 @@ func (w *WsController) AdminIo(c *gin.Context) {
 	client := im.NewImClient(conn, c.GetInt("user_id"), im.Manager.AdminChannel)
 
 	// 设置客户端主动断开连接触发事件
-	client.SetCloseHandler(func(code int, text string) error {
-		return nil
+	client.SetCloseHandler(func(code int, text string) {
+
 	})
 
 	// 启动客户端心跳检测
-	go client.Heartbeat(func(t *im.Client) bool {
-		return true
-	})
+	go client.Heartbeat()
 
 	// 创建协程处理接收信息
 	go client.AcceptClient()

@@ -40,11 +40,7 @@ func main() {
 		}
 	}()
 
-	// 需要修改
-	go func() {
-		cache.NewServerRun().SetServerRunId(config.GetServerRunId(), time.Now().Unix())
-		time.Sleep(15 * time.Second)
-	}()
+	go setServerRunId()
 
 	// 等待中断信号以优雅地关闭服务器（设置 5 秒的超时时间）
 	quit := make(chan os.Signal)
@@ -64,4 +60,11 @@ func main() {
 	cache.CloseRedis()
 
 	log.Println("Server Shutdown")
+}
+
+func setServerRunId() {
+	for {
+		cache.NewServerRun().SetServerRunId(config.GetServerRunId(), time.Now().Unix())
+		time.Sleep(15 * time.Second)
+	}
 }

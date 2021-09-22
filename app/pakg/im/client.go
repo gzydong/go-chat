@@ -22,8 +22,6 @@ type Client struct {
 	Channel  *ChannelManager // 渠道分组
 }
 
-type CloseFunc func(c *Client) bool
-
 // NewImClient ...
 func NewImClient(conn *websocket.Conn, userId int, channel *ChannelManager) *Client {
 	client := &Client{
@@ -37,6 +35,7 @@ func NewImClient(conn *websocket.Conn, userId int, channel *ChannelManager) *Cli
 	channel.RegisterClient(client)
 
 	service.NewClientService().Bind(channel.Name, client.Uuid, client.UserId)
+
 	return client
 }
 
@@ -51,16 +50,13 @@ func (w *Client) Close(code int, message string) {
 }
 
 // Heartbeat 心跳检测
-func (w *Client) Heartbeat(fn CloseFunc) {
+func (w *Client) Heartbeat() {
 	for {
 		time.Sleep(time.Duration(heartbeatCheckInterval) * time.Second)
 
 		if time.Now().Unix()-w.LastTime > int64(heartbeatIdleTime) {
-			isOk := fn(w)
-			if isOk {
-				w.Close(2000, "心跳检测超时，连接自动关闭")
-				break
-			}
+			w.Close(2000, "心跳检测超时，连接自动关闭")
+			break
 		}
 	}
 }
@@ -96,15 +92,16 @@ func (w *Client) AcceptClient() {
 }
 
 // SetCloseHandler 设置客户端关闭回调处理事件
-func (w *Client) SetCloseHandler(fn func(code int, text string) error) {
+func (w *Client) SetCloseHandler(fn func(code int, text string)) {
 	w.Conn.SetCloseHandler(func(code int, text string) error {
 		fmt.Printf("【%s】客户端关闭 %s | 关闭原因：(%d) %s \n", w.Channel.Name, w.Uuid, code, text)
 
-		_ = fn(code, text)
+		fn(code, text)
 
 		w.Channel.RemoveClient(w)
 
 		service.NewClientService().UnBind(w.Channel.Name, w.Uuid)
+
 		return nil
 	})
 }

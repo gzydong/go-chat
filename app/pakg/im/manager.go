@@ -25,8 +25,8 @@ func init() {
 			Count:    0,
 			Clients:  make(map[string]*Client),
 			Lock:     &sync.Mutex{},
-			RecvChan: make(chan []byte, 1000),
-			SendChan: make(chan *Message, 1000),
+			RecvChan: make(chan []byte, 10000),
+			SendChan: make(chan *Message, 10000),
 		},
 		AdminChannel: &ChannelManager{
 			Name:     "admin",
