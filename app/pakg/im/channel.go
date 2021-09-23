@@ -7,14 +7,21 @@ import (
 	"sync"
 )
 
+type WebsocketInterface interface {
+	Open(client *Client)
+	Message(message *RecvMessage)
+	Close(client *Client, code int, text string)
+}
+
 // ChannelManager WebSocket 渠道管理（多渠道划分，实现不同业务之间隔离）
 type ChannelManager struct {
 	Name     string             // 渠道名称
 	Count    int                // 客户端连接数
 	Clients  map[string]*Client // 客户端列表
-	RecvChan chan []byte        // 消息接收通道
-	SendChan chan *Message      // 消息发送通道
-	Lock     *sync.Mutex        // 并发互斥锁
+	RecvChan chan *RecvMessage  // 消息接收通道
+	SendChan chan *SendMessage  // 消息发送通道
+	Lock     *sync.Mutex        // 互斥锁
+	Handle   WebsocketInterface
 }
 
 // RegisterClient 注册客户端
@@ -51,12 +58,18 @@ func (c *ChannelManager) GetClient(uuid string) (*Client, bool) {
 }
 
 // SendMessage 推送消息到消费通道
-func (c *ChannelManager) SendMessage(message *Message) {
+func (c *ChannelManager) SendMessage(message *SendMessage) {
 	c.SendChan <- message
 }
 
-// ConsumerProcess 渠道消费协程
-func (c *ChannelManager) ConsumerProcess() {
+func (c *ChannelManager) SetCallbackHandler(handle WebsocketInterface) *ChannelManager {
+	c.Handle = handle
+
+	return c
+}
+
+// Handle 渠道消费协程
+func (c *ChannelManager) Process() {
 	fmt.Printf("[%s] 消费协程已启动\n", c.Name)
 
 	for {
@@ -64,14 +77,7 @@ func (c *ChannelManager) ConsumerProcess() {
 		// 处理接收消息
 		case value, ok := <-c.RecvChan:
 			if ok {
-				msg := &Message{
-					Clients: make([]string, 0),
-					IsAll:   true,
-					Event:   "talk",
-					Content: string(value),
-				}
-
-				c.SendMessage(msg)
+				c.Handle.Message(value)
 			}
 
 		// 处理发送消息

@@ -2,9 +2,11 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"go-chat/app/cache"
 	"go-chat/app/pakg/im"
+	"go-chat/app/wssocket"
 	"go-chat/config"
 	"go-chat/router"
 	"io"
@@ -25,22 +27,20 @@ func main() {
 
 	route := router.InitRouter()
 
-	// 启动消费协程
-	im.StartServer()
-
 	srv := &http.Server{
 		Addr:    ":8080",
 		Handler: route,
 	}
 
 	go func() {
-		// 服务连接
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Fatalf("listen: %s\n", err)
 		}
 	}()
 
-	go setServerRunId()
+	go SetServerRunId()
+	go StartImServer()
+	go OnlineCount()
 
 	// 等待中断信号以优雅地关闭服务器（设置 5 秒的超时时间）
 	quit := make(chan os.Signal)
@@ -52,19 +52,33 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 
 	defer cancel()
+	defer cache.CloseRedis()
 
 	if err := srv.Shutdown(ctx); err != nil {
 		log.Fatal("Server Shutdown Error:", err)
 	}
 
-	cache.CloseRedis()
-
 	log.Println("Server Shutdown")
 }
 
-func setServerRunId() {
+func SetServerRunId() {
 	for {
 		cache.NewServerRun().SetServerRunId(config.GetServerRunId(), time.Now().Unix())
-		time.Sleep(15 * time.Second)
+		time.Sleep(10 * time.Second)
 	}
+}
+
+func StartImServer() {
+	go im.Manager.DefaultChannel.SetCallbackHandler(wssocket.NewDefaultChannelHandle()).Process()
+}
+
+func OnlineCount() {
+	// 调试信息
+	go func() {
+		for {
+			time.Sleep(time.Second * 5)
+			fmt.Printf("【%s】当前在线人数 : %d 人\n", im.Manager.DefaultChannel.Name, im.Manager.DefaultChannel.Count)
+			fmt.Printf("【%s】当前在线人数 : %d 人\n", im.Manager.AdminChannel.Name, im.Manager.AdminChannel.Count)
+		}
+	}()
 }

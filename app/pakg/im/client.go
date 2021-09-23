@@ -32,9 +32,23 @@ func NewImClient(conn *websocket.Conn, userId int, channel *ChannelManager) *Cli
 		Channel:  channel,
 	}
 
+	conn.SetCloseHandler(func(code int, text string) error {
+		fmt.Printf("【%s】客户端关闭 %s | 关闭原因：(%d) %s \n", client.Channel.Name, client.Uuid, code, text)
+
+		channel.Handle.Close(client, code, text)
+
+		client.Channel.RemoveClient(client)
+
+		service.NewClientService().UnBind(client.Channel.Name, client.Uuid)
+
+		return nil
+	})
+
 	channel.RegisterClient(client)
 
 	service.NewClientService().Bind(channel.Name, client.Uuid, client.UserId)
+
+	channel.Handle.Open(client)
 
 	return client
 }
@@ -87,21 +101,9 @@ func (w *Client) AcceptClient() {
 			continue
 		}
 
-		w.Channel.RecvChan <- message
+		w.Channel.RecvChan <- &RecvMessage{
+			Client:  w,
+			Content: string(message),
+		}
 	}
-}
-
-// SetCloseHandler 设置客户端关闭回调处理事件
-func (w *Client) SetCloseHandler(fn func(code int, text string)) {
-	w.Conn.SetCloseHandler(func(code int, text string) error {
-		fmt.Printf("【%s】客户端关闭 %s | 关闭原因：(%d) %s \n", w.Channel.Name, w.Uuid, code, text)
-
-		fn(code, text)
-
-		w.Channel.RemoveClient(w)
-
-		service.NewClientService().UnBind(w.Channel.Name, w.Uuid)
-
-		return nil
-	})
 }

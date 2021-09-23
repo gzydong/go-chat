@@ -13,7 +13,7 @@ type UserController struct {
 func (u *UserController) Detail(c *gin.Context) {
 	msg := c.DefaultQuery("message", "")
 
-	im.Manager.DefaultChannel.SendMessage(&im.Message{
+	im.Manager.DefaultChannel.SendMessage(&im.SendMessage{
 		Clients: make([]string, 0),
 		IsAll:   true,
 		Event:   "talk_type",
