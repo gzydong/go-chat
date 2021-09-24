@@ -25,7 +25,7 @@ func main() {
 		gin.DefaultWriter = io.MultiWriter(f)
 	}
 
-	route := router.InitRouter()
+	route := router.NewRouter()
 
 	srv := &http.Server{
 		Addr:    ":8080",

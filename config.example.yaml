@@ -24,3 +24,11 @@ jwt:
   secret: 836c3fea9bba4e04d51bd0fbcc5
   expires_time: 3600
   buffer_time: 3600
+
+# 跨域配置
+cors:
+  origin: "*"
+  headers: "Content-Type,Cache-Control,User-Agent,Keep-Alive,DNT,AccessToken,Authorization"
+  methods: "OPTIONS,GET,POST,PUT,DELETE"
+  credentials: false
+  max_age: 600

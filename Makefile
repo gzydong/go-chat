@@ -2,6 +2,7 @@
 conf:
 	cp config.example.yaml config.yaml
 
+.PHONY: run
 run:
 	go run .
 

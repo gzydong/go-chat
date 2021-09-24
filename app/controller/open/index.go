@@ -1,4 +1,4 @@
-package web
+package open
 
 import (
 	"github.com/gin-gonic/gin"
