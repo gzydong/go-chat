@@ -15,4 +15,5 @@ func RegisterWsRoute(router *gin.Engine) {
 	ControllerGroup := new(WsControllerGroup)
 
 	router.GET("/ws/socket.io", middleware.JwtAuth("api"), ControllerGroup.WsController.SocketIo)
+	router.GET("/ws/admin.io", middleware.JwtAuth("api"), ControllerGroup.WsController.AdminIo)
 }

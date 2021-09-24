@@ -16,7 +16,7 @@ func (d *AdminChannelHandle) Open(client *im.Client) {
 
 }
 
-func (d *AdminChannelHandle) Message(message im.RecvMessage) {
+func (d *AdminChannelHandle) Message(message *im.RecvMessage) {
 	fmt.Println("ws-socket", message.Content)
 }
 

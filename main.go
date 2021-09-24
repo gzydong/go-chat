@@ -70,6 +70,7 @@ func SetServerRunId() {
 
 func StartImServer() {
 	go im.Manager.DefaultChannel.SetCallbackHandler(wssocket.NewDefaultChannelHandle()).Process()
+	go im.Manager.AdminChannel.SetCallbackHandler(wssocket.NewAdminChannelHandle()).Process()
 }
 
 func OnlineCount() {

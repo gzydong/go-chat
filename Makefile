@@ -1,6 +1,6 @@
 .PHONY: conf
 conf:
-	cp config.yaml.example config.yaml
+	cp config.example.yaml config.yaml
 
 run:
 	go run .

@@ -16,7 +16,7 @@ const (
 )
 
 func NewServerRun() *ServerRunID {
-	return new(ServerRunID)
+	return &ServerRunID{}
 }
 
 func (s *ServerRunID) SetServerRunId(server string, time int64) {
