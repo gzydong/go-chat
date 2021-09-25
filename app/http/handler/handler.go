@@ -11,5 +11,5 @@ type Handler struct {
 	User     *v1.User
 	Download *v1.Download
 	Index    *open.Index
-	Ws       *ws.Ws
+	Ws       *ws.WebSocket
 }

@@ -8,12 +8,12 @@ import (
 	"go-chat/app/service"
 )
 
-type Ws struct {
+type WebSocket struct {
 	ClientService *service.ClientService
 }
 
 // SocketIo 连接客户端
-func (w *Ws) SocketIo(c *gin.Context) {
+func (w *WebSocket) SocketIo(c *gin.Context) {
 	conn, err := im.NewWebsocket(c)
 	if err != nil {
 		log.Printf("websocket connect error")
@@ -31,7 +31,7 @@ func (w *Ws) SocketIo(c *gin.Context) {
 }
 
 // AdminIo 连接客户端
-func (w *Ws) AdminIo(c *gin.Context) {
+func (w *WebSocket) AdminIo(c *gin.Context) {
 	conn, err := im.NewWebsocket(c)
 	if err != nil {
 		log.Printf("websocket connect error")
