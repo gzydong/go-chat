@@ -22,9 +22,12 @@ func (d *DefaultChannelHandle) Open(client *im.Client) {
 func (d *DefaultChannelHandle) Message(message *im.RecvMessage) {
 	fmt.Printf("[%s]消息通知 Client:%s ，Content: %s \n", message.Client.Channel.Name, message.Client.Uuid, message.Content)
 
-	if message.Content == "0" {
-		message.Client.Close(1233, "手动触发关闭")
-	}
+	message.Client.Channel.SendMessage(&im.SendMessage{
+		IsAll:   true,
+		Clients: nil,
+		Event:   "talk",
+		Content: message.Content,
+	})
 }
 
 // Close 客户端关闭回调事件
