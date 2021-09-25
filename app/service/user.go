@@ -3,12 +3,13 @@ package service
 import (
 	"errors"
 	"fmt"
-
 	"go-chat/app/helper"
 	"go-chat/app/model"
+	"go-chat/app/repository"
 )
 
 type UserService struct {
+	Repo *repository.UserRepository
 }
 
 // Register 注册用户
@@ -25,13 +26,14 @@ func (s *UserService) Register(username string, password string) (bool, error) {
 
 // Login 登录处理
 func (s *UserService) Login(username string, password string) (*model.User, error) {
-	hashPassword := "tea123jas"
-
-	// ...数据库查询
-
-	if helper.VerifyPassword([]byte(password), []byte(hashPassword)) {
-		return nil, errors.New("登录密码填写错误")
+	user, err := s.Repo.FindByMobile(username)
+	if err != nil {
+		return nil, errors.New("登录账号不存在! ")
 	}
 
-	return &model.User{}, nil
+	if !helper.VerifyPassword([]byte(password), []byte(user.Password)) {
+		return nil, errors.New("登录密码填写错误! ")
+	}
+
+	return user, nil
 }

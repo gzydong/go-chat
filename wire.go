@@ -4,6 +4,7 @@ package main
 
 import (
 	"context"
+	"go-chat/app/repository"
 
 	"github.com/google/wire"
 	"go-chat/app/cache"
@@ -20,6 +21,7 @@ import (
 var providerSet = wire.NewSet(
 	// 连接信息
 	connect.RedisConnect,
+	connect.MysqlConnect,
 	connect.NewHttp,
 	router.NewRouter,
 
@@ -34,6 +36,9 @@ var providerSet = wire.NewSet(
 	wire.Struct(new(open.Index), "*"),
 	wire.Struct(new(ws.WebSocket), "*"),
 	wire.Struct(new(handler.Handler), "*"),
+
+	// repo
+	wire.Struct(new(repository.UserRepository), "*"),
 
 	// 服务
 	wire.Struct(new(service.ClientService), "*"),

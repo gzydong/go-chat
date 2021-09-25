@@ -1,16 +1,16 @@
 package v1
 
 import (
-	"fmt"
-	"net/http"
-
 	"github.com/gin-gonic/gin"
 	"go-chat/app/helper"
+	"go-chat/app/service"
 	"go-chat/config"
+	"net/http"
 )
 
 type Auth struct {
-	Conf *config.Config
+	Conf        *config.Config
+	UserService *service.UserService
 }
 
 // 绑定 JSON
@@ -24,11 +24,18 @@ func (a *Auth) Login(c *gin.Context) {
 	username := c.PostForm("username")
 	password := c.PostForm("password")
 
-	fmt.Printf("username: %s; password: %s;\n", username, password)
+	user, err := a.UserService.Login(username, password)
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"code":    305,
+			"message": err.Error(),
+		})
+		return
+	}
 
 	// 生成登录凭证
-	token, err := helper.GenerateJwtToken(a.Conf, "api", 2054)
-	if err != nil {
+	token, e := helper.GenerateJwtToken(a.Conf, "api", user.ID)
+	if e != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"code":    305,
 			"message": "登录失败，请稍后再试！",

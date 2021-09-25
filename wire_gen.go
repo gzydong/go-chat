@@ -14,6 +14,7 @@ import (
 	"go-chat/app/http/handler/open"
 	"go-chat/app/http/handler/ws"
 	"go-chat/app/http/router"
+	"go-chat/app/repository"
 	"go-chat/app/service"
 	"go-chat/config"
 	"go-chat/connect"
@@ -22,10 +23,20 @@ import (
 // Injectors from wire.go:
 
 func Initialize(ctx context.Context, conf *config.Config) *Service {
-	auth := &v1.Auth{
-		Conf: conf,
+	mySQL := connect.MysqlConnect(conf)
+	userRepository := &repository.UserRepository{
+		DB: mySQL,
 	}
-	user := &v1.User{}
+	userService := &service.UserService{
+		Repo: userRepository,
+	}
+	auth := &v1.Auth{
+		Conf:        conf,
+		UserService: userService,
+	}
+	user := &v1.User{
+		MySQl: mySQL,
+	}
 	download := &v1.Download{}
 	index := &open.Index{}
 	redis := connect.RedisConnect(ctx, conf)
@@ -61,4 +72,4 @@ func Initialize(ctx context.Context, conf *config.Config) *Service {
 
 // wire.go:
 
-var providerSet = wire.NewSet(connect.RedisConnect, connect.NewHttp, router.NewRouter, cache.NewServerRun, wire.Struct(new(cache.WsClient), "*"), wire.Struct(new(v1.Auth), "*"), wire.Struct(new(v1.User), "*"), wire.Struct(new(v1.Download), "*"), wire.Struct(new(open.Index), "*"), wire.Struct(new(ws.WebSocket), "*"), wire.Struct(new(handler.Handler), "*"), wire.Struct(new(service.ClientService), "*"), wire.Struct(new(service.UserService), "*"), wire.Struct(new(service.SocketService), "*"), wire.Struct(new(Service), "*"))
+var providerSet = wire.NewSet(connect.RedisConnect, connect.MysqlConnect, connect.NewHttp, router.NewRouter, cache.NewServerRun, wire.Struct(new(cache.WsClient), "*"), wire.Struct(new(v1.Auth), "*"), wire.Struct(new(v1.User), "*"), wire.Struct(new(v1.Download), "*"), wire.Struct(new(open.Index), "*"), wire.Struct(new(ws.WebSocket), "*"), wire.Struct(new(handler.Handler), "*"), wire.Struct(new(repository.UserRepository), "*"), wire.Struct(new(service.ClientService), "*"), wire.Struct(new(service.UserService), "*"), wire.Struct(new(service.SocketService), "*"), wire.Struct(new(Service), "*"))
