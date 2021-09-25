@@ -13,5 +13,5 @@ func VerifyPassword(password []byte, hash []byte) bool {
 
 // GeneratePassword 加密登录密码
 func GeneratePassword(password []byte) ([]byte, error) {
-	return bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	return bcrypt.GenerateFromPassword(password, bcrypt.DefaultCost)
 }

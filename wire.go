@@ -32,7 +32,7 @@ var providerSet = wire.NewSet(
 	wire.Struct(new(v1.User), "*"),
 	wire.Struct(new(v1.Download), "*"),
 	wire.Struct(new(open.Index), "*"),
-	wire.Struct(new(ws.Ws), "*"),
+	wire.Struct(new(ws.WebSocket), "*"),
 	wire.Struct(new(handler.Handler), "*"),
 
 	// 服务

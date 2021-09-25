@@ -2,13 +2,14 @@
 server:
   app_name: LumenIM
   version: v0.0.1
+  port: 8080
 
 # Redis 相关配置
 redis:
   host: 127.0.0.1
   port: 6379
   auth: xxxxx
-  database: 1
+  database: 0
   prefix: go_chat
 
 # Mysql 数据库配置

@@ -35,7 +35,7 @@ func Initialize(ctx context.Context, conf *config.Config) *Service {
 	clientService := &service.ClientService{
 		WsClient: wsClient,
 	}
-	wsWs := &ws.Ws{
+	webSocket := &ws.WebSocket{
 		ClientService: clientService,
 	}
 	handlerHandler := &handler.Handler{
@@ -43,7 +43,7 @@ func Initialize(ctx context.Context, conf *config.Config) *Service {
 		User:     user,
 		Download: download,
 		Index:    index,
-		Ws:       wsWs,
+		Ws:       webSocket,
 	}
 	engine := router.NewRouter(conf, handlerHandler)
 	server := connect.NewHttp(conf, engine)
@@ -61,4 +61,4 @@ func Initialize(ctx context.Context, conf *config.Config) *Service {
 
 // wire.go:
 
-var providerSet = wire.NewSet(connect.RedisConnect, connect.NewHttp, router.NewRouter, cache.NewServerRun, wire.Struct(new(cache.WsClient), "*"), wire.Struct(new(v1.Auth), "*"), wire.Struct(new(v1.User), "*"), wire.Struct(new(v1.Download), "*"), wire.Struct(new(open.Index), "*"), wire.Struct(new(ws.Ws), "*"), wire.Struct(new(handler.Handler), "*"), wire.Struct(new(service.ClientService), "*"), wire.Struct(new(service.UserService), "*"), wire.Struct(new(service.SocketService), "*"), wire.Struct(new(Service), "*"))
+var providerSet = wire.NewSet(connect.RedisConnect, connect.NewHttp, router.NewRouter, cache.NewServerRun, wire.Struct(new(cache.WsClient), "*"), wire.Struct(new(v1.Auth), "*"), wire.Struct(new(v1.User), "*"), wire.Struct(new(v1.Download), "*"), wire.Struct(new(open.Index), "*"), wire.Struct(new(ws.WebSocket), "*"), wire.Struct(new(handler.Handler), "*"), wire.Struct(new(service.ClientService), "*"), wire.Struct(new(service.UserService), "*"), wire.Struct(new(service.SocketService), "*"), wire.Struct(new(Service), "*"))
