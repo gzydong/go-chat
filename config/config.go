@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"io/ioutil"
 
-	jsoniter "github.com/json-iterator/go"
 	uuid "github.com/satori/go.uuid"
 	"gopkg.in/yaml.v2"
 )
