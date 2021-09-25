@@ -9,7 +9,7 @@ import (
 var Rdb *redis.Client
 
 // 初始化 Redis 连接
-func init() {
+func NewRedis() {
 	conf := config.GlobalConfig.Redis
 	Rdb = redis.NewClient(&redis.Options{
 		Addr:     fmt.Sprintf("%s:%d", conf.Host, conf.Port),

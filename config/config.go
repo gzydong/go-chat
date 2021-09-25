@@ -19,7 +19,8 @@ type Config struct {
 	Server Server `json:"server" yaml:"server"`
 }
 
-func init() {
+// NewConfig
+func NewConfig() {
 	GlobalConfig = &Config{}
 
 	content, err := ioutil.ReadFile("config.yaml")

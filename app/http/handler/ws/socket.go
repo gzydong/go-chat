@@ -7,11 +7,11 @@ import (
 	"go-chat/app/pkg/im"
 )
 
-type WsController struct {
+type SocketController struct {
 }
 
 // SocketIo 连接客户端
-func (w *WsController) SocketIo(c *gin.Context) {
+func (w *SocketController) SocketIo(c *gin.Context) {
 	conn, err := im.NewWebsocket(c)
 	if err != nil {
 		log.Printf("websocket connect error")
@@ -29,7 +29,7 @@ func (w *WsController) SocketIo(c *gin.Context) {
 }
 
 // AdminIo 连接客户端
-func (w *WsController) AdminIo(c *gin.Context) {
+func (w *SocketController) AdminIo(c *gin.Context) {
 	conn, err := im.NewWebsocket(c)
 	if err != nil {
 		log.Printf("websocket connect error")

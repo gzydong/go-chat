@@ -1,5 +1,11 @@
 package im
 
+// WebSocket 消息格式
+type WebSocketMessage struct {
+	Event   string `json:"event"`   // 消息事件（区分不同事件）
+	Content string `json:"content"` // 推送信息
+}
+
 // 响应的消息格式
 type SendMessage struct {
 	IsAll   bool     `json:"-"`       // 是否推送所有客户端

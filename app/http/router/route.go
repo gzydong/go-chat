@@ -7,7 +7,7 @@ import (
 	"net/http"
 )
 
-// InitRouter 初始化配置路由
+// NewRouter 初始化配置路由
 func NewRouter() *gin.Engine {
 	router := gin.Default()
 
@@ -23,6 +23,7 @@ func NewRouter() *gin.Engine {
 	return router
 }
 
+// defaultRouter 注册默认路由
 func defaultRouter(router *gin.Engine) {
 	router.GET("/", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{

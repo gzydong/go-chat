@@ -73,8 +73,11 @@ func (c *ChannelManager) SetCallbackHandler(handle WebsocketInterface) *ChannelM
 
 // Process 渠道消费协程
 func (c *ChannelManager) Process() {
-	fmt.Printf("[%s] 消费协程已启动\n", c.Name)
+	go c.RecvProcess()
+	go c.SendProcess()
+}
 
+func (c *ChannelManager) RecvProcess() {
 	for {
 		select {
 		// 处理接收消息
@@ -83,7 +86,14 @@ func (c *ChannelManager) Process() {
 				c.Handle.Message(value)
 			}
 
-		// 处理发送消息
+		case <-time.After(3 * time.Second):
+		}
+	}
+}
+
+func (c *ChannelManager) SendProcess() {
+	for {
+		select {
 		case value, ok := <-c.SendChan:
 			if !ok {
 				fmt.Printf("消费通道[%s]，读取数据失败...", c.Name)
@@ -105,7 +115,7 @@ func (c *ChannelManager) Process() {
 					}
 				}
 			}
-		case <-time.After(5 * time.Second):
+		case <-time.After(3 * time.Second):
 		}
 	}
 }

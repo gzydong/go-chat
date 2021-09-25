@@ -7,12 +7,12 @@ import (
 )
 
 type WsControllerGroup struct {
-	WsController *ws.WsController
+	SocketController *ws.SocketController
 }
 
 // RegisterWsRoute 注册 Websocket 路由
 func RegisterWsRoute(router *gin.Engine) {
 	ControllerGroup := new(WsControllerGroup)
-	router.GET("/ws/socket.io", middleware.JwtAuth("api"), ControllerGroup.WsController.SocketIo)
-	router.GET("/ws/admin.io", middleware.JwtAuth("api"), ControllerGroup.WsController.AdminIo)
+	router.GET("/ws/socket.io", middleware.JwtAuth("api"), ControllerGroup.SocketController.SocketIo)
+	router.GET("/ws/admin.io", middleware.JwtAuth("api"), ControllerGroup.SocketController.AdminIo)
 }

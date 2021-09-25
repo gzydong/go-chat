@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"io"
 	"log"
 	"net/http"
 	_ "net/http/pprof"
@@ -11,7 +10,6 @@ import (
 	"os/signal"
 	"time"
 
-	"github.com/gin-gonic/gin"
 	"go-chat/app/cache"
 	"go-chat/app/http/router"
 	"go-chat/app/pkg/im"
@@ -20,15 +18,10 @@ import (
 )
 
 func main() {
-	if gin.Mode() != gin.DebugMode {
-		f, _ := os.Create("runtime/logs/gin.log")
-
-		// 如果需要同时将日志写入文件和控制台
-		gin.DefaultWriter = io.MultiWriter(f)
-	}
+	config.NewConfig()
+	cache.NewRedis()
 
 	route := router.NewRouter()
-
 	srv := &http.Server{
 		Addr:    ":8080",
 		Handler: route,
@@ -40,8 +33,9 @@ func main() {
 		}
 	}()
 
-	go SetServerRunId()
 	StartImServer()
+
+	go SetServerRunId()
 	go OnlineCount()
 
 	// 等待中断信号以优雅地关闭服务器（设置 5 秒的超时时间）
@@ -71,8 +65,8 @@ func SetServerRunId() {
 }
 
 func StartImServer() {
-	go im.Manager.DefaultChannel.SetCallbackHandler(websocket.NewDefaultChannelHandle()).Process()
-	go im.Manager.AdminChannel.SetCallbackHandler(websocket.NewAdminChannelHandle()).Process()
+	im.Manager.DefaultChannel.SetCallbackHandler(websocket.NewDefaultChannelHandle()).Process()
+	im.Manager.AdminChannel.SetCallbackHandler(websocket.NewAdminChannelHandle()).Process()
 }
 
 func OnlineCount() {

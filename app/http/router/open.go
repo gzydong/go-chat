@@ -10,7 +10,7 @@ type OpenControllerGroup struct {
 	IndexController *open.IndexController
 }
 
-// RegisterOpenRoute 注册 Web 路由
+// RegisterOpenRoute 注册对外开放路由
 func RegisterOpenRoute(router *gin.Engine) {
 	ControllerGroup := new(OpenControllerGroup)
 

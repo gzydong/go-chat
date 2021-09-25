@@ -24,6 +24,7 @@ func JwtAuth(guard string) gin.HandlerFunc {
 
 		jwt, err := helper.ParseJwtToken(token)
 		if err != nil {
+			c.Abort()
 			c.JSON(http.StatusUnauthorized, gin.H{
 				"code": 40002,
 				"msg":  "Token 信息验证失败!",
