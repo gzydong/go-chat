@@ -1,4 +1,7 @@
-# 配置信息
+# 项目配置信息
+server:
+  app_name: LumenIM
+  version: v0.0.1
 
 # Redis 相关配置
 redis:
