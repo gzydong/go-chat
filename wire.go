@@ -4,7 +4,6 @@ package main
 
 import (
 	"context"
-	"net/http"
 
 	"github.com/google/wire"
 	"go-chat/app/cache"
@@ -39,8 +38,10 @@ var providerSet = wire.NewSet(
 	// 服务
 	wire.Struct(new(service.ClientService), "*"),
 	wire.Struct(new(service.UserService), "*"),
+	wire.Struct(new(service.SocketService), "*"),
+	wire.Struct(new(Service), "*"),
 )
 
-func Initialize(ctx context.Context, conf *config.Config) *http.Server {
+func Initialize(ctx context.Context, conf *config.Config) *Service {
 	panic(wire.Build(providerSet))
 }

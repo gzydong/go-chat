@@ -14,7 +14,7 @@ type Config struct {
 	MySQL  MySQL       `json:"mysql" yaml:"mysql"`
 	Jwt    Jwt         `json:"jwt" yaml:"jwt"`
 	Cors   Cors        `json:"cors" yaml:"cors"`
-	Server Server
+	Server Server      `json:"server"`
 }
 
 func Init(filename string) *Config {

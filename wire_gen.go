@@ -17,12 +17,11 @@ import (
 	"go-chat/app/service"
 	"go-chat/config"
 	"go-chat/connect"
-	"net/http"
 )
 
 // Injectors from wire.go:
 
-func Initialize(ctx context.Context, conf *config.Config) *http.Server {
+func Initialize(ctx context.Context, conf *config.Config) *Service {
 	auth := &v1.Auth{
 		Conf: conf,
 	}
@@ -48,9 +47,18 @@ func Initialize(ctx context.Context, conf *config.Config) *http.Server {
 	}
 	engine := router.NewRouter(conf, handlerHandler)
 	server := connect.NewHttp(conf, engine)
-	return server
+	serverRunID := cache.NewServerRun(redis)
+	socketService := &service.SocketService{
+		Conf:        conf,
+		ServerRunID: serverRunID,
+	}
+	mainService := &Service{
+		HttpServer:   server,
+		SocketServer: socketService,
+	}
+	return mainService
 }
 
 // wire.go:
 
-var providerSet = wire.NewSet(connect.RedisConnect, connect.NewHttp, router.NewRouter, cache.NewServerRun, wire.Struct(new(cache.WsClient), "*"), wire.Struct(new(v1.Auth), "*"), wire.Struct(new(v1.User), "*"), wire.Struct(new(v1.Download), "*"), wire.Struct(new(open.Index), "*"), wire.Struct(new(ws.Ws), "*"), wire.Struct(new(handler.Handler), "*"), wire.Struct(new(service.ClientService), "*"), wire.Struct(new(service.UserService), "*"))
+var providerSet = wire.NewSet(connect.RedisConnect, connect.NewHttp, router.NewRouter, cache.NewServerRun, wire.Struct(new(cache.WsClient), "*"), wire.Struct(new(v1.Auth), "*"), wire.Struct(new(v1.User), "*"), wire.Struct(new(v1.Download), "*"), wire.Struct(new(open.Index), "*"), wire.Struct(new(ws.Ws), "*"), wire.Struct(new(handler.Handler), "*"), wire.Struct(new(service.ClientService), "*"), wire.Struct(new(service.UserService), "*"), wire.Struct(new(service.SocketService), "*"), wire.Struct(new(Service), "*"))

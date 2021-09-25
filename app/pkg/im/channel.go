@@ -1,7 +1,9 @@
 package im
 
 import (
+	"context"
 	"fmt"
+	"log"
 	"sync"
 	"time"
 
@@ -72,14 +74,17 @@ func (c *ChannelManager) SetCallbackHandler(handle WebsocketInterface) *ChannelM
 }
 
 // Process 渠道消费协程
-func (c *ChannelManager) Process() {
-	go c.RecvProcess()
-	go c.SendProcess()
+func (c *ChannelManager) Process(ctx context.Context) {
+	go c.RecvProcess(ctx)
+	go c.SendProcess(ctx)
 }
 
-func (c *ChannelManager) RecvProcess() {
+func (c *ChannelManager) RecvProcess(ctx context.Context) {
 	for {
 		select {
+		case <-ctx.Done():
+			log.Printf("%s 退出了\n", c.Name)
+			return
 		// 处理接收消息
 		case value, ok := <-c.RecvChan:
 			if ok {
@@ -91,9 +96,12 @@ func (c *ChannelManager) RecvProcess() {
 	}
 }
 
-func (c *ChannelManager) SendProcess() {
+func (c *ChannelManager) SendProcess(ctx context.Context) {
 	for {
 		select {
+		case <-ctx.Done():
+			log.Printf("%s 退出了\n", c.Name)
+			return
 		case value, ok := <-c.SendChan:
 			if !ok {
 				fmt.Printf("消费通道[%s]，读取数据失败...", c.Name)

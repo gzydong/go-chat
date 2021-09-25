@@ -7,5 +7,9 @@ run:
 	go run .
 
 .PHONY: build
-build:
+build:generate
 	go build -o go-chat
+
+.PHONY: generate
+generate:
+	wire
