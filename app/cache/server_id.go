@@ -19,7 +19,7 @@ func NewServerRun() *ServerRunID {
 	return &ServerRunID{}
 }
 
-func (s *ServerRunID) SetServerRunId(server string, time int64) {
+func (s *ServerRunID) SetServerID(server string, time int64) {
 	Rdb.HSet(ServerRunIdKey, server, time)
 }
 

@@ -30,12 +30,12 @@ func init() {
 	}
 
 	// 生成服务运行ID
-	GlobalConfig.Server.RunID = uuid.NewV4().String()
+	GlobalConfig.Server.ServerID = uuid.NewV4().String()
 
 	fmt.Printf("config %#v\n", GlobalConfig)
 }
 
-// GetServerRunId 获取当前服务运行ID(服务重启后会改变)
-func GetServerRunId() string {
-	return GlobalConfig.Server.RunID
+// GetServerID 获取当前服务运行ID(服务重启后会改变)
+func GetServerID() string {
+	return GlobalConfig.Server.ServerID
 }

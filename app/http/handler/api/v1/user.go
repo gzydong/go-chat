@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"go-chat/app/pakg/im"
+	"go-chat/app/pkg/im"
 )
 
 type UserController struct {

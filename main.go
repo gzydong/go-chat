@@ -6,6 +6,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	_ "net/http/pprof"
 	"os"
 	"os/signal"
 	"time"
@@ -64,7 +65,7 @@ func main() {
 
 func SetServerRunId() {
 	for {
-		cache.NewServerRun().SetServerRunId(config.GetServerRunId(), time.Now().Unix())
+		cache.NewServerRun().SetServerID(config.GetServerID(), time.Now().Unix())
 		time.Sleep(10 * time.Second)
 	}
 }
