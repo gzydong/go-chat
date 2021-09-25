@@ -2,9 +2,10 @@ package im
 
 import (
 	"fmt"
+	"sync"
+
 	"github.com/gorilla/websocket"
 	jsoniter "github.com/json-iterator/go"
-	"sync"
 )
 
 type WebsocketInterface interface {

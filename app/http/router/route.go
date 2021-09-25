@@ -1,9 +1,10 @@
 package router
 
 import (
-	"github.com/gin-gonic/gin"
-	"go-chat/app/middleware"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
+	"go-chat/app/http/middleware"
 )
 
 // InitRouter 初始化配置路由

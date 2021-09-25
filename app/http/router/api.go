@@ -2,8 +2,8 @@ package router
 
 import (
 	"github.com/gin-gonic/gin"
-	"go-chat/app/controller/api/v1"
-	"go-chat/app/middleware"
+	"go-chat/app/http/handler/api/v1"
+	"go-chat/app/http/middleware"
 )
 
 // API 授权守卫

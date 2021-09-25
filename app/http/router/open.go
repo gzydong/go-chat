@@ -2,7 +2,7 @@ package router
 
 import (
 	"github.com/gin-gonic/gin"
-	"go-chat/app/controller/open"
+	"go-chat/app/http/handler/open"
 )
 
 // OpenControllerGroup 控制器分组(对外接口)

@@ -1,8 +1,9 @@
-package wssocket
+package websocket
 
 import (
 	"fmt"
-	"go-chat/app/pakg/im"
+
+	"go-chat/app/pkg/im"
 )
 
 type AdminChannelHandle struct {

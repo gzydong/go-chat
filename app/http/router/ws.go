@@ -2,8 +2,8 @@ package router
 
 import (
 	"github.com/gin-gonic/gin"
-	"go-chat/app/controller/wss"
-	"go-chat/app/middleware"
+	"go-chat/app/http/handler/wss"
+	"go-chat/app/http/middleware"
 )
 
 type WsControllerGroup struct {

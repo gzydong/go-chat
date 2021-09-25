@@ -1,10 +1,11 @@
 package middleware
 
 import (
-	"github.com/gin-gonic/gin"
-	"go-chat/app/helper"
 	"net/http"
 	"strings"
+
+	"github.com/gin-gonic/gin"
+	"go-chat/app/helper"
 )
 
 // ApiAuth 授权中间件

@@ -3,18 +3,19 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/gin-gonic/gin"
-	"go-chat/app/cache"
-	"go-chat/app/pakg/im"
-	"go-chat/app/wssocket"
-	"go-chat/config"
-	"go-chat/router"
 	"io"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
 	"time"
+
+	"github.com/gin-gonic/gin"
+	"go-chat/app/cache"
+	"go-chat/app/http/router"
+	"go-chat/app/pkg/im"
+	"go-chat/app/websocket"
+	"go-chat/config"
 )
 
 func main() {
@@ -69,8 +70,8 @@ func SetServerRunId() {
 }
 
 func StartImServer() {
-	go im.Manager.DefaultChannel.SetCallbackHandler(wssocket.NewDefaultChannelHandle()).Process()
-	go im.Manager.AdminChannel.SetCallbackHandler(wssocket.NewAdminChannelHandle()).Process()
+	go im.Manager.DefaultChannel.SetCallbackHandler(websocket.NewDefaultChannelHandle()).Process()
+	go im.Manager.AdminChannel.SetCallbackHandler(websocket.NewAdminChannelHandle()).Process()
 }
 
 func OnlineCount() {

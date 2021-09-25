@@ -1,9 +1,10 @@
 package middleware
 
 import (
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 	"go-chat/config"
-	"net/http"
 )
 
 // 处理跨域请求,支持options访问

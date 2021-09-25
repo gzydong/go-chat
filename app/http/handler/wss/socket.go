@@ -1,9 +1,10 @@
 package wss
 
 import (
+	"log"
+
 	"github.com/gin-gonic/gin"
 	"go-chat/app/pakg/im"
-	"log"
 )
 
 type WsController struct {
