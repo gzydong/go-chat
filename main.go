@@ -50,7 +50,7 @@ func main() {
 
 	// 启动HTTP服务
 	eg.Go(func() error {
-		log.Printf("HTTP listen %s", ":8080")
+		log.Printf("HTTP listen :%d", conf.Server.Port)
 		if err := server.HttpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			return fmt.Errorf("HTTP listen: %s", err)
 		}

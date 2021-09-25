@@ -3,7 +3,7 @@ conf:
 	cp config.example.yaml config.yaml
 
 .PHONY: run
-run:
+run: generate
 	go run .
 
 .PHONY: build
