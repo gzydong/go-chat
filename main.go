@@ -40,7 +40,7 @@ func main() {
 	}()
 
 	go SetServerRunId()
-	go StartImServer()
+	StartImServer()
 	go OnlineCount()
 
 	// 等待中断信号以优雅地关闭服务器（设置 5 秒的超时时间）

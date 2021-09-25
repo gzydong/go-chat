@@ -3,6 +3,7 @@ package im
 import (
 	"fmt"
 	"sync"
+	"time"
 
 	"github.com/gorilla/websocket"
 	jsoniter "github.com/json-iterator/go"
@@ -85,7 +86,7 @@ func (c *ChannelManager) Process() {
 		case value, ok := <-c.SendChan:
 			if !ok {
 				fmt.Printf("消费通道[%s]，读取数据失败...", c.Name)
-				break
+				continue
 			}
 
 			content, _ := jsoniter.Marshal(value)
@@ -103,10 +104,7 @@ func (c *ChannelManager) Process() {
 					}
 				}
 			}
-			break
-
-		default:
-
+		case <-time.After(5 * time.Second):
 		}
 	}
 }

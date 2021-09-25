@@ -2,10 +2,12 @@ package im
 
 import (
 	"fmt"
+	"log"
+	"time"
+
 	"github.com/gorilla/websocket"
 	uuid "github.com/satori/go.uuid"
 	"go-chat/app/service"
-	"time"
 )
 
 const (
@@ -60,7 +62,9 @@ func (w *Client) Close(code int, message string) {
 
 	_ = Handler(code, message)
 
-	w.Conn.Close()
+	if err := w.Conn.Close(); err != nil {
+		log.Println("Close Error: ", err)
+	}
 }
 
 // Heartbeat 心跳检测
@@ -80,7 +84,7 @@ func (w *Client) AcceptClient() {
 	defer w.Conn.Close()
 
 	for {
-		//读取ws中的数据
+		// 读取ws中的数据
 		mt, message, err := w.Conn.ReadMessage()
 		if err != nil {
 			break
@@ -92,7 +96,7 @@ func (w *Client) AcceptClient() {
 		if string(message) == "ping" {
 			message = []byte("pong")
 
-			//写入ws数据
+			// 写入ws数据
 			err = w.Conn.WriteMessage(mt, message)
 			if err != nil {
 				break
