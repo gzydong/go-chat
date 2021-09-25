@@ -64,13 +64,14 @@ func (c *ChannelManager) SendMessage(message *SendMessage) {
 	c.SendChan <- message
 }
 
+// SetCallbackHandler 设置 WebSocket 处理事件
 func (c *ChannelManager) SetCallbackHandler(handle WebsocketInterface) *ChannelManager {
 	c.Handle = handle
 
 	return c
 }
 
-// Handle 渠道消费协程
+// Process 渠道消费协程
 func (c *ChannelManager) Process() {
 	fmt.Printf("[%s] 消费协程已启动\n", c.Name)
 

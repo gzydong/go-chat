@@ -19,7 +19,7 @@ const (
 type Client struct {
 	Conn     *websocket.Conn // 客户端连接
 	Uuid     string          // 客户端唯一标识
-	UserId   int             // 用户ID
+	UserId   int             // 用户标识/用户ID
 	LastTime int64           // 客户端最后心跳时间/心跳检测
 	Channel  *ChannelManager // 渠道分组
 }
@@ -35,7 +35,7 @@ func NewImClient(conn *websocket.Conn, userId int, channel *ChannelManager) *Cli
 	}
 
 	conn.SetCloseHandler(func(code int, text string) error {
-		fmt.Printf("【%s】客户端关闭 %s | 关闭原因：(%d) %s \n", client.Channel.Name, client.Uuid, code, text)
+		fmt.Printf("【%s】客户端关闭 %s | 关闭原因(%d): %s \n", client.Channel.Name, client.Uuid, code, text)
 
 		channel.Handle.Close(client, code, text)
 

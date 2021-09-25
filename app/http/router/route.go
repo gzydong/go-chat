@@ -3,6 +3,7 @@ package router
 import (
 	"github.com/gin-gonic/gin"
 	"go-chat/app/http/middleware"
+	"go-chat/config"
 	"net/http"
 )
 
@@ -25,8 +26,8 @@ func NewRouter() *gin.Engine {
 func defaultRouter(router *gin.Engine) {
 	router.GET("/", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
-			"AppName": "Lumen IM(golang)",
-			"Version": "v1.0.0",
+			"AppName": config.GlobalConfig.Server.AppName,
+			"Version": config.GlobalConfig.Server.Version,
 			"Author":  "837215079@qq.com",
 		})
 	})
