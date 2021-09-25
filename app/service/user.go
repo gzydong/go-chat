@@ -3,6 +3,7 @@ package service
 import (
 	"errors"
 	"fmt"
+
 	"go-chat/app/helper"
 	"go-chat/app/model"
 )
@@ -29,7 +30,7 @@ func (s *UserService) Login(username string, password string) (*model.User, erro
 	// ...数据库查询
 
 	if helper.VerifyPassword([]byte(password), []byte(hashPassword)) {
-		return &model.User{}, errors.New("登录密码填写错误")
+		return nil, errors.New("登录密码填写错误")
 	}
 
 	return &model.User{}, nil

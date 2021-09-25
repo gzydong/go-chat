@@ -2,86 +2,93 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"log"
 	"net/http"
-	_ "net/http/pprof"
 	"os"
 	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"go-chat/app/cache"
-	"go-chat/app/http/router"
-	"go-chat/app/pkg/im"
-	"go-chat/app/websocket"
 	"go-chat/config"
+	"golang.org/x/sync/errgroup"
 )
 
 func main() {
+
+	// 第一步：初始化配置信息
+	conf := config.Init("./config.yaml")
+
+	fmt.Println(conf)
+
 	if gin.Mode() != gin.DebugMode {
 		f, _ := os.Create("runtime/logs/gin.log")
-
 		// 如果需要同时将日志写入文件和控制台
 		gin.DefaultWriter = io.MultiWriter(f)
 	}
 
-	route := router.NewRouter()
+	ctx, cancel := context.WithCancel(context.Background())
+	server := Initialize(ctx, conf)
+	// // 获取到服务
+	// serverRun := cache.NewServerRun(client)
+	//
+	eg, _ := errgroup.WithContext(ctx)
+	//
+	// group := sync.WaitGroup{}
+	// group.Add(3)
+	// go func() {
+	// 	defer group.Done()
+	// 	for {
+	// 		select {
+	// 		case <-ctx.Done():
+	// 			log.Println("SetServerRunId Stop")
+	// 			return
+	// 		case <-time.After(10 * time.Second):
+	// 			serverRun.SetServerID(ctx, conf.Server.ServerId, time.Now().Unix())
+	// 		}
+	// 	}
+	// }()
+	//
+	// go im.Manager.DefaultChannel.SetCallbackHandler(websocket.NewDefaultChannelHandle()).Process(ctx, &group)
+	// go im.Manager.AdminChannel.SetCallbackHandler(websocket.NewAdminChannelHandle()).Process(ctx, &group)
 
-	srv := &http.Server{
-		Addr:    ":8080",
-		Handler: route,
-	}
+	// // 监听退出
+	// eg.Go(func() error {
+	// 	group.Wait()
+	// 	return nil
+	// })
 
-	go func() {
-		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			log.Fatalf("listen: %s\n", err)
+	// 启动HTTP服务
+	eg.Go(func() error {
+		log.Printf("HTTP listen %s", ":8080")
+		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			return fmt.Errorf("HTTP listen: %s", err)
 		}
-	}()
 
-	go SetServerRunId()
-	StartImServer()
-	go OnlineCount()
+		return nil
+	})
 
-	// 等待中断信号以优雅地关闭服务器（设置 5 秒的超时时间）
-	quit := make(chan os.Signal)
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, syscall.SIGTERM, syscall.SIGQUIT, syscall.SIGINT)
+	eg.Go(func() error {
+		select {
+		case <-c:
+			// 退出其他服务
+			cancel()
 
-	signal.Notify(quit, os.Interrupt)
+			// 等待中断信号以优雅地关闭服务器（设置 5 秒的超时时间）
+			timeCtx, timeCancel := context.WithTimeout(context.Background(), 5*time.Second)
+			defer timeCancel()
+			return server.Shutdown(timeCtx)
+		}
+	})
 
-	<-quit
-
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-
-	defer cancel()
-	defer cache.CloseRedis()
-
-	if err := srv.Shutdown(ctx); err != nil {
-		log.Fatal("Server Shutdown Error:", err)
+	if err := eg.Wait(); err != nil && !errors.Is(err, context.Canceled) {
+		log.Fatalf("eg error: %s", err)
 	}
 
 	log.Println("Server Shutdown")
-}
-
-func SetServerRunId() {
-	for {
-		cache.NewServerRun().SetServerID(config.GetServerID(), time.Now().Unix())
-		time.Sleep(10 * time.Second)
-	}
-}
-
-func StartImServer() {
-	go im.Manager.DefaultChannel.SetCallbackHandler(websocket.NewDefaultChannelHandle()).Process()
-	go im.Manager.AdminChannel.SetCallbackHandler(websocket.NewAdminChannelHandle()).Process()
-}
-
-func OnlineCount() {
-	// 调试信息
-	go func() {
-		for {
-			time.Sleep(time.Second * 5)
-			fmt.Printf("【%s】当前在线人数 : %d 人\n", im.Manager.DefaultChannel.Name, im.Manager.DefaultChannel.Count)
-			fmt.Printf("【%s】当前在线人数 : %d 人\n", im.Manager.AdminChannel.Name, im.Manager.AdminChannel.Count)
-		}
-	}()
 }

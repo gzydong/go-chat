@@ -6,11 +6,11 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type IndexController struct {
+type Index struct {
 }
 
 // Index 首页
-func (i *IndexController) Index(c *gin.Context) {
+func (i *Index) Index(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"title": "go-chat",
 	})

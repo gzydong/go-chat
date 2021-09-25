@@ -1,6 +1,7 @@
 package im
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"time"
@@ -17,21 +18,23 @@ const (
 
 // Client WebSocket 客户端连接信息
 type Client struct {
-	Conn     *websocket.Conn // 客户端连接
-	Uuid     string          // 客户端唯一标识
-	UserId   int             // 用户标识/用户ID
-	LastTime int64           // 客户端最后心跳时间/心跳检测
-	Channel  *ChannelManager // 渠道分组
+	Conn          *websocket.Conn        // 客户端连接
+	Uuid          string                 // 客户端唯一标识
+	UserId        int                    // 用户ID
+	LastTime      int64                  // 客户端最后心跳时间/心跳检测
+	Channel       *ChannelManager        // 渠道分组
+	ClientService *service.ClientService // 服务信息
 }
 
 // NewImClient ...
-func NewImClient(conn *websocket.Conn, userId int, channel *ChannelManager) *Client {
+func NewImClient(conn *websocket.Conn, clientService *service.ClientService, userId int, channel *ChannelManager) *Client {
 	client := &Client{
-		Conn:     conn,
-		Uuid:     uuid.NewV4().String(),
-		UserId:   userId,
-		LastTime: time.Now().Unix(),
-		Channel:  channel,
+		Conn:          conn,
+		Uuid:          uuid.NewV4().String(),
+		UserId:        userId,
+		LastTime:      time.Now().Unix(),
+		Channel:       channel,
+		ClientService: clientService,
 	}
 
 	conn.SetCloseHandler(func(code int, text string) error {
@@ -41,14 +44,14 @@ func NewImClient(conn *websocket.Conn, userId int, channel *ChannelManager) *Cli
 
 		client.Channel.RemoveClient(client)
 
-		service.NewClientService().UnBind(client.Channel.Name, client.Uuid)
+		client.ClientService.UnBind(context.Background(), client.Channel.Name, client.Uuid)
 
 		return nil
 	})
 
 	channel.RegisterClient(client)
 
-	service.NewClientService().Bind(channel.Name, client.Uuid, client.UserId)
+	client.ClientService.Bind(context.Background(), channel.Name, client.Uuid, client.UserId)
 
 	channel.Handle.Open(client)
 

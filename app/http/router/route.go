@@ -1,41 +1,31 @@
 package router
 
 import (
+	"net/http"
+
 	"github.com/gin-gonic/gin"
+	"go-chat/app/http/handler"
 	"go-chat/app/http/middleware"
 	"go-chat/config"
-	"net/http"
 )
 
 // InitRouter 初始化配置路由
-func NewRouter() *gin.Engine {
+func NewRouter(conf *config.Config, handler *handler.Handler) *gin.Engine {
 	router := gin.Default()
 
 	// 注册跨域中间件
-	router.Use(middleware.Cors())
-
-	defaultRouter(router)
-
-	RegisterApiRoute(router)
-	RegisterWsRoute(router)
-	RegisterOpenRoute(router)
-
-	return router
-}
-
-func defaultRouter(router *gin.Engine) {
+	router.Use(middleware.Cors(conf))
 	router.GET("/", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{
-			"AppName": config.GlobalConfig.Server.AppName,
-			"Version": config.GlobalConfig.Server.Version,
-			"Author":  "837215079@qq.com",
-		})
+		c.JSON(http.StatusOK, conf.Server)
 	})
-
+	router.GET("/open", handler.Index.Index)
+	RegisterApiRoute(conf, router, handler)
+	RegisterWsRoute(conf, router, handler)
 	router.NoRoute(func(c *gin.Context) {
 		c.JSON(http.StatusNotFound, gin.H{
 			"code":    "404",
 			"message": "请求地址不存在!",
 		})
 	})
+	return router
 }

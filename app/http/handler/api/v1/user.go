@@ -7,11 +7,11 @@ import (
 	"go-chat/app/pkg/im"
 )
 
-type UserController struct {
+type User struct {
 }
 
 // Detail 个人用户信息
-func (u *UserController) Detail(c *gin.Context) {
+func (u *User) Detail(c *gin.Context) {
 	msg := c.DefaultQuery("message", "")
 
 	im.Manager.DefaultChannel.SendMessage(&im.SendMessage{
@@ -28,7 +28,7 @@ func (u *UserController) Detail(c *gin.Context) {
 }
 
 // ChangePassword 修改密码接口
-func (u *UserController) ChangePassword(c *gin.Context) {
+func (u *User) ChangePassword(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"code": 10000,
 		"msg":  "success",
@@ -36,7 +36,7 @@ func (u *UserController) ChangePassword(c *gin.Context) {
 }
 
 // ChangeMobile 修改手机号接口
-func (u UserController) ChangeMobile(c *gin.Context) {
+func (u User) ChangeMobile(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"code": 10000,
 		"msg":  "success",
@@ -44,7 +44,7 @@ func (u UserController) ChangeMobile(c *gin.Context) {
 }
 
 // ChangeEmail 修改邮箱接口
-func (u UserController) ChangeEmail(c *gin.Context) {
+func (u User) ChangeEmail(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"code": 10000,
 		"msg":  "success",

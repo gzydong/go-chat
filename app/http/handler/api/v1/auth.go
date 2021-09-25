@@ -6,9 +6,11 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"go-chat/app/helper"
+	"go-chat/config"
 )
 
-type AuthController struct {
+type Auth struct {
+	Conf *config.Config
 }
 
 // 绑定 JSON
@@ -18,14 +20,14 @@ type Login struct {
 }
 
 // Login 登录接口
-func (a *AuthController) Login(c *gin.Context) {
+func (a *Auth) Login(c *gin.Context) {
 	username := c.PostForm("username")
 	password := c.PostForm("password")
 
 	fmt.Printf("username: %s; password: %s;\n", username, password)
 
 	// 生成登录凭证
-	token, err := helper.GenerateJwtToken("api", 2054)
+	token, err := helper.GenerateJwtToken(a.Conf, "api", 2054)
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"code":    305,
@@ -46,12 +48,12 @@ func (a *AuthController) Login(c *gin.Context) {
 }
 
 // Register 注册接口
-func (a *AuthController) Register(c *gin.Context) {
+func (a *Auth) Register(c *gin.Context) {
 
 }
 
 // Logout 注销接口
-func (a *AuthController) Logout(c *gin.Context) {
+func (a *Auth) Logout(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"code":    200,
 		"message": "success",
@@ -59,16 +61,16 @@ func (a *AuthController) Logout(c *gin.Context) {
 }
 
 // Refresh Token 刷新接口
-func (a *AuthController) Refresh(c *gin.Context) {
+func (a *Auth) Refresh(c *gin.Context) {
 
 }
 
 // Forget 账号找回
-func (a *AuthController) Forget(c *gin.Context) {
+func (a *Auth) Forget(c *gin.Context) {
 
 }
 
 // SmsCode 发送短信验证码
-func (a *AuthController) SmsCode(c *gin.Context) {
+func (a *Auth) SmsCode(c *gin.Context) {
 
 }

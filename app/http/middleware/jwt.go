@@ -6,11 +6,12 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"go-chat/app/helper"
+	"go-chat/config"
 )
 
 // ApiAuth 授权中间件
 // guard 授权守卫
-func JwtAuth(guard string) gin.HandlerFunc {
+func JwtAuth(conf *config.Config, guard string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		token := getAuthToken(c)
 		if token == "" {
@@ -22,7 +23,7 @@ func JwtAuth(guard string) gin.HandlerFunc {
 			return
 		}
 
-		jwt, err := helper.ParseJwtToken(token)
+		jwt, err := helper.ParseJwtToken(conf, token)
 		if err != nil {
 			c.JSON(http.StatusUnauthorized, gin.H{
 				"code": 40002,
@@ -44,7 +45,7 @@ func JwtAuth(guard string) gin.HandlerFunc {
 		// 黑名单判断
 
 		c.Set("jwt", jwt)
-		c.Set("user_id", jwt.UserID)
+		c.Set("user_id", jwt.UserId)
 
 		c.Next()
 	}

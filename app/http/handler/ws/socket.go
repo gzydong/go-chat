@@ -5,13 +5,15 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"go-chat/app/pkg/im"
+	"go-chat/app/service"
 )
 
-type WsController struct {
+type Ws struct {
+	ClientService *service.ClientService
 }
 
 // SocketIo 连接客户端
-func (w *WsController) SocketIo(c *gin.Context) {
+func (w *Ws) SocketIo(c *gin.Context) {
 	conn, err := im.NewWebsocket(c)
 	if err != nil {
 		log.Printf("websocket connect error")
@@ -19,7 +21,7 @@ func (w *WsController) SocketIo(c *gin.Context) {
 	}
 
 	// 创建客户端
-	client := im.NewImClient(conn, c.GetInt("user_id"), im.Manager.DefaultChannel)
+	client := im.NewImClient(conn, w.ClientService, c.GetInt("user_id"), im.Manager.DefaultChannel)
 
 	// 启动客户端心跳检测
 	go client.Heartbeat()
@@ -29,7 +31,7 @@ func (w *WsController) SocketIo(c *gin.Context) {
 }
 
 // AdminIo 连接客户端
-func (w *WsController) AdminIo(c *gin.Context) {
+func (w *Ws) AdminIo(c *gin.Context) {
 	conn, err := im.NewWebsocket(c)
 	if err != nil {
 		log.Printf("websocket connect error")
@@ -37,7 +39,7 @@ func (w *WsController) AdminIo(c *gin.Context) {
 	}
 
 	// 创建客户端
-	client := im.NewImClient(conn, c.GetInt("user_id"), im.Manager.AdminChannel)
+	client := im.NewImClient(conn, w.ClientService, c.GetInt("user_id"), im.Manager.AdminChannel)
 
 	// 启动客户端心跳检测
 	go client.Heartbeat()

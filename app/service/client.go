@@ -1,20 +1,21 @@
 package service
 
-import "go-chat/app/cache"
+import (
+	"context"
+
+	"go-chat/app/cache"
+)
 
 type ClientService struct {
-}
-
-func NewClientService() *ClientService {
-	return new(ClientService)
+	WsClient *cache.WsClient
 }
 
 // Bind ...
-func (c *ClientService) Bind(channel string, uuid string, id int) {
-	cache.NewWsClient().Set(channel, uuid, id)
+func (c *ClientService) Bind(ctx context.Context, channel string, uuid string, id int) {
+	c.WsClient.Set(ctx, channel, uuid, id)
 }
 
 // UnBind ...
-func (c *ClientService) UnBind(channel string, uuid string) {
-	cache.NewWsClient().Del(channel, uuid)
+func (c *ClientService) UnBind(ctx context.Context, channel string, uuid string) {
+	c.WsClient.Del(ctx, channel, uuid)
 }

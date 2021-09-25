@@ -1,11 +1,15 @@
 package cache
 
 import (
+	"context"
 	"strconv"
 	"time"
+
+	"go-chat/connect"
 )
 
 type ServerRunID struct {
+	Redis *connect.Redis
 }
 
 const (
@@ -15,18 +19,18 @@ const (
 	ServerOverTime = 35
 )
 
-func NewServerRun() *ServerRunID {
-	return &ServerRunID{}
+func NewServerRun(redis *connect.Redis) *ServerRunID {
+	return &ServerRunID{Redis: redis}
 }
 
-func (s *ServerRunID) SetServerID(server string, time int64) {
-	Rdb.HSet(ServerRunIdKey, server, time)
+func (s *ServerRunID) SetServerID(ctx context.Context, server string, time int64) error {
+	return s.Redis.Client.HSet(ctx, ServerRunIdKey, server, time).Err()
 }
 
 // GetServerRunIdAll 获取指定状态的运行ID
 // status 状态[1:运行中;2:已超时;3:全部]
-func (s ServerRunID) GetServerRunIdAll(status int) []string {
-	result, err := Rdb.HGetAll(ServerRunIdKey).Result()
+func (s *ServerRunID) GetServerRunIdAll(ctx context.Context, status int) []string {
+	result, err := s.Redis.Client.HGetAll(ctx, ServerRunIdKey).Result()
 
 	slice := make([]string, 0)
 

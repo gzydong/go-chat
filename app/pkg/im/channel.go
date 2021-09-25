@@ -1,7 +1,9 @@
 package im
 
 import (
+	"context"
 	"fmt"
+	"log"
 	"sync"
 	"time"
 
@@ -72,11 +74,15 @@ func (c *ChannelManager) SetCallbackHandler(handle WebsocketInterface) *ChannelM
 }
 
 // Process 渠道消费协程
-func (c *ChannelManager) Process() {
-	fmt.Printf("[%s] 消费协程已启动\n", c.Name)
+func (c *ChannelManager) Process(ctx context.Context, group *sync.WaitGroup) {
+	log.Printf("[%s] 消费协程已启动\n", c.Name)
+	defer group.Done()
 
 	for {
 		select {
+		case <-ctx.Done():
+			log.Printf("[%s] 消费协程已关闭\n", c.Name)
+			return
 		// 处理接收消息
 		case value, ok := <-c.RecvChan:
 			if ok {
@@ -87,7 +93,7 @@ func (c *ChannelManager) Process() {
 		case value, ok := <-c.SendChan:
 			if !ok {
 				fmt.Printf("消费通道[%s]，读取数据失败...", c.Name)
-				continue
+				break
 			}
 
 			content, _ := jsoniter.Marshal(value)

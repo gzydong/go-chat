@@ -1,14 +1,14 @@
 package v1
 
-type DownloadController struct {
+type Download struct {
 }
 
 // ChatFileAction 下载聊天文件
-func (d *DownloadController) ChatFileAction() {
+func (d *Download) ChatFileAction() {
 
 }
 
 // ArticleAnnexAction 下载笔记附件
-func (d *DownloadController) ArticleAnnexAction() {
+func (d *Download) ArticleAnnexAction() {
 
 }

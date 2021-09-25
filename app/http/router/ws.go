@@ -2,17 +2,13 @@ package router
 
 import (
 	"github.com/gin-gonic/gin"
-	"go-chat/app/http/handler/ws"
+	"go-chat/app/http/handler"
 	"go-chat/app/http/middleware"
+	"go-chat/config"
 )
 
-type WsControllerGroup struct {
-	WsController *ws.WsController
-}
-
 // RegisterWsRoute 注册 Websocket 路由
-func RegisterWsRoute(router *gin.Engine) {
-	ControllerGroup := new(WsControllerGroup)
-	router.GET("/ws/socket.io", middleware.JwtAuth("api"), ControllerGroup.WsController.SocketIo)
-	router.GET("/ws/admin.io", middleware.JwtAuth("api"), ControllerGroup.WsController.AdminIo)
+func RegisterWsRoute(conf *config.Config, router *gin.Engine, handler *handler.Handler) {
+	router.GET("/ws/socket.io", middleware.JwtAuth(conf, "api"), handler.Ws.SocketIo)
+	router.GET("/ws/admin.io", middleware.JwtAuth(conf, "api"), handler.Ws.AdminIo)
 }
