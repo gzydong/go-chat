@@ -27,14 +27,11 @@ func NewRouter(conf *config.Config, handler *handler.Handler) *gin.Engine {
 	router.GET("/", func(c *gin.Context) {
 		c.JSON(http.StatusOK, conf.Server)
 	})
-	router.GET("/open", response.Handler(handler.Index.Index))
+	router.GET("/open", handler.Index.Index)
 	RegisterApiRoute(conf, router, handler)
 	RegisterWsRoute(conf, router, handler)
 	router.NoRoute(func(c *gin.Context) {
-		c.JSON(http.StatusNotFound, gin.H{
-			"code":    "404",
-			"message": "请求地址不存在!",
-		})
+		response.NewError(c, 404, "请求地址不存在")
 	})
 	return router
 }

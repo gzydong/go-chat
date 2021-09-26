@@ -2,7 +2,9 @@ package response
 
 import (
 	"fmt"
+	"net/http"
 
+	"github.com/gin-gonic/gin"
 	"go-chat/app/entity"
 )
 
@@ -13,7 +15,7 @@ type Response struct {
 	Data    interface{} `json:"data,omitempty"`
 }
 
-func NewError(code int, message ...interface{}) *Response {
+func NewError(c *gin.Context, code int, message ...interface{}) {
 	// 判断错误类型
 	var msg string
 	if message != nil {
@@ -25,45 +27,49 @@ func NewError(code int, message ...interface{}) *Response {
 		default:
 			msg = fmt.Sprintf("%v", message[0])
 		}
-	}
-
-	// 没有消息内容
-	if msg == "" {
-		if msg1, ok := entity.CodeMessageMap[code]; ok {
-			msg = msg1
+	} else {
+		if errorMessage, ok := entity.CodeMessageMap[code]; ok {
+			msg = errorMessage
 		} else {
 			msg = entity.CodeMessageMap[entity.CodeSystemError]
 		}
 	}
 
-	return &Response{Code: code, Message: msg}
+	status := http.StatusOK
+	if code == 404 {
+		status = http.StatusNotFound
+	}
+
+	c.JSON(status, &Response{Code: code, Message: msg})
+	c.Abort()
 }
 
-func InvalidParams(message ...interface{}) *Response {
-	return NewError(entity.CodeInvalidParamsError, message...)
+func InvalidParams(c *gin.Context, message ...interface{}) {
+	NewError(c, entity.CodeInvalidParamsError, message...)
 }
 
-func Unauthorized(message ...interface{}) *Response {
-	return NewError(entity.CodeUnauthorizedError, message...)
+func Unauthorized(c *gin.Context, message ...interface{}) {
+	NewError(c, entity.CodeUnauthorizedError, message...)
 }
 
-func NotLogin(message ...interface{}) *Response {
-	return NewError(entity.CodeNotLoginError, message...)
+func NotLogin(c *gin.Context, message ...interface{}) {
+	NewError(c, entity.CodeNotLoginError, message...)
 }
 
-func BusinessError(message ...interface{}) *Response {
-	return NewError(entity.CodeBusinessError, message...)
+func BusinessError(c *gin.Context, message ...interface{}) {
+	NewError(c, entity.CodeBusinessError, message...)
 }
 
-func SystemError(message ...interface{}) *Response {
-	return NewError(entity.CodeSystemError, message...)
+func SystemError(c *gin.Context, message ...interface{}) {
+	NewError(c, entity.CodeSystemError, message...)
 }
 
-func Success(data interface{}, message ...string) *Response {
+func Success(c *gin.Context, data interface{}, message ...string) {
 	msg := "success"
 	if len(message) > 0 {
 		msg = message[0]
 	}
 
-	return &Response{Code: entity.CodeSuccess, Data: data, Message: msg}
+	c.JSON(http.StatusOK, &Response{Code: entity.CodeSuccess, Data: data, Message: msg})
+	c.Abort()
 }

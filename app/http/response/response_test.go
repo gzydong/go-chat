@@ -1,10 +1,15 @@
 package response
 
 import (
+	"encoding/json"
 	"errors"
+	"fmt"
+	"io/ioutil"
+	"net/http/httptest"
 	"reflect"
 	"testing"
 
+	"github.com/gin-gonic/gin"
 	"go-chat/app/entity"
 )
 
@@ -46,8 +51,22 @@ func TestNewError(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := NewError(tt.args.code, tt.args.message...); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("NewError() = %v, want %v", got, tt.want)
+			r := httptest.NewRecorder()
+			c, _ := gin.CreateTestContext(r)
+			NewError(c, tt.args.code, tt.args.message...)
+			body, err := ioutil.ReadAll(r.Body)
+			if err != nil {
+				t.Errorf("read all error: %s", err)
+			}
+
+			fmt.Printf("response => \n%s\n", body)
+			rsp := &Response{}
+			if err := json.Unmarshal(body, rsp); err != nil {
+				t.Errorf("json unmarsha1 error: %s", err)
+			}
+
+			if !reflect.DeepEqual(rsp, tt.want) {
+				t.Errorf("NewError() = %v, want %v", rsp, tt.want)
 			}
 		})
 	}
