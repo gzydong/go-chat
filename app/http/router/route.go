@@ -2,7 +2,6 @@ package router
 
 import (
 	"io"
-	"log"
 	"net/http"
 	"os"
 
@@ -10,17 +9,12 @@ import (
 	"go-chat/app/http/handler"
 	"go-chat/app/http/middleware"
 	"go-chat/app/http/response"
-	"go-chat/app/validator"
 	"go-chat/config"
 )
 
 // InitRouter 初始化配置路由
 func NewRouter(conf *config.Config, handler *handler.Handler) *gin.Engine {
 	router := gin.Default()
-	if err := validator.InitValidator(); err != nil {
-		log.Printf("InitValidator error: %s \n", err)
-	}
-
 	if gin.Mode() != gin.DebugMode {
 		f, _ := os.Create("runtime/logs/gin.log")
 		// 如果需要同时将日志写入文件和控制台
