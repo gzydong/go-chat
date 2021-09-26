@@ -41,7 +41,6 @@ func NewError(c *gin.Context, code int, message ...interface{}) {
 	}
 
 	c.JSON(status, &Response{Code: code, Message: msg})
-	c.Abort()
 }
 
 func InvalidParams(c *gin.Context, message ...interface{}) {

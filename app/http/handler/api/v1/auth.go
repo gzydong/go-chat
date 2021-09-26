@@ -1,11 +1,14 @@
 package v1
 
 import (
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 	"go-chat/app/helper"
+	"go-chat/app/http/request"
+	"go-chat/app/http/response"
 	"go-chat/app/service"
 	"go-chat/config"
-	"net/http"
 )
 
 type Auth struct {
@@ -13,44 +16,31 @@ type Auth struct {
 	UserService *service.UserService
 }
 
-// 绑定 JSON
-type Login struct {
-	User     string `form:"username" binding:"required"`
-	Password string `form:"password" binding:"required"`
-}
-
 // Login 登录接口
 func (a *Auth) Login(c *gin.Context) {
-	username := c.PostForm("username")
-	password := c.PostForm("password")
+	param := &request.LoginRequest{}
+	if err := c.Bind(param); err != nil {
+		response.InvalidParams(c, err)
+		return
+	}
 
-	user, err := a.UserService.Login(username, password)
+	user, err := a.UserService.Login(param.Username, param.Password)
 	if err != nil {
-		c.JSON(http.StatusOK, gin.H{
-			"code":    305,
-			"message": err.Error(),
-		})
+		response.InvalidParams(c, err)
 		return
 	}
 
 	// 生成登录凭证
 	token, e := helper.GenerateJwtToken(a.Conf, "api", user.ID)
 	if e != nil {
-		c.JSON(http.StatusOK, gin.H{
-			"code":    305,
-			"message": "登录失败，请稍后再试！",
-		})
+		response.BusinessError(c, "登录失败，请稍后再试")
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"code":    200,
-		"message": "success",
-		"data": gin.H{
-			"type":       "Bearer",
-			"token":      token["token"],
-			"expires_in": token["expired_at"],
-		},
+	response.Success(c, map[string]interface{}{
+		"type":       "Bearer",
+		"token":      token["token"],
+		"expires_in": token["expired_at"],
 	})
 }
 
