@@ -8,6 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"go-chat/app/http/handler"
 	"go-chat/app/http/middleware"
+	"go-chat/app/http/response"
 	"go-chat/config"
 )
 
@@ -26,7 +27,7 @@ func NewRouter(conf *config.Config, handler *handler.Handler) *gin.Engine {
 	router.GET("/", func(c *gin.Context) {
 		c.JSON(http.StatusOK, conf.Server)
 	})
-	router.GET("/open", handler.Index.Index)
+	router.GET("/open", response.Handler(handler.Index.Index))
 	RegisterApiRoute(conf, router, handler)
 	RegisterWsRoute(conf, router, handler)
 	router.NoRoute(func(c *gin.Context) {

@@ -16,6 +16,7 @@ require (
 	github.com/onsi/gomega v1.16.0 // indirect
 	github.com/satori/go.uuid v1.2.0
 	github.com/stretchr/testify v1.7.0
+	github.com/tidwall/gjson v1.9.1
 	github.com/ugorji/go v1.2.6 // indirect
 	golang.org/x/crypto v0.0.0-20210817164053-32db794688a5
 	golang.org/x/sync v0.0.0-20201020160332-67f06af15bc9
