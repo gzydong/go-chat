@@ -46,7 +46,19 @@ func (a *Auth) Login(c *gin.Context) {
 
 // Register 注册接口
 func (a *Auth) Register(c *gin.Context) {
+	param := &request.RegisterRequest{}
+	if err := c.Bind(param); err != nil {
+		response.InvalidParams(c, err)
+		return
+	}
 
+	_, err := a.UserService.Register(param)
+	if err != nil {
+		response.BusinessError(c, err)
+		return
+	}
+
+	response.Success(c, gin.H{}, "账号注册成功")
 }
 
 // Logout 注销接口

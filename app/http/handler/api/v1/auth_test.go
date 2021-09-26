@@ -30,3 +30,19 @@ func TestAuth_Login(t *testing.T) {
 	assert.NoError(t, err)
 	fmt.Println(resp.GetJson().Get("code"))
 }
+
+func TestAuth_Register(t *testing.T) {
+	a := testAuth()
+	r := testutil.NewTestRequest("/auth/register", a.Register)
+
+	value := &url.Values{}
+	value.Add("nickname", "测试账号昵称")
+	value.Add("mobile", "18953025199")
+	value.Add("password", "admin123")
+	value.Add("sms_code", "000000")
+	value.Add("platform", "mac")
+
+	resp, err := r.Form(value)
+	assert.NoError(t, err)
+	fmt.Println(resp.GetJson().Get("code"))
+}
