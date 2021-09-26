@@ -29,6 +29,6 @@ func (a *AuthToken) DelBlackList(ctx context.Context, token string) error {
 }
 
 // IsExistBlackList 判断 token 是否存在白名单
-func (a AuthToken) IsExistBlackList(ctx context.Context, token string) error {
+func (a *AuthToken) IsExistBlackList(ctx context.Context, token string) error {
 	return a.Redis.Get(ctx, a.key(token)).Err()
 }

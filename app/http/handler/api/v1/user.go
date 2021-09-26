@@ -1,15 +1,15 @@
 package v1
 
 import (
+	"gorm.io/gorm"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"go-chat/app/pkg/im"
-	"go-chat/connect"
 )
 
 type User struct {
-	MySQl *connect.MySQL
+	MySQl *gorm.DB
 }
 
 // Detail 个人用户信息
