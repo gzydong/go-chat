@@ -1,9 +1,10 @@
 package v1
 
 import (
-	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
+	"go-chat/app/cache"
 	"go-chat/app/helper"
 	"go-chat/app/http/request"
 	"go-chat/app/http/response"
@@ -14,6 +15,7 @@ import (
 type Auth struct {
 	Conf        *config.Config
 	UserService *service.UserService
+	AuthToken   *cache.AuthToken
 }
 
 // Login 登录接口
@@ -63,15 +65,38 @@ func (a *Auth) Register(c *gin.Context) {
 
 // Logout 注销接口
 func (a *Auth) Logout(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{
-		"code":    200,
-		"message": "success",
-	})
+	token := helper.GetAuthToken(c)
+
+	claims, err := helper.ParseJwtToken(a.Conf, token)
+	if err != nil {
+		response.Success(c, "")
+		return
+	}
+
+	// 计算过期时间
+	expiresAt := claims.ExpiresAt - time.Now().Unix()
+
+	// 将 token 加入黑名单
+	_ = a.AuthToken.SetBlackList(c, token, int(expiresAt))
+
+	response.Success(c, "", "退出成功！")
 }
 
 // Refresh Token 刷新接口
 func (a *Auth) Refresh(c *gin.Context) {
+	token, e := helper.GenerateJwtToken(a.Conf, "api", c.GetInt("user_id"))
+	if e != nil {
+		response.BusinessError(c, "Token 刷新失败，请稍后再试!")
+		return
+	}
 
+	// todo 将之前的 token 加入黑名单
+
+	response.Success(c, map[string]interface{}{
+		"type":       "Bearer",
+		"token":      token["token"],
+		"expires_in": token["expired_at"],
+	})
 }
 
 // Forget 账号找回

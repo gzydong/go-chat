@@ -19,6 +19,8 @@ func RegisterApiRoute(conf *config.Config, router *gin.Engine, handler *handler.
 		{
 			auth.POST("/login", handler.Auth.Login)
 			auth.POST("/register", handler.Auth.Register)
+			auth.POST("/refresh", middleware.JwtAuth(conf, ApiGuard), handler.Auth.Refresh)
+			auth.POST("/logout", middleware.JwtAuth(conf, ApiGuard), handler.Auth.Logout)
 		}
 
 		// 用户相关分组

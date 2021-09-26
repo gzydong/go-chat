@@ -2,6 +2,7 @@ package v1
 
 import (
 	"fmt"
+	"github.com/gin-gonic/gin"
 	"net/url"
 	"testing"
 
@@ -41,6 +42,19 @@ func TestAuth_Register(t *testing.T) {
 	value.Add("password", "admin123")
 	value.Add("sms_code", "000000")
 	value.Add("platform", "mac")
+
+	resp, err := r.Form(value)
+	assert.NoError(t, err)
+	fmt.Println(resp.GetJson().Get("code"))
+}
+
+func TestAuth_Refresh(t *testing.T) {
+	a := testAuth()
+	r := testutil.NewTestRequest("/auth/refresh", func(context *gin.Context) {
+		context.Set("user_id", 1)
+	}, a.Refresh)
+
+	value := &url.Values{}
 
 	resp, err := r.Form(value)
 	assert.NoError(t, err)

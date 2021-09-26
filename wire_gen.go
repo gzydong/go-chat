@@ -20,6 +20,10 @@ import (
 	"go-chat/connect"
 )
 
+import (
+	_ "go-chat/app/validator"
+)
+
 // Injectors from wire.go:
 
 func Initialize(ctx context.Context, conf *config.Config) *Service {
@@ -30,16 +34,20 @@ func Initialize(ctx context.Context, conf *config.Config) *Service {
 	userService := &service.UserService{
 		Repo: userRepository,
 	}
+	redis := connect.RedisConnect(ctx, conf)
+	authToken := &cache.AuthToken{
+		Redis: redis,
+	}
 	auth := &v1.Auth{
 		Conf:        conf,
 		UserService: userService,
+		AuthToken:   authToken,
 	}
 	user := &v1.User{
 		MySQl: mySQL,
 	}
 	download := &v1.Download{}
 	index := &open.Index{}
-	redis := connect.RedisConnect(ctx, conf)
 	wsClient := &cache.WsClient{
 		Redis: redis,
 	}
@@ -72,4 +80,4 @@ func Initialize(ctx context.Context, conf *config.Config) *Service {
 
 // wire.go:
 
-var providerSet = wire.NewSet(connect.RedisConnect, connect.MysqlConnect, connect.NewHttp, router.NewRouter, cache.NewServerRun, wire.Struct(new(cache.WsClient), "*"), wire.Struct(new(v1.Auth), "*"), wire.Struct(new(v1.User), "*"), wire.Struct(new(v1.Download), "*"), wire.Struct(new(open.Index), "*"), wire.Struct(new(ws.WebSocket), "*"), wire.Struct(new(handler.Handler), "*"), wire.Struct(new(repository.UserRepository), "*"), wire.Struct(new(service.ClientService), "*"), wire.Struct(new(service.UserService), "*"), wire.Struct(new(service.SocketService), "*"), wire.Struct(new(Service), "*"))
+var providerSet = wire.NewSet(connect.RedisConnect, connect.MysqlConnect, connect.NewHttp, router.NewRouter, cache.NewServerRun, wire.Struct(new(cache.WsClient), "*"), wire.Struct(new(cache.AuthToken), "*"), wire.Struct(new(v1.Auth), "*"), wire.Struct(new(v1.User), "*"), wire.Struct(new(v1.Download), "*"), wire.Struct(new(open.Index), "*"), wire.Struct(new(ws.WebSocket), "*"), wire.Struct(new(handler.Handler), "*"), wire.Struct(new(repository.UserRepository), "*"), wire.Struct(new(service.ClientService), "*"), wire.Struct(new(service.UserService), "*"), wire.Struct(new(service.SocketService), "*"), wire.Struct(new(Service), "*"))
