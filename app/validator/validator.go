@@ -7,7 +7,6 @@ import (
 	"github.com/go-playground/validator/v10"
 	zhTranslations "github.com/go-playground/validator/v10/translations/zh"
 	"reflect"
-	"regexp"
 )
 
 var trans ut.Translator
@@ -24,23 +23,18 @@ func InitValidator() error {
 			return name
 		})
 
-		_ = v.RegisterValidation("phone", func(fl validator.FieldLevel) bool {
-			matched, _ := regexp.MatchString("^1[3456789][0-9]{9}$", fl.Field().String())
-			return matched
-		})
-
-		// 根据提供的标记注册翻译
-		_ = v.RegisterTranslation("phone", trans, func(ut ut.Translator) error {
-			return ut.Add("phone", "手机号格式错误!", true)
-		}, func(ut ut.Translator, fe validator.FieldError) string {
-			t, _ := ut.T("phone", fe.Field(), fe.Field())
-			return t
-		})
+		registerCustomValidator(v, trans)
 
 		return zhTranslations.RegisterDefaultTranslations(v, trans)
 	}
 
 	return nil
+}
+
+// registerCustomValidator 注册自定义验证器
+func registerCustomValidator(v *validator.Validate, trans ut.Translator) {
+	validatorPhone(v, trans)
+	validatorIds(v, trans)
 }
 
 func Translate(err error) string {
