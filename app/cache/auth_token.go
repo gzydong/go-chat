@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"time"
 
-	"go-chat/connect"
+	"github.com/go-redis/redis/v8"
 )
 
 type AuthToken struct {
-	Redis *connect.Redis
+	Redis *redis.Client
 }
 
 func (a *AuthToken) key(token string) string {
@@ -20,15 +20,15 @@ func (a *AuthToken) key(token string) string {
 func (a *AuthToken) SetBlackList(ctx context.Context, token string, expiration int) error {
 	ex := time.Duration(expiration) * time.Second
 
-	return a.Redis.Client.Set(ctx, a.key(token), 1, ex).Err()
+	return a.Redis.Set(ctx, a.key(token), 1, ex).Err()
 }
 
 // DelBlackList 将 token 移出黑名单
 func (a *AuthToken) DelBlackList(ctx context.Context, token string) error {
-	return a.Redis.Client.Del(ctx, a.key(token)).Err()
+	return a.Redis.Del(ctx, a.key(token)).Err()
 }
 
 // IsExistBlackList 判断 token 是否存在白名单
 func (a AuthToken) IsExistBlackList(ctx context.Context, token string) error {
-	return a.Redis.Client.Get(ctx, a.key(token)).Err()
+	return a.Redis.Get(ctx, a.key(token)).Err()
 }

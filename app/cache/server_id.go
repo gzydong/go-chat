@@ -5,11 +5,11 @@ import (
 	"strconv"
 	"time"
 
-	"go-chat/connect"
+	"github.com/go-redis/redis/v8"
 )
 
 type ServerRunID struct {
-	Redis *connect.Redis
+	Redis *redis.Client
 }
 
 const (
@@ -19,18 +19,18 @@ const (
 	ServerOverTime = 35
 )
 
-func NewServerRun(redis *connect.Redis) *ServerRunID {
+func NewServerRun(redis *redis.Client) *ServerRunID {
 	return &ServerRunID{Redis: redis}
 }
 
 func (s *ServerRunID) SetServerID(ctx context.Context, server string, time int64) error {
-	return s.Redis.Client.HSet(ctx, ServerRunIdKey, server, time).Err()
+	return s.Redis.HSet(ctx, ServerRunIdKey, server, time).Err()
 }
 
 // GetServerRunIdAll 获取指定状态的运行ID
 // status 状态[1:运行中;2:已超时;3:全部]
 func (s *ServerRunID) GetServerRunIdAll(ctx context.Context, status int) []string {
-	result, err := s.Redis.Client.HGetAll(ctx, ServerRunIdKey).Result()
+	result, err := s.Redis.HGetAll(ctx, ServerRunIdKey).Result()
 
 	slice := make([]string, 0)
 

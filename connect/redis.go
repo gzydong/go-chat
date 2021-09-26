@@ -8,12 +8,7 @@ import (
 	"go-chat/config"
 )
 
-type Redis struct {
-	Prefix string
-	Client *redis.Client
-}
-
-func RedisConnect(ctx context.Context, conf *config.Config) *Redis {
+func RedisConnect(ctx context.Context, conf *config.Config) *redis.Client {
 
 	// 建立连接
 	client := redis.NewClient(&redis.Options{
@@ -28,5 +23,5 @@ func RedisConnect(ctx context.Context, conf *config.Config) *Redis {
 		panic(fmt.Errorf("redis client error: %s", err))
 	}
 
-	return &Redis{Client: client, Prefix: conf.Redis.Prefix}
+	return client
 }

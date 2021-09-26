@@ -2,17 +2,14 @@ package connect
 
 import (
 	"fmt"
+
 	"go-chat/config"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/schema"
 )
 
-type MySQL struct {
-	Db *gorm.DB
-}
-
-func MysqlConnect(conf *config.Config) *MySQL {
+func MysqlConnect(conf *config.Config) *gorm.DB {
 	dsn := getDsn(conf)
 
 	db, err := gorm.Open(mysql.New(mysql.Config{
@@ -36,7 +33,7 @@ func MysqlConnect(conf *config.Config) *MySQL {
 		fmt.Printf("database error %v", db.Error)
 	}
 
-	return &MySQL{Db: db}
+	return db
 }
 
 func getDsn(conf *config.Config) string {
