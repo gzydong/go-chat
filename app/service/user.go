@@ -31,6 +31,9 @@ func (s *UserService) Login(username string, password string) (*model.User, erro
 		return nil, errors.New("登录账号不存在! ")
 	}
 
+	fmt.Println(password, " === ", user.Password)
+
+	fmt.Println(helper.VerifyPassword([]byte(password), []byte(user.Password)))
 	if !helper.VerifyPassword([]byte(password), []byte(user.Password)) {
 		return nil, errors.New("登录密码填写错误! ")
 	}
