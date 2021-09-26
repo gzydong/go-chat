@@ -27,29 +27,27 @@ import (
 // Injectors from wire.go:
 
 func Initialize(ctx context.Context, conf *config.Config) *Service {
-	mySQL := connect.MysqlConnect(conf)
+	db := connect.MysqlConnect(conf)
 	userRepository := &repository.UserRepository{
-		DB: mySQL,
+		DB: db,
 	}
 	userService := &service.UserService{
 		Repo: userRepository,
 	}
-	redis := connect.RedisConnect(ctx, conf)
+	client := connect.RedisConnect(ctx, conf)
 	authToken := &cache.AuthToken{
-		Redis: redis,
+		Redis: client,
 	}
 	auth := &v1.Auth{
 		Conf:        conf,
 		UserService: userService,
 		AuthToken:   authToken,
 	}
-	user := &v1.User{
-		MySQl: mySQL,
-	}
+	user := &v1.User{}
 	download := &v1.Download{}
 	index := &open.Index{}
 	wsClient := &cache.WsClient{
-		Redis: redis,
+		Client: client,
 	}
 	clientService := &service.ClientService{
 		WsClient: wsClient,
@@ -66,7 +64,7 @@ func Initialize(ctx context.Context, conf *config.Config) *Service {
 	}
 	engine := router.NewRouter(conf, handlerHandler)
 	server := connect.NewHttp(conf, engine)
-	serverRunID := cache.NewServerRun(redis)
+	serverRunID := cache.NewServerRun(client)
 	socketService := &service.SocketService{
 		Conf:        conf,
 		ServerRunID: serverRunID,

@@ -5,11 +5,9 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"go-chat/app/pkg/im"
-	"go-chat/connect"
 )
 
 type User struct {
-	MySQl *connect.MySQL
 }
 
 // Detail 个人用户信息

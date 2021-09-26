@@ -4,11 +4,11 @@ import (
 	"context"
 	"fmt"
 
-	"go-chat/connect"
+	"github.com/go-redis/redis/v8"
 )
 
 type WsClient struct {
-	Redis *connect.Redis
+	Client *redis.Client
 }
 
 // Set 设置客户端与用户绑定关系
@@ -17,10 +17,10 @@ type WsClient struct {
 // id       用户ID
 func (w *WsClient) Set(ctx context.Context, channel string, uuid string, id int) {
 	flag := fmt.Sprintf("ws:channel:%s:client", channel)
-	w.Redis.Client.HSet(ctx, flag, uuid, id)
+	w.Client.HSet(ctx, flag, uuid, id)
 
 	flag = fmt.Sprintf("ws:channel:%s:user:%d", channel, id)
-	w.Redis.Client.SAdd(ctx, flag, uuid)
+	w.Client.SAdd(ctx, flag, uuid)
 }
 
 // Del 删除客户端与用户绑定关系
@@ -29,12 +29,12 @@ func (w *WsClient) Set(ctx context.Context, channel string, uuid string, id int)
 func (w *WsClient) Del(ctx context.Context, channel string, uuid string) {
 	flag := fmt.Sprintf("ws:channel:%s", channel)
 
-	id, _ := w.Redis.Client.HGet(ctx, flag, uuid).Result()
+	id, _ := w.Client.HGet(ctx, flag, uuid).Result()
 
-	w.Redis.Client.HDel(ctx, flag, uuid)
+	w.Client.HDel(ctx, flag, uuid)
 
 	flag = fmt.Sprintf("ws:channel:%s:user:%s", channel, id)
-	w.Redis.Client.SRem(ctx, flag, uuid)
+	w.Client.SRem(ctx, flag, uuid)
 }
 
 // IsOnline 判断客户端是否在线[当前机器]
@@ -43,7 +43,7 @@ func (w *WsClient) Del(ctx context.Context, channel string, uuid string) {
 func (w *WsClient) IsOnline(ctx context.Context, channel string, id string) bool {
 	flag := fmt.Sprintf("ws:channel:%s:user:%s", channel, id)
 
-	val, err := w.Redis.Client.SCard(ctx, flag).Result()
+	val, err := w.Client.SCard(ctx, flag).Result()
 	if err != nil {
 		return false
 	}
@@ -56,7 +56,7 @@ func (w *WsClient) IsOnline(ctx context.Context, channel string, id string) bool
 // id       用户ID
 func (w *WsClient) IsOnlineAll(ctx context.Context, channel string, id string) bool {
 	flag := fmt.Sprintf("ws:channel:%s:user:%s", channel, id)
-	val, err := w.Redis.Client.SCard(ctx, flag).Result()
+	val, err := w.Client.SCard(ctx, flag).Result()
 	if err != nil {
 		return false
 	}
