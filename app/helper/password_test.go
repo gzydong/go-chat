@@ -1,12 +1,14 @@
 package helper
 
 import (
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestGeneratePassword(t *testing.T) {
-	_, err := GeneratePassword([]byte("admin123"))
+	str, err := GeneratePassword([]byte("admin123"))
+	t.Logf("%s\n", str)
 	assert.NoError(t, err)
 }
 

@@ -13,6 +13,7 @@ import (
 
 	"go-chat/app/pkg/im"
 	"go-chat/app/service"
+	_ "go-chat/app/validator"
 	"go-chat/app/websocket"
 	"go-chat/config"
 	"golang.org/x/sync/errgroup"

@@ -6,6 +6,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"go-chat/app/entity"
+	"go-chat/app/validator"
 )
 
 // 返回数据结构
@@ -21,7 +22,7 @@ func NewError(c *gin.Context, code int, message ...interface{}) {
 	if message != nil {
 		switch message[0].(type) {
 		case error:
-			msg = message[0].(error).Error()
+			msg = validator.Translate(message[0].(error))
 		case string:
 			msg = message[0].(string)
 		default:
