@@ -9,11 +9,12 @@ type UserRepository struct {
 	DB *connect.MySQL
 }
 
-// findByMobile 手机号查询
+// FindByMobile 手机号查询
 func (u *UserRepository) FindByMobile(mobile string) (*model.User, error) {
-	var user model.User
+	user := &model.User{}
+	if err := u.DB.Db.Where(&model.User{Mobile: mobile}).First(user).Error; err != nil {
+		return nil, err
+	}
 
-	result := u.DB.Db.Where(&model.User{Mobile: mobile}).First(&user)
-
-	return &user, result.Error
+	return user, nil
 }

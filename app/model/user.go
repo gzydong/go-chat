@@ -3,7 +3,7 @@ package model
 type User struct {
 	ID         int    `json:"id"`
 	Mobile     string `json:"mobile"`
-	NickName   string `json:"nickname"`
+	Nickname   string `json:"nickname"`
 	Avatar     string `json:"avatar"`
 	Gender     int    `json:"gender"`
 	Password   string `json:"password"`
