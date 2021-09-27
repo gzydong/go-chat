@@ -15,7 +15,7 @@ type Config struct {
 	MySQL      MySQL       `json:"mysql" yaml:"mysql"`
 	Jwt        Jwt         `json:"jwt" yaml:"jwt"`
 	Cors       Cors        `json:"cors" yaml:"cors"`
-	Server     Server      `json:"server"`
+	Server     Server      `json:"server" yaml:"server"`
 	Filesystem Filesystem  `json:"filesystem" yaml:"filesystem"`
 }
 
