@@ -29,6 +29,7 @@ var providerSet = wire.NewSet(
 	cache.NewServerRun,
 	wire.Struct(new(cache.WsClient), "*"),
 	wire.Struct(new(cache.AuthToken), "*"),
+	wire.Struct(new(cache.SmsCodeCache), "*"),
 
 	// handler 处理
 	wire.Struct(new(v1.Auth), "*"),
@@ -45,6 +46,7 @@ var providerSet = wire.NewSet(
 	wire.Struct(new(service.ClientService), "*"),
 	wire.Struct(new(service.UserService), "*"),
 	wire.Struct(new(service.SocketService), "*"),
+	wire.Struct(new(service.SmsService), "*"),
 	wire.Struct(new(Service), "*"),
 )
 

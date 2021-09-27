@@ -8,7 +8,7 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-// 配置信息
+// Config 配置信息
 type Config struct {
 	Redis  RedisConfig `json:"redis" yaml:"redis"`
 	MySQL  MySQL       `json:"mysql" yaml:"mysql"`

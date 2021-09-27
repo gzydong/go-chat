@@ -1,5 +1,6 @@
 package config
 
+// Email 邮件配置信息
 type Email struct {
 	Driver      string `yaml:"driver"`       // 邮件驱动
 	Host        string `yaml:"host"`         // smtp.163.com

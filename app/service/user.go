@@ -21,8 +21,6 @@ func (s *UserService) Register(param *request.RegisterRequest) (*model.User, err
 		return nil, errors.New("账号已存在! ")
 	}
 
-	// todo 这里需要判断短信验证码是否正确
-
 	hash, err := helper.GeneratePassword([]byte(param.Password))
 	if err != nil {
 		return nil, err
@@ -55,4 +53,14 @@ func (s *UserService) Login(username string, password string) (*model.User, erro
 	}
 
 	return user, nil
+}
+
+// Forget 账号找回
+func (s *UserService) Forget(input *request.ForgetRequest) (*model.User, error) {
+	exist := s.Repo.IsMobileExist(input.Mobile)
+	if exist {
+		return nil, errors.New("账号不存在! ")
+	}
+
+	return nil, nil
 }

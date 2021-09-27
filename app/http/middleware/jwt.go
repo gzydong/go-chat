@@ -7,7 +7,7 @@ import (
 	"net/http"
 )
 
-// ApiAuth 授权中间件
+// JwtAuth 授权中间件
 // guard 授权守卫
 func JwtAuth(conf *config.Config, guard string) gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -42,8 +42,10 @@ func JwtAuth(conf *config.Config, guard string) gin.HandlerFunc {
 		}
 
 		// todo 黑名单判断
+		// ...
 
-		c.Set("user_id", jwt.UserId)
+		// 设置登录用户ID
+		c.Set("__user_id__", jwt.UserId)
 
 		c.Next()
 	}

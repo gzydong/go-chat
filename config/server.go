@@ -1,5 +1,6 @@
 package config
 
+// Server 项目基础配置
 type Server struct {
 	AppName  string `json:"app_name" yaml:"app_name"` // 项目名称
 	Port     int    `json:"port" yaml:"port"`         // http 启动端口号

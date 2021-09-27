@@ -15,6 +15,7 @@ import (
 type Auth struct {
 	Conf        *config.Config
 	UserService *service.UserService
+	SmsService  *service.SmsService
 	AuthToken   *cache.AuthToken
 }
 
@@ -54,6 +55,12 @@ func (a *Auth) Register(c *gin.Context) {
 		return
 	}
 
+	// 验证短信验证码是否正确
+	isTrue := a.SmsService.CheckSmsCode(c.Request.Context(), "register", param.Mobile, param.SmsCode)
+	if !isTrue {
+		response.InvalidParams(c, "短信验证码填写错误！")
+	}
+
 	_, err := a.UserService.Register(param)
 	if err != nil {
 		response.BusinessError(c, err)
@@ -63,7 +70,7 @@ func (a *Auth) Register(c *gin.Context) {
 	response.Success(c, gin.H{}, "账号注册成功")
 }
 
-// Logout 注销接口
+// Logout 退出登录接口
 func (a *Auth) Logout(c *gin.Context) {
 	token := helper.GetAuthToken(c)
 
@@ -77,14 +84,14 @@ func (a *Auth) Logout(c *gin.Context) {
 	expiresAt := claims.ExpiresAt - time.Now().Unix()
 
 	// 将 token 加入黑名单
-	_ = a.AuthToken.SetBlackList(c, token, int(expiresAt))
+	_ = a.AuthToken.SetBlackList(c.Request.Context(), token, int(expiresAt))
 
 	response.Success(c, "", "退出成功！")
 }
 
 // Refresh Token 刷新接口
 func (a *Auth) Refresh(c *gin.Context) {
-	token, e := helper.GenerateJwtToken(a.Conf, "api", c.GetInt("user_id"))
+	token, e := helper.GenerateJwtToken(a.Conf, "api", c.GetInt("__user_id__"))
 	if e != nil {
 		response.BusinessError(c, "Token 刷新失败，请稍后再试!")
 		return
@@ -99,12 +106,44 @@ func (a *Auth) Refresh(c *gin.Context) {
 	})
 }
 
-// Forget 账号找回
+// Forget 账号找回接口
 func (a *Auth) Forget(c *gin.Context) {
+	param := &request.ForgetRequest{}
 
+	if err := c.Bind(param); err != nil {
+		response.InvalidParams(c, err)
+		return
+	}
+
+	// 验证短信验证码是否正确
+	isTrue := a.SmsService.CheckSmsCode(c.Request.Context(), "forget", param.Mobile, param.SmsCode)
+	if !isTrue {
+		response.InvalidParams(c, "短信验证码填写错误！")
+	}
+
+	_, err := a.UserService.Forget(param)
+	if err != nil {
+		response.BusinessError(c, err)
+		return
+	}
+
+	response.Success(c, gin.H{}, "账号成功找回")
 }
 
 // SmsCode 发送短信验证码
 func (a *Auth) SmsCode(c *gin.Context) {
+	param := &request.SmsCodeRequest{}
 
+	if err := c.Bind(param); err != nil {
+		response.InvalidParams(c, err)
+		return
+	}
+
+	// 发送短信验证码
+	if err := a.SmsService.SendSmsCode(c.Request.Context(), param.Channel, param.Mobile); err != nil {
+		response.BusinessError(c, err)
+		return
+	}
+
+	response.Success(c, gin.H{}, "发送成功！")
 }

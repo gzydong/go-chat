@@ -7,7 +7,7 @@ import (
 	"go-chat/config"
 )
 
-// API 授权守卫
+// ApiGuard API 授权守卫
 var ApiGuard = "api"
 
 // RegisterApiRoute 注册 API 路由
@@ -21,6 +21,8 @@ func RegisterApiRoute(conf *config.Config, router *gin.Engine, handler *handler.
 			auth.POST("/register", handler.Auth.Register)
 			auth.POST("/refresh", middleware.JwtAuth(conf, ApiGuard), handler.Auth.Refresh)
 			auth.POST("/logout", middleware.JwtAuth(conf, ApiGuard), handler.Auth.Logout)
+			auth.POST("/forget", handler.Auth.Forget)
+			auth.POST("/sms-code", handler.Auth.SmsCode)
 		}
 
 		// 用户相关分组

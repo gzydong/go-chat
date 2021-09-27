@@ -1,6 +1,6 @@
 package config
 
-// Mysql 数据库配置信息
+// MySQL 数据库配置信息
 type MySQL struct {
 	Host      string `json:"host" yaml:"host"`         // 服务器IP地址
 	Port      int    `json:"port" yaml:"port"`         // 服务器端口号

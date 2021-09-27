@@ -15,7 +15,7 @@ type ServerRunID struct {
 const (
 	ServerRunIdKey = "server_ids"
 
-	// 运行检测超时时间（单位秒）
+	// ServerOverTime 运行检测超时时间（单位秒）
 	ServerOverTime = 35
 )
 

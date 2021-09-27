@@ -1,6 +1,6 @@
 package config
 
-// Redis 数据库配置信息
+// RedisConfig Redis 数据库配置信息
 type RedisConfig struct {
 	Host     string `json:"host" yaml:"host"`         // 服务器IP地址
 	Port     int    `json:"port" yaml:"port"`         // 服务器端口号
