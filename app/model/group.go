@@ -1,15 +1,15 @@
 package model
 
 type Group struct {
-	ID          int    `json:"id"`
-	CreatorId   string `json:"creator_id"`
-	GroupName   string `json:"group_name"`
-	Profile     string `json:"profile"`
-	Avatar      string `json:"avatar"`
-	MaxNum      string `json:"max_num"`
-	IsOvert     string `json:"is_overt"`
-	IsMute      string `json:"is_mute"`
-	IsDismiss   string `json:"is_dismiss"`
-	CreatedAt   string `json:"created_at"`
-	DismissedAt string `json:"dismissed_at"`
+	ID          int    `json:"id" grom:"comment:群ID"`
+	CreatorId   int    `json:"creator_id" grom:"comment:群主ID"`
+	GroupName   string `json:"group_name" grom:"comment:群名称"`
+	Profile     string `json:"profile" grom:"comment:群简介"`
+	Avatar      string `json:"avatar" grom:"comment:群头像"`
+	MaxNum      int    `json:"max_num" grom:"comment:最大群成员数量"`
+	IsOvert     int    `json:"is_overt" grom:"comment:是否公开可见"`
+	IsMute      int    `json:"is_mute" grom:"comment:是否全员禁言"`
+	IsDismiss   int    `json:"is_dismiss" grom:"comment:是否已解散"`
+	CreatedAt   string `json:"created_at" grom:"comment:创建时间"`
+	DismissedAt string `json:"dismissed_at" grom:"comment:解散时间"`
 }
