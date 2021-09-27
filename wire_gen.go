@@ -50,6 +50,7 @@ func Initialize(ctx context.Context, conf *config.Config) *Service {
 	index := &open.Index{}
 	wsClient := &cache.WsClient{
 		Redis: client,
+		Conf:  conf,
 	}
 	clientService := &service.ClientService{
 		WsClient: wsClient,

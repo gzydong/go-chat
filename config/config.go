@@ -3,6 +3,7 @@ package config
 import (
 	"fmt"
 	"io/ioutil"
+	"strings"
 
 	uuid "github.com/satori/go.uuid"
 	"gopkg.in/yaml.v2"
@@ -30,9 +31,7 @@ func Init(filename string) *Config {
 	}
 
 	// 生成服务运行ID
-	conf.Server.ServerId = uuid.NewV4().String()
-
-	fmt.Printf("config : %#v", conf)
+	conf.Server.ServerId = strings.Replace(uuid.NewV4().String(), "-", "", 4)
 
 	return conf
 }
