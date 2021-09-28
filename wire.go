@@ -35,6 +35,7 @@ var providerSet = wire.NewSet(
 	// handler 处理
 	wire.Struct(new(v1.Auth), "*"),
 	wire.Struct(new(v1.User), "*"),
+	wire.Struct(new(v1.Upload), "*"),
 	wire.Struct(new(v1.Download), "*"),
 	wire.Struct(new(open.Index), "*"),
 	wire.Struct(new(ws.WebSocket), "*"),

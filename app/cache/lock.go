@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/go-redis/redis/v8"
+	"time"
 )
 
 type RedisLock struct {
@@ -17,9 +18,7 @@ func (l *RedisLock) key(name string) string {
 
 // Lock 获取 redis 分布式锁
 func (l *RedisLock) Lock(ctx context.Context, name string, expire int) bool {
-	err := l.Redis.Do(ctx, "set", l.key(name), 1, "ex", expire, "nx").Err()
-
-	return err == nil
+	return l.Redis.SetNX(ctx, l.key(name), 1, time.Duration(expire)*time.Second).Val()
 }
 
 // Release 释放 redis 分布式锁

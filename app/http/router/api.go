@@ -36,5 +36,10 @@ func RegisterApiRoute(conf *config.Config, router *gin.Engine, handler *handler.
 		{
 			download.GET("/chat/file", handler.Download.ArticleAnnex)
 		}
+
+		upload := group.Group("/upload")
+		{
+			upload.GET("/index", handler.Upload.Index)
+		}
 	}
 }

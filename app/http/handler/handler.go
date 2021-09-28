@@ -10,6 +10,7 @@ type Handler struct {
 	Auth     *v1.Auth
 	User     *v1.User
 	Download *v1.Download
+	Upload   *v1.Upload
 	Index    *open.Index
 	Ws       *ws.WebSocket
 }

@@ -16,7 +16,7 @@ type WebSocket struct {
 func (w *WebSocket) SocketIo(c *gin.Context) {
 	conn, err := im.NewWebsocket(c)
 	if err != nil {
-		log.Printf("websocket connect error")
+		log.Printf("websocket connect error: %s", err)
 		return
 	}
 
@@ -34,7 +34,7 @@ func (w *WebSocket) SocketIo(c *gin.Context) {
 func (w *WebSocket) AdminIo(c *gin.Context) {
 	conn, err := im.NewWebsocket(c)
 	if err != nil {
-		log.Printf("websocket connect error")
+		log.Printf("websocket connect error: %s", err)
 		return
 	}
 

@@ -151,13 +151,10 @@ func (a *Auth) SmsCode(c *gin.Context) {
 
 func (a *Auth) Test(c *gin.Context) {
 	key := "test-sss"
-
-	if !a.RedisLock.Lock(c.Request.Context(), key, 10) {
+	if !a.RedisLock.Lock(c.Request.Context(), key, 5) {
 		response.BusinessError(c, "请求过于频繁！")
 		return
 	}
-
-	a.RedisLock.Release(c.Request.Context(), key)
 
 	response.Success(c, gin.H{}, "发送成功！")
 }
