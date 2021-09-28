@@ -30,5 +30,10 @@ func RegisterApiRoute(conf *config.Config, router *gin.Engine, handler *handler.
 		{
 			user.GET("/detail", handler.User.Detail)
 		}
+
+		download := group.Group("/download").Use(middleware.JwtAuth(conf, ApiGuard))
+		{
+			download.GET("/chat/file", handler.Download.ArticleAnnex)
+		}
 	}
 }

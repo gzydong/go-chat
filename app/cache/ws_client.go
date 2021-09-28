@@ -4,10 +4,12 @@ import (
 	"context"
 	"fmt"
 	"github.com/go-redis/redis/v8"
+	"go-chat/config"
 )
 
 type WsClient struct {
 	Redis *redis.Client
+	Conf  *config.Config
 }
 
 // Set 设置客户端与用户绑定关系

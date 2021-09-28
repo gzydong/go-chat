@@ -3,6 +3,7 @@ package config
 import (
 	"fmt"
 	"io/ioutil"
+	"strings"
 
 	uuid "github.com/satori/go.uuid"
 	"gopkg.in/yaml.v2"
@@ -10,11 +11,12 @@ import (
 
 // Config 配置信息
 type Config struct {
-	Redis  RedisConfig `json:"redis" yaml:"redis"`
-	MySQL  MySQL       `json:"mysql" yaml:"mysql"`
-	Jwt    Jwt         `json:"jwt" yaml:"jwt"`
-	Cors   Cors        `json:"cors" yaml:"cors"`
-	Server Server      `json:"server"`
+	Redis      RedisConfig `json:"redis" yaml:"redis"`
+	MySQL      MySQL       `json:"mysql" yaml:"mysql"`
+	Jwt        Jwt         `json:"jwt" yaml:"jwt"`
+	Cors       Cors        `json:"cors" yaml:"cors"`
+	Server     Server      `json:"server" yaml:"server"`
+	Filesystem Filesystem  `json:"filesystem" yaml:"filesystem"`
 }
 
 func Init(filename string) *Config {
@@ -29,7 +31,7 @@ func Init(filename string) *Config {
 	}
 
 	// 生成服务运行ID
-	conf.Server.ServerId = uuid.NewV4().String()
+	conf.Server.ServerId = strings.Replace(uuid.NewV4().String(), "-", "", 4)
 
 	return conf
 }
