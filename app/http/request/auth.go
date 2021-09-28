@@ -4,6 +4,7 @@ package request
 type LoginRequest struct {
 	Username string `form:"username" json:"username" binding:"required" label:"登录账号"`
 	Password string `form:"password" json:"password" binding:"required" label:"登录密码"`
+	Platform string `form:"platform" json:"platform" binding:"required,oneof=h5 ios windows mac web"`
 }
 
 // RegisterRequest 注册接口验证

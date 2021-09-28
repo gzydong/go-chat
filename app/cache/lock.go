@@ -10,18 +10,26 @@ type RedisLock struct {
 	Redis *redis.Client
 }
 
+// key 获取锁名
 func (l *RedisLock) key(name string) string {
-	return fmt.Sprintf("lock:%s", name)
+	return fmt.Sprintf("rds-lock:%s", name)
 }
 
 // Lock 获取 redis 分布式锁
 func (l *RedisLock) Lock(ctx context.Context, name string, expire int) bool {
-	err := l.Redis.Do(ctx, "set", l.key(name), 10, "ex", expire, "nx").Err()
+	err := l.Redis.Do(ctx, "set", l.key(name), 1, "ex", expire, "nx").Err()
 
 	return err == nil
 }
 
 // Release 释放 redis 分布式锁
 func (l *RedisLock) Release(ctx context.Context, name string) bool {
-	return l.Redis.Del(ctx, l.key(name)).Val() > 0
+	script := `
+	if redis.call("GET", KEYS[1]) == ARGV[1] then
+		return redis.call("DEL", KEYS[1])
+	else
+		return false
+	end`
+
+	return l.Redis.Eval(ctx, script, []string{l.key(name)}, 1).Err() == nil
 }
