@@ -23,6 +23,7 @@ func RegisterApiRoute(conf *config.Config, router *gin.Engine, handler *handler.
 			auth.POST("/logout", middleware.JwtAuth(conf, ApiGuard), handler.Auth.Logout)
 			auth.POST("/forget", handler.Auth.Forget)
 			auth.POST("/sms-code", handler.Auth.SmsCode)
+			auth.GET("/test", handler.Auth.Test)
 		}
 
 		// 用户相关分组

@@ -48,6 +48,7 @@ filesystem:
     access_secret:
     bucket:
     endpoint:
+    security_token:
   qiniu:
     access_key:
     secret_key:

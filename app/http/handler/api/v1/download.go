@@ -8,12 +8,12 @@ import (
 type Download struct {
 }
 
-// ChatFileAction 下载聊天文件
-func (d *Download) ChatFileAction() {
+// ChatFile 下载聊天文件
+func (d *Download) ChatFile() {
 
 }
 
-// ArticleAnnexAction 下载笔记附件
+// ArticleAnnex 下载笔记附件
 func (d *Download) ArticleAnnex(c *gin.Context) {
 	filename := "测试中文文件名.txt"
 

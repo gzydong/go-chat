@@ -15,8 +15,9 @@ import (
 type Auth struct {
 	Conf        *config.Config
 	UserService *service.UserService
-	//SmsService  *service.SmsService
-	AuthToken *cache.AuthToken
+	SmsService  *service.SmsService
+	AuthToken   *cache.AuthToken
+	RedisLock   *cache.RedisLock
 }
 
 // Login 登录接口
@@ -56,10 +57,10 @@ func (a *Auth) Register(c *gin.Context) {
 	}
 
 	// 验证短信验证码是否正确
-	//isTrue := a.SmsService.CheckSmsCode(c.Request.Context(), "register", param.Mobile, param.SmsCode)
-	//if !isTrue {
-	//	response.InvalidParams(c, "短信验证码填写错误！")
-	//}
+	isTrue := a.SmsService.CheckSmsCode(c.Request.Context(), "register", param.Mobile, param.SmsCode)
+	if !isTrue {
+		response.InvalidParams(c, "短信验证码填写错误！")
+	}
 
 	_, err := a.UserService.Register(param)
 	if err != nil {
@@ -116,10 +117,10 @@ func (a *Auth) Forget(c *gin.Context) {
 	}
 
 	// 验证短信验证码是否正确
-	//isTrue := a.SmsService.CheckSmsCode(c.Request.Context(), "forget", param.Mobile, param.SmsCode)
-	//if !isTrue {
-	//	response.InvalidParams(c, "短信验证码填写错误！")
-	//}
+	isTrue := a.SmsService.CheckSmsCode(c.Request.Context(), "forget", param.Mobile, param.SmsCode)
+	if !isTrue {
+		response.InvalidParams(c, "短信验证码填写错误！")
+	}
 
 	_, err := a.UserService.Forget(param)
 	if err != nil {
@@ -140,10 +141,23 @@ func (a *Auth) SmsCode(c *gin.Context) {
 	}
 
 	// 发送短信验证码
-	//if err := a.SmsService.SendSmsCode(c.Request.Context(), param.Channel, param.Mobile); err != nil {
-	//	response.BusinessError(c, err)
-	//	return
-	//}
+	if err := a.SmsService.SendSmsCode(c.Request.Context(), param.Channel, param.Mobile); err != nil {
+		response.BusinessError(c, err)
+		return
+	}
+
+	response.Success(c, gin.H{}, "发送成功！")
+}
+
+func (a *Auth) Test(c *gin.Context) {
+	key := "test-sss"
+
+	if !a.RedisLock.Lock(c.Request.Context(), key, 10) {
+		response.BusinessError(c, "请求过于频繁！")
+		return
+	}
+
+	a.RedisLock.Release(c.Request.Context(), key)
 
 	response.Success(c, gin.H{}, "发送成功！")
 }
