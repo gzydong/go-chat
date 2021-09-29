@@ -80,6 +80,8 @@ func (c *ChannelManager) Process(ctx context.Context) {
 }
 
 func (c *ChannelManager) RecvProcess(ctx context.Context) {
+	fmt.Printf("%s: 启动了\n", c.Name)
+
 	for {
 		select {
 		case <-ctx.Done():
@@ -97,6 +99,8 @@ func (c *ChannelManager) RecvProcess(ctx context.Context) {
 }
 
 func (c *ChannelManager) SendProcess(ctx context.Context) {
+	fmt.Printf("%s: 启动了\n", c.Name)
+
 	for {
 		select {
 		case <-ctx.Done():

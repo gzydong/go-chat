@@ -30,9 +30,10 @@ func main() {
 	conf := config.Init("./config.yaml")
 
 	ctx, cancel := context.WithCancel(context.Background())
-	server := Initialize(ctx, conf)
-	eg, _ := errgroup.WithContext(ctx)
 
+	server := Initialize(ctx, conf)
+
+	eg, groupCtx := errgroup.WithContext(ctx)
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, syscall.SIGTERM, syscall.SIGQUIT, syscall.SIGINT)
 
@@ -40,7 +41,6 @@ func main() {
 	eg.Go(func() error {
 		log.Printf("HTTP listen :%d", conf.Server.Port)
 		if err := server.HttpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			c <- syscall.SIGQUIT
 			return fmt.Errorf("HTTP listen: %s", err)
 		}
 
@@ -64,15 +64,21 @@ func main() {
 	})
 
 	eg.Go(func() error {
-		select {
-		case <-c:
-			// 退出其他服务
+		defer func() {
 			cancel()
-
 			// 等待中断信号以优雅地关闭服务器（设置 5 秒的超时时间）
 			timeCtx, timeCancel := context.WithTimeout(context.Background(), 5*time.Second)
 			defer timeCancel()
-			return server.HttpServer.Shutdown(timeCtx)
+			if err := server.HttpServer.Shutdown(timeCtx); err != nil {
+				log.Printf("Http Shutdown error: %s\n", err)
+			}
+		}()
+
+		select {
+		case <-groupCtx.Done():
+			return groupCtx.Err()
+		case <-c:
+			return nil
 		}
 	})
 
