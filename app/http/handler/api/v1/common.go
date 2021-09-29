@@ -33,7 +33,7 @@ func (a *Common) SmsCode(c *gin.Context) {
 
 	// 需要判断账号是否存在
 	case entity.SmsRegisterChannel, entity.SmsChangeAccountChannel:
-		if !a.UserRepo.IsMobileExist(params.Mobile) {
+		if a.UserRepo.IsMobileExist(params.Mobile) {
 			response.BusinessError(c, "手机号已被他人使用！")
 			return
 		}
