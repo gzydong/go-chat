@@ -42,8 +42,8 @@ func (s *UserService) Register(param *request.RegisterRequest) (*model.User, err
 }
 
 // Login 登录处理
-func (s *UserService) Login(username string, password string) (*model.User, error) {
-	user, err := s.Repo.FindByMobile(username)
+func (s *UserService) Login(mobile string, password string) (*model.User, error) {
+	user, err := s.Repo.FindByMobile(mobile)
 	if err != nil {
 		return nil, errors.New("登录账号不存在! ")
 	}

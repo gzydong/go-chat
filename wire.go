@@ -28,7 +28,7 @@ var providerSet = wire.NewSet(
 	// 缓存
 	cache.NewServerRun,
 	wire.Struct(new(cache.WsClient), "*"),
-	wire.Struct(new(cache.AuthToken), "*"),
+	wire.Struct(new(cache.AuthTokenCache), "*"),
 	wire.Struct(new(cache.SmsCodeCache), "*"),
 	wire.Struct(new(cache.RedisLock), "*"),
 

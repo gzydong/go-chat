@@ -35,7 +35,7 @@ func (u *User) ChangePassword(c *gin.Context) {
 
 	user, _ := u.UserRepo.FindById(c.GetInt("__user_id__"))
 	if !helper.VerifyPassword([]byte(params.OldPassword), []byte(user.Password)) {
-		response.BusinessError(c, "账号密码验证错误！")
+		response.BusinessError(c, "密码填写错误！")
 		return
 	}
 
@@ -47,11 +47,11 @@ func (u *User) ChangePassword(c *gin.Context) {
 	})
 
 	if err != nil {
-		response.BusinessError(c, "账号密码修改失败！")
+		response.BusinessError(c, "密码修改失败！")
 		return
 	}
 
-	response.Success(c, gin.H{})
+	response.Success(c, gin.H{}, "密码修改成功！")
 }
 
 // ChangeMobile 修改手机号接口
@@ -75,7 +75,7 @@ func (u *User) ChangeMobile(c *gin.Context) {
 	}
 
 	if !helper.VerifyPassword([]byte(params.Password), []byte(user.Password)) {
-		response.BusinessError(c, "账号密码验证错误！")
+		response.BusinessError(c, "账号密码填写错误！")
 		return
 	}
 
@@ -88,7 +88,7 @@ func (u *User) ChangeMobile(c *gin.Context) {
 		return
 	}
 
-	response.Success(c, gin.H{})
+	response.Success(c, gin.H{}, "手机号修改成功！")
 }
 
 // ChangeEmail 修改邮箱接口

@@ -2,7 +2,7 @@ package request
 
 // LoginRequest 登录接口验证
 type LoginRequest struct {
-	Username string `form:"username" json:"username" binding:"required" label:"登录账号"`
+	Mobile   string `form:"mobile" json:"mobile" binding:"required" label:"登录账号"`
 	Password string `form:"password" json:"password" binding:"required" label:"登录密码"`
 	Platform string `form:"platform" json:"platform" binding:"required,oneof=h5 ios windows mac web"`
 }

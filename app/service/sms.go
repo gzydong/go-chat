@@ -3,8 +3,6 @@ package service
 import (
 	"context"
 	"fmt"
-	"time"
-
 	"go-chat/app/cache"
 	"go-chat/app/helper"
 )
@@ -32,12 +30,11 @@ func (s *SmsService) SendSmsCode(ctx context.Context, channel string, mobile str
 	code := helper.GenValidateCode(6)
 
 	// 添加发送记录
-	if err := s.SmsCodeCache.Set(ctx, channel, mobile, code, 10); err != nil {
+	if err := s.SmsCodeCache.Set(ctx, channel, mobile, code, 60*15); err != nil {
 		return err
 	}
 
 	// ... 请求第三方短信接口
-	time.Sleep(2 * time.Second)
 	fmt.Println("正在发送短信验证码：", code)
 
 	return nil

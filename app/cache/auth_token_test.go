@@ -10,7 +10,7 @@ import (
 
 func TestAuthToken_SetBlackList(t *testing.T) {
 	client := testutil.TestRedisClient()
-	s := &AuthToken{
+	s := &AuthTokenCache{
 		Redis: client,
 	}
 

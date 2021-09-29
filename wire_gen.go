@@ -45,18 +45,18 @@ func Initialize(ctx context.Context, conf *config.Config) *Service {
 	userService := &service.UserService{
 		Repo: userRepository,
 	}
-	authToken := &cache.AuthToken{
+	authToken := &cache.AuthTokenCache{
 		Redis: client,
 	}
 	redisLock := &cache.RedisLock{
 		Redis: client,
 	}
 	auth := &v1.Auth{
-		Conf:        conf,
-		UserService: userService,
-		SmsService:  smsService,
-		AuthToken:   authToken,
-		RedisLock:   redisLock,
+		Conf:           conf,
+		UserService:    userService,
+		SmsService:     smsService,
+		AuthTokenCache: authToken,
+		RedisLock:      redisLock,
 	}
 	user := &v1.User{
 		UserRepo:   userRepository,
@@ -102,4 +102,4 @@ func Initialize(ctx context.Context, conf *config.Config) *Service {
 
 // wire.go:
 
-var providerSet = wire.NewSet(connect.RedisConnect, connect.MysqlConnect, connect.NewHttp, router.NewRouter, cache.NewServerRun, wire.Struct(new(cache.WsClient), "*"), wire.Struct(new(cache.AuthToken), "*"), wire.Struct(new(cache.SmsCodeCache), "*"), wire.Struct(new(cache.RedisLock), "*"), wire.Struct(new(v1.Common), "*"), wire.Struct(new(v1.Auth), "*"), wire.Struct(new(v1.User), "*"), wire.Struct(new(v1.Upload), "*"), wire.Struct(new(v1.Download), "*"), wire.Struct(new(open.Index), "*"), wire.Struct(new(ws.WebSocket), "*"), wire.Struct(new(handler.Handler), "*"), wire.Struct(new(repository.UserRepository), "*"), wire.Struct(new(service.ClientService), "*"), wire.Struct(new(service.UserService), "*"), wire.Struct(new(service.SocketService), "*"), wire.Struct(new(service.SmsService), "*"), wire.Struct(new(Service), "*"))
+var providerSet = wire.NewSet(connect.RedisConnect, connect.MysqlConnect, connect.NewHttp, router.NewRouter, cache.NewServerRun, wire.Struct(new(cache.WsClient), "*"), wire.Struct(new(cache.AuthTokenCache), "*"), wire.Struct(new(cache.SmsCodeCache), "*"), wire.Struct(new(cache.RedisLock), "*"), wire.Struct(new(v1.Common), "*"), wire.Struct(new(v1.Auth), "*"), wire.Struct(new(v1.User), "*"), wire.Struct(new(v1.Upload), "*"), wire.Struct(new(v1.Download), "*"), wire.Struct(new(open.Index), "*"), wire.Struct(new(ws.WebSocket), "*"), wire.Struct(new(handler.Handler), "*"), wire.Struct(new(repository.UserRepository), "*"), wire.Struct(new(service.ClientService), "*"), wire.Struct(new(service.UserService), "*"), wire.Struct(new(service.SocketService), "*"), wire.Struct(new(service.SmsService), "*"), wire.Struct(new(Service), "*"))
