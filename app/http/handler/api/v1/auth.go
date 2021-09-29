@@ -146,7 +146,7 @@ func (a *Auth) SmsCode(c *gin.Context) {
 		return
 	}
 
-	response.Success(c, gin.H{}, "发送成功！")
+	response.Success(c, nil, "发送成功！")
 }
 
 func (a *Auth) Test(c *gin.Context) {

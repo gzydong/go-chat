@@ -2,9 +2,11 @@ package v1
 
 import (
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"net/url"
 	"testing"
+
+	"github.com/gin-gonic/gin"
+	"go-chat/app/cache"
 
 	"github.com/stretchr/testify/assert"
 	"go-chat/app/repository"
@@ -16,9 +18,11 @@ import (
 func testAuth() *Auth {
 	conf := testutil.GetConfig()
 	db := connect.MysqlConnect(conf)
+	redisClient := testutil.TestRedisClient()
+	smsService := &service.SmsService{SmsCodeCache: &cache.SmsCodeCache{Redis: redisClient}}
 	user := &repository.UserRepository{DB: db}
 	s := &service.UserService{Repo: user}
-	return &Auth{Conf: conf, UserService: s}
+	return &Auth{Conf: conf, UserService: s, SmsService: smsService}
 }
 
 func TestAuth_Login(t *testing.T) {
