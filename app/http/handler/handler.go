@@ -7,6 +7,7 @@ import (
 )
 
 type Handler struct {
+	Common   *v1.Common
 	Auth     *v1.Auth
 	User     *v1.User
 	Download *v1.Download

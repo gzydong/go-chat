@@ -33,6 +33,7 @@ var providerSet = wire.NewSet(
 	wire.Struct(new(cache.RedisLock), "*"),
 
 	// handler 处理
+	wire.Struct(new(v1.Common), "*"),
 	wire.Struct(new(v1.Auth), "*"),
 	wire.Struct(new(v1.User), "*"),
 	wire.Struct(new(v1.Upload), "*"),

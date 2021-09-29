@@ -18,6 +18,27 @@ func (u *UserRepository) Create(user *model.User) (*model.User, error) {
 	return user, nil
 }
 
+// Update 更新数据
+func (u *UserRepository) Update(user *model.User, column map[string]interface{}) (int64, error) {
+	res := u.DB.Model(&user).Updates(column)
+
+	if err := res.Error; err != nil {
+		return int64(0), err
+	}
+
+	return res.RowsAffected, nil
+}
+
+// FindById ID查询
+func (u *UserRepository) FindById(userid int) (*model.User, error) {
+	user := &model.User{}
+	if err := u.DB.Where(&model.User{ID: userid}).First(user).Error; err != nil {
+		return nil, err
+	}
+
+	return user, nil
+}
+
 // FindByMobile 手机号查询
 func (u *UserRepository) FindByMobile(mobile string) (*model.User, error) {
 	user := &model.User{}

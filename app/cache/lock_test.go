@@ -20,4 +20,7 @@ func TestRedisLock_Lock(t *testing.T) {
 
 	res2 := s.Lock(ctx, "test-token", 5)
 	assert.Equal(t, false, res2)
+
+	res3 := s.Lock(ctx, "test-token", 5)
+	assert.Equal(t, true, res3)
 }

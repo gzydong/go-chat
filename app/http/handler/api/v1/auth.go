@@ -77,7 +77,7 @@ func (a *Auth) Logout(c *gin.Context) {
 
 	claims, err := helper.ParseJwtToken(a.Conf, token)
 	if err != nil {
-		response.Success(c, "")
+		response.Success(c, gin.H{})
 		return
 	}
 
@@ -87,20 +87,20 @@ func (a *Auth) Logout(c *gin.Context) {
 	// 将 token 加入黑名单
 	_ = a.AuthToken.SetBlackList(c.Request.Context(), token, int(expiresAt))
 
-	response.Success(c, "", "退出成功！")
+	response.Success(c, gin.H{}, "退出成功！")
 }
 
 // Refresh Token 刷新接口
 func (a *Auth) Refresh(c *gin.Context) {
-	token, e := helper.GenerateJwtToken(a.Conf, "api", c.GetInt("__user_id__"))
-	if e != nil {
+	token, err := helper.GenerateJwtToken(a.Conf, "api", c.GetInt("__user_id__"))
+	if err != nil {
 		response.BusinessError(c, "Token 刷新失败，请稍后再试!")
 		return
 	}
 
 	// todo 将之前的 token 加入黑名单
 
-	response.Success(c, map[string]interface{}{
+	response.Success(c, gin.H{
 		"type":       "Bearer",
 		"token":      token["token"],
 		"expires_in": token["expired_at"],
@@ -117,11 +117,12 @@ func (a *Auth) Forget(c *gin.Context) {
 	}
 
 	// 验证短信验证码是否正确
-	isTrue := a.SmsService.CheckSmsCode(c.Request.Context(), "forget", param.Mobile, param.SmsCode)
-	if !isTrue {
+	if !a.SmsService.CheckSmsCode(c.Request.Context(), "forget", param.Mobile, param.SmsCode) {
 		response.InvalidParams(c, "短信验证码填写错误！")
+		return
 	}
 
+	// 密码找回
 	_, err := a.UserService.Forget(param)
 	if err != nil {
 		response.BusinessError(c, err)
@@ -129,32 +130,4 @@ func (a *Auth) Forget(c *gin.Context) {
 	}
 
 	response.Success(c, gin.H{}, "账号成功找回")
-}
-
-// SmsCode 发送短信验证码
-func (a *Auth) SmsCode(c *gin.Context) {
-	param := &request.SmsCodeRequest{}
-
-	if err := c.Bind(param); err != nil {
-		response.InvalidParams(c, err)
-		return
-	}
-
-	// 发送短信验证码
-	if err := a.SmsService.SendSmsCode(c.Request.Context(), param.Channel, param.Mobile); err != nil {
-		response.BusinessError(c, err)
-		return
-	}
-
-	response.Success(c, nil, "发送成功！")
-}
-
-func (a *Auth) Test(c *gin.Context) {
-	key := "test-sss"
-	if !a.RedisLock.Lock(c.Request.Context(), key, 5) {
-		response.BusinessError(c, "请求过于频繁！")
-		return
-	}
-
-	response.Success(c, gin.H{}, "发送成功！")
 }

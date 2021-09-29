@@ -22,6 +22,7 @@ func NewRouter(conf *config.Config, handler *handler.Handler) *gin.Engine {
 
 	// 注册跨域中间件
 	router.Use(middleware.Cors(conf))
+
 	router.GET("/", func(c *gin.Context) {
 		response.Success(c, conf.Server)
 	})

@@ -16,11 +16,8 @@ type SmsService struct {
 // CheckSmsCode 验证短信验证码是否正确
 func (s *SmsService) CheckSmsCode(ctx context.Context, channel string, mobile string, code string) bool {
 	value, err := s.SmsCodeCache.Get(ctx, channel, mobile)
-	if err != nil {
-		return false
-	}
 
-	return value == code
+	return err == nil && value == code
 }
 
 // DeleteSmsCode 删除短信验证码记录

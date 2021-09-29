@@ -27,7 +27,7 @@ func Init(filename string) *Config {
 	}
 
 	if yaml.Unmarshal(content, conf) != nil {
-		panic(fmt.Sprintf("解析config.yaml读取错误: %v", err))
+		panic(fmt.Sprintf("解析 config.yaml 读取错误: %v", err))
 	}
 
 	// 生成服务运行ID

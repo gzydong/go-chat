@@ -22,9 +22,3 @@ type ForgetRequest struct {
 	Password string `form:"password" json:"password" binding:"required,min=6,max=16" label:"密码"`
 	SmsCode  string `form:"sms_code" json:"sms_code" binding:"required,len=6,numeric" label:"验证码"`
 }
-
-// SmsCodeRequest 发送短信验证码接口验证
-type SmsCodeRequest struct {
-	Mobile  string `form:"mobile" json:"mobile" binding:"required,len=11,phone" label:"手机号"`
-	Channel string `form:"channel" json:"channel" binding:"required,oneof=login register forget" label:"短信渠道"`
-}

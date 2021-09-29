@@ -56,11 +56,25 @@ func (s *UserService) Login(username string, password string) (*model.User, erro
 }
 
 // Forget 账号找回
-func (s *UserService) Forget(input *request.ForgetRequest) (*model.User, error) {
-	exist := s.Repo.IsMobileExist(input.Mobile)
-	if exist {
-		return nil, errors.New("账号不存在! ")
+func (s *UserService) Forget(input *request.ForgetRequest) (bool, error) {
+	// 账号查询
+	user, err := s.Repo.FindByMobile(input.Mobile)
+	if err != nil || user.ID == 0 {
+		return false, errors.New("账号不存在! ")
 	}
 
-	return nil, nil
+	// 生成 hash 密码
+	hash, _ := helper.GeneratePassword([]byte(input.Password))
+
+	_, err = s.Repo.Update(&model.User{
+		ID: user.ID,
+	}, map[string]interface{}{
+		"password": hash,
+	})
+
+	if err != nil {
+		return false, errors.New("密码修改失败！")
+	}
+
+	return true, nil
 }

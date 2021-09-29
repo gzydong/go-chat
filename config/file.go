@@ -15,7 +15,7 @@ type OssSystem struct {
 }
 
 type Filesystem struct {
-	Driver string      `json:"driver" yaml:"driver"`
-	Local  LocalSystem `json:"local" yaml:"local"`
-	Oss    OssSystem   `json:"oss" yaml:"oss"`
+	Default string      `json:"default" yaml:"default"`
+	Local   LocalSystem `json:"local" yaml:"local"`
+	Oss     OssSystem   `json:"oss" yaml:"oss"`
 }

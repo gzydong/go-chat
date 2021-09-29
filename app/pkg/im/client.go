@@ -2,7 +2,6 @@ package im
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"time"
 
@@ -38,7 +37,7 @@ func NewImClient(conn *websocket.Conn, clientService *service.ClientService, use
 	}
 
 	conn.SetCloseHandler(func(code int, text string) error {
-		fmt.Printf("【%s】客户端关闭 %s | 关闭原因(%d): %s \n", client.Channel.Name, client.Uuid, code, text)
+		//fmt.Printf("【%s】客户端关闭 %s | 关闭原因(%d): %s \n", client.Channel.Name, client.Uuid, code, text)
 
 		channel.Handle.Close(client, code, text)
 
@@ -84,7 +83,7 @@ func (w *Client) Heartbeat() {
 
 // AcceptClient 接收客户端推送信息
 func (w *Client) AcceptClient() {
-	defer w.Conn.Close()
+	defer w.Close(3000, "[协程异常]接收客户端推送信息")
 
 	for {
 		// 读取ws中的数据
@@ -93,15 +92,11 @@ func (w *Client) AcceptClient() {
 			break
 		}
 
+		// 心跳消息判断
 		if string(message) == "ping" {
-			// 更新最后一次接受消息时间，用做心跳检测判断
 			w.LastTime = time.Now().Unix()
 
-			message = []byte("pong")
-
-			// 写入ws数据
-			err = w.Conn.WriteMessage(mt, message)
-			if err != nil {
+			if w.Conn.WriteMessage(mt, []byte("pong")) != nil {
 				break
 			}
 

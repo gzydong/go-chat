@@ -4,10 +4,10 @@ import (
 	"sync"
 )
 
-// 客户端管理实例
+// Manager 客户端管理实例
 var Manager *ChannelGroup
 
-// 渠道客户端
+// ChannelGroup 渠道客户端
 type ChannelGroup struct {
 	DefaultChannel *ChannelManager // 默认分组
 	AdminChannel   *ChannelManager // 后台分组

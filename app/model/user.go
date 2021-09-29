@@ -6,7 +6,7 @@ type User struct {
 	Nickname  string `json:"nickname" grom:"comment:登录手机号"`
 	Avatar    string `json:"avatar" grom:"comment:邮箱地址"`
 	Gender    int    `json:"gender" grom:"comment:登录密码"`
-	Password  string `json:"password" grom:"comment:头像"`
+	Password  string `json:"-" grom:"comment:头像"`
 	Motto     string `json:"motto" grom:"comment:性别"`
 	Email     string `json:"email" grom:"comment:座右铭"`
 	IsRobot   int    `json:"is_robot" grom:"comment:是否机器人"`
