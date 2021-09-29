@@ -45,7 +45,7 @@ func Initialize(ctx context.Context, conf *config.Config) *Service {
 	userService := &service.UserService{
 		Repo: userRepository,
 	}
-	authToken := &cache.AuthTokenCache{
+	authTokenCache := &cache.AuthTokenCache{
 		Redis: client,
 	}
 	redisLock := &cache.RedisLock{
@@ -55,7 +55,7 @@ func Initialize(ctx context.Context, conf *config.Config) *Service {
 		Conf:           conf,
 		UserService:    userService,
 		SmsService:     smsService,
-		AuthTokenCache: authToken,
+		AuthTokenCache: authTokenCache,
 		RedisLock:      redisLock,
 	}
 	user := &v1.User{

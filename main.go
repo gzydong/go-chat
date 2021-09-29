@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"errors"
-	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -30,22 +29,18 @@ func main() {
 	conf := config.Init("./config.yaml")
 
 	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 
 	server := Initialize(ctx, conf)
+
+	log.Printf("HTTP listen :%d", conf.Server.Port)
+	if err := server.HttpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		log.Fatalf("HTTP listen: %s", err)
+	}
 
 	eg, groupCtx := errgroup.WithContext(ctx)
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, syscall.SIGTERM, syscall.SIGQUIT, syscall.SIGINT)
-
-	// 启动HTTP服务
-	eg.Go(func() error {
-		log.Printf("HTTP listen :%d", conf.Server.Port)
-		if err := server.HttpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			return fmt.Errorf("HTTP listen: %s", err)
-		}
-
-		return nil
-	})
 
 	// 启动服务(设置redis)
 	eg.Go(func() error {
