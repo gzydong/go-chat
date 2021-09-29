@@ -33,6 +33,20 @@ func main() {
 	server := Initialize(ctx, conf)
 	eg, _ := errgroup.WithContext(ctx)
 
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, syscall.SIGTERM, syscall.SIGQUIT, syscall.SIGINT)
+
+	// 启动HTTP服务
+	eg.Go(func() error {
+		log.Printf("HTTP listen :%d", conf.Server.Port)
+		if err := server.HttpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			c <- syscall.SIGQUIT
+			return fmt.Errorf("HTTP listen: %s", err)
+		}
+
+		return nil
+	})
+
 	// 启动服务(设置redis)
 	eg.Go(func() error {
 		return server.SocketServer.Run(ctx)
@@ -49,18 +63,6 @@ func main() {
 		return nil
 	})
 
-	// 启动HTTP服务
-	eg.Go(func() error {
-		log.Printf("HTTP listen :%d", conf.Server.Port)
-		if err := server.HttpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			return fmt.Errorf("HTTP listen: %s", err)
-		}
-
-		return nil
-	})
-
-	c := make(chan os.Signal, 1)
-	signal.Notify(c, syscall.SIGTERM, syscall.SIGQUIT, syscall.SIGINT)
 	eg.Go(func() error {
 		select {
 		case <-c:
