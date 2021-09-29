@@ -36,3 +36,21 @@ cors:
   methods: "OPTIONS,GET,POST,PUT,DELETE"
   credentials: false
   max_age: 600
+
+# 文件系统配置
+filesystem:
+  default: local
+  local:
+    root:
+    domain:
+  oss:
+    access_id:
+    access_secret:
+    bucket:
+    endpoint:
+    security_token:
+  qiniu:
+    access_key:
+    secret_key:
+    bucket:
+    domain:

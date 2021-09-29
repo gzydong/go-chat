@@ -10,7 +10,7 @@ const (
 )
 
 var (
-	// 错误码对应消息
+	// CodeMessageMap 错误码对应消息
 	CodeMessageMap = map[int]string{
 		CodeInvalidParamsError: "参数错误",
 		CodeUnauthorizedError:  "未授权",

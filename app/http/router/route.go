@@ -11,7 +11,7 @@ import (
 	"go-chat/config"
 )
 
-// InitRouter 初始化配置路由
+// NewRouter 初始化配置路由
 func NewRouter(conf *config.Config, handler *handler.Handler) *gin.Engine {
 	router := gin.Default()
 	if gin.Mode() != gin.DebugMode {

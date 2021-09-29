@@ -93,10 +93,10 @@ func (w *Client) AcceptClient() {
 			break
 		}
 
-		// 更新最后一次接受消息时间，用做心跳检测判断
-		w.LastTime = time.Now().Unix()
-
 		if string(message) == "ping" {
+			// 更新最后一次接受消息时间，用做心跳检测判断
+			w.LastTime = time.Now().Unix()
+
 			message = []byte("pong")
 
 			// 写入ws数据

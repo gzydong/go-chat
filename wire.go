@@ -29,10 +29,13 @@ var providerSet = wire.NewSet(
 	cache.NewServerRun,
 	wire.Struct(new(cache.WsClient), "*"),
 	wire.Struct(new(cache.AuthToken), "*"),
+	wire.Struct(new(cache.SmsCodeCache), "*"),
+	wire.Struct(new(cache.RedisLock), "*"),
 
 	// handler 处理
 	wire.Struct(new(v1.Auth), "*"),
 	wire.Struct(new(v1.User), "*"),
+	wire.Struct(new(v1.Upload), "*"),
 	wire.Struct(new(v1.Download), "*"),
 	wire.Struct(new(open.Index), "*"),
 	wire.Struct(new(ws.WebSocket), "*"),
@@ -45,6 +48,7 @@ var providerSet = wire.NewSet(
 	wire.Struct(new(service.ClientService), "*"),
 	wire.Struct(new(service.UserService), "*"),
 	wire.Struct(new(service.SocketService), "*"),
+	wire.Struct(new(service.SmsService), "*"),
 	wire.Struct(new(Service), "*"),
 )
 

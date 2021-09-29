@@ -17,8 +17,8 @@ func (a *AuthToken) key(token string) string {
 }
 
 // SetBlackList 登录 token 加入黑名单
-func (a *AuthToken) SetBlackList(ctx context.Context, token string, expiration int) error {
-	ex := time.Duration(expiration) * time.Second
+func (a *AuthToken) SetBlackList(ctx context.Context, token string, expire int) error {
+	ex := time.Duration(expire) * time.Second
 
 	return a.Redis.Set(ctx, a.key(token), 1, ex).Err()
 }
@@ -29,6 +29,6 @@ func (a *AuthToken) DelBlackList(ctx context.Context, token string) error {
 }
 
 // IsExistBlackList 判断 token 是否存在白名单
-func (a AuthToken) IsExistBlackList(ctx context.Context, token string) error {
+func (a *AuthToken) IsExistBlackList(ctx context.Context, token string) error {
 	return a.Redis.Get(ctx, a.key(token)).Err()
 }

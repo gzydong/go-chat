@@ -60,3 +60,31 @@ func TestAuth_Refresh(t *testing.T) {
 	assert.NoError(t, err)
 	fmt.Println(resp.GetJson().Get("code"))
 }
+
+func TestAuth_Forget(t *testing.T) {
+	a := testAuth()
+	r := testutil.NewTestRequest("/auth/forget", func(context *gin.Context) {
+		context.Set("__user_id__", 1)
+	}, a.Forget)
+
+	value := &url.Values{}
+
+	resp, err := r.Form(value)
+	assert.NoError(t, err)
+	fmt.Println(resp.GetJson().Get("code"))
+}
+
+func TestAuth_SmsCode(t *testing.T) {
+	a := testAuth()
+	r := testutil.NewTestRequest("/auth/sms-code", func(context *gin.Context) {
+		context.Set("__user_id__", 1)
+	}, a.SmsCode)
+
+	value := &url.Values{}
+	value.Add("mobile", "18798276809")
+	value.Add("channel", "register")
+
+	resp, err := r.Form(value)
+	assert.NoError(t, err)
+	fmt.Println(resp.GetJson().Get("code"))
+}

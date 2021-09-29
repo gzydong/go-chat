@@ -34,7 +34,7 @@ func GenerateJwtToken(conf *config.Config, guard string, id int) (map[string]int
 
 	token, err := tokenClaims.SignedString([]byte(conf.Jwt.Secret))
 	if err != nil {
-		return map[string]interface{}{}, err
+		return nil, err
 	}
 
 	return map[string]interface{}{
@@ -45,11 +45,11 @@ func GenerateJwtToken(conf *config.Config, guard string, id int) (map[string]int
 
 // ParseJwtToken 解析 Jwt Token 参数信息
 func ParseJwtToken(conf *config.Config, token string) (*Claims, error) {
-	cla := &Claims{}
+	claims := &Claims{}
 
-	_, err := jwt.ParseWithClaims(token, cla, func(token *jwt.Token) (interface{}, error) {
+	_, err := jwt.ParseWithClaims(token, claims, func(token *jwt.Token) (interface{}, error) {
 		return []byte(conf.Jwt.Secret), nil
 	})
 
-	return cla, err
+	return claims, err
 }
