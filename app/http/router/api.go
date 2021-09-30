@@ -45,7 +45,7 @@ func RegisterApiRoute(conf *config.Config, router *gin.Engine, handler *handler.
 
 		upload := group.Group("/upload")
 		{
-			upload.GET("/index", handler.Upload.Index)
+			upload.POST("/index", handler.Upload.Index)
 		}
 	}
 }

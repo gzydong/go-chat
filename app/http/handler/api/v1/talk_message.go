@@ -6,7 +6,7 @@ import (
 )
 
 type TalkMessage struct {
-	TalkMessageService *service.TalkMessageService
+	talkMessageService *service.TalkMessageService
 }
 
 // Text 发送文本消息

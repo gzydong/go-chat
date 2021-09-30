@@ -1,30 +1,23 @@
 package v1
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
+	"go-chat/app/http/response"
+	"go-chat/app/pkg/filesystem"
 	"go-chat/config"
-	"log"
-	"path"
-	"path/filepath"
-	"strconv"
-	"time"
 )
 
 type Upload struct {
-	Conf *config.Config
+	Conf       *config.Config
+	Filesystem *filesystem.Filesystem
 }
 
 func (u *Upload) Index(c *gin.Context) {
+
 	file, _ := c.FormFile("file")
-	log.Println(file.Filename)
 
-	//根据当前时间鹾生成一个新的文件名
-	fileNameInt := time.Now().Unix()
-	fileNameStr := strconv.FormatInt(fileNameInt, 10)
-	//新的文件名
-	fileName := fileNameStr + path.Ext(file.Filename)
-	//保存上传文件
-	filePath := filepath.Join(u.Conf.Filesystem.Local.Root, "/", fileName)
+	_ = u.Filesystem.UploadedFile(file, fmt.Sprintf("/image/%s", file.Filename))
 
-	_ = c.SaveUploadedFile(file, filePath)
+	response.Success(c, "")
 }

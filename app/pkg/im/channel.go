@@ -19,12 +19,12 @@ type WebsocketInterface interface {
 
 // ChannelManager WebSocket 渠道管理（多渠道划分，实现不同业务之间隔离）
 type ChannelManager struct {
-	Name     string             // 渠道名称
-	Count    int                // 客户端连接数
-	Clients  map[string]*Client // 客户端列表
-	RecvChan chan *RecvMessage  // 消息接收通道
-	SendChan chan *SendMessage  // 消息发送通道
-	Lock     *sync.Mutex        // 互斥锁
+	Name     string            // 渠道名称
+	Count    int               // 客户端连接数
+	Clients  map[int]*Client   // 客户端列表
+	RecvChan chan *RecvMessage // 消息接收通道
+	SendChan chan *SendMessage // 消息发送通道
+	Lock     *sync.Mutex       // 互斥锁
 	Handle   WebsocketInterface
 }
 
@@ -33,14 +33,14 @@ func (c *ChannelManager) RegisterClient(client *Client) {
 	c.Lock.Lock()
 	defer c.Lock.Unlock()
 
-	c.Clients[client.Uuid] = client
+	c.Clients[client.ClientId] = client
 
 	c.Count++
 }
 
 // RemoveClient 删除客户端
 func (c *ChannelManager) RemoveClient(client *Client) bool {
-	_, ok := c.Clients[client.Uuid]
+	_, ok := c.Clients[client.ClientId]
 	if !ok {
 		return false
 	}
@@ -48,15 +48,15 @@ func (c *ChannelManager) RemoveClient(client *Client) bool {
 	c.Lock.Lock()
 	defer c.Lock.Unlock()
 
-	delete(c.Clients, client.Uuid)
+	delete(c.Clients, client.ClientId)
 
 	c.Count--
 	return true
 }
 
 // GetClient 获取客户端
-func (c *ChannelManager) GetClient(uuid string) (*Client, bool) {
-	client, ok := c.Clients[uuid]
+func (c *ChannelManager) GetClient(clientId int) (*Client, bool) {
+	client, ok := c.Clients[clientId]
 
 	return client, ok
 }
@@ -120,8 +120,8 @@ func (c *ChannelManager) SendProcess(ctx context.Context) {
 					_ = client.Conn.WriteMessage(websocket.TextMessage, content)
 				}
 			} else {
-				for _, uuid := range value.Clients {
-					client, ok := c.Clients[uuid]
+				for _, clientId := range value.Clients {
+					client, ok := c.Clients[clientId]
 					if ok {
 						_ = client.Conn.WriteMessage(websocket.TextMessage, content)
 					}

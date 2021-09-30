@@ -20,7 +20,7 @@ func init() {
 		DefaultChannel: &ChannelManager{
 			Name:     "default",
 			Count:    0,
-			Clients:  make(map[string]*Client),
+			Clients:  make(map[int]*Client),
 			Lock:     &sync.Mutex{},
 			RecvChan: make(chan *RecvMessage, 10000),
 			SendChan: make(chan *SendMessage, 10000),
@@ -28,7 +28,7 @@ func init() {
 		AdminChannel: &ChannelManager{
 			Name:     "admin",
 			Count:    0,
-			Clients:  make(map[string]*Client),
+			Clients:  make(map[int]*Client),
 			Lock:     &sync.Mutex{},
 			RecvChan: make(chan *RecvMessage, 0),
 			SendChan: make(chan *SendMessage, 0),

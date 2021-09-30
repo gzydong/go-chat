@@ -11,11 +11,11 @@ type ClientService struct {
 }
 
 // Bind ...
-func (c *ClientService) Bind(ctx context.Context, channel string, uuid string, id int) {
-	c.WsClient.Set(ctx, channel, uuid, id)
+func (c *ClientService) Bind(ctx context.Context, channel string, clientId string, id int) {
+	c.WsClient.Set(ctx, channel, clientId, id)
 }
 
 // UnBind ...
-func (c *ClientService) UnBind(ctx context.Context, channel string, uuid string) {
-	c.WsClient.Del(ctx, channel, uuid)
+func (c *ClientService) UnBind(ctx context.Context, channel string, clientId string) {
+	c.WsClient.Del(ctx, channel, clientId)
 }

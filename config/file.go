@@ -14,8 +14,17 @@ type OssSystem struct {
 	Endpoint     string `json:"endpoint" yaml:"endpoint"`
 }
 
+// QiniuSystem 七牛云文件存储
+type QiniuSystem struct {
+	AccessKey string `json:"access_key" yaml:"access_key"`
+	SecretKey string `json:"secret_key" yaml:"secret_key"`
+	Bucket    string `json:"bucket" yaml:"bucket"`
+	Domain    string `json:"domain" yaml:"domain"`
+}
+
 type Filesystem struct {
 	Default string      `json:"default" yaml:"default"`
 	Local   LocalSystem `json:"local" yaml:"local"`
 	Oss     OssSystem   `json:"oss" yaml:"oss"`
+	Qiniu   QiniuSystem `json:"qiniu" yaml:"qiniu"`
 }

@@ -33,14 +33,19 @@ func main() {
 
 	server := Initialize(ctx, conf)
 
-	log.Printf("HTTP listen :%d", conf.Server.Port)
-	if err := server.HttpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-		log.Fatalf("HTTP listen: %s", err)
-	}
-
 	eg, groupCtx := errgroup.WithContext(ctx)
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, syscall.SIGTERM, syscall.SIGQUIT, syscall.SIGINT)
+
+	// 启动服务(设置redis)
+	eg.Go(func() error {
+		log.Printf("HTTP listen :%d", conf.Server.Port)
+		if err := server.HttpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			log.Fatalf("HTTP listen: %s", err)
+		}
+
+		return nil
+	})
 
 	// 启动服务(设置redis)
 	eg.Go(func() error {

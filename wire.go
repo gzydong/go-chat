@@ -4,6 +4,7 @@ package main
 
 import (
 	"context"
+	"go-chat/app/pkg/filesystem"
 	"go-chat/app/repository"
 
 	"github.com/google/wire"
@@ -25,6 +26,8 @@ var providerSet = wire.NewSet(
 	connect.NewHttp,
 	router.NewRouter,
 
+	filesystem.NewFilesystem,
+
 	// 缓存
 	cache.NewServerRun,
 	wire.Struct(new(cache.WsClient), "*"),
@@ -38,6 +41,7 @@ var providerSet = wire.NewSet(
 	wire.Struct(new(v1.User), "*"),
 	wire.Struct(new(v1.Upload), "*"),
 	wire.Struct(new(v1.Download), "*"),
+	wire.Struct(new(v1.TalkMessage), "*"),
 	wire.Struct(new(open.Index), "*"),
 	wire.Struct(new(ws.WebSocket), "*"),
 	wire.Struct(new(handler.Handler), "*"),
@@ -50,6 +54,7 @@ var providerSet = wire.NewSet(
 	wire.Struct(new(service.UserService), "*"),
 	wire.Struct(new(service.SocketService), "*"),
 	wire.Struct(new(service.SmsService), "*"),
+	wire.Struct(new(service.TalkMessageService), "*"),
 	wire.Struct(new(Service), "*"),
 )
 
