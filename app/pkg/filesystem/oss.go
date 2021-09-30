@@ -1,39 +1,65 @@
 package filesystem
 
 import (
+	"bytes"
 	"fmt"
+	"github.com/aliyun/aliyun-oss-go-sdk/oss"
 	"go-chat/config"
+	"os"
 )
 
 type OssFilesystem struct {
+	conf   *config.Config
+	client *oss.Client
+	bucket *oss.Bucket
 }
 
 func NewOssFilesystem(conf *config.Config) *OssFilesystem {
-	return &OssFilesystem{}
+	client, err := oss.New(
+		conf.Filesystem.Oss.Endpoint,
+		conf.Filesystem.Oss.AccessID,
+		conf.Filesystem.Oss.AccessSecret,
+		oss.EnableCRC(true),
+	)
+
+	if err != nil {
+		fmt.Println("Error:", err)
+	}
+
+	// 获取存储空间。
+	bucket, _ := client.Bucket(conf.Filesystem.Oss.Bucket)
+
+	return &OssFilesystem{
+		conf:   conf,
+		client: client,
+		bucket: bucket,
+	}
 }
 
-func (s *OssFilesystem) Write(data []byte, filePath string) {
-
+func (s *OssFilesystem) Write(data []byte, filePath string) error {
+	return s.bucket.PutObject(filePath, bytes.NewReader(data))
 }
 
-func (s *OssFilesystem) WriteLocal(localFile string, filePath string) {
+func (s *OssFilesystem) WriteLocal(localFile string, filePath string) error {
+	fd, err := os.Open(localFile)
+	if err != nil {
+		return err
+	}
+	defer fd.Close()
 
+	return s.bucket.PutObject(filePath, fd)
 }
 
-func (s *OssFilesystem) Update() {
-	fmt.Println("OssFilesystem :", "Update")
+// Copy 拷贝文件到同一个存储空间的另一个文件。
+func (s *OssFilesystem) Copy(srcPath, filePath string) error {
+	_, err := s.bucket.CopyObject(srcPath, filePath)
+
+	return err
 }
 
-func (s *OssFilesystem) Rename() {
-
-}
-
-func (s *OssFilesystem) Copy(srcPath, filePath string) {
-
-}
-
+// Delete 删除文件
 func (s *OssFilesystem) Delete(filePath string) error {
-	return nil
+	return s.bucket.DeleteObject(filePath)
 }
 
 func (s *OssFilesystem) DeleteDir(path string) error {
@@ -42,4 +68,21 @@ func (s *OssFilesystem) DeleteDir(path string) error {
 
 func (s *OssFilesystem) CreateDir(path string) error {
 	return nil
+}
+
+// IsObjectExist 判断文件是否存在
+func (s *OssFilesystem) IsObjectExist(filePath string) bool {
+	isExist, _ := s.bucket.IsObjectExist(filePath)
+
+	return isExist
+}
+
+func (s *OssFilesystem) Stat(filePath string) {
+	// 获取文件元信息。
+	props, err := s.bucket.GetObjectDetailedMeta(filePath)
+	if err != nil {
+		fmt.Println("Error:", err)
+	}
+
+	fmt.Printf("Object Meta: %#v", props)
 }

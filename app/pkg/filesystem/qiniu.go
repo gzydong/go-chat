@@ -36,7 +36,7 @@ func (s *QiniuFilesystem) Token() string {
 	return putPolicy.UploadToken(s.mac)
 }
 
-func (s *QiniuFilesystem) Write(data []byte, filePath string) {
+func (s *QiniuFilesystem) Write(data []byte, filePath string) error {
 	filePath = strings.TrimLeft(filePath, "/")
 
 	cfg := storage.Config{
@@ -55,14 +55,15 @@ func (s *QiniuFilesystem) Write(data []byte, filePath string) {
 
 	err := formUploader.Put(context.Background(), &ret, s.Token(), filePath, bytes.NewReader(data), int64(len(data)), &params)
 	if err != nil {
-		fmt.Println(err)
-		return
+		return err
 	}
 
 	fmt.Println(ret.Key, ret.Hash)
+
+	return nil
 }
 
-func (s *QiniuFilesystem) WriteLocal(localFile string, filePath string) {
+func (s *QiniuFilesystem) WriteLocal(localFile string, filePath string) error {
 	filePath = strings.TrimLeft(filePath, "/")
 
 	cfg := storage.Config{
@@ -80,22 +81,13 @@ func (s *QiniuFilesystem) WriteLocal(localFile string, filePath string) {
 	formUploader := storage.NewFormUploader(&cfg)
 	err := formUploader.PutFile(context.Background(), &ret, s.Token(), filePath, localFile, &params)
 	if err != nil {
-		fmt.Println(err)
-		return
+		return err
 	}
 
-	fmt.Println(ret.Key, ret.Hash)
+	return nil
 }
 
-func (s *QiniuFilesystem) Update() {
-	fmt.Println("QiniuFilesystem :", "Update")
-}
-
-func (s *QiniuFilesystem) Rename() {
-
-}
-
-func (s *QiniuFilesystem) Copy(srcPath, filePath string) {
+func (s *QiniuFilesystem) Copy(srcPath, filePath string) error {
 	cfg := storage.Config{
 		UseHTTPS: false,
 		Zone:     &storage.ZoneHuadong, // 空间对应的机房
@@ -105,11 +97,7 @@ func (s *QiniuFilesystem) Copy(srcPath, filePath string) {
 
 	bucket := s.conf.Filesystem.Qiniu.Bucket
 
-	err := bucketManager.Copy(bucket, srcPath, bucket, filePath, false)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
+	return bucketManager.Copy(bucket, srcPath, bucket, filePath, false)
 }
 
 func (s *QiniuFilesystem) Delete(filePath string) error {

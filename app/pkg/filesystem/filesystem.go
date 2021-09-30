@@ -6,18 +6,19 @@ import (
 
 type AdapterInterface interface {
 	// Write 文件写入
-	Write(data []byte, filePath string)
-	// WriteLocal 本地文件上传
-	WriteLocal(localFile string, filePath string)
+	Write(data []byte, filePath string) error
 
-	Update()
-	Rename()
-	Copy(srcPath, filePath string)
+	// WriteLocal 本地文件上传
+	WriteLocal(localFile string, filePath string) error
+
+	Copy(srcPath, filePath string) error
 
 	// Delete 删除一个文件或空文件夹
 	Delete(filePath string) error
 	DeleteDir(path string) error
 	CreateDir(path string) error
+
+	Stat(filePath string)
 }
 
 type Filesystem struct {
