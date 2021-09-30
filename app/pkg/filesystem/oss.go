@@ -28,7 +28,7 @@ func (s *OssFilesystem) Rename() {
 
 }
 
-func (s *OssFilesystem) Copy() {
+func (s *OssFilesystem) Copy(srcPath, filePath string) {
 
 }
 

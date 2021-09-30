@@ -12,7 +12,7 @@ type AdapterInterface interface {
 
 	Update()
 	Rename()
-	Copy()
+	Copy(srcPath, filePath string)
 
 	// Delete 删除一个文件或空文件夹
 	Delete(filePath string) error

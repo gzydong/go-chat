@@ -40,7 +40,7 @@ func (s *LocalFilesystem) Rename() {
 
 }
 
-func (s *LocalFilesystem) Copy() {
+func (s *LocalFilesystem) Copy(srcPath, filePath string) {
 
 }
 

@@ -37,3 +37,9 @@ func TestFilesystem_Write(t *testing.T) {
 
 	filesystem.Write(file, "public/images/test/2README.md")
 }
+
+func TestFilesystem_Copy(t *testing.T) {
+	filesystem := testNewFilesystem()
+
+	filesystem.Copy("public/images/test/2README.md", "public/images/test/5README.md")
+}

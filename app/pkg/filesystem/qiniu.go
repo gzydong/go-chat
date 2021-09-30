@@ -15,25 +15,25 @@ import (
 // @link 对接文档 https://developer.qiniu.com/kodo/1238/go#upload-flow
 type QiniuFilesystem struct {
 	conf *config.Config
+	mac  *qbox.Mac
 }
 
 func NewQiniuFilesystem(conf *config.Config) *QiniuFilesystem {
 	return &QiniuFilesystem{
 		conf: conf,
+		mac:  qbox.NewMac(conf.Filesystem.Qiniu.AccessKey, conf.Filesystem.Qiniu.SecretKey),
 	}
 }
 
 // Token 获取上传凭证
 // todo token 需要加入缓存
 func (s *QiniuFilesystem) Token() string {
-	mac := qbox.NewMac(s.conf.Filesystem.Qiniu.AccessKey, s.conf.Filesystem.Qiniu.SecretKey)
-
 	putPolicy := storage.PutPolicy{
 		Scope:   s.conf.Filesystem.Qiniu.Bucket,
 		Expires: 7200,
 	}
 
-	return putPolicy.UploadToken(mac)
+	return putPolicy.UploadToken(s.mac)
 }
 
 func (s *QiniuFilesystem) Write(data []byte, filePath string) {
@@ -95,8 +95,21 @@ func (s *QiniuFilesystem) Rename() {
 
 }
 
-func (s *QiniuFilesystem) Copy() {
+func (s *QiniuFilesystem) Copy(srcPath, filePath string) {
+	cfg := storage.Config{
+		UseHTTPS: false,
+		Zone:     &storage.ZoneHuadong, // 空间对应的机房
+	}
 
+	bucketManager := storage.NewBucketManager(s.mac, &cfg)
+
+	bucket := s.conf.Filesystem.Qiniu.Bucket
+
+	err := bucketManager.Copy(bucket, srcPath, bucket, filePath, false)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 }
 
 func (s *QiniuFilesystem) Delete(filePath string) error {
@@ -109,4 +122,25 @@ func (s *QiniuFilesystem) DeleteDir(path string) error {
 
 func (s *QiniuFilesystem) CreateDir(path string) error {
 	return nil
+}
+
+func (s *QiniuFilesystem) Stat(filePath string) {
+	cfg := storage.Config{
+		UseHTTPS: false,
+		Zone:     &storage.ZoneHuadong, // 空间对应的机房
+	}
+
+	bucketManager := storage.NewBucketManager(s.mac, &cfg)
+
+	bucket := s.conf.Filesystem.Qiniu.Bucket
+
+	fileInfo, sErr := bucketManager.Stat(bucket, filePath)
+	if sErr != nil {
+		fmt.Println(sErr)
+		return
+	}
+
+	fmt.Println(fileInfo.String())
+	//可以解析文件的PutTime
+	fmt.Println(storage.ParsePutTime(fileInfo.PutTime))
 }
