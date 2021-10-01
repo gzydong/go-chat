@@ -116,9 +116,11 @@ func (c *ChannelManager) SendProcess(ctx context.Context) {
 
 			// 判断是否推送所有客户端
 			if value.IsAll {
+				c.Lock.Lock()
 				for _, client := range c.Clients {
 					_ = client.Conn.WriteMessage(websocket.TextMessage, content)
 				}
+				c.Lock.Unlock()
 			} else {
 				for _, clientId := range value.Clients {
 					client, ok := c.Clients[clientId]
@@ -127,6 +129,7 @@ func (c *ChannelManager) SendProcess(ctx context.Context) {
 					}
 				}
 			}
+
 		case <-time.After(3 * time.Second):
 		}
 	}

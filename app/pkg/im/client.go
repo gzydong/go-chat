@@ -108,18 +108,22 @@ func (w *Client) AcceptClient() {
 		if string(message) == "ping" {
 			w.LastTime = time.Now().Unix()
 
-			if w.Conn.WriteMessage(websocket.PongMessage, []byte("pong")) != nil {
-				break
-			}
+			//if w.Conn.WriteMessage(websocket.PongMessage, []byte("pong")) != nil {
+			//	break
+			//}
 
 			continue
 		}
 
 		// todo 这里需要验证消息格式，未知格式直接忽略
 
-		w.Channel.RecvChan <- &RecvMessage{
-			Client:  w,
-			Content: string(message),
+		str := string(message)
+
+		if len(str) > 0 {
+			w.Channel.RecvChan <- &RecvMessage{
+				Client:  w,
+				Content: string(message),
+			}
 		}
 	}
 }
