@@ -77,12 +77,16 @@ func (s *OssFilesystem) IsObjectExist(filePath string) bool {
 	return isExist
 }
 
-func (s *OssFilesystem) Stat(filePath string) {
+func (s *OssFilesystem) Stat(filePath string) (*FileStat, error) {
 	// 获取文件元信息。
-	props, err := s.bucket.GetObjectDetailedMeta(filePath)
+	props, err := s.bucket.GetObjectMeta(filePath)
 	if err != nil {
-		fmt.Println("Error:", err)
+		return nil, err
 	}
 
 	fmt.Printf("Object Meta: %#v", props)
+
+	return &FileStat{
+		//LastModTime: props.Get("X-Oss-Server-Time"),
+	}, nil
 }

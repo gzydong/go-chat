@@ -29,8 +29,8 @@ func TestCommon_SmsCode(t *testing.T) {
 
 	r := testutil.NewTestRequest("/common/sms-code", common.SmsCode)
 	value := &url.Values{}
-	//value.Add("mobile", "13953025089")
-	//value.Add("channel", "login1")
+	value.Add("mobile", "18798276809")
+	value.Add("channel", "login")
 
 	resp, err := r.Form(value)
 	assert.NoError(t, err)

@@ -5,6 +5,7 @@ import (
 	"io"
 	"os"
 	"path"
+	"path/filepath"
 	"strings"
 
 	"go-chat/config"
@@ -93,15 +94,25 @@ func (s *LocalFilesystem) Delete(filePath string) error {
 }
 
 func (s *LocalFilesystem) CreateDir(dir string) error {
-	return os.MkdirAll(s.path(dir), 055)
+	return os.MkdirAll(s.path(dir), 0755)
 }
 
 func (s *LocalFilesystem) DeleteDir(dir string) error {
 	return os.RemoveAll(s.path(dir))
 }
 
-func (s *LocalFilesystem) Stat(filePath string) {
-	info, _ := os.Stat(s.path(filePath))
+func (s *LocalFilesystem) Stat(filePath string) (*FileStat, error) {
+	info, err := os.Stat(s.path(filePath))
 
-	fmt.Printf("%#v", info)
+	if err != nil {
+		return nil, err
+	}
+
+	return &FileStat{
+		Name:        filepath.Base(filePath),
+		Size:        info.Size(),
+		Ext:         filepath.Ext(filePath),
+		MimeType:    "",
+		LastModTime: info.ModTime(),
+	}, nil
 }

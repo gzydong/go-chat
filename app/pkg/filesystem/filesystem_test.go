@@ -1,6 +1,7 @@
 package filesystem
 
 import (
+	"fmt"
 	"github.com/stretchr/testify/assert"
 	"go-chat/testutil"
 	"os"
@@ -38,14 +39,27 @@ func TestFilesystem_Copy(t *testing.T) {
 	_ = filesystem.Copy("public/images/test/2README.md", "public/images/test/6README.md")
 }
 
-func TestFilesystem_Stat(t *testing.T) {
-	filesystem := testNewFilesystem()
-
-	filesystem.Stat("zifubao.jpeg")
-}
-
 func TestFilesystem_Delete(t *testing.T) {
 	filesystem := testNewFilesystem()
 
 	assert.Error(t, filesystem.Delete("zifubao.jpeg"))
+}
+
+func TestFilesystem_CreateDir(t *testing.T) {
+	filesystem := testNewFilesystem()
+	assert.NoError(t, filesystem.CreateDir("tmp/test"))
+}
+
+func TestFilesystem_DeleteDir(t *testing.T) {
+	filesystem := testNewFilesystem()
+	assert.NoError(t, filesystem.DeleteDir("tmp/test"))
+}
+
+func TestFilesystem_Stat(t *testing.T) {
+	filesystem := testNewFilesystem()
+
+	info, err := filesystem.Stat("zifubao.jpeg")
+
+	assert.NoError(t, err)
+	fmt.Printf("%#v", info)
 }

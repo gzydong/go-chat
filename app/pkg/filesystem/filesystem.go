@@ -2,6 +2,7 @@ package filesystem
 
 import (
 	"go-chat/config"
+	"time"
 )
 
 type AdapterInterface interface {
@@ -18,7 +19,17 @@ type AdapterInterface interface {
 	DeleteDir(path string) error
 	CreateDir(path string) error
 
-	Stat(filePath string)
+	// Stat 文件信息
+	Stat(filePath string) (*FileStat, error)
+}
+
+// FileStat 文件信息
+type FileStat struct {
+	Name        string
+	Size        int64
+	Ext         string
+	LastModTime time.Time
+	MimeType    string
 }
 
 type Filesystem struct {

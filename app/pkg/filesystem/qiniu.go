@@ -3,11 +3,13 @@ package filesystem
 import (
 	"bytes"
 	"context"
+	"errors"
 	"fmt"
 	"github.com/qiniu/go-sdk/v7/auth/qbox"
 	"github.com/qiniu/go-sdk/v7/storage"
 	_ "github.com/qiniu/go-sdk/v7/storage"
 	"go-chat/config"
+	"path/filepath"
 	"strings"
 )
 
@@ -40,9 +42,8 @@ func (s *QiniuFilesystem) Write(data []byte, filePath string) error {
 	filePath = strings.TrimLeft(filePath, "/")
 
 	cfg := storage.Config{
-		Zone:          &storage.ZoneHuadong, // 空间对应的机房
-		UseHTTPS:      true,                 // 是否使用https域名
-		UseCdnDomains: false,                // 上传是否使用CDN上传加速
+		Zone:     &storage.ZoneHuadong, // 空间对应的机房
+		UseHTTPS: true,                 // 是否使用https域名
 	}
 
 	// 七牛标准的上传回复内容
@@ -64,12 +65,9 @@ func (s *QiniuFilesystem) Write(data []byte, filePath string) error {
 }
 
 func (s *QiniuFilesystem) WriteLocal(localFile string, filePath string) error {
-	filePath = strings.TrimLeft(filePath, "/")
-
 	cfg := storage.Config{
-		Zone:          &storage.ZoneHuadong, // 空间对应的机房
-		UseHTTPS:      true,                 // 是否使用https域名
-		UseCdnDomains: false,                // 上传是否使用CDN上传加速
+		Zone:     &storage.ZoneHuadong, // 空间对应的机房
+		UseHTTPS: true,                 // 是否使用https域名
 	}
 
 	// 七牛标准的上传回复内容
@@ -79,8 +77,10 @@ func (s *QiniuFilesystem) WriteLocal(localFile string, filePath string) error {
 	params := storage.PutExtra{}
 
 	formUploader := storage.NewFormUploader(&cfg)
-	err := formUploader.PutFile(context.Background(), &ret, s.Token(), filePath, localFile, &params)
-	if err != nil {
+
+	filePath = strings.TrimLeft(filePath, "/")
+
+	if err := formUploader.PutFile(context.Background(), &ret, s.Token(), filePath, localFile, &params); err != nil {
 		return err
 	}
 
@@ -90,45 +90,61 @@ func (s *QiniuFilesystem) WriteLocal(localFile string, filePath string) error {
 func (s *QiniuFilesystem) Copy(srcPath, filePath string) error {
 	cfg := storage.Config{
 		UseHTTPS: false,
-		Zone:     &storage.ZoneHuadong, // 空间对应的机房
+		Zone:     &storage.ZoneHuadong,
 	}
 
-	bucketManager := storage.NewBucketManager(s.mac, &cfg)
-
 	bucket := s.conf.Filesystem.Qiniu.Bucket
+
+	bucketManager := storage.NewBucketManager(s.mac, &cfg)
 
 	return bucketManager.Copy(bucket, srcPath, bucket, filePath, false)
 }
 
 func (s *QiniuFilesystem) Delete(filePath string) error {
+	cfg := storage.Config{
+		UseHTTPS: false,
+		Zone:     &storage.ZoneHuadong,
+	}
+
+	bucket := s.conf.Filesystem.Qiniu.Bucket
+
+	bucketManager := storage.NewBucketManager(s.mac, &cfg)
+
+	if err := bucketManager.Delete(bucket, filePath); err != nil {
+		return err
+	}
+
 	return nil
 }
 
 func (s *QiniuFilesystem) DeleteDir(path string) error {
-	return nil
+	return errors.New("七牛云无删除文件夹接口")
 }
 
 func (s *QiniuFilesystem) CreateDir(path string) error {
-	return nil
+	return errors.New("七牛云无创建文件夹接口")
 }
 
-func (s *QiniuFilesystem) Stat(filePath string) {
+func (s *QiniuFilesystem) Stat(filePath string) (*FileStat, error) {
 	cfg := storage.Config{
 		UseHTTPS: false,
-		Zone:     &storage.ZoneHuadong, // 空间对应的机房
+		Zone:     &storage.ZoneHuadong,
 	}
-
-	bucketManager := storage.NewBucketManager(s.mac, &cfg)
 
 	bucket := s.conf.Filesystem.Qiniu.Bucket
 
-	fileInfo, sErr := bucketManager.Stat(bucket, filePath)
-	if sErr != nil {
-		fmt.Println(sErr)
-		return
+	bucketManager := storage.NewBucketManager(s.mac, &cfg)
+
+	fileInfo, err := bucketManager.Stat(bucket, filePath)
+	if err != nil {
+		return nil, err
 	}
 
-	fmt.Println(fileInfo.String())
-	//可以解析文件的PutTime
-	fmt.Println(storage.ParsePutTime(fileInfo.PutTime))
+	return &FileStat{
+		Name:        filepath.Base(filePath),
+		Size:        fileInfo.Fsize,
+		Ext:         filepath.Ext(filePath),
+		MimeType:    fileInfo.MimeType,
+		LastModTime: storage.ParsePutTime(fileInfo.PutTime),
+	}, nil
 }
