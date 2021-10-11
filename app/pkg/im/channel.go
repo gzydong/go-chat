@@ -129,13 +129,17 @@ func (c *ChannelManager) SendProcess(ctx context.Context) {
 			if value.IsAll {
 				c.Lock.Lock() // 保证线程安全
 				for _, client := range c.Clients {
+					if client.IsClose {
+						continue
+					}
+
 					_ = client.Conn.WriteMessage(websocket.TextMessage, content)
 				}
 				c.Lock.Unlock()
 			} else {
 				for _, clientId := range value.Clients {
 					client, ok := c.Clients[clientId]
-					if ok {
+					if ok && client.IsClose == false {
 						_ = client.Conn.WriteMessage(websocket.TextMessage, content)
 					}
 				}

@@ -18,7 +18,6 @@ func (s *SocketService) Run(ctx context.Context) error {
 	for {
 		select {
 		case <-ctx.Done():
-			log.Println("SetServerRunId Stop")
 			return nil
 		case <-time.After(10 * time.Second):
 			if err := s.ServerRunID.SetServerID(ctx, s.Conf.Server.ServerId, time.Now().Unix()); err != nil {

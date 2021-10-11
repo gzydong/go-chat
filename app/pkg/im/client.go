@@ -11,8 +11,8 @@ import (
 )
 
 const (
-	heartbeatCheckInterval = 20 * time.Second // 心跳检测时间
-	heartbeatIdleTime      = 50               // 心跳超时时间
+	heartbeatCheckInterval = 5 * time.Second // 心跳检测时间
+	heartbeatIdleTime      = 50              // 心跳超时时间
 )
 
 // Client WebSocket 客户端连接信息
@@ -23,6 +23,7 @@ type Client struct {
 	LastTime      int64                  // 客户端最后心跳时间/心跳检测
 	Channel       *ChannelManager        // 渠道分组
 	ClientService *service.ClientService // 服务信息
+	IsClose       bool                   // 客户端是否断开连接
 }
 
 // NewClient ...
@@ -38,6 +39,8 @@ func NewClient(conn *websocket.Conn, clientService *service.ClientService, userI
 
 	// 设置客户端连接关闭回调事件
 	conn.SetCloseHandler(func(code int, text string) error {
+		client.IsClose = true
+
 		channel.Handle.Close(client, code, text)
 
 		client.Channel.RemoveClient(client)
@@ -69,12 +72,18 @@ func (w *Client) Close(code int, message string) {
 	if err := w.Conn.Close(); err != nil {
 		log.Println("Close Error: ", err)
 	}
+
+	w.IsClose = true
 }
 
 // heartbeat 心跳检测
 func (w *Client) heartbeat() {
 	for {
 		<-time.After(heartbeatCheckInterval)
+
+		if w.IsClose {
+			break
+		}
 
 		if int(time.Now().Unix()-w.LastTime) > heartbeatIdleTime {
 			w.Close(2000, "心跳检测超时，连接自动关闭")
@@ -85,7 +94,7 @@ func (w *Client) heartbeat() {
 
 // accept 接收客户端推送信息
 func (w *Client) accept() {
-	defer w.Close(3000, "[协程异常] AcceptClient 已结束")
+	defer w.Conn.Close()
 
 	for {
 		// 读取客户端中的数据
