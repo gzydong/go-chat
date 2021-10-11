@@ -20,7 +20,7 @@ func (d *DefaultChannelHandle) Open(client *im.Client) {
 
 // Message 消息接收回调事件
 func (d *DefaultChannelHandle) Message(message *im.RecvMessage) {
-	fmt.Printf("[%s]消息通知 Client:%d ，Content: %s \n", message.Client.Channel.Name, message.Client.ClientId, message.Content)
+	fmt.Printf("[%s]消息通知 Client:%d，Content: %s \n", message.Client.Channel.Name, message.Client.ClientId, message.Content)
 
 	message.Client.Channel.SendMessage(&im.SendMessage{
 		IsAll:   true,

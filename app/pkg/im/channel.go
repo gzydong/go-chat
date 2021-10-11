@@ -3,7 +3,6 @@ package im
 import (
 	"context"
 	"fmt"
-	"log"
 	"sync"
 	"time"
 
@@ -61,9 +60,26 @@ func (c *ChannelManager) GetClient(clientId int) (*Client, bool) {
 	return client, ok
 }
 
+// RecvMessage 推送消息到消息接收通道
+func (c *ChannelManager) RecvMessage(message *RecvMessage) {
+	select {
+	case c.RecvChan <- message:
+		break
+	case <-time.After(800 * time.Millisecond):
+		fmt.Printf("[%s] RecvChan 写入消息超时,管道长度：%d \n", c.Name, len(c.RecvChan))
+		break
+	}
+}
+
 // SendMessage 推送消息到消费通道
 func (c *ChannelManager) SendMessage(message *SendMessage) {
-	c.SendChan <- message
+	select {
+	case c.SendChan <- message:
+		break
+	case <-time.After(800 * time.Millisecond):
+		fmt.Printf("[%s] SendChan 写入消息超时,管道长度：%d \n", c.Name, len(c.RecvChan))
+		break
+	}
 }
 
 // SetCallbackHandler 设置 WebSocket 处理事件
@@ -80,12 +96,9 @@ func (c *ChannelManager) Process(ctx context.Context) {
 }
 
 func (c *ChannelManager) RecvProcess(ctx context.Context) {
-	fmt.Printf("%s: 启动了\n", c.Name)
-
 	for {
 		select {
 		case <-ctx.Done():
-			log.Printf("%s 退出了\n", c.Name)
 			return
 		// 处理接收消息
 		case value, ok := <-c.RecvChan:
@@ -93,22 +106,20 @@ func (c *ChannelManager) RecvProcess(ctx context.Context) {
 				c.Handle.Message(value)
 			}
 
+			break
 		case <-time.After(3 * time.Second):
+			break
 		}
 	}
 }
 
 func (c *ChannelManager) SendProcess(ctx context.Context) {
-	fmt.Printf("%s: 启动了\n", c.Name)
-
 	for {
 		select {
 		case <-ctx.Done():
-			log.Printf("%s 退出了\n", c.Name)
 			return
 		case value, ok := <-c.SendChan:
 			if !ok {
-				fmt.Printf("消费通道[%s]，读取数据失败...", c.Name)
 				break
 			}
 
@@ -130,7 +141,10 @@ func (c *ChannelManager) SendProcess(ctx context.Context) {
 				}
 			}
 
+			break
 		case <-time.After(3 * time.Second):
+
+			break
 		}
 	}
 }

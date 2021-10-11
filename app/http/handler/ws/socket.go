@@ -21,13 +21,7 @@ func (w *WebSocket) SocketIo(c *gin.Context) {
 	}
 
 	// 创建客户端
-	client := im.NewImClient(conn, w.ClientService, c.GetInt("__user_id__"), im.Manager.DefaultChannel)
-
-	// 启动客户端心跳检测
-	go client.Heartbeat()
-
-	// 创建协程处理接收信息
-	go client.AcceptClient()
+	im.NewClient(conn, w.ClientService, c.GetInt("__user_id__"), im.Manager.DefaultChannel).Start()
 }
 
 // AdminIo 连接客户端
@@ -39,11 +33,5 @@ func (w *WebSocket) AdminIo(c *gin.Context) {
 	}
 
 	// 创建客户端
-	client := im.NewImClient(conn, w.ClientService, c.GetInt("__user_id__"), im.Manager.AdminChannel)
-
-	// 启动客户端心跳检测
-	go client.Heartbeat()
-
-	// 创建协程处理接收信息
-	go client.AcceptClient()
+	im.NewClient(conn, w.ClientService, c.GetInt("__user_id__"), im.Manager.AdminChannel).Start()
 }

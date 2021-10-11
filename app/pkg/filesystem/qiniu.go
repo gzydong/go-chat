@@ -11,6 +11,7 @@ import (
 	"go-chat/config"
 	"path/filepath"
 	"strings"
+	"time"
 )
 
 // QiniuFilesystem
@@ -147,4 +148,19 @@ func (s *QiniuFilesystem) Stat(filePath string) (*FileStat, error) {
 		MimeType:    fileInfo.MimeType,
 		LastModTime: storage.ParsePutTime(fileInfo.PutTime),
 	}, nil
+}
+
+func (s *QiniuFilesystem) PublicUrl(filePath string) string {
+	return storage.MakePublicURL(s.conf.Filesystem.Qiniu.Domain, filePath)
+}
+
+func (s *QiniuFilesystem) PrivateUrl(filePath string, timeout int) string {
+	deadline := time.Now().Add(time.Second * time.Duration(timeout)).Unix()
+
+	return storage.MakePrivateURL(s.mac, s.conf.Filesystem.Qiniu.Domain, filePath, deadline)
+}
+
+// List 获取目录下的所有文件
+func (s *QiniuFilesystem) List(dir string) {
+
 }

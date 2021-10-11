@@ -2,8 +2,6 @@ package im
 
 import (
 	"context"
-	"fmt"
-	"go-chat/app/helper"
 	"log"
 	"strconv"
 	"time"
@@ -13,8 +11,8 @@ import (
 )
 
 const (
-	heartbeatCheckInterval int = 20 // 心跳检测时间
-	heartbeatIdleTime      int = 50 // 心跳超时时间
+	heartbeatCheckInterval = 20 * time.Second // 心跳检测时间
+	heartbeatIdleTime      = 50               // 心跳超时时间
 )
 
 // Client WebSocket 客户端连接信息
@@ -27,19 +25,11 @@ type Client struct {
 	ClientService *service.ClientService // 服务信息
 }
 
-// GenClientID 创建客户端ID
-func GenClientID() int {
-	num := fmt.Sprintf("%03d", helper.MtRand(1, 999))
-
-	val, _ := strconv.Atoi(fmt.Sprintf("%d%s", time.Now().UnixNano()/1000, num))
-	return val
-}
-
-// NewImClient ...
-func NewImClient(conn *websocket.Conn, clientService *service.ClientService, userId int, channel *ChannelManager) *Client {
+// NewClient ...
+func NewClient(conn *websocket.Conn, clientService *service.ClientService, userId int, channel *ChannelManager) *Client {
 	client := &Client{
 		Conn:          conn,
-		ClientId:      GenClientID(),
+		ClientId:      NewClientID(),
 		UserId:        userId,
 		LastTime:      time.Now().Unix(),
 		Channel:       channel,
@@ -81,10 +71,10 @@ func (w *Client) Close(code int, message string) {
 	}
 }
 
-// Heartbeat 心跳检测
-func (w *Client) Heartbeat() {
+// heartbeat 心跳检测
+func (w *Client) heartbeat() {
 	for {
-		time.Sleep(time.Duration(heartbeatCheckInterval) * time.Second)
+		<-time.After(heartbeatCheckInterval)
 
 		if int(time.Now().Unix()-w.LastTime) > heartbeatIdleTime {
 			w.Close(2000, "心跳检测超时，连接自动关闭")
@@ -93,8 +83,8 @@ func (w *Client) Heartbeat() {
 	}
 }
 
-// AcceptClient 接收客户端推送信息
-func (w *Client) AcceptClient() {
+// accept 接收客户端推送信息
+func (w *Client) accept() {
 	defer w.Close(3000, "[协程异常] AcceptClient 已结束")
 
 	for {
@@ -104,8 +94,10 @@ func (w *Client) AcceptClient() {
 			break
 		}
 
+		msg := string(message)
+
 		// 心跳消息判断
-		if string(message) == "ping" {
+		if msg == "ping" {
 			w.LastTime = time.Now().Unix()
 
 			if w.Conn.WriteMessage(websocket.PongMessage, []byte("pong")) != nil {
@@ -117,13 +109,19 @@ func (w *Client) AcceptClient() {
 
 		// todo 这里需要验证消息格式，未知格式直接忽略
 
-		str := string(message)
-
-		if len(str) > 0 {
-			w.Channel.RecvChan <- &RecvMessage{
+		if len(msg) > 0 {
+			w.Channel.RecvMessage(&RecvMessage{
 				Client:  w,
-				Content: string(message),
-			}
+				Content: msg,
+			})
 		}
 	}
+}
+
+func (w *Client) Start() {
+	// 启动协程处理接收信息
+	go w.accept()
+
+	// 启动客户端心跳检测
+	go w.heartbeat()
 }
