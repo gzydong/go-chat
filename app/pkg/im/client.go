@@ -108,9 +108,9 @@ func (w *Client) AcceptClient() {
 		if string(message) == "ping" {
 			w.LastTime = time.Now().Unix()
 
-			//if w.Conn.WriteMessage(websocket.PongMessage, []byte("pong")) != nil {
-			//	break
-			//}
+			if w.Conn.WriteMessage(websocket.PongMessage, []byte("pong")) != nil {
+				break
+			}
 
 			continue
 		}

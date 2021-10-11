@@ -24,7 +24,7 @@ func (a *Common) SmsCode(c *gin.Context) {
 	}
 
 	switch params.Channel {
-	// 需要先判断账号是否存在
+	// 需要判断账号是否存在
 	case entity.SmsLoginChannel, entity.SmsForgetAccountChannel:
 		if !a.UserRepo.IsMobileExist(params.Mobile) {
 			response.BusinessError(c, "账号不存在！")

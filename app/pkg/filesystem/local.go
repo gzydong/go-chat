@@ -21,18 +21,20 @@ func NewLocalFilesystem(conf *config.Config) *LocalFilesystem {
 	}
 }
 
+// path 获取文件地址绝对路径
 func (s *LocalFilesystem) path(path string) string {
-	return fmt.Sprintf("%s/%s", strings.TrimRight(s.conf.Filesystem.Local.Root, "/"), strings.TrimLeft(path, "/"))
+	return fmt.Sprintf(
+		"%s/%s",
+		strings.TrimRight(s.conf.Filesystem.Local.Root, "/"),
+		strings.TrimLeft(path, "/"),
+	)
 }
 
-// 判断目录是否存在
+// isDirExist 判断目录是否存在
 func isDirExist(fileAddr string) bool {
 	s, err := os.Stat(fileAddr)
-	if err != nil {
-		return false
-	}
 
-	return s.IsDir()
+	return err == nil && s.IsDir()
 }
 
 // Write 上传 Byte 数组
@@ -56,6 +58,7 @@ func (s *LocalFilesystem) Write(data []byte, filePath string) error {
 	return err
 }
 
+// WriteLocal 本地文件上传
 func (s *LocalFilesystem) WriteLocal(localFile string, filePath string) error {
 	srcFile, err := os.Open(localFile)
 
@@ -85,14 +88,17 @@ func (s *LocalFilesystem) WriteLocal(localFile string, filePath string) error {
 	return err
 }
 
+// Copy 文件拷贝
 func (s *LocalFilesystem) Copy(srcPath, filePath string) error {
 	return s.WriteLocal(s.path(srcPath), filePath)
 }
 
+// Delete 文件删除
 func (s *LocalFilesystem) Delete(filePath string) error {
 	return os.Remove(s.path(filePath))
 }
 
+// CreateDir 递归创建文件夹
 func (s *LocalFilesystem) CreateDir(dir string) error {
 	return os.MkdirAll(s.path(dir), 0755)
 }
@@ -101,6 +107,7 @@ func (s *LocalFilesystem) DeleteDir(dir string) error {
 	return os.RemoveAll(s.path(dir))
 }
 
+// Stat 文件信息
 func (s *LocalFilesystem) Stat(filePath string) (*FileStat, error) {
 	info, err := os.Stat(s.path(filePath))
 

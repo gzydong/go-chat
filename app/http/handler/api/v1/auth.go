@@ -1,11 +1,11 @@
 package v1
 
 import (
-	"go-chat/app/entity"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	"go-chat/app/cache"
+	"go-chat/app/entity"
 	"go-chat/app/helper"
 	"go-chat/app/http/request"
 	"go-chat/app/http/response"
@@ -125,7 +125,6 @@ func (a *Auth) Forget(c *gin.Context) {
 		return
 	}
 
-	// 密码找回
 	_, err := a.UserService.Forget(params)
 	if err != nil {
 		response.BusinessError(c, err)

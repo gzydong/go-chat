@@ -25,6 +25,24 @@ func (u *User) Detail(c *gin.Context) {
 	})
 }
 
+// ChangeDetail 修改个人用户信息
+func (u *User) ChangeDetail(c *gin.Context) {
+	params := &request.ChangeDetailRequest{}
+	if err := c.Bind(params); err != nil {
+		response.InvalidParams(c, err)
+		return
+	}
+
+	_, _ = u.UserRepo.Update(&model.User{ID: c.GetInt("__user_id__")}, map[string]interface{}{
+		"nickname": params.Nickname,
+		"avatar":   params.Avatar,
+		"gender":   params.Gender,
+		"motto":    params.Profile,
+	})
+
+	response.Success(c, gin.H{}, "个人信息修改成功！")
+}
+
 // ChangePassword 修改密码接口
 func (u *User) ChangePassword(c *gin.Context) {
 	params := &request.ChangePasswordRequest{}
@@ -93,5 +111,11 @@ func (u *User) ChangeMobile(c *gin.Context) {
 
 // ChangeEmail 修改邮箱接口
 func (u *User) ChangeEmail(c *gin.Context) {
+	params := &request.ChangeEmailRequest{}
+	if err := c.Bind(params); err != nil {
+		response.InvalidParams(c, err)
+		return
+	}
 
+	// todo 1.验证邮件激活码是否正确
 }

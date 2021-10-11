@@ -4,7 +4,8 @@ go 1.16
 
 require (
 	github.com/alicebob/miniredis/v2 v2.15.1
-	github.com/aliyun/aliyun-oss-go-sdk v2.1.10+incompatible // indirect
+	github.com/aliyun/aliyun-oss-go-sdk v2.1.10+incompatible
+	github.com/baiyubin/aliyun-sts-go-sdk v0.0.0-20180326062324-cfa1a18b161f // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/gin-gonic/gin v1.7.4
 	github.com/go-playground/locales v0.14.0

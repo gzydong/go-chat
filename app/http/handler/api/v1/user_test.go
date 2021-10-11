@@ -33,6 +33,22 @@ func TestUser_Detail(t *testing.T) {
 	fmt.Println(resp.GetJson().Get("code"))
 }
 
+func TestUser_ChangeDetail(t *testing.T) {
+	a := testUser()
+
+	r := testutil.NewTestRequest("/user/change/detail", func(context *gin.Context) {
+		context.Set("__user_id__", 2054)
+	}, a.ChangeDetail)
+
+	value := &url.Values{}
+	value.Add("nickname", "返税款1")
+	value.Add("gender", "1")
+
+	resp, err := r.Form(value)
+	assert.NoError(t, err)
+	fmt.Println(resp.GetJson().Get("code"))
+}
+
 func TestUser_ChangePassword(t *testing.T) {
 	a := testUser()
 

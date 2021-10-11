@@ -116,7 +116,7 @@ func (c *ChannelManager) SendProcess(ctx context.Context) {
 
 			// 判断是否推送所有客户端
 			if value.IsAll {
-				c.Lock.Lock()
+				c.Lock.Lock() // 保证线程安全
 				for _, client := range c.Clients {
 					_ = client.Conn.WriteMessage(websocket.TextMessage, content)
 				}

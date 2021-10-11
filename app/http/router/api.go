@@ -33,9 +33,26 @@ func RegisterApiRoute(conf *config.Config, router *gin.Engine, handler *handler.
 		user := group.Group("/user").Use(authorize)
 		{
 			user.GET("/detail", handler.User.Detail)
+			user.POST("/change/detail", handler.User.ChangeDetail)
 			user.POST("/change/password", handler.User.ChangePassword)
 			user.POST("/change/mobile", handler.User.ChangeMobile)
 			user.POST("/change/email", handler.User.ChangeEmail)
+		}
+
+		talkMsg := group.Group("/talk/message").Use(authorize)
+		{
+			talkMsg.POST("/text", handler.TalkMessage.Text)
+			talkMsg.POST("/code", handler.TalkMessage.Code)
+			talkMsg.POST("/image", handler.TalkMessage.Image)
+			talkMsg.POST("/file", handler.TalkMessage.File)
+			talkMsg.POST("/emoticon", handler.TalkMessage.Emoticon)
+			talkMsg.POST("/forward", handler.TalkMessage.Forward)
+			talkMsg.POST("/card", handler.TalkMessage.Card)
+			talkMsg.POST("/collect", handler.TalkMessage.Collect)
+			talkMsg.POST("/revoke", handler.TalkMessage.Revoke)
+			talkMsg.POST("/delete", handler.TalkMessage.Delete)
+			talkMsg.POST("/vote", handler.TalkMessage.Vote)
+			talkMsg.POST("/handleVote", handler.TalkMessage.HandleVote)
 		}
 
 		download := group.Group("/download").Use(authorize)

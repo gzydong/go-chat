@@ -17,26 +17,26 @@ func testNewFilesystem() *Filesystem {
 func TestFilesystem_Write(t *testing.T) {
 	filesystem := testNewFilesystem()
 
-	file, err := os.ReadFile("/Users/yuandong/www/gowork/go-chat/test.jpeg")
+	file, err := os.ReadFile("./../../../uploads/image/zifubao.png")
 	if err != nil {
 		return
 	}
 
-	_ = filesystem.Write(file, "/images/20201025/test.jpeg")
+	_ = filesystem.Write(file, "images/20201025/test.jpeg")
 }
 
 func TestFilesystem_WriteLocal(t *testing.T) {
 	filesystem := testNewFilesystem()
 
-	localFile := "/Users/yuandong/www/gowork/go-chat/test.jpeg"
+	localFile := "./../../../uploads/image/zifubao.png"
 
-	assert.NoError(t, filesystem.WriteLocal(localFile, "zifubao.jpeg"))
+	assert.NoError(t, filesystem.WriteLocal(localFile, "zifubao222.jpeg"))
 }
 
 func TestFilesystem_Copy(t *testing.T) {
 	filesystem := testNewFilesystem()
 
-	_ = filesystem.Copy("public/images/test/2README.md", "public/images/test/6README.md")
+	_ = filesystem.Copy("public/images/test/README.md", "public/images/test/6README.md")
 }
 
 func TestFilesystem_Delete(t *testing.T) {

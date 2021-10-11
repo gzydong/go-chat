@@ -1,8 +1,9 @@
 package filesystem
 
 import (
-	"go-chat/config"
 	"time"
+
+	"go-chat/config"
 )
 
 type AdapterInterface interface {
@@ -12,11 +13,16 @@ type AdapterInterface interface {
 	// WriteLocal 本地文件上传
 	WriteLocal(localFile string, filePath string) error
 
+	// Copy 文件拷贝
 	Copy(srcPath, filePath string) error
 
 	// Delete 删除一个文件或空文件夹
 	Delete(filePath string) error
+
+	// DeleteDir 删除文件夹
 	DeleteDir(path string) error
+
+	// CreateDir 递归创建文件夹
 	CreateDir(path string) error
 
 	// Stat 文件信息
@@ -25,11 +31,11 @@ type AdapterInterface interface {
 
 // FileStat 文件信息
 type FileStat struct {
-	Name        string
-	Size        int64
-	Ext         string
-	LastModTime time.Time
-	MimeType    string
+	Name        string    // 文件名
+	Size        int64     // 文件大小
+	Ext         string    // 文件后缀
+	LastModTime time.Time // 最后修改时间
+	MimeType    string    // 媒体类型
 }
 
 type Filesystem struct {

@@ -46,3 +46,9 @@ type ForwardMessageRequest struct {
 	ReceiveUserIds  int `form:"receive_user_ids" json:"receive_user_ids" binding:"required,ids"`
 	ReceiveGroupIds int `form:"receive_group_ids" json:"receive_group_ids" binding:"required,ids"`
 }
+
+type CardMessageRequest struct {
+	TalkType   int    `form:"talk_type" json:"talk_type" binding:"required,oneof=1 2" label:"talk_type"`
+	ReceiverId int    `form:"receiver_id" json:"receiver_id" binding:"required,numeric" label:"receiver_id"`
+	EmoticonId string `form:"emoticon_id" json:"emoticon_id" binding:"required,numeric"`
+}
