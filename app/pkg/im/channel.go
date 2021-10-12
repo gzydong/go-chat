@@ -10,7 +10,7 @@ import (
 	jsoniter "github.com/json-iterator/go"
 )
 
-type WebsocketInterface interface {
+type HandleInterface interface {
 	Open(client *Client)
 	Message(message *RecvMessage)
 	Close(client *Client, code int, text string)
@@ -24,7 +24,7 @@ type ChannelManager struct {
 	RecvChan chan *RecvMessage // 消息接收通道
 	SendChan chan *SendMessage // 消息发送通道
 	Lock     *sync.Mutex       // 互斥锁
-	Handle   WebsocketInterface
+	Handle   HandleInterface
 }
 
 // RegisterClient 注册客户端
@@ -83,7 +83,7 @@ func (c *ChannelManager) SendMessage(message *SendMessage) {
 }
 
 // SetCallbackHandler 设置 WebSocket 处理事件
-func (c *ChannelManager) SetCallbackHandler(handle WebsocketInterface) *ChannelManager {
+func (c *ChannelManager) SetCallbackHandler(handle HandleInterface) *ChannelManager {
 	c.Handle = handle
 
 	return c

@@ -48,6 +48,11 @@ var providerSet = wire.NewSet(
 
 	// repo
 	wire.Struct(new(repository.UserRepository), "*"),
+	wire.Struct(new(repository.TalkRecordsRepo), "*"),
+	wire.Struct(new(repository.TalkRecordsCodeRepo), "*"),
+	wire.Struct(new(repository.TalkRecordsLoginRepo), "*"),
+	wire.Struct(new(repository.TalkRecordsFileRepo), "*"),
+	wire.Struct(new(repository.TalkRecordsVoteRepo), "*"),
 
 	// 服务
 	wire.Struct(new(service.ClientService), "*"),

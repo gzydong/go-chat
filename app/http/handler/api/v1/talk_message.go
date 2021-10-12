@@ -8,7 +8,7 @@ import (
 )
 
 type TalkMessage struct {
-	talkMessageService *service.TalkMessageService
+	TalkMessageService *service.TalkMessageService
 }
 
 // Text 发送文本消息
@@ -19,7 +19,7 @@ func (c *TalkMessage) Text(ctx *gin.Context) {
 		return
 	}
 
-	c.talkMessageService.SendTextMessage(params)
+	c.TalkMessageService.SendTextMessage(params)
 
 	response.Success(ctx, gin.H{}, "消息推送成功！")
 }
@@ -32,7 +32,7 @@ func (c *TalkMessage) Code(ctx *gin.Context) {
 		return
 	}
 
-	c.talkMessageService.SendCodeMessage(params)
+	c.TalkMessageService.SendCodeMessage(params)
 
 	response.Success(ctx, gin.H{}, "消息推送成功！")
 }
@@ -45,7 +45,7 @@ func (c *TalkMessage) Image(ctx *gin.Context) {
 		return
 	}
 
-	c.talkMessageService.SendImageMessage(params)
+	c.TalkMessageService.SendImageMessage(params)
 
 	response.Success(ctx, gin.H{}, "消息推送成功！")
 }
@@ -58,7 +58,7 @@ func (c *TalkMessage) File(ctx *gin.Context) {
 		return
 	}
 
-	c.talkMessageService.SendFileMessage(params)
+	c.TalkMessageService.SendFileMessage(params)
 
 	response.Success(ctx, gin.H{}, "消息推送成功！")
 }
@@ -71,7 +71,7 @@ func (c *TalkMessage) Vote(ctx *gin.Context) {
 		return
 	}
 
-	c.talkMessageService.SendVoteMessage(params)
+	c.TalkMessageService.SendVoteMessage(params)
 
 	response.Success(ctx, gin.H{}, "消息推送成功！")
 }
@@ -84,7 +84,7 @@ func (c *TalkMessage) Emoticon(ctx *gin.Context) {
 		return
 	}
 
-	c.talkMessageService.SendEmoticonMessage(params)
+	c.TalkMessageService.SendEmoticonMessage(params)
 
 	response.Success(ctx, gin.H{}, "消息推送成功！")
 }
@@ -97,7 +97,7 @@ func (c *TalkMessage) Forward(ctx *gin.Context) {
 		return
 	}
 
-	c.talkMessageService.SendForwardMessage(params)
+	c.TalkMessageService.SendForwardMessage(params)
 
 	response.Success(ctx, gin.H{}, "消息推送成功！")
 }
@@ -110,7 +110,7 @@ func (c *TalkMessage) Card(ctx *gin.Context) {
 		return
 	}
 
-	c.talkMessageService.SendCardMessage(params)
+	c.TalkMessageService.SendCardMessage(params)
 
 	response.Success(ctx, gin.H{}, "消息推送成功！")
 }
@@ -123,7 +123,7 @@ func (c *TalkMessage) Collect(ctx *gin.Context) {
 		return
 	}
 
-	c.talkMessageService.SendTextMessage(params)
+	c.TalkMessageService.SendTextMessage(params)
 
 	response.Success(ctx, gin.H{}, "消息推送成功！")
 }
@@ -136,7 +136,7 @@ func (c *TalkMessage) Revoke(ctx *gin.Context) {
 		return
 	}
 
-	c.talkMessageService.SendTextMessage(params)
+	c.TalkMessageService.SendTextMessage(params)
 
 	response.Success(ctx, gin.H{}, "消息推送成功！")
 }
@@ -149,7 +149,7 @@ func (c *TalkMessage) Delete(ctx *gin.Context) {
 		return
 	}
 
-	c.talkMessageService.SendTextMessage(params)
+	c.TalkMessageService.SendTextMessage(params)
 
 	response.Success(ctx, gin.H{}, "消息推送成功！")
 }
@@ -162,7 +162,7 @@ func (c *TalkMessage) HandleVote(ctx *gin.Context) {
 		return
 	}
 
-	c.talkMessageService.SendTextMessage(params)
+	c.TalkMessageService.SendTextMessage(params)
 
 	response.Success(ctx, gin.H{}, "消息推送成功！")
 }

@@ -29,8 +29,9 @@ func TestAuth_Login(t *testing.T) {
 	a := testAuth()
 	r := testutil.NewTestRequest("/auth/login", a.Login)
 	value := &url.Values{}
-	value.Add("username", "18953025089")
+	value.Add("mobile", "18798272054")
 	value.Add("password", "admin123")
+	value.Add("platform", "windows")
 	resp, err := r.Form(value)
 	assert.NoError(t, err)
 	fmt.Println(resp.GetJson().Get("code"))

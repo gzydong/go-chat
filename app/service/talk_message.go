@@ -7,12 +7,12 @@ import (
 )
 
 type TalkMessageService struct {
-	conf                 *config.Config
-	talkRecordsRepo      *repository.TalkRecordsRepo
-	talkRecordsCodeRepo  *repository.TalkRecordsCodeRepo
-	talkRecordsLoginRepo *repository.TalkRecordsLoginRepo
-	talkRecordsFileRepo  *repository.TalkRecordsFileRepo
-	talkRecordsVoteRepo  *repository.TalkRecordsVoteRepo
+	Conf                 *config.Config
+	TalkRecordsRepo      *repository.TalkRecordsRepo
+	TalkRecordsCodeRepo  *repository.TalkRecordsCodeRepo
+	TalkRecordsLoginRepo *repository.TalkRecordsLoginRepo
+	TalkRecordsFileRepo  *repository.TalkRecordsFileRepo
+	TalkRecordsVoteRepo  *repository.TalkRecordsVoteRepo
 }
 
 func (s *TalkMessageService) SendTextMessage(params *request.TextMessageRequest) {

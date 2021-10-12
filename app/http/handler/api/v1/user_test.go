@@ -23,7 +23,7 @@ func TestUser_Detail(t *testing.T) {
 	a := testUser()
 
 	r := testutil.NewTestRequest("/user/detail", func(context *gin.Context) {
-		context.Set("__user_id__", 1)
+		context.Set("__user_id__", 2054)
 	}, a.Detail)
 
 	value := &url.Values{}
