@@ -17,11 +17,10 @@ func testNewFilesystem() *Filesystem {
 func TestFilesystem_Write(t *testing.T) {
 	filesystem := testNewFilesystem()
 
-	file, err := os.ReadFile("./../../../uploads/image/zifubao.png")
+	file, err := os.ReadFile("./../../../uploads/9911696_14.jpeg")
 	if err != nil {
 		return
 	}
-
 	_ = filesystem.Write(file, "images/20201025/test.jpeg")
 }
 

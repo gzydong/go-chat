@@ -27,6 +27,10 @@ type AdapterInterface interface {
 
 	// Stat 文件信息
 	Stat(filePath string) (*FileStat, error)
+
+	PublicUrl(filePath string) string
+
+	PrivateUrl(filePath string, timeout int) string
 }
 
 // FileStat 文件信息
@@ -47,6 +51,7 @@ func NewFilesystem(conf *config.Config) *Filesystem {
 	switch conf.Filesystem.Default {
 	case "oss":
 		driver = NewOssFilesystem(conf)
+
 		break
 	case "qiniu":
 		driver = NewQiniuFilesystem(conf)

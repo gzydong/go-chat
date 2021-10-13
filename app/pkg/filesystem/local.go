@@ -123,3 +123,15 @@ func (s *LocalFilesystem) Stat(filePath string) (*FileStat, error) {
 		LastModTime: info.ModTime(),
 	}, nil
 }
+
+func (s *LocalFilesystem) PublicUrl(filePath string) string {
+	return fmt.Sprintf(
+		"%s/%s",
+		strings.TrimRight(s.conf.Filesystem.Local.Domain, "/"),
+		strings.Trim(filePath, "/"),
+	)
+}
+
+func (s *LocalFilesystem) PrivateUrl(filePath string, timeout int) string {
+	return ""
+}

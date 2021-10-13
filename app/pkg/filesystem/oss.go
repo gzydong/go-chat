@@ -6,6 +6,7 @@ import (
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
 	"go-chat/config"
 	"os"
+	"strings"
 )
 
 type OssFilesystem struct {
@@ -89,4 +90,16 @@ func (s *OssFilesystem) Stat(filePath string) (*FileStat, error) {
 	return &FileStat{
 		//LastModTime: props.Get("X-Oss-Server-Time"),
 	}, nil
+}
+
+func (s *OssFilesystem) PublicUrl(filePath string) string {
+	return fmt.Sprintf(
+		"%s/%s",
+		strings.TrimRight(s.conf.Filesystem.Oss.Endpoint, "/"),
+		strings.Trim(filePath, "/"),
+	)
+}
+
+func (s *OssFilesystem) PrivateUrl(filePath string, timeout int) string {
+	return ""
 }

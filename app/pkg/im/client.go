@@ -10,6 +10,8 @@ import (
 	"go-chat/app/service"
 )
 
+//https://github.com/woodylan/go-websocket/tree/master/servers
+
 const (
 	heartbeatCheckInterval = 5 * time.Second // 心跳检测时间
 	heartbeatIdleTime      = 50              // 心跳超时时间
@@ -23,25 +25,31 @@ type Client struct {
 	LastTime      int64                  // 客户端最后心跳时间/心跳检测
 	Channel       *ChannelManager        // 渠道分组
 	ClientService *service.ClientService // 服务信息
-	IsClose       bool                   // 客户端是否断开连接
+	IsClosed      bool                   // 客户端是否关闭连接
+}
+
+type ClientOption struct {
+	UserId        int
+	Channel       *ChannelManager
+	ClientService *service.ClientService
 }
 
 // NewClient ...
-func NewClient(conn *websocket.Conn, clientService *service.ClientService, userId int, channel *ChannelManager) *Client {
+func NewClient(conn *websocket.Conn, options *ClientOption) *Client {
 	client := &Client{
 		Conn:          conn,
 		ClientId:      NewClientID(),
-		UserId:        userId,
 		LastTime:      time.Now().Unix(),
-		Channel:       channel,
-		ClientService: clientService,
+		UserId:        options.UserId,
+		Channel:       options.Channel,
+		ClientService: options.ClientService,
 	}
 
 	// 设置客户端连接关闭回调事件
 	conn.SetCloseHandler(func(code int, text string) error {
-		client.IsClose = true
+		client.IsClosed = true
 
-		channel.Handle.Close(client, code, text)
+		client.Channel.Handle.Close(client, code, text)
 
 		client.Channel.RemoveClient(client)
 
@@ -51,13 +59,13 @@ func NewClient(conn *websocket.Conn, clientService *service.ClientService, userI
 	})
 
 	// 注册客户端
-	channel.RegisterClient(client)
+	client.Channel.RegisterClient(client)
 
 	// 绑定客户端映射关系
-	client.ClientService.Bind(context.Background(), channel.Name, strconv.Itoa(client.ClientId), client.UserId)
+	client.ClientService.Bind(context.Background(), client.Channel.Name, strconv.Itoa(client.ClientId), client.UserId)
 
 	// 触发自定义的 open 事件
-	channel.Handle.Open(client)
+	client.Channel.Handle.Open(client)
 
 	return client
 }
@@ -73,7 +81,7 @@ func (w *Client) Close(code int, message string) {
 		log.Println("Close Error: ", err)
 	}
 
-	w.IsClose = true
+	w.IsClosed = true
 }
 
 // heartbeat 心跳检测
@@ -81,7 +89,7 @@ func (w *Client) heartbeat() {
 	for {
 		<-time.After(heartbeatCheckInterval)
 
-		if w.IsClose {
+		if w.IsClosed {
 			break
 		}
 
@@ -92,7 +100,7 @@ func (w *Client) heartbeat() {
 	}
 }
 
-// accept 接收客户端推送信息
+// accept 循环接收客户端推送信息
 func (w *Client) accept() {
 	defer w.Conn.Close()
 
@@ -127,7 +135,8 @@ func (w *Client) accept() {
 	}
 }
 
-func (w *Client) Start() {
+// InitConnection 初始化连接
+func (w *Client) InitConnection() {
 	// 启动协程处理接收信息
 	go w.accept()
 

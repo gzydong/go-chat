@@ -60,6 +60,15 @@ func RegisterApiRoute(conf *config.Config, router *gin.Engine, handler *handler.
 			download.GET("/chat/file", handler.Download.ArticleAnnex)
 		}
 
+		emoticon := group.Group("/emoticon").Use(authorize)
+		{
+			emoticon.GET("/list", handler.Emoticon.CollectList)
+			emoticon.POST("/upload", handler.Emoticon.Upload)
+			emoticon.GET("/system", handler.Emoticon.SystemList)
+			emoticon.POST("/set-user-emoticon", handler.Emoticon.SetSystemEmoticon)
+			emoticon.POST("/del-collect-emoticon", handler.Emoticon.DeleteCollect)
+		}
+
 		upload := group.Group("/upload")
 		{
 			upload.POST("/index", handler.Upload.Index)

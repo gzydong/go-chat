@@ -42,6 +42,7 @@ var providerSet = wire.NewSet(
 	wire.Struct(new(v1.Upload), "*"),
 	wire.Struct(new(v1.Download), "*"),
 	wire.Struct(new(v1.TalkMessage), "*"),
+	wire.Struct(new(v1.Emoticon), "*"),
 	wire.Struct(new(open.Index), "*"),
 	wire.Struct(new(ws.WebSocket), "*"),
 	wire.Struct(new(handler.Handler), "*"),

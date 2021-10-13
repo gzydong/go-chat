@@ -24,7 +24,7 @@ type ChannelManager struct {
 	RecvChan chan *RecvMessage // 消息接收通道
 	SendChan chan *SendMessage // 消息发送通道
 	Lock     *sync.Mutex       // 互斥锁
-	Handle   HandleInterface
+	Handle   HandleInterface   // 回调处理
 }
 
 // RegisterClient 注册客户端
@@ -60,7 +60,7 @@ func (c *ChannelManager) GetClient(clientId int) (*Client, bool) {
 	return client, ok
 }
 
-// RecvMessage 推送消息到消息接收通道
+// RecvMessage 推送消息到接收通道
 func (c *ChannelManager) RecvMessage(message *RecvMessage) {
 	select {
 	case c.RecvChan <- message:
@@ -91,45 +91,47 @@ func (c *ChannelManager) SetCallbackHandler(handle HandleInterface) *ChannelMana
 
 // Process 渠道消费协程
 func (c *ChannelManager) Process(ctx context.Context) {
-	go c.RecvProcess(ctx)
-	go c.SendProcess(ctx)
+	go c.recvProcess(ctx)
+	go c.sendProcess(ctx)
 }
 
-func (c *ChannelManager) RecvProcess(ctx context.Context) {
+func (c *ChannelManager) recvProcess(ctx context.Context) {
 	for {
 		select {
 		case <-ctx.Done():
 			return
-		// 处理接收消息
-		case value, ok := <-c.RecvChan:
-			if ok {
-				c.Handle.Message(value)
-			}
 
+		// 处理接收消息
+		case msg, ok := <-c.RecvChan:
+			if ok {
+				c.Handle.Message(msg)
+			}
 			break
+
 		case <-time.After(3 * time.Second):
 			break
 		}
 	}
 }
 
-func (c *ChannelManager) SendProcess(ctx context.Context) {
+func (c *ChannelManager) sendProcess(ctx context.Context) {
 	for {
 		select {
 		case <-ctx.Done():
 			return
-		case value, ok := <-c.SendChan:
+
+		case msg, ok := <-c.SendChan:
 			if !ok {
 				break
 			}
 
-			content, _ := jsoniter.Marshal(value)
+			content, _ := jsoniter.Marshal(msg)
 
 			// 判断是否推送所有客户端
-			if value.IsAll {
-				c.Lock.Lock() // 保证线程安全
+			if msg.IsAll {
+				c.Lock.Lock()
 				for _, client := range c.Clients {
-					if client.IsClose {
+					if client.IsClosed {
 						continue
 					}
 
@@ -137,17 +139,17 @@ func (c *ChannelManager) SendProcess(ctx context.Context) {
 				}
 				c.Lock.Unlock()
 			} else {
-				for _, clientId := range value.Clients {
+				for _, clientId := range msg.Clients {
 					client, ok := c.Clients[clientId]
-					if ok && client.IsClose == false {
+					if ok && client.IsClosed == false {
 						_ = client.Conn.WriteMessage(websocket.TextMessage, content)
 					}
 				}
 			}
 
 			break
-		case <-time.After(3 * time.Second):
 
+		case <-time.After(3 * time.Second):
 			break
 		}
 	}

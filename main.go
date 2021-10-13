@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"errors"
+	"go-chat/app/pkg/im"
 	"log"
 	"net/http"
 	"os"
@@ -10,7 +11,6 @@ import (
 	"syscall"
 	"time"
 
-	"go-chat/app/pkg/im"
 	"go-chat/app/service"
 	_ "go-chat/app/validator"
 	"go-chat/app/websocket"
@@ -37,7 +37,7 @@ func main() {
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, syscall.SIGTERM, syscall.SIGQUIT, syscall.SIGINT)
 
-	// 启动服务(设置redis)
+	// 启动服务
 	eg.Go(func() error {
 		log.Printf("HTTP listen :%d", conf.Server.Port)
 		if err := server.HttpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {

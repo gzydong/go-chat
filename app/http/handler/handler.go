@@ -12,6 +12,7 @@ type Handler struct {
 	User        *v1.User
 	TalkMessage *v1.TalkMessage
 	Download    *v1.Download
+	Emoticon    *v1.Emoticon
 	Upload      *v1.Upload
 	Index       *open.Index
 	Ws          *ws.WebSocket

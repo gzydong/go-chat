@@ -2,7 +2,6 @@ package websocket
 
 import (
 	"fmt"
-
 	"go-chat/app/pkg/im"
 )
 
