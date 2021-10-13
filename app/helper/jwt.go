@@ -1,6 +1,8 @@
 package helper
 
 import (
+	"github.com/gin-gonic/gin"
+	"strings"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
@@ -44,12 +46,30 @@ func GenerateJwtToken(conf *config.Config, guard string, id int) (map[string]int
 }
 
 // ParseJwtToken 解析 Jwt Token 参数信息
-func ParseJwtToken(conf *config.Config, token string) (*Claims, error) {
+func ParseJwtToken(secret string, token string) (*Claims, error) {
 	claims := &Claims{}
 
 	_, err := jwt.ParseWithClaims(token, claims, func(token *jwt.Token) (interface{}, error) {
-		return []byte(conf.Jwt.Secret), nil
+		return []byte(secret), nil
 	})
 
 	return claims, err
+}
+
+// GetAuthToken 获取登录授权 token
+func GetAuthToken(c *gin.Context) string {
+	token := c.GetHeader("Authorization")
+	token = strings.TrimLeft(token, "Bearer")
+	token = strings.TrimSpace(token)
+
+	// Headers 中没有授权信息则读取 url 中的 token
+	if len(token) == 0 {
+		token = c.DefaultQuery("token", "")
+	}
+
+	if len(token) == 0 {
+		token = c.DefaultPostForm("token", "")
+	}
+
+	return token
 }

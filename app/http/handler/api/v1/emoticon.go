@@ -49,12 +49,7 @@ func (e *Emoticon) Upload(c *gin.Context) {
 		return
 	}
 
-	open, err := file.Open()
-	if err != nil {
-		response.BusinessError(c, err)
-		return
-	}
-
+	open, _ := file.Open()
 	defer open.Close()
 
 	fileBytes, _ := ioutil.ReadAll(open)

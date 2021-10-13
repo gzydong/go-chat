@@ -3,6 +3,7 @@ package middleware
 import (
 	"errors"
 	"github.com/gin-gonic/gin"
+	"go-chat/app/entity"
 	"go-chat/app/helper"
 	"go-chat/app/http/response"
 	"go-chat/config"
@@ -24,7 +25,7 @@ func JwtAuth(conf *config.Config, guard string) gin.HandlerFunc {
 		// ...
 
 		// 设置登录用户ID
-		c.Set("__user_id__", info.UserId)
+		c.Set(entity.LoginUserID, info.UserId)
 
 		c.Next()
 	}
@@ -36,7 +37,7 @@ func jwtCheckLogin(conf *config.Config, guard string, token string) (*helper.Cla
 		return nil, errors.New("请登录后操作! ")
 	}
 
-	jwt, err := helper.ParseJwtToken(conf, token)
+	jwt, err := helper.ParseJwtToken(conf.Jwt.Secret, token)
 	if err != nil {
 		return nil, errors.New("Token 信息验证失败! ")
 	}

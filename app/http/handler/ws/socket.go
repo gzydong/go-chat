@@ -1,10 +1,10 @@
 package ws
 
 import (
-	"go-chat/app/pkg/im"
 	"log"
 
 	"github.com/gin-gonic/gin"
+	"go-chat/app/pkg/im"
 	"go-chat/app/service"
 )
 

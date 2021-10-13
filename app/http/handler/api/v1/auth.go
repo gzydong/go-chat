@@ -78,7 +78,7 @@ func (a *Auth) Register(c *gin.Context) {
 func (a *Auth) Logout(c *gin.Context) {
 	token := helper.GetAuthToken(c)
 
-	claims, err := helper.ParseJwtToken(a.Conf, token)
+	claims, err := helper.ParseJwtToken(a.Conf.Jwt.Secret, token)
 	if err != nil {
 		response.Success(c, gin.H{})
 		return
@@ -95,7 +95,7 @@ func (a *Auth) Logout(c *gin.Context) {
 
 // Refresh Token 刷新接口
 func (a *Auth) Refresh(c *gin.Context) {
-	token, err := helper.GenerateJwtToken(a.Conf, "api", c.GetInt("__user_id__"))
+	token, err := helper.GenerateJwtToken(a.Conf, "api", helper.GetAuthUserID(c))
 	if err != nil {
 		response.BusinessError(c, "Token 刷新失败，请稍后再试!")
 		return

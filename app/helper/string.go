@@ -1,30 +1,12 @@
 package helper
 
 import (
+	"crypto/md5"
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"math/rand"
 	"strings"
 	"time"
 )
-
-// GetAuthToken 获取登录授权 token
-func GetAuthToken(c *gin.Context) string {
-	token := c.GetHeader("Authorization")
-	token = strings.TrimLeft(token, "Bearer")
-	token = strings.TrimSpace(token)
-
-	// Headers 中没有授权信息则读取 url 中的 token
-	if len(token) == 0 {
-		token = c.DefaultQuery("token", "")
-	}
-
-	if len(token) == 0 {
-		token = c.DefaultPostForm("token", "")
-	}
-
-	return token
-}
 
 // GenValidateCode 生成数字验证码
 func GenValidateCode(length int) string {
@@ -57,4 +39,15 @@ func GetRandomString(length int) string {
 	}
 
 	return string(result)
+}
+
+func ParseIds(str string) []string {
+	return strings.Split(str, ",")
+}
+
+// GenImageName 随机生成指定后缀的图片名
+func GenImageName(ext string, width, height int) string {
+	str := fmt.Sprintf("%d%s", time.Now().Unix(), GetRandomString(10))
+
+	return fmt.Sprintf("%x_%dx%d.%s", md5.Sum([]byte(str)), width, height, ext)
 }

@@ -12,7 +12,7 @@ func TestGenerateJwtToken(t *testing.T) {
 	data, err := GenerateJwtToken(conf, "user", 1)
 	assert.NoError(t, err)
 
-	user, err1 := ParseJwtToken(conf, data["token"].(string))
+	user, err1 := ParseJwtToken(conf.Jwt.Secret, data["token"].(string))
 	assert.NoError(t, err1)
 	assert.Equal(t, 1, user.UserId)
 }

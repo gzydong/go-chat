@@ -18,7 +18,7 @@ type User struct {
 
 // Detail 个人用户信息
 func (u *User) Detail(c *gin.Context) {
-	user, _ := u.UserRepo.FindById(c.GetInt("__user_id__"))
+	user, _ := u.UserRepo.FindById(helper.GetAuthUserID(c))
 
 	response.Success(c, gin.H{
 		"detail": user,
@@ -33,7 +33,7 @@ func (u *User) ChangeDetail(c *gin.Context) {
 		return
 	}
 
-	_, _ = u.UserRepo.Update(&model.User{ID: c.GetInt("__user_id__")}, map[string]interface{}{
+	_, _ = u.UserRepo.Update(&model.User{ID: helper.GetAuthUserID(c)}, map[string]interface{}{
 		"nickname": params.Nickname,
 		"avatar":   params.Avatar,
 		"gender":   params.Gender,
@@ -51,7 +51,7 @@ func (u *User) ChangePassword(c *gin.Context) {
 		return
 	}
 
-	user, _ := u.UserRepo.FindById(c.GetInt("__user_id__"))
+	user, _ := u.UserRepo.FindById(helper.GetAuthUserID(c))
 	if !helper.VerifyPassword([]byte(params.OldPassword), []byte(user.Password)) {
 		response.BusinessError(c, "密码填写错误！")
 		return
@@ -85,7 +85,7 @@ func (u *User) ChangeMobile(c *gin.Context) {
 		return
 	}
 
-	user, _ := u.UserRepo.FindById(c.GetInt("__user_id__"))
+	user, _ := u.UserRepo.FindById(helper.GetAuthUserID(c))
 
 	if user.Mobile != params.Mobile {
 		response.BusinessError(c, "手机号与原手机号一致无需修改！")
