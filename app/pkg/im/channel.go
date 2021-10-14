@@ -18,13 +18,13 @@ type HandleInterface interface {
 
 // ChannelManager WebSocket 渠道管理（多渠道划分，实现不同业务之间隔离）
 type ChannelManager struct {
-	Name     string            // 渠道名称
-	Count    int               // 客户端连接数
-	Clients  map[int]*Client   // 客户端列表
-	RecvChan chan *RecvMessage // 消息接收通道
-	SendChan chan *SendMessage // 消息发送通道
-	Lock     *sync.Mutex       // 互斥锁
-	Handle   HandleInterface   // 回调处理
+	Name    string            // 渠道名称
+	Count   int               // 客户端连接数
+	Clients map[int]*Client   // 客户端列表
+	inChan  chan *RecvMessage // 消息接收通道
+	outChan chan *SendMessage // 消息发送通道
+	Lock    *sync.RWMutex     // 互斥锁
+	Handle  HandleInterface   // 回调处理
 }
 
 // RegisterClient 注册客户端
@@ -39,13 +39,13 @@ func (c *ChannelManager) RegisterClient(client *Client) {
 
 // RemoveClient 删除客户端
 func (c *ChannelManager) RemoveClient(client *Client) bool {
+	c.Lock.Lock()
+	defer c.Lock.Unlock()
+
 	_, ok := c.Clients[client.ClientId]
 	if !ok {
 		return false
 	}
-
-	c.Lock.Lock()
-	defer c.Lock.Unlock()
 
 	delete(c.Clients, client.ClientId)
 
@@ -55,6 +55,8 @@ func (c *ChannelManager) RemoveClient(client *Client) bool {
 
 // GetClient 获取客户端
 func (c *ChannelManager) GetClient(clientId int) (*Client, bool) {
+	c.Lock.RLock()
+	defer c.Lock.RUnlock()
 	client, ok := c.Clients[clientId]
 
 	return client, ok
@@ -63,10 +65,10 @@ func (c *ChannelManager) GetClient(clientId int) (*Client, bool) {
 // RecvMessage 推送消息到接收通道
 func (c *ChannelManager) RecvMessage(message *RecvMessage) {
 	select {
-	case c.RecvChan <- message:
+	case c.inChan <- message:
 		break
 	case <-time.After(800 * time.Millisecond):
-		fmt.Printf("[%s] RecvChan 写入消息超时,管道长度：%d \n", c.Name, len(c.RecvChan))
+		fmt.Printf("[%s] RecvChan 写入消息超时,管道长度：%d \n", c.Name, len(c.inChan))
 		break
 	}
 }
@@ -74,10 +76,10 @@ func (c *ChannelManager) RecvMessage(message *RecvMessage) {
 // SendMessage 推送消息到消费通道
 func (c *ChannelManager) SendMessage(message *SendMessage) {
 	select {
-	case c.SendChan <- message:
+	case c.outChan <- message:
 		break
 	case <-time.After(800 * time.Millisecond):
-		fmt.Printf("[%s] SendChan 写入消息超时,管道长度：%d \n", c.Name, len(c.RecvChan))
+		fmt.Printf("[%s] SendChan 写入消息超时,管道长度：%d \n", c.Name, len(c.inChan))
 		break
 	}
 }
@@ -102,7 +104,7 @@ func (c *ChannelManager) recvProcess(ctx context.Context) {
 			return
 
 		// 处理接收消息
-		case msg, ok := <-c.RecvChan:
+		case msg, ok := <-c.inChan:
 			if ok {
 				c.Handle.Message(msg)
 			}
@@ -120,7 +122,7 @@ func (c *ChannelManager) sendProcess(ctx context.Context) {
 		case <-ctx.Done():
 			return
 
-		case msg, ok := <-c.SendChan:
+		case msg, ok := <-c.outChan:
 			if !ok {
 				break
 			}
@@ -129,7 +131,7 @@ func (c *ChannelManager) sendProcess(ctx context.Context) {
 
 			// 判断是否推送所有客户端
 			if msg.IsAll {
-				c.Lock.Lock()
+				c.Lock.RLock()
 				for _, client := range c.Clients {
 					if client.IsClosed {
 						continue
@@ -137,7 +139,7 @@ func (c *ChannelManager) sendProcess(ctx context.Context) {
 
 					_ = client.Conn.WriteMessage(websocket.TextMessage, content)
 				}
-				c.Lock.Unlock()
+				c.Lock.RUnlock()
 			} else {
 				for _, clientId := range msg.Clients {
 					client, ok := c.Clients[clientId]
@@ -149,7 +151,7 @@ func (c *ChannelManager) sendProcess(ctx context.Context) {
 
 			break
 
-		case <-time.After(3 * time.Second):
+		case <-time.After(2 * time.Second):
 			break
 		}
 	}

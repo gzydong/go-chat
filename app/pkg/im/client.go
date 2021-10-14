@@ -2,7 +2,6 @@ package im
 
 import (
 	"context"
-	"log"
 	"strconv"
 	"time"
 
@@ -13,8 +12,8 @@ import (
 //https://github.com/woodylan/go-websocket/tree/master/servers
 
 const (
-	heartbeatCheckInterval = 5 * time.Second // 心跳检测时间
-	heartbeatIdleTime      = 50              // 心跳超时时间
+	heartbeatCheckInterval = 20 * time.Second // 心跳检测时间
+	heartbeatIdleTime      = 50               // 心跳超时时间
 )
 
 // Client WebSocket 客户端连接信息
@@ -72,16 +71,12 @@ func NewClient(conn *websocket.Conn, options *ClientOption) *Client {
 
 // Close 关闭客户端连接
 func (w *Client) Close(code int, message string) {
+	defer w.Conn.Close()
+
 	// 触发客户端关闭回调事件
-	Handler := w.Conn.CloseHandler()
+	handler := w.Conn.CloseHandler()
 
-	_ = Handler(code, message)
-
-	if err := w.Conn.Close(); err != nil {
-		log.Println("Close Error: ", err)
-	}
-
-	w.IsClosed = true
+	_ = handler(code, message)
 }
 
 // heartbeat 心跳检测

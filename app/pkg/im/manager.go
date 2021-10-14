@@ -18,20 +18,20 @@ type ChannelGroup struct {
 func init() {
 	Manager = &ChannelGroup{
 		DefaultChannel: &ChannelManager{
-			Name:     "default",
-			Count:    0,
-			Clients:  make(map[int]*Client),
-			Lock:     &sync.Mutex{},
-			RecvChan: make(chan *RecvMessage, 10240),
-			SendChan: make(chan *SendMessage, 10240),
+			Name:    "default",
+			Count:   0,
+			Clients: make(map[int]*Client),
+			Lock:    &sync.RWMutex{},
+			inChan:  make(chan *RecvMessage, 10240),
+			outChan: make(chan *SendMessage, 10240),
 		},
 		AdminChannel: &ChannelManager{
-			Name:     "admin",
-			Count:    0,
-			Clients:  make(map[int]*Client),
-			Lock:     &sync.Mutex{},
-			RecvChan: make(chan *RecvMessage, 0),
-			SendChan: make(chan *SendMessage, 0),
+			Name:    "admin",
+			Count:   0,
+			Clients: make(map[int]*Client),
+			Lock:    &sync.RWMutex{},
+			inChan:  make(chan *RecvMessage, 0),
+			outChan: make(chan *SendMessage, 0),
 		},
 
 		// 可注册其它渠道...
