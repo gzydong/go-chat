@@ -45,11 +45,11 @@ var providerSet = wire.NewSet(
 	wire.Struct(new(repository.TalkRecordsVoteRepo), "*"),
 
 	// 服务
-	wire.Struct(new(service.ClientService), "*"),
-	wire.Struct(new(service.UserService), "*"),
+	service.NewUserService,
+	service.NewSmsService,
+	service.NewTalkMessageService,
+	service.NewClientService,
 	wire.Struct(new(service.SocketService), "*"),
-	wire.Struct(new(service.SmsService), "*"),
-	wire.Struct(new(service.TalkMessageService), "*"),
 	wire.Struct(new(Service), "*"),
 
 	// handler 处理

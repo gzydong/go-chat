@@ -24,5 +24,5 @@ func (d *Download) ArticleAnnex(ctx *gin.Context) {
 	ctx.Header("Content-Disposition", fmt.Sprintf("attachment; filename=%s", filename))
 	ctx.Header("Content-Type", "application/octet-stream")
 	ctx.Header("Content-Transfer-Encoding", "binary")
-	ctx.File("测试中文文件名.txt")
+	ctx.File("./testdata/测试中文文件名.txt")
 }

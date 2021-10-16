@@ -7,12 +7,30 @@ import (
 )
 
 type TalkMessageService struct {
-	Conf                 *config.Config
-	TalkRecordsRepo      *repository.TalkRecordsRepo
-	TalkRecordsCodeRepo  *repository.TalkRecordsCodeRepo
-	TalkRecordsLoginRepo *repository.TalkRecordsLoginRepo
-	TalkRecordsFileRepo  *repository.TalkRecordsFileRepo
-	TalkRecordsVoteRepo  *repository.TalkRecordsVoteRepo
+	config               *config.Config
+	talkRecordsRepo      *repository.TalkRecordsRepo
+	talkRecordsCodeRepo  *repository.TalkRecordsCodeRepo
+	talkRecordsLoginRepo *repository.TalkRecordsLoginRepo
+	talkRecordsFileRepo  *repository.TalkRecordsFileRepo
+	talkRecordsVoteRepo  *repository.TalkRecordsVoteRepo
+}
+
+func NewTalkMessageService(
+	config *config.Config,
+	talkRecordsRepo *repository.TalkRecordsRepo,
+	talkRecordsCodeRepo *repository.TalkRecordsCodeRepo,
+	talkRecordsLoginRepo *repository.TalkRecordsLoginRepo,
+	talkRecordsFileRepo *repository.TalkRecordsFileRepo,
+	talkRecordsVoteRepo *repository.TalkRecordsVoteRepo,
+) *TalkMessageService {
+	return &TalkMessageService{
+		config:               config,
+		talkRecordsRepo:      talkRecordsRepo,
+		talkRecordsCodeRepo:  talkRecordsCodeRepo,
+		talkRecordsLoginRepo: talkRecordsLoginRepo,
+		talkRecordsFileRepo:  talkRecordsFileRepo,
+		talkRecordsVoteRepo:  talkRecordsVoteRepo,
+	}
 }
 
 func (s *TalkMessageService) SendTextMessage(params *request.TextMessageRequest) {

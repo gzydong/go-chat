@@ -6,15 +6,21 @@ import (
 )
 
 type ClientService struct {
-	WsClient *cache.WsClient
+	cache *cache.WsClient
+}
+
+func NewClientService(cache *cache.WsClient) *ClientService {
+	return &ClientService{
+		cache: cache,
+	}
 }
 
 // Bind ...
 func (c *ClientService) Bind(ctx context.Context, channel string, clientId string, id int) {
-	c.WsClient.Set(ctx, channel, clientId, id)
+	c.cache.Set(ctx, channel, clientId, id)
 }
 
 // UnBind ...
 func (c *ClientService) UnBind(ctx context.Context, channel string, clientId string) {
-	c.WsClient.Del(ctx, channel, clientId)
+	c.cache.Del(ctx, channel, clientId)
 }

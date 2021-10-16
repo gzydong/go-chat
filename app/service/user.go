@@ -11,12 +11,16 @@ import (
 )
 
 type UserService struct {
-	Repo *repository.UserRepository
+	repo *repository.UserRepository
+}
+
+func NewUserService(repo *repository.UserRepository) *UserService {
+	return &UserService{repo: repo}
 }
 
 // Register 注册用户
 func (s *UserService) Register(param *request.RegisterRequest) (*model.User, error) {
-	exist := s.Repo.IsMobileExist(param.Mobile)
+	exist := s.repo.IsMobileExist(param.Mobile)
 	if exist {
 		return nil, errors.New("账号已存在! ")
 	}
@@ -26,7 +30,7 @@ func (s *UserService) Register(param *request.RegisterRequest) (*model.User, err
 		return nil, err
 	}
 
-	user, err := s.Repo.Create(&model.User{
+	user, err := s.repo.Create(&model.User{
 		Mobile:    param.Mobile,
 		Nickname:  param.Nickname,
 		Password:  string(hash),
@@ -43,7 +47,7 @@ func (s *UserService) Register(param *request.RegisterRequest) (*model.User, err
 
 // Login 登录处理
 func (s *UserService) Login(mobile string, password string) (*model.User, error) {
-	user, err := s.Repo.FindByMobile(mobile)
+	user, err := s.repo.FindByMobile(mobile)
 	if err != nil {
 		return nil, errors.New("登录账号不存在! ")
 	}
@@ -58,7 +62,7 @@ func (s *UserService) Login(mobile string, password string) (*model.User, error)
 // Forget 账号找回
 func (s *UserService) Forget(input *request.ForgetRequest) (bool, error) {
 	// 账号查询
-	user, err := s.Repo.FindByMobile(input.Mobile)
+	user, err := s.repo.FindByMobile(input.Mobile)
 	if err != nil || user.ID == 0 {
 		return false, errors.New("账号不存在! ")
 	}
@@ -66,7 +70,7 @@ func (s *UserService) Forget(input *request.ForgetRequest) (bool, error) {
 	// 生成 hash 密码
 	hash, _ := helper.GeneratePassword([]byte(input.Password))
 
-	_, err = s.Repo.Update(&model.User{
+	_, err = s.repo.Update(&model.User{
 		ID: user.ID,
 	}, map[string]interface{}{
 		"password": hash,

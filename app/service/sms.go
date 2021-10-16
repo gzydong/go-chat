@@ -8,19 +8,23 @@ import (
 )
 
 type SmsService struct {
-	SmsCodeCache *cache.SmsCodeCache
+	smsCodeCache *cache.SmsCodeCache
+}
+
+func NewSmsService(codeCache *cache.SmsCodeCache) *SmsService {
+	return &SmsService{smsCodeCache: codeCache}
 }
 
 // CheckSmsCode 验证短信验证码是否正确
 func (s *SmsService) CheckSmsCode(ctx context.Context, channel string, mobile string, code string) bool {
-	value, err := s.SmsCodeCache.Get(ctx, channel, mobile)
+	value, err := s.smsCodeCache.Get(ctx, channel, mobile)
 
 	return err == nil && value == code
 }
 
 // DeleteSmsCode 删除短信验证码记录
 func (s *SmsService) DeleteSmsCode(ctx context.Context, channel string, mobile string) {
-	_ = s.SmsCodeCache.Del(ctx, channel, mobile)
+	_ = s.smsCodeCache.Del(ctx, channel, mobile)
 }
 
 // SendSmsCode 发送短信
@@ -30,7 +34,7 @@ func (s *SmsService) SendSmsCode(ctx context.Context, channel string, mobile str
 	code := helper.GenValidateCode(6)
 
 	// 添加发送记录
-	if err := s.SmsCodeCache.Set(ctx, channel, mobile, code, 60*15); err != nil {
+	if err := s.smsCodeCache.Set(ctx, channel, mobile, code, 60*15); err != nil {
 		return err
 	}
 
