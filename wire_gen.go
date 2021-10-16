@@ -39,10 +39,7 @@ func Initialize(ctx context.Context, conf *config.Config) *Service {
 	userRepository := &repository.UserRepository{
 		DB: db,
 	}
-	common := &v1.Common{
-		SmsService: smsService,
-		UserRepo:   userRepository,
-	}
+	common := v1.NewCommonHandler(smsService, userRepository)
 	userService := &service.UserService{
 		Repo: userRepository,
 	}
@@ -52,17 +49,8 @@ func Initialize(ctx context.Context, conf *config.Config) *Service {
 	redisLock := &cache.RedisLock{
 		Redis: client,
 	}
-	auth := &v1.Auth{
-		Conf:           conf,
-		UserService:    userService,
-		SmsService:     smsService,
-		AuthTokenCache: authTokenCache,
-		RedisLock:      redisLock,
-	}
-	user := &v1.User{
-		UserRepo:   userRepository,
-		SmsService: smsService,
-	}
+	auth := v1.NewAuthHandler(conf, userService, smsService, authTokenCache, redisLock)
+	user := v1.NewUserHandler(userRepository, smsService)
 	talkRecordsRepo := &repository.TalkRecordsRepo{}
 	talkRecordsCodeRepo := &repository.TalkRecordsCodeRepo{}
 	talkRecordsLoginRepo := &repository.TalkRecordsLoginRepo{}
@@ -76,19 +64,12 @@ func Initialize(ctx context.Context, conf *config.Config) *Service {
 		TalkRecordsFileRepo:  talkRecordsFileRepo,
 		TalkRecordsVoteRepo:  talkRecordsVoteRepo,
 	}
-	talkMessage := &v1.TalkMessage{
-		TalkMessageService: talkMessageService,
-	}
-	download := &v1.Download{}
+	talkMessage := v1.NewTalkMessageHandler(talkMessageService)
+	download := v1.NewDownloadHandler()
 	filesystemFilesystem := filesystem.NewFilesystem(conf)
-	emoticon := &v1.Emoticon{
-		Filesystem: filesystemFilesystem,
-	}
-	upload := &v1.Upload{
-		Conf:       conf,
-		Filesystem: filesystemFilesystem,
-	}
-	index := &open.Index{}
+	emoticon := v1.NewEmoticonHandler(filesystemFilesystem)
+	upload := v1.NewUploadHandler(conf, filesystemFilesystem)
+	index := open.NewIndexHandler()
 	wsClient := &cache.WsClient{
 		Redis: client,
 		Conf:  conf,
@@ -96,9 +77,7 @@ func Initialize(ctx context.Context, conf *config.Config) *Service {
 	clientService := &service.ClientService{
 		WsClient: wsClient,
 	}
-	webSocket := &ws.WebSocket{
-		ClientService: clientService,
-	}
+	webSocket := ws.NewWebSocketHandler(clientService)
 	handlerHandler := &handler.Handler{
 		Common:      common,
 		Auth:        auth,
@@ -126,4 +105,4 @@ func Initialize(ctx context.Context, conf *config.Config) *Service {
 
 // wire.go:
 
-var providerSet = wire.NewSet(connect.RedisConnect, connect.MysqlConnect, connect.NewHttp, router.NewRouter, filesystem.NewFilesystem, cache.NewServerRun, wire.Struct(new(cache.WsClient), "*"), wire.Struct(new(cache.AuthTokenCache), "*"), wire.Struct(new(cache.SmsCodeCache), "*"), wire.Struct(new(cache.RedisLock), "*"), wire.Struct(new(v1.Common), "*"), wire.Struct(new(v1.Auth), "*"), wire.Struct(new(v1.User), "*"), wire.Struct(new(v1.Upload), "*"), wire.Struct(new(v1.Download), "*"), wire.Struct(new(v1.TalkMessage), "*"), wire.Struct(new(v1.Emoticon), "*"), wire.Struct(new(open.Index), "*"), wire.Struct(new(ws.WebSocket), "*"), wire.Struct(new(handler.Handler), "*"), wire.Struct(new(repository.UserRepository), "*"), wire.Struct(new(repository.TalkRecordsRepo), "*"), wire.Struct(new(repository.TalkRecordsCodeRepo), "*"), wire.Struct(new(repository.TalkRecordsLoginRepo), "*"), wire.Struct(new(repository.TalkRecordsFileRepo), "*"), wire.Struct(new(repository.TalkRecordsVoteRepo), "*"), wire.Struct(new(service.ClientService), "*"), wire.Struct(new(service.UserService), "*"), wire.Struct(new(service.SocketService), "*"), wire.Struct(new(service.SmsService), "*"), wire.Struct(new(service.TalkMessageService), "*"), wire.Struct(new(Service), "*"))
+var providerSet = wire.NewSet(connect.RedisConnect, connect.MysqlConnect, connect.NewHttp, router.NewRouter, filesystem.NewFilesystem, cache.NewServerRun, wire.Struct(new(cache.WsClient), "*"), wire.Struct(new(cache.AuthTokenCache), "*"), wire.Struct(new(cache.SmsCodeCache), "*"), wire.Struct(new(cache.RedisLock), "*"), wire.Struct(new(repository.UserRepository), "*"), wire.Struct(new(repository.TalkRecordsRepo), "*"), wire.Struct(new(repository.TalkRecordsCodeRepo), "*"), wire.Struct(new(repository.TalkRecordsLoginRepo), "*"), wire.Struct(new(repository.TalkRecordsFileRepo), "*"), wire.Struct(new(repository.TalkRecordsVoteRepo), "*"), wire.Struct(new(service.ClientService), "*"), wire.Struct(new(service.UserService), "*"), wire.Struct(new(service.SocketService), "*"), wire.Struct(new(service.SmsService), "*"), wire.Struct(new(service.TalkMessageService), "*"), wire.Struct(new(Service), "*"), v1.NewAuthHandler, v1.NewCommonHandler, v1.NewUserHandler, v1.NewTalkHandler, v1.NewTalkMessageHandler, v1.NewUploadHandler, v1.NewDownloadHandler, v1.NewEmoticonHandler, open.NewIndexHandler, ws.NewWebSocketHandler, wire.Struct(new(handler.Handler), "*"))

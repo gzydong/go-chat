@@ -111,11 +111,6 @@ func (w *Client) accept() {
 		// 心跳消息判断
 		if msg == "ping" {
 			w.LastTime = time.Now().Unix()
-
-			if w.Conn.WriteMessage(websocket.PongMessage, []byte("pong")) != nil {
-				break
-			}
-
 			continue
 		}
 

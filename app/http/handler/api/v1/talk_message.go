@@ -11,6 +11,14 @@ type TalkMessage struct {
 	TalkMessageService *service.TalkMessageService
 }
 
+func NewTalkMessageHandler(
+	talkMessage *service.TalkMessageService,
+) *TalkMessage {
+	return &TalkMessage{
+		TalkMessageService: talkMessage,
+	}
+}
+
 // Text 发送文本消息
 func (c *TalkMessage) Text(ctx *gin.Context) {
 	params := &request.TextMessageRequest{}

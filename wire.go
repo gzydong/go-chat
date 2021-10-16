@@ -26,6 +26,7 @@ var providerSet = wire.NewSet(
 	connect.NewHttp,
 	router.NewRouter,
 
+	// other
 	filesystem.NewFilesystem,
 
 	// 缓存
@@ -34,18 +35,6 @@ var providerSet = wire.NewSet(
 	wire.Struct(new(cache.AuthTokenCache), "*"),
 	wire.Struct(new(cache.SmsCodeCache), "*"),
 	wire.Struct(new(cache.RedisLock), "*"),
-
-	// handler 处理
-	wire.Struct(new(v1.Common), "*"),
-	wire.Struct(new(v1.Auth), "*"),
-	wire.Struct(new(v1.User), "*"),
-	wire.Struct(new(v1.Upload), "*"),
-	wire.Struct(new(v1.Download), "*"),
-	wire.Struct(new(v1.TalkMessage), "*"),
-	wire.Struct(new(v1.Emoticon), "*"),
-	wire.Struct(new(open.Index), "*"),
-	wire.Struct(new(ws.WebSocket), "*"),
-	wire.Struct(new(handler.Handler), "*"),
 
 	// repo
 	wire.Struct(new(repository.UserRepository), "*"),
@@ -62,6 +51,19 @@ var providerSet = wire.NewSet(
 	wire.Struct(new(service.SmsService), "*"),
 	wire.Struct(new(service.TalkMessageService), "*"),
 	wire.Struct(new(Service), "*"),
+
+	// handler 处理
+	v1.NewAuthHandler,
+	v1.NewCommonHandler,
+	v1.NewUserHandler,
+	v1.NewTalkHandler,
+	v1.NewTalkMessageHandler,
+	v1.NewUploadHandler,
+	v1.NewDownloadHandler,
+	v1.NewEmoticonHandler,
+	open.NewIndexHandler,
+	ws.NewWebSocketHandler,
+	wire.Struct(new(handler.Handler), "*"),
 )
 
 func Initialize(ctx context.Context, conf *config.Config) *Service {

@@ -14,35 +14,51 @@ import (
 )
 
 type Auth struct {
-	Conf           *config.Config
-	UserService    *service.UserService
-	SmsService     *service.SmsService
-	AuthTokenCache *cache.AuthTokenCache
-	RedisLock      *cache.RedisLock
+	config         *config.Config
+	userService    *service.UserService
+	smsService     *service.SmsService
+	authTokenCache *cache.AuthTokenCache
+	redisLock      *cache.RedisLock
+}
+
+func NewAuthHandler(
+	config *config.Config,
+	userService *service.UserService,
+	smsService *service.SmsService,
+	tokenCache *cache.AuthTokenCache,
+	lock *cache.RedisLock,
+) *Auth {
+	return &Auth{
+		config:         config,
+		userService:    userService,
+		smsService:     smsService,
+		authTokenCache: tokenCache,
+		redisLock:      lock,
+	}
 }
 
 // Login 登录接口
-func (a *Auth) Login(c *gin.Context) {
+func (a *Auth) Login(ctx *gin.Context) {
 	params := &request.LoginRequest{}
-	if err := c.Bind(params); err != nil {
-		response.InvalidParams(c, err)
+	if err := ctx.Bind(params); err != nil {
+		response.InvalidParams(ctx, err)
 		return
 	}
 
-	user, err := a.UserService.Login(params.Mobile, params.Password)
+	user, err := a.userService.Login(params.Mobile, params.Password)
 	if err != nil {
-		response.InvalidParams(c, err)
+		response.InvalidParams(ctx, err)
 		return
 	}
 
 	// 生成登录凭证
-	token, e := helper.GenerateJwtToken(a.Conf, "api", user.ID)
+	token, e := helper.GenerateJwtToken(a.config, "api", user.ID)
 	if e != nil {
-		response.BusinessError(c, "登录失败，请稍后再试")
+		response.BusinessError(ctx, "登录失败，请稍后再试")
 		return
 	}
 
-	response.Success(c, map[string]interface{}{
+	response.Success(ctx, map[string]interface{}{
 		"type":       "Bearer",
 		"token":      token["token"],
 		"expires_in": token["expired_at"],
@@ -50,37 +66,37 @@ func (a *Auth) Login(c *gin.Context) {
 }
 
 // Register 注册接口
-func (a *Auth) Register(c *gin.Context) {
+func (a *Auth) Register(ctx *gin.Context) {
 	params := &request.RegisterRequest{}
-	if err := c.Bind(params); err != nil {
-		response.InvalidParams(c, err)
+	if err := ctx.Bind(params); err != nil {
+		response.InvalidParams(ctx, err)
 		return
 	}
 
 	// 验证短信验证码是否正确
-	if !a.SmsService.CheckSmsCode(c.Request.Context(), entity.SmsRegisterChannel, params.Mobile, params.SmsCode) {
-		response.InvalidParams(c, "短信验证码填写错误！")
+	if !a.smsService.CheckSmsCode(ctx.Request.Context(), entity.SmsRegisterChannel, params.Mobile, params.SmsCode) {
+		response.InvalidParams(ctx, "短信验证码填写错误！")
 		return
 	}
 
-	_, err := a.UserService.Register(params)
+	_, err := a.userService.Register(params)
 	if err != nil {
-		response.BusinessError(c, err)
+		response.BusinessError(ctx, err)
 		return
 	}
 
-	a.SmsService.DeleteSmsCode(c.Request.Context(), entity.SmsRegisterChannel, params.Mobile)
+	a.smsService.DeleteSmsCode(ctx.Request.Context(), entity.SmsRegisterChannel, params.Mobile)
 
-	response.Success(c, gin.H{}, "账号注册成功")
+	response.Success(ctx, gin.H{}, "账号注册成功")
 }
 
 // Logout 退出登录接口
-func (a *Auth) Logout(c *gin.Context) {
-	token := helper.GetAuthToken(c)
+func (a *Auth) Logout(ctx *gin.Context) {
+	token := helper.GetAuthToken(ctx)
 
-	claims, err := helper.ParseJwtToken(a.Conf.Jwt.Secret, token)
+	claims, err := helper.ParseJwtToken(a.config.Jwt.Secret, token)
 	if err != nil {
-		response.Success(c, gin.H{})
+		response.Success(ctx, gin.H{})
 		return
 	}
 
@@ -88,22 +104,22 @@ func (a *Auth) Logout(c *gin.Context) {
 	expiresAt := claims.ExpiresAt - time.Now().Unix()
 
 	// 将 token 加入黑名单
-	_ = a.AuthTokenCache.SetBlackList(c.Request.Context(), token, int(expiresAt))
+	_ = a.authTokenCache.SetBlackList(ctx.Request.Context(), token, int(expiresAt))
 
-	response.Success(c, gin.H{}, "退出成功！")
+	response.Success(ctx, gin.H{}, "退出成功！")
 }
 
 // Refresh Token 刷新接口
-func (a *Auth) Refresh(c *gin.Context) {
-	token, err := helper.GenerateJwtToken(a.Conf, "api", helper.GetAuthUserID(c))
+func (a *Auth) Refresh(ctx *gin.Context) {
+	token, err := helper.GenerateJwtToken(a.config, "api", helper.GetAuthUserID(ctx))
 	if err != nil {
-		response.BusinessError(c, "Token 刷新失败，请稍后再试!")
+		response.BusinessError(ctx, "Token 刷新失败，请稍后再试!")
 		return
 	}
 
 	// todo 将之前的 token 加入黑名单
 
-	response.Success(c, gin.H{
+	response.Success(ctx, gin.H{
 		"type":       "Bearer",
 		"token":      token["token"],
 		"expires_in": token["expired_at"],
@@ -111,27 +127,27 @@ func (a *Auth) Refresh(c *gin.Context) {
 }
 
 // Forget 账号找回接口
-func (a *Auth) Forget(c *gin.Context) {
+func (a *Auth) Forget(ctx *gin.Context) {
 	params := &request.ForgetRequest{}
 
-	if err := c.Bind(params); err != nil {
-		response.InvalidParams(c, err)
+	if err := ctx.Bind(params); err != nil {
+		response.InvalidParams(ctx, err)
 		return
 	}
 
 	// 验证短信验证码是否正确
-	if !a.SmsService.CheckSmsCode(c.Request.Context(), entity.SmsForgetAccountChannel, params.Mobile, params.SmsCode) {
-		response.InvalidParams(c, "短信验证码填写错误！")
+	if !a.smsService.CheckSmsCode(ctx.Request.Context(), entity.SmsForgetAccountChannel, params.Mobile, params.SmsCode) {
+		response.InvalidParams(ctx, "短信验证码填写错误！")
 		return
 	}
 
-	_, err := a.UserService.Forget(params)
+	_, err := a.userService.Forget(params)
 	if err != nil {
-		response.BusinessError(c, err)
+		response.BusinessError(ctx, err)
 		return
 	}
 
-	a.SmsService.DeleteSmsCode(c.Request.Context(), entity.SmsForgetAccountChannel, params.Mobile)
+	a.smsService.DeleteSmsCode(ctx.Request.Context(), entity.SmsForgetAccountChannel, params.Mobile)
 
-	response.Success(c, gin.H{}, "账号成功找回")
+	response.Success(ctx, gin.H{}, "账号成功找回")
 }

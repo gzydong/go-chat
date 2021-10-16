@@ -8,10 +8,20 @@ import (
 )
 
 type Upload struct {
-	Conf       *config.Config
-	Filesystem *filesystem.Filesystem
+	config     *config.Config
+	filesystem *filesystem.Filesystem
 }
 
-func (u *Upload) Index(c *gin.Context) {
-	response.Success(c, "")
+func NewUploadHandler(
+	config *config.Config,
+	filesystem *filesystem.Filesystem,
+) *Upload {
+	return &Upload{
+		config:     config,
+		filesystem: filesystem,
+	}
+}
+
+func (u *Upload) Index(ctx *gin.Context) {
+	response.Success(ctx, "")
 }

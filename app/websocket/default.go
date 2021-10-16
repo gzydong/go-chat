@@ -31,5 +31,5 @@ func (d *DefaultChannelHandle) Message(message *im.RecvMessage) {
 
 // Close 客户端关闭回调事件
 func (d *DefaultChannelHandle) Close(client *im.Client, code int, text string) {
-	fmt.Printf("[%s] 客户端[%d] 已关闭 \n", client.Channel.Name, client.ClientId)
+	fmt.Printf("[%s] 客户端[%d] 已关闭 code:%d text:%s \n", client.Channel.Name, client.ClientId, code, text)
 }

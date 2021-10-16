@@ -10,40 +10,55 @@ import (
 )
 
 type Common struct {
-	SmsService *service.SmsService
-	UserRepo   *repository.UserRepository
+	smsService *service.SmsService
+	userRepo   *repository.UserRepository
+}
+
+func NewCommonHandler(
+	sms *service.SmsService,
+	user *repository.UserRepository,
+) *Common {
+	return &Common{
+		smsService: sms,
+		userRepo:   user,
+	}
 }
 
 // SmsCode 发送短信验证码
-func (a *Common) SmsCode(c *gin.Context) {
+func (c *Common) SmsCode(ctx *gin.Context) {
 	params := &request.SmsCodeRequest{}
 
-	if err := c.Bind(params); err != nil {
-		response.InvalidParams(c, err)
+	if err := ctx.Bind(params); err != nil {
+		response.InvalidParams(ctx, err)
 		return
 	}
 
 	switch params.Channel {
 	// 需要判断账号是否存在
 	case entity.SmsLoginChannel, entity.SmsForgetAccountChannel:
-		if !a.UserRepo.IsMobileExist(params.Mobile) {
-			response.BusinessError(c, "账号不存在！")
+		if !c.userRepo.IsMobileExist(params.Mobile) {
+			response.BusinessError(ctx, "账号不存在！")
 			return
 		}
 
 	// 需要判断账号是否存在
 	case entity.SmsRegisterChannel, entity.SmsChangeAccountChannel:
-		if a.UserRepo.IsMobileExist(params.Mobile) {
-			response.BusinessError(c, "手机号已被他人使用！")
+		if c.userRepo.IsMobileExist(params.Mobile) {
+			response.BusinessError(ctx, "手机号已被他人使用！")
 			return
 		}
 	}
 
 	// 发送短信验证码
-	if err := a.SmsService.SendSmsCode(c.Request.Context(), params.Channel, params.Mobile); err != nil {
-		response.BusinessError(c, err)
+	if err := c.smsService.SendSmsCode(ctx.Request.Context(), params.Channel, params.Mobile); err != nil {
+		response.BusinessError(ctx, err)
 		return
 	}
 
-	response.Success(c, nil, "发送成功！")
+	response.Success(ctx, nil, "发送成功！")
+}
+
+// Setting 公共设置
+func (c *Common) Setting(ctx *gin.Context) {
+
 }

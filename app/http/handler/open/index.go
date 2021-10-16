@@ -11,6 +11,10 @@ import (
 type Index struct {
 }
 
+func NewIndexHandler() *Index {
+	return &Index{}
+}
+
 // Index 首页
 func (i *Index) Index(c *gin.Context) {
 	response.Success(c, map[string]interface{}{

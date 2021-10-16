@@ -4,20 +4,22 @@ import (
 	"fmt"
 	"github.com/gorilla/websocket"
 	"log"
+	"strconv"
 	"testing"
 	"time"
 )
 
 func TestWsClient(t *testing.T) {
-	for i := 0; i < 2000; i++ {
+	for i := 0; i < 500; i++ {
 		go NewClientTest(i)
+		time.Sleep(500 * time.Millisecond)
 	}
 
 	time.Sleep(120000 * time.Second)
 }
 
 func NewClientTest(i int) {
-	url := "ws://127.0.0.1:8080/wss/socket.io?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJndWFyZCI6ImFwaSIsInVzZXJfaWQiOjIwNTQsImV4cCI6MTY3MDE3NjYzOCwiaXNzIjoiZ28tY2hhdCJ9.W5alBBWj_GMYXwU6zzTSy45TauOvgUgfKw0HzJtepOY" //服务器地址
+	url := "ws://127.0.0.1:8080/wss/socket.io?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJndWFyZCI6ImFwaSIsInVzZXJfaWQiOjIwNTQsImV4cCI6MTYzNDM4NzQwOCwiaXNzIjoiZ28tY2hhdCJ9.dMooNhH1K-G3ihFV8_pHzdeHxD4c9Q72BdfSFEFBMTA" //服务器地址
 	ws, _, err := websocket.DefaultDialer.Dial(url, nil)
 	if err != nil {
 		log.Fatal(err)
@@ -29,6 +31,9 @@ func NewClientTest(i int) {
 			if err != nil {
 				log.Fatal(err)
 			}
+			time.Sleep(time.Second * 1)
+
+			_ = ws.WriteMessage(websocket.BinaryMessage, []byte(strconv.Itoa(i)))
 
 			time.Sleep(time.Second * 5)
 		}
