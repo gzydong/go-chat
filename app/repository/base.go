@@ -14,8 +14,25 @@ func (b *Base) Create(model interface{}) error {
 	return b.db.Create(model).Error
 }
 
-func (b *Base) Update() {
+// Update 批量更新
+func (b *Base) Update(model interface{}, where map[string]interface{}, data map[string]interface{}) (int, error) {
 
+	fields := make([]string, len(data))
+
+	// 获取需要更新的字段
+	for field, _ := range data {
+		fields = append(fields, field)
+	}
+
+	sql := b.db.Model(model).Select(fields)
+
+	for key, val := range where {
+		sql.Where(key, val)
+	}
+
+	result := sql.Updates(data)
+
+	return int(result.RowsAffected), result.Error
 }
 
 // FindByIds 根据主键查询一条或多条数据

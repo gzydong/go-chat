@@ -53,7 +53,7 @@ func (u *UserRepository) FindByMobile(mobile string) (*model.User, error) {
 func (u *UserRepository) IsMobileExist(mobile string) bool {
 	user := &model.User{}
 
-	rowsAffects := u.DB.Select("id", "mobile").Where(&model.User{Mobile: mobile}).First(user).RowsAffected
+	rowsAffects := u.DB.Select("id").Where(&model.User{Mobile: mobile}).First(user).RowsAffected
 
 	return rowsAffects != 0
 }

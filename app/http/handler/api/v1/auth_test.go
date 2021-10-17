@@ -16,13 +16,23 @@ import (
 )
 
 func testAuth() *Auth {
-	conf := testutil.GetConfig()
-	db := connect.MysqlConnect(conf)
+	config := testutil.GetConfig()
+	db := connect.MysqlConnect(config)
 	redisClient := testutil.TestRedisClient()
-	smsService := &service.SmsService{SmsCodeCache: &cache.SmsCodeCache{Redis: redisClient}}
 	user := &repository.UserRepository{DB: db}
-	s := &service.UserService{Repo: user}
-	return &Auth{Conf: conf, UserService: s, SmsService: smsService}
+
+	userService := service.NewUserService(user)
+	smsService := service.NewSmsService(&cache.SmsCodeCache{Redis: redisClient})
+	authTokenCache := &cache.AuthTokenCache{Redis: redisClient}
+	lockCache := &cache.RedisLock{Redis: redisClient}
+
+	return NewAuthHandler(
+		config,
+		userService,
+		smsService,
+		authTokenCache,
+		lockCache,
+	)
 }
 
 func TestAuth_Login(t *testing.T) {

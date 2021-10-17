@@ -1,4 +1,4 @@
-package im
+package ws
 
 import (
 	"fmt"
@@ -10,7 +10,7 @@ import (
 )
 
 func TestWsClient(t *testing.T) {
-	for i := 0; i < 500; i++ {
+	for i := 0; i < 100; i++ {
 		go NewClientTest(i)
 		time.Sleep(500 * time.Millisecond)
 	}

@@ -4,6 +4,7 @@ import (
 	"crypto/md5"
 	"fmt"
 	"math/rand"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -41,8 +42,18 @@ func GetRandomString(length int) string {
 	return string(result)
 }
 
-func ParseIds(str string) []string {
-	return strings.Split(str, ",")
+func ParseIds(str string) []int {
+	arr := strings.Split(str, ",")
+
+	ids := make([]int, 0)
+
+	for _, value := range arr {
+		id, _ := strconv.Atoi(value)
+
+		ids = append(ids, id)
+	}
+
+	return ids
 }
 
 // GenImageName 随机生成指定后缀的图片名

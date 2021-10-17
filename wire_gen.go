@@ -65,6 +65,8 @@ func Initialize(ctx context.Context, conf *config.Config) *Service {
 	}
 	clientService := service.NewClientService(wsClient)
 	webSocket := ws.NewWebSocketHandler(clientService)
+	groupService := service.NewGroupService(db)
+	group := v1.NewGroupHandler(groupService)
 	handlerHandler := &handler.Handler{
 		Common:      common,
 		Auth:        auth,
@@ -75,6 +77,7 @@ func Initialize(ctx context.Context, conf *config.Config) *Service {
 		Upload:      upload,
 		Index:       index,
 		Ws:          webSocket,
+		Group:       group,
 	}
 	engine := router.NewRouter(conf, handlerHandler)
 	server := connect.NewHttp(conf, engine)
@@ -92,4 +95,4 @@ func Initialize(ctx context.Context, conf *config.Config) *Service {
 
 // wire.go:
 
-var providerSet = wire.NewSet(connect.RedisConnect, connect.MysqlConnect, connect.NewHttp, router.NewRouter, filesystem.NewFilesystem, cache.NewServerRun, wire.Struct(new(cache.WsClient), "*"), wire.Struct(new(cache.AuthTokenCache), "*"), wire.Struct(new(cache.SmsCodeCache), "*"), wire.Struct(new(cache.RedisLock), "*"), wire.Struct(new(repository.UserRepository), "*"), wire.Struct(new(repository.TalkRecordsRepo), "*"), wire.Struct(new(repository.TalkRecordsCodeRepo), "*"), wire.Struct(new(repository.TalkRecordsLoginRepo), "*"), wire.Struct(new(repository.TalkRecordsFileRepo), "*"), wire.Struct(new(repository.TalkRecordsVoteRepo), "*"), service.NewUserService, service.NewSmsService, service.NewTalkMessageService, service.NewClientService, wire.Struct(new(service.SocketService), "*"), wire.Struct(new(Service), "*"), v1.NewAuthHandler, v1.NewCommonHandler, v1.NewUserHandler, v1.NewTalkHandler, v1.NewTalkMessageHandler, v1.NewUploadHandler, v1.NewDownloadHandler, v1.NewEmoticonHandler, open.NewIndexHandler, ws.NewWebSocketHandler, wire.Struct(new(handler.Handler), "*"))
+var providerSet = wire.NewSet(connect.RedisConnect, connect.MysqlConnect, connect.NewHttp, router.NewRouter, filesystem.NewFilesystem, cache.NewServerRun, wire.Struct(new(cache.WsClient), "*"), wire.Struct(new(cache.AuthTokenCache), "*"), wire.Struct(new(cache.SmsCodeCache), "*"), wire.Struct(new(cache.RedisLock), "*"), wire.Struct(new(repository.UserRepository), "*"), wire.Struct(new(repository.TalkRecordsRepo), "*"), wire.Struct(new(repository.TalkRecordsCodeRepo), "*"), wire.Struct(new(repository.TalkRecordsLoginRepo), "*"), wire.Struct(new(repository.TalkRecordsFileRepo), "*"), wire.Struct(new(repository.TalkRecordsVoteRepo), "*"), service.NewUserService, service.NewSmsService, service.NewTalkMessageService, service.NewClientService, service.NewGroupService, wire.Struct(new(service.SocketService), "*"), wire.Struct(new(Service), "*"), v1.NewAuthHandler, v1.NewCommonHandler, v1.NewUserHandler, v1.NewGroupHandler, v1.NewTalkHandler, v1.NewTalkMessageHandler, v1.NewUploadHandler, v1.NewDownloadHandler, v1.NewEmoticonHandler, open.NewIndexHandler, ws.NewWebSocketHandler, wire.Struct(new(handler.Handler), "*"))

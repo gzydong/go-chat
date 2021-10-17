@@ -16,12 +16,11 @@ func testCommon() *Common {
 	conf := testutil.GetConfig()
 
 	redisClient := testutil.TestRedisClient()
-	smsService := &service.SmsService{SmsCodeCache: &cache.SmsCodeCache{Redis: redisClient}}
+	smsService := service.NewSmsService(&cache.SmsCodeCache{Redis: redisClient})
 
-	return &Common{
-		UserRepo:   &repository.UserRepository{DB: connect.MysqlConnect(conf)},
-		SmsService: smsService,
-	}
+	UserRepo := &repository.UserRepository{DB: connect.MysqlConnect(conf)}
+
+	return NewCommonHandler(smsService, UserRepo)
 }
 
 func TestCommon_SmsCode(t *testing.T) {

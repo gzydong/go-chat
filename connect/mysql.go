@@ -21,16 +21,16 @@ func MysqlConnect(conf *config.Config) *gorm.DB {
 	}), &gorm.Config{
 		NamingStrategy: schema.NamingStrategy{
 			TablePrefix:   conf.MySQL.Prefix, // 表名前缀，`Article` 的表名应该是 `it_articles`
-			SingularTable: false,             // 使用单数表名，启用该选项，此时，`Article` 的表名应该是 `it_article`
+			SingularTable: true,              // 使用单数表名，启用该选项，此时，`Article` 的表名应该是 `it_article`
 		},
 	})
 
 	if err != nil {
-		fmt.Printf("mysql connect error %v", err)
+		fmt.Printf("mysql connect error :%v", err)
 	}
 
 	if db.Error != nil {
-		fmt.Printf("database error %v", db.Error)
+		fmt.Printf("database error :%v", db.Error)
 	}
 
 	return db

@@ -16,4 +16,5 @@ type Handler struct {
 	Upload      *v1.Upload
 	Index       *open.Index
 	Ws          *ws.WebSocket
+	Group       *v1.Group
 }

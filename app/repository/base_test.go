@@ -2,6 +2,7 @@ package repository
 
 import (
 	"fmt"
+	"github.com/stretchr/testify/assert"
 	"go-chat/app/model"
 	"go-chat/connect"
 	"go-chat/testutil"
@@ -40,4 +41,20 @@ func TestBase_FindByIds(t *testing.T) {
 	fmt.Println(ok)
 	fmt.Printf("length :%d", len(items))
 	fmt.Printf("error :%s\n", err)
+}
+
+func TestBase_Update(t *testing.T) {
+	base := newBase()
+
+	where := make(map[string]interface{}, 0)
+	data := make(map[string]interface{}, 0)
+
+	where["id IN ?"] = []int{1017, 1018}
+
+	data["motto"] = "tttt"
+	data["is_robot"] = 0
+
+	_, err := base.Update(model.User{}, where, data)
+
+	assert.NoError(t, err)
 }

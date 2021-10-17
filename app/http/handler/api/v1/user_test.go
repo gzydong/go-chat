@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
+	"go-chat/app/cache"
 	"go-chat/app/repository"
+	"go-chat/app/service"
 	"go-chat/connect"
 	"go-chat/testutil"
 	"net/url"
@@ -12,11 +14,14 @@ import (
 )
 
 func testUser() *User {
-	conf := testutil.GetConfig()
+	config := testutil.GetConfig()
+	db := connect.MysqlConnect(config)
+	redisClient := testutil.TestRedisClient()
 
-	return &User{UserRepo: &repository.UserRepository{
-		DB: connect.MysqlConnect(conf),
-	}}
+	userRepo := repository.UserRepository{DB: db}
+	smsService := service.NewSmsService(&cache.SmsCodeCache{Redis: redisClient})
+
+	return NewUserHandler(&userRepo, smsService)
 }
 
 func TestUser_Detail(t *testing.T) {

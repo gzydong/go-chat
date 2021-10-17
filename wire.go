@@ -49,6 +49,7 @@ var providerSet = wire.NewSet(
 	service.NewSmsService,
 	service.NewTalkMessageService,
 	service.NewClientService,
+	service.NewGroupService,
 	wire.Struct(new(service.SocketService), "*"),
 	wire.Struct(new(Service), "*"),
 
@@ -56,6 +57,7 @@ var providerSet = wire.NewSet(
 	v1.NewAuthHandler,
 	v1.NewCommonHandler,
 	v1.NewUserHandler,
+	v1.NewGroupHandler,
 	v1.NewTalkHandler,
 	v1.NewTalkMessageHandler,
 	v1.NewUploadHandler,

@@ -39,6 +39,27 @@ func RegisterApiRoute(conf *config.Config, router *gin.Engine, handler *handler.
 			user.POST("/change/email", handler.User.ChangeEmail)
 		}
 
+		// 聊天群相关分组
+		userGroup := group.Group("/group").Use(authorize)
+		{
+			userGroup.POST("/create", handler.Group.Create)
+			userGroup.POST("/dismiss", handler.Group.Dismiss)
+			userGroup.POST("/invite", handler.Group.Invite)
+			userGroup.POST("/secede", handler.Group.Secede)
+			userGroup.POST("/setting", handler.Group.Setting)
+			userGroup.POST("/remove-members", handler.Group.RemoveMembers)
+			userGroup.GET("/detail", handler.Group.Detail)
+			userGroup.POST("/set-group-card", handler.Group.EditGroupCard)
+			userGroup.POST("/invite-friends", handler.Group.GetInviteFriends)
+			userGroup.GET("/list", handler.Group.GetGroups)
+			userGroup.GET("/members", handler.Group.GetGroupMembers)
+
+			// 群公告相关
+			userGroup.GET("/notice/list", handler.Group.GetGroupNotice)
+			userGroup.POST("/notice/edit", handler.Group.EditNotice)
+			userGroup.POST("/notice/delete", handler.Group.DeleteNotice)
+		}
+
 		talkMsg := group.Group("/talk/message").Use(authorize)
 		{
 			talkMsg.POST("/text", handler.TalkMessage.Text)
