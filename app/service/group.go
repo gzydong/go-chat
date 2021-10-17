@@ -164,7 +164,7 @@ func (s *GroupService) UserGroupList(userId int) ([]*Result, error) {
 	var err error
 	items := make([]*Result, 0)
 
-	res := s.db.Debug().Table("lar_group_member").
+	res := s.db.Table("lar_group_member").
 		Select("lar_group.id,lar_group.group_name,lar_group.avatar,lar_group.profile,lar_group_member.leader").
 		Joins("left join lar_group on lar_group.id = lar_group_member.group_id").
 		Where("lar_group_member.user_id = ? and lar_group_member.is_quit = ?", userId, 0).
@@ -198,7 +198,7 @@ func (s *GroupService) UserGroupList(userId int) ([]*Result, error) {
 	}
 
 	for _, item := range items {
-		if data, ok := lists[item.Id]; ok {
+		if data, ok := lists[int64(item.Id)]; ok {
 			val, _ := data["is_disturb"]
 			item.IsDisturb = int(reflect.ValueOf(val).Int())
 		}

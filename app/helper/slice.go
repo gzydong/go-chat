@@ -32,8 +32,8 @@ func UniqueSliceInt(arr []int) []int {
 	return result
 }
 
-func SliceToMap(arr []map[string]interface{}, field string) (map[int]map[string]interface{}, error) {
-	hashMap := make(map[int]map[string]interface{}, len(arr))
+func SliceToMap(arr []map[string]interface{}, field string) (map[int64]map[string]interface{}, error) {
+	hashMap := make(map[int64]map[string]interface{}, len(arr))
 
 	for _, data := range arr {
 		value, ok := data[field]
@@ -42,7 +42,7 @@ func SliceToMap(arr []map[string]interface{}, field string) (map[int]map[string]
 		}
 
 		if _, ok := value.(int64); ok {
-			hashMap[int(reflect.ValueOf(value).Int())] = data
+			hashMap[reflect.ValueOf(value).Int()] = data
 		} else {
 			return nil, errors.New(fmt.Sprintf("%s 字段非 int64 类型", field))
 		}
