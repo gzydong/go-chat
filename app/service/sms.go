@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"go-chat/app/cache"
-	"go-chat/app/helper"
+	"go-chat/app/pkg/strutil"
 )
 
 type SmsService struct {
@@ -31,7 +31,7 @@ func (s *SmsService) DeleteSmsCode(ctx context.Context, channel string, mobile s
 func (s *SmsService) SendSmsCode(ctx context.Context, channel string, mobile string) error {
 	// todo 需要做防止短信攻击处理
 
-	code := helper.GenValidateCode(6)
+	code := strutil.GenValidateCode(6)
 
 	// 添加发送记录
 	if err := s.smsCodeCache.Set(ctx, channel, mobile, code, 60*15); err != nil {

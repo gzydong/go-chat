@@ -1,4 +1,4 @@
-package helper
+package strutil
 
 import (
 	"crypto/md5"

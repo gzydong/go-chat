@@ -8,6 +8,7 @@ import (
 	"go-chat/app/http/response"
 	"go-chat/app/pkg/filesystem"
 	"go-chat/app/pkg/slice"
+	"go-chat/app/pkg/strutil"
 	"io/ioutil"
 	"path"
 	"strings"
@@ -62,7 +63,8 @@ func (e *Emoticon) Upload(ctx *gin.Context) {
 	fileBytes, _ := ioutil.ReadAll(open)
 
 	size := helper.ReadFileImage(bytes.NewReader(fileBytes))
-	src := fmt.Sprintf("media/images/emoticon/%s/%s", time.Now().Format("20060102"), helper.GenImageName(ext, size["width"], size["height"]))
+
+	src := fmt.Sprintf("media/images/emoticon/%s/%s", time.Now().Format("20060102"), strutil.GenImageName(ext, size["width"], size["height"]))
 
 	err = e.filesystem.Write(fileBytes, src)
 	if err != nil {
