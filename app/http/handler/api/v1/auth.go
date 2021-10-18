@@ -1,6 +1,7 @@
 package v1
 
 import (
+	"go-chat/app/pkg/auth"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -111,7 +112,7 @@ func (a *Auth) Logout(ctx *gin.Context) {
 
 // Refresh Token 刷新接口
 func (a *Auth) Refresh(ctx *gin.Context) {
-	token, err := helper.GenerateJwtToken(a.config, "api", helper.GetAuthUserID(ctx))
+	token, err := helper.GenerateJwtToken(a.config, "api", auth.GetAuthUserID(ctx))
 	if err != nil {
 		response.BusinessError(ctx, "Token 刷新失败，请稍后再试!")
 		return

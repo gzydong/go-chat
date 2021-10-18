@@ -4,9 +4,9 @@ import (
 	"database/sql"
 	"errors"
 	"github.com/gin-gonic/gin"
-	"go-chat/app/helper"
 	"go-chat/app/http/request"
 	"go-chat/app/model"
+	"go-chat/app/pkg/auth"
 	"go-chat/app/pkg/slice"
 	"go-chat/app/pkg/strutil"
 	"go-chat/app/pkg/timeutil"
@@ -32,7 +32,7 @@ func (s *GroupService) Create(ctx *gin.Context, request *request.GroupCreateRequ
 	)
 
 	// 登录用户ID
-	UserId := helper.GetAuthUserID(ctx)
+	UserId := auth.GetAuthUserID(ctx)
 	datetime := timeutil.DateTime()
 
 	// 群成员用户ID

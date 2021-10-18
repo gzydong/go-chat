@@ -1,7 +1,7 @@
 package ws
 
 import (
-	"go-chat/app/helper"
+	"go-chat/app/pkg/auth"
 	"log"
 
 	"github.com/gin-gonic/gin"
@@ -27,7 +27,7 @@ func (w *WebSocket) SocketIo(c *gin.Context) {
 
 	options := &im.ClientOption{
 		Channel:       im.Manager.DefaultChannel,
-		UserId:        helper.GetAuthUserID(c),
+		UserId:        auth.GetAuthUserID(c),
 		ClientService: w.clientService,
 	}
 
@@ -45,7 +45,7 @@ func (w *WebSocket) AdminIo(c *gin.Context) {
 
 	options := &im.ClientOption{
 		Channel:       im.Manager.AdminChannel,
-		UserId:        helper.GetAuthUserID(c),
+		UserId:        auth.GetAuthUserID(c),
 		ClientService: w.clientService,
 	}
 

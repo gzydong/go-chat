@@ -2,9 +2,9 @@ package v1
 
 import (
 	"github.com/gin-gonic/gin"
-	"go-chat/app/helper"
 	"go-chat/app/http/request"
 	"go-chat/app/http/response"
+	"go-chat/app/pkg/auth"
 	"go-chat/app/service"
 )
 
@@ -42,7 +42,7 @@ func (c *Group) Dismiss(ctx *gin.Context) {
 		return
 	}
 
-	err := c.service.Dismiss(params.GroupId, helper.GetAuthUserID(ctx))
+	err := c.service.Dismiss(params.GroupId, auth.GetAuthUserID(ctx))
 	if err != nil {
 		response.BusinessError(ctx, "群组解散失败！")
 		return
@@ -62,7 +62,7 @@ func (c *Group) Secede(ctx *gin.Context) {
 		return
 	}
 
-	err := c.service.Secede(params.GroupId, helper.GetAuthUserID(ctx))
+	err := c.service.Secede(params.GroupId, auth.GetAuthUserID(ctx))
 	if err != nil {
 		response.BusinessError(ctx, "退出群组失败！")
 		return
@@ -91,7 +91,7 @@ func (c *Group) EditGroupCard(ctx *gin.Context) {
 		return
 	}
 
-	err := c.service.UpdateMemberCard(params.GroupId, helper.GetAuthUserID(ctx), params.VisitCard)
+	err := c.service.UpdateMemberCard(params.GroupId, auth.GetAuthUserID(ctx), params.VisitCard)
 	if err != nil {
 		response.BusinessError(ctx, "修改群备注失败！")
 		return
@@ -105,7 +105,7 @@ func (c *Group) GetInviteFriends(ctx *gin.Context) {
 }
 
 func (c *Group) GetGroups(ctx *gin.Context) {
-	items, err := c.service.UserGroupList(helper.GetAuthUserID(ctx))
+	items, err := c.service.UserGroupList(auth.GetAuthUserID(ctx))
 	if err != nil {
 		response.BusinessError(ctx, items)
 	}

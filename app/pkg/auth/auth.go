@@ -3,6 +3,8 @@ package auth
 import (
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
+	"github.com/gin-gonic/gin"
+	"go-chat/app/entity"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -61,4 +63,9 @@ func VerifyJwtToken(token string, secret string) (*JwtAuthClaims, error) {
 	})
 
 	return claims, err
+}
+
+// GetAuthUserID 获取授权登录的用户ID
+func GetAuthUserID(c *gin.Context) int {
+	return c.GetInt(entity.LoginUserID)
 }
