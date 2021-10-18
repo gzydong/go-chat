@@ -107,8 +107,7 @@ func (c *Group) GetInviteFriends(ctx *gin.Context) {
 func (c *Group) GetGroups(ctx *gin.Context) {
 	items, err := c.service.UserGroupList(helper.GetAuthUserID(ctx))
 	if err != nil {
-		response.BusinessError(ctx, err.Error())
-		return
+		response.BusinessError(ctx, items)
 	}
 
 	response.Success(ctx, items)

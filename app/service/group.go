@@ -7,6 +7,8 @@ import (
 	"go-chat/app/helper"
 	"go-chat/app/http/request"
 	"go-chat/app/model"
+	"go-chat/app/pkg/slice"
+	"go-chat/app/pkg/timeutil"
 	"gorm.io/gorm"
 	"reflect"
 	"time"
@@ -30,7 +32,7 @@ func (s *GroupService) Create(ctx *gin.Context, request *request.GroupCreateRequ
 
 	// 登录用户ID
 	UserId := helper.GetAuthUserID(ctx)
-	datetime := helper.DateTime()
+	datetime := timeutil.DateTime()
 
 	// 群成员用户ID
 	MembersIds := helper.ParseIds(request.MembersIds)
@@ -192,7 +194,7 @@ func (s *GroupService) UserGroupList(userId int) ([]*Result, error) {
 		return nil, err
 	}
 
-	lists, err := helper.SliceToMap(list, "receiver_id")
+	lists, err := slice.ToMap(list, "receiver_id")
 	if err != nil {
 		return nil, err
 	}

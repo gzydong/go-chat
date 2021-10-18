@@ -7,6 +7,7 @@ import (
 	"go-chat/app/helper"
 	"go-chat/app/http/response"
 	"go-chat/app/pkg/filesystem"
+	"go-chat/app/pkg/slice"
 	"io/ioutil"
 	"path"
 	"strings"
@@ -44,7 +45,7 @@ func (e *Emoticon) Upload(ctx *gin.Context) {
 	arr := []string{"png", "jpg", "jpeg", "gif"}
 	ext := strings.Trim(path.Ext(file.Filename), ".")
 
-	if !helper.InStr(ext, arr) {
+	if !slice.InStr(ext, arr) {
 		response.InvalidParams(ctx, "上传文件格式不正确,仅支持 png、jpg、jpeg 和 gif")
 		return
 	}

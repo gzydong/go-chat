@@ -7,6 +7,7 @@ import (
 	"go-chat/app/http/request"
 	"go-chat/app/http/response"
 	"go-chat/app/model"
+	"go-chat/app/pkg/auth"
 	"go-chat/app/repository"
 	"go-chat/app/service"
 )
@@ -62,13 +63,13 @@ func (u *User) ChangePassword(ctx *gin.Context) {
 	}
 
 	user, _ := u.userRepo.FindById(helper.GetAuthUserID(ctx))
-	if !helper.VerifyPassword([]byte(params.OldPassword), []byte(user.Password)) {
+	if !auth.Compare(user.Password, params.OldPassword) {
 		response.BusinessError(ctx, "密码填写错误！")
 		return
 	}
 
 	// 生成 hash 密码
-	hash, _ := helper.GeneratePassword([]byte(params.NewPassword))
+	hash, _ := auth.Encrypt(params.NewPassword)
 
 	_, err := u.userRepo.Update(&model.User{ID: user.ID}, map[string]interface{}{
 		"password": hash,
@@ -102,7 +103,7 @@ func (u *User) ChangeMobile(ctx *gin.Context) {
 		return
 	}
 
-	if !helper.VerifyPassword([]byte(params.Password), []byte(user.Password)) {
+	if !auth.Compare(user.Password, params.Password) {
 		response.BusinessError(ctx, "账号密码填写错误！")
 		return
 	}

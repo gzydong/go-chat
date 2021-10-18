@@ -3,9 +3,9 @@ package service
 import (
 	"errors"
 	"go-chat/app/http/request"
+	"go-chat/app/pkg/auth"
 	"time"
 
-	"go-chat/app/helper"
 	"go-chat/app/model"
 	"go-chat/app/repository"
 )
@@ -25,7 +25,7 @@ func (s *UserService) Register(param *request.RegisterRequest) (*model.User, err
 		return nil, errors.New("账号已存在! ")
 	}
 
-	hash, err := helper.GeneratePassword([]byte(param.Password))
+	hash, err := auth.Encrypt(param.Password)
 	if err != nil {
 		return nil, err
 	}
@@ -52,7 +52,7 @@ func (s *UserService) Login(mobile string, password string) (*model.User, error)
 		return nil, errors.New("登录账号不存在! ")
 	}
 
-	if !helper.VerifyPassword([]byte(password), []byte(user.Password)) {
+	if !auth.Compare(user.Password, password) {
 		return nil, errors.New("登录密码填写错误! ")
 	}
 
@@ -68,7 +68,7 @@ func (s *UserService) Forget(input *request.ForgetRequest) (bool, error) {
 	}
 
 	// 生成 hash 密码
-	hash, _ := helper.GeneratePassword([]byte(input.Password))
+	hash, _ := auth.Encrypt(input.Password)
 
 	_, err = s.repo.Update(&model.User{
 		ID: user.ID,
