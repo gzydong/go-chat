@@ -34,21 +34,3 @@ func (w *WebSocket) SocketIo(c *gin.Context) {
 	// 创建客户端
 	im.NewClient(conn, options).InitConnection()
 }
-
-// AdminIo 连接客户端
-func (w *WebSocket) AdminIo(c *gin.Context) {
-	conn, err := im.NewWebsocket(c)
-	if err != nil {
-		log.Printf("websocket connect error: %s", err)
-		return
-	}
-
-	options := &im.ClientOption{
-		Channel:       im.Manager.AdminChannel,
-		UserId:        auth.GetAuthUserID(c),
-		ClientService: w.clientService,
-	}
-
-	// 创建客户端
-	im.NewClient(conn, options).InitConnection()
-}

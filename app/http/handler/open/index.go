@@ -23,7 +23,6 @@ func (i *Index) Index(c *gin.Context) {
 		"ip":    c.ClientIP(),
 		"websocket": gin.H{
 			"default": im.Manager.DefaultChannel.Count,
-			"admin":   im.Manager.AdminChannel.Count,
 		},
 	})
 }

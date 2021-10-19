@@ -13,5 +13,4 @@ func RegisterWsRoute(conf *config.Config, router *gin.Engine, handler *handler.H
 	authorize := middleware.JwtAuth(conf, "api")
 
 	router.GET("/wss/socket.io", authorize, handler.Ws.SocketIo)
-	router.GET("/wss/admin.io", authorize, handler.Ws.AdminIo)
 }

@@ -22,12 +22,12 @@ func NewTalkMessageHandler(
 // Text 发送文本消息
 func (c *TalkMessage) Text(ctx *gin.Context) {
 	params := &request.TextMessageRequest{}
-	if err := ctx.Bind(params); err != nil {
+	if err := ctx.ShouldBindJSON(params); err != nil {
 		response.InvalidParams(ctx, err)
 		return
 	}
 
-	c.TalkMessageService.SendTextMessage(params)
+	c.TalkMessageService.SendTextMessage(ctx.Request.Context(), params)
 
 	response.Success(ctx, gin.H{}, "消息推送成功！")
 }
@@ -35,12 +35,12 @@ func (c *TalkMessage) Text(ctx *gin.Context) {
 // Code 发送代码块消息
 func (c *TalkMessage) Code(ctx *gin.Context) {
 	params := &request.CodeMessageRequest{}
-	if err := ctx.Bind(params); err != nil {
+	if err := ctx.ShouldBindJSON(params); err != nil {
 		response.InvalidParams(ctx, err)
 		return
 	}
 
-	c.TalkMessageService.SendCodeMessage(params)
+	c.TalkMessageService.SendCodeMessage(ctx.Request.Context(), params)
 
 	response.Success(ctx, gin.H{}, "消息推送成功！")
 }
@@ -48,12 +48,12 @@ func (c *TalkMessage) Code(ctx *gin.Context) {
 // Image 发送图片消息
 func (c *TalkMessage) Image(ctx *gin.Context) {
 	params := &request.ImageMessageRequest{}
-	if err := ctx.Bind(params); err != nil {
+	if err := ctx.ShouldBindJSON(params); err != nil {
 		response.InvalidParams(ctx, err)
 		return
 	}
 
-	c.TalkMessageService.SendImageMessage(params)
+	c.TalkMessageService.SendImageMessage(ctx.Request.Context(), params)
 
 	response.Success(ctx, gin.H{}, "消息推送成功！")
 }
@@ -61,12 +61,12 @@ func (c *TalkMessage) Image(ctx *gin.Context) {
 // File 发送文件消息
 func (c *TalkMessage) File(ctx *gin.Context) {
 	params := &request.FileMessageRequest{}
-	if err := ctx.Bind(params); err != nil {
+	if err := ctx.ShouldBindJSON(params); err != nil {
 		response.InvalidParams(ctx, err)
 		return
 	}
 
-	c.TalkMessageService.SendFileMessage(params)
+	c.TalkMessageService.SendFileMessage(ctx.Request.Context(), params)
 
 	response.Success(ctx, gin.H{}, "消息推送成功！")
 }
@@ -74,12 +74,12 @@ func (c *TalkMessage) File(ctx *gin.Context) {
 // Vote 发送投票消息
 func (c *TalkMessage) Vote(ctx *gin.Context) {
 	params := &request.VoteMessageRequest{}
-	if err := ctx.Bind(params); err != nil {
+	if err := ctx.ShouldBindJSON(params); err != nil {
 		response.InvalidParams(ctx, err)
 		return
 	}
 
-	c.TalkMessageService.SendVoteMessage(params)
+	c.TalkMessageService.SendVoteMessage(ctx.Request.Context(), params)
 
 	response.Success(ctx, gin.H{}, "消息推送成功！")
 }
@@ -87,12 +87,12 @@ func (c *TalkMessage) Vote(ctx *gin.Context) {
 // Emoticon 发送表情包消息
 func (c *TalkMessage) Emoticon(ctx *gin.Context) {
 	params := &request.EmoticonMessageRequest{}
-	if err := ctx.Bind(params); err != nil {
+	if err := ctx.ShouldBindJSON(params); err != nil {
 		response.InvalidParams(ctx, err)
 		return
 	}
 
-	c.TalkMessageService.SendEmoticonMessage(params)
+	c.TalkMessageService.SendEmoticonMessage(ctx.Request.Context(), params)
 
 	response.Success(ctx, gin.H{}, "消息推送成功！")
 }
@@ -100,12 +100,12 @@ func (c *TalkMessage) Emoticon(ctx *gin.Context) {
 // Forward 发送转发消息
 func (c *TalkMessage) Forward(ctx *gin.Context) {
 	params := &request.ForwardMessageRequest{}
-	if err := ctx.Bind(params); err != nil {
+	if err := ctx.ShouldBindJSON(params); err != nil {
 		response.InvalidParams(ctx, err)
 		return
 	}
 
-	c.TalkMessageService.SendForwardMessage(params)
+	c.TalkMessageService.SendForwardMessage(ctx.Request.Context(), params)
 
 	response.Success(ctx, gin.H{}, "消息推送成功！")
 }
@@ -113,12 +113,12 @@ func (c *TalkMessage) Forward(ctx *gin.Context) {
 // Card 发送用户名片消息
 func (c *TalkMessage) Card(ctx *gin.Context) {
 	params := &request.CardMessageRequest{}
-	if err := ctx.Bind(params); err != nil {
+	if err := ctx.ShouldBindJSON(params); err != nil {
 		response.InvalidParams(ctx, err)
 		return
 	}
 
-	c.TalkMessageService.SendCardMessage(params)
+	c.TalkMessageService.SendCardMessage(ctx.Request.Context(), params)
 
 	response.Success(ctx, gin.H{}, "消息推送成功！")
 }
@@ -126,12 +126,12 @@ func (c *TalkMessage) Card(ctx *gin.Context) {
 // Collect 收藏聊天图片
 func (c *TalkMessage) Collect(ctx *gin.Context) {
 	params := &request.TextMessageRequest{}
-	if err := ctx.Bind(params); err != nil {
+	if err := ctx.ShouldBindJSON(params); err != nil {
 		response.InvalidParams(ctx, err)
 		return
 	}
 
-	c.TalkMessageService.SendTextMessage(params)
+	c.TalkMessageService.SendTextMessage(ctx.Request.Context(), params)
 
 	response.Success(ctx, gin.H{}, "消息推送成功！")
 }
@@ -139,12 +139,12 @@ func (c *TalkMessage) Collect(ctx *gin.Context) {
 // Revoke 撤销聊天记录
 func (c *TalkMessage) Revoke(ctx *gin.Context) {
 	params := &request.TextMessageRequest{}
-	if err := ctx.Bind(params); err != nil {
+	if err := ctx.ShouldBindJSON(params); err != nil {
 		response.InvalidParams(ctx, err)
 		return
 	}
 
-	c.TalkMessageService.SendTextMessage(params)
+	c.TalkMessageService.SendTextMessage(ctx.Request.Context(), params)
 
 	response.Success(ctx, gin.H{}, "消息推送成功！")
 }
@@ -152,12 +152,12 @@ func (c *TalkMessage) Revoke(ctx *gin.Context) {
 // Delete 删除聊天记录
 func (c *TalkMessage) Delete(ctx *gin.Context) {
 	params := &request.TextMessageRequest{}
-	if err := ctx.Bind(params); err != nil {
+	if err := ctx.ShouldBindJSON(params); err != nil {
 		response.InvalidParams(ctx, err)
 		return
 	}
 
-	c.TalkMessageService.SendTextMessage(params)
+	c.TalkMessageService.SendTextMessage(ctx.Request.Context(), params)
 
 	response.Success(ctx, gin.H{}, "消息推送成功！")
 }
@@ -165,12 +165,12 @@ func (c *TalkMessage) Delete(ctx *gin.Context) {
 // HandleVote 投票处理
 func (c *TalkMessage) HandleVote(ctx *gin.Context) {
 	params := &request.TextMessageRequest{}
-	if err := ctx.Bind(params); err != nil {
+	if err := ctx.ShouldBindJSON(params); err != nil {
 		response.InvalidParams(ctx, err)
 		return
 	}
 
-	c.TalkMessageService.SendTextMessage(params)
+	c.TalkMessageService.SendTextMessage(ctx.Request.Context(), params)
 
 	response.Success(ctx, gin.H{}, "消息推送成功！")
 }
