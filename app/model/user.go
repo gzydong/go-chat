@@ -13,3 +13,7 @@ type User struct {
 	CreatedAt string `json:"created_at" grom:"comment:注册时间"`
 	UpdatedAt string `json:"updated_at" grom:"comment:更新时间"`
 }
+
+func (m *User) TableName() string {
+	return "lar_users"
+}

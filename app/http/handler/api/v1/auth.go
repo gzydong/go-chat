@@ -2,12 +2,12 @@ package v1
 
 import (
 	"go-chat/app/pkg/auth"
+	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	"go-chat/app/cache"
 	"go-chat/app/entity"
-	"go-chat/app/helper"
 	"go-chat/app/http/request"
 	"go-chat/app/http/response"
 	"go-chat/app/service"
@@ -41,7 +41,7 @@ func NewAuthHandler(
 // Login 登录接口
 func (a *Auth) Login(ctx *gin.Context) {
 	params := &request.LoginRequest{}
-	if err := ctx.Bind(params); err != nil {
+	if err := ctx.ShouldBindJSON(params); err != nil {
 		response.InvalidParams(ctx, err)
 		return
 	}
@@ -52,24 +52,25 @@ func (a *Auth) Login(ctx *gin.Context) {
 		return
 	}
 
+	expiresAt := time.Now().Add(time.Second * time.Duration(a.config.Jwt.ExpiresTime)).Unix()
+
 	// 生成登录凭证
-	token, e := helper.GenerateJwtToken(a.config, "api", user.ID)
-	if e != nil {
-		response.BusinessError(ctx, "登录失败，请稍后再试")
-		return
-	}
+	token := auth.SignJwtToken("api", a.config.Jwt.Secret, &auth.JwtOptions{
+		ExpiresAt: expiresAt,
+		Id:        strconv.Itoa(user.ID),
+	})
 
 	response.Success(ctx, map[string]interface{}{
 		"type":       "Bearer",
-		"token":      token["token"],
-		"expires_in": token["expired_at"],
+		"token":      token,
+		"expires_in": expiresAt,
 	})
 }
 
 // Register 注册接口
 func (a *Auth) Register(ctx *gin.Context) {
 	params := &request.RegisterRequest{}
-	if err := ctx.Bind(params); err != nil {
+	if err := ctx.ShouldBindJSON(params); err != nil {
 		response.InvalidParams(ctx, err)
 		return
 	}
@@ -80,8 +81,7 @@ func (a *Auth) Register(ctx *gin.Context) {
 		return
 	}
 
-	_, err := a.userService.Register(params)
-	if err != nil {
+	if _, err := a.userService.Register(params); err != nil {
 		response.BusinessError(ctx, err)
 		return
 	}
@@ -93,9 +93,9 @@ func (a *Auth) Register(ctx *gin.Context) {
 
 // Logout 退出登录接口
 func (a *Auth) Logout(ctx *gin.Context) {
-	token := helper.GetAuthToken(ctx)
+	token := auth.GetJwtToken(ctx)
 
-	claims, err := helper.ParseJwtToken(a.config.Jwt.Secret, token)
+	claims, err := auth.VerifyJwtToken(token, a.config.Jwt.Secret)
 	if err != nil {
 		response.Success(ctx, gin.H{})
 		return
@@ -112,18 +112,18 @@ func (a *Auth) Logout(ctx *gin.Context) {
 
 // Refresh Token 刷新接口
 func (a *Auth) Refresh(ctx *gin.Context) {
-	token, err := helper.GenerateJwtToken(a.config, "api", auth.GetAuthUserID(ctx))
-	if err != nil {
-		response.BusinessError(ctx, "Token 刷新失败，请稍后再试!")
-		return
-	}
+	expiresAt := time.Now().Add(time.Second * time.Duration(a.config.Jwt.ExpiresTime)).Unix()
 
-	// todo 将之前的 token 加入黑名单
+	// 生成登录凭证
+	token := auth.SignJwtToken("api", a.config.Jwt.Secret, &auth.JwtOptions{
+		ExpiresAt: expiresAt,
+		Id:        strconv.Itoa(auth.GetAuthUserID(ctx)),
+	})
 
 	response.Success(ctx, gin.H{
 		"type":       "Bearer",
-		"token":      token["token"],
-		"expires_in": token["expired_at"],
+		"token":      token,
+		"expires_in": expiresAt,
 	})
 }
 
@@ -131,7 +131,7 @@ func (a *Auth) Refresh(ctx *gin.Context) {
 func (a *Auth) Forget(ctx *gin.Context) {
 	params := &request.ForgetRequest{}
 
-	if err := ctx.Bind(params); err != nil {
+	if err := ctx.ShouldBindJSON(params); err != nil {
 		response.InvalidParams(ctx, err)
 		return
 	}
@@ -142,8 +142,7 @@ func (a *Auth) Forget(ctx *gin.Context) {
 		return
 	}
 
-	_, err := a.userService.Forget(params)
-	if err != nil {
+	if _, err := a.userService.Forget(params); err != nil {
 		response.BusinessError(ctx, err)
 		return
 	}

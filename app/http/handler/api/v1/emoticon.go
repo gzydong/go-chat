@@ -4,11 +4,11 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"go-chat/app/helper"
 	"go-chat/app/http/response"
 	"go-chat/app/pkg/filesystem"
 	"go-chat/app/pkg/slice"
 	"go-chat/app/pkg/strutil"
+	"go-chat/app/pkg/utils"
 	"io/ioutil"
 	"path"
 	"strings"
@@ -62,7 +62,7 @@ func (e *Emoticon) Upload(ctx *gin.Context) {
 
 	fileBytes, _ := ioutil.ReadAll(open)
 
-	size := helper.ReadFileImage(bytes.NewReader(fileBytes))
+	size := utils.ReadFileImage(bytes.NewReader(fileBytes))
 
 	src := fmt.Sprintf("media/images/emoticon/%s/%s", time.Now().Format("20060102"), strutil.GenImageName(ext, size["width"], size["height"]))
 

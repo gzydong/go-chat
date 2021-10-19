@@ -66,7 +66,7 @@ func TestAuth_Register(t *testing.T) {
 func TestAuth_Refresh(t *testing.T) {
 	a := testAuth()
 	r := testutil.NewTestRequest("/auth/refresh", func(context *gin.Context) {
-		context.Set("__user_id__", 1)
+		context.Set("__user_id__", 2054)
 	}, a.Refresh)
 
 	value := &url.Values{}

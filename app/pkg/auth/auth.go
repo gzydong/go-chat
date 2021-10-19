@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"go-chat/app/entity"
 	"golang.org/x/crypto/bcrypt"
+	"strings"
 )
 
 // Encrypt 使用 bcrypt 加密纯文本
@@ -41,10 +42,8 @@ func SignJwtToken(guard string, secret string, ops *JwtOptions) string {
 		},
 	}
 
-	// create a new token
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
-	// Sign the token with the specified secret.
 	tokenString, _ := token.SignedString([]byte(secret))
 
 	return tokenString
@@ -68,4 +67,22 @@ func VerifyJwtToken(token string, secret string) (*JwtAuthClaims, error) {
 // GetAuthUserID 获取授权登录的用户ID
 func GetAuthUserID(c *gin.Context) int {
 	return c.GetInt(entity.LoginUserID)
+}
+
+// GetJwtToken 获取登录授权 token
+func GetJwtToken(c *gin.Context) string {
+	token := c.GetHeader("Authorization")
+	token = strings.TrimLeft(token, "Bearer")
+	token = strings.TrimSpace(token)
+
+	// Headers 中没有授权信息则读取 url 中的 token
+	if len(token) == 0 {
+		token = c.DefaultQuery("token", "")
+	}
+
+	if len(token) == 0 {
+		token = c.DefaultPostForm("token", "")
+	}
+
+	return token
 }
