@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"go-chat/app/http/request"
 	"go-chat/app/repository"
 	"go-chat/config"
@@ -33,34 +34,34 @@ func NewTalkMessageService(
 	}
 }
 
-func (s *TalkMessageService) SendTextMessage(params *request.TextMessageRequest) {
+func (s *TalkMessageService) SendTextMessage(ctx context.Context, params *request.TextMessageRequest) {
 
 }
 
-func (s *TalkMessageService) SendCodeMessage(params *request.CodeMessageRequest) {
+func (s *TalkMessageService) SendCodeMessage(ctx context.Context, params *request.CodeMessageRequest) {
 
 }
 
-func (s *TalkMessageService) SendImageMessage(params *request.ImageMessageRequest) {
+func (s *TalkMessageService) SendImageMessage(ctx context.Context, params *request.ImageMessageRequest) {
 
 }
 
-func (s *TalkMessageService) SendFileMessage(params *request.FileMessageRequest) {
+func (s *TalkMessageService) SendFileMessage(ctx context.Context, params *request.FileMessageRequest) {
 
 }
 
-func (s *TalkMessageService) SendCardMessage(params *request.CardMessageRequest) {
+func (s *TalkMessageService) SendCardMessage(ctx context.Context, params *request.CardMessageRequest) {
 
 }
 
-func (s *TalkMessageService) SendVoteMessage(params *request.VoteMessageRequest) {
+func (s *TalkMessageService) SendVoteMessage(ctx context.Context, params *request.VoteMessageRequest) {
 
 }
 
-func (s *TalkMessageService) SendEmoticonMessage(params *request.EmoticonMessageRequest) {
+func (s *TalkMessageService) SendEmoticonMessage(ctx context.Context, params *request.EmoticonMessageRequest) {
 
 }
 
-func (s *TalkMessageService) SendForwardMessage(params *request.ForwardMessageRequest) {
+func (s *TalkMessageService) SendForwardMessage(ctx context.Context, params *request.ForwardMessageRequest) {
 
 }

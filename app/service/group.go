@@ -94,12 +94,10 @@ func (s *GroupService) Dismiss(GroupId int, UserId int) error {
 			return err
 		}
 
-		err = s.db.Model(&model.GroupMember{}).Where("group_id = ?", GroupId).Unscoped().Updates(model.GroupMember{
+		if err = s.db.Model(&model.GroupMember{}).Where("group_id = ?", GroupId).Unscoped().Updates(model.GroupMember{
 			IsQuit:    1,
 			DeletedAt: gorm.DeletedAt{Time: time.Now(), Valid: true},
-		}).Error
-
-		if err != nil {
+		}).Error; err != nil {
 			return err
 		}
 

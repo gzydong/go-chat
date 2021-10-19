@@ -59,11 +59,6 @@ func main() {
 	})
 
 	eg.Go(func() error {
-		im.Manager.AdminChannel.SetCallbackHandler(websocket.NewAdminChannelHandle()).Process(ctx)
-		return nil
-	})
-
-	eg.Go(func() error {
 		defer func() {
 			cancel()
 			// 等待中断信号以优雅地关闭服务器（设置 5 秒的超时时间）

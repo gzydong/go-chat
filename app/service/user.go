@@ -3,10 +3,9 @@ package service
 import (
 	"errors"
 	"go-chat/app/http/request"
-	"go-chat/app/pkg/auth"
-	"time"
-
 	"go-chat/app/model"
+	"go-chat/app/pkg/auth"
+	"go-chat/app/pkg/timeutil"
 	"go-chat/app/repository"
 )
 
@@ -33,9 +32,9 @@ func (s *UserService) Register(param *request.RegisterRequest) (*model.User, err
 	user, err := s.repo.Create(&model.User{
 		Mobile:    param.Mobile,
 		Nickname:  param.Nickname,
-		Password:  string(hash),
-		CreatedAt: time.Now().Format("2006-01-02 15:04:05"),
-		UpdatedAt: time.Now().Format("2006-01-02 15:04:05"),
+		Password:  hash,
+		CreatedAt: timeutil.DateTime(),
+		UpdatedAt: timeutil.DateTime(),
 	})
 
 	if err != nil {
