@@ -54,7 +54,6 @@ var providerSet = wire.NewSet(
 	service.NewClientService,
 	service.NewGroupService,
 	wire.Struct(new(service.SocketService), "*"),
-	wire.Struct(new(Service), "*"),
 
 	// handler 处理
 	v1.NewAuthHandler,
@@ -68,9 +67,11 @@ var providerSet = wire.NewSet(
 	v1.NewEmoticonHandler,
 	open.NewIndexHandler,
 	ws.NewWebSocketHandler,
+
 	wire.Struct(new(handler.Handler), "*"),
+	wire.Struct(new(provider.Services), "*"),
 )
 
-func Initialize(ctx context.Context, conf *config.Config) *Service {
+func Initialize(ctx context.Context, conf *config.Config) *provider.Services {
 	panic(wire.Build(providerSet))
 }

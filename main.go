@@ -11,20 +11,13 @@ import (
 	"syscall"
 	"time"
 
-	"go-chat/app/service"
 	_ "go-chat/app/validator"
 	"go-chat/app/websocket"
 	"go-chat/config"
 	"golang.org/x/sync/errgroup"
 )
 
-type Service struct {
-	HttpServer   *http.Server
-	SocketServer *service.SocketService
-}
-
 func main() {
-
 	// 第一步：初始化配置信息
 	conf := config.Init("./config.yaml")
 
