@@ -6,7 +6,7 @@ import (
 	"go-chat/app/cache"
 	"go-chat/app/repository"
 	"go-chat/app/service"
-	"go-chat/connect"
+	"go-chat/provider"
 	"go-chat/testutil"
 	"net/url"
 	"testing"
@@ -18,7 +18,7 @@ func testCommon() *Common {
 	redisClient := testutil.TestRedisClient()
 	smsService := service.NewSmsService(&cache.SmsCodeCache{Redis: redisClient})
 
-	UserRepo := &repository.UserRepository{DB: connect.MysqlConnect(conf)}
+	UserRepo := &repository.UserRepository{DB: provider.MysqlConnect(conf)}
 
 	return NewCommonHandler(smsService, UserRepo)
 }

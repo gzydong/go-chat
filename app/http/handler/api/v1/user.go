@@ -38,7 +38,7 @@ func (u *User) Detail(ctx *gin.Context) {
 // ChangeDetail 修改个人用户信息
 func (u *User) ChangeDetail(ctx *gin.Context) {
 	params := &request.ChangeDetailRequest{}
-	if err := ctx.Bind(params); err != nil {
+	if err := ctx.ShouldBind(params); err != nil {
 		response.InvalidParams(ctx, err)
 		return
 	}
@@ -56,7 +56,7 @@ func (u *User) ChangeDetail(ctx *gin.Context) {
 // ChangePassword 修改密码接口
 func (u *User) ChangePassword(ctx *gin.Context) {
 	params := &request.ChangePasswordRequest{}
-	if err := ctx.Bind(params); err != nil {
+	if err := ctx.ShouldBind(params); err != nil {
 		response.InvalidParams(ctx, err)
 		return
 	}
@@ -85,7 +85,7 @@ func (u *User) ChangePassword(ctx *gin.Context) {
 // ChangeMobile 修改手机号接口
 func (u *User) ChangeMobile(ctx *gin.Context) {
 	params := &request.ChangeMobileRequest{}
-	if err := ctx.Bind(params); err != nil {
+	if err := ctx.ShouldBind(params); err != nil {
 		response.InvalidParams(ctx, err)
 		return
 	}
@@ -122,7 +122,7 @@ func (u *User) ChangeMobile(ctx *gin.Context) {
 // ChangeEmail 修改邮箱接口
 func (u *User) ChangeEmail(ctx *gin.Context) {
 	params := &request.ChangeEmailRequest{}
-	if err := ctx.Bind(params); err != nil {
+	if err := ctx.ShouldBind(params); err != nil {
 		response.InvalidParams(ctx, err)
 		return
 	}

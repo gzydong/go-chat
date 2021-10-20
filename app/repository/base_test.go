@@ -4,13 +4,13 @@ import (
 	"fmt"
 	"github.com/stretchr/testify/assert"
 	"go-chat/app/model"
-	"go-chat/connect"
+	"go-chat/provider"
 	"go-chat/testutil"
 	"testing"
 )
 
 func newBase() *Base {
-	base := &Base{db: connect.MysqlConnect(testutil.GetConfig())}
+	base := &Base{db: provider.MysqlConnect(testutil.GetConfig())}
 	return base
 }
 

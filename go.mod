@@ -20,6 +20,7 @@ require (
 	github.com/onsi/gomega v1.16.0 // indirect
 	github.com/qiniu/go-sdk/v7 v7.10.0
 	github.com/satori/go.uuid v1.2.0
+	github.com/sirupsen/logrus v1.8.1 // indirect
 	github.com/stretchr/testify v1.7.0
 	github.com/tidwall/gjson v1.9.1
 	github.com/ugorji/go v1.2.6 // indirect

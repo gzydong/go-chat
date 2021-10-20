@@ -2,6 +2,7 @@ package v1
 
 import (
 	"fmt"
+	"go-chat/provider"
 	"net/url"
 	"testing"
 
@@ -11,13 +12,12 @@ import (
 	"github.com/stretchr/testify/assert"
 	"go-chat/app/repository"
 	"go-chat/app/service"
-	"go-chat/connect"
 	"go-chat/testutil"
 )
 
 func testAuth() *Auth {
 	config := testutil.GetConfig()
-	db := connect.MysqlConnect(config)
+	db := provider.MysqlConnect(config)
 	redisClient := testutil.TestRedisClient()
 	user := &repository.UserRepository{DB: db}
 

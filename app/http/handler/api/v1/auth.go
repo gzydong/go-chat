@@ -41,7 +41,7 @@ func NewAuthHandler(
 // Login 登录接口
 func (a *Auth) Login(ctx *gin.Context) {
 	params := &request.LoginRequest{}
-	if err := ctx.ShouldBindJSON(params); err != nil {
+	if err := ctx.ShouldBind(params); err != nil {
 		response.InvalidParams(ctx, err)
 		return
 	}
@@ -70,7 +70,7 @@ func (a *Auth) Login(ctx *gin.Context) {
 // Register 注册接口
 func (a *Auth) Register(ctx *gin.Context) {
 	params := &request.RegisterRequest{}
-	if err := ctx.ShouldBindJSON(params); err != nil {
+	if err := ctx.ShouldBind(params); err != nil {
 		response.InvalidParams(ctx, err)
 		return
 	}
@@ -131,7 +131,7 @@ func (a *Auth) Refresh(ctx *gin.Context) {
 func (a *Auth) Forget(ctx *gin.Context) {
 	params := &request.ForgetRequest{}
 
-	if err := ctx.ShouldBindJSON(params); err != nil {
+	if err := ctx.ShouldBind(params); err != nil {
 		response.InvalidParams(ctx, err)
 		return
 	}

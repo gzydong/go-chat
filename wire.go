@@ -6,6 +6,7 @@ import (
 	"context"
 	"go-chat/app/pkg/filesystem"
 	"go-chat/app/repository"
+	"go-chat/provider"
 
 	"github.com/google/wire"
 	"go-chat/app/cache"
@@ -16,14 +17,16 @@ import (
 	"go-chat/app/http/router"
 	"go-chat/app/service"
 	"go-chat/config"
-	"go-chat/connect"
 )
 
 var providerSet = wire.NewSet(
-	// 连接信息
-	connect.RedisConnect,
-	connect.MysqlConnect,
-	connect.NewHttp,
+	// 基础服务
+	provider.NewLogger,
+	provider.RedisConnect,
+	provider.MysqlConnect,
+	provider.NewHttp,
+
+	// 注册路由
 	router.NewRouter,
 
 	// other

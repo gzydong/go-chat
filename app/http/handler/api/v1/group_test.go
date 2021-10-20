@@ -5,7 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 	"go-chat/app/service"
-	"go-chat/connect"
+	"go-chat/provider"
 	"go-chat/testutil"
 	"net/url"
 	"testing"
@@ -13,7 +13,7 @@ import (
 
 func testGroup() *Group {
 	conf := testutil.GetConfig()
-	db := connect.MysqlConnect(conf)
+	db := provider.MysqlConnect(conf)
 	groupService := service.NewGroupService(db)
 	return NewGroupHandler(groupService)
 }

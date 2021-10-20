@@ -7,7 +7,7 @@ import (
 	"go-chat/app/cache"
 	"go-chat/app/repository"
 	"go-chat/app/service"
-	"go-chat/connect"
+	"go-chat/provider"
 	"go-chat/testutil"
 	"net/url"
 	"testing"
@@ -15,7 +15,7 @@ import (
 
 func testUser() *User {
 	config := testutil.GetConfig()
-	db := connect.MysqlConnect(config)
+	db := provider.MysqlConnect(config)
 	redisClient := testutil.TestRedisClient()
 
 	userRepo := repository.UserRepository{DB: db}

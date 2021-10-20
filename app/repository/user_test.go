@@ -1,16 +1,16 @@
 package repository
 
 import (
+	"go-chat/provider"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"go-chat/connect"
 	"go-chat/testutil"
 )
 
 func TestUserRepository_FindByMobile(t *testing.T) {
 	conf := testutil.GetConfig()
-	db := connect.MysqlConnect(conf)
+	db := provider.MysqlConnect(conf)
 	userRep := UserRepository{DB: db}
 	u, err := userRep.FindByMobile("123")
 	assert.Error(t, err)

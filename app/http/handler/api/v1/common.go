@@ -28,7 +28,7 @@ func NewCommonHandler(
 func (c *Common) SmsCode(ctx *gin.Context) {
 	params := &request.SmsCodeRequest{}
 
-	if err := ctx.Bind(params); err != nil {
+	if err := ctx.ShouldBind(params); err != nil {
 		response.InvalidParams(ctx, err)
 		return
 	}

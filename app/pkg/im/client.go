@@ -9,8 +9,6 @@ import (
 	"go-chat/app/service"
 )
 
-//https://github.com/woodylan/go-websocket/tree/master/servers
-
 const (
 	heartbeatCheckInterval = 20 * time.Second // 心跳检测时间
 	heartbeatIdleTime      = 50               // 心跳超时时间
