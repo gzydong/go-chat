@@ -1,8 +1,8 @@
 package slice
 
 func InStr(find string, arr []string) bool {
-	for _, s := range arr {
-		if s == find {
+	for _, value := range arr {
+		if value == find {
 			return true
 		}
 	}
@@ -10,8 +10,8 @@ func InStr(find string, arr []string) bool {
 }
 
 func InInt(find int, arr []int) bool {
-	for _, s := range arr {
-		if s == find {
+	for _, value := range arr {
+		if value == find {
 			return true
 		}
 	}

@@ -4,7 +4,6 @@ import (
 	"crypto/md5"
 	"fmt"
 	"math/rand"
-	"strconv"
 	"strings"
 	"time"
 )
@@ -22,14 +21,8 @@ func GenValidateCode(length int) string {
 	return sb.String()
 }
 
-// MtRand 生成指定范围内的随机数
-func MtRand(min, max int) int {
-	r := rand.New(rand.NewSource(time.Now().UnixNano()))
-	return r.Intn(max-min+1) + min
-}
-
-// GetRandomString 生成随机字符串
-func GetRandomString(length int) string {
+// GenRandomString 生成随机字符串
+func GenRandomString(length int) string {
 	var result []byte
 	bytes := []byte("0123456789abcdefghijklmnopqrstuvwxyz")
 
@@ -42,23 +35,9 @@ func GetRandomString(length int) string {
 	return string(result)
 }
 
-func ParseIds(str string) []int {
-	arr := strings.Split(str, ",")
-
-	ids := make([]int, 0)
-
-	for _, value := range arr {
-		id, _ := strconv.Atoi(value)
-
-		ids = append(ids, id)
-	}
-
-	return ids
-}
-
 // GenImageName 随机生成指定后缀的图片名
 func GenImageName(ext string, width, height int) string {
-	str := fmt.Sprintf("%d%s", time.Now().Unix(), GetRandomString(10))
+	str := fmt.Sprintf("%d%s", time.Now().Unix(), GenRandomString(10))
 
 	return fmt.Sprintf("%x_%dx%d.%s", md5.Sum([]byte(str)), width, height, ext)
 }

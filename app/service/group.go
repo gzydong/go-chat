@@ -8,7 +8,6 @@ import (
 	"go-chat/app/model"
 	"go-chat/app/pkg/auth"
 	"go-chat/app/pkg/slice"
-	"go-chat/app/pkg/strutil"
 	"go-chat/app/pkg/timeutil"
 	"gorm.io/gorm"
 	"reflect"
@@ -36,7 +35,7 @@ func (s *GroupService) Create(ctx *gin.Context, request *request.GroupCreateRequ
 	datetime := timeutil.DateTime()
 
 	// 群成员用户ID
-	MembersIds := strutil.ParseIds(request.MembersIds)
+	MembersIds := slice.ParseIds(request.MembersIds)
 
 	err = s.db.Transaction(func(tx *gorm.DB) error {
 		GroupModel := &model.Group{
