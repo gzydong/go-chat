@@ -11,12 +11,13 @@ import (
 
 // Config 配置信息
 type Config struct {
-	Redis      RedisConfig `json:"redis" yaml:"redis"`
-	MySQL      MySQL       `json:"mysql" yaml:"mysql"`
-	Jwt        Jwt         `json:"jwt" yaml:"jwt"`
-	Cors       Cors        `json:"cors" yaml:"cors"`
-	Server     Server      `json:"server" yaml:"server"`
-	Filesystem Filesystem  `json:"filesystem" yaml:"filesystem"`
+	Redis      *RedisConfig `json:"redis" yaml:"redis"`
+	MySQL      *MySQL       `json:"mysql" yaml:"mysql"`
+	Jwt        *Jwt         `json:"jwt" yaml:"jwt"`
+	Cors       *Cors        `json:"cors" yaml:"cors"`
+	Server     *Server      `json:"server" yaml:"server"`
+	Filesystem *Filesystem  `json:"filesystem" yaml:"filesystem"`
+	Email      *Email       `json:"email" yaml:"email"`
 }
 
 func Init(filename string) *Config {

@@ -58,6 +58,11 @@ func (c *Common) SmsCode(ctx *gin.Context) {
 	response.Success(ctx, nil, "发送成功！")
 }
 
+// EmailCode 发送邮件验证码
+func (c *Common) EmailCode() {
+	//_ = mail.SendMail([]string{}, "", "")
+}
+
 // Setting 公共设置
 func (c *Common) Setting(ctx *gin.Context) {
 

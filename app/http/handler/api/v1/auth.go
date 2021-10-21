@@ -15,11 +15,17 @@ import (
 )
 
 type Auth struct {
-	config         *config.Config
-	userService    *service.UserService
-	smsService     *service.SmsService
-	authTokenCache *cache.AuthTokenCache
-	redisLock      *cache.RedisLock
+	config      *config.Config
+	userService *service.UserService
+	smsService  *service.SmsService
+	token       *cache.AuthTokenCache
+	redisLock   *cache.RedisLock
+}
+
+type TokenCert struct {
+	Type      string `json:"type"`
+	Token     string `json:"token"`
+	ExpiresIn int64  `json:"expires_in"`
 }
 
 func NewAuthHandler(
@@ -30,11 +36,11 @@ func NewAuthHandler(
 	lock *cache.RedisLock,
 ) *Auth {
 	return &Auth{
-		config:         config,
-		userService:    userService,
-		smsService:     smsService,
-		authTokenCache: tokenCache,
-		redisLock:      lock,
+		config:      config,
+		userService: userService,
+		smsService:  smsService,
+		token:       tokenCache,
+		redisLock:   lock,
 	}
 }
 
@@ -52,19 +58,9 @@ func (a *Auth) Login(ctx *gin.Context) {
 		return
 	}
 
-	expiresAt := time.Now().Add(time.Second * time.Duration(a.config.Jwt.ExpiresTime)).Unix()
+	// 处理登录日志消息
 
-	// 生成登录凭证
-	token := auth.SignJwtToken("api", a.config.Jwt.Secret, &auth.JwtOptions{
-		ExpiresAt: expiresAt,
-		Id:        strconv.Itoa(user.ID),
-	})
-
-	response.Success(ctx, map[string]interface{}{
-		"type":       "Bearer",
-		"token":      token,
-		"expires_in": expiresAt,
-	})
+	response.Success(ctx, a.createToken(user.ID))
 }
 
 // Register 注册接口
@@ -93,32 +89,20 @@ func (a *Auth) Register(ctx *gin.Context) {
 
 // Logout 退出登录接口
 func (a *Auth) Logout(ctx *gin.Context) {
-
-	info := ctx.GetStringMapString("jwt")
-
-	expiresAt, _ := strconv.Atoi(info["expires_at"])
-
-	// 将 token 加入黑名单
-	_ = a.authTokenCache.SetBlackList(ctx.Request.Context(), info["token"], expiresAt-int(time.Now().Unix()))
+	a.toBlackList(ctx)
 
 	response.Success(ctx, gin.H{}, "退出成功！")
 }
 
 // Refresh Token 刷新接口
 func (a *Auth) Refresh(ctx *gin.Context) {
-	expiresAt := time.Now().Add(time.Second * time.Duration(a.config.Jwt.ExpiresTime)).Unix()
+	tokenInfo := a.createToken(auth.GetAuthUserID(ctx))
 
-	// 生成登录凭证
-	token := auth.SignJwtToken("api", a.config.Jwt.Secret, &auth.JwtOptions{
-		ExpiresAt: expiresAt,
-		Id:        strconv.Itoa(auth.GetAuthUserID(ctx)),
-	})
+	if len(tokenInfo.Token) > 0 {
+		a.toBlackList(ctx)
+	}
 
-	response.Success(ctx, gin.H{
-		"type":       "Bearer",
-		"token":      token,
-		"expires_in": expiresAt,
-	})
+	response.Success(ctx, tokenInfo)
 }
 
 // Forget 账号找回接口
@@ -144,4 +128,32 @@ func (a *Auth) Forget(ctx *gin.Context) {
 	a.smsService.DeleteSmsCode(ctx.Request.Context(), entity.SmsForgetAccountChannel, params.Mobile)
 
 	response.Success(ctx, gin.H{}, "账号成功找回")
+}
+
+func (a *Auth) createToken(uid int) *TokenCert {
+	expiresAt := time.Now().Add(time.Second * time.Duration(a.config.Jwt.ExpiresTime)).Unix()
+
+	// 生成登录凭证
+	token := auth.SignJwtToken("api", a.config.Jwt.Secret, &auth.JwtOptions{
+		ExpiresAt: expiresAt,
+		Id:        strconv.Itoa(uid),
+	})
+
+	return &TokenCert{
+		Type:      "Bearer",
+		Token:     token,
+		ExpiresIn: expiresAt,
+	}
+}
+
+// 设置黑名单
+func (a *Auth) toBlackList(ctx *gin.Context) {
+	info := ctx.GetStringMapString("jwt")
+
+	expiresAt, _ := strconv.Atoi(info["expires_at"])
+
+	ex := expiresAt - int(time.Now().Unix())
+
+	// 将 token 加入黑名单
+	_ = a.token.SetBlackList(ctx.Request.Context(), info["token"], ex)
 }
