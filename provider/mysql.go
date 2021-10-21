@@ -2,11 +2,13 @@ package provider
 
 import (
 	"fmt"
+	"time"
 
-	"go-chat/config"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/schema"
+
+	"go-chat/config"
 )
 
 func MysqlConnect(conf *config.Config) *gorm.DB {
@@ -32,6 +34,11 @@ func MysqlConnect(conf *config.Config) *gorm.DB {
 	if db.Error != nil {
 		fmt.Printf("database error :%v", db.Error)
 	}
+
+	sqlDB, _ := db.DB()
+	sqlDB.SetMaxIdleConns(10)
+	sqlDB.SetMaxOpenConns(100)
+	sqlDB.SetConnMaxLifetime(time.Hour)
 
 	return db
 }

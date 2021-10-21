@@ -16,7 +16,7 @@ func NewHttp(conf *config.Config, handler *gin.Engine) *http.Server {
 	}
 
 	return &http.Server{
-		Addr:    fmt.Sprintf(":%d", conf.Server.Port),
+		Addr:    fmt.Sprintf("0.0.0.0:%d", conf.Server.Port),
 		Handler: handler,
 	}
 }

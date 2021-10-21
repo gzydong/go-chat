@@ -18,8 +18,7 @@ func RedisConnect(ctx context.Context, conf *config.Config) *redis.Client {
 	})
 
 	// 检测心跳
-	_, err := client.Ping(ctx).Result()
-	if err != nil {
+	if _, err := client.Ping(ctx).Result(); err != nil {
 		panic(fmt.Errorf("redis client error: %s", err))
 	}
 

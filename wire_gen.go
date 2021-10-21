@@ -88,6 +88,7 @@ func Initialize(ctx context.Context, conf *config.Config) *provider.Services {
 		ServerRunID: serverRunID,
 	}
 	services := &provider.Services{
+		Config:       conf,
 		Db:           db,
 		Rds:          client,
 		Logrus:       logger,

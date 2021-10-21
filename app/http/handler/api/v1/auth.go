@@ -93,19 +93,13 @@ func (a *Auth) Register(ctx *gin.Context) {
 
 // Logout 退出登录接口
 func (a *Auth) Logout(ctx *gin.Context) {
-	token := auth.GetJwtToken(ctx)
 
-	claims, err := auth.VerifyJwtToken(token, a.config.Jwt.Secret)
-	if err != nil {
-		response.Success(ctx, gin.H{})
-		return
-	}
+	info := ctx.GetStringMapString("jwt")
 
-	// 计算过期时间
-	expiresAt := claims.ExpiresAt - time.Now().Unix()
+	expiresAt, _ := strconv.Atoi(info["expires_at"])
 
 	// 将 token 加入黑名单
-	_ = a.authTokenCache.SetBlackList(ctx.Request.Context(), token, int(expiresAt))
+	_ = a.authTokenCache.SetBlackList(ctx.Request.Context(), info["token"], expiresAt-int(time.Now().Unix()))
 
 	response.Success(ctx, gin.H{}, "退出成功！")
 }
