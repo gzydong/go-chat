@@ -5,20 +5,25 @@ import (
 	"go-chat/app/entity"
 	"go-chat/app/http/request"
 	"go-chat/app/http/response"
+	"go-chat/app/pkg/email"
 	"go-chat/app/repository"
 	"go-chat/app/service"
+	"go-chat/config"
 )
 
 type Common struct {
+	config     *config.Config
 	smsService *service.SmsService
 	userRepo   *repository.UserRepository
 }
 
 func NewCommonHandler(
+	config *config.Config,
 	sms *service.SmsService,
 	user *repository.UserRepository,
 ) *Common {
 	return &Common{
+		config:     config,
 		smsService: sms,
 		userRepo:   user,
 	}
@@ -59,8 +64,25 @@ func (c *Common) SmsCode(ctx *gin.Context) {
 }
 
 // EmailCode 发送邮件验证码
-func (c *Common) EmailCode() {
-	//_ = mail.SendMail([]string{}, "", "")
+func (c *Common) EmailCode(ctx *gin.Context) {
+	params := &request.EmailCodeRequest{}
+
+	if err := ctx.ShouldBind(params); err != nil {
+		response.InvalidParams(ctx, err)
+		return
+	}
+
+	data := &email.EmailOptions{
+		To:      []string{params.Email},
+		Subject: "Lumen IM(绑定邮箱验证码)",
+		Body:    "",
+	}
+
+	go func() {
+		_ = email.SendMail(c.config.Email, data)
+	}()
+
+	response.Success(ctx, nil, "发送成功！")
 }
 
 // Setting 公共设置

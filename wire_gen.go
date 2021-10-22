@@ -38,7 +38,7 @@ func Initialize(ctx context.Context, conf *config.Config) *provider.Services {
 	userRepository := &repository.UserRepository{
 		DB: db,
 	}
-	common := v1.NewCommonHandler(smsService, userRepository)
+	common := v1.NewCommonHandler(conf, smsService, userRepository)
 	userService := service.NewUserService(userRepository)
 	authTokenCache := &cache.AuthTokenCache{
 		Redis: client,
