@@ -35,6 +35,7 @@ func (c *Group) Create(ctx *gin.Context) {
 	response.Success(ctx, gin.H{})
 }
 
+// Dismiss 解散群组
 func (c *Group) Dismiss(ctx *gin.Context) {
 	params := &request.GroupDismissRequest{}
 	if err := ctx.ShouldBind(params); err != nil {
@@ -42,8 +43,7 @@ func (c *Group) Dismiss(ctx *gin.Context) {
 		return
 	}
 
-	err := c.service.Dismiss(params.GroupId, auth.GetAuthUserID(ctx))
-	if err != nil {
+	if err := c.service.Dismiss(params.GroupId, auth.GetAuthUserID(ctx)); err != nil {
 		response.BusinessError(ctx, "群组解散失败！")
 		return
 	}
@@ -84,7 +84,7 @@ func (c *Group) Detail(ctx *gin.Context) {
 }
 
 // EditGroupCard 修改群备注接口
-func (c *Group) EditGroupCard(ctx *gin.Context) {
+func (c *Group) EditGroupRemarks(ctx *gin.Context) {
 	params := &request.GroupEditCardRequest{}
 	if err := ctx.ShouldBind(params); err != nil {
 		response.InvalidParams(ctx, err)
@@ -108,6 +108,7 @@ func (c *Group) GetGroups(ctx *gin.Context) {
 	items, err := c.service.UserGroupList(auth.GetAuthUserID(ctx))
 	if err != nil {
 		response.BusinessError(ctx, items)
+		return
 	}
 
 	response.Success(ctx, items)
@@ -121,7 +122,7 @@ func (c *Group) GetGroupNotice(ctx *gin.Context) {
 
 }
 
-func (c *Group) EditNotice(ctx *gin.Context) {
+func (c *Group) AddEditNotice(ctx *gin.Context) {
 
 }
 

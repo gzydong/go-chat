@@ -28,13 +28,12 @@ import (
 // Injectors from wire.go:
 
 func Initialize(ctx context.Context, conf *config.Config) *provider.Services {
-	db := provider.MysqlConnect(conf)
 	client := provider.RedisConnect(ctx, conf)
-	logger := provider.NewLogger(conf)
 	smsCodeCache := &cache.SmsCodeCache{
 		Redis: client,
 	}
 	smsService := service.NewSmsService(smsCodeCache)
+	db := provider.MysqlConnect(conf)
 	userRepository := &repository.UserRepository{
 		DB: db,
 	}
@@ -88,10 +87,6 @@ func Initialize(ctx context.Context, conf *config.Config) *provider.Services {
 		ServerRunID: serverRunID,
 	}
 	services := &provider.Services{
-		Config:       conf,
-		Db:           db,
-		Rds:          client,
-		Logrus:       logger,
 		HttpServer:   server,
 		SocketServer: socketService,
 	}

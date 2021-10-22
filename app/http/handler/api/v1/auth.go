@@ -98,9 +98,7 @@ func (a *Auth) Logout(ctx *gin.Context) {
 func (a *Auth) Refresh(ctx *gin.Context) {
 	tokenInfo := a.createToken(auth.GetAuthUserID(ctx))
 
-	if len(tokenInfo.Token) > 0 {
-		a.toBlackList(ctx)
-	}
+	a.toBlackList(ctx)
 
 	response.Success(ctx, tokenInfo)
 }

@@ -11,7 +11,7 @@ import (
 
 func testSmsService() *SmsService {
 	codeCache := &cache.SmsCodeCache{Redis: testutil.TestRedisClient()}
-	return &SmsService{SmsCodeCache: codeCache}
+	return &SmsService{smsCodeCache: codeCache}
 }
 
 func TestSmsService_SendSmsCode(t *testing.T) {

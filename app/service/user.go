@@ -19,8 +19,8 @@ func NewUserService(repo *repository.UserRepository) *UserService {
 
 // Register 注册用户
 func (s *UserService) Register(param *request.RegisterRequest) (*model.User, error) {
-	exist := s.repo.IsMobileExist(param.Mobile)
-	if exist {
+
+	if exist := s.repo.IsMobileExist(param.Mobile); exist {
 		return nil, errors.New("账号已存在! ")
 	}
 
