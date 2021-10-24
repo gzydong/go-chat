@@ -53,6 +53,8 @@ var providerSet = wire.NewSet(
 	service.NewTalkMessageService,
 	service.NewClientService,
 	service.NewGroupService,
+	service.NewGroupMemberService,
+	service.NewGroupNoticeService,
 	wire.Struct(new(service.SocketService), "*"),
 
 	// handler 处理
@@ -60,6 +62,7 @@ var providerSet = wire.NewSet(
 	v1.NewCommonHandler,
 	v1.NewUserHandler,
 	v1.NewGroupHandler,
+	v1.NewGroupNoticeHandler,
 	v1.NewTalkHandler,
 	v1.NewTalkMessageHandler,
 	v1.NewUploadHandler,

@@ -17,4 +17,5 @@ type Handler struct {
 	Index       *open.Index
 	Ws          *ws.WebSocket
 	Group       *v1.Group
+	GroupNotice *v1.GroupNotice
 }

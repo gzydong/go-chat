@@ -41,8 +41,6 @@ func NewError(c *gin.Context, code int, message ...interface{}) {
 		status = http.StatusNotFound
 	}
 
-	fmt.Println(msg)
-
 	c.JSON(status, &Response{Code: code, Message: msg})
 }
 

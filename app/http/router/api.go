@@ -59,9 +59,9 @@ func RegisterApiRoute(conf *config.Config, router *gin.Engine, handler *handler.
 			userGroup.POST("/invite-friends", handler.Group.GetInviteFriends) // 获取可邀请加入群组的好友列表
 
 			// 群公告相关
-			userGroup.GET("/notice/list", handler.Group.GetGroupNotice)
-			userGroup.POST("/notice/edit", handler.Group.AddEditNotice)
-			userGroup.POST("/notice/delete", handler.Group.DeleteNotice)
+			userGroup.GET("/notice/list", handler.GroupNotice.List)
+			userGroup.POST("/notice/edit", handler.GroupNotice.CreateAndUpdate)
+			userGroup.POST("/notice/delete", handler.GroupNotice.Delete)
 		}
 
 		talkMsg := group.Group("/talk/message").Use(authorize)

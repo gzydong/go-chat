@@ -9,12 +9,14 @@ import (
 )
 
 type Group struct {
-	service *service.GroupService
+	service       *service.GroupService
+	memberService *service.GroupMemberService
 }
 
-func NewGroupHandler(groupService *service.GroupService) *Group {
+func NewGroupHandler(service *service.GroupService, memberService *service.GroupMemberService) *Group {
 	return &Group{
-		service: groupService,
+		service:       service,
+		memberService: memberService,
 	}
 }
 
@@ -26,8 +28,7 @@ func (c *Group) Create(ctx *gin.Context) {
 		return
 	}
 
-	err := c.service.Create(ctx, params)
-	if err != nil {
+	if err := c.service.Create(ctx, params); err != nil {
 		response.BusinessError(ctx, "创建群聊失败，请稍后再试！")
 		return
 	}
@@ -62,8 +63,7 @@ func (c *Group) Secede(ctx *gin.Context) {
 		return
 	}
 
-	err := c.service.Secede(params.GroupId, auth.GetAuthUserID(ctx))
-	if err != nil {
+	if err := c.service.Secede(params.GroupId, auth.GetAuthUserID(ctx)); err != nil {
 		response.BusinessError(ctx, "退出群组失败！")
 		return
 	}
@@ -80,7 +80,26 @@ func (c *Group) RemoveMembers(ctx *gin.Context) {
 }
 
 func (c *Group) Detail(ctx *gin.Context) {
+	params := &request.GroupCommonRequest{}
+	if err := ctx.ShouldBindQuery(params); err != nil {
+		response.InvalidParams(ctx, err)
+		return
+	}
 
+	info := make(map[string]interface{})
+
+	info["group_id"] = params.GroupId
+	info["group_name"] = ""
+	info["profile"] = ""
+	info["avatar"] = ""
+	info["created_at"] = ""
+	info["is_manager"] = ""
+	info["manager_nickname"] = ""
+	info["visit_card"] = c.memberService.GetMemberRemarks(params.GroupId, auth.GetAuthUserID(ctx))
+	info["is_disturb"] = ""
+	info["notice"] = ""
+
+	response.Success(ctx, info)
 }
 
 // EditGroupCard 修改群备注接口
@@ -91,8 +110,7 @@ func (c *Group) EditGroupRemarks(ctx *gin.Context) {
 		return
 	}
 
-	err := c.service.UpdateMemberCard(params.GroupId, auth.GetAuthUserID(ctx), params.VisitCard)
-	if err != nil {
+	if err := c.service.UpdateMemberCard(params.GroupId, auth.GetAuthUserID(ctx), params.VisitCard); err != nil {
 		response.BusinessError(ctx, "修改群备注失败！")
 		return
 	}
@@ -114,18 +132,20 @@ func (c *Group) GetGroups(ctx *gin.Context) {
 	response.Success(ctx, items)
 }
 
+// GetGroupMembers 获取群成员列表
 func (c *Group) GetGroupMembers(ctx *gin.Context) {
+	params := &request.GroupCommonRequest{}
+	if err := ctx.ShouldBind(params); err != nil {
+		response.InvalidParams(ctx, err)
+		return
+	}
 
-}
+	if !c.memberService.IsMember(params.GroupId, auth.GetAuthUserID(ctx)) {
+		response.BusinessError(ctx, "非群成员无权查看成员列表！")
+		return
+	}
 
-func (c *Group) GetGroupNotice(ctx *gin.Context) {
+	items := c.memberService.GetGroupMembers(params.GroupId)
 
-}
-
-func (c *Group) AddEditNotice(ctx *gin.Context) {
-
-}
-
-func (c *Group) DeleteNotice(ctx *gin.Context) {
-
+	response.Success(ctx, items)
 }
