@@ -5,18 +5,25 @@ import (
 	"go-chat/app/http/request"
 	"go-chat/app/http/response"
 	"go-chat/app/pkg/auth"
+	"go-chat/app/pkg/timeutil"
 	"go-chat/app/service"
 )
 
 type Group struct {
-	service       *service.GroupService
-	memberService *service.GroupMemberService
+	service         *service.GroupService
+	memberService   *service.GroupMemberService
+	talkListService *service.TalkListService
 }
 
-func NewGroupHandler(service *service.GroupService, memberService *service.GroupMemberService) *Group {
+func NewGroupHandler(
+	service *service.GroupService,
+	memberService *service.GroupMemberService,
+	talkListService *service.TalkListService,
+) *Group {
 	return &Group{
-		service:       service,
-		memberService: memberService,
+		service:         service,
+		memberService:   memberService,
+		talkListService: talkListService,
 	}
 }
 
@@ -83,6 +90,7 @@ func (c *Group) RemoveMembers(ctx *gin.Context) {
 	}
 }
 
+// Detail 获取群组信息
 func (c *Group) Detail(ctx *gin.Context) {
 	params := &request.GroupCommonRequest{}
 	if err := ctx.ShouldBindQuery(params); err != nil {
@@ -90,18 +98,35 @@ func (c *Group) Detail(ctx *gin.Context) {
 		return
 	}
 
-	info := make(map[string]interface{})
+	uid := auth.GetAuthUserID(ctx)
 
-	info["group_id"] = params.GroupId
-	info["group_name"] = ""
-	info["profile"] = ""
-	info["avatar"] = ""
-	info["created_at"] = ""
-	info["is_manager"] = ""
+	info := gin.H{}
+
+	groupInfo, err := c.service.FindById(params.GroupId)
+	if err != nil {
+		response.BusinessError(ctx, err)
+		return
+	}
+
+	if groupInfo.ID == 0 {
+		response.BusinessError(ctx, "数据不存在")
+		return
+	}
+
+	info["group_id"] = groupInfo.ID
+	info["group_name"] = groupInfo.GroupName
+	info["profile"] = groupInfo.Profile
+	info["avatar"] = groupInfo.Avatar
+	info["created_at"] = timeutil.ToDatetime(groupInfo.CreatedAt)
+	info["is_manager"] = uid == groupInfo.CreatorId
 	info["manager_nickname"] = ""
 	info["visit_card"] = c.memberService.GetMemberRemarks(params.GroupId, auth.GetAuthUserID(ctx))
-	info["is_disturb"] = ""
-	info["notice"] = ""
+	info["is_disturb"] = 0
+	info["notice"] = []gin.H{}
+
+	if c.talkListService.IsDisturb(uid, groupInfo.ID, 2) {
+		info["is_disturb"] = 1
+	}
 
 	response.Success(ctx, info)
 }

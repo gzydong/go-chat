@@ -2,6 +2,7 @@ package model
 
 import (
 	"database/sql"
+	"time"
 )
 
 type Group struct {
@@ -14,7 +15,7 @@ type Group struct {
 	IsOvert     int          `json:"is_overt" grom:"comment:是否公开可见"`
 	IsMute      int          `json:"is_mute" grom:"comment:是否全员禁言"`
 	IsDismiss   int          `json:"is_dismiss" grom:"comment:是否已解散"`
-	CreatedAt   string       `json:"created_at" grom:"comment:创建时间"`
+	CreatedAt   time.Time    `json:"created_at" grom:"comment:创建时间"`
 	DismissedAt sql.NullTime `json:"dismissed_at" grom:"comment:解散时间"`
 }
 

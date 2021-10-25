@@ -53,3 +53,7 @@ func ParseDateTime(datetime string) time.Time {
 	t, _ := time.ParseInLocation(DatetimeFormat, datetime, Location())
 	return t
 }
+
+func ToDatetime(t time.Time) string {
+	return t.Format(DatetimeFormat)
+}

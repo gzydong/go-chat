@@ -8,7 +8,6 @@ import (
 	"go-chat/app/model"
 	"go-chat/app/pkg/auth"
 	"go-chat/app/pkg/slice"
-	"go-chat/app/pkg/timeutil"
 	"gorm.io/gorm"
 	"reflect"
 	"time"
@@ -24,6 +23,14 @@ func NewGroupService(db *gorm.DB) *GroupService {
 	}
 }
 
+func (s *GroupService) FindById(id int) (*model.Group, error) {
+	info := &model.Group{}
+
+	s.db.First(&info, id)
+
+	return info, nil
+}
+
 // Create 创建群聊
 func (s *GroupService) Create(ctx *gin.Context, request *request.GroupCreateRequest) error {
 	var (
@@ -32,7 +39,6 @@ func (s *GroupService) Create(ctx *gin.Context, request *request.GroupCreateRequ
 
 	// 登录用户ID
 	UserId := auth.GetAuthUserID(ctx)
-	datetime := timeutil.DateTime()
 
 	// 群成员用户ID
 	MembersIds := slice.ParseIds(request.MembersIds)
@@ -44,7 +50,7 @@ func (s *GroupService) Create(ctx *gin.Context, request *request.GroupCreateRequ
 			Profile:   request.Profile,
 			Avatar:    request.Avatar,
 			MaxNum:    200,
-			CreatedAt: datetime,
+			CreatedAt: time.Now(),
 		}
 
 		if err = tx.Create(GroupModel).Error; err != nil {
