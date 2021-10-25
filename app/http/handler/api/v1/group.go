@@ -76,7 +76,11 @@ func (c *Group) Setting(ctx *gin.Context) {
 }
 
 func (c *Group) RemoveMembers(ctx *gin.Context) {
-
+	params := &request.GroupRemoveMembersRequest{}
+	if err := ctx.ShouldBind(params); err != nil {
+		response.InvalidParams(ctx, err)
+		return
+	}
 }
 
 func (c *Group) Detail(ctx *gin.Context) {
