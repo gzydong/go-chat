@@ -1,11 +1,15 @@
 package v1
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
+	"go-chat/app/cache"
 	"go-chat/app/http/request"
 	"go-chat/app/http/response"
 	"go-chat/app/pkg/auth"
+	"go-chat/app/pkg/slice"
 	"go-chat/app/pkg/timeutil"
+	"go-chat/app/repository"
 	"go-chat/app/service"
 )
 
@@ -13,17 +17,23 @@ type Group struct {
 	service         *service.GroupService
 	memberService   *service.GroupMemberService
 	talkListService *service.TalkListService
+	userRepo        *repository.UserRepository
+	redisLock       *cache.RedisLock
 }
 
 func NewGroupHandler(
 	service *service.GroupService,
 	memberService *service.GroupMemberService,
 	talkListService *service.TalkListService,
+	userRepo *repository.UserRepository,
+	redisLock *cache.RedisLock,
 ) *Group {
 	return &Group{
 		service:         service,
 		memberService:   memberService,
 		talkListService: talkListService,
+		userRepo:        userRepo,
+		redisLock:       redisLock,
 	}
 }
 
@@ -59,8 +69,43 @@ func (c *Group) Dismiss(ctx *gin.Context) {
 	response.Success(ctx, gin.H{})
 }
 
+// Invite 邀请好友加入群聊
 func (c *Group) Invite(ctx *gin.Context) {
+	params := &request.GroupInviteRequest{}
+	if err := ctx.ShouldBind(params); err != nil {
+		response.InvalidParams(ctx, err)
+		return
+	}
 
+	keyLock := fmt.Sprintf("group-invite:%d", params.GroupId)
+
+	if !c.redisLock.Lock(ctx, keyLock, 20) {
+		response.BusinessError(ctx, "网络异常，请稍后再试！")
+		return
+	}
+
+	// 释放锁
+	defer c.redisLock.Release(ctx, keyLock)
+
+	uid := auth.GetAuthUserID(ctx)
+	uids := slice.UniqueInt(slice.ParseIds(params.Ids))
+
+	if len(uids) == 0 {
+		response.BusinessError(ctx, "邀请好友列表不能为空！")
+		return
+	}
+
+	if !c.memberService.IsMember(params.GroupId, uid) {
+		response.BusinessError(ctx, "非群组成员，无权邀请好友！")
+		return
+	}
+
+	if err := c.service.InviteUsers(params.GroupId, uid, uids); err != nil {
+		response.BusinessError(ctx, "邀请好友加入群聊失败！")
+		return
+	}
+
+	response.Success(ctx, gin.H{}, "邀请成功！")
 }
 
 func (c *Group) Secede(ctx *gin.Context) {
@@ -125,6 +170,10 @@ func (c *Group) Detail(ctx *gin.Context) {
 
 	if c.talkListService.IsDisturb(uid, groupInfo.ID, 2) {
 		info["is_disturb"] = 1
+	}
+
+	if userInfo, err := c.userRepo.FindById(uid); err == nil {
+		info["manager_nickname"] = userInfo.Nickname
 	}
 
 	response.Success(ctx, info)

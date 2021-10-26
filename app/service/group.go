@@ -14,12 +14,14 @@ import (
 )
 
 type GroupService struct {
-	db *gorm.DB
+	db            *gorm.DB
+	memberService *GroupMemberService
 }
 
-func NewGroupService(db *gorm.DB) *GroupService {
+func NewGroupService(db *gorm.DB, memberService *GroupMemberService) *GroupService {
 	return &GroupService{
-		db: db,
+		db:            db,
+		memberService: memberService,
 	}
 }
 
@@ -147,6 +149,49 @@ func (s *GroupService) Secede(GroupId int, UserId int) error {
 	})
 
 	return err
+}
+
+// InviteUsers 邀请用户加入群聊
+func (s *GroupService) InviteUsers(groupId int, uid int, uids []int) error {
+	var (
+		err        error
+		addMembers []*model.GroupMember
+	)
+
+	members := s.memberService.GetMemberIds(groupId)
+
+	m := make(map[int]int, 0)
+	for _, value := range members {
+		m[value] = 1
+	}
+
+	for _, value := range uids {
+		if _, ok := m[value]; !ok {
+			addMembers = append(addMembers, &model.GroupMember{
+				GroupId:   groupId,
+				UserId:    value,
+				CreatedAt: time.Now(),
+			})
+		}
+	}
+
+	if len(addMembers) == 0 {
+		return errors.New("添加异常")
+	}
+
+	err = s.db.Transaction(func(tx *gorm.DB) error {
+		// 删除已存在成员
+		tx.Where("group_id = ? and user_id in ? and is_quit = 1", groupId, uids).Unscoped().Delete(model.GroupMember{})
+
+		// 添加新成员
+		if err = tx.Omit("deleted_at").Create(&addMembers).Error; err != nil {
+			return err
+		}
+
+		return nil
+	})
+
+	return nil
 }
 
 // UpdateMemberCard 修改群名片

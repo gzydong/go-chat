@@ -36,11 +36,11 @@ func (s *GroupMemberService) IsMember(groupId, userId int) bool {
 	return count != 0
 }
 
-// GetMemberIds 获取所有群成员ID
+// GetMemberIds 获取所有群成员用户ID
 func (s *GroupMemberService) GetMemberIds(groupId int) []int {
 	var ids []int
 
-	_ = s.db.Model(&model.GroupMember{}).Select("id").Where("group_id = ? and is_quit = ?", groupId, 0).Unscoped().Scan(&ids)
+	_ = s.db.Model(&model.GroupMember{}).Select("user_id").Where("group_id = ? and is_quit = ?", groupId, 0).Unscoped().Scan(&ids)
 
 	return ids
 }

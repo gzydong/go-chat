@@ -65,10 +65,10 @@ func Initialize(ctx context.Context, conf *config.Config) *provider.Services {
 	}
 	clientService := service.NewClientService(wsClient)
 	webSocket := ws.NewWebSocketHandler(clientService)
-	groupService := service.NewGroupService(db)
 	groupMemberService := service.NewGroupMemberService(db)
+	groupService := service.NewGroupService(db, groupMemberService)
 	talkListService := service.NewTalkListService(db)
-	group := v1.NewGroupHandler(groupService, groupMemberService, talkListService)
+	group := v1.NewGroupHandler(groupService, groupMemberService, talkListService, userRepository, redisLock)
 	groupNoticeService := service.NewGroupNoticeService(db)
 	groupNotice := v1.NewGroupNoticeHandler(groupNoticeService, groupMemberService)
 	handlerHandler := &handler.Handler{
