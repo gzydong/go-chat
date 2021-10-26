@@ -100,8 +100,6 @@ func (c *Group) Detail(ctx *gin.Context) {
 
 	uid := auth.GetAuthUserID(ctx)
 
-	info := gin.H{}
-
 	groupInfo, err := c.service.FindById(params.GroupId)
 	if err != nil {
 		response.BusinessError(ctx, err)
@@ -113,14 +111,15 @@ func (c *Group) Detail(ctx *gin.Context) {
 		return
 	}
 
+	info := gin.H{}
 	info["group_id"] = groupInfo.ID
 	info["group_name"] = groupInfo.GroupName
 	info["profile"] = groupInfo.Profile
 	info["avatar"] = groupInfo.Avatar
-	info["created_at"] = timeutil.ToDatetime(groupInfo.CreatedAt)
+	info["created_at"] = timeutil.FormatDatetime(groupInfo.CreatedAt)
 	info["is_manager"] = uid == groupInfo.CreatorId
 	info["manager_nickname"] = ""
-	info["visit_card"] = c.memberService.GetMemberRemarks(params.GroupId, auth.GetAuthUserID(ctx))
+	info["visit_card"] = c.memberService.GetMemberRemarks(params.GroupId, uid)
 	info["is_disturb"] = 0
 	info["notice"] = []gin.H{}
 

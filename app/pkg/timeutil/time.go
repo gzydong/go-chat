@@ -54,6 +54,6 @@ func ParseDateTime(datetime string) time.Time {
 	return t
 }
 
-func ToDatetime(t time.Time) string {
+func FormatDatetime(t time.Time) string {
 	return t.Format(DatetimeFormat)
 }
