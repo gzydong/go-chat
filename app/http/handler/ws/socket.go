@@ -2,6 +2,7 @@ package ws
 
 import (
 	"go-chat/app/pkg/auth"
+	"go-chat/app/websocket"
 	"log"
 
 	"github.com/gin-gonic/gin"
@@ -10,11 +11,17 @@ import (
 )
 
 type WebSocket struct {
-	client *service.ClientService
+	client  *service.ClientService
+	channel *im.ChannelManager
 }
 
 func NewWebSocketHandler(client *service.ClientService) *WebSocket {
-	return &WebSocket{client: client}
+
+	channel := im.Manager.DefaultChannel
+
+	channel.SetCallbackHandler(websocket.NewDefaultChannelHandle())
+
+	return &WebSocket{client: client, channel: channel}
 }
 
 // SocketIo 连接客户端

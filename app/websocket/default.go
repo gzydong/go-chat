@@ -9,7 +9,7 @@ type DefaultChannelHandle struct {
 }
 
 func NewDefaultChannelHandle() *DefaultChannelHandle {
-	return new(DefaultChannelHandle)
+	return &DefaultChannelHandle{}
 }
 
 // Open 连接成功回调事件

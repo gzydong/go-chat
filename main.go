@@ -12,7 +12,6 @@ import (
 	"time"
 
 	_ "go-chat/app/validator"
-	"go-chat/app/websocket"
 	"go-chat/config"
 	"golang.org/x/sync/errgroup"
 )
@@ -47,7 +46,7 @@ func main() {
 
 	// 启动服务跑socket
 	eg.Go(func() error {
-		im.Manager.DefaultChannel.SetCallbackHandler(websocket.NewDefaultChannelHandle()).Process(ctx)
+		im.Manager.DefaultChannel.Process(ctx)
 		return nil
 	})
 
