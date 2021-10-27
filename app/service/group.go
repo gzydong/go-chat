@@ -154,15 +154,22 @@ func (s *GroupService) Secede(GroupId int, UserId int) error {
 // InviteUsers 邀请用户加入群聊
 func (s *GroupService) InviteUsers(groupId int, uid int, uids []int) error {
 	var (
-		err        error
-		addMembers []*model.GroupMember
+		err            error
+		addMembers     []*model.GroupMember
+		addTalkList    []*model.TalkList
+		updateTalkList []int
+		talkList       []*model.TalkList
 	)
 
-	members := s.memberService.GetMemberIds(groupId)
-
 	m := make(map[int]int, 0)
-	for _, value := range members {
+	for _, value := range s.memberService.GetMemberIds(groupId) {
 		m[value] = 1
+	}
+
+	listHash := make(map[int]*model.TalkList)
+	s.db.Select("id", "user_id", "is_delete").Where("user_id in ? and receiver_id = ? and talk_type = 2", uids, groupId).Find(&talkList)
+	for _, item := range talkList {
+		listHash[item.UserId] = item
 	}
 
 	for _, value := range uids {
@@ -173,14 +180,26 @@ func (s *GroupService) InviteUsers(groupId int, uid int, uids []int) error {
 				CreatedAt: time.Now(),
 			})
 		}
+
+		if item, ok := listHash[value]; !ok {
+			addTalkList = append(addTalkList, &model.TalkList{
+				TalkType:   2,
+				UserId:     value,
+				ReceiverId: groupId,
+				CreatedAt:  time.Now(),
+				UpdatedAt:  time.Now(),
+			})
+		} else if item.IsDelete == 1 {
+			updateTalkList = append(updateTalkList, item.ID)
+		}
 	}
 
 	if len(addMembers) == 0 {
-		return errors.New("添加异常")
+		return errors.New("邀请的好友，都已成为群成员")
 	}
 
 	err = s.db.Transaction(func(tx *gorm.DB) error {
-		// 删除已存在成员
+		// 删除已存在成员记录
 		tx.Where("group_id = ? and user_id in ? and is_quit = 1", groupId, uids).Unscoped().Delete(model.GroupMember{})
 
 		// 添加新成员
@@ -188,8 +207,27 @@ func (s *GroupService) InviteUsers(groupId int, uid int, uids []int) error {
 			return err
 		}
 
+		// 添加用户的对话列表
+		if len(addTalkList) > 0 {
+			if err = tx.Select("talk_type", "user_id", "receiver_id", "updated_at").Create(&addTalkList).Error; err != nil {
+				return err
+			}
+		}
+
+		// 更新用户的对话列表
+		if len(updateTalkList) > 0 {
+			tx.Model(&model.TalkList{}).Where("id in ?", updateTalkList).Updates(map[string]interface{}{
+				"is_delete":  0,
+				"created_at": time.Now(),
+			})
+		}
+
 		return nil
 	})
+
+	if err != nil {
+		return err
+	}
 
 	return nil
 }

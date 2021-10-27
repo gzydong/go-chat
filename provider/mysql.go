@@ -40,6 +40,8 @@ func MysqlConnect(conf *config.Config) *gorm.DB {
 	sqlDB.SetMaxOpenConns(100)
 	sqlDB.SetConnMaxLifetime(time.Hour)
 
+	db.Debug()
+
 	return db
 }
 

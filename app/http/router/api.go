@@ -47,7 +47,7 @@ func RegisterApiRoute(conf *config.Config, router *gin.Engine, handler *handler.
 			userGroup.POST("/create", handler.Group.Create)
 			userGroup.POST("/dismiss", handler.Group.Dismiss)
 			userGroup.POST("/invite", handler.Group.Invite)
-			userGroup.POST("/secede", handler.Group.Secede)
+			userGroup.POST("/secede", handler.Group.SignOut)
 			userGroup.POST("/setting", handler.Group.Setting)
 			userGroup.GET("/detail", handler.Group.Detail)
 			userGroup.GET("/list", handler.Group.GetGroups)

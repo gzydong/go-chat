@@ -108,7 +108,8 @@ func (c *Group) Invite(ctx *gin.Context) {
 	response.Success(ctx, gin.H{}, "邀请成功！")
 }
 
-func (c *Group) Secede(ctx *gin.Context) {
+// SignOut 退出群聊
+func (c *Group) SignOut(ctx *gin.Context) {
 	params := &request.GroupSecedeRequest{}
 	if err := ctx.ShouldBind(params); err != nil {
 		response.InvalidParams(ctx, err)
@@ -123,10 +124,12 @@ func (c *Group) Secede(ctx *gin.Context) {
 	response.Success(ctx, gin.H{})
 }
 
+// Setting 群设置接口（预留）
 func (c *Group) Setting(ctx *gin.Context) {
 
 }
 
+// RemoveMembers 移除指定成员(群组&管理员权限)
 func (c *Group) RemoveMembers(ctx *gin.Context) {
 	params := &request.GroupRemoveMembersRequest{}
 	if err := ctx.ShouldBind(params); err != nil {
