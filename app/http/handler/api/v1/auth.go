@@ -22,7 +22,7 @@ type Auth struct {
 	redisLock   *cache.RedisLock
 }
 
-type TokenCert struct {
+type CertToken struct {
 	Type      string `json:"type"`
 	Token     string `json:"token"`
 	ExpiresIn int64  `json:"expires_in"`
@@ -128,7 +128,7 @@ func (a *Auth) Forget(ctx *gin.Context) {
 	response.Success(ctx, gin.H{}, "账号成功找回")
 }
 
-func (a *Auth) createToken(uid int) *TokenCert {
+func (a *Auth) createToken(uid int) *CertToken {
 	expiresAt := time.Now().Add(time.Second * time.Duration(a.config.Jwt.ExpiresTime)).Unix()
 
 	// 生成登录凭证
@@ -137,7 +137,7 @@ func (a *Auth) createToken(uid int) *TokenCert {
 		Id:        strconv.Itoa(uid),
 	})
 
-	return &TokenCert{
+	return &CertToken{
 		Type:      "Bearer",
 		Token:     token,
 		ExpiresIn: expiresAt,

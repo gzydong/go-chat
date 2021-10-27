@@ -17,7 +17,7 @@ type Group struct {
 	service         *service.GroupService
 	memberService   *service.GroupMemberService
 	talkListService *service.TalkListService
-	userRepo        *dao.UserDao
+	userDao         *dao.UserDao
 	redisLock       *cache.RedisLock
 }
 
@@ -32,7 +32,7 @@ func NewGroupHandler(
 		service:         service,
 		memberService:   memberService,
 		talkListService: talkListService,
-		userRepo:        userRepo,
+		userDao:         userRepo,
 		redisLock:       redisLock,
 	}
 }
@@ -175,7 +175,7 @@ func (c *Group) Detail(ctx *gin.Context) {
 		info["is_disturb"] = 1
 	}
 
-	if userInfo, err := c.userRepo.FindById(uid); err == nil {
+	if userInfo, err := c.userDao.FindById(uid); err == nil {
 		info["manager_nickname"] = userInfo.Nickname
 	}
 

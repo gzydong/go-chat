@@ -10,11 +10,11 @@ import (
 )
 
 type WebSocket struct {
-	clientService *service.ClientService
+	client *service.ClientService
 }
 
 func NewWebSocketHandler(client *service.ClientService) *WebSocket {
-	return &WebSocket{clientService: client}
+	return &WebSocket{client: client}
 }
 
 // SocketIo 连接客户端
@@ -28,7 +28,7 @@ func (w *WebSocket) SocketIo(c *gin.Context) {
 	options := &im.ClientOption{
 		Channel:       im.Manager.DefaultChannel,
 		UserId:        auth.GetAuthUserID(c),
-		ClientService: w.clientService,
+		ClientService: w.client,
 	}
 
 	// 创建客户端

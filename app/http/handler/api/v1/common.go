@@ -14,7 +14,7 @@ import (
 type Common struct {
 	config     *config.Config
 	smsService *service.SmsService
-	userRepo   *dao.UserDao
+	userDao    *dao.UserDao
 }
 
 func NewCommonHandler(
@@ -25,7 +25,7 @@ func NewCommonHandler(
 	return &Common{
 		config:     config,
 		smsService: sms,
-		userRepo:   user,
+		userDao:    user,
 	}
 }
 
@@ -41,14 +41,14 @@ func (c *Common) SmsCode(ctx *gin.Context) {
 	switch params.Channel {
 	// 需要判断账号是否存在
 	case entity.SmsLoginChannel, entity.SmsForgetAccountChannel:
-		if !c.userRepo.IsMobileExist(params.Mobile) {
+		if !c.userDao.IsMobileExist(params.Mobile) {
 			response.BusinessError(ctx, "账号不存在！")
 			return
 		}
 
 	// 需要判断账号是否存在
 	case entity.SmsRegisterChannel, entity.SmsChangeAccountChannel:
-		if c.userRepo.IsMobileExist(params.Mobile) {
+		if c.userDao.IsMobileExist(params.Mobile) {
 			response.BusinessError(ctx, "手机号已被他人使用！")
 			return
 		}
