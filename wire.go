@@ -72,6 +72,7 @@ var providerSet = wire.NewSet(
 	v1.NewEmoticonHandler,
 	open.NewIndexHandler,
 	ws.NewWebSocketHandler,
+	ws.NewWebSocketTalkHandler,
 
 	wire.Struct(new(handler.Handler), "*"),
 	wire.Struct(new(provider.Services), "*"),
