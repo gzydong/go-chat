@@ -35,7 +35,7 @@ func Initialize(ctx context.Context, conf *config.Config) *provider.Services {
 	smsService := service.NewSmsService(smsCodeCache)
 	db := provider.MysqlConnect(conf)
 	userDao := &dao.UserDao{
-		db: db,
+		Db: db,
 	}
 	common := v1.NewCommonHandler(conf, smsService, userDao)
 	userService := service.NewUserService(userDao)

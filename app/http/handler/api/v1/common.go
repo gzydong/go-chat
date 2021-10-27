@@ -72,7 +72,7 @@ func (c *Common) EmailCode(ctx *gin.Context) {
 		return
 	}
 
-	data := &email.EmailOptions{
+	data := &email.Options{
 		To:      []string{params.Email},
 		Subject: "Lumen IM(绑定邮箱验证码)",
 		Body:    "",

@@ -6,13 +6,13 @@ import (
 	"gopkg.in/gomail.v2"
 )
 
-type EmailOptions struct {
+type Options struct {
 	To      []string
 	Subject string
 	Body    string
 }
 
-func SendMail(config *config.Email, email *EmailOptions) error {
+func SendMail(config *config.Email, email *Options) error {
 	m := gomail.NewMessage()
 
 	m.SetHeader("From", m.FormatAddress(config.UserName, config.FromName)) //这种方式可以添加别名，即“XX官方”

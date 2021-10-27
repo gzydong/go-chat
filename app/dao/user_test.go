@@ -11,7 +11,7 @@ import (
 func TestUserRepository_FindByMobile(t *testing.T) {
 	conf := testutil.GetConfig()
 	db := provider.MysqlConnect(conf)
-	userRep := UserDao{db: db}
+	userRep := UserDao{Db: db}
 	u, err := userRep.FindByMobile("123")
 	assert.Error(t, err)
 	assert.Nil(t, u)
