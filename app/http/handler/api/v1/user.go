@@ -7,28 +7,27 @@ import (
 	"go-chat/app/http/response"
 	"go-chat/app/model"
 	"go-chat/app/pkg/auth"
-	"go-chat/app/repository"
 	"go-chat/app/service"
 )
 
 type User struct {
-	userRepo   *repository.UserRepository
-	smsService *service.SmsService
+	userService *service.UserService
+	smsService  *service.SmsService
 }
 
 func NewUserHandler(
-	userRepo *repository.UserRepository,
+	userService *service.UserService,
 	smsService *service.SmsService,
 ) *User {
 	return &User{
-		userRepo:   userRepo,
-		smsService: smsService,
+		userService: userService,
+		smsService:  smsService,
 	}
 }
 
 // Detail 个人用户信息
 func (u *User) Detail(ctx *gin.Context) {
-	user, _ := u.userRepo.FindById(auth.GetAuthUserID(ctx))
+	user, _ := u.userService.UserDao().FindById(auth.GetAuthUserID(ctx))
 
 	response.Success(ctx, gin.H{
 		"detail": user,
@@ -43,7 +42,7 @@ func (u *User) ChangeDetail(ctx *gin.Context) {
 		return
 	}
 
-	_, _ = u.userRepo.Update(&model.User{ID: auth.GetAuthUserID(ctx)}, map[string]interface{}{
+	_, _ = u.userService.UserDao().Update(&model.User{ID: auth.GetAuthUserID(ctx)}, map[string]interface{}{
 		"nickname": params.Nickname,
 		"avatar":   params.Avatar,
 		"gender":   params.Gender,
@@ -61,7 +60,7 @@ func (u *User) ChangePassword(ctx *gin.Context) {
 		return
 	}
 
-	user, _ := u.userRepo.FindById(auth.GetAuthUserID(ctx))
+	user, _ := u.userService.UserDao().FindById(auth.GetAuthUserID(ctx))
 	if !auth.Compare(user.Password, params.OldPassword) {
 		response.BusinessError(ctx, "密码填写错误！")
 		return
@@ -70,7 +69,7 @@ func (u *User) ChangePassword(ctx *gin.Context) {
 	// 生成 hash 密码
 	hash, _ := auth.Encrypt(params.NewPassword)
 
-	_, err := u.userRepo.Update(&model.User{ID: user.ID}, map[string]interface{}{
+	_, err := u.userService.UserDao().Update(&model.User{ID: user.ID}, map[string]interface{}{
 		"password": hash,
 	})
 
@@ -95,7 +94,7 @@ func (u *User) ChangeMobile(ctx *gin.Context) {
 		return
 	}
 
-	user, _ := u.userRepo.FindById(auth.GetAuthUserID(ctx))
+	user, _ := u.userService.UserDao().FindById(auth.GetAuthUserID(ctx))
 
 	if user.Mobile != params.Mobile {
 		response.BusinessError(ctx, "手机号与原手机号一致无需修改！")
@@ -107,7 +106,7 @@ func (u *User) ChangeMobile(ctx *gin.Context) {
 		return
 	}
 
-	_, err := u.userRepo.Update(&model.User{ID: user.ID}, map[string]interface{}{
+	_, err := u.userService.UserDao().Update(&model.User{ID: user.ID}, map[string]interface{}{
 		"mobile": params.Mobile,
 	})
 

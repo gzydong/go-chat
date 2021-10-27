@@ -2,25 +2,29 @@ package service
 
 import (
 	"errors"
+	"go-chat/app/dao"
 	"go-chat/app/http/request"
 	"go-chat/app/model"
 	"go-chat/app/pkg/auth"
 	"go-chat/app/pkg/timeutil"
-	"go-chat/app/repository"
 )
 
 type UserService struct {
-	repo *repository.UserRepository
+	dao *dao.UserDao
 }
 
-func NewUserService(repo *repository.UserRepository) *UserService {
-	return &UserService{repo: repo}
+func NewUserService(userDao *dao.UserDao) *UserService {
+	return &UserService{dao: userDao}
+}
+
+func (s *UserService) UserDao() *dao.UserDao {
+	return s.dao
 }
 
 // Register 注册用户
 func (s *UserService) Register(param *request.RegisterRequest) (*model.User, error) {
 
-	if exist := s.repo.IsMobileExist(param.Mobile); exist {
+	if exist := s.dao.IsMobileExist(param.Mobile); exist {
 		return nil, errors.New("账号已存在! ")
 	}
 
@@ -29,7 +33,7 @@ func (s *UserService) Register(param *request.RegisterRequest) (*model.User, err
 		return nil, err
 	}
 
-	user, err := s.repo.Create(&model.User{
+	user, err := s.dao.Create(&model.User{
 		Mobile:    param.Mobile,
 		Nickname:  param.Nickname,
 		Password:  hash,
@@ -46,7 +50,7 @@ func (s *UserService) Register(param *request.RegisterRequest) (*model.User, err
 
 // Login 登录处理
 func (s *UserService) Login(mobile string, password string) (*model.User, error) {
-	user, err := s.repo.FindByMobile(mobile)
+	user, err := s.dao.FindByMobile(mobile)
 	if err != nil {
 		return nil, errors.New("登录账号不存在! ")
 	}
@@ -61,7 +65,7 @@ func (s *UserService) Login(mobile string, password string) (*model.User, error)
 // Forget 账号找回
 func (s *UserService) Forget(input *request.ForgetRequest) (bool, error) {
 	// 账号查询
-	user, err := s.repo.FindByMobile(input.Mobile)
+	user, err := s.dao.FindByMobile(input.Mobile)
 	if err != nil || user.ID == 0 {
 		return false, errors.New("账号不存在! ")
 	}
@@ -69,7 +73,7 @@ func (s *UserService) Forget(input *request.ForgetRequest) (bool, error) {
 	// 生成 hash 密码
 	hash, _ := auth.Encrypt(input.Password)
 
-	_, err = s.repo.Update(&model.User{
+	_, err = s.dao.Update(&model.User{
 		ID: user.ID,
 	}, map[string]interface{}{
 		"password": hash,

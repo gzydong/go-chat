@@ -1,4 +1,4 @@
-package repository
+package dao
 
 import (
 	"errors"

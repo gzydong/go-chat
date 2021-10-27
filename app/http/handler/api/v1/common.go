@@ -2,11 +2,11 @@ package v1
 
 import (
 	"github.com/gin-gonic/gin"
+	"go-chat/app/dao"
 	"go-chat/app/entity"
 	"go-chat/app/http/request"
 	"go-chat/app/http/response"
 	"go-chat/app/pkg/email"
-	"go-chat/app/repository"
 	"go-chat/app/service"
 	"go-chat/config"
 )
@@ -14,13 +14,13 @@ import (
 type Common struct {
 	config     *config.Config
 	smsService *service.SmsService
-	userRepo   *repository.UserRepository
+	userRepo   *dao.UserDao
 }
 
 func NewCommonHandler(
 	config *config.Config,
 	sms *service.SmsService,
-	user *repository.UserRepository,
+	user *dao.UserDao,
 ) *Common {
 	return &Common{
 		config:     config,

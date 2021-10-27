@@ -18,7 +18,7 @@ func testUser() *User {
 	db := provider.MysqlConnect(config)
 	redisClient := testutil.TestRedisClient()
 
-	userRepo := repository.UserRepository{DB: db}
+	userRepo := dao.UserRepository{DB: db}
 	smsService := service.NewSmsService(&cache.SmsCodeCache{Redis: redisClient})
 
 	return NewUserHandler(&userRepo, smsService)

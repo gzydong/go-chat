@@ -18,7 +18,7 @@ func testCommon() *Common {
 	redisClient := testutil.TestRedisClient()
 	smsService := service.NewSmsService(&cache.SmsCodeCache{Redis: redisClient})
 
-	UserRepo := &repository.UserRepository{DB: provider.MysqlConnect(conf)}
+	UserRepo := &dao.UserRepository{DB: provider.MysqlConnect(conf)}
 
 	return NewCommonHandler(conf, smsService, UserRepo)
 }

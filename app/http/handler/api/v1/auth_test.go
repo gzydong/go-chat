@@ -19,7 +19,7 @@ func testAuth() *Auth {
 	config := testutil.GetConfig()
 	db := provider.MysqlConnect(config)
 	redisClient := testutil.TestRedisClient()
-	user := &repository.UserRepository{DB: db}
+	user := &dao.UserRepository{DB: db}
 
 	userService := service.NewUserService(user)
 	smsService := service.NewSmsService(&cache.SmsCodeCache{Redis: redisClient})

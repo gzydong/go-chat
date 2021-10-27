@@ -4,8 +4,8 @@ package main
 
 import (
 	"context"
+	"go-chat/app/dao"
 	"go-chat/app/pkg/filesystem"
-	"go-chat/app/repository"
 	"go-chat/provider"
 
 	"github.com/google/wire"
@@ -40,12 +40,12 @@ var providerSet = wire.NewSet(
 	wire.Struct(new(cache.RedisLock), "*"),
 
 	// repo
-	wire.Struct(new(repository.UserRepository), "*"),
-	wire.Struct(new(repository.TalkRecordsRepo), "*"),
-	wire.Struct(new(repository.TalkRecordsCodeRepo), "*"),
-	wire.Struct(new(repository.TalkRecordsLoginRepo), "*"),
-	wire.Struct(new(repository.TalkRecordsFileRepo), "*"),
-	wire.Struct(new(repository.TalkRecordsVoteRepo), "*"),
+	wire.Struct(new(dao.UserDao), "*"),
+	wire.Struct(new(dao.TalkRecordsDao), "*"),
+	wire.Struct(new(dao.TalkRecordsCodeDao), "*"),
+	wire.Struct(new(dao.TalkRecordsLoginDao), "*"),
+	wire.Struct(new(dao.TalkRecordsFileDao), "*"),
+	wire.Struct(new(dao.TalkRecordsVoteDao), "*"),
 
 	// 服务
 	service.NewUserService,

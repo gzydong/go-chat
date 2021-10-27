@@ -2,27 +2,27 @@ package service
 
 import (
 	"context"
+	"go-chat/app/dao"
 	"go-chat/app/http/request"
-	"go-chat/app/repository"
 	"go-chat/config"
 )
 
 type TalkMessageService struct {
 	config               *config.Config
-	talkRecordsRepo      *repository.TalkRecordsRepo
-	talkRecordsCodeRepo  *repository.TalkRecordsCodeRepo
-	talkRecordsLoginRepo *repository.TalkRecordsLoginRepo
-	talkRecordsFileRepo  *repository.TalkRecordsFileRepo
-	talkRecordsVoteRepo  *repository.TalkRecordsVoteRepo
+	talkRecordsRepo      *dao.TalkRecordsDao
+	talkRecordsCodeRepo  *dao.TalkRecordsCodeDao
+	talkRecordsLoginRepo *dao.TalkRecordsLoginDao
+	talkRecordsFileRepo  *dao.TalkRecordsFileDao
+	talkRecordsVoteRepo  *dao.TalkRecordsVoteDao
 }
 
 func NewTalkMessageService(
 	config *config.Config,
-	talkRecordsRepo *repository.TalkRecordsRepo,
-	talkRecordsCodeRepo *repository.TalkRecordsCodeRepo,
-	talkRecordsLoginRepo *repository.TalkRecordsLoginRepo,
-	talkRecordsFileRepo *repository.TalkRecordsFileRepo,
-	talkRecordsVoteRepo *repository.TalkRecordsVoteRepo,
+	talkRecordsRepo *dao.TalkRecordsDao,
+	talkRecordsCodeRepo *dao.TalkRecordsCodeDao,
+	talkRecordsLoginRepo *dao.TalkRecordsLoginDao,
+	talkRecordsFileRepo *dao.TalkRecordsFileDao,
+	talkRecordsVoteRepo *dao.TalkRecordsVoteDao,
 ) *TalkMessageService {
 	return &TalkMessageService{
 		config:               config,

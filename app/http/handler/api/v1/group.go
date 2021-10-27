@@ -4,12 +4,12 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"go-chat/app/cache"
+	"go-chat/app/dao"
 	"go-chat/app/http/request"
 	"go-chat/app/http/response"
 	"go-chat/app/pkg/auth"
 	"go-chat/app/pkg/slice"
 	"go-chat/app/pkg/timeutil"
-	"go-chat/app/repository"
 	"go-chat/app/service"
 )
 
@@ -17,7 +17,7 @@ type Group struct {
 	service         *service.GroupService
 	memberService   *service.GroupMemberService
 	talkListService *service.TalkListService
-	userRepo        *repository.UserRepository
+	userRepo        *dao.UserDao
 	redisLock       *cache.RedisLock
 }
 
@@ -25,7 +25,7 @@ func NewGroupHandler(
 	service *service.GroupService,
 	memberService *service.GroupMemberService,
 	talkListService *service.TalkListService,
-	userRepo *repository.UserRepository,
+	userRepo *dao.UserDao,
 	redisLock *cache.RedisLock,
 ) *Group {
 	return &Group{
