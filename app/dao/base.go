@@ -46,3 +46,7 @@ func (b *Base) FindByIds(model interface{}, ids []int, fields interface{}) (bool
 
 	return err == nil, err
 }
+
+func (b *Base) Exist() {
+
+}

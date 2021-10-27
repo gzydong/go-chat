@@ -60,20 +60,7 @@ func (u *User) ChangePassword(ctx *gin.Context) {
 		return
 	}
 
-	user, _ := u.userService.UserDao().FindById(auth.GetAuthUserID(ctx))
-	if !auth.Compare(user.Password, params.OldPassword) {
-		response.BusinessError(ctx, "密码填写错误！")
-		return
-	}
-
-	// 生成 hash 密码
-	hash, _ := auth.Encrypt(params.NewPassword)
-
-	_, err := u.userService.UserDao().Update(&model.User{ID: user.ID}, map[string]interface{}{
-		"password": hash,
-	})
-
-	if err != nil {
+	if err := u.userService.UpdatePassword(auth.GetAuthUserID(ctx), params.OldPassword, params.NewPassword); err != nil {
 		response.BusinessError(ctx, "密码修改失败！")
 		return
 	}

@@ -85,3 +85,28 @@ func (s *UserService) Forget(input *request.ForgetRequest) (bool, error) {
 
 	return true, nil
 }
+
+// UpdatePassword 修改用户密码
+func (s *UserService) UpdatePassword(uid int, oldPassword string, password string) error {
+	user := &model.User{}
+
+	if ok, _ := s.dao.FindByIds(user, []int{uid}, "id,password"); !ok {
+		return errors.New("用户不存在！")
+	}
+
+	if !auth.Compare(user.Password, oldPassword) {
+		return errors.New("密码验证不正确！")
+	}
+
+	hash, _ := auth.Encrypt(password)
+
+	_, err := s.dao.Base.Update(&model.User{}, map[string]interface{}{"id": uid}, map[string]interface{}{
+		"password": hash,
+	})
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
