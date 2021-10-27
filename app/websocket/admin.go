@@ -9,7 +9,7 @@ type AdminChannelHandle struct {
 }
 
 func NewAdminChannelHandle() *AdminChannelHandle {
-	return new(AdminChannelHandle)
+	return &AdminChannelHandle{}
 }
 
 func (d *AdminChannelHandle) Open(client *im.Client) {

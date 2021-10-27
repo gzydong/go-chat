@@ -33,7 +33,7 @@ func (w *WebSocket) SocketIo(c *gin.Context) {
 	}
 
 	options := &im.ClientOption{
-		Channel:       im.Manager.DefaultChannel,
+		Channel:       w.channel,
 		UserId:        auth.GetAuthUserID(c),
 		ClientService: w.client,
 	}
