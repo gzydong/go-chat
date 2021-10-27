@@ -40,6 +40,7 @@ var providerSet = wire.NewSet(
 	wire.Struct(new(cache.RedisLock), "*"),
 
 	// repo
+	wire.Struct(new(dao.Base), "*"),
 	wire.Struct(new(dao.UserDao), "*"),
 	wire.Struct(new(dao.TalkRecordsDao), "*"),
 	wire.Struct(new(dao.TalkRecordsCodeDao), "*"),

@@ -2,11 +2,10 @@ package dao
 
 import (
 	"go-chat/app/model"
-	"gorm.io/gorm"
 )
 
 type UserDao struct {
-	Db *gorm.DB
+	*Base
 }
 
 // Create 创建数据

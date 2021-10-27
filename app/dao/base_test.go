@@ -10,24 +10,8 @@ import (
 )
 
 func newBase() *Base {
-	base := &Base{db: provider.MysqlConnect(testutil.GetConfig())}
+	base := &Base{Db: provider.MysqlConnect(testutil.GetConfig())}
 	return base
-}
-
-func TestBase_Create(t *testing.T) {
-	base := newBase()
-
-	var user model.User
-
-	user.Nickname = "test"
-	user.Mobile = "18721312319"
-	user.CreatedAt = "2020-10-24 00:00:00"
-	user.UpdatedAt = "2020-10-24 00:00:00"
-
-	err := base.Create(&user)
-
-	fmt.Printf("%#v\n", user)
-	fmt.Printf("error :%s\n", err)
 }
 
 func TestBase_FindByIds(t *testing.T) {
