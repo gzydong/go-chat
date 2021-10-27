@@ -33,14 +33,14 @@ func NewAuthHandler(
 	userService *service.UserService,
 	smsService *service.SmsService,
 	tokenCache *cache.AuthTokenCache,
-	lock *cache.RedisLock,
+	redisLock *cache.RedisLock,
 ) *Auth {
 	return &Auth{
 		config:      config,
 		userService: userService,
 		smsService:  smsService,
 		token:       tokenCache,
-		redisLock:   lock,
+		redisLock:   redisLock,
 	}
 }
 

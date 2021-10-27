@@ -10,7 +10,7 @@ import (
 	"go-chat/app/cache"
 
 	"github.com/stretchr/testify/assert"
-	"go-chat/app/repository"
+	"go-chat/app/dao"
 	"go-chat/app/service"
 	"go-chat/testutil"
 )
@@ -19,7 +19,7 @@ func testAuth() *Auth {
 	config := testutil.GetConfig()
 	db := provider.MysqlConnect(config)
 	redisClient := testutil.TestRedisClient()
-	user := &dao.UserRepository{DB: db}
+	user := &dao.UserDao{Base: &dao.Base{Db: db}}
 
 	userService := service.NewUserService(user)
 	smsService := service.NewSmsService(&cache.SmsCodeCache{Redis: redisClient})
@@ -39,7 +39,7 @@ func TestAuth_Login(t *testing.T) {
 	a := testAuth()
 	r := testutil.NewTestRequest("/auth/login", a.Login)
 	value := &url.Values{}
-	value.Add("mobile", "18798272054")
+	value.Add("mobile", "18798272059")
 	value.Add("password", "admin123")
 	value.Add("platform", "windows")
 	resp, err := r.Form(value)
