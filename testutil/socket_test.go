@@ -1,4 +1,4 @@
-package ws
+package testutil
 
 import (
 	"fmt"

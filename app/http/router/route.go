@@ -26,6 +26,11 @@ func NewRouter(conf *config.Config, handler *handler.Handler) *gin.Engine {
 	router.GET("/", func(c *gin.Context) {
 		response.Success(c, conf.Server)
 	})
+
+	router.GET("/health/check", func(c *gin.Context) {
+		c.JSON(200, gin.H{"status": "ok"})
+	})
+
 	router.GET("/open", handler.Index.Index)
 	RegisterApiRoute(conf, router, handler)
 	RegisterWsRoute(conf, router, handler)

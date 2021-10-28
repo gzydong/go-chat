@@ -15,7 +15,6 @@ type Handler struct {
 	Emoticon      *v1.Emoticon
 	Upload        *v1.Upload
 	Index         *open.Index
-	Ws            *ws.WebSocket
 	WebSocketTalk *ws.WebSocketTalk
 	Group         *v1.Group
 	GroupNotice   *v1.GroupNotice

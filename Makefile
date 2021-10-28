@@ -8,7 +8,7 @@ run: generate
 
 .PHONY: build
 build:generate
-	go build -o ./cmd/go-chat
+	go build -o ./bin/go-chat
 
 .PHONY: generate
 generate:
