@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"github.com/gin-gonic/gin"
+	"go-chat/app/dao"
 	"go-chat/app/http/request"
 	"go-chat/app/model"
 	"go-chat/app/pkg/auth"
@@ -14,12 +15,14 @@ import (
 )
 
 type GroupService struct {
+	dao           *dao.GroupDao
 	db            *gorm.DB
 	memberService *GroupMemberService
 }
 
-func NewGroupService(db *gorm.DB, memberService *GroupMemberService) *GroupService {
+func NewGroupService(dao *dao.GroupDao, db *gorm.DB, memberService *GroupMemberService) *GroupService {
 	return &GroupService{
+		dao:           dao,
 		db:            db,
 		memberService: memberService,
 	}

@@ -2,15 +2,15 @@ package service
 
 import (
 	"context"
+	"go-chat/app/dao"
 	"go-chat/app/http/request"
 	"go-chat/app/model"
 	"go-chat/app/pkg/timeutil"
-	"gorm.io/gorm"
 	"time"
 )
 
 type GroupNoticeService struct {
-	db *gorm.DB
+	dao *dao.GroupNoticeDao
 }
 
 type NoticeItem struct {
@@ -27,10 +27,14 @@ type NoticeItem struct {
 	Nickname     string `json:"nickname"`
 }
 
-func NewGroupNoticeService(db *gorm.DB) *GroupNoticeService {
+func NewGroupNoticeService(dao *dao.GroupNoticeDao) *GroupNoticeService {
 	return &GroupNoticeService{
-		db: db,
+		dao: dao,
 	}
+}
+
+func (s *GroupNoticeService) Dao() {
+
 }
 
 // Create 创建群公告
@@ -46,11 +50,11 @@ func (s *GroupNoticeService) Create(ctx context.Context, input *request.GroupNot
 		UpdatedAt: time.Now(),
 	}
 
-	return s.db.Omit("deleted_at", "confirm_users").Create(notice).Error
+	return s.dao.Db.Omit("deleted_at", "confirm_users").Create(notice).Error
 }
 
 func (s *GroupNoticeService) Update(ctx context.Context, input *request.GroupNoticeEditRequest, userId int) error {
-	return s.db.Model(&model.GroupNotice{}).
+	return s.dao.Db.Model(&model.GroupNotice{}).
 		Select("title", "content", "updated_at", "is_top", "is_confirm").
 		Where("id = ? and group_id = ?", input.NoticeId, input.GroupId).
 		Updates(model.GroupNotice{
@@ -63,7 +67,7 @@ func (s *GroupNoticeService) Update(ctx context.Context, input *request.GroupNot
 }
 
 func (s *GroupNoticeService) Delete(ctx context.Context, groupId, noticeId int) error {
-	return s.db.Model(&model.GroupNotice{ID: noticeId, GroupId: groupId}).Updates(model.GroupNotice{
+	return s.dao.Db.Model(&model.GroupNotice{ID: noticeId, GroupId: groupId}).Updates(model.GroupNotice{
 		IsDelete:  1,
 		DeletedAt: timeutil.DateTime(),
 	}).Error
@@ -86,7 +90,7 @@ func (s *GroupNoticeService) List(ctx context.Context, groupId int) []*NoticeIte
 		"lar_users.nickname",
 	}
 
-	s.db.Table("lar_group_notice").
+	s.dao.Db.Table("lar_group_notice").
 		Select(fields).
 		Joins("left join lar_users on lar_users.id = lar_group_notice.creator_id").
 		Where("lar_group_notice.group_id = ? and lar_group_notice.is_delete = ?", groupId, 0).

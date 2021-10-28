@@ -39,7 +39,7 @@ var providerSet = wire.NewSet(
 	wire.Struct(new(cache.SmsCodeCache), "*"),
 	wire.Struct(new(cache.RedisLock), "*"),
 
-	// repo
+	// dao 数据层
 	wire.Struct(new(dao.Base), "*"),
 	wire.Struct(new(dao.UserDao), "*"),
 	wire.Struct(new(dao.TalkRecordsDao), "*"),
@@ -47,6 +47,8 @@ var providerSet = wire.NewSet(
 	wire.Struct(new(dao.TalkRecordsLoginDao), "*"),
 	wire.Struct(new(dao.TalkRecordsFileDao), "*"),
 	wire.Struct(new(dao.TalkRecordsVoteDao), "*"),
+	wire.Struct(new(dao.GroupDao), "*"),
+	wire.Struct(new(dao.GroupNoticeDao), "*"),
 
 	// 服务
 	service.NewUserService,
