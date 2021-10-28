@@ -7,15 +7,15 @@ import (
 )
 
 type Handler struct {
-	Common        *v1.Common
-	Auth          *v1.Auth
-	User          *v1.User
-	TalkMessage   *v1.TalkMessage
-	Download      *v1.Download
-	Emoticon      *v1.Emoticon
-	Upload        *v1.Upload
-	Index         *open.Index
-	WebSocketTalk *ws.WebSocketTalk
-	Group         *v1.Group
-	GroupNotice   *v1.GroupNotice
+	Common           *v1.Common
+	Auth             *v1.Auth
+	User             *v1.User
+	TalkMessage      *v1.TalkMessage
+	Download         *v1.Download
+	Emoticon         *v1.Emoticon
+	Upload           *v1.Upload
+	Index            *open.Index
+	DefaultWebSocket *ws.DefaultWebSocket
+	Group            *v1.Group
+	GroupNotice      *v1.GroupNotice
 }

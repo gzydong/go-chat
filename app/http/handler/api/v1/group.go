@@ -77,7 +77,7 @@ func (c *Group) Invite(ctx *gin.Context) {
 		return
 	}
 
-	keyLock := fmt.Sprintf("group-invite:%d", params.GroupId)
+	keyLock := fmt.Sprintf("group-join:%d", params.GroupId)
 
 	if !c.redisLock.Lock(ctx, keyLock, 20) {
 		response.BusinessError(ctx, "网络异常，请稍后再试！")

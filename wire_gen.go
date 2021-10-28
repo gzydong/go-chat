@@ -67,7 +67,7 @@ func Initialize(ctx context.Context, conf *config.Config) *provider.Services {
 		Conf:  conf,
 	}
 	clientService := service.NewClientService(wsClient)
-	webSocketTalk := ws.NewWebSocketTalkHandler(clientService)
+	defaultWebSocket := ws.NewDefaultWebSocket(clientService)
 	groupMemberService := service.NewGroupMemberService(db)
 	groupService := service.NewGroupService(db, groupMemberService)
 	talkListService := service.NewTalkListService(db)
@@ -75,17 +75,17 @@ func Initialize(ctx context.Context, conf *config.Config) *provider.Services {
 	groupNoticeService := service.NewGroupNoticeService(db)
 	groupNotice := v1.NewGroupNoticeHandler(groupNoticeService, groupMemberService)
 	handlerHandler := &handler.Handler{
-		Common:        common,
-		Auth:          auth,
-		User:          user,
-		TalkMessage:   talkMessage,
-		Download:      download,
-		Emoticon:      emoticon,
-		Upload:        upload,
-		Index:         index,
-		WebSocketTalk: webSocketTalk,
-		Group:         group,
-		GroupNotice:   groupNotice,
+		Common:           common,
+		Auth:             auth,
+		User:             user,
+		TalkMessage:      talkMessage,
+		Download:         download,
+		Emoticon:         emoticon,
+		Upload:           upload,
+		Index:            index,
+		DefaultWebSocket: defaultWebSocket,
+		Group:            group,
+		GroupNotice:      groupNotice,
 	}
 	engine := router.NewRouter(conf, handlerHandler)
 	server := provider.NewHttp(conf, engine)
@@ -103,4 +103,4 @@ func Initialize(ctx context.Context, conf *config.Config) *provider.Services {
 
 // wire.go:
 
-var providerSet = wire.NewSet(provider.NewLogger, provider.RedisConnect, provider.MysqlConnect, provider.NewHttp, router.NewRouter, filesystem.NewFilesystem, cache.NewServerRun, wire.Struct(new(cache.WsClient), "*"), wire.Struct(new(cache.AuthTokenCache), "*"), wire.Struct(new(cache.SmsCodeCache), "*"), wire.Struct(new(cache.RedisLock), "*"), wire.Struct(new(dao.Base), "*"), wire.Struct(new(dao.UserDao), "*"), wire.Struct(new(dao.TalkRecordsDao), "*"), wire.Struct(new(dao.TalkRecordsCodeDao), "*"), wire.Struct(new(dao.TalkRecordsLoginDao), "*"), wire.Struct(new(dao.TalkRecordsFileDao), "*"), wire.Struct(new(dao.TalkRecordsVoteDao), "*"), service.NewUserService, service.NewSmsService, service.NewTalkMessageService, service.NewClientService, service.NewGroupService, service.NewGroupMemberService, service.NewGroupNoticeService, service.NewTalkListService, wire.Struct(new(service.SocketService), "*"), v1.NewAuthHandler, v1.NewCommonHandler, v1.NewUserHandler, v1.NewGroupHandler, v1.NewGroupNoticeHandler, v1.NewTalkHandler, v1.NewTalkMessageHandler, v1.NewUploadHandler, v1.NewDownloadHandler, v1.NewEmoticonHandler, open.NewIndexHandler, ws.NewWebSocketTalkHandler, wire.Struct(new(handler.Handler), "*"), wire.Struct(new(provider.Services), "*"))
+var providerSet = wire.NewSet(provider.NewLogger, provider.RedisConnect, provider.MysqlConnect, provider.NewHttp, router.NewRouter, filesystem.NewFilesystem, cache.NewServerRun, wire.Struct(new(cache.WsClient), "*"), wire.Struct(new(cache.AuthTokenCache), "*"), wire.Struct(new(cache.SmsCodeCache), "*"), wire.Struct(new(cache.RedisLock), "*"), wire.Struct(new(dao.Base), "*"), wire.Struct(new(dao.UserDao), "*"), wire.Struct(new(dao.TalkRecordsDao), "*"), wire.Struct(new(dao.TalkRecordsCodeDao), "*"), wire.Struct(new(dao.TalkRecordsLoginDao), "*"), wire.Struct(new(dao.TalkRecordsFileDao), "*"), wire.Struct(new(dao.TalkRecordsVoteDao), "*"), service.NewUserService, service.NewSmsService, service.NewTalkMessageService, service.NewClientService, service.NewGroupService, service.NewGroupMemberService, service.NewGroupNoticeService, service.NewTalkListService, wire.Struct(new(service.SocketService), "*"), v1.NewAuthHandler, v1.NewCommonHandler, v1.NewUserHandler, v1.NewGroupHandler, v1.NewGroupNoticeHandler, v1.NewTalkHandler, v1.NewTalkMessageHandler, v1.NewUploadHandler, v1.NewDownloadHandler, v1.NewEmoticonHandler, open.NewIndexHandler, ws.NewDefaultWebSocket, wire.Struct(new(handler.Handler), "*"), wire.Struct(new(provider.Services), "*"))
