@@ -32,7 +32,6 @@ func NewCommonHandler(
 // SmsCode 发送短信验证码
 func (c *Common) SmsCode(ctx *gin.Context) {
 	params := &request.SmsCodeRequest{}
-
 	if err := ctx.ShouldBind(params); err != nil {
 		response.InvalidParams(ctx, err)
 		return
@@ -75,7 +74,7 @@ func (c *Common) EmailCode(ctx *gin.Context) {
 	data := &email.Options{
 		To:      []string{params.Email},
 		Subject: "Lumen IM(绑定邮箱验证码)",
-		Body:    "",
+		Body:    "xxxxxxx",
 	}
 
 	go func() {

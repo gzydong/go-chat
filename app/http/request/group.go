@@ -5,7 +5,7 @@ type GroupCommonRequest struct {
 }
 
 type GroupCreateRequest struct {
-	GroupName  string `form:"group_name" binding:"required" label:"group_name"`
+	Name       string `form:"name" binding:"required" label:"name"`
 	MembersIds string `form:"ids" binding:"required,ids" label:"ids"`
 	Avatar     string `form:"avatar" label:"avatar"`
 	Profile    string `form:"profile" binding:"max=255" label:"profile"`

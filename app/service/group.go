@@ -36,47 +36,62 @@ func (s *GroupService) FindById(id int) (*model.Group, error) {
 // Create 创建群聊
 func (s *GroupService) Create(ctx *gin.Context, request *request.GroupCreateRequest) error {
 	var (
-		err error
+		err      error
+		members  []*model.GroupMember
+		talkList []*model.TalkList
 	)
 
 	// 登录用户ID
-	UserId := auth.GetAuthUserID(ctx)
+	uid := auth.GetAuthUserID(ctx)
 
 	// 群成员用户ID
 	MembersIds := slice.ParseIds(request.MembersIds)
 
 	err = s.db.Transaction(func(tx *gorm.DB) error {
-		GroupModel := &model.Group{
-			CreatorId: UserId,
-			GroupName: request.GroupName,
+		group := &model.Group{
+			CreatorId: uid,
+			GroupName: request.Name,
 			Profile:   request.Profile,
 			Avatar:    request.Avatar,
 			MaxNum:    200,
 			CreatedAt: time.Now(),
 		}
 
-		if err = tx.Create(GroupModel).Error; err != nil {
+		if err = tx.Create(group).Error; err != nil {
 			return err
 		}
 
-		members := make([]*model.GroupMember, 0)
-		for _, MemberId := range MembersIds {
+		for _, val := range MembersIds {
 			leader := 0
-			if UserId == MemberId {
+			if uid == val {
 				leader = 2
 			}
 
 			members = append(members, &model.GroupMember{
-				GroupId:   GroupModel.ID,
-				UserId:    MemberId,
+				GroupId:   group.ID,
+				UserId:    val,
 				Leader:    leader,
 				CreatedAt: time.Now(),
+			})
+
+			talkList = append(talkList, &model.TalkList{
+				TalkType:   2,
+				UserId:     val,
+				ReceiverId: group.ID,
+				CreatedAt:  time.Now(),
+				UpdatedAt:  time.Now(),
 			})
 		}
 
 		if err = tx.Model(&model.GroupMember{}).Create(members).Error; err != nil {
 			return err
 		}
+
+		if err = tx.Model(&model.TalkList{}).Create(talkList).Error; err != nil {
+			return err
+		}
+
+		// 需要插入群邀请记录
 
 		return nil
 	})

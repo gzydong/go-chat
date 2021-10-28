@@ -24,7 +24,7 @@ type Auth struct {
 
 type CertToken struct {
 	Type      string `json:"type"`
-	Token     string `json:"token"`
+	Token     string `json:"access_token"`
 	ExpiresIn int64  `json:"expires_in"`
 }
 

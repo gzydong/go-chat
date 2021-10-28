@@ -17,7 +17,7 @@ func RegisterApiRoute(conf *config.Config, router *gin.Engine, handler *handler.
 		common := group.Group("/common")
 		{
 			common.POST("/sms-code", handler.Common.SmsCode)
-			common.POST("/mail-code", authorize, handler.Common.EmailCode)
+			common.POST("/email-code", authorize, handler.Common.EmailCode)
 			common.GET("/setting", authorize, handler.Common.Setting)
 		}
 
