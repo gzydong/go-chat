@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/gorilla/websocket"
-	jsoniter "github.com/json-iterator/go"
+	"go-chat/app/pkg/jsonutil"
 )
 
 type HandleInterface interface {
@@ -140,7 +140,7 @@ func (c *ChannelManager) sendProcess(ctx context.Context) {
 				break
 			}
 
-			content, _ := jsoniter.Marshal(msg)
+			content, _ := jsonutil.JsonEncodeToByte(msg)
 
 			// 判断是否推送所有客户端
 			if msg.IsAll {

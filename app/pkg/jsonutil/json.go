@@ -10,3 +10,7 @@ func JsonEncode(value interface{}) string {
 	content, _ := jsoniter.MarshalToString(value)
 	return content
 }
+
+func JsonEncodeToByte(value interface{}) ([]byte, error) {
+	return jsoniter.Marshal(value)
+}

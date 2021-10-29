@@ -14,21 +14,10 @@ var Manager = &ChannelGroup{
 		inChan:  make(chan *RecvMessage, 10240),
 		outChan: make(chan *SendMessage, 10240),
 	},
-	// AdminChannel: &ChannelManager{
-	// 	Name:    "admin",
-	// 	Count:   0,
-	// 	Clients: make(map[int]*Client),
-	// 	Lock:    &sync.RWMutex{},
-	// 	inChan:  make(chan *RecvMessage, 0),
-	// 	outChan: make(chan *SendMessage, 0),
-	// },
-
-	// 可注册其它渠道...
 }
 
 // ChannelGroup 渠道客户端
 type ChannelGroup struct {
 	DefaultChannel *ChannelManager // 默认分组
-	// AdminChannel   *ChannelManager // 后台分组
 	// 可注册其它渠道...
 }

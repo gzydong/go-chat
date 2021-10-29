@@ -2,9 +2,10 @@ package v1
 
 import (
 	"fmt"
-	"go-chat/provider"
 	"net/url"
 	"testing"
+
+	"go-chat/provider"
 
 	"github.com/gin-gonic/gin"
 	"go-chat/app/cache"
@@ -39,7 +40,7 @@ func TestAuth_Login(t *testing.T) {
 	a := testAuth()
 	r := testutil.NewTestRequest("/auth/login", a.Login)
 	value := &url.Values{}
-	value.Add("mobile", "18798272059")
+	value.Add("mobile", "18798272054")
 	value.Add("password", "admin123")
 	value.Add("platform", "windows")
 	resp, err := r.Form(value)
