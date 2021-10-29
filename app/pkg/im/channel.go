@@ -3,11 +3,11 @@ package im
 import (
 	"context"
 	"fmt"
-	"sync"
-	"time"
-
 	"github.com/gorilla/websocket"
 	"go-chat/app/pkg/jsonutil"
+	"go-chat/app/pkg/slice"
+	"sync"
+	"time"
 )
 
 type HandleInterface interface {
@@ -22,7 +22,7 @@ type ChannelManager struct {
 	Count   int               // 客户端连接数
 	Clients map[int]*Client   // 客户端列表
 	inChan  chan *RecvMessage // 消息接收通道
-	outChan chan *SendMessage // 消息发送通道
+	outChan chan *sender      // 消息发送通道
 	Lock    *sync.RWMutex     // 互斥锁
 	Handle  HandleInterface   // 回调处理
 }
@@ -54,11 +54,11 @@ func (c *ChannelManager) RemoveClient(client *Client) bool {
 }
 
 // GetClient 获取客户端
-func (c *ChannelManager) GetClient(clientId int) (*Client, bool) {
+func (c *ChannelManager) GetClient(cid int) (*Client, bool) {
 	c.Lock.RLock()
 	defer c.Lock.RUnlock()
 
-	client, ok := c.Clients[clientId]
+	client, ok := c.Clients[cid]
 
 	return client, ok
 }
@@ -75,9 +75,9 @@ func (c *ChannelManager) RecvMessage(message *RecvMessage) {
 }
 
 // SendMessage 推送消息到消费通道
-func (c *ChannelManager) SendMessage(message *SendMessage) {
+func (c *ChannelManager) SendMessage(msg *sender) {
 	select {
-	case c.outChan <- message:
+	case c.outChan <- msg:
 		break
 	case <-time.After(800 * time.Millisecond):
 		fmt.Printf("[%s] SendChan 写入消息超时,管道长度：%d \n", c.Name, len(c.inChan))
@@ -98,6 +98,7 @@ func (c *ChannelManager) Process(ctx context.Context) {
 	go c.sendProcess(ctx)
 }
 
+// 接收客户端消息
 func (c *ChannelManager) recvProcess(ctx context.Context) {
 	var (
 		out     = 2 * time.Second
@@ -122,6 +123,7 @@ func (c *ChannelManager) recvProcess(ctx context.Context) {
 	}
 }
 
+// 推送客户端数据
 func (c *ChannelManager) sendProcess(ctx context.Context) {
 	var (
 		out     = 2 * time.Second
@@ -135,37 +137,33 @@ func (c *ChannelManager) sendProcess(ctx context.Context) {
 		case <-ctx.Done():
 			return
 
-		case msg, ok := <-c.outChan:
-			if !ok {
-				break
-			}
+		case body, ok := <-c.outChan:
+			if ok {
+				content, _ := jsonutil.JsonEncodeToByte(body.GetMessage())
 
-			content, _ := jsonutil.JsonEncodeToByte(msg)
+				// 判断是否广播消息
+				if body.IsBroadcast() {
+					c.Lock.RLock()
+					for cid, client := range c.Clients {
+						if client.IsClosed || slice.InInt(cid, body.exclude) {
+							continue
+						}
 
-			// 判断是否推送所有客户端
-			if msg.IsAll {
-				c.Lock.RLock()
-				for _, client := range c.Clients {
-					if client.IsClosed {
-						continue
-					}
-
-					_ = client.Conn.WriteMessage(websocket.TextMessage, content)
-				}
-				c.Lock.RUnlock()
-			} else {
-				for _, clientId := range msg.Clients {
-					client, ok := c.Clients[clientId]
-					if ok && client.IsClosed == false {
 						_ = client.Conn.WriteMessage(websocket.TextMessage, content)
 					}
+					c.Lock.RUnlock()
+
+				} else {
+					for _, cid := range body.receives {
+						client, ok := c.Clients[cid]
+						if ok && client.IsClosed == false {
+							_ = client.Conn.WriteMessage(websocket.TextMessage, content)
+						}
+					}
 				}
 			}
 
-			break
-
 		case <-timeout.C:
-			break
 		}
 	}
 }

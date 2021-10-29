@@ -1,65 +1,50 @@
 package im
 
-import (
-	"reflect"
-)
-
 type sender struct {
-	channel   string   // 渠道名
 	broadcast bool     // 是否广播消息
 	exclude   []int    // 排除的客户端
-	receive   []int    // 推送的客户端
+	receives  []int    // 推送的客户端
 	message   *Message // 消息体
 }
 
-type Message struct {
-	Event   string      // 事件名称
-	Content interface{} // 消息内容
-}
-
-func NewSender(channel string) *sender {
+func NewSenderContent() *sender {
 	return &sender{
-		channel:   channel,
 		broadcast: false,
 		exclude:   []int{},
-		receive:   []int{},
+		receives:  []int{},
 	}
 }
 
 // SetBroadcast 设置广播推送
-func (s *sender) SetBroadcast(value bool) {
+func (s *sender) SetBroadcast(value bool) *sender {
 	s.broadcast = value
+	return s
 }
 
 // SetMessage 设置推送数据
-func (s *sender) SetMessage(msg *Message) {
+func (s *sender) SetMessage(msg *Message) *sender {
 	s.message = msg
+	return s
 }
 
-func (s *sender) SetReceive(cid ...int) {
-	s.receive = append(s.receive, cid...)
+// SetReceive 设置推送客户端
+func (s *sender) SetReceive(cid ...int) *sender {
+	s.receives = append(s.receives, cid...)
+	return s
 }
 
-func (s *sender) SetExclude(cid ...int) {
+// SetExclude 设置广播推送中需要过滤的客户端
+func (s *sender) SetExclude(cid ...int) *sender {
 	s.exclude = append(s.exclude, cid...)
+	return s
 }
 
-func (s *sender) GetReceive() []int {
-	return s.receive
+// IsBroadcast 判断是否是广播推送
+func (s *sender) IsBroadcast() bool {
+	return s.broadcast
 }
 
-func (s *sender) GetExclude() []int {
-	return s.exclude
-}
-
-// Send 发送数据
-func (s *sender) Send() {
-	num := reflect.TypeOf(Manager).Elem().NumField()
-	for i := 0; i < num; i++ {
-		group := reflect.ValueOf(Manager).Elem().Field(i).Interface()
-
-		if reflect.ValueOf(group).Elem().FieldByName("Name").String() == s.channel {
-			// reflect.ValueOf(group).Elem()
-		}
-	}
+// SetMessage 设置推送数据
+func (s *sender) GetMessage() interface{} {
+	return s.message
 }
