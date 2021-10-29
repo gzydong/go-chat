@@ -65,7 +65,7 @@ func (c *ChannelManager) GetClient(cid int) (*Client, bool) {
 }
 
 // ClientContent 推送消息到接收通道
-func (c *ChannelManager) RecvMessage(message *ClientContent) {
+func (c *ChannelManager) PushRecvChannel(message *ClientContent) {
 	select {
 	case c.inChan <- message:
 		break
@@ -75,8 +75,8 @@ func (c *ChannelManager) RecvMessage(message *ClientContent) {
 	}
 }
 
-// SendMessage 推送消息到消费通道
-func (c *ChannelManager) SendMessage(msg *SenderContent) {
+// PushSendChannel 推送消息到消费通道
+func (c *ChannelManager) PushSendChannel(msg *SenderContent) {
 	select {
 	case c.outChan <- msg:
 		break

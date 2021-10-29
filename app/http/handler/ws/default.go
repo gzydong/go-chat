@@ -58,7 +58,7 @@ func (ws *DefaultWebSocket) Message(message *im.ClientContent) {
 		},
 	})
 
-	im.Manager.DefaultChannel.SendMessage(body)
+	im.Manager.DefaultChannel.PushSendChannel(body)
 }
 
 // Close 客户端关闭回调事件

@@ -115,7 +115,7 @@ func (w *Client) accept() {
 		// todo 这里需要验证消息格式，未知格式直接忽略
 
 		if len(msg) > 0 {
-			w.Channel.RecvMessage(&ClientContent{
+			w.Channel.PushRecvChannel(&ClientContent{
 				Client:  w,
 				Content: msg,
 			})
