@@ -4,8 +4,8 @@ import (
 	"sync"
 )
 
-// Manager 客户端管理实例
-var Manager = &ChannelGroup{
+// GroupManage channelGroup 客户端管理实例
+var GroupManage = &channelGroup{
 	DefaultChannel: &ChannelManager{
 		Name:    "default",
 		Count:   0,
@@ -16,8 +16,8 @@ var Manager = &ChannelGroup{
 	},
 }
 
-// ChannelGroup 渠道客户端
-type ChannelGroup struct {
+// channelGroup 渠道客户端
+type channelGroup struct {
 	DefaultChannel *ChannelManager // 默认分组
 	// 可注册其它渠道...
 }

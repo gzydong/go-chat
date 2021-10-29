@@ -46,7 +46,7 @@ func main() {
 
 	// 启动服务跑socket
 	eg.Go(func() error {
-		im.Manager.DefaultChannel.Process(ctx)
+		im.GroupManage.DefaultChannel.Process(ctx)
 		return nil
 	})
 

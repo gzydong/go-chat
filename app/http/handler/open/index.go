@@ -21,7 +21,7 @@ func (i *Index) Index(c *gin.Context) {
 		"date":  timeutil.DateTime(),
 		"ip":    c.ClientIP(),
 		"websocket": gin.H{
-			"default": im.Manager.DefaultChannel.Count,
+			"default": im.GroupManage.DefaultChannel.Count,
 		},
 	})
 }
