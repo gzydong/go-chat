@@ -2,11 +2,12 @@ package testutil
 
 import (
 	"fmt"
-	"github.com/gorilla/websocket"
 	"log"
 	"strconv"
 	"testing"
 	"time"
+
+	"github.com/gorilla/websocket"
 )
 
 func TestWsClient(t *testing.T) {
@@ -19,7 +20,7 @@ func TestWsClient(t *testing.T) {
 }
 
 func NewClientTest(i int) {
-	url := "ws://127.0.0.1:8080/wss/socket.io?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJndWFyZCI6ImFwaSIsImV4cCI6MjQ5ODY1MzMzNCwianRpIjoiMjA1NCJ9.F8tKnShU6IXpN9-OzJJa6ZI7f29z1KkcqmUKiJ55MIc" //服务器地址
+	url := "ws://127.0.0.1:8080/wss/default.io?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJndWFyZCI6ImFwaSIsImV4cCI6MjQ5ODY1MzMzNCwianRpIjoiMjA1NCJ9.F8tKnShU6IXpN9-OzJJa6ZI7f29z1KkcqmUKiJ55MIc" //服务器地址
 	ws, _, err := websocket.DefaultDialer.Dial(url, nil)
 	if err != nil {
 		log.Fatal(err)

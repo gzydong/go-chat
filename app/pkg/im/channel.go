@@ -57,6 +57,7 @@ func (c *ChannelManager) RemoveClient(client *Client) bool {
 func (c *ChannelManager) GetClient(clientId int) (*Client, bool) {
 	c.Lock.RLock()
 	defer c.Lock.RUnlock()
+
 	client, ok := c.Clients[clientId]
 
 	return client, ok
@@ -98,6 +99,11 @@ func (c *ChannelManager) Process(ctx context.Context) {
 }
 
 func (c *ChannelManager) recvProcess(ctx context.Context) {
+	var (
+		out     = 2 * time.Second
+		timeout = time.NewTimer(out)
+	)
+
 	for {
 		select {
 		case <-ctx.Done():
@@ -110,14 +116,21 @@ func (c *ChannelManager) recvProcess(ctx context.Context) {
 			}
 			break
 
-		case <-time.After(3 * time.Second):
+		case <-timeout.C:
 			break
 		}
 	}
 }
 
 func (c *ChannelManager) sendProcess(ctx context.Context) {
+	var (
+		out     = 2 * time.Second
+		timeout = time.NewTimer(out)
+	)
+
 	for {
+		timeout.Reset(out)
+
 		select {
 		case <-ctx.Done():
 			return
@@ -151,7 +164,7 @@ func (c *ChannelManager) sendProcess(ctx context.Context) {
 
 			break
 
-		case <-time.After(2 * time.Second):
+		case <-timeout.C:
 			break
 		}
 	}
