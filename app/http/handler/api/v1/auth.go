@@ -1,7 +1,6 @@
 package v1
 
 import (
-	"go-chat/app/pkg/auth"
 	"strconv"
 	"time"
 
@@ -10,6 +9,7 @@ import (
 	"go-chat/app/entity"
 	"go-chat/app/http/request"
 	"go-chat/app/http/response"
+	"go-chat/app/pkg/auth"
 	"go-chat/app/service"
 	"go-chat/config"
 )

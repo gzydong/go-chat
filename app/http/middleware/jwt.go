@@ -2,12 +2,13 @@ package middleware
 
 import (
 	"errors"
+	"strconv"
+
 	"github.com/gin-gonic/gin"
 	"go-chat/app/entity"
 	"go-chat/app/http/response"
 	"go-chat/app/pkg/auth"
 	"go-chat/config"
-	"strconv"
 )
 
 // JwtAuth 授权中间件
