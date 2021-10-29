@@ -11,8 +11,8 @@ var Manager = &ChannelGroup{
 		Count:   0,
 		Clients: make(map[int]*Client),
 		Lock:    &sync.RWMutex{},
-		inChan:  make(chan *RecvMessage, 10240),
-		outChan: make(chan *sender, 10240),
+		inChan:  make(chan *ClientContent, 10240),
+		outChan: make(chan *SenderContent, 10240),
 	},
 }
 

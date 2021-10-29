@@ -3,28 +3,29 @@ package im
 import (
 	"context"
 	"fmt"
+	"sync"
+	"time"
+
 	"github.com/gorilla/websocket"
 	"go-chat/app/pkg/jsonutil"
 	"go-chat/app/pkg/slice"
-	"sync"
-	"time"
 )
 
 type HandleInterface interface {
 	Open(client *Client)
-	Message(message *RecvMessage)
+	Message(message *ClientContent)
 	Close(client *Client, code int, text string)
 }
 
-// ChannelManager WebSocket 渠道管理（多渠道划分，实现不同业务之间隔离）
+// WebSocket 渠道管理（多渠道划分，实现不同业务之间隔离）
 type ChannelManager struct {
-	Name    string            // 渠道名称
-	Count   int               // 客户端连接数
-	Clients map[int]*Client   // 客户端列表
-	inChan  chan *RecvMessage // 消息接收通道
-	outChan chan *sender      // 消息发送通道
-	Lock    *sync.RWMutex     // 互斥锁
-	Handle  HandleInterface   // 回调处理
+	Name    string              // 渠道名称
+	Count   int                 // 客户端连接数
+	Clients map[int]*Client     // 客户端列表
+	inChan  chan *ClientContent // 消息接收通道
+	outChan chan *SenderContent // 消息发送通道
+	Lock    *sync.RWMutex       // 互斥锁
+	Handle  HandleInterface     // 回调处理
 }
 
 // RegisterClient 注册客户端
@@ -63,8 +64,8 @@ func (c *ChannelManager) GetClient(cid int) (*Client, bool) {
 	return client, ok
 }
 
-// RecvMessage 推送消息到接收通道
-func (c *ChannelManager) RecvMessage(message *RecvMessage) {
+// ClientContent 推送消息到接收通道
+func (c *ChannelManager) RecvMessage(message *ClientContent) {
 	select {
 	case c.inChan <- message:
 		break
@@ -75,7 +76,7 @@ func (c *ChannelManager) RecvMessage(message *RecvMessage) {
 }
 
 // SendMessage 推送消息到消费通道
-func (c *ChannelManager) SendMessage(msg *sender) {
+func (c *ChannelManager) SendMessage(msg *SenderContent) {
 	select {
 	case c.outChan <- msg:
 		break
@@ -94,12 +95,12 @@ func (c *ChannelManager) SetCallbackHandler(handle HandleInterface) *ChannelMana
 
 // Process 渠道消费协程
 func (c *ChannelManager) Process(ctx context.Context) {
-	go c.recvProcess(ctx)
-	go c.sendProcess(ctx)
+	go c.recv(ctx)
+	go c.send(ctx)
 }
 
 // 接收客户端消息
-func (c *ChannelManager) recvProcess(ctx context.Context) {
+func (c *ChannelManager) recv(ctx context.Context) {
 	var (
 		out     = 2 * time.Second
 		timeout = time.NewTimer(out)
@@ -124,7 +125,7 @@ func (c *ChannelManager) recvProcess(ctx context.Context) {
 }
 
 // 推送客户端数据
-func (c *ChannelManager) sendProcess(ctx context.Context) {
+func (c *ChannelManager) send(ctx context.Context) {
 	var (
 		out     = 2 * time.Second
 		timeout = time.NewTimer(out)
