@@ -1,0 +1,24 @@
+package ws
+
+type RevokeTalkMessageContent struct {
+	ReceiverID int `json:"receiver_id"`
+	RecordID   int `json:"record_id"`
+	SenderID   int `json:"sender_id"`
+	TalkType   int `json:"talk_type"`
+}
+
+type LoginMessageContent struct {
+	Status int `json:"status"`
+	UserID int `json:"user_id"`
+}
+
+type KeyboardMessageContent struct {
+	SenderID   int `json:"sender_id"`
+	ReceiverID int `json:"receiver_id"`
+}
+
+type AckReplyContent struct {
+	SenderID   int `json:"sender_id"`
+	ReceiverID int `json:"receiver_id"`
+	MsgID      int `json:"msg_id"`
+}
