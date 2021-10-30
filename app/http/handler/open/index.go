@@ -2,20 +2,27 @@ package open
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/go-redis/redis/v8"
 	"go-chat/app/http/response"
 	"go-chat/app/pkg/im"
 	"go-chat/app/pkg/timeutil"
 )
 
 type Index struct {
+	rds *redis.Client
 }
 
-func NewIndexHandler() *Index {
-	return &Index{}
+func NewIndexHandler(rds *redis.Client) *Index {
+	return &Index{
+		rds: rds,
+	}
 }
 
 // Index 首页
 func (i *Index) Index(c *gin.Context) {
+
+	i.rds.Publish(c.Request.Context(), "chat", "测试数据")
+
 	response.Success(c, map[string]interface{}{
 		"title": "go-chat",
 		"date":  timeutil.DateTime(),

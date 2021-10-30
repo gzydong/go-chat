@@ -39,15 +39,18 @@ func main() {
 		return nil
 	})
 
-	// 启动服务(设置redis)
-	eg.Go(func() error {
-		return server.SocketServer.Run(ctx)
-	})
-
 	// 启动服务跑socket
 	eg.Go(func() error {
 		im.GroupManage.DefaultChannel.Process(ctx)
 		return nil
+	})
+
+	eg.Go(func() error {
+		return server.ServerRun.Handle(ctx)
+	})
+
+	eg.Go(func() error {
+		return server.Subscribe.Handle(ctx)
 	})
 
 	eg.Go(func() error {

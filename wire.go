@@ -6,6 +6,7 @@ import (
 	"context"
 	"go-chat/app/dao"
 	"go-chat/app/pkg/filesystem"
+	"go-chat/app/process"
 	"go-chat/provider"
 
 	"github.com/google/wire"
@@ -59,7 +60,6 @@ var providerSet = wire.NewSet(
 	service.NewGroupMemberService,
 	service.NewGroupNoticeService,
 	service.NewTalkListService,
-	wire.Struct(new(service.SocketService), "*"),
 
 	// handler 处理
 	v1.NewAuthHandler,
@@ -74,6 +74,9 @@ var providerSet = wire.NewSet(
 	v1.NewEmoticonHandler,
 	open.NewIndexHandler,
 	ws.NewDefaultWebSocket,
+
+	process.NewWsSubscribe,
+	process.NewServerRun,
 
 	wire.Struct(new(handler.Handler), "*"),
 	wire.Struct(new(provider.Services), "*"),

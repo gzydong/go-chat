@@ -16,6 +16,7 @@ import (
 	"go-chat/app/http/handler/ws"
 	"go-chat/app/http/router"
 	"go-chat/app/pkg/filesystem"
+	"go-chat/app/process"
 	"go-chat/app/service"
 	"go-chat/config"
 	"go-chat/provider"
@@ -61,7 +62,7 @@ func Initialize(ctx context.Context, conf *config.Config) *provider.Services {
 	filesystemFilesystem := filesystem.NewFilesystem(conf)
 	emoticon := v1.NewEmoticonHandler(filesystemFilesystem)
 	upload := v1.NewUploadHandler(conf, filesystemFilesystem)
-	index := open.NewIndexHandler()
+	index := open.NewIndexHandler(client)
 	wsClient := &cache.WsClient{
 		Redis: client,
 		Conf:  conf,
@@ -96,17 +97,16 @@ func Initialize(ctx context.Context, conf *config.Config) *provider.Services {
 	engine := router.NewRouter(conf, handlerHandler)
 	server := provider.NewHttp(conf, engine)
 	serverRunID := cache.NewServerRun(client)
-	socketService := &service.SocketService{
-		Conf:        conf,
-		ServerRunID: serverRunID,
-	}
+	serverRun := process.NewServerRun(conf, serverRunID)
+	wsSubscribe := process.NewWsSubscribe(client)
 	services := &provider.Services{
-		HttpServer:   server,
-		SocketServer: socketService,
+		HttpServer: server,
+		ServerRun:  serverRun,
+		Subscribe:  wsSubscribe,
 	}
 	return services
 }
 
 // wire.go:
 
-var providerSet = wire.NewSet(provider.NewLogger, provider.RedisConnect, provider.MysqlConnect, provider.NewHttp, router.NewRouter, filesystem.NewFilesystem, cache.NewServerRun, wire.Struct(new(cache.WsClient), "*"), wire.Struct(new(cache.AuthTokenCache), "*"), wire.Struct(new(cache.SmsCodeCache), "*"), wire.Struct(new(cache.RedisLock), "*"), wire.Struct(new(dao.Base), "*"), wire.Struct(new(dao.UserDao), "*"), wire.Struct(new(dao.TalkRecordsDao), "*"), wire.Struct(new(dao.TalkRecordsCodeDao), "*"), wire.Struct(new(dao.TalkRecordsLoginDao), "*"), wire.Struct(new(dao.TalkRecordsFileDao), "*"), wire.Struct(new(dao.TalkRecordsVoteDao), "*"), wire.Struct(new(dao.GroupDao), "*"), wire.Struct(new(dao.GroupNoticeDao), "*"), service.NewUserService, service.NewSmsService, service.NewTalkMessageService, service.NewClientService, service.NewGroupService, service.NewGroupMemberService, service.NewGroupNoticeService, service.NewTalkListService, wire.Struct(new(service.SocketService), "*"), v1.NewAuthHandler, v1.NewCommonHandler, v1.NewUserHandler, v1.NewGroupHandler, v1.NewGroupNoticeHandler, v1.NewTalkHandler, v1.NewTalkMessageHandler, v1.NewUploadHandler, v1.NewDownloadHandler, v1.NewEmoticonHandler, open.NewIndexHandler, ws.NewDefaultWebSocket, wire.Struct(new(handler.Handler), "*"), wire.Struct(new(provider.Services), "*"))
+var providerSet = wire.NewSet(provider.NewLogger, provider.RedisConnect, provider.MysqlConnect, provider.NewHttp, router.NewRouter, filesystem.NewFilesystem, cache.NewServerRun, wire.Struct(new(cache.WsClient), "*"), wire.Struct(new(cache.AuthTokenCache), "*"), wire.Struct(new(cache.SmsCodeCache), "*"), wire.Struct(new(cache.RedisLock), "*"), wire.Struct(new(dao.Base), "*"), wire.Struct(new(dao.UserDao), "*"), wire.Struct(new(dao.TalkRecordsDao), "*"), wire.Struct(new(dao.TalkRecordsCodeDao), "*"), wire.Struct(new(dao.TalkRecordsLoginDao), "*"), wire.Struct(new(dao.TalkRecordsFileDao), "*"), wire.Struct(new(dao.TalkRecordsVoteDao), "*"), wire.Struct(new(dao.GroupDao), "*"), wire.Struct(new(dao.GroupNoticeDao), "*"), service.NewUserService, service.NewSmsService, service.NewTalkMessageService, service.NewClientService, service.NewGroupService, service.NewGroupMemberService, service.NewGroupNoticeService, service.NewTalkListService, v1.NewAuthHandler, v1.NewCommonHandler, v1.NewUserHandler, v1.NewGroupHandler, v1.NewGroupNoticeHandler, v1.NewTalkHandler, v1.NewTalkMessageHandler, v1.NewUploadHandler, v1.NewDownloadHandler, v1.NewEmoticonHandler, open.NewIndexHandler, ws.NewDefaultWebSocket, process.NewWsSubscribe, process.NewServerRun, wire.Struct(new(handler.Handler), "*"), wire.Struct(new(provider.Services), "*"))
