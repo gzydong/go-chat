@@ -6,6 +6,11 @@ import (
 	"github.com/go-redis/redis/v8"
 )
 
+type MessagePayload struct {
+	EventName string `json:"event_name"`
+	Data      string `json:"data"`
+}
+
 type WsSubscribe struct {
 	rds *redis.Client
 }

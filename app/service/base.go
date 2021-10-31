@@ -1,11 +1,15 @@
 package service
 
-import "gorm.io/gorm"
+import (
+	"github.com/go-redis/redis/v8"
+	"gorm.io/gorm"
+)
 
 type BaseService struct {
-	db *gorm.DB
+	db  *gorm.DB
+	rds *redis.Client
 }
 
-func NewBaseService(db *gorm.DB) *BaseService {
-	return &BaseService{db}
+func NewBaseService(db *gorm.DB, rds *redis.Client) *BaseService {
+	return &BaseService{db, rds}
 }

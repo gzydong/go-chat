@@ -10,8 +10,10 @@ import (
 	"go-chat/app/model"
 	"go-chat/app/pkg/jsonutil"
 	"go-chat/app/pkg/strutil"
+	"go-chat/app/process"
 	"go-chat/config"
 	"gorm.io/gorm"
+	"strconv"
 	"time"
 )
 
@@ -26,11 +28,13 @@ func NewTalkMessageService(
 	base *BaseService,
 	config *config.Config,
 	groupMemberService *GroupMemberService,
+	unreadTalkCache *cache.UnreadTalkCache,
 ) *TalkMessageService {
 	return &TalkMessageService{
 		BaseService:        base,
 		config:             config,
 		groupMemberService: groupMemberService,
+		unreadTalkCache:    unreadTalkCache,
 	}
 }
 
@@ -274,4 +278,13 @@ func (s *TalkMessageService) handle(ctx context.Context, record *model.TalkRecor
 	}
 
 	// 推送消息至 redis
+	s.rds.Publish(ctx, "chat", jsonutil.JsonEncode(process.MessagePayload{
+		EventName: entity.EventTalk,
+		Data: jsonutil.JsonEncode(map[string]string{
+			"sender_id":   strconv.Itoa(record.UserId),
+			"receiver_id": strconv.Itoa(record.ReceiverId),
+			"talk_type":   strconv.Itoa(record.TalkType),
+			"record_id":   strconv.Itoa(record.ID),
+		}),
+	}))
 }
