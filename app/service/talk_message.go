@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"go-chat/app/dao"
+	"go-chat/app/cache"
 	"go-chat/app/entity"
 	"go-chat/app/http/request"
 	"go-chat/app/model"
@@ -17,34 +17,20 @@ import (
 
 type TalkMessageService struct {
 	*BaseService
-	config               *config.Config
-	talkRecordsRepo      *dao.TalkRecordsDao
-	talkRecordsCodeRepo  *dao.TalkRecordsCodeDao
-	talkRecordsLoginRepo *dao.TalkRecordsLoginDao
-	talkRecordsFileRepo  *dao.TalkRecordsFileDao
-	talkRecordsVoteRepo  *dao.TalkRecordsVoteDao
-	groupMemberService   *GroupMemberService
+	config             *config.Config
+	groupMemberService *GroupMemberService
+	unreadTalkCache    *cache.UnreadTalkCache
 }
 
 func NewTalkMessageService(
 	base *BaseService,
 	config *config.Config,
-	talkRecordsRepo *dao.TalkRecordsDao,
-	talkRecordsCodeRepo *dao.TalkRecordsCodeDao,
-	talkRecordsLoginRepo *dao.TalkRecordsLoginDao,
-	talkRecordsFileRepo *dao.TalkRecordsFileDao,
-	talkRecordsVoteRepo *dao.TalkRecordsVoteDao,
 	groupMemberService *GroupMemberService,
 ) *TalkMessageService {
 	return &TalkMessageService{
-		BaseService:          base,
-		config:               config,
-		talkRecordsRepo:      talkRecordsRepo,
-		talkRecordsCodeRepo:  talkRecordsCodeRepo,
-		talkRecordsLoginRepo: talkRecordsLoginRepo,
-		talkRecordsFileRepo:  talkRecordsFileRepo,
-		talkRecordsVoteRepo:  talkRecordsVoteRepo,
-		groupMemberService:   groupMemberService,
+		BaseService:        base,
+		config:             config,
+		groupMemberService: groupMemberService,
 	}
 }
 
@@ -282,5 +268,10 @@ func (s *TalkMessageService) SendLocationMessage(ctx context.Context, uid int, p
 }
 
 func (s *TalkMessageService) handle(ctx context.Context, record *model.TalkRecords, opts map[string]string) {
+
+	if record.TalkType == entity.PrivateChat {
+		s.unreadTalkCache.Increment(ctx, record.UserId, record.ReceiverId)
+	}
+
 	// 推送消息至 redis
 }

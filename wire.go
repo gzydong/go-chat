@@ -39,6 +39,7 @@ var providerSet = wire.NewSet(
 	wire.Struct(new(cache.AuthTokenCache), "*"),
 	wire.Struct(new(cache.SmsCodeCache), "*"),
 	wire.Struct(new(cache.RedisLock), "*"),
+	wire.Struct(new(cache.UnreadTalkCache), "*"),
 
 	// dao 数据层
 	wire.Struct(new(dao.Base), "*"),
