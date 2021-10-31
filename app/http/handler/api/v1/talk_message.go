@@ -4,19 +4,21 @@ import (
 	"github.com/gin-gonic/gin"
 	"go-chat/app/http/request"
 	"go-chat/app/http/response"
+	"go-chat/app/pkg/auth"
+	"go-chat/app/pkg/slice"
 	"go-chat/app/service"
+	"path"
+	"strings"
 )
 
 type TalkMessage struct {
-	TalkMessageService *service.TalkMessageService
+	service *service.TalkMessageService
 }
 
 func NewTalkMessageHandler(
-	talkMessage *service.TalkMessageService,
+	service *service.TalkMessageService,
 ) *TalkMessage {
-	return &TalkMessage{
-		TalkMessageService: talkMessage,
-	}
+	return &TalkMessage{service}
 }
 
 // Text 发送文本消息
@@ -27,7 +29,10 @@ func (c *TalkMessage) Text(ctx *gin.Context) {
 		return
 	}
 
-	c.TalkMessageService.SendTextMessage(ctx.Request.Context(), params)
+	if err := c.service.SendTextMessage(ctx.Request.Context(), auth.GetAuthUserID(ctx), params); err != nil {
+		response.Success(ctx, gin.H{}, "消息推送失败！")
+		return
+	}
 
 	response.Success(ctx, gin.H{}, "消息推送成功！")
 }
@@ -40,7 +45,10 @@ func (c *TalkMessage) Code(ctx *gin.Context) {
 		return
 	}
 
-	c.TalkMessageService.SendCodeMessage(ctx.Request.Context(), params)
+	if err := c.service.SendCodeMessage(ctx.Request.Context(), auth.GetAuthUserID(ctx), params); err != nil {
+		response.Success(ctx, gin.H{}, "消息推送失败！")
+		return
+	}
 
 	response.Success(ctx, gin.H{}, "消息推送成功！")
 }
@@ -53,7 +61,30 @@ func (c *TalkMessage) Image(ctx *gin.Context) {
 		return
 	}
 
-	c.TalkMessageService.SendImageMessage(ctx.Request.Context(), params)
+	file, err := ctx.FormFile("image")
+	if err != nil {
+		response.InvalidParams(ctx, "image 字段必传！")
+		return
+	}
+
+	arr := []string{"png", "jpg", "jpeg", "gif"}
+	ext := strings.Trim(path.Ext(file.Filename), ".")
+
+	if !slice.InStr(ext, arr) {
+		response.InvalidParams(ctx, "上传文件格式不正确,仅支持 png、jpg、jpeg 和 gif")
+		return
+	}
+
+	// 判断上传文件大小（5M）
+	if file.Size > 5<<20 {
+		response.InvalidParams(ctx, "上传文件大小不能超过5M！")
+		return
+	}
+
+	if err := c.service.SendImageMessage(ctx.Request.Context(), auth.GetAuthUserID(ctx), params); err != nil {
+		response.Success(ctx, gin.H{}, "消息推送失败！")
+		return
+	}
 
 	response.Success(ctx, gin.H{}, "消息推送成功！")
 }
@@ -66,7 +97,7 @@ func (c *TalkMessage) File(ctx *gin.Context) {
 		return
 	}
 
-	c.TalkMessageService.SendFileMessage(ctx.Request.Context(), params)
+	// c.service.SendFileMessage(ctx.Request.Context(), params)
 
 	response.Success(ctx, gin.H{}, "消息推送成功！")
 }
@@ -79,7 +110,20 @@ func (c *TalkMessage) Vote(ctx *gin.Context) {
 		return
 	}
 
-	c.TalkMessageService.SendVoteMessage(ctx.Request.Context(), params)
+	if len(params.Options) <= 1 {
+		response.InvalidParams(ctx, "options 选项必须大于1！")
+		return
+	}
+
+	if len(params.Options) > 6 {
+		response.InvalidParams(ctx, "options 选项不能超过6个！")
+		return
+	}
+
+	if err := c.service.SendVoteMessage(ctx.Request.Context(), auth.GetAuthUserID(ctx), params); err != nil {
+		response.Success(ctx, gin.H{}, "消息推送失败！")
+		return
+	}
 
 	response.Success(ctx, gin.H{}, "消息推送成功！")
 }
@@ -92,7 +136,10 @@ func (c *TalkMessage) Emoticon(ctx *gin.Context) {
 		return
 	}
 
-	c.TalkMessageService.SendEmoticonMessage(ctx.Request.Context(), params)
+	if err := c.service.SendEmoticonMessage(ctx.Request.Context(), auth.GetAuthUserID(ctx), params); err != nil {
+		response.Success(ctx, gin.H{}, "消息推送失败！")
+		return
+	}
 
 	response.Success(ctx, gin.H{}, "消息推送成功！")
 }
@@ -105,7 +152,7 @@ func (c *TalkMessage) Forward(ctx *gin.Context) {
 		return
 	}
 
-	c.TalkMessageService.SendForwardMessage(ctx.Request.Context(), params)
+	// c.service.SendForwardMessage(ctx.Request.Context(), params)
 
 	response.Success(ctx, gin.H{}, "消息推送成功！")
 }
@@ -118,7 +165,7 @@ func (c *TalkMessage) Card(ctx *gin.Context) {
 		return
 	}
 
-	c.TalkMessageService.SendCardMessage(ctx.Request.Context(), params)
+	// c.service.SendCardMessage(ctx.Request.Context(), params)
 
 	response.Success(ctx, gin.H{}, "消息推送成功！")
 }
@@ -131,7 +178,7 @@ func (c *TalkMessage) Collect(ctx *gin.Context) {
 		return
 	}
 
-	c.TalkMessageService.SendTextMessage(ctx.Request.Context(), params)
+	// c.service.SendTextMessage(ctx.Request.Context(), params)
 
 	response.Success(ctx, gin.H{}, "消息推送成功！")
 }
@@ -144,7 +191,7 @@ func (c *TalkMessage) Revoke(ctx *gin.Context) {
 		return
 	}
 
-	c.TalkMessageService.SendTextMessage(ctx.Request.Context(), params)
+	// c.service.SendTextMessage(ctx.Request.Context(), params)
 
 	response.Success(ctx, gin.H{}, "消息推送成功！")
 }
@@ -157,7 +204,7 @@ func (c *TalkMessage) Delete(ctx *gin.Context) {
 		return
 	}
 
-	c.TalkMessageService.SendTextMessage(ctx.Request.Context(), params)
+	// c.service.SendTextMessage(ctx.Request.Context(), params)
 
 	response.Success(ctx, gin.H{}, "消息推送成功！")
 }
@@ -170,7 +217,23 @@ func (c *TalkMessage) HandleVote(ctx *gin.Context) {
 		return
 	}
 
-	c.TalkMessageService.SendTextMessage(ctx.Request.Context(), params)
+	// c.service.SendTextMessage(ctx.Request.Context(), params)
+
+	response.Success(ctx, gin.H{}, "消息推送成功！")
+}
+
+// Location 发送位置消息
+func (c *TalkMessage) Location(ctx *gin.Context) {
+	params := &request.LocationMessageRequest{}
+	if err := ctx.ShouldBind(params); err != nil {
+		response.InvalidParams(ctx, err)
+		return
+	}
+
+	if err := c.service.SendLocationMessage(ctx.Request.Context(), auth.GetAuthUserID(ctx), params); err != nil {
+		response.Success(ctx, gin.H{}, "消息推送失败！")
+		return
+	}
 
 	response.Success(ctx, gin.H{}, "消息推送成功！")
 }

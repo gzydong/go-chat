@@ -52,6 +52,7 @@ var providerSet = wire.NewSet(
 	wire.Struct(new(dao.GroupNoticeDao), "*"),
 
 	// 服务
+	service.NewBaseService,
 	service.NewUserService,
 	service.NewSmsService,
 	service.NewTalkMessageService,

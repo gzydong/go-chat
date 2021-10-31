@@ -73,6 +73,7 @@ func RegisterApiRoute(conf *config.Config, router *gin.Engine, handler *handler.
 			talkMsg.POST("/emoticon", handler.TalkMessage.Emoticon)
 			talkMsg.POST("/forward", handler.TalkMessage.Forward)
 			talkMsg.POST("/card", handler.TalkMessage.Card)
+			talkMsg.POST("/location", handler.TalkMessage.Location)
 			talkMsg.POST("/collect", handler.TalkMessage.Collect)
 			talkMsg.POST("/revoke", handler.TalkMessage.Revoke)
 			talkMsg.POST("/delete", handler.TalkMessage.Delete)

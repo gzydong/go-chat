@@ -41,3 +41,19 @@ func GenImageName(ext string, width, height int) string {
 
 	return fmt.Sprintf("%x_%dx%d.%s", md5.Sum([]byte(str)), width, height, ext)
 }
+
+// MtSubstr 字符串截取
+func MtSubstr(value *string, start, end int) string {
+
+	if start > end {
+		return ""
+	}
+
+	str := []rune(*value)
+
+	if length := len(str); end > length {
+		end = length
+	}
+
+	return string(str[start:end])
+}

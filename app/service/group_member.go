@@ -91,3 +91,13 @@ func (s *GroupMemberService) GetMemberRemarks(groupId int, userId int) string {
 
 	return remarks
 }
+
+func (s *GroupMemberService) GetGroupMemberCount(gid int) int64 {
+	num := int64(0)
+
+	s.db.Model(&model.GroupMember{}).
+		Where("group_id = ? and is_quit = ?", gid, 0).
+		Unscoped().Count(&num)
+
+	return num
+}
