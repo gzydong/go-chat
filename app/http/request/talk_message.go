@@ -39,12 +39,12 @@ type EmoticonMessageRequest struct {
 }
 
 type ForwardMessageRequest struct {
-	TalkType        int `form:"talk_type" json:"talk_type" binding:"required,oneof=1 2" label:"talk_type"`
-	ReceiverId      int `form:"receiver_id" json:"receiver_id" binding:"required,numeric" label:"receiver_id"`
-	ForwardMode     int `form:"forward_mode" json:"forward_mode" binding:"required,oneof=1 2"`
-	RecordsIds      int `form:"records_ids" json:"records_ids" binding:"required,ids"`
-	ReceiveUserIds  int `form:"receive_user_ids" json:"receive_user_ids" binding:"required,ids"`
-	ReceiveGroupIds int `form:"receive_group_ids" json:"receive_group_ids" binding:"required,ids"`
+	TalkType        int    `form:"talk_type" json:"talk_type" binding:"required,oneof=1 2" label:"talk_type"`
+	ReceiverId      int    `form:"receiver_id" json:"receiver_id" binding:"required,numeric" label:"receiver_id"`
+	ForwardMode     int    `form:"forward_mode" json:"forward_mode" binding:"required,oneof=1 2"`
+	RecordsIds      string `form:"records_ids" binding:"required,ids"`
+	ReceiveUserIds  string `form:"receive_user_ids" binding:"ids"`
+	ReceiveGroupIds string `form:"receive_group_ids" binding:"ids"`
 }
 
 type CardMessageRequest struct {

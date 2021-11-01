@@ -152,7 +152,15 @@ func (c *TalkMessage) Forward(ctx *gin.Context) {
 		return
 	}
 
-	// c.service.SendForwardMessage(ctx.Request.Context(), params)
+	if params.ReceiveGroupIds == "" && params.ReceiveUserIds == "" {
+		response.InvalidParams(ctx, "receive_user_ids 和 receive_group_ids 不能都为空！")
+		return
+	}
+
+	if err := c.service.SendForwardMessage(ctx.Request.Context(), auth.GetAuthUserID(ctx), params); err != nil {
+		response.Success(ctx, gin.H{}, "消息推送失败！")
+		return
+	}
 
 	response.Success(ctx, gin.H{}, "消息推送成功！")
 }

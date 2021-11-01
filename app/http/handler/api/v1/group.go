@@ -171,7 +171,7 @@ func (c *Group) Detail(ctx *gin.Context) {
 	info["is_disturb"] = 0
 	info["notice"] = []gin.H{}
 
-	if c.talkListService.IsDisturb(uid, groupInfo.ID, 2) {
+	if c.talkListService.Dao().IsDisturb(uid, groupInfo.ID, 2) {
 		info["is_disturb"] = 1
 	}
 

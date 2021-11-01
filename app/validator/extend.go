@@ -25,7 +25,13 @@ func validatorPhone(v *validator.Validate, trans ut.Translator) {
 // validatorIds 逗号拼接ID，字符串验证
 func validatorIds(v *validator.Validate, trans ut.Translator) {
 	_ = v.RegisterValidation("ids", func(fl validator.FieldLevel) bool {
-		matched, _ := regexp.MatchString("^\\d+(\\,\\d+)*$", fl.Field().String())
+		value := fl.Field().String()
+
+		if value == "" {
+			return true
+		}
+
+		matched, _ := regexp.MatchString("^\\d+(\\,\\d+)*$", value)
 		return matched
 	})
 

@@ -22,6 +22,7 @@ type TalkMessageService struct {
 	config             *config.Config
 	groupMemberService *GroupMemberService
 	unreadTalkCache    *cache.UnreadTalkCache
+	forwardService     *TalkMessageForwardService
 }
 
 func NewTalkMessageService(
@@ -29,15 +30,20 @@ func NewTalkMessageService(
 	config *config.Config,
 	groupMemberService *GroupMemberService,
 	unreadTalkCache *cache.UnreadTalkCache,
+	forwardService *TalkMessageForwardService,
 ) *TalkMessageService {
 	return &TalkMessageService{
 		BaseService:        base,
 		config:             config,
 		groupMemberService: groupMemberService,
 		unreadTalkCache:    unreadTalkCache,
+		forwardService:     forwardService,
 	}
 }
 
+// SendTextMessage 发送文本消息
+// @params uid     用户ID
+// @params params  请求参数
 func (s *TalkMessageService) SendTextMessage(ctx context.Context, uid int, params *request.TextMessageRequest) error {
 	record := &model.TalkRecords{
 		TalkType:   params.TalkType,
@@ -54,13 +60,16 @@ func (s *TalkMessageService) SendTextMessage(ctx context.Context, uid int, param
 		return result.Error
 	}
 
-	s.handle(ctx, record, map[string]string{
+	s.afterHandle(ctx, record, map[string]string{
 		"text": strutil.MtSubstr(&record.Content, 0, 30),
 	})
 
 	return nil
 }
 
+// SendCodeMessage 发送代码消息
+// @params uid     用户ID
+// @params params  请求参数
 func (s *TalkMessageService) SendCodeMessage(ctx context.Context, uid int, params *request.CodeMessageRequest) error {
 	var (
 		err    error
@@ -96,7 +105,7 @@ func (s *TalkMessageService) SendCodeMessage(ctx context.Context, uid int, param
 		return err
 	}
 
-	s.handle(ctx, record, map[string]string{
+	s.afterHandle(ctx, record, map[string]string{
 		"text": "[代码消息]",
 	})
 
@@ -111,10 +120,16 @@ func (s *TalkMessageService) SendFileMessage(ctx context.Context, params *reques
 
 }
 
+// SendCardMessage 发送用户名片消息
+// @params uid     用户ID
+// @params params  请求参数
 func (s *TalkMessageService) SendCardMessage(ctx context.Context, params *request.CardMessageRequest) {
 
 }
 
+// SendVoteMessage 发送投票消息
+// @params uid     用户ID
+// @params params  请求参数
 func (s *TalkMessageService) SendVoteMessage(ctx context.Context, uid int, params *request.VoteMessageRequest) error {
 
 	var (
@@ -161,13 +176,16 @@ func (s *TalkMessageService) SendVoteMessage(ctx context.Context, uid int, param
 		return err
 	}
 
-	s.handle(ctx, record, map[string]string{
+	s.afterHandle(ctx, record, map[string]string{
 		"text": "[投票消息]",
 	})
 
 	return nil
 }
 
+// SendEmoticonMessage 发送表情包消息
+// @params uid     用户ID
+// @params params  请求参数
 func (s *TalkMessageService) SendEmoticonMessage(ctx context.Context, uid int, params *request.EmoticonMessageRequest) error {
 	var (
 		err      error
@@ -216,18 +234,34 @@ func (s *TalkMessageService) SendEmoticonMessage(ctx context.Context, uid int, p
 		return err
 	}
 
-	s.handle(ctx, record, map[string]string{
+	s.afterHandle(ctx, record, map[string]string{
 		"text": "[图片消息]",
 	})
 
 	return nil
 }
 
-func (s *TalkMessageService) SendForwardMessage(ctx context.Context, params *request.ForwardMessageRequest) {
+// SendForwardMessage 转发聊天记录
+// @params uid     用户ID
+// @params params  请求参数
+func (s *TalkMessageService) SendForwardMessage(ctx context.Context, uid int, params *request.ForwardMessageRequest) error {
+	var (
+		recordsIds []int
+		receives   []int
+	)
 
+	if params.ForwardMode == 1 {
+		s.forwardService.MultiSplitForward(ctx, uid, params.ReceiverId, params.TalkType, recordsIds, receives)
+	} else {
+		s.forwardService.MultiMergeForward(ctx, uid, params.ReceiverId, params.TalkType, recordsIds, receives)
+	}
+
+	return nil
 }
 
 // SendLocationMessage 发送位置消息
+// @params uid     用户ID
+// @params params  请求参数
 func (s *TalkMessageService) SendLocationMessage(ctx context.Context, uid int, params *request.LocationMessageRequest) error {
 
 	var (
@@ -264,14 +298,15 @@ func (s *TalkMessageService) SendLocationMessage(ctx context.Context, uid int, p
 		return err
 	}
 
-	s.handle(ctx, record, map[string]string{
+	s.afterHandle(ctx, record, map[string]string{
 		"text": "[位置消息]",
 	})
 
 	return nil
 }
 
-func (s *TalkMessageService) handle(ctx context.Context, record *model.TalkRecords, opts map[string]string) {
+// 发送消息后置处理
+func (s *TalkMessageService) afterHandle(ctx context.Context, record *model.TalkRecords, opts map[string]string) {
 
 	if record.TalkType == entity.PrivateChat {
 		s.unreadTalkCache.Increment(ctx, record.UserId, record.ReceiverId)

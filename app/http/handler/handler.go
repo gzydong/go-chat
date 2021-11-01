@@ -11,6 +11,7 @@ type Handler struct {
 	Auth             *v1.Auth
 	User             *v1.User
 	TalkMessage      *v1.TalkMessage
+	Talk             *v1.Talk
 	Download         *v1.Download
 	Emoticon         *v1.Emoticon
 	Upload           *v1.Upload

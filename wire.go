@@ -51,17 +51,20 @@ var providerSet = wire.NewSet(
 	wire.Struct(new(dao.TalkRecordsVoteDao), "*"),
 	wire.Struct(new(dao.GroupDao), "*"),
 	wire.Struct(new(dao.GroupNoticeDao), "*"),
+	dao.NewTalkListDao,
 
 	// 服务
 	service.NewBaseService,
 	service.NewUserService,
 	service.NewSmsService,
+	service.NewTalkService,
 	service.NewTalkMessageService,
 	service.NewClientService,
 	service.NewGroupService,
 	service.NewGroupMemberService,
 	service.NewGroupNoticeService,
 	service.NewTalkListService,
+	service.NewTalkMessageForwardService,
 
 	// handler 处理
 	v1.NewAuthHandler,

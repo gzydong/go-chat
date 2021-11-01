@@ -12,10 +12,9 @@ Lumen IM 后端
             request/        请求
             router/         路由
        model/               model定义
-       repositiory/         repository定义
+       dao/                 dao定义
        service/             服务层 
        pkg/                 包
-       webscoket            websocket
    config/                  配置文件
    resource/                资源目录
    runtime/                 运行目录，存放日志
