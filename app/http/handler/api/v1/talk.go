@@ -4,11 +4,13 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"go-chat/app/cache"
+	"go-chat/app/entity"
 	"go-chat/app/http/dto"
 	"go-chat/app/http/request"
 	"go-chat/app/http/response"
 	"go-chat/app/pkg/auth"
 	"go-chat/app/pkg/strutil"
+	"go-chat/app/pkg/timeutil"
 	"go-chat/app/service"
 	"strings"
 )
@@ -17,14 +19,16 @@ type Talk struct {
 	service         *service.TalkService
 	talkListService *service.TalkListService
 	redisLock       *cache.RedisLock
+	userService     *service.UserService
 }
 
 func NewTalkHandler(
 	service *service.TalkService,
 	talkListService *service.TalkListService,
 	redisLock *cache.RedisLock,
+	userService *service.UserService,
 ) *Talk {
-	return &Talk{service, talkListService, redisLock}
+	return &Talk{service, talkListService, redisLock, userService}
 }
 
 // List 会话列表
@@ -60,7 +64,7 @@ func (c *Talk) Create(ctx *gin.Context) {
 		return
 	}
 
-	response.Success(ctx, dto.TalkListItem{
+	item := dto.TalkListItem{
 		ID:         result.ID,
 		TalkType:   result.TalkType,
 		ReceiverId: result.ReceiverId,
@@ -70,8 +74,19 @@ func (c *Talk) Create(ctx *gin.Context) {
 		RemarkName: "",
 		UnreadNum:  0,
 		MsgText:    "",
-		UpdatedAt:  "",
-	})
+		UpdatedAt:  timeutil.DateTime(),
+	}
+
+	if item.TalkType == entity.PrivateChat {
+		if user, err := c.userService.Dao().FindById(item.ReceiverId); err == nil {
+			item.Name = user.Nickname
+			item.Avatar = user.Avatar
+		}
+	} else {
+
+	}
+
+	response.Success(ctx, &item)
 }
 
 // Delete 删除列表

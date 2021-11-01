@@ -23,6 +23,10 @@ func (s *TalkListService) Dao() *dao.TalkListDao {
 	return s.dao
 }
 
+func (s *TalkListService) GetTalkList(ctx context.Context) {
+
+}
+
 // Create 创建会话列表
 func (s *TalkListService) Create(ctx context.Context, uid int, params *request.TalkListCreateRequest) (*model.TalkList, error) {
 	var (

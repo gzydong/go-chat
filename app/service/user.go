@@ -17,7 +17,7 @@ func NewUserService(userDao *dao.UserDao) *UserService {
 	return &UserService{dao: userDao}
 }
 
-func (s *UserService) UserDao() *dao.UserDao {
+func (s *UserService) Dao() *dao.UserDao {
 	return s.dao
 }
 

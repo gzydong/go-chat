@@ -60,7 +60,7 @@ func Initialize(ctx context.Context, conf *config.Config) *provider.Services {
 	talkService := service.NewTalkService()
 	talkListDao := dao.NewTalkListDao(db)
 	talkListService := service.NewTalkListService(baseService, talkListDao)
-	talk := v1.NewTalkHandler(talkService, talkListService, redisLock)
+	talk := v1.NewTalkHandler(talkService, talkListService, redisLock, userService)
 	download := v1.NewDownloadHandler()
 	filesystemFilesystem := filesystem.NewFilesystem(conf)
 	emoticon := v1.NewEmoticonHandler(filesystemFilesystem)
