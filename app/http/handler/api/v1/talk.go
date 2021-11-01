@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"go-chat/app/cache"
+	"go-chat/app/http/dto"
 	"go-chat/app/http/request"
 	"go-chat/app/http/response"
 	"go-chat/app/pkg/auth"
@@ -52,26 +53,71 @@ func (c *Talk) Create(ctx *gin.Context) {
 		return
 	}
 
-	_, err := c.talkListService.Create(ctx.Request.Context(), uid, params)
+	result, err := c.talkListService.Create(ctx.Request.Context(), uid, params)
 
 	if err != nil {
-		fmt.Println(err.Error())
+		response.BusinessError(ctx, err.Error())
+		return
+	}
+
+	response.Success(ctx, dto.TalkListItem{
+		ID:         result.ID,
+		TalkType:   result.TalkType,
+		ReceiverId: result.ReceiverId,
+		IsRobot:    result.IsRobot,
+		Avatar:     "",
+		Name:       "",
+		RemarkName: "",
+		UnreadNum:  0,
+		MsgText:    "",
+		UpdatedAt:  "",
+	})
+}
+
+// Delete 删除列表
+func (c *Talk) Delete(ctx *gin.Context) {
+	params := &request.TalkListDeleteRequest{}
+	if err := ctx.ShouldBind(params); err != nil {
+		response.InvalidParams(ctx, err)
+		return
+	}
+
+	if err := c.talkListService.Delete(ctx, auth.GetAuthUserID(ctx), params.Id); err != nil {
+		response.BusinessError(ctx, err)
+		return
 	}
 
 	response.Success(ctx, gin.H{})
 }
 
-// Delete 删除列表
-func (c *Talk) Delete(ctx *gin.Context) {
-
-}
-
 // Top 置顶列表
 func (c *Talk) Top(ctx *gin.Context) {
+	params := &request.TalkListTopRequest{}
+	if err := ctx.ShouldBind(params); err != nil {
+		response.InvalidParams(ctx, err)
+		return
+	}
 
+	if err := c.talkListService.Top(ctx, auth.GetAuthUserID(ctx), params); err != nil {
+		response.BusinessError(ctx, err)
+		return
+	}
+
+	response.Success(ctx, gin.H{})
 }
 
 // Disturb 会话免打扰
 func (c *Talk) Disturb(ctx *gin.Context) {
+	params := &request.TalkListDisturbRequest{}
+	if err := ctx.ShouldBind(params); err != nil {
+		response.InvalidParams(ctx, err)
+		return
+	}
 
+	if err := c.talkListService.Disturb(ctx, auth.GetAuthUserID(ctx), params); err != nil {
+		response.BusinessError(ctx, err)
+		return
+	}
+
+	response.Success(ctx, gin.H{})
 }

@@ -59,3 +59,43 @@ func (s *TalkListService) Create(ctx context.Context, uid int, params *request.T
 
 	return &result, nil
 }
+
+// Delete 删除会话
+func (s *TalkListService) Delete(ctx context.Context, uid int, id int) error {
+	err := s.db.Model(&model.TalkList{}).Where("id = ? and user_id = ?", id, uid).Updates(map[string]interface{}{
+		"is_delete":  1,
+		"updated_at": time.Now(),
+	}).Error
+
+	return err
+}
+
+// Top 会话置顶
+func (s *TalkListService) Top(ctx context.Context, uid int, params *request.TalkListTopRequest) error {
+
+	isTop := 0
+
+	if params.Type == 1 {
+		isTop = 1
+	}
+
+	err := s.db.Model(&model.TalkList{}).Where("id = ? and user_id = ?", params.Id, uid).
+		Updates(map[string]interface{}{
+			"is_top":     isTop,
+			"updated_at": time.Now(),
+		}).Error
+
+	return err
+}
+
+// Top 会话置顶
+func (s *TalkListService) Disturb(ctx context.Context, uid int, params *request.TalkListDisturbRequest) error {
+	err := s.db.Model(&model.TalkList{}).
+		Where("user_id = ? and receiver_id = ? and talk_type = ?", uid, params.ReceiverId, params.TalkType).
+		Updates(map[string]interface{}{
+			"is_disturb": params.IsDisturb,
+			"updated_at": time.Now(),
+		}).Error
+
+	return err
+}
