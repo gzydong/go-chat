@@ -56,7 +56,7 @@ func (s *SenderContent) IsBroadcast() bool {
 	return s.broadcast
 }
 
-// SetMessage 设置推送数据
+// GetMessage 获取消息内容
 func (s *SenderContent) GetMessage() interface{} {
 	return s.message
 }

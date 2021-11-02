@@ -17,14 +17,14 @@ type HandleInterface interface {
 	Close(client *Client, code int, text string)
 }
 
-// WebSocket 渠道管理（多渠道划分，实现不同业务之间隔离）
+// ChannelManager 渠道管理（多渠道划分，实现不同业务之间隔离）
 type ChannelManager struct {
 	Name    string              // 渠道名称
 	Count   int                 // 客户端连接数
 	Clients map[int]*Client     // 客户端列表
 	inChan  chan *ClientContent // 消息接收通道
 	outChan chan *SenderContent // 消息发送通道
-	Lock    *sync.RWMutex       // 互斥锁
+	Lock    *sync.RWMutex       // 读写锁
 	Handle  HandleInterface     // 回调处理
 }
 
@@ -43,8 +43,7 @@ func (c *ChannelManager) RemoveClient(client *Client) bool {
 	c.Lock.Lock()
 	defer c.Lock.Unlock()
 
-	_, ok := c.Clients[client.ClientId]
-	if !ok {
+	if _, ok := c.Clients[client.ClientId]; !ok {
 		return false
 	}
 
@@ -64,7 +63,7 @@ func (c *ChannelManager) GetClient(cid int) (*Client, bool) {
 	return client, ok
 }
 
-// ClientContent 推送消息到接收通道
+// PushRecvChannel 推送消息到接收通道
 func (c *ChannelManager) PushRecvChannel(message *ClientContent) {
 	select {
 	case c.inChan <- message:
@@ -116,10 +115,8 @@ func (c *ChannelManager) recv(ctx context.Context) {
 			if ok {
 				c.Handle.Message(msg)
 			}
-			break
 
 		case <-timeout.C:
-			break
 		}
 	}
 }
@@ -153,11 +150,9 @@ func (c *ChannelManager) send(ctx context.Context) {
 						_ = client.Conn.WriteMessage(websocket.TextMessage, content)
 					}
 					c.Lock.RUnlock()
-
 				} else {
 					for _, cid := range body.receives {
-						client, ok := c.Clients[cid]
-						if ok && client.IsClosed == false {
+						if client, ok := c.Clients[cid]; ok && client.IsClosed == false {
 							_ = client.Conn.WriteMessage(websocket.TextMessage, content)
 						}
 					}
