@@ -88,7 +88,7 @@ func (s *OssFilesystem) Stat(filePath string) (*FileStat, error) {
 	fmt.Printf("Object Meta: %#v", props)
 
 	return &FileStat{
-		//LastModTime: props.Get("X-Oss-Server-Time"),
+		//LastModTime: props.Get("X-Oss-server-Time"),
 	}, nil
 }
 

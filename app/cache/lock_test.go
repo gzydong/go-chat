@@ -10,7 +10,7 @@ import (
 func TestRedisLock_Lock(t *testing.T) {
 	client := testutil.TestRedisClient()
 	s := &RedisLock{
-		Redis: client,
+		rds: client,
 	}
 
 	ctx := context.Background()

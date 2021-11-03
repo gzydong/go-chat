@@ -8,7 +8,11 @@ import (
 )
 
 type RedisLock struct {
-	Redis *redis.Client
+	rds *redis.Client
+}
+
+func NewRedisLock(rds *redis.Client) *RedisLock {
+	return &RedisLock{rds}
 }
 
 // key 获取锁名
@@ -18,7 +22,7 @@ func (l *RedisLock) key(name string) string {
 
 // Lock 获取 redis 分布式锁
 func (l *RedisLock) Lock(ctx context.Context, name string, expire int) bool {
-	return l.Redis.SetNX(ctx, l.key(name), 1, time.Duration(expire)*time.Second).Val()
+	return l.rds.SetNX(ctx, l.key(name), 1, time.Duration(expire)*time.Second).Val()
 }
 
 // Release 释放 redis 分布式锁
@@ -30,5 +34,5 @@ func (l *RedisLock) Release(ctx context.Context, name string) bool {
 		return false
 	end`
 
-	return l.Redis.Eval(ctx, script, []string{l.key(name)}, 1).Err() == nil
+	return l.rds.Eval(ctx, script, []string{l.key(name)}, 1).Err() == nil
 }

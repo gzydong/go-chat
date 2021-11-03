@@ -25,7 +25,7 @@ func testAuth() *Auth {
 	userService := service.NewUserService(user)
 	smsService := service.NewSmsService(&cache.SmsCodeCache{Redis: redisClient})
 	authTokenCache := &cache.AuthTokenCache{Redis: redisClient}
-	lockCache := &cache.RedisLock{Redis: redisClient}
+	lockCache := cache.NewRedisLock(redisClient)
 
 	return NewAuthHandler(
 		config,

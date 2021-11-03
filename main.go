@@ -76,5 +76,5 @@ func main() {
 		log.Fatalf("eg error: %s", err)
 	}
 
-	log.Println("Server Shutdown")
+	log.Println("server Shutdown")
 }

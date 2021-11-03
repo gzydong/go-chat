@@ -36,10 +36,10 @@ var providerSet = wire.NewSet(
 	// 缓存
 	cache.NewServerRun,
 	cache.NewUnreadTalkCache,
-	wire.Struct(new(cache.WsClient), "*"),
+	cache.NewRedisLock,
+	cache.NewWsClient,
 	wire.Struct(new(cache.AuthTokenCache), "*"),
 	wire.Struct(new(cache.SmsCodeCache), "*"),
-	wire.Struct(new(cache.RedisLock), "*"),
 
 	// dao 数据层
 	wire.Struct(new(dao.Base), "*"),
