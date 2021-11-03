@@ -10,7 +10,7 @@ type UserDao struct {
 
 // Create 创建数据
 func (u *UserDao) Create(user *model.User) (*model.User, error) {
-	if err := u.Db.Create(user).Error; err != nil {
+	if err := u.db.Create(user).Error; err != nil {
 		return nil, err
 	}
 
@@ -19,7 +19,7 @@ func (u *UserDao) Create(user *model.User) (*model.User, error) {
 
 // Update 更新数据
 func (u *UserDao) Update(user *model.User, column map[string]interface{}) (int64, error) {
-	res := u.Db.Model(&user).Updates(column)
+	res := u.db.Model(&user).Updates(column)
 
 	if err := res.Error; err != nil {
 		return int64(0), err
@@ -31,7 +31,7 @@ func (u *UserDao) Update(user *model.User, column map[string]interface{}) (int64
 // FindById ID查询
 func (u *UserDao) FindById(userid int) (*model.User, error) {
 	user := &model.User{}
-	if err := u.Db.Where(&model.User{ID: userid}).First(user).Error; err != nil {
+	if err := u.db.Where(&model.User{ID: userid}).First(user).Error; err != nil {
 		return nil, err
 	}
 
@@ -41,7 +41,7 @@ func (u *UserDao) FindById(userid int) (*model.User, error) {
 // FindByMobile 手机号查询
 func (u *UserDao) FindByMobile(mobile string) (*model.User, error) {
 	user := &model.User{}
-	if err := u.Db.Where(&model.User{Mobile: mobile}).First(user).Error; err != nil {
+	if err := u.db.Where(&model.User{Mobile: mobile}).First(user).Error; err != nil {
 		return nil, err
 	}
 
@@ -52,7 +52,7 @@ func (u *UserDao) FindByMobile(mobile string) (*model.User, error) {
 func (u *UserDao) IsMobileExist(mobile string) bool {
 	user := &model.User{}
 
-	rowsAffects := u.Db.Select("id").Where(&model.User{Mobile: mobile}).First(user).RowsAffected
+	rowsAffects := u.db.Select("id").Where(&model.User{Mobile: mobile}).First(user).RowsAffected
 
 	return rowsAffects != 0
 }

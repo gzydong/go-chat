@@ -42,7 +42,7 @@ var providerSet = wire.NewSet(
 	wire.Struct(new(cache.SmsCodeCache), "*"),
 
 	// dao 数据层
-	wire.Struct(new(dao.Base), "*"),
+	dao.NewBaseDao,
 	wire.Struct(new(dao.UserDao), "*"),
 	wire.Struct(new(dao.TalkRecordsDao), "*"),
 	wire.Struct(new(dao.TalkRecordsCodeDao), "*"),

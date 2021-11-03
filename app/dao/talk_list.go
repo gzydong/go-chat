@@ -2,15 +2,15 @@ package dao
 
 import (
 	"go-chat/app/model"
-	"gorm.io/gorm"
 )
 
 type TalkListDao struct {
-	db *gorm.DB
+	*Base
+	// db *gorm.DB
 }
 
-func NewTalkListDao(db *gorm.DB) *TalkListDao {
-	return &TalkListDao{db}
+func NewTalkListDao(base *Base) *TalkListDao {
+	return &TalkListDao{base}
 }
 
 func (s *TalkListDao) IsDisturb(uid int, receiverId int, talkType int) bool {

@@ -30,11 +30,13 @@ func (c *GroupNotice) CreateAndUpdate(ctx *gin.Context) {
 		err error
 	)
 
+	// 这里需要判断权限
+
 	if params.NoticeId == 0 {
 		err = c.service.Create(ctx.Request.Context(), params, auth.GetAuthUserID(ctx))
 		msg = "添加群公告成功！"
 	} else {
-		err = c.service.Update(ctx.Request.Context(), params, auth.GetAuthUserID(ctx))
+		err = c.service.Update(ctx.Request.Context(), params)
 		msg = "更新群公告成功！"
 	}
 

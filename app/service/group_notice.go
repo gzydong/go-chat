@@ -13,20 +13,6 @@ type GroupNoticeService struct {
 	dao *dao.GroupNoticeDao
 }
 
-type NoticeItem struct {
-	Id           int    `json:"id"`
-	CreatorId    int    `json:"creator_id"`
-	Title        string `json:"title"`
-	Content      string `json:"content"`
-	IsTop        int    `json:"is_top"`
-	IsConfirm    int    `json:"is_confirm"`
-	ConfirmUsers string `json:"confirm_users"`
-	CreatedAt    string `json:"created_at"`
-	UpdatedAt    string `json:"updated_at"`
-	Avatar       string `json:"avatar"`
-	Nickname     string `json:"nickname"`
-}
-
 func NewGroupNoticeService(dao *dao.GroupNoticeDao) *GroupNoticeService {
 	return &GroupNoticeService{
 		dao: dao,
@@ -38,10 +24,10 @@ func (s *GroupNoticeService) Dao() {
 }
 
 // Create 创建群公告
-func (s *GroupNoticeService) Create(ctx context.Context, input *request.GroupNoticeEditRequest, userId int) error {
+func (s *GroupNoticeService) Create(ctx context.Context, input *request.GroupNoticeEditRequest, uid int) error {
 	notice := &model.GroupNotice{
 		GroupId:   input.GroupId,
-		CreatorId: userId,
+		CreatorId: uid,
 		Title:     input.Title,
 		Content:   input.Content,
 		IsTop:     input.IsTop,
@@ -50,53 +36,40 @@ func (s *GroupNoticeService) Create(ctx context.Context, input *request.GroupNot
 		UpdatedAt: time.Now(),
 	}
 
-	return s.dao.Db.Omit("deleted_at", "confirm_users").Create(notice).Error
+	return s.dao.Db().Omit("deleted_at", "confirm_users").Create(notice).Error
 }
 
-func (s *GroupNoticeService) Update(ctx context.Context, input *request.GroupNoticeEditRequest, userId int) error {
-	return s.dao.Db.Model(&model.GroupNotice{}).
-		Select("title", "content", "updated_at", "is_top", "is_confirm").
-		Where("id = ? and group_id = ?", input.NoticeId, input.GroupId).
-		Updates(model.GroupNotice{
-			Title:     input.Title,
-			Content:   input.Content,
-			IsTop:     input.IsTop,
-			IsConfirm: input.IsConfirm,
-			UpdatedAt: time.Now(),
-		}).Error
+// Update 更新群公告
+func (s *GroupNoticeService) Update(ctx context.Context, input *request.GroupNoticeEditRequest) error {
+	_, err := s.dao.Update(&model.GroupNotice{}, map[string]interface{}{
+		"id":       input.NoticeId,
+		"group_id": input.GroupId,
+	}, map[string]interface{}{
+		"title":      input.Title,
+		"content":    input.Content,
+		"is_top":     input.IsTop,
+		"is_confirm": input.IsConfirm,
+		"updated_at": time.Now(),
+	})
+
+	return err
 }
 
 func (s *GroupNoticeService) Delete(ctx context.Context, groupId, noticeId int) error {
-	return s.dao.Db.Model(&model.GroupNotice{ID: noticeId, GroupId: groupId}).Updates(model.GroupNotice{
-		IsDelete:  1,
-		DeletedAt: timeutil.DateTime(),
-	}).Error
+	_, err := s.dao.Update(&model.GroupNotice{}, map[string]interface{}{
+		"id":       noticeId,
+		"group_id": groupId,
+	}, map[string]interface{}{
+		"is_delete":  1,
+		"deleted_at": timeutil.DateTime(),
+	})
+
+	return err
 }
 
-func (s *GroupNoticeService) List(ctx context.Context, groupId int) []*NoticeItem {
-	var items []*NoticeItem
+func (s *GroupNoticeService) List(ctx context.Context, groupId int) []*model.SearchNoticeItem {
 
-	fields := []string{
-		"lar_group_notice.id",
-		"lar_group_notice.creator_id",
-		"lar_group_notice.title",
-		"lar_group_notice.content",
-		"lar_group_notice.is_top",
-		"lar_group_notice.is_confirm",
-		"lar_group_notice.confirm_users",
-		"lar_group_notice.created_at",
-		"lar_group_notice.updated_at",
-		"lar_users.avatar",
-		"lar_users.nickname",
-	}
-
-	s.dao.Db.Table("lar_group_notice").
-		Select(fields).
-		Joins("left join lar_users on lar_users.id = lar_group_notice.creator_id").
-		Where("lar_group_notice.group_id = ? and lar_group_notice.is_delete = ?", groupId, 0).
-		Order("lar_group_notice.is_top desc").
-		Order("lar_group_notice.updated_at desc").
-		Scan(&items)
+	items, _ := s.dao.GetListAll(ctx, groupId)
 
 	return items
 }
