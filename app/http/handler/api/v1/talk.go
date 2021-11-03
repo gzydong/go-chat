@@ -9,9 +9,11 @@ import (
 	"go-chat/app/http/request"
 	"go-chat/app/http/response"
 	"go-chat/app/pkg/auth"
+	"go-chat/app/pkg/im"
 	"go-chat/app/pkg/strutil"
 	"go-chat/app/pkg/timeutil"
 	"go-chat/app/service"
+	"strconv"
 	"strings"
 )
 
@@ -20,6 +22,7 @@ type Talk struct {
 	talkListService *service.TalkListService
 	redisLock       *cache.RedisLock
 	userService     *service.UserService
+	wsClient        *cache.WsClient
 }
 
 func NewTalkHandler(
@@ -27,16 +30,53 @@ func NewTalkHandler(
 	talkListService *service.TalkListService,
 	redisLock *cache.RedisLock,
 	userService *service.UserService,
+	wsClient *cache.WsClient,
 ) *Talk {
-	return &Talk{service, talkListService, redisLock, userService}
+	return &Talk{service, talkListService, redisLock, userService, wsClient}
 }
 
 // List 会话列表
 func (c *Talk) List(ctx *gin.Context) {
-	items := make([]dto.TalkListItem, 0)
+	items := make([]*dto.TalkListItem, 0)
+	uid := auth.GetAuthUserID(ctx)
 
-	for i := 0; i < 10; i++ {
-		items = append(items, dto.TalkListItem{ID: i})
+	data, err := c.talkListService.GetTalkList(ctx.Request.Context(), uid)
+
+	if err != nil {
+		response.BusinessError(ctx, err)
+		return
+	}
+
+	for _, item := range data {
+		value := &dto.TalkListItem{
+			ID:         item.ID,
+			TalkType:   item.TalkType,
+			ReceiverId: item.ReceiverId,
+			IsTop:      item.IsTop,
+			IsDisturb:  item.IsDisturb,
+			IsRobot:    item.IsRobot,
+			Avatar:     item.UserAvatar,
+			MsgText:    "",
+			UpdatedAt:  timeutil.FormatDatetime(item.UpdatedAt),
+		}
+
+		if item.TalkType == 1 {
+			value.Name = item.Nickname
+			value.Avatar = item.UserAvatar
+			value.RemarkName = "" // 查询缓存
+			value.UnreadNum = 0   // 查询缓存
+
+			if c.wsClient.IsOnlineAll(ctx, im.GroupManage.DefaultChannel.Name, strconv.Itoa(value.ReceiverId)) {
+				value.IsOnline = 1
+			}
+		} else {
+			value.Name = item.GroupName
+			value.Avatar = item.GroupAvatar
+		}
+
+		// 查询最后一条对话消息
+
+		items = append(items, value)
 	}
 
 	response.Success(ctx, items)

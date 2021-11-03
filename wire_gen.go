@@ -60,16 +60,18 @@ func Initialize(ctx context.Context, conf *config.Config) *provider.Services {
 	talkService := service.NewTalkService()
 	talkListDao := dao.NewTalkListDao(db)
 	talkListService := service.NewTalkListService(baseService, talkListDao)
-	talk := v1.NewTalkHandler(talkService, talkListService, redisLock, userService)
+	serverRunID := cache.NewServerRun(client)
+	wsClient := &cache.WsClient{
+		Redis:  client,
+		Conf:   conf,
+		Server: serverRunID,
+	}
+	talk := v1.NewTalkHandler(talkService, talkListService, redisLock, userService, wsClient)
 	download := v1.NewDownloadHandler()
 	filesystemFilesystem := filesystem.NewFilesystem(conf)
 	emoticon := v1.NewEmoticonHandler(filesystemFilesystem)
 	upload := v1.NewUploadHandler(conf, filesystemFilesystem)
 	index := open.NewIndexHandler(client)
-	wsClient := &cache.WsClient{
-		Redis: client,
-		Conf:  conf,
-	}
 	clientService := service.NewClientService(wsClient)
 	defaultWebSocket := ws.NewDefaultWebSocket(clientService)
 	groupDao := &dao.GroupDao{
@@ -98,7 +100,6 @@ func Initialize(ctx context.Context, conf *config.Config) *provider.Services {
 	}
 	engine := router.NewRouter(conf, handlerHandler)
 	server := provider.NewHttp(conf, engine)
-	serverRunID := cache.NewServerRun(client)
 	serverRun := process.NewServerRun(conf, serverRunID)
 	wsSubscribe := process.NewWsSubscribe(client)
 	services := &provider.Services{
