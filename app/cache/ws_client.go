@@ -27,47 +27,40 @@ func (w *WsClient) getChannelUserKey(sid string, channel string, uid string) str
 // fd       客户端连接ID
 // id       用户ID
 func (w *WsClient) Set(ctx context.Context, channel string, fd string, id int) {
-	w.Redis.HSet(ctx, w.getChannelClientKey(w.Conf.Server.ServerId, channel), fd, id)
+	w.Redis.HSet(ctx, w.getChannelClientKey(w.Conf.GetSid(), channel), fd, id)
 
-	w.Redis.SAdd(ctx, w.getChannelUserKey(w.Conf.Server.ServerId, channel, strconv.Itoa(id)), fd)
+	w.Redis.SAdd(ctx, w.getChannelUserKey(w.Conf.GetSid(), channel, strconv.Itoa(id)), fd)
 }
 
 // Del 删除客户端与用户绑定关系
 // channel  渠道分组
 // fd     客户端连接ID
 func (w *WsClient) Del(ctx context.Context, channel string, fd string) {
-	KeyName := w.getChannelClientKey(w.Conf.Server.ServerId, channel)
+	KeyName := w.getChannelClientKey(w.Conf.GetSid(), channel)
 
 	userId, _ := w.Redis.HGet(ctx, KeyName, fd).Result()
 
 	w.Redis.HDel(ctx, KeyName, fd)
 
-	w.Redis.SRem(ctx, w.getChannelUserKey(w.Conf.Server.ServerId, channel, userId), fd)
+	w.Redis.SRem(ctx, w.getChannelUserKey(w.Conf.GetSid(), channel, userId), fd)
 }
 
 // IsOnline 判断客户端是否在线[当前机器]
 // channel  渠道分组
 // id       用户ID
 func (w *WsClient) IsOnline(ctx context.Context, channel string, id string) bool {
-	val, err := w.Redis.SCard(ctx, w.getChannelUserKey(w.Conf.Server.ServerId, channel, id)).Result()
+	val, err := w.Redis.SCard(ctx, w.getChannelUserKey(w.Conf.GetSid(), channel, id)).Result()
 
-	return err != nil && val > 0
+	return err == nil && val > 0
 }
 
 // IsOnlineAll 判断客户端是否在线[所有部署机器]
 // channel  渠道分组
 // id       用户ID
 func (w *WsClient) IsOnlineAll(ctx context.Context, channel string, id string) bool {
-
-	items := w.Server.GetServerRunIdAll(ctx, 1)
-
-	fmt.Println(items)
-
-	for _, sid := range items {
+	for _, sid := range w.Server.GetServerRunIdAll(ctx, 1) {
 		key := w.getChannelUserKey(sid, channel, id)
 		val, err := w.Redis.SCard(ctx, key).Result()
-
-		fmt.Printf("%s > %d\n", key, val)
 
 		if err == nil && val > 0 {
 			return true

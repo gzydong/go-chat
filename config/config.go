@@ -36,3 +36,7 @@ func Init(filename string) *Config {
 
 	return conf
 }
+
+func (c *Config) GetSid() string {
+	return c.Server.ServerId
+}

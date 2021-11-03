@@ -36,7 +36,7 @@ func (s *TalkListService) GetTalkList(ctx context.Context, uid int) ([]*model.Se
 		"g.group_name", "g.avatar as group_avatar",
 	}
 
-	err = s.db.Debug().Table("lar_talk_list list").Select(fields).
+	err = s.db.Table("lar_talk_list list").Select(fields).
 		Joins("left join lar_users users ON list.receiver_id = users.id AND list.talk_type = 1").
 		Joins("left join lar_group as g ON list.receiver_id = g.id AND list.talk_type = 2").
 		Where("list.user_id = ? and list.is_delete = 0", uid).
