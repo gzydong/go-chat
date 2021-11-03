@@ -33,7 +33,13 @@ func NewTalkHandler(
 
 // List 会话列表
 func (c *Talk) List(ctx *gin.Context) {
+	items := make([]dto.TalkListItem, 0)
 
+	for i := 0; i < 10; i++ {
+		items = append(items, dto.TalkListItem{ID: i})
+	}
+
+	response.Success(ctx, items)
 }
 
 // Create 创建会话列表
@@ -58,7 +64,6 @@ func (c *Talk) Create(ctx *gin.Context) {
 	}
 
 	result, err := c.talkListService.Create(ctx.Request.Context(), uid, params)
-
 	if err != nil {
 		response.BusinessError(ctx, err.Error())
 		return

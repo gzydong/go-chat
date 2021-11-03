@@ -20,9 +20,6 @@ func NewIndexHandler(rds *redis.Client) *Index {
 
 // Index 首页
 func (i *Index) Index(c *gin.Context) {
-
-	i.rds.Publish(c.Request.Context(), "chat", "测试数据")
-
 	response.Success(c, map[string]interface{}{
 		"title": "go-chat",
 		"date":  timeutil.DateTime(),
