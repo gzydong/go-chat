@@ -6,7 +6,7 @@ import (
 
 type TalkListDao struct {
 	*Base
-	// db *gorm.DB
+	// Db *gorm.DB
 }
 
 func NewTalkListDao(base *Base) *TalkListDao {
@@ -17,7 +17,7 @@ func (s *TalkListDao) IsDisturb(uid int, receiverId int, talkType int) bool {
 
 	result := &model.TalkList{}
 
-	s.db.Model(&model.TalkList{}).Select("is_disturb").Where("user_id = ? and receiver_id = ? and talk_type = ?", uid, receiverId, talkType).First(result)
+	s.Db.Model(&model.TalkList{}).Select("is_disturb").Where("user_id = ? and receiver_id = ? and talk_type = ?", uid, receiverId, talkType).First(result)
 
 	return result.IsDisturb == 1
 }

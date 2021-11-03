@@ -3,15 +3,10 @@ package dao
 import (
 	"context"
 	"go-chat/app/model"
-	"gorm.io/gorm"
 )
 
 type GroupNoticeDao struct {
 	*Base
-}
-
-func (dao *GroupNoticeDao) Db() *gorm.DB {
-	return dao.db
 }
 
 func (dao *GroupNoticeDao) GetListAll(ctx context.Context, groupId int) ([]*model.SearchNoticeItem, error) {
@@ -31,7 +26,7 @@ func (dao *GroupNoticeDao) GetListAll(ctx context.Context, groupId int) ([]*mode
 		"lar_users.nickname",
 	}
 
-	err := dao.db.Table("lar_group_notice").
+	err := dao.Db.Table("lar_group_notice").
 		Select(fields).
 		Joins("left join lar_users on lar_users.id = lar_group_notice.creator_id").
 		Where("lar_group_notice.group_id = ? and lar_group_notice.is_delete = ?", groupId, 0).

@@ -6,15 +6,11 @@ import (
 )
 
 type Base struct {
-	db *gorm.DB
+	Db *gorm.DB
 }
 
 func NewBaseDao(db *gorm.DB) *Base {
 	return &Base{db}
-}
-
-func (b *Base) Db() *gorm.DB {
-	return b.db
 }
 
 // Update 批量更新
@@ -27,7 +23,7 @@ func (b *Base) Update(model interface{}, where map[string]interface{}, data map[
 		fields = append(fields, field)
 	}
 
-	sql := b.db.Model(model).Select(fields)
+	sql := b.Db.Model(model).Select(fields)
 
 	for key, val := range where {
 		sql.Where(key, val)
@@ -43,9 +39,9 @@ func (b *Base) FindByIds(model interface{}, ids []int, fields interface{}) (bool
 	var err error
 
 	if len(ids) == 1 {
-		err = b.db.First(model, ids[0]).Error
+		err = b.Db.First(model, ids[0]).Error
 	} else {
-		err = b.db.Select(fields).Find(model, ids).Error
+		err = b.Db.Select(fields).Find(model, ids).Error
 	}
 
 	if errors.Is(err, gorm.ErrRecordNotFound) {
