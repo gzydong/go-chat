@@ -17,14 +17,14 @@ import (
 	"go-chat/app/http/handler/ws"
 	"go-chat/app/http/router"
 	"go-chat/app/service"
-	"go-chat/config"
 )
 
 var providerSet = wire.NewSet(
 	// 基础服务
+	provider.NewConfig,
 	provider.NewLogger,
-	provider.NewRedisClient,
 	provider.NewMySQLClient,
+	provider.NewRedisClient,
 	provider.NewHttp,
 
 	// 注册路由
@@ -89,6 +89,6 @@ var providerSet = wire.NewSet(
 	wire.Struct(new(provider.Services), "*"),
 )
 
-func Initialize(ctx context.Context, conf *config.Config) *provider.Services {
+func Initialize(ctx context.Context) *provider.Services {
 	panic(wire.Build(providerSet))
 }

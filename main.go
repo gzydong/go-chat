@@ -12,18 +12,14 @@ import (
 	"time"
 
 	_ "go-chat/app/validator"
-	"go-chat/config"
 	"golang.org/x/sync/errgroup"
 )
 
 func main() {
-	// 第一步：初始化配置信息
-	conf := config.Init("./config.yaml")
-
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	server := Initialize(ctx, conf)
+	server := Initialize(ctx)
 
 	eg, groupCtx := errgroup.WithContext(ctx)
 	c := make(chan os.Signal, 1)
@@ -31,7 +27,7 @@ func main() {
 
 	// 启动服务
 	eg.Go(func() error {
-		log.Printf("HTTP listen :%d", conf.Server.Port)
+		log.Printf("HTTP listen :%d", server.Config.Server.Port)
 		if err := server.HttpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Fatalf("HTTP listen: %s", err)
 		}
