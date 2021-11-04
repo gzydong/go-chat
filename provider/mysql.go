@@ -11,7 +11,7 @@ import (
 	"go-chat/config"
 )
 
-func MysqlConnect(conf *config.Config) *gorm.DB {
+func NewMySQLClient(conf *config.Config) *gorm.DB {
 	dsn := getDsn(conf)
 
 	db, err := gorm.Open(mysql.New(mysql.Config{

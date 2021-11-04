@@ -12,8 +12,8 @@ import (
 var providerSet = wire.NewSet(
 	// 基础服务
 	provider.NewLogger,
-	provider.RedisConnect,
-	provider.MysqlConnect,
+	provider.NewRedisClient,
+	provider.NewMySQLClient,
 	provider.NewHttp,
 )
 

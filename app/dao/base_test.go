@@ -10,7 +10,7 @@ import (
 )
 
 func newBase() *Base {
-	base := &Base{Db: provider.MysqlConnect(testutil.GetConfig())}
+	base := &Base{Db: provider.NewMySQLClient(testutil.GetConfig())}
 	return base
 }
 

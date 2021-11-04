@@ -18,7 +18,7 @@ import (
 
 func testAuth() *Auth {
 	config := testutil.GetConfig()
-	db := provider.MysqlConnect(config)
+	db := provider.NewMySQLClient(config)
 	redisClient := testutil.TestRedisClient()
 	user := &dao.UserDao{Base: &dao.Base{db: db}}
 

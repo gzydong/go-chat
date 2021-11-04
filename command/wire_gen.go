@@ -15,10 +15,10 @@ import (
 // Injectors from wire.go:
 
 func Initialize(conf *config.Config) *gorm.DB {
-	db := provider.MysqlConnect(conf)
+	db := provider.NewMySQLClient(conf)
 	return db
 }
 
 // wire.go:
 
-var providerSet = wire.NewSet(provider.NewLogger, provider.RedisConnect, provider.MysqlConnect, provider.NewHttp)
+var providerSet = wire.NewSet(provider.NewLogger, provider.NewRedisClient, provider.NewMySQLClient, provider.NewHttp)

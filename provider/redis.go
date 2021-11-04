@@ -8,7 +8,7 @@ import (
 	"go-chat/config"
 )
 
-func RedisConnect(ctx context.Context, conf *config.Config) *redis.Client {
+func NewRedisClient(ctx context.Context, conf *config.Config) *redis.Client {
 
 	// 建立连接
 	client := redis.NewClient(&redis.Options{

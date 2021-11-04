@@ -29,12 +29,12 @@ import (
 // Injectors from wire.go:
 
 func Initialize(ctx context.Context, conf *config.Config) *provider.Services {
-	client := provider.RedisConnect(ctx, conf)
+	client := provider.NewRedisClient(ctx, conf)
 	smsCodeCache := &cache.SmsCodeCache{
 		Redis: client,
 	}
 	smsService := service.NewSmsService(smsCodeCache)
-	db := provider.MysqlConnect(conf)
+	db := provider.NewMySQLClient(conf)
 	base := dao.NewBaseDao(db)
 	userDao := &dao.UserDao{
 		Base: base,
@@ -106,4 +106,4 @@ func Initialize(ctx context.Context, conf *config.Config) *provider.Services {
 
 // wire.go:
 
-var providerSet = wire.NewSet(provider.NewLogger, provider.RedisConnect, provider.MysqlConnect, provider.NewHttp, router.NewRouter, filesystem.NewFilesystem, cache.NewServerRun, cache.NewUnreadTalkCache, cache.NewRedisLock, cache.NewWsClient, cache.NewLastMessage, wire.Struct(new(cache.AuthTokenCache), "*"), wire.Struct(new(cache.SmsCodeCache), "*"), dao.NewBaseDao, dao.NewUsersFriends, wire.Struct(new(dao.UserDao), "*"), wire.Struct(new(dao.TalkRecordsDao), "*"), wire.Struct(new(dao.TalkRecordsCodeDao), "*"), wire.Struct(new(dao.TalkRecordsLoginDao), "*"), wire.Struct(new(dao.TalkRecordsFileDao), "*"), wire.Struct(new(dao.TalkRecordsVoteDao), "*"), wire.Struct(new(dao.GroupDao), "*"), wire.Struct(new(dao.GroupNoticeDao), "*"), dao.NewTalkListDao, service.NewBaseService, service.NewUserService, service.NewSmsService, service.NewTalkService, service.NewTalkMessageService, service.NewClientService, service.NewGroupService, service.NewGroupMemberService, service.NewGroupNoticeService, service.NewTalkListService, service.NewTalkMessageForwardService, v1.NewAuthHandler, v1.NewCommonHandler, v1.NewUserHandler, v1.NewGroupHandler, v1.NewGroupNoticeHandler, v1.NewTalkHandler, v1.NewTalkMessageHandler, v1.NewUploadHandler, v1.NewDownloadHandler, v1.NewEmoticonHandler, open.NewIndexHandler, ws.NewDefaultWebSocket, process.NewWsSubscribe, process.NewServerRun, wire.Struct(new(handler.Handler), "*"), wire.Struct(new(provider.Services), "*"))
+var providerSet = wire.NewSet(provider.NewLogger, provider.NewRedisClient, provider.NewMySQLClient, provider.NewHttp, router.NewRouter, filesystem.NewFilesystem, cache.NewServerRun, cache.NewUnreadTalkCache, cache.NewRedisLock, cache.NewWsClient, cache.NewLastMessage, wire.Struct(new(cache.AuthTokenCache), "*"), wire.Struct(new(cache.SmsCodeCache), "*"), dao.NewBaseDao, dao.NewUsersFriends, wire.Struct(new(dao.UserDao), "*"), wire.Struct(new(dao.TalkRecordsDao), "*"), wire.Struct(new(dao.TalkRecordsCodeDao), "*"), wire.Struct(new(dao.TalkRecordsLoginDao), "*"), wire.Struct(new(dao.TalkRecordsFileDao), "*"), wire.Struct(new(dao.TalkRecordsVoteDao), "*"), wire.Struct(new(dao.GroupDao), "*"), wire.Struct(new(dao.GroupNoticeDao), "*"), dao.NewTalkListDao, service.NewBaseService, service.NewUserService, service.NewSmsService, service.NewTalkService, service.NewTalkMessageService, service.NewClientService, service.NewGroupService, service.NewGroupMemberService, service.NewGroupNoticeService, service.NewTalkListService, service.NewTalkMessageForwardService, v1.NewAuthHandler, v1.NewCommonHandler, v1.NewUserHandler, v1.NewGroupHandler, v1.NewGroupNoticeHandler, v1.NewTalkHandler, v1.NewTalkMessageHandler, v1.NewUploadHandler, v1.NewDownloadHandler, v1.NewEmoticonHandler, open.NewIndexHandler, ws.NewDefaultWebSocket, process.NewWsSubscribe, process.NewServerRun, wire.Struct(new(handler.Handler), "*"), wire.Struct(new(provider.Services), "*"))
