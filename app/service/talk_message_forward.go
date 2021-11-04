@@ -13,9 +13,9 @@ func NewTalkMessageForwardService(base *BaseService) *TalkMessageForwardService 
 }
 
 // 验证消息转发
-func (t *TalkMessageForwardService) verifyForward() {
-
-}
+// func (t *TalkMessageForwardService) verifyForward() {
+//
+// }
 
 // MultiMergeForward 转发消息（多条合并转发）
 func (t TalkMessageForwardService) MultiMergeForward(ctx context.Context, uid int, receiverId int, talkType int, recordsIds []int, receives []int) {

@@ -51,11 +51,8 @@ func NewFilesystem(conf *config.Config) *Filesystem {
 	switch conf.Filesystem.Default {
 	case "oss":
 		driver = NewOssFilesystem(conf)
-
-		break
 	case "qiniu":
 		driver = NewQiniuFilesystem(conf)
-		break
 	default:
 		driver = NewLocalFilesystem(conf)
 	}

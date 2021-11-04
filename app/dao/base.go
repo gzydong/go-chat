@@ -19,7 +19,7 @@ func (b *Base) Update(model interface{}, where map[string]interface{}, data map[
 	fields := make([]string, len(data))
 
 	// 获取需要更新的字段
-	for field, _ := range data {
+	for field := range data {
 		fields = append(fields, field)
 	}
 

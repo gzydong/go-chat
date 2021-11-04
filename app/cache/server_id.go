@@ -48,13 +48,10 @@ func (s *ServerRunID) GetServerRunIdAll(ctx context.Context, status int) []strin
 				if t-int64(value) >= ServerOverTime {
 					continue
 				}
-				break
 			case 2:
 				if t-int64(value) < ServerOverTime {
 					continue
 				}
-
-				break
 			}
 
 			slice = append(slice, key)

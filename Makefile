@@ -13,3 +13,7 @@ build:generate
 .PHONY: generate
 generate:
 	wire
+
+.PHONY: lint
+lint:
+	golangci-lint run ./...

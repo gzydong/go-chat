@@ -179,9 +179,9 @@ func (s *GroupService) InviteUsers(groupId int, uid int, uids []int) error {
 		talkList       []*model.TalkList
 	)
 
-	m := make(map[int]int, 0)
+	m := make(map[int]struct{})
 	for _, value := range s.memberService.GetMemberIds(groupId) {
-		m[value] = 1
+		m[value] = struct{}{}
 	}
 
 	listHash := make(map[int]*model.TalkList)
@@ -306,7 +306,7 @@ func (s *GroupService) UserGroupList(userId int) ([]*Result, error) {
 
 	for _, item := range items {
 		if data, ok := lists[int64(item.Id)]; ok {
-			val, _ := data["is_disturb"]
+			val := data["is_disturb"]
 			item.IsDisturb = int(reflect.ValueOf(val).Int())
 		}
 	}

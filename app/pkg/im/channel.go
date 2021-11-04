@@ -152,7 +152,7 @@ func (c *ChannelManager) send(ctx context.Context) {
 					c.Lock.RUnlock()
 				} else {
 					for _, cid := range body.receives {
-						if client, ok := c.Clients[cid]; ok && client.IsClosed == false {
+						if client, ok := c.Clients[cid]; ok && !client.IsClosed {
 							_ = client.Conn.WriteMessage(websocket.TextMessage, content)
 						}
 					}

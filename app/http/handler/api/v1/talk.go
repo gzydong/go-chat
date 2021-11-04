@@ -135,8 +135,6 @@ func (c *Talk) Create(ctx *gin.Context) {
 			item.Name = user.Nickname
 			item.Avatar = user.Avatar
 		}
-	} else {
-
 	}
 
 	response.Success(ctx, &item)

@@ -30,8 +30,8 @@ func TestBase_FindByIds(t *testing.T) {
 func TestBase_Update(t *testing.T) {
 	base := newBase()
 
-	where := make(map[string]interface{}, 0)
-	data := make(map[string]interface{}, 0)
+	where := make(map[string]interface{})
+	data := make(map[string]interface{})
 
 	where["id IN ?"] = []int{1017, 1018}
 
