@@ -44,6 +44,7 @@ var providerSet = wire.NewSet(
 
 	// dao 数据层
 	dao.NewBaseDao,
+	dao.NewUsersFriends,
 	wire.Struct(new(dao.UserDao), "*"),
 	wire.Struct(new(dao.TalkRecordsDao), "*"),
 	wire.Struct(new(dao.TalkRecordsCodeDao), "*"),

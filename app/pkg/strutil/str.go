@@ -65,3 +65,11 @@ func Md5(data []byte) string {
 
 	return hex.EncodeToString(h.Sum(nil))
 }
+
+func BoolToInt(value bool) int {
+	if value {
+		return 1
+	}
+
+	return 0
+}

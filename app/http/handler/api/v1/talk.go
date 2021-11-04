@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"go-chat/app/cache"
+	"go-chat/app/dao"
 	"go-chat/app/entity"
 	"go-chat/app/http/dto"
 	"go-chat/app/http/request"
@@ -24,6 +25,7 @@ type Talk struct {
 	userService     *service.UserService
 	wsClient        *cache.WsClient
 	lastMessage     *cache.LastMessage
+	usersFriendsDao *dao.UsersFriendsDao
 }
 
 func NewTalkHandler(
@@ -33,8 +35,9 @@ func NewTalkHandler(
 	userService *service.UserService,
 	wsClient *cache.WsClient,
 	lastMessage *cache.LastMessage,
+	usersFriendsDao *dao.UsersFriendsDao,
 ) *Talk {
-	return &Talk{service, talkListService, redisLock, userService, wsClient, lastMessage}
+	return &Talk{service, talkListService, redisLock, userService, wsClient, lastMessage, usersFriendsDao}
 }
 
 // List 会话列表
@@ -58,24 +61,22 @@ func (c *Talk) List(ctx *gin.Context) {
 			IsDisturb:  item.IsDisturb,
 			IsRobot:    item.IsRobot,
 			Avatar:     item.UserAvatar,
-			MsgText:    "",
+			MsgText:    "...",
 			UpdatedAt:  timeutil.FormatDatetime(item.UpdatedAt),
 		}
 
 		if item.TalkType == 1 {
 			value.Name = item.Nickname
 			value.Avatar = item.UserAvatar
-			value.RemarkName = "" // 查询缓存
-			value.UnreadNum = 0   // 查询缓存
-
-			if c.wsClient.IsOnlineAll(ctx, im.GroupManage.DefaultChannel.Name, strconv.Itoa(value.ReceiverId)) {
-				value.IsOnline = 1
-			}
+			value.RemarkName = c.usersFriendsDao.GetFriendRemark(ctx.Request.Context(), uid, item.ReceiverId) // 查询缓存
+			value.UnreadNum = 0                                                                               // 查询缓存
+			value.IsOnline = strutil.BoolToInt(c.wsClient.IsOnlineAll(ctx, im.GroupManage.DefaultChannel.Name, strconv.Itoa(value.ReceiverId)))
 		} else {
 			value.Name = item.GroupName
 			value.Avatar = item.GroupAvatar
 		}
 
+		// 查询缓存消息
 		if msg, err := c.lastMessage.Get(ctx.Request.Context(), item.TalkType, uid, item.ReceiverId); err == nil {
 			value.MsgText = msg.Content
 			value.UpdatedAt = msg.Datetime
