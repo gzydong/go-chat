@@ -51,14 +51,15 @@ func Initialize(ctx context.Context, conf *config.Config) *provider.Services {
 	groupMemberService := service.NewGroupMemberService(db)
 	unreadTalkCache := cache.NewUnreadTalkCache(client)
 	talkMessageForwardService := service.NewTalkMessageForwardService(baseService)
-	talkMessageService := service.NewTalkMessageService(baseService, conf, groupMemberService, unreadTalkCache, talkMessageForwardService)
+	lastMessage := cache.NewLastMessage(client)
+	talkMessageService := service.NewTalkMessageService(baseService, conf, groupMemberService, unreadTalkCache, talkMessageForwardService, lastMessage)
 	talkMessage := v1.NewTalkMessageHandler(talkMessageService)
 	talkService := service.NewTalkService()
 	talkListDao := dao.NewTalkListDao(base)
 	talkListService := service.NewTalkListService(baseService, talkListDao)
 	serverRunID := cache.NewServerRun(client)
 	wsClient := cache.NewWsClient(client, conf, serverRunID)
-	talk := v1.NewTalkHandler(talkService, talkListService, redisLock, userService, wsClient)
+	talk := v1.NewTalkHandler(talkService, talkListService, redisLock, userService, wsClient, lastMessage)
 	download := v1.NewDownloadHandler()
 	filesystemFilesystem := filesystem.NewFilesystem(conf)
 	emoticon := v1.NewEmoticonHandler(filesystemFilesystem)
@@ -104,4 +105,4 @@ func Initialize(ctx context.Context, conf *config.Config) *provider.Services {
 
 // wire.go:
 
-var providerSet = wire.NewSet(provider.NewLogger, provider.RedisConnect, provider.MysqlConnect, provider.NewHttp, router.NewRouter, filesystem.NewFilesystem, cache.NewServerRun, cache.NewUnreadTalkCache, cache.NewRedisLock, cache.NewWsClient, wire.Struct(new(cache.AuthTokenCache), "*"), wire.Struct(new(cache.SmsCodeCache), "*"), dao.NewBaseDao, wire.Struct(new(dao.UserDao), "*"), wire.Struct(new(dao.TalkRecordsDao), "*"), wire.Struct(new(dao.TalkRecordsCodeDao), "*"), wire.Struct(new(dao.TalkRecordsLoginDao), "*"), wire.Struct(new(dao.TalkRecordsFileDao), "*"), wire.Struct(new(dao.TalkRecordsVoteDao), "*"), wire.Struct(new(dao.GroupDao), "*"), wire.Struct(new(dao.GroupNoticeDao), "*"), dao.NewTalkListDao, service.NewBaseService, service.NewUserService, service.NewSmsService, service.NewTalkService, service.NewTalkMessageService, service.NewClientService, service.NewGroupService, service.NewGroupMemberService, service.NewGroupNoticeService, service.NewTalkListService, service.NewTalkMessageForwardService, v1.NewAuthHandler, v1.NewCommonHandler, v1.NewUserHandler, v1.NewGroupHandler, v1.NewGroupNoticeHandler, v1.NewTalkHandler, v1.NewTalkMessageHandler, v1.NewUploadHandler, v1.NewDownloadHandler, v1.NewEmoticonHandler, open.NewIndexHandler, ws.NewDefaultWebSocket, process.NewWsSubscribe, process.NewServerRun, wire.Struct(new(handler.Handler), "*"), wire.Struct(new(provider.Services), "*"))
+var providerSet = wire.NewSet(provider.NewLogger, provider.RedisConnect, provider.MysqlConnect, provider.NewHttp, router.NewRouter, filesystem.NewFilesystem, cache.NewServerRun, cache.NewUnreadTalkCache, cache.NewRedisLock, cache.NewWsClient, cache.NewLastMessage, wire.Struct(new(cache.AuthTokenCache), "*"), wire.Struct(new(cache.SmsCodeCache), "*"), dao.NewBaseDao, wire.Struct(new(dao.UserDao), "*"), wire.Struct(new(dao.TalkRecordsDao), "*"), wire.Struct(new(dao.TalkRecordsCodeDao), "*"), wire.Struct(new(dao.TalkRecordsLoginDao), "*"), wire.Struct(new(dao.TalkRecordsFileDao), "*"), wire.Struct(new(dao.TalkRecordsVoteDao), "*"), wire.Struct(new(dao.GroupDao), "*"), wire.Struct(new(dao.GroupNoticeDao), "*"), dao.NewTalkListDao, service.NewBaseService, service.NewUserService, service.NewSmsService, service.NewTalkService, service.NewTalkMessageService, service.NewClientService, service.NewGroupService, service.NewGroupMemberService, service.NewGroupNoticeService, service.NewTalkListService, service.NewTalkMessageForwardService, v1.NewAuthHandler, v1.NewCommonHandler, v1.NewUserHandler, v1.NewGroupHandler, v1.NewGroupNoticeHandler, v1.NewTalkHandler, v1.NewTalkMessageHandler, v1.NewUploadHandler, v1.NewDownloadHandler, v1.NewEmoticonHandler, open.NewIndexHandler, ws.NewDefaultWebSocket, process.NewWsSubscribe, process.NewServerRun, wire.Struct(new(handler.Handler), "*"), wire.Struct(new(provider.Services), "*"))

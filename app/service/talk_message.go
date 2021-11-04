@@ -10,6 +10,7 @@ import (
 	"go-chat/app/model"
 	"go-chat/app/pkg/jsonutil"
 	"go-chat/app/pkg/strutil"
+	"go-chat/app/pkg/timeutil"
 	"go-chat/app/process"
 	"go-chat/config"
 	"gorm.io/gorm"
@@ -23,6 +24,7 @@ type TalkMessageService struct {
 	groupMemberService *GroupMemberService
 	unreadTalkCache    *cache.UnreadTalkCache
 	forwardService     *TalkMessageForwardService
+	lastMessage        *cache.LastMessage
 }
 
 func NewTalkMessageService(
@@ -31,6 +33,7 @@ func NewTalkMessageService(
 	groupMemberService *GroupMemberService,
 	unreadTalkCache *cache.UnreadTalkCache,
 	forwardService *TalkMessageForwardService,
+	lastMessage *cache.LastMessage,
 ) *TalkMessageService {
 	return &TalkMessageService{
 		BaseService:        base,
@@ -38,6 +41,7 @@ func NewTalkMessageService(
 		groupMemberService: groupMemberService,
 		unreadTalkCache:    unreadTalkCache,
 		forwardService:     forwardService,
+		lastMessage:        lastMessage,
 	}
 }
 
@@ -311,6 +315,11 @@ func (s *TalkMessageService) afterHandle(ctx context.Context, record *model.Talk
 	if record.TalkType == entity.PrivateChat {
 		s.unreadTalkCache.Increment(ctx, record.UserId, record.ReceiverId)
 	}
+
+	_ = s.lastMessage.Set(ctx, record.TalkType, record.UserId, record.ReceiverId, &cache.LastCacheMessage{
+		Content:  opts["text"],
+		Datetime: timeutil.DateTime(),
+	})
 
 	// 推送消息至 redis
 	s.rds.Publish(ctx, "chat", jsonutil.JsonEncode(process.MessagePayload{

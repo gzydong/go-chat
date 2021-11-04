@@ -23,6 +23,7 @@ type Talk struct {
 	redisLock       *cache.RedisLock
 	userService     *service.UserService
 	wsClient        *cache.WsClient
+	lastMessage     *cache.LastMessage
 }
 
 func NewTalkHandler(
@@ -31,21 +32,22 @@ func NewTalkHandler(
 	redisLock *cache.RedisLock,
 	userService *service.UserService,
 	wsClient *cache.WsClient,
+	lastMessage *cache.LastMessage,
 ) *Talk {
-	return &Talk{service, talkListService, redisLock, userService, wsClient}
+	return &Talk{service, talkListService, redisLock, userService, wsClient, lastMessage}
 }
 
 // List 会话列表
 func (c *Talk) List(ctx *gin.Context) {
-	items := make([]*dto.TalkListItem, 0)
 	uid := auth.GetAuthUserID(ctx)
 
 	data, err := c.talkListService.GetTalkList(ctx.Request.Context(), uid)
-
 	if err != nil {
 		response.BusinessError(ctx, err)
 		return
 	}
+
+	items := make([]*dto.TalkListItem, 0)
 
 	for _, item := range data {
 		value := &dto.TalkListItem{
@@ -72,6 +74,11 @@ func (c *Talk) List(ctx *gin.Context) {
 		} else {
 			value.Name = item.GroupName
 			value.Avatar = item.GroupAvatar
+		}
+
+		if msg, err := c.lastMessage.Get(ctx.Request.Context(), item.TalkType, uid, item.ReceiverId); err == nil {
+			value.MsgText = msg.Content
+			value.UpdatedAt = msg.Datetime
 		}
 
 		// 查询最后一条对话消息
