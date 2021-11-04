@@ -4,26 +4,30 @@ type TalkMessageContent struct {
 	ReceiverID int              `json:"receiver_id"`
 	SenderID   int              `json:"sender_id"`
 	TalkType   int              `json:"talk_type"`
-	Data       *TalkMessageData `json:"data"`
+	Data       *TalkMessageItem `json:"data"`
 }
 
-type TalkMessageData struct {
-	Avatar      string         `json:"avatar"`
-	CodeBlock   *CodeBlockData `json:"code_block"`
-	Content     string         `json:"content"`
-	CreatedAt   string         `json:"created_at"`
-	File        *FileData      `json:"file"`
-	Forward     []interface{}  `json:"forward"`
-	GroupAvatar string         `json:"group_avatar"`
-	GroupName   string         `json:"group_name"`
-	ID          int            `json:"id"`
-	Invite      *InviteData    `json:"invite"`
-	IsRevoke    int            `json:"is_revoke"`
-	MsgType     int            `json:"msg_type"`
-	Nickname    string         `json:"nickname"`
-	ReceiverID  int            `json:"receiver_id"`
-	TalkType    int            `json:"talk_type"`
-	UserID      int            `json:"user_id"`
+type TalkMessageItem struct {
+	ID          int           `json:"id"`
+	TalkType    int           `json:"talk_type"`
+	MsgType     int           `json:"msg_type"`
+	UserID      int           `json:"user_id"`
+	ReceiverID  int           `json:"receiver_id"`
+	Nickname    string        `json:"nickname"`
+	Avatar      string        `json:"avatar"`
+	GroupName   string        `json:"group_name"`
+	GroupAvatar string        `json:"group_avatar"`
+	IsRevoke    int           `json:"is_revoke"`
+	IsMark      int           `json:"is_mark"`
+	IsRead      int           `json:"is_read"`
+	Content     string        `json:"content"`
+	File        []interface{} `json:"file"`
+	CodeBlock   []interface{} `json:"code_block"`
+	Forward     []interface{} `json:"forward"`
+	Invite      []interface{} `json:"invite"`
+	Vote        []interface{} `json:"vote"`
+	Login       []interface{} `json:"login"`
+	CreatedAt   string        `json:"created_at"`
 }
 
 type CodeBlockData struct {

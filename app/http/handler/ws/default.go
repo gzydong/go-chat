@@ -1,7 +1,6 @@
 package ws
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"go-chat/app/pkg/auth"
 	"go-chat/app/pkg/im"
@@ -48,13 +47,13 @@ func (ws *DefaultWebSocket) Open(client *im.Client) {
 
 // Message 消息接收回调事件
 func (ws *DefaultWebSocket) Message(message *im.ClientContent) {
-	fmt.Printf("[%s]消息通知 Client:%d，Content: %s \n", message.Client.Channel.Name, message.Client.ClientId, message.Content)
+	// fmt.Printf("[%s]消息通知 Client:%d，Content: %s \n", message.Client.Channel.Name, message.Client.ClientId, message.Content)
 
 	body := im.NewSenderContent().SetBroadcast(true).SetMessage(&im.Message{
 		Event: "test",
 		Content: &map[string]interface{}{
 			"name":     "anskjfna",
-			"nickname": "那可就散你氨基酸卡那",
+			"nickname": message.Content,
 		},
 	})
 
