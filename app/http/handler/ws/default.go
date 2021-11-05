@@ -19,7 +19,7 @@ func NewDefaultWebSocket(client *service.ClientService) *DefaultWebSocket {
 
 	channel.SetCallbackHandler(handler)
 
-	return &DefaultWebSocket{client: client}
+	return handler
 }
 
 // Connect 初始化连接
