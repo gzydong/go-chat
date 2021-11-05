@@ -1,5 +1,7 @@
 package config
 
+import "fmt"
+
 // MySQL 数据库配置信息
 type MySQL struct {
 	Host      string `json:"host" yaml:"host"`         // 服务器IP地址
@@ -10,4 +12,16 @@ type MySQL struct {
 	Prefix    string `json:"prefix" yaml:"prefix"`     // 数据表前缀
 	Charset   string `json:"charset" yaml:"charset"`
 	Collation string `json:"collation" yaml:"collation"`
+}
+
+func (m *MySQL) GetDsn() string {
+	return fmt.Sprintf(
+		"%s:%s@tcp(%s:%d)/%s?charset=%s&parseTime=True&loc=Local",
+		m.UserName,
+		m.Password,
+		m.Host,
+		m.Port,
+		m.Database,
+		m.Charset,
+	)
 }
