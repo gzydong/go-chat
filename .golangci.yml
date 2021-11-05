@@ -1,0 +1,2 @@
+service:
+  golangci-lint-version: 1.43.0 # use the fixed version to not introduce new linters unexpectedly

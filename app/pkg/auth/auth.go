@@ -72,8 +72,7 @@ func GetAuthUserID(c *gin.Context) int {
 // GetJwtToken 获取登录授权 token
 func GetJwtToken(c *gin.Context) string {
 	token := c.GetHeader("Authorization")
-	token = strings.TrimLeft(token, "Bearer")
-	token = strings.TrimSpace(token)
+	token = strings.TrimSpace(strings.TrimPrefix(token, "Bearer"))
 
 	// Headers 中没有授权信息则读取 url 中的 token
 	if len(token) == 0 {
