@@ -25,7 +25,7 @@ var providerSet = wire.NewSet(
 	provider.NewLogger,
 	provider.NewMySQLClient,
 	provider.NewRedisClient,
-	provider.NewHttp,
+	provider.NewHttpServer,
 
 	// 注册路由
 	router.NewRouter,

@@ -8,7 +8,7 @@ import (
 	"go-chat/config"
 )
 
-func NewHttp(conf *config.Config, handler *gin.Engine) *http.Server {
+func NewHttpServer(conf *config.Config, handler *gin.Engine) *http.Server {
 
 	// 默认处理端口号
 	if conf.Server.Port == 0 {

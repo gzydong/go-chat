@@ -14,7 +14,7 @@ var providerSet = wire.NewSet(
 	provider.NewLogger,
 	provider.NewRedisClient,
 	provider.NewMySQLClient,
-	provider.NewHttp,
+	provider.NewHttpServer,
 )
 
 func Initialize(conf *config.Config) *gorm.DB {
