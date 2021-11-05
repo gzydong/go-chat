@@ -1,9 +1,8 @@
-.PHONY: conf
 conf:
 	cp config.example.yaml config.yaml
 
 .PHONY: run
-run: generate
+run: generate lint
 	go run .
 
 .PHONY: build
