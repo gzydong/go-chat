@@ -75,11 +75,11 @@ func GetJwtToken(c *gin.Context) string {
 	token = strings.TrimSpace(strings.TrimPrefix(token, "Bearer"))
 
 	// Headers 中没有授权信息则读取 url 中的 token
-	if len(token) == 0 {
+	if token == "" {
 		token = c.DefaultQuery("token", "")
 	}
 
-	if len(token) == 0 {
+	if token == "" {
 		token = c.DefaultPostForm("token", "")
 	}
 

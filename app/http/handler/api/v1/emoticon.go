@@ -9,6 +9,7 @@ import (
 	"go-chat/app/pkg/slice"
 	"go-chat/app/pkg/strutil"
 	"go-chat/app/pkg/utils"
+	"go-chat/app/service"
 	"io/ioutil"
 	"path"
 	"strings"
@@ -17,26 +18,28 @@ import (
 
 type Emoticon struct {
 	filesystem *filesystem.Filesystem
+	service    *service.EmoticonService
 }
 
 func NewEmoticonHandler(
+	service *service.EmoticonService,
 	filesystem *filesystem.Filesystem,
 ) *Emoticon {
-	return &Emoticon{filesystem: filesystem}
+	return &Emoticon{service: service, filesystem: filesystem}
 }
 
 // CollectList 收藏列表
-func (e *Emoticon) CollectList(ctx *gin.Context) {
+func (c *Emoticon) CollectList(ctx *gin.Context) {
 
 }
 
 // DeleteCollect 删除收藏表情包
-func (e *Emoticon) DeleteCollect(ctx *gin.Context) {
+func (c *Emoticon) DeleteCollect(ctx *gin.Context) {
 
 }
 
 // Upload 上传自定义表情包
-func (e *Emoticon) Upload(ctx *gin.Context) {
+func (c *Emoticon) Upload(ctx *gin.Context) {
 	file, err := ctx.FormFile("emoticon")
 	if err != nil {
 		response.InvalidParams(ctx, "emoticon 字段必传！")
@@ -66,23 +69,25 @@ func (e *Emoticon) Upload(ctx *gin.Context) {
 
 	src := fmt.Sprintf("media/images/emoticon/%s/%s", time.Now().Format("20060102"), strutil.GenImageName(ext, size["width"], size["height"]))
 
-	err = e.filesystem.Write(fileBytes, src)
+	err = c.filesystem.Write(fileBytes, src)
 	if err != nil {
 		response.BusinessError(ctx, err)
 		return
 	}
 
 	response.Success(ctx, gin.H{
-		"url": e.filesystem.PublicUrl(src),
+		"url": c.filesystem.PublicUrl(src),
 	}, "文件上传成功")
 }
 
 // SystemList 系统表情包列表
-func (e *Emoticon) SystemList(ctx *gin.Context) {
+func (c *Emoticon) SystemList(ctx *gin.Context) {
+	items, _ := c.service.Dao.GetSystemEmoticonList()
 
+	response.Success(ctx, items)
 }
 
 // SetSystemEmoticon 添加或移除系统表情包
-func (e *Emoticon) SetSystemEmoticon(ctx *gin.Context) {
+func (c *Emoticon) SetSystemEmoticon(ctx *gin.Context) {
 
 }

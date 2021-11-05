@@ -54,6 +54,7 @@ var providerSet = wire.NewSet(
 	wire.Struct(new(dao.GroupDao), "*"),
 	wire.Struct(new(dao.GroupNoticeDao), "*"),
 	dao.NewTalkListDao,
+	dao.NewEmoticonDao,
 
 	// 服务
 	service.NewBaseService,
@@ -67,6 +68,7 @@ var providerSet = wire.NewSet(
 	service.NewGroupNoticeService,
 	service.NewTalkListService,
 	service.NewTalkMessageForwardService,
+	service.NewEmoticonService,
 
 	// handler 处理
 	v1.NewAuthHandler,
