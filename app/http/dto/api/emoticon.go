@@ -12,7 +12,7 @@ type EmoticonItem struct {
 	Src     string `json:"src"`
 }
 
-type AddSysEmoticonResponse struct {
+type SysEmoticonResponse struct {
 	EmoticonId int             `json:"emoticon_id"`
 	Url        string          `json:"url"`
 	Name       string          `json:"name"`

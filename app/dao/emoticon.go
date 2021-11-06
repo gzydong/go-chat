@@ -49,14 +49,14 @@ func (dao *EmoticonDao) GetSystemEmoticonList() ([]*model.Emoticon, error) {
 	return items, nil
 }
 
-// GetEmoticonItems 获取系统表情包分组详情列表
-func (dao *EmoticonDao) GetEmoticonItems(emoticonId int) ([]*model.EmoticonItem, error) {
+// GetDetailsAll 获取系统表情包分组详情列表
+func (dao *EmoticonDao) GetDetailsAll(emoticonId, uid int) ([]*model.EmoticonItem, error) {
 	var (
 		err   error
 		items []*model.EmoticonItem
 	)
 
-	if err = dao.Db.Model(model.EmoticonItem{}).Where("emoticon_id = ?", emoticonId).Scan(&items).Error; err != nil {
+	if err = dao.Db.Model(model.EmoticonItem{}).Where("emoticon_id = ? and user_id = ?", emoticonId, uid).Scan(&items).Error; err != nil {
 		return nil, err
 	}
 

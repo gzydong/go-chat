@@ -47,3 +47,12 @@ func (s *EmoticonService) AddUserSysEmoticon(uid int, emoticonId int) error {
 
 	return s.db.Model(model.UsersEmoticon{}).Where("user_id = ?", uid).Update("emoticon_ids", slice.IntToIds(ids)).Error
 }
+
+// DeleteCollect 删除自定义表情包
+func (s *EmoticonService) DeleteCollect(uid int, ids []int) error {
+	return s.db.Delete(model.EmoticonItem{}, "id in ? and emoticon_id = 0 and user_id = ?", ids, uid).Error
+}
+
+func (s *EmoticonService) CreateCollect() {
+
+}

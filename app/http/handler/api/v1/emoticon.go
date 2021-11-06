@@ -6,6 +6,7 @@ import (
 	"go-chat/app/cache"
 	"go-chat/app/http/dto/api"
 	"go-chat/app/http/request"
+	"go-chat/app/model"
 	"go-chat/app/pkg/auth"
 
 	"github.com/gin-gonic/gin"
@@ -41,12 +42,66 @@ func NewEmoticonHandler(
 
 // CollectList 收藏列表
 func (c *Emoticon) CollectList(ctx *gin.Context) {
+	var (
+		uid     = auth.GetAuthUserID(ctx)
+		sys     = make([]*api.SysEmoticonResponse, 0)
+		collect = make([]*api.EmoticonItem, 0)
+	)
 
+	if ids := c.service.Dao.GetUserInstallIds(uid); len(ids) > 0 {
+		var items []*model.Emoticon
+
+		if _, err := c.service.Dao.FindByIds(&items, ids, "*"); err == nil {
+			for _, item := range items {
+				data := &api.SysEmoticonResponse{
+					EmoticonId: item.ID,
+					Url:        item.Icon,
+					Name:       item.Name,
+					List:       make([]*api.EmoticonItem, 0),
+				}
+
+				if items, err := c.service.Dao.GetDetailsAll(item.ID, 0); err == nil {
+					for _, item := range items {
+						data.List = append(data.List, &api.EmoticonItem{
+							MediaId: item.ID,
+							Src:     item.Url,
+						})
+					}
+				}
+
+				sys = append(sys, data)
+			}
+		}
+	}
+
+	if items, err := c.service.Dao.GetDetailsAll(0, uid); err == nil {
+		for _, item := range items {
+			collect = append(collect, &api.EmoticonItem{
+				MediaId: item.ID,
+				Src:     item.Url,
+			})
+		}
+	}
+
+	response.Success(ctx, gin.H{
+		"sys_emoticon":     sys,
+		"collect_emoticon": collect,
+	})
 }
 
 // DeleteCollect 删除收藏表情包
 func (c *Emoticon) DeleteCollect(ctx *gin.Context) {
+	params := &request.DeleteCollectRequest{}
+	if err := ctx.ShouldBind(params); err != nil {
+		response.InvalidParams(ctx, err)
+		return
+	}
 
+	if err := c.service.DeleteCollect(auth.GetAuthUserID(ctx), slice.ParseIds(params.Ids)); err != nil {
+		response.BusinessError(ctx, err.Error())
+	} else {
+		response.Success(ctx, "")
+	}
 }
 
 // Upload 上传自定义表情包
@@ -159,7 +214,7 @@ func (c *Emoticon) SetSystemEmoticon(ctx *gin.Context) {
 	}
 
 	items := make([]*api.EmoticonItem, 0)
-	if list, err := c.service.Dao.GetEmoticonItems(params.EmoticonId); err == nil {
+	if list, err := c.service.Dao.GetDetailsAll(params.EmoticonId, 0); err == nil {
 		for _, item := range list {
 			items = append(items, &api.EmoticonItem{
 				MediaId: item.ID,
@@ -168,7 +223,7 @@ func (c *Emoticon) SetSystemEmoticon(ctx *gin.Context) {
 		}
 	}
 
-	response.Success(ctx, &api.AddSysEmoticonResponse{
+	response.Success(ctx, &api.SysEmoticonResponse{
 		EmoticonId: info.ID,
 		Url:        info.Icon,
 		Name:       info.Name,
