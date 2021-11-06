@@ -24,7 +24,10 @@ func main() {
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, syscall.SIGTERM, syscall.SIGQUIT, syscall.SIGINT)
 
-	// 启动服务
+	// 运行协程消费者
+	server.Process.Run(eg, ctx)
+
+	// 启动 http 服务
 	eg.Go(func() error {
 		log.Printf("HTTP listen :%d", server.Config.Server.Port)
 		if err := server.HttpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
@@ -33,8 +36,6 @@ func main() {
 
 		return nil
 	})
-
-	server.Process.Run(eg, ctx)
 
 	eg.Go(func() error {
 		defer func() {
