@@ -18,7 +18,7 @@ type Auth struct {
 	config      *config.Config
 	userService *service.UserService
 	smsService  *service.SmsService
-	token       *cache.AuthTokenCache
+	token       *cache.Session
 	redisLock   *cache.RedisLock
 }
 
@@ -32,7 +32,7 @@ func NewAuthHandler(
 	config *config.Config,
 	userService *service.UserService,
 	smsService *service.SmsService,
-	tokenCache *cache.AuthTokenCache,
+	tokenCache *cache.Session,
 	redisLock *cache.RedisLock,
 ) *Auth {
 	return &Auth{

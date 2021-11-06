@@ -34,12 +34,12 @@ var providerSet = wire.NewSet(
 	filesystem.NewFilesystem,
 
 	// 缓存
+	cache.NewSession,
 	cache.NewServerRun,
 	cache.NewUnreadTalkCache,
 	cache.NewRedisLock,
 	cache.NewWsClient,
 	cache.NewLastMessage,
-	wire.Struct(new(cache.AuthTokenCache), "*"),
 	wire.Struct(new(cache.SmsCodeCache), "*"),
 
 	// dao 数据层

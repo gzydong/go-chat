@@ -1,6 +1,7 @@
 package router
 
 import (
+	"go-chat/app/cache"
 	"io"
 	"os"
 
@@ -12,7 +13,7 @@ import (
 )
 
 // NewRouter 初始化配置路由
-func NewRouter(conf *config.Config, handler *handler.Handler) *gin.Engine {
+func NewRouter(conf *config.Config, handler *handler.Handler, tokenCache *cache.Session) *gin.Engine {
 	router := gin.Default()
 	if gin.Mode() != gin.DebugMode {
 		f, _ := os.Create("runtime/logs/gin.log")
@@ -32,8 +33,8 @@ func NewRouter(conf *config.Config, handler *handler.Handler) *gin.Engine {
 	})
 
 	router.GET("/open", handler.Index.Index)
-	RegisterApiRoute(conf, router, handler)
-	RegisterWsRoute(conf, router, handler)
+	RegisterApiRoute(conf, router, handler, tokenCache)
+	RegisterWsRoute(conf, router, handler, tokenCache)
 	router.NoRoute(func(c *gin.Context) {
 		response.NewError(c, 404, "请求地址不存在")
 	})

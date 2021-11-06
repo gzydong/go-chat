@@ -1,7 +1,9 @@
 package middleware
 
 import (
+	"context"
 	"errors"
+	"go-chat/app/cache"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -12,7 +14,7 @@ import (
 )
 
 // JwtAuth 授权中间件
-func JwtAuth(conf *config.Config, guard string) gin.HandlerFunc {
+func JwtAuth(conf *config.Config, guard string, session *cache.Session) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		token := auth.GetJwtToken(c)
 
@@ -24,6 +26,11 @@ func JwtAuth(conf *config.Config, guard string) gin.HandlerFunc {
 		}
 
 		// 这里还需要验证 token 黑名单
+		if session.IsExistBlackList(context.Background(), token) {
+			response.Unauthorized(c, "请登录再试！")
+			c.Abort()
+			return
+		}
 
 		// 设置登录用户ID
 		uid, _ := strconv.Atoi(claims.Id)

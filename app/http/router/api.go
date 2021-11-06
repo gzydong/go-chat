@@ -2,15 +2,16 @@ package router
 
 import (
 	"github.com/gin-gonic/gin"
+	"go-chat/app/cache"
 	"go-chat/app/http/handler"
 	"go-chat/app/http/middleware"
 	"go-chat/config"
 )
 
 // RegisterApiRoute 注册 API 路由
-func RegisterApiRoute(conf *config.Config, router *gin.Engine, handler *handler.Handler) {
+func RegisterApiRoute(conf *config.Config, router *gin.Engine, handler *handler.Handler, session *cache.Session) {
 	// 授权验证中间件
-	authorize := middleware.JwtAuth(conf, "api")
+	authorize := middleware.JwtAuth(conf, "api", session)
 
 	group := router.Group("/api/v1")
 	{
