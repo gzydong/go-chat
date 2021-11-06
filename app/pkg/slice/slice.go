@@ -50,14 +50,17 @@ func UniqueString(data []string) []string {
 }
 
 func ParseIds(str string) []int {
-	arr := strings.Split(str, ",")
-
+	str = strings.TrimSpace(str)
 	ids := make([]int, 0)
 
-	for _, value := range arr {
-		id, _ := strconv.Atoi(value)
+	if str == "" {
+		return ids
+	}
 
-		ids = append(ids, id)
+	for _, value := range strings.Split(str, ",") {
+		if id, err := strconv.Atoi(value); err == nil {
+			ids = append(ids, id)
+		}
 	}
 
 	return ids
@@ -81,4 +84,14 @@ func ToMap(arr []map[string]interface{}, field string) (map[int64]map[string]int
 	}
 
 	return hashMap, nil
+}
+
+func IntToIds(items []int) string {
+	tmp := make([]string, 0, len(items))
+
+	for _, item := range items {
+		tmp = append(tmp, strconv.Itoa(item))
+	}
+
+	return strings.Join(tmp, ",")
 }

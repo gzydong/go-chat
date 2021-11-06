@@ -4,5 +4,17 @@ type SysEmoticonList struct {
 	ID     int    `json:"id"`
 	Name   string `json:"name"`
 	Icon   string `json:"icon"`
-	IsUsed int    `json:"status"`
+	Status int    `json:"status"`
+}
+
+type EmoticonItem struct {
+	MediaId int    `json:"media_id"`
+	Src     string `json:"src"`
+}
+
+type AddSysEmoticonResponse struct {
+	EmoticonId int             `json:"emoticon_id"`
+	Url        string          `json:"url"`
+	Name       string          `json:"name"`
+	List       []*EmoticonItem `json:"list"`
 }

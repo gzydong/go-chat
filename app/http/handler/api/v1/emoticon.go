@@ -3,6 +3,11 @@ package v1
 import (
 	"bytes"
 	"fmt"
+	"go-chat/app/cache"
+	"go-chat/app/http/dto/api"
+	"go-chat/app/http/request"
+	"go-chat/app/pkg/auth"
+
 	"github.com/gin-gonic/gin"
 	"go-chat/app/http/response"
 	"go-chat/app/pkg/filesystem"
@@ -19,13 +24,19 @@ import (
 type Emoticon struct {
 	filesystem *filesystem.Filesystem
 	service    *service.EmoticonService
+	redisLock  *cache.RedisLock
 }
 
 func NewEmoticonHandler(
 	service *service.EmoticonService,
 	filesystem *filesystem.Filesystem,
+	redisLock *cache.RedisLock,
 ) *Emoticon {
-	return &Emoticon{service: service, filesystem: filesystem}
+	return &Emoticon{
+		service:    service,
+		filesystem: filesystem,
+		redisLock:  redisLock,
+	}
 }
 
 // CollectList 收藏列表
@@ -82,12 +93,85 @@ func (c *Emoticon) Upload(ctx *gin.Context) {
 
 // SystemList 系统表情包列表
 func (c *Emoticon) SystemList(ctx *gin.Context) {
-	items, _ := c.service.Dao.GetSystemEmoticonList()
+	items, err := c.service.Dao.GetSystemEmoticonList()
 
-	response.Success(ctx, items)
+	if err != nil {
+		response.BusinessError(ctx, err)
+		return
+	}
+
+	ids := c.service.Dao.GetUserInstallIds(auth.GetAuthUserID(ctx))
+
+	data := make([]*api.SysEmoticonList, 0, len(items))
+	for _, item := range items {
+		data = append(data, &api.SysEmoticonList{
+			ID:     item.ID,
+			Name:   item.Name,
+			Icon:   item.Icon,
+			Status: strutil.BoolToInt(slice.InInt(item.ID, ids)), // 查询用户是否使用
+		})
+	}
+
+	response.Success(ctx, data)
 }
 
 // SetSystemEmoticon 添加或移除系统表情包
 func (c *Emoticon) SetSystemEmoticon(ctx *gin.Context) {
+	var (
+		err    error
+		params = &request.SetSystemEmoticonRequest{}
+		uid    = auth.GetAuthUserID(ctx)
+		key    = fmt.Sprintf("sys-emoticon:%d", uid)
+	)
 
+	if err = ctx.ShouldBind(params); err != nil {
+		response.InvalidParams(ctx, err)
+		return
+	}
+
+	if !c.redisLock.Lock(ctx, key, 5) {
+		response.BusinessError(ctx, "请求频繁！")
+		return
+	}
+
+	defer c.redisLock.Release(ctx, key)
+
+	if params.Type == 2 {
+		if err = c.service.RemoveUserSysEmoticon(uid, params.EmoticonId); err != nil {
+			response.BusinessError(ctx, err.Error())
+		} else {
+			response.Success(ctx, "")
+		}
+
+		return
+	}
+
+	// 查询表情包是否存在
+	info, err := c.service.Dao.FindById(params.EmoticonId)
+	if err != nil {
+		response.BusinessError(ctx, err.Error())
+		return
+	}
+
+	if err = c.service.AddUserSysEmoticon(uid, params.EmoticonId); err != nil {
+		response.BusinessError(ctx, err.Error())
+		return
+	}
+
+	items := make([]*api.EmoticonItem, 0)
+	if list, err := c.service.Dao.GetEmoticonItems(params.EmoticonId); err == nil {
+		for _, item := range list {
+			items = append(items, &api.EmoticonItem{
+				MediaId: item.ID,
+				Src:     item.Url,
+			})
+		}
+	}
+
+	response.Success(ctx, &api.AddSysEmoticonResponse{
+		EmoticonId: info.ID,
+		Url:        info.Icon,
+		Name:       info.Name,
+		List:       items,
+	}, "添加成功！")
 }
