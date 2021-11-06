@@ -45,7 +45,5 @@ func (s *EmoticonService) AddUserSysEmoticon(uid int, emoticonId int) error {
 
 	ids = append(ids, emoticonId)
 
-	fmt.Println(ids, slice.IntToIds(ids))
-
 	return s.db.Model(model.UsersEmoticon{}).Where("user_id = ?", uid).Update("emoticon_ids", slice.IntToIds(ids)).Error
 }
