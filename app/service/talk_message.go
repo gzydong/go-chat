@@ -11,7 +11,6 @@ import (
 	"go-chat/app/pkg/jsonutil"
 	"go-chat/app/pkg/strutil"
 	"go-chat/app/pkg/timeutil"
-	"go-chat/app/process"
 	"go-chat/config"
 	"gorm.io/gorm"
 	"strconv"
@@ -322,13 +321,16 @@ func (s *TalkMessageService) afterHandle(ctx context.Context, record *model.Talk
 	})
 
 	// 推送消息至 redis
-	s.rds.Publish(ctx, "chat", jsonutil.JsonEncode(process.MessagePayload{
-		EventName: entity.EventTalk,
-		Data: jsonutil.JsonEncode(map[string]string{
+
+	body := map[string]interface{}{
+		"event_name": entity.EventTalk,
+		"data": jsonutil.JsonEncode(map[string]string{
 			"sender_id":   strconv.Itoa(record.UserId),
 			"receiver_id": strconv.Itoa(record.ReceiverId),
 			"talk_type":   strconv.Itoa(record.TalkType),
 			"record_id":   strconv.Itoa(record.ID),
 		}),
-	}))
+	}
+
+	s.rds.Publish(ctx, "chat", jsonutil.JsonEncode(body))
 }

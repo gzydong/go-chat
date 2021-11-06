@@ -84,11 +84,13 @@ var providerSet = wire.NewSet(
 	open.NewIndexHandler,
 	ws.NewDefaultWebSocket,
 
-	process.NewWsSubscribe,
-	process.NewServerRun,
-
 	wire.Struct(new(handler.Handler), "*"),
 	wire.Struct(new(provider.Services), "*"),
+
+	// 持久化协程相关
+	process.NewWsSubscribe,
+	process.NewServerRun,
+	process.NewProcessManage,
 )
 
 func Initialize(ctx context.Context) *provider.Services {

@@ -53,19 +53,10 @@ func (w *WsClient) Del(ctx context.Context, channel string, fd string) {
 	w.rds.SRem(ctx, w.getChannelUserKey(w.conf.GetSid(), channel, userId), fd)
 }
 
-// IsOnline 判断客户端是否在线[当前机器]
+// IsOnline 判断客户端是否在线[所有部署机器]
 // channel  渠道分组
 // id       用户ID
 func (w *WsClient) IsOnline(ctx context.Context, channel string, id string) bool {
-	val, err := w.rds.SCard(ctx, w.getChannelUserKey(w.conf.GetSid(), channel, id)).Result()
-
-	return err == nil && val > 0
-}
-
-// IsOnlineAll 判断客户端是否在线[所有部署机器]
-// channel  渠道分组
-// id       用户ID
-func (w *WsClient) IsOnlineAll(ctx context.Context, channel string, id string) bool {
 	for _, sid := range w.server.GetServerRunIdAll(ctx, 1) {
 		key := w.getChannelUserKey(sid, channel, id)
 		val, err := w.rds.SCard(ctx, key).Result()

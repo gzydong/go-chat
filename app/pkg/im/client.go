@@ -46,7 +46,7 @@ func NewClient(conn *websocket.Conn, options *ClientOption) *Client {
 	conn.SetCloseHandler(func(code int, text string) error {
 		client.IsClosed = true
 
-		client.Channel.Handle.Close(client, code, text)
+		client.Channel.Handler.Close(client, code, text)
 
 		client.Channel.RemoveClient(client)
 
@@ -62,7 +62,7 @@ func NewClient(conn *websocket.Conn, options *ClientOption) *Client {
 	client.ClientService.Bind(context.Background(), client.Channel.Name, strconv.Itoa(client.ClientId), client.UserId)
 
 	// 触发自定义的 open 事件
-	client.Channel.Handle.Open(client)
+	client.Channel.Handler.Open(client)
 
 	return client
 }

@@ -6,7 +6,6 @@ import (
 
 type TalkListDao struct {
 	*Base
-	// Db *gorm.DB
 }
 
 func NewTalkListDao(base *Base) *TalkListDao {

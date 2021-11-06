@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"errors"
-	"go-chat/app/pkg/im"
 	"log"
 	"net/http"
 	"os"
@@ -35,19 +34,7 @@ func main() {
 		return nil
 	})
 
-	// 启动服务跑socket
-	eg.Go(func() error {
-		im.GroupManage.DefaultChannel.Process(ctx)
-		return nil
-	})
-
-	eg.Go(func() error {
-		return server.ServerRun.Handle(ctx)
-	})
-
-	eg.Go(func() error {
-		return server.Subscribe.Handle(ctx)
-	})
+	server.Process.Run(eg, ctx)
 
 	eg.Go(func() error {
 		defer func() {

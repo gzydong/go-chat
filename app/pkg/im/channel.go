@@ -25,7 +25,7 @@ type ChannelManager struct {
 	inChan  chan *ClientContent // 消息接收通道
 	outChan chan *SenderContent // 消息发送通道
 	Lock    *sync.RWMutex       // 读写锁
-	Handle  HandleInterface     // 回调处理
+	Handler HandleInterface     // 回调处理
 }
 
 // RegisterClient 注册客户端
@@ -87,15 +87,17 @@ func (c *ChannelManager) PushSendChannel(msg *SenderContent) {
 
 // SetCallbackHandler 设置 WebSocket 处理事件
 func (c *ChannelManager) SetCallbackHandler(handle HandleInterface) *ChannelManager {
-	c.Handle = handle
+	c.Handler = handle
 
 	return c
 }
 
-// Process 渠道消费协程
-func (c *ChannelManager) Process(ctx context.Context) {
+// Handle 渠道消费协程
+func (c *ChannelManager) Handle(ctx context.Context) error {
 	go c.recv(ctx)
 	go c.send(ctx)
+
+	return nil
 }
 
 // 接收客户端消息
@@ -113,7 +115,7 @@ func (c *ChannelManager) recv(ctx context.Context) {
 		// 处理接收消息
 		case msg, ok := <-c.inChan:
 			if ok {
-				c.Handle.Message(msg)
+				c.Handler.Message(msg)
 			}
 
 		case <-timeout.C:

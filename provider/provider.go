@@ -9,6 +9,5 @@ import (
 type Services struct {
 	Config     *config.Config
 	HttpServer *http.Server
-	ServerRun  *process.ServerRun
-	Subscribe  *process.WsSubscribe
+	Process    *process.Process
 }
