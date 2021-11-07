@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"errors"
+	_ "go-chat/app/pkg/validation"
 	"log"
 	"net/http"
 	"os"
@@ -10,7 +11,6 @@ import (
 	"syscall"
 	"time"
 
-	_ "go-chat/app/validator"
 	"golang.org/x/sync/errgroup"
 )
 

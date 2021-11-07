@@ -2,11 +2,11 @@ package response
 
 import (
 	"fmt"
+	"go-chat/app/pkg/validation"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"go-chat/app/entity"
-	"go-chat/app/validator"
 )
 
 // Response 返回数据结构
@@ -22,7 +22,7 @@ func NewError(c *gin.Context, code int, message ...interface{}) {
 	if message != nil {
 		switch message[0].(type) {
 		case error:
-			msg = validator.Translate(message[0].(error))
+			msg = validation.Translate(message[0].(error))
 		case string:
 			msg = message[0].(string)
 		default:

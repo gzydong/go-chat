@@ -1,4 +1,4 @@
-package validator
+package validation
 
 import (
 	ut "github.com/go-playground/universal-translator"
