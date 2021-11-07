@@ -193,13 +193,17 @@ func (c *TalkMessage) Collect(ctx *gin.Context) {
 
 // Revoke 撤销聊天记录
 func (c *TalkMessage) Revoke(ctx *gin.Context) {
-	params := &request.TextMessageRequest{}
+	params := &request.RevokeMessageRequest{}
 	if err := ctx.ShouldBind(params); err != nil {
 		response.InvalidParams(ctx, err)
 		return
 	}
 
-	// c.service.SendTextMessage(ctx.Request.Context(), params)
+	err := c.service.SendRevokeRecordMessage(ctx.Request.Context(), auth.GetAuthUserID(ctx), params.RecordId)
+	if err != nil {
+		response.BusinessError(ctx, err)
+		return
+	}
 
 	response.Success(ctx, gin.H{}, "消息推送成功！")
 }

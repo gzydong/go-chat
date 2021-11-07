@@ -308,6 +308,47 @@ func (s *TalkMessageService) SendLocationMessage(ctx context.Context, uid int, p
 	return nil
 }
 
+// SendLocationMessage 撤销推送消息
+// @params uid       用户ID
+// @params recordId  消息记录ID
+func (s *TalkMessageService) SendRevokeRecordMessage(ctx context.Context, uid int, recordId int) error {
+	var (
+		err    error
+		record model.TalkRecords
+	)
+
+	if err = s.db.First(&record, recordId).Error; err != nil {
+		return err
+	}
+
+	if record.IsRevoke == 1 {
+		return nil
+	}
+
+	if record.UserId != uid {
+		return errors.New("无权限测回消息")
+	}
+
+	if time.Now().Unix() > record.CreatedAt.Add(3*time.Minute).Unix() {
+		return errors.New("超出有效撤回时间范围，无法进行撤销！")
+	}
+
+	if err = s.db.Model(&model.TalkRecords{ID: recordId}).Update("is_revoke", 1).Error; err != nil {
+		return err
+	}
+
+	body := map[string]interface{}{
+		"event_name": entity.EventRevokeTalk,
+		"data": jsonutil.JsonEncode(map[string]string{
+			"record_id": strconv.Itoa(record.ID),
+		}),
+	}
+
+	s.rds.Publish(ctx, "chat", jsonutil.JsonEncode(body))
+
+	return nil
+}
+
 // 发送消息后置处理
 func (s *TalkMessageService) afterHandle(ctx context.Context, record *model.TalkRecords, opts map[string]string) {
 

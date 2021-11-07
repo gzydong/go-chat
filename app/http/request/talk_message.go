@@ -59,3 +59,7 @@ type LocationMessageRequest struct {
 	Longitude  string `form:"longitude" binding:"required,numeric"`
 	Latitude   string `form:"latitude" binding:"required,numeric"`
 }
+
+type RevokeMessageRequest struct {
+	RecordId int `form:"record_id" binding:"required,numeric" label:"record_id"`
+}

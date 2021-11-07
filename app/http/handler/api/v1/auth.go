@@ -1,6 +1,7 @@
 package v1
 
 import (
+	"go-chat/app/http/dto"
 	"strconv"
 	"time"
 
@@ -18,28 +19,22 @@ type Auth struct {
 	config      *config.Config
 	userService *service.UserService
 	smsService  *service.SmsService
-	token       *cache.Session
+	session     *cache.Session
 	redisLock   *cache.RedisLock
-}
-
-type CertToken struct {
-	Type      string `json:"type"`
-	Token     string `json:"access_token"`
-	ExpiresIn int64  `json:"expires_in"`
 }
 
 func NewAuthHandler(
 	config *config.Config,
 	userService *service.UserService,
 	smsService *service.SmsService,
-	tokenCache *cache.Session,
+	session *cache.Session,
 	redisLock *cache.RedisLock,
 ) *Auth {
 	return &Auth{
 		config:      config,
 		userService: userService,
 		smsService:  smsService,
-		token:       tokenCache,
+		session:     session,
 		redisLock:   redisLock,
 	}
 }
@@ -128,7 +123,7 @@ func (a *Auth) Forget(ctx *gin.Context) {
 	response.Success(ctx, gin.H{}, "账号成功找回")
 }
 
-func (a *Auth) createToken(uid int) *CertToken {
+func (a *Auth) createToken(uid int) *dto.TokenAttribute {
 	expiresAt := time.Now().Add(time.Second * time.Duration(a.config.Jwt.ExpiresTime)).Unix()
 
 	// 生成登录凭证
@@ -137,7 +132,7 @@ func (a *Auth) createToken(uid int) *CertToken {
 		Id:        strconv.Itoa(uid),
 	})
 
-	return &CertToken{
+	return &dto.TokenAttribute{
 		Type:      "Bearer",
 		Token:     token,
 		ExpiresIn: expiresAt,
@@ -152,6 +147,6 @@ func (a *Auth) toBlackList(ctx *gin.Context) {
 
 	ex := expiresAt - int(time.Now().Unix())
 
-	// 将 token 加入黑名单
-	_ = a.token.SetBlackList(ctx.Request.Context(), info["token"], ex)
+	// 将 session 加入黑名单
+	_ = a.session.SetBlackList(ctx.Request.Context(), info["session"], ex)
 }
