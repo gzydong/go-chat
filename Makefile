@@ -6,7 +6,7 @@ run: generate lint
 	go run .
 
 .PHONY: build
-build:generate
+build:generate lint
 	go build -o ./bin/app
 
 .PHONY: generate
