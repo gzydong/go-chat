@@ -349,6 +349,13 @@ func (s *TalkMessageService) SendRevokeRecordMessage(ctx context.Context, uid in
 	return nil
 }
 
+// DeleteRecordMessage 删除消息记录
+// @params uid       用户ID
+// @params recordId  消息记录ID
+func (s TalkMessageService) DeleteRecordMessage(ctx context.Context, uid int, recordId int) error {
+	return nil
+}
+
 // 发送消息后置处理
 func (s *TalkMessageService) afterHandle(ctx context.Context, record *model.TalkRecords, opts map[string]string) {
 

@@ -29,9 +29,7 @@ func NewGroupMemberService(db *gorm.DB) *GroupMemberService {
 func (s *GroupMemberService) IsMember(groupId, userId int) bool {
 	result := &model.GroupMember{}
 
-	count := s.db.Select("id").
-		Where("group_id = ? and user_id = ? and is_quit = ?", groupId, userId, 0).Unscoped().
-		First(result).RowsAffected
+	count := s.db.Select("id").Where("group_id = ? and user_id = ? and is_quit = ?", groupId, userId, 0).Unscoped().First(result).RowsAffected
 
 	return count != 0
 }

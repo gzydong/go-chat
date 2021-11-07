@@ -12,13 +12,15 @@ import (
 )
 
 type TalkMessage struct {
-	service *service.TalkMessageService
+	service     *service.TalkMessageService
+	talkService *service.TalkService
 }
 
 func NewTalkMessageHandler(
 	service *service.TalkMessageService,
+	talkService *service.TalkService,
 ) *TalkMessage {
-	return &TalkMessage{service}
+	return &TalkMessage{service, talkService}
 }
 
 // Text 发送文本消息
@@ -180,15 +182,19 @@ func (c *TalkMessage) Card(ctx *gin.Context) {
 
 // Collect 收藏聊天图片
 func (c *TalkMessage) Collect(ctx *gin.Context) {
-	params := &request.TextMessageRequest{}
+	params := &request.CollectMessageRequest{}
 	if err := ctx.ShouldBind(params); err != nil {
 		response.InvalidParams(ctx, err)
 		return
 	}
 
-	// c.service.SendTextMessage(ctx.Request.Context(), params)
+	err := c.talkService.CollectRecord(ctx.Request.Context(), auth.GetAuthUserID(ctx), params.RecordId)
+	if err != nil {
+		response.BusinessError(ctx, err)
+		return
+	}
 
-	response.Success(ctx, gin.H{}, "消息推送成功！")
+	response.Success(ctx, gin.H{}, "已收藏！")
 }
 
 // Revoke 撤销聊天记录
@@ -210,13 +216,17 @@ func (c *TalkMessage) Revoke(ctx *gin.Context) {
 
 // Delete 删除聊天记录
 func (c *TalkMessage) Delete(ctx *gin.Context) {
-	params := &request.TextMessageRequest{}
+	params := &request.DeleteMessageRequest{}
 	if err := ctx.ShouldBind(params); err != nil {
 		response.InvalidParams(ctx, err)
 		return
 	}
 
-	// c.service.SendTextMessage(ctx.Request.Context(), params)
+	err := c.talkService.RemoveRecords(ctx.Request.Context(), auth.GetAuthUserID(ctx), params)
+	if err != nil {
+		response.BusinessError(ctx, err)
+		return
+	}
 
 	response.Success(ctx, gin.H{}, "消息推送成功！")
 }

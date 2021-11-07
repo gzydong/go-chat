@@ -22,7 +22,7 @@ import (
 )
 
 import (
-	_ "go-chat/app/validator"
+	_ "go-chat/app/pkg/validation"
 )
 
 // Injectors from wire.go:
@@ -51,8 +51,8 @@ func Initialize(ctx context.Context) *provider.Services {
 	talkMessageForwardService := service.NewTalkMessageForwardService(baseService)
 	lastMessage := cache.NewLastMessage(client)
 	talkMessageService := service.NewTalkMessageService(baseService, config, groupMemberService, unreadTalkCache, talkMessageForwardService, lastMessage)
-	talkMessage := v1.NewTalkMessageHandler(talkMessageService)
-	talkService := service.NewTalkService()
+	talkService := service.NewTalkService(baseService, groupMemberService)
+	talkMessage := v1.NewTalkMessageHandler(talkMessageService, talkService)
 	talkListDao := dao.NewTalkListDao(base)
 	talkListService := service.NewTalkListService(baseService, talkListDao)
 	serverRunID := cache.NewServerRun(client)
