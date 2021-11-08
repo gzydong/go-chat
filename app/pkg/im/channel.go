@@ -68,7 +68,7 @@ func (c *ChannelManager) PushRecvChannel(message *ReceiveContent) {
 	select {
 	case c.inChan <- message:
 		break
-	case <-time.After(800 * time.Millisecond):
+	case <-time.After(500 * time.Millisecond):
 		fmt.Printf("[%s] RecvChan 写入消息超时,管道长度：%d \n", c.Name, len(c.inChan))
 		break
 	}
@@ -79,7 +79,7 @@ func (c *ChannelManager) PushSendChannel(msg *SenderContent) {
 	select {
 	case c.outChan <- msg:
 		break
-	case <-time.After(800 * time.Millisecond):
+	case <-time.After(500 * time.Millisecond):
 		fmt.Printf("[%s] SendChan 写入消息超时,管道长度：%d \n", c.Name, len(c.inChan))
 		break
 	}
@@ -108,6 +108,8 @@ func (c *ChannelManager) recv(ctx context.Context) {
 	)
 
 	for {
+		timeout.Reset(out)
+
 		select {
 		case <-ctx.Done():
 			return
