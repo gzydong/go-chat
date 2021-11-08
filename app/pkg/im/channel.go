@@ -13,19 +13,19 @@ import (
 
 type HandleInterface interface {
 	Open(client *Client)
-	Message(message *ClientContent)
+	Message(message *ReceiveContent)
 	Close(client *Client, code int, text string)
 }
 
 // ChannelManager 渠道管理（多渠道划分，实现不同业务之间隔离）
 type ChannelManager struct {
-	Name    string              // 渠道名称
-	Count   int                 // 客户端连接数
-	Clients map[int]*Client     // 客户端列表
-	inChan  chan *ClientContent // 消息接收通道
-	outChan chan *SenderContent // 消息发送通道
-	Lock    *sync.RWMutex       // 读写锁
-	Handler HandleInterface     // 回调处理
+	Name    string               // 渠道名称
+	Count   int                  // 客户端连接数
+	Clients map[int]*Client      // 客户端列表
+	inChan  chan *ReceiveContent // 消息接收通道
+	outChan chan *SenderContent  // 消息发送通道
+	Lock    *sync.RWMutex        // 读写锁
+	Handler HandleInterface      // 回调处理
 }
 
 // RegisterClient 注册客户端
@@ -64,7 +64,7 @@ func (c *ChannelManager) GetClient(cid int) (*Client, bool) {
 }
 
 // PushRecvChannel 推送消息到接收通道
-func (c *ChannelManager) PushRecvChannel(message *ClientContent) {
+func (c *ChannelManager) PushRecvChannel(message *ReceiveContent) {
 	select {
 	case c.inChan <- message:
 		break

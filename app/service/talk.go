@@ -31,15 +31,15 @@ func (s *TalkService) RemoveRecords(ctx context.Context, uid int, req *request.D
 	findIds := make([]int64, 0)
 
 	if req.TalkType == entity.PrivateChat {
-		s.db.Model(model.TalkRecords{}).Select("id").Where("id in ?", ids).Where("talk_type = ?", entity.PrivateChat).Where(
+		s.db.Model(model.TalkRecords{}).Where("id in ?", ids).Where("talk_type = ?", entity.PrivateChat).Where(
 			s.db.Where("user_id = ? and receiver_id = ?", uid, req.ReceiverId).
-				Or("user_id = ? and receiver_id = ?", req.ReceiverId, uid)).Scan(&findIds)
+				Or("user_id = ? and receiver_id = ?", req.ReceiverId, uid)).Pluck("id", &findIds)
 	} else {
 		if !s.groupMemberService.IsMember(req.ReceiverId, uid) {
 			return errors.New("非群成员，暂无权限! ")
 		}
 
-		s.db.Model(model.TalkRecords{}).Select("id").Where("id in ? and talk_type = ?", ids, entity.GroupChat).Scan(&findIds)
+		s.db.Model(model.TalkRecords{}).Where("id in ? and talk_type = ?", ids, entity.GroupChat).Pluck("id", &findIds)
 	}
 
 	if len(ids) != len(findIds) {

@@ -46,11 +46,11 @@ func (w *WsClient) Set(ctx context.Context, channel string, fd string, id int) {
 func (w *WsClient) Del(ctx context.Context, channel string, fd string) {
 	KeyName := w.getChannelClientKey(w.conf.GetSid(), channel)
 
-	userId, _ := w.rds.HGet(ctx, KeyName, fd).Result()
+	uid, _ := w.rds.HGet(ctx, KeyName, fd).Result()
 
 	w.rds.HDel(ctx, KeyName, fd)
 
-	w.rds.SRem(ctx, w.getChannelUserKey(w.conf.GetSid(), channel, userId), fd)
+	w.rds.SRem(ctx, w.getChannelUserKey(w.conf.GetSid(), channel, uid), fd)
 }
 
 // IsOnline 判断客户端是否在线[所有部署机器]
@@ -58,9 +58,7 @@ func (w *WsClient) Del(ctx context.Context, channel string, fd string) {
 // id       用户ID
 func (w *WsClient) IsOnline(ctx context.Context, channel string, id string) bool {
 	for _, sid := range w.server.GetServerRunIdAll(ctx, 1) {
-		key := w.getChannelUserKey(sid, channel, id)
-		val, err := w.rds.SCard(ctx, key).Result()
-
+		val, err := w.rds.SCard(ctx, w.getChannelUserKey(sid, channel, id)).Result()
 		if err == nil && val > 0 {
 			return true
 		}
