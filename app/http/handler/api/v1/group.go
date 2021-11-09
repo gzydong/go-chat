@@ -77,15 +77,14 @@ func (c *Group) Invite(ctx *gin.Context) {
 		return
 	}
 
-	keyLock := fmt.Sprintf("group-join:%d", params.GroupId)
-
-	if !c.redisLock.Lock(ctx, keyLock, 20) {
+	key := fmt.Sprintf("group-join:%d", params.GroupId)
+	if !c.redisLock.Lock(ctx, key, 20) {
 		response.BusinessError(ctx, "网络异常，请稍后再试！")
 		return
 	}
 
 	// 释放锁
-	defer c.redisLock.Release(ctx, keyLock)
+	defer c.redisLock.Release(ctx, key)
 
 	uid := auth.GetAuthUserID(ctx)
 	uids := slice.UniqueInt(slice.ParseIds(params.Ids))

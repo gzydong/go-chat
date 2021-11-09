@@ -68,8 +68,8 @@ func (c *Talk) List(ctx *gin.Context) {
 		if item.TalkType == 1 {
 			value.Name = item.Nickname
 			value.Avatar = item.UserAvatar
-			value.RemarkName = c.usersFriendsDao.GetFriendRemark(ctx.Request.Context(), uid, item.ReceiverId) // 查询缓存
-			value.UnreadNum = 0                                                                               // 查询缓存
+			value.RemarkName = c.usersFriendsDao.GetFriendRemark(ctx.Request.Context(), uid, item.ReceiverId)
+			value.UnreadNum = 0
 			value.IsOnline = strutil.BoolToInt(c.wsClient.IsOnline(ctx, im.GroupManage.DefaultChannel.Name, strconv.Itoa(value.ReceiverId)))
 		} else {
 			value.Name = item.GroupName
@@ -92,21 +92,23 @@ func (c *Talk) List(ctx *gin.Context) {
 
 // Create 创建会话列表
 func (c *Talk) Create(ctx *gin.Context) {
-	params := &request.TalkListCreateRequest{}
+	var (
+		params = &request.TalkListCreateRequest{}
+		uid    = auth.GetAuthUserID(ctx)
+		agent  = strings.TrimSpace(ctx.GetHeader("user-agent"))
+	)
+
 	if err := ctx.ShouldBind(params); err != nil {
 		response.InvalidParams(ctx, err)
 		return
 	}
 
-	uid := auth.GetAuthUserID(ctx)
-
-	agent := strings.TrimSpace(ctx.GetHeader("user-agent"))
 	if agent != "" {
 		agent = strutil.Md5([]byte(agent))
 	}
 
-	lockKey := fmt.Sprintf("talk:list:%d-%d-%d-%s", uid, params.ReceiverId, params.TalkType, agent)
-	if !c.redisLock.Lock(ctx.Request.Context(), lockKey, 20) {
+	key := fmt.Sprintf("talk:list:%d-%d-%d-%s", uid, params.ReceiverId, params.TalkType, agent)
+	if !c.redisLock.Lock(ctx.Request.Context(), key, 20) {
 		response.BusinessError(ctx, "创建失败")
 		return
 	}
