@@ -1,6 +1,7 @@
 package request
 
 import (
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -36,8 +37,7 @@ func (c *HttpClient) Get(url string, params *url.Values) ([]byte, error) {
 		}
 	}
 
-	req, _ := http.NewRequest("GET", url, nil)
-	resp, err := c.client.Do(req)
+	resp, err := c.client.Get(url)
 	if err != nil {
 		return nil, err
 	}
@@ -60,11 +60,7 @@ func (c *HttpClient) Get(url string, params *url.Values) ([]byte, error) {
 }
 
 func (c *HttpClient) Post(url string, params *url.Values) ([]byte, error) {
-	req, _ := http.NewRequest("POST", url, strings.NewReader(params.Encode()))
-
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-
-	resp, err := c.client.Do(req)
+	resp, err := c.client.PostForm(url, *params)
 
 	if err != nil {
 		return nil, err
@@ -88,6 +84,33 @@ func (c *HttpClient) Post(url string, params *url.Values) ([]byte, error) {
 	return res, nil
 }
 
-func (c *HttpClient) PostFrom(url string, params *url.Values, files []*FileData) {
+func (c *HttpClient) PostJson(url string, params interface{}) ([]byte, error) {
+	text, _ := json.Marshal(params)
 
+	req, _ := http.NewRequest("POST", url, strings.NewReader(string(text)))
+
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := c.client.Do(req)
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer resp.Body.Close()
+
+	res, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	if c.debug {
+		fmt.Printf("\n[POST] HTTP Request\n")
+		fmt.Printf("Request URL : %s\n", url)
+		fmt.Printf("Request Data: %s\n", string(text))
+		fmt.Printf("Response StatusCode: %d\n", resp.StatusCode)
+		fmt.Printf("Response Data: %s\n\n", string(res))
+	}
+
+	return res, nil
 }
