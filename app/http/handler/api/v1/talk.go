@@ -11,6 +11,7 @@ import (
 	"go-chat/app/http/response"
 	"go-chat/app/pkg/auth"
 	"go-chat/app/pkg/im"
+	"go-chat/app/pkg/jsonutil"
 	"go-chat/app/pkg/strutil"
 	"go-chat/app/pkg/timeutil"
 	"go-chat/app/service"
@@ -19,13 +20,14 @@ import (
 )
 
 type Talk struct {
-	service         *service.TalkService
-	talkListService *service.TalkListService
-	redisLock       *cache.RedisLock
-	userService     *service.UserService
-	wsClient        *cache.WsClient
-	lastMessage     *cache.LastMessage
-	usersFriendsDao *dao.UsersFriendsDao
+	service            *service.TalkService
+	talkListService    *service.TalkListService
+	redisLock          *cache.RedisLock
+	userService        *service.UserService
+	wsClient           *cache.WsClient
+	lastMessage        *cache.LastMessage
+	usersFriendsDao    *dao.UsersFriendsDao
+	talkRecordsService *service.TalkRecordsService
 }
 
 func NewTalkHandler(
@@ -36,8 +38,9 @@ func NewTalkHandler(
 	wsClient *cache.WsClient,
 	lastMessage *cache.LastMessage,
 	usersFriendsDao *dao.UsersFriendsDao,
+	talkRecordsService *service.TalkRecordsService,
 ) *Talk {
-	return &Talk{service, talkListService, redisLock, userService, wsClient, lastMessage, usersFriendsDao}
+	return &Talk{service, talkListService, redisLock, userService, wsClient, lastMessage, usersFriendsDao, talkRecordsService}
 }
 
 // List 会话列表
@@ -188,4 +191,28 @@ func (c *Talk) Disturb(ctx *gin.Context) {
 	}
 
 	response.Success(ctx, gin.H{})
+}
+
+func (c *Talk) TalkRecords(ctx *gin.Context) {
+	params := &request.TalkRecordsRequest{}
+	if err := ctx.ShouldBindQuery(params); err != nil {
+		fmt.Println(jsonutil.JsonEncode(params))
+		response.InvalidParams(ctx, err)
+		return
+	}
+
+	records, err := c.talkRecordsService.GetTalkRecords(ctx, &service.QueryTalkRecordsOpts{
+		TalkType:   params.TalkType,
+		UserId:     auth.GetAuthUserID(ctx),
+		ReceiverId: params.ReceiverId,
+		RecordId:   params.RecordId,
+		Limit:      params.Limit,
+	})
+
+	if err != nil {
+		response.BusinessError(ctx, err)
+		return
+	}
+
+	response.Success(ctx, records)
 }

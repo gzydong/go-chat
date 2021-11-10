@@ -61,7 +61,7 @@ func (s TalkRecordsService) GetTalkRecords(ctx context.Context, query *QueryTalk
 		}
 	)
 
-	tx := s.db.Debug().Table("lar_talk_records")
+	tx := s.db.Table("lar_talk_records")
 
 	tx.Joins("left join lar_users on lar_talk_records.user_id = lar_users.id")
 
@@ -135,32 +135,60 @@ func (s *TalkRecordsService) HandleTalkRecords(items []*QueryTalkRecordsItem) ([
 		}
 	}
 
+	hashFiles := make(map[int]*model.TalkRecordsFile)
 	if len(files) > 0 {
 		s.db.Model(model.TalkRecordsFile{}).Where("record_id in ?", files).Scan(&fileItems)
+		for _, item := range fileItems {
+			hashFiles[item.RecordId] = item
+		}
 	}
 
+	hashForwards := make(map[int]*model.TalkRecordsForward)
 	if len(forwards) > 0 {
 		s.db.Model(model.TalkRecordsForward{}).Where("record_id in ?", forwards).Scan(&forwardItems)
+		for _, item := range forwardItems {
+			hashForwards[item.RecordId] = item
+		}
 	}
 
+	hashCodes := make(map[int]*model.TalkRecordsCode)
 	if len(codes) > 0 {
 		s.db.Model(model.TalkRecordsCode{}).Where("record_id in ?", codes).Scan(&codeItems)
+		for _, item := range codeItems {
+			hashCodes[item.RecordId] = item
+		}
 	}
 
+	hashVotes := make(map[int]*model.TalkRecordsVote)
 	if len(votes) > 0 {
-		s.db.Model(model.TalkRecordsCode{}).Where("record_id in ?", votes).Scan(&voteItems)
+		s.db.Model(model.TalkRecordsVote{}).Where("record_id in ?", votes).Scan(&voteItems)
+		for _, item := range voteItems {
+			hashVotes[item.RecordId] = item
+		}
 	}
 
+	hashLogins := make(map[int]*model.TalkRecordsLogin)
 	if len(logins) > 0 {
 		s.db.Model(model.TalkRecordsLogin{}).Where("record_id in ?", votes).Scan(&loginItems)
+		for _, item := range loginItems {
+			hashLogins[item.RecordId] = item
+		}
 	}
 
+	hashInvites := make(map[int]*model.TalkRecordsInvite)
 	if len(invites) > 0 {
 		s.db.Model(model.TalkRecordsInvite{}).Where("record_id in ?", invites).Scan(&inviteItems)
+		for _, item := range inviteItems {
+			hashInvites[item.RecordId] = item
+		}
 	}
 
+	hashLocations := make(map[int]*model.TalkRecordsLocation)
 	if len(locations) > 0 {
 		s.db.Model(model.TalkRecordsLocation{}).Where("record_id in ?", locations).Scan(&locationItems)
+		for _, item := range locationItems {
+			hashLocations[item.RecordId] = item
+		}
 	}
 
 	newItems := make([]*dto.TalkRecordsItem, 0, len(items))
@@ -179,6 +207,31 @@ func (s *TalkRecordsService) HandleTalkRecords(items []*QueryTalkRecordsItem) ([
 			IsRead:     item.IsRead,
 			Content:    item.Content,
 			CreatedAt:  timeutil.FormatDatetime(item.CreatedAt),
+		}
+
+		switch item.MsgType {
+		case entity.MsgTypeFile:
+
+		case entity.MsgTypeForward:
+
+		case entity.MsgTypeCode:
+			if value, ok := hashCodes[item.ID]; ok {
+				data.CodeBlock = value
+			}
+		case entity.MsgTypeVote:
+
+		case entity.MsgTypeGroupNotice:
+		case entity.MsgTypeFriendApply:
+		case entity.MsgTypeUserLogin:
+			if value, ok := hashLogins[item.ID]; ok {
+				data.Login = value
+			}
+		case entity.MsgTypeGroupInvite:
+
+		case entity.MsgTypeLocation:
+			if value, ok := hashLocations[item.ID]; ok {
+				data.Location = value
+			}
 		}
 
 		newItems = append(newItems, data)

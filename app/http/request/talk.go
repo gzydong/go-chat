@@ -19,3 +19,10 @@ type TalkListDisturbRequest struct {
 	ReceiverId int `form:"receiver_id" binding:"required,numeric" label:"receiver_id"`
 	IsDisturb  int `form:"is_disturb" binding:"oneof=0 1" label:"is_disturb"`
 }
+
+type TalkRecordsRequest struct {
+	TalkType   int `form:"talk_type" binding:"required,oneof=1 2"`       // 对话类型
+	ReceiverId int `form:"receiver_id" binding:"required,numeric,min=1"` // 接收者ID
+	RecordId   int `form:"record_id" binding:"numeric"`                  // 上次查询的最小消息ID
+	Limit      int `form:"limit" binding:"required,numeric,max=100"`     // 数据行数
+}
