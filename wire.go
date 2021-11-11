@@ -83,6 +83,7 @@ var providerSet = wire.NewSet(
 	v1.NewUploadHandler,
 	v1.NewDownloadHandler,
 	v1.NewEmoticonHandler,
+	v1.NewTalkRecordsHandler,
 	open.NewIndexHandler,
 	ws.NewDefaultWebSocket,
 

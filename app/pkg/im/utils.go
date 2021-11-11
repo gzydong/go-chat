@@ -1,13 +1,9 @@
 package im
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
-	"go-chat/app/pkg/utils"
 	"net/http"
-	"strconv"
-	"time"
 )
 
 // NewWebsocket 获取 WebSocket 连接
@@ -22,13 +18,4 @@ func NewWebsocket(ctx *gin.Context) (*websocket.Conn, error) {
 	}
 
 	return upGrader.Upgrade(ctx.Writer, ctx.Request, nil)
-}
-
-// NewClientID 创建客户端ID
-func NewClientID() int {
-	num := fmt.Sprintf("%03d", utils.MtRand(1, 999))
-
-	val, _ := strconv.Atoi(fmt.Sprintf("%d%s", time.Now().UnixNano()/1000, num))
-
-	return val
 }

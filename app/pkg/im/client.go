@@ -2,7 +2,9 @@ package im
 
 import (
 	"context"
-	"strconv"
+	"fmt"
+	"github.com/tidwall/gjson"
+	"go-chat/app/pkg/jsonutil"
 	"time"
 
 	"github.com/gorilla/websocket"
@@ -17,17 +19,17 @@ const (
 // Client WebSocket 客户端连接信息
 type Client struct {
 	Conn          *websocket.Conn        // 客户端连接
-	ClientId      int                    // 客户端ID/客户端唯一标识
+	ClientId      int64                  // 客户端ID/客户端唯一标识
 	UserId        int                    // 用户ID
 	LastTime      int64                  // 客户端最后心跳时间/心跳检测
-	Channel       *ChannelManager        // 渠道分组
+	Channel       *ChannelManage         // 渠道分组
 	ClientService *service.ClientService // 服务信息
 	IsClosed      bool                   // 客户端是否关闭连接
 }
 
 type ClientOption struct {
 	UserId        int
-	Channel       *ChannelManager
+	Channel       *ChannelManage
 	ClientService *service.ClientService
 }
 
@@ -35,7 +37,7 @@ type ClientOption struct {
 func NewClient(conn *websocket.Conn, options *ClientOption) *Client {
 	client := &Client{
 		Conn:          conn,
-		ClientId:      NewClientID(),
+		ClientId:      GenClientID.GetID(),
 		LastTime:      time.Now().Unix(),
 		UserId:        options.UserId,
 		Channel:       options.Channel,
@@ -50,7 +52,7 @@ func NewClient(conn *websocket.Conn, options *ClientOption) *Client {
 
 		client.Channel.RemoveClient(client)
 
-		client.ClientService.UnBind(context.Background(), client.Channel.Name, strconv.Itoa(client.ClientId))
+		client.ClientService.UnBind(context.Background(), client.Channel.Name, fmt.Sprintf("%d", client.ClientId))
 
 		return nil
 	})
@@ -59,7 +61,7 @@ func NewClient(conn *websocket.Conn, options *ClientOption) *Client {
 	client.Channel.RegisterClient(client)
 
 	// 绑定客户端映射关系
-	client.ClientService.Bind(context.Background(), client.Channel.Name, strconv.Itoa(client.ClientId), client.UserId)
+	client.ClientService.Bind(context.Background(), client.Channel.Name, fmt.Sprintf("%d", client.ClientId), client.UserId)
 
 	// 触发自定义的 open 事件
 	client.Channel.Handler.Open(client)
@@ -75,6 +77,12 @@ func (w *Client) Close(code int, message string) {
 	handler := w.Conn.CloseHandler()
 
 	_ = handler(code, message)
+}
+
+// Write 客户端写入数据
+func (w *Client) Write(messageType int, data []byte) error {
+	// 需要做线程安全处理
+	return w.Conn.WriteMessage(messageType, data)
 }
 
 // heartbeat 心跳检测
@@ -99,16 +107,27 @@ func (w *Client) accept() {
 
 	for {
 		// 读取客户端中的数据
-		_, message, err := w.Conn.ReadMessage()
+		mt, message, err := w.Conn.ReadMessage()
 		if err != nil {
 			break
 		}
 
 		msg := string(message)
 
+		res := gjson.Get(msg, "event")
+
+		// 判断消息格式是否正确
+		if !res.Exists() {
+			continue
+		}
+
 		// 心跳消息判断
-		if msg == "ping" {
+		if res.Str == "heartbeat" {
 			w.LastTime = time.Now().Unix()
+			_ = w.Write(mt, []byte(jsonutil.JsonEncode(&Message{
+				Event:   "heartbeat",
+				Content: "pong",
+			})))
 			continue
 		}
 

@@ -33,7 +33,7 @@ func (w *WsSubscribe) Handle(ctx context.Context) error {
 				Content: msg.Payload,
 			})
 
-			im.GroupManage.DefaultChannel.PushSendChannel(body)
+			im.SessionManage.DefaultChannel.PushSendChannel(body)
 
 			fmt.Printf("channel=%s message=%s\n", msg.Channel, msg.Payload)
 		}

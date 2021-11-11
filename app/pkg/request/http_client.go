@@ -28,6 +28,9 @@ func (c *HttpClient) SetDebug() {
 	c.debug = true
 }
 
+// Get 请求
+// @params url    请求地址
+// @params params 请求参数
 func (c *HttpClient) Get(url string, params *url.Values) ([]byte, error) {
 	if params != nil {
 		if strings.Contains(url, "?") {
@@ -113,4 +116,12 @@ func (c *HttpClient) PostJson(url string, params interface{}) ([]byte, error) {
 	}
 
 	return res, nil
+}
+
+// PostFrom 表单请求
+// @params url    请求地址
+// @params params 请求参数
+// @params files  上传文件
+func (c *HttpClient) PostFrom(url string, params *url.Values, files []*FileData) {
+
 }

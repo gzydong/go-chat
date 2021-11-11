@@ -11,7 +11,6 @@ import (
 	"go-chat/app/http/response"
 	"go-chat/app/pkg/auth"
 	"go-chat/app/pkg/im"
-	"go-chat/app/pkg/jsonutil"
 	"go-chat/app/pkg/strutil"
 	"go-chat/app/pkg/timeutil"
 	"go-chat/app/service"
@@ -20,14 +19,13 @@ import (
 )
 
 type Talk struct {
-	service            *service.TalkService
-	talkListService    *service.TalkListService
-	redisLock          *cache.RedisLock
-	userService        *service.UserService
-	wsClient           *cache.WsClient
-	lastMessage        *cache.LastMessage
-	usersFriendsDao    *dao.UsersFriendsDao
-	talkRecordsService *service.TalkRecordsService
+	service         *service.TalkService
+	talkListService *service.TalkListService
+	redisLock       *cache.RedisLock
+	userService     *service.UserService
+	wsClient        *cache.WsClient
+	lastMessage     *cache.LastMessage
+	usersFriendsDao *dao.UsersFriendsDao
 }
 
 func NewTalkHandler(
@@ -38,9 +36,16 @@ func NewTalkHandler(
 	wsClient *cache.WsClient,
 	lastMessage *cache.LastMessage,
 	usersFriendsDao *dao.UsersFriendsDao,
-	talkRecordsService *service.TalkRecordsService,
 ) *Talk {
-	return &Talk{service, talkListService, redisLock, userService, wsClient, lastMessage, usersFriendsDao, talkRecordsService}
+	return &Talk{
+		service:         service,
+		talkListService: talkListService,
+		redisLock:       redisLock,
+		userService:     userService,
+		wsClient:        wsClient,
+		lastMessage:     lastMessage,
+		usersFriendsDao: usersFriendsDao,
+	}
 }
 
 // List 会话列表
@@ -73,7 +78,7 @@ func (c *Talk) List(ctx *gin.Context) {
 			value.Avatar = item.UserAvatar
 			value.RemarkName = c.usersFriendsDao.GetFriendRemark(ctx.Request.Context(), uid, item.ReceiverId)
 			value.UnreadNum = 0
-			value.IsOnline = strutil.BoolToInt(c.wsClient.IsOnline(ctx, im.GroupManage.DefaultChannel.Name, strconv.Itoa(value.ReceiverId)))
+			value.IsOnline = strutil.BoolToInt(c.wsClient.IsOnline(ctx, im.SessionManage.DefaultChannel.Name, strconv.Itoa(value.ReceiverId)))
 		} else {
 			value.Name = item.GroupName
 			value.Avatar = item.GroupAvatar
@@ -191,28 +196,4 @@ func (c *Talk) Disturb(ctx *gin.Context) {
 	}
 
 	response.Success(ctx, gin.H{})
-}
-
-func (c *Talk) TalkRecords(ctx *gin.Context) {
-	params := &request.TalkRecordsRequest{}
-	if err := ctx.ShouldBindQuery(params); err != nil {
-		fmt.Println(jsonutil.JsonEncode(params))
-		response.InvalidParams(ctx, err)
-		return
-	}
-
-	records, err := c.talkRecordsService.GetTalkRecords(ctx, &service.QueryTalkRecordsOpts{
-		TalkType:   params.TalkType,
-		UserId:     auth.GetAuthUserID(ctx),
-		ReceiverId: params.ReceiverId,
-		RecordId:   params.RecordId,
-		Limit:      params.Limit,
-	})
-
-	if err != nil {
-		response.BusinessError(ctx, err)
-		return
-	}
-
-	response.Success(ctx, records)
 }

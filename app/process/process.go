@@ -22,7 +22,7 @@ func NewProcessManage(run *ServerRun, ws *WsSubscribe) *Process {
 
 	pro.Register(run)
 	pro.Register(ws)
-	pro.Register(im.GroupManage.DefaultChannel)
+	pro.Register(im.SessionManage.DefaultChannel)
 
 	return pro
 }

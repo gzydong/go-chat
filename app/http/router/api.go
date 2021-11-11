@@ -72,7 +72,7 @@ func RegisterApiRoute(conf *config.Config, router *gin.Engine, handler *handler.
 			talk.POST("/delete", handler.Talk.Delete)
 			talk.POST("/top", handler.Talk.Top)
 			talk.POST("/disturb", handler.Talk.Disturb)
-			talk.GET("/records", handler.Talk.TalkRecords)
+			talk.GET("/records", handler.TalkRecords.GetRecords)
 		}
 
 		talkMsg := group.Group("/talk/message").Use(authorize)

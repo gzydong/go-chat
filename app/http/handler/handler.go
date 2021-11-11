@@ -12,6 +12,7 @@ type Handler struct {
 	User             *v1.User
 	TalkMessage      *v1.TalkMessage
 	Talk             *v1.Talk
+	TalkRecords      *v1.TalkRecords
 	Download         *v1.Download
 	Emoticon         *v1.Emoticon
 	Upload           *v1.Upload
