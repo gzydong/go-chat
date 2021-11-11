@@ -85,7 +85,16 @@ func (w *Client) Write(messageType int, data []byte) error {
 	return w.Conn.WriteMessage(messageType, data)
 }
 
-// heartbeat 心跳检测
+// InitConnection 初始化连接
+func (w *Client) InitConnection() {
+	// 启动协程处理接收信息
+	go w.accept()
+
+	// 启动客户端心跳检测
+	go w.heartbeat()
+}
+
+// 心跳检测
 func (w *Client) heartbeat() {
 	for {
 		<-time.After(heartbeatCheckInterval)
@@ -101,7 +110,7 @@ func (w *Client) heartbeat() {
 	}
 }
 
-// accept 循环接收客户端推送信息
+// 循环接收客户端推送信息
 func (w *Client) accept() {
 	defer w.Conn.Close()
 
@@ -122,7 +131,7 @@ func (w *Client) accept() {
 		}
 
 		// 心跳消息判断
-		if res.Str == "heartbeat" {
+		if res.String() == "heartbeat" {
 			w.LastTime = time.Now().Unix()
 			_ = w.Write(mt, []byte(jsonutil.JsonEncode(&Message{
 				Event:   "heartbeat",
@@ -131,8 +140,6 @@ func (w *Client) accept() {
 			continue
 		}
 
-		// todo 这里需要验证消息格式，未知格式直接忽略
-
 		if len(msg) > 0 {
 			w.Channel.PushRecvChannel(&ReceiveContent{
 				Client:  w,
@@ -140,13 +147,4 @@ func (w *Client) accept() {
 			})
 		}
 	}
-}
-
-// InitConnection 初始化连接
-func (w *Client) InitConnection() {
-	// 启动协程处理接收信息
-	go w.accept()
-
-	// 启动客户端心跳检测
-	go w.heartbeat()
 }
