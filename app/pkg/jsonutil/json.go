@@ -11,6 +11,6 @@ func JsonEncode(value interface{}) string {
 	return content
 }
 
-func JsonEncodeToByte(value interface{}) ([]byte, error) {
+func JsonEncodeByte(value interface{}) ([]byte, error) {
 	return jsoniter.Marshal(value)
 }

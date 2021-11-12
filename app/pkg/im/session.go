@@ -4,8 +4,8 @@ import (
 	"sync"
 )
 
-// SessionManage session 客户端管理实例
-var SessionManage = &session{
+// Session 客户端管理实例
+var Session = &session{
 	DefaultChannel: &ChannelManage{
 		Name:    "default",
 		Count:   0,

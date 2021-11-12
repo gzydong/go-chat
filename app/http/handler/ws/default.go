@@ -16,7 +16,7 @@ type DefaultWebSocket struct {
 func NewDefaultWebSocket(client *service.ClientService) *DefaultWebSocket {
 	handler := &DefaultWebSocket{client: client}
 
-	channel := im.SessionManage.DefaultChannel
+	channel := im.Session.DefaultChannel
 
 	channel.SetCallbackHandler(handler)
 
@@ -32,7 +32,7 @@ func (ws *DefaultWebSocket) Connect(c *gin.Context) {
 	}
 
 	options := &im.ClientOption{
-		Channel:       im.SessionManage.DefaultChannel,
+		Channel:       im.Session.DefaultChannel,
 		UserId:        auth.GetAuthUserID(c),
 		ClientService: ws.client,
 	}
@@ -63,7 +63,7 @@ func (ws *DefaultWebSocket) Message(message *im.ReceiveContent) {
 		},
 	})
 
-	im.SessionManage.DefaultChannel.PushSendChannel(body)
+	im.Session.DefaultChannel.PushSendChannel(body)
 }
 
 // Close 客户端关闭回调事件

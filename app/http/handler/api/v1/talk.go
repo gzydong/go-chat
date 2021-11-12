@@ -78,7 +78,7 @@ func (c *Talk) List(ctx *gin.Context) {
 			value.Avatar = item.UserAvatar
 			value.RemarkName = c.usersFriendsDao.GetFriendRemark(ctx.Request.Context(), uid, item.ReceiverId)
 			value.UnreadNum = 0
-			value.IsOnline = strutil.BoolToInt(c.wsClient.IsOnline(ctx, im.SessionManage.DefaultChannel.Name, strconv.Itoa(value.ReceiverId)))
+			value.IsOnline = strutil.BoolToInt(c.wsClient.IsOnline(ctx, im.Session.DefaultChannel.Name, strconv.Itoa(value.ReceiverId)))
 		} else {
 			value.Name = item.GroupName
 			value.Avatar = item.GroupAvatar

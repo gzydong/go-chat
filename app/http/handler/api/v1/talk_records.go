@@ -18,6 +18,7 @@ func NewTalkRecordsHandler(service *service.TalkRecordsService) *TalkRecords {
 	}
 }
 
+// GetRecords 获取会话记录
 func (c *TalkRecords) GetRecords(ctx *gin.Context) {
 	params := &request.TalkRecordsRequest{}
 	if err := ctx.ShouldBindQuery(params); err != nil {
@@ -41,6 +42,7 @@ func (c *TalkRecords) GetRecords(ctx *gin.Context) {
 	response.Success(ctx, records)
 }
 
+// SearchRecords 查询下会话记录
 func (c *TalkRecords) SearchRecords(ctx *gin.Context) {
 
 }

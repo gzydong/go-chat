@@ -141,7 +141,7 @@ func (c *ChannelManage) send(ctx context.Context) {
 
 		case body, ok := <-c.outChan:
 			if ok {
-				content, _ := jsonutil.JsonEncodeToByte(body.GetMessage())
+				content, _ := jsonutil.JsonEncodeByte(body.GetMessage())
 
 				// 判断是否广播消息
 				if body.IsBroadcast() {
