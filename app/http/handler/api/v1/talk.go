@@ -23,7 +23,7 @@ type Talk struct {
 	talkListService *service.TalkListService
 	redisLock       *cache.RedisLock
 	userService     *service.UserService
-	wsClient        *cache.WsClient
+	wsClient        *cache.WsClientSession
 	lastMessage     *cache.LastMessage
 	usersFriendsDao *dao.UsersFriendsDao
 }
@@ -33,7 +33,7 @@ func NewTalkHandler(
 	talkListService *service.TalkListService,
 	redisLock *cache.RedisLock,
 	userService *service.UserService,
-	wsClient *cache.WsClient,
+	wsClient *cache.WsClientSession,
 	lastMessage *cache.LastMessage,
 	usersFriendsDao *dao.UsersFriendsDao,
 ) *Talk {

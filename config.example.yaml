@@ -21,7 +21,6 @@ mysql:
   password: xxxx
   database: go_chat
   collation: utf8_unicode_ci
-  prefix: im_
 
 # Jwt 配置
 jwt:

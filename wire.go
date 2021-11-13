@@ -39,7 +39,7 @@ var providerSet = wire.NewSet(
 	cache.NewServerRun,
 	cache.NewUnreadTalkCache,
 	cache.NewRedisLock,
-	cache.NewWsClient,
+	cache.NewWsClientSession,
 	cache.NewLastMessage,
 	wire.Struct(new(cache.SmsCodeCache), "*"),
 

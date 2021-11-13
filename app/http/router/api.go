@@ -33,13 +33,14 @@ func RegisterApiRoute(conf *config.Config, router *gin.Engine, handler *handler.
 		}
 
 		// 用户相关分组
-		user := group.Group("/user").Use(authorize)
+		user := group.Group("/users").Use(authorize)
 		{
-			user.GET("/detail", handler.User.Detail)                   // 获取个人信息
-			user.POST("/change/detail", handler.User.ChangeDetail)     // 修改个人信息接口
-			user.POST("/change/password", handler.User.ChangePassword) // 修改密码接口
-			user.POST("/change/mobile", handler.User.ChangeMobile)     // 修改手机号接口
-			user.POST("/change/email", handler.User.ChangeEmail)       // 修改邮箱接口
+			user.GET("/detail", handler.User.Detail)                 // 获取个人信息
+			user.GET("/setting", handler.User.Setting)               // 获取个人信息
+			user.POST("/edit/detail", handler.User.ChangeDetail)     // 修改个人信息接口
+			user.POST("/edit/password", handler.User.ChangePassword) // 修改密码接口
+			user.POST("/edit/mobile", handler.User.ChangeMobile)     // 修改手机号接口
+			user.POST("/edit/email", handler.User.ChangeEmail)       // 修改邮箱接口
 		}
 
 		// 聊天群相关分组
@@ -54,10 +55,9 @@ func RegisterApiRoute(conf *config.Config, router *gin.Engine, handler *handler.
 			userGroup.GET("/list", handler.Group.GetGroups)
 
 			// 群成员相关
-			userGroup.GET("/members", handler.Group.GetGroupMembers)          // 群成员列表
-			userGroup.POST("/members/remove", handler.Group.RemoveMembers)    // 移出指定群成员
-			userGroup.POST("/members/card", handler.Group.EditGroupRemarks)   // 设置用户群名片
-			userGroup.POST("/invite-friends", handler.Group.GetInviteFriends) // 获取可邀请加入群组的好友列表
+			userGroup.GET("/members", handler.Group.GetGroupMembers)        // 群成员列表
+			userGroup.POST("/members/remove", handler.Group.RemoveMembers)  // 移出指定群成员
+			userGroup.POST("/members/card", handler.Group.EditGroupRemarks) // 设置用户群名片
 
 			// 群公告相关
 			userGroup.GET("/notice/list", handler.GroupNotice.List)
@@ -99,11 +99,13 @@ func RegisterApiRoute(conf *config.Config, router *gin.Engine, handler *handler.
 
 		emoticon := group.Group("/emoticon").Use(authorize)
 		{
-			emoticon.GET("/list", handler.Emoticon.CollectList)
-			emoticon.POST("/upload", handler.Emoticon.Upload)
-			emoticon.GET("/system", handler.Emoticon.SystemList)
-			emoticon.POST("/set-user-emoticon", handler.Emoticon.SetSystemEmoticon)
-			emoticon.POST("/del-collect-emoticon", handler.Emoticon.DeleteCollect)
+			emoticon.GET("/list", handler.Emoticon.CollectList)                // 表情包列表
+			emoticon.POST("/customize/create", handler.Emoticon.Upload)        // 添加自定义表情
+			emoticon.POST("/customize/delete", handler.Emoticon.DeleteCollect) // 删除自定义表情
+
+			// 系統表情包
+			emoticon.GET("/system/list", handler.Emoticon.SystemList)            // 系统表情包列表
+			emoticon.POST("/system/install", handler.Emoticon.SetSystemEmoticon) // 添加或移除系统表情包
 		}
 
 		upload := group.Group("/upload")

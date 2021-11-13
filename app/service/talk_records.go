@@ -48,40 +48,40 @@ func (s TalkRecordsService) GetTalkRecords(ctx context.Context, query *QueryTalk
 		err    error
 		items  []*QueryTalkRecordsItem
 		fields = []string{
-			"lar_talk_records.id",
-			"lar_talk_records.talk_type",
-			"lar_talk_records.msg_type",
-			"lar_talk_records.user_id",
-			"lar_talk_records.receiver_id",
-			"lar_talk_records.is_revoke",
-			"lar_talk_records.content",
-			"lar_talk_records.created_at",
-			"lar_users.nickname",
-			"lar_users.avatar as avatar",
+			"talk_records.id",
+			"talk_records.talk_type",
+			"talk_records.msg_type",
+			"talk_records.user_id",
+			"talk_records.receiver_id",
+			"talk_records.is_revoke",
+			"talk_records.content",
+			"talk_records.created_at",
+			"users.nickname",
+			"users.avatar as avatar",
 		}
 	)
 
-	tx := s.db.Table("lar_talk_records")
+	tx := s.db.Table("talk_records")
 
-	tx.Joins("left join lar_users on lar_talk_records.user_id = lar_users.id")
+	tx.Joins("left join users on talk_records.user_id = users.id")
 
 	if query.RecordId > 0 {
-		tx.Where("lar_talk_records.id < ?", query.RecordId)
+		tx.Where("talk_records.id < ?", query.RecordId)
 	}
 
 	if query.TalkType == entity.PrivateChat {
 		subWhere := s.db.
-			Where("lar_talk_records.user_id = ? and lar_talk_records.receiver_id = ?", query.UserId, query.ReceiverId).
-			Or("lar_talk_records.user_id = ? and lar_talk_records.receiver_id = ?", query.ReceiverId, query.UserId)
+			Where("talk_records.user_id = ? and talk_records.receiver_id = ?", query.UserId, query.ReceiverId).
+			Or("talk_records.user_id = ? and talk_records.receiver_id = ?", query.ReceiverId, query.UserId)
 
 		tx.Where(subWhere)
 	} else {
-		tx.Where("lar_talk_records.receiver_id = ?", query.ReceiverId)
+		tx.Where("talk_records.receiver_id = ?", query.ReceiverId)
 	}
 
-	tx.Where("lar_talk_records.talk_type = ?", query.TalkType)
-	tx.Where("NOT EXISTS (SELECT 1 FROM `lar_talk_records_delete` WHERE lar_talk_records_delete.record_id = lar_talk_records.id AND lar_talk_records_delete.user_id = ? LIMIT 1)", query.UserId)
-	tx.Select(fields).Order("lar_talk_records.id desc").Limit(query.Limit)
+	tx.Where("talk_records.talk_type = ?", query.TalkType)
+	tx.Where("NOT EXISTS (SELECT 1 FROM `talk_records_delete` WHERE talk_records_delete.record_id = talk_records.id AND talk_records_delete.user_id = ? LIMIT 1)", query.UserId)
+	tx.Select(fields).Order("talk_records.id desc").Limit(query.Limit)
 
 	if err = tx.Scan(&items).Error; err != nil {
 		return nil, err

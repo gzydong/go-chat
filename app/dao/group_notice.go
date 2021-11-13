@@ -13,25 +13,25 @@ func (dao *GroupNoticeDao) GetListAll(ctx context.Context, groupId int) ([]*mode
 	var items []*model.SearchNoticeItem
 
 	fields := []string{
-		"lar_group_notice.id",
-		"lar_group_notice.creator_id",
-		"lar_group_notice.title",
-		"lar_group_notice.content",
-		"lar_group_notice.is_top",
-		"lar_group_notice.is_confirm",
-		"lar_group_notice.confirm_users",
-		"lar_group_notice.created_at",
-		"lar_group_notice.updated_at",
-		"lar_users.avatar",
-		"lar_users.nickname",
+		"group_notice.id",
+		"group_notice.creator_id",
+		"group_notice.title",
+		"group_notice.content",
+		"group_notice.is_top",
+		"group_notice.is_confirm",
+		"group_notice.confirm_users",
+		"group_notice.created_at",
+		"group_notice.updated_at",
+		"users.avatar",
+		"users.nickname",
 	}
 
-	err := dao.Db.Table("lar_group_notice").
+	err := dao.Db.Table("group_notice").
 		Select(fields).
-		Joins("left join lar_users on lar_users.id = lar_group_notice.creator_id").
-		Where("lar_group_notice.group_id = ? and lar_group_notice.is_delete = ?", groupId, 0).
-		Order("lar_group_notice.is_top desc").
-		Order("lar_group_notice.updated_at desc").
+		Joins("left join users on users.id = group_notice.creator_id").
+		Where("group_notice.group_id = ? and group_notice.is_delete = ?", groupId, 0).
+		Order("group_notice.is_top desc").
+		Order("group_notice.updated_at desc").
 		Scan(&items).Error
 
 	if err != nil {

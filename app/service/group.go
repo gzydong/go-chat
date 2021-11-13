@@ -271,10 +271,10 @@ func (s *GroupService) UserGroupList(userId int) ([]*Result, error) {
 	var err error
 	items := make([]*Result, 0)
 
-	res := s.db.Table("lar_group_member").
-		Select("lar_group.id,lar_group.group_name,lar_group.avatar,lar_group.profile,lar_group_member.leader").
-		Joins("left join lar_group on lar_group.id = lar_group_member.group_id").
-		Where("lar_group_member.user_id = ? and lar_group_member.is_quit = ?", userId, 0).
+	res := s.db.Table("group_member").
+		Select("group.id,group.group_name,group.avatar,group.profile,group_member.leader").
+		Joins("left join group on group.id = group_member.group_id").
+		Where("group_member.user_id = ? and group_member.is_quit = ?", userId, 0).
 		Unscoped().
 		Scan(&items)
 
@@ -292,7 +292,7 @@ func (s *GroupService) UserGroupList(userId int) ([]*Result, error) {
 	}
 
 	var list []map[string]interface{}
-	err = s.db.Table("lar_talk_list").
+	err = s.db.Table("talk_list").
 		Select("receiver_id,is_disturb").
 		Where("talk_type = ? and receiver_id in ?", 2, ids).Find(&list).Error
 	if err != nil {

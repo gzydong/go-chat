@@ -20,5 +20,5 @@ type Group struct {
 }
 
 func (m *Group) TableName() string {
-	return "lar_group"
+	return "group"
 }

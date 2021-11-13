@@ -57,20 +57,20 @@ func (s *GroupMemberService) GetGroupMembers(groupId int) []*MemberItem {
 	var items []*MemberItem
 
 	fields := []string{
-		"lar_group_member.leader",
-		"lar_group_member.user_card",
-		"lar_group_member.user_id",
-		"lar_users.avatar",
-		"lar_users.nickname",
-		"lar_users.gender",
-		"lar_users.motto",
+		"group_member.leader",
+		"group_member.user_card",
+		"group_member.user_id",
+		"users.avatar",
+		"users.nickname",
+		"users.gender",
+		"users.motto",
 	}
 
-	s.db.Table("lar_group_member").
+	s.db.Table("group_member").
 		Select(fields).
-		Joins("left join lar_users on lar_users.id = lar_group_member.user_id").
-		Where("lar_group_member.group_id = ? and lar_group_member.is_quit = ?", groupId, 0).
-		Order("lar_group_member.leader desc").
+		Joins("left join users on users.id = group_member.user_id").
+		Where("group_member.group_id = ? and group_member.is_quit = ?", groupId, 0).
+		Order("group_member.leader desc").
 		Unscoped().
 		Scan(&items)
 

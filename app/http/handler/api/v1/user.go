@@ -29,8 +29,28 @@ func NewUserHandler(
 func (u *User) Detail(ctx *gin.Context) {
 	user, _ := u.service.Dao().FindById(auth.GetAuthUserID(ctx))
 
+	response.Success(ctx, user)
+}
+
+// Setting 用户设置
+func (u *User) Setting(ctx *gin.Context) {
+	user, _ := u.service.Dao().FindById(auth.GetAuthUserID(ctx))
+
 	response.Success(ctx, gin.H{
-		"detail": user,
+		"user_info": gin.H{
+			"uid":      user.ID,
+			"nickname": user.Nickname,
+			"avatar":   user.Avatar,
+			"motto":    user.Motto,
+			"gender":   user.Gender,
+		},
+		"setting": gin.H{
+			"theme_mode":            "",
+			"theme_bag_img":         "",
+			"theme_color":           "",
+			"notify_cue_tone":       "",
+			"keyboard_event_notify": "",
+		},
 	})
 }
 
