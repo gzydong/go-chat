@@ -20,7 +20,7 @@ func NewTalkMessageHandler(
 	service *service.TalkMessageService,
 	talkService *service.TalkService,
 ) *TalkMessage {
-	return &TalkMessage{service, talkService}
+	return &TalkMessage{service: service, talkService: talkService}
 }
 
 // Text 发送文本消息
@@ -30,6 +30,8 @@ func (c *TalkMessage) Text(ctx *gin.Context) {
 		response.InvalidParams(ctx, err)
 		return
 	}
+
+	// todo 需要做文字检测处理
 
 	if err := c.service.SendTextMessage(ctx.Request.Context(), auth.GetAuthUserID(ctx), params); err != nil {
 		response.Success(ctx, gin.H{}, "消息推送失败！")
@@ -82,6 +84,8 @@ func (c *TalkMessage) Image(ctx *gin.Context) {
 		response.InvalidParams(ctx, "上传文件大小不能超过5M！")
 		return
 	}
+
+	// todo 需要对色情图片识别处理
 
 	if err := c.service.SendImageMessage(ctx.Request.Context(), auth.GetAuthUserID(ctx), params); err != nil {
 		response.Success(ctx, gin.H{}, "消息推送失败！")

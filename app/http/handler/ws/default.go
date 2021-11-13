@@ -2,7 +2,6 @@ package ws
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/tidwall/gjson"
 	"go-chat/app/pkg/auth"
 	"go-chat/app/pkg/im"
 	"go-chat/app/service"
@@ -49,11 +48,6 @@ func (ws *DefaultWebSocket) Open(client *im.Client) {
 // Message 消息接收回调事件
 func (ws *DefaultWebSocket) Message(message *im.ReceiveContent) {
 	// fmt.Printf("[%s]消息通知 Client:%d，Content: %s \n", message.Client.Channel.Name, message.Client.ClientId, message.Content)
-
-	res := gjson.Get(message.Content, "event")
-	if !res.Exists() {
-		return
-	}
 
 	body := im.NewSenderContent().SetBroadcast(true).SetMessage(&im.Message{
 		Event: "test",
