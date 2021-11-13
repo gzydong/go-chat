@@ -76,11 +76,11 @@ func (w WsClientSession) IsCurrentServerOnline(ctx context.Context, sid, channel
 	return err == nil && val > 0
 }
 
-// GetUserClientIds 获取当前节点用户绑定的客户端ID
+// GetUidFromClientIds 获取当前节点用户ID关联的客户端ID
 // @params sid      服务ID
 // @params channel  渠道分组
 // @params uid      用户ID
-func (w *WsClientSession) GetUserClientIds(ctx context.Context, sid, channel, uid string) []int64 {
+func (w *WsClientSession) GetUidFromClientIds(ctx context.Context, sid, channel, uid string) []int64 {
 	cids := make([]int64, 0)
 
 	items, err := w.rds.SMembers(ctx, w.getChannelUserKey(sid, channel, uid)).Result()
