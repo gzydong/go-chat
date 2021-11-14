@@ -8,16 +8,16 @@ import (
 	"github.com/go-redis/redis/v8"
 )
 
-type ServerRunID struct {
-	Redis *redis.Client
-}
-
 const (
 	ServerRunIdKey = "server_ids"
 
 	// ServerOverTime 运行检测超时时间（单位秒）
 	ServerOverTime = 35
 )
+
+type ServerRunID struct {
+	Redis *redis.Client
+}
 
 func NewServerRun(redis *redis.Client) *ServerRunID {
 	return &ServerRunID{Redis: redis}

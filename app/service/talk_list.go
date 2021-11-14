@@ -56,7 +56,7 @@ func (s *TalkListService) Create(ctx context.Context, uid int, params *request.T
 		result model.TalkList
 	)
 
-	err = s.db.Debug().Where(&model.TalkList{
+	err = s.db.Where(&model.TalkList{
 		TalkType:   params.TalkType,
 		UserId:     uid,
 		ReceiverId: params.ReceiverId,

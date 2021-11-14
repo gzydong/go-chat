@@ -153,7 +153,7 @@ func (s *TalkRecordsService) HandleTalkRecords(items []*QueryTalkRecordsItem) ([
 
 	hashCodes := make(map[int]*model.TalkRecordsCode)
 	if len(codes) > 0 {
-		s.db.Model(model.TalkRecordsCode{}).Where("record_id in ?", codes).Scan(&codeItems)
+		s.db.Debug().Model(model.TalkRecordsCode{}).Where("record_id in ?", codes).Select("record_id", "code_lang", "code").Scan(&codeItems)
 		for _, item := range codeItems {
 			hashCodes[item.RecordId] = item
 		}

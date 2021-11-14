@@ -43,6 +43,22 @@ func RegisterApiRoute(conf *config.Config, router *gin.Engine, handler *handler.
 			user.POST("/edit/email", handler.User.ChangeEmail)       // 修改邮箱接口
 		}
 
+		contact := group.Group("/contact").Use(authorize)
+		{
+			contact.GET("/list", handler.Contact.List)               // 获取联系人列表
+			contact.GET("/search", handler.Contact.Search)           // 搜索联系人
+			contact.GET("/detail", handler.Contact.Detail)           // 搜索联系人
+			contact.POST("/delete", handler.Contact.Delete)          // 删除联系人
+			contact.POST("/edit-remark", handler.Contact.EditRemark) // 编辑联系人备注
+
+			// 联系人申请相关
+			contact.GET("/apply/list", handler.ContactsApply.List)                 // 联系人申请列表
+			contact.POST("/apply/create", handler.ContactsApply.Create)            // 添加联系人申请
+			contact.POST("/apply/accept", handler.ContactsApply.Accept)            // 同意人申请列表
+			contact.POST("/apply/decline", handler.ContactsApply.Decline)          // 拒绝人申请列表
+			contact.GET("/apply/unread-num", handler.ContactsApply.ApplyUnreadNum) // 联系人申请未读数
+		}
+
 		// 聊天群相关分组
 		userGroup := group.Group("/group").Use(authorize)
 		{
@@ -70,7 +86,7 @@ func RegisterApiRoute(conf *config.Config, router *gin.Engine, handler *handler.
 			talk.GET("/list", handler.Talk.List)
 			talk.POST("/create", handler.Talk.Create)
 			talk.POST("/delete", handler.Talk.Delete)
-			talk.POST("/top", handler.Talk.Top)
+			talk.POST("/topping", handler.Talk.Top)
 			talk.POST("/disturb", handler.Talk.Disturb)
 			talk.GET("/records", handler.TalkRecords.GetRecords)
 		}
@@ -92,11 +108,6 @@ func RegisterApiRoute(conf *config.Config, router *gin.Engine, handler *handler.
 			talkMsg.POST("/vote/handle", handler.TalkMessage.HandleVote)
 		}
 
-		download := group.Group("/download").Use(authorize)
-		{
-			download.GET("/chat/file", handler.Download.ArticleAnnex)
-		}
-
 		emoticon := group.Group("/emoticon").Use(authorize)
 		{
 			emoticon.GET("/list", handler.Emoticon.CollectList)                // 表情包列表
@@ -111,6 +122,11 @@ func RegisterApiRoute(conf *config.Config, router *gin.Engine, handler *handler.
 		upload := group.Group("/upload")
 		{
 			upload.POST("/index", handler.Upload.Index)
+		}
+
+		download := group.Group("/download").Use(authorize)
+		{
+			download.GET("/chat/file", handler.Download.ArticleAnnex)
 		}
 	}
 }

@@ -20,4 +20,6 @@ type Handler struct {
 	DefaultWebSocket *ws.DefaultWebSocket
 	Group            *v1.Group
 	GroupNotice      *v1.GroupNotice
+	Contact          *v1.Contact
+	ContactsApply    *v1.ContactsApply
 }

@@ -71,11 +71,15 @@ var providerSet = wire.NewSet(
 	service.NewTalkMessageForwardService,
 	service.NewEmoticonService,
 	service.NewTalkRecordsService,
+	service.NewContactService,
+	service.NewContactsApplyService,
 
 	// handler 处理
 	v1.NewAuthHandler,
 	v1.NewCommonHandler,
 	v1.NewUserHandler,
+	v1.NewContactHandler,
+	v1.NewContactsApplyHandler,
 	v1.NewGroupHandler,
 	v1.NewGroupNoticeHandler,
 	v1.NewTalkHandler,

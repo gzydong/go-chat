@@ -272,8 +272,8 @@ func (s *GroupService) UserGroupList(userId int) ([]*Result, error) {
 	items := make([]*Result, 0)
 
 	res := s.db.Table("group_member").
-		Select("group.id,group.group_name,group.avatar,group.profile,group_member.leader").
-		Joins("left join group on group.id = group_member.group_id").
+		Select("`group`.id,`group`.group_name,`group`.avatar,`group`.profile,group_member.leader").
+		Joins("left join `group` on `group`.id = group_member.group_id").
 		Where("group_member.user_id = ? and group_member.is_quit = ?", userId, 0).
 		Unscoped().
 		Scan(&items)

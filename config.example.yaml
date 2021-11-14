@@ -3,6 +3,7 @@ server:
   app_name: LumenIM
   version: v0.0.1
   port: 8080
+  debug: false
 
 # Redis 相关配置
 redis:

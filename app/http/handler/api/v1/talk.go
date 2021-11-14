@@ -90,8 +90,6 @@ func (c *Talk) List(ctx *gin.Context) {
 			value.UpdatedAt = msg.Datetime
 		}
 
-		// 查询最后一条对话消息
-
 		items = append(items, value)
 	}
 

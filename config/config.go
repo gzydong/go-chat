@@ -40,3 +40,7 @@ func Init(filename string) *Config {
 func (c *Config) GetSid() string {
 	return c.Server.ServerId
 }
+
+func (c *Config) IsDebug() bool {
+	return c.Server.Debug
+}

@@ -38,5 +38,9 @@ func NewMySQLClient(conf *config.Config) *gorm.DB {
 	sqlDB.SetMaxOpenConns(100)
 	sqlDB.SetConnMaxLifetime(time.Hour)
 
+	if conf.IsDebug() {
+		db = db.Debug()
+	}
+
 	return db
 }

@@ -16,7 +16,7 @@ type CodeMessageRequest struct {
 type ImageMessageRequest struct {
 	TalkType   int    `form:"talk_type" json:"talk_type" binding:"required,oneof=1 2" label:"talk_type"`
 	ReceiverId int    `form:"receiver_id" json:"receiver_id" binding:"required,numeric" label:"receiver_id"`
-	Image      string `form:"image" json:"image" binding:""`
+	Image      string `form:"image" json:"image"`
 }
 
 type FileMessageRequest struct {
@@ -42,9 +42,9 @@ type ForwardMessageRequest struct {
 	TalkType        int    `form:"talk_type" json:"talk_type" binding:"required,oneof=1 2" label:"talk_type"`
 	ReceiverId      int    `form:"receiver_id" json:"receiver_id" binding:"required,numeric" label:"receiver_id"`
 	ForwardMode     int    `form:"forward_mode" json:"forward_mode" binding:"required,oneof=1 2"`
-	RecordsIds      string `form:"records_ids" binding:"required,ids"`
-	ReceiveUserIds  string `form:"receive_user_ids" binding:"ids"`
-	ReceiveGroupIds string `form:"receive_group_ids" binding:"ids"`
+	RecordsIds      string `form:"records_ids" json:"records_ids" binding:"required,ids"`
+	ReceiveUserIds  string `form:"receive_user_ids" json:"receive_user_ids" binding:"ids"`
+	ReceiveGroupIds string `form:"receive_group_ids" json:"receive_group_ids" binding:"ids"`
 }
 
 type CardMessageRequest struct {
@@ -54,22 +54,22 @@ type CardMessageRequest struct {
 }
 
 type LocationMessageRequest struct {
-	TalkType   int    `form:"talk_type" binding:"required,oneof=1 2" label:"talk_type"`
-	ReceiverId int    `form:"receiver_id" binding:"required,numeric" label:"receiver_id"`
-	Longitude  string `form:"longitude" binding:"required,numeric"`
-	Latitude   string `form:"latitude" binding:"required,numeric"`
+	TalkType   int    `form:"talk_type" json:"talk_type" binding:"required,oneof=1 2" label:"talk_type"`
+	ReceiverId int    `form:"receiver_id" json:"receiver_id" binding:"required,numeric" label:"receiver_id"`
+	Longitude  string `form:"longitude" json:"longitude" binding:"required,numeric"`
+	Latitude   string `form:"latitude" json:"latitude" binding:"required,numeric"`
 }
 
 type RevokeMessageRequest struct {
-	RecordId int `form:"record_id" binding:"required,numeric" label:"record_id"`
+	RecordId int `form:"record_id" json:"record_id" binding:"required,numeric" label:"record_id"`
 }
 
 type CollectMessageRequest struct {
-	RecordId int `form:"record_id" binding:"required,numeric" label:"record_id"`
+	RecordId int `form:"record_id" json:"record_id" binding:"required,numeric" label:"record_id"`
 }
 
 type DeleteMessageRequest struct {
-	TalkType   int    `form:"talk_type" binding:"required,oneof=1 2" label:"talk_type"`
-	ReceiverId int    `form:"receiver_id" binding:"required,numeric" label:"receiver_id"`
-	RecordIds  string `form:"record_id" binding:"required,ids" label:"record_id"`
+	TalkType   int    `form:"talk_type" json:"talk_type" binding:"required,oneof=1 2" label:"talk_type"`
+	ReceiverId int    `form:"receiver_id" json:"receiver_id" binding:"required,numeric" label:"receiver_id"`
+	RecordIds  string `form:"record_id" json:"record_id" binding:"required,ids" label:"record_id"`
 }
