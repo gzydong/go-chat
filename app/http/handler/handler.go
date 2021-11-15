@@ -21,5 +21,5 @@ type Handler struct {
 	Group            *v1.Group
 	GroupNotice      *v1.GroupNotice
 	Contact          *v1.Contact
-	ContactsApply    *v1.ContactsApply
+	ContactsApply    *v1.ContactApply
 }

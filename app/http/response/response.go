@@ -75,8 +75,9 @@ func Success(c *gin.Context, data interface{}, message ...string) {
 	c.Abort()
 }
 
-func SuccessPaginate(c *gin.Context, rows []interface{}, page, size, total int) {
-	c.JSON(http.StatusOK, &Response{Code: entity.CodeSuccess, Data: dto.PaginateResponse{
+// SuccessPaginate 响应分页数据
+func SuccessPaginate(c *gin.Context, rows interface{}, page, size, total int) {
+	c.JSON(http.StatusOK, &Response{Code: entity.CodeSuccess, Message: "success", Data: dto.PaginateResponse{
 		Rows:     rows,
 		Paginate: dto.Paginate{Page: page, Size: size, Total: total},
 	}})

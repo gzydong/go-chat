@@ -7,6 +7,6 @@ type Paginate struct {
 }
 
 type PaginateResponse struct {
-	Rows     []interface{} `json:"rows"`
-	Paginate Paginate      `json:"paginate"`
+	Rows     interface{} `json:"rows"`
+	Paginate Paginate    `json:"paginate"`
 }

@@ -16,3 +16,13 @@ type ContactDetailRequest struct {
 type ContactSearchRequest struct {
 	Mobile string `form:"mobile" json:"mobile" binding:"required,len=11" label:"mobile"`
 }
+
+type ContactApplyCreateRequest struct {
+	Remarks  string `form:"remarks" json:"remarks" binding:"required" label:"remarks"`
+	FriendId int    `form:"friend_id" json:"friend_id" binding:"required" label:"friend_id"`
+}
+
+type ContactApplyAcceptRequest struct {
+	Remarks string `form:"remarks" json:"remarks" binding:"required" label:"remarks"`
+	ApplyId int    `form:"apply_id" json:"apply_id" binding:"required" label:"apply_id"`
+}

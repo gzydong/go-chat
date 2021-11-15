@@ -82,7 +82,8 @@ func Initialize(ctx context.Context) *provider.Services {
 	groupNotice := v1.NewGroupNoticeHandler(groupNoticeService, groupMemberService)
 	contactService := service.NewContactService(baseService)
 	contact := v1.NewContactHandler(contactService, wsClientSession, userService)
-	contactsApply := v1.NewContactsApplyHandler()
+	contactApplyService := service.NewContactsApplyService(baseService)
+	contactApply := v1.NewContactsApplyHandler(contactApplyService)
 	handlerHandler := &handler.Handler{
 		Common:           common,
 		Auth:             auth,
@@ -98,7 +99,7 @@ func Initialize(ctx context.Context) *provider.Services {
 		Group:            group,
 		GroupNotice:      groupNotice,
 		Contact:          contact,
-		ContactsApply:    contactsApply,
+		ContactsApply:    contactApply,
 	}
 	engine := router.NewRouter(config, handlerHandler, session)
 	server := provider.NewHttpServer(config, engine)
