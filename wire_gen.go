@@ -83,7 +83,7 @@ func Initialize(ctx context.Context) *provider.Services {
 	contactService := service.NewContactService(baseService)
 	contact := v1.NewContactHandler(contactService, wsClientSession, userService)
 	contactApplyService := service.NewContactsApplyService(baseService)
-	contactApply := v1.NewContactsApplyHandler(contactApplyService)
+	contactApply := v1.NewContactsApplyHandler(contactApplyService, userService)
 	handlerHandler := &handler.Handler{
 		Common:           common,
 		Auth:             auth,

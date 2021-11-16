@@ -54,6 +54,8 @@ func (c *ContactApply) Accept(ctx *gin.Context) {
 		return
 	}
 
+	// todo 推送消息
+
 	response.Success(ctx, gin.H{})
 }
 

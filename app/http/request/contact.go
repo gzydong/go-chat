@@ -18,7 +18,7 @@ type ContactSearchRequest struct {
 }
 
 type ContactApplyCreateRequest struct {
-	Remarks  string `form:"remarks" json:"remarks" binding:"required" label:"remarks"`
+	Remarks  string `form:"remark" json:"remark" binding:"required" label:"remark"`
 	FriendId int    `form:"friend_id" json:"friend_id" binding:"required" label:"friend_id"`
 }
 
