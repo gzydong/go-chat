@@ -18,3 +18,14 @@ type SysEmoticonResponse struct {
 	Name       string          `json:"name"`
 	List       []*EmoticonItem `json:"list"`
 }
+
+type EmojiGroup struct {
+	Label    string                `json:"label"`
+	Icon     string                `json:"icon"`
+	Children []*EmojiGroupChildren `json:"children"`
+}
+
+type EmojiGroupChildren struct {
+	MediaId int    `json:"media_id"`
+	Src     string `json:"src"`
+}

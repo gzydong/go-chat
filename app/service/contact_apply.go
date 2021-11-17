@@ -84,6 +84,11 @@ func (s *ContactApplyService) Accept(ctx context.Context, uid int, req *request.
 	return nil
 }
 
+// Decline 拒绝好友申请
+func (s *ContactApplyService) Decline(ctx context.Context, uid int, req *request.ContactApplyDeclineRequest) error {
+	return s.db.Delete(&model.UsersFriendsApply{}, "id = ? and friend_id = ?", req.ApplyId, uid).Error
+}
+
 // List 联系人申请列表
 func (s *ContactApplyService) List(ctx context.Context, uid, page, size int) ([]*model.ApplyListItem, error) {
 	fields := []string{

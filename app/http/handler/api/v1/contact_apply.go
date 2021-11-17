@@ -22,7 +22,9 @@ func NewContactsApplyHandler(
 
 // ApplyUnreadNum 获取好友申请未读数
 func (c *ContactApply) ApplyUnreadNum(ctx *gin.Context) {
-
+	response.Success(ctx, gin.H{
+		"unread_num": 0,
+	})
 }
 
 // Create 创建联系人申请
@@ -61,7 +63,20 @@ func (c *ContactApply) Accept(ctx *gin.Context) {
 
 // Decline 拒绝联系人添加申请
 func (c *ContactApply) Decline(ctx *gin.Context) {
+	params := &request.ContactApplyDeclineRequest{}
+	if err := ctx.ShouldBind(params); err != nil {
+		response.InvalidParams(ctx, err)
+		return
+	}
 
+	if err := c.service.Decline(ctx, auth.GetAuthUserID(ctx), params); err != nil {
+		response.BusinessError(ctx, err)
+		return
+	}
+
+	// todo 推送消息
+
+	response.Success(ctx, gin.H{})
 }
 
 // List 获取联系人申请列表
@@ -69,6 +84,7 @@ func (c *ContactApply) List(ctx *gin.Context) {
 	items, err := c.service.List(ctx, auth.GetAuthUserID(ctx), 1, 1000)
 	if err != nil {
 		response.SystemError(ctx, err)
+		return
 	}
 
 	response.SuccessPaginate(ctx, items, 1, 1000, len(items))

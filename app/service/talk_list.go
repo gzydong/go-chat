@@ -36,13 +36,14 @@ func (s *TalkListService) GetTalkList(ctx context.Context, uid int) ([]*model.Se
 		"`group`.group_name", "`group`.avatar as group_avatar",
 	}
 
-	err = s.db.Table("talk_list list").Select(fields).
-		Joins("left join `users` ON list.receiver_id = `users`.id AND list.talk_type = 1").
-		Joins("left join `group` ON list.receiver_id = `group`.id AND list.talk_type = 2").
-		Where("list.user_id = ? and list.is_delete = 0", uid).
-		Order("list.updated_at desc").Scan(&items).Error
+	tx := s.db.Table("talk_list list")
+	tx.Select(fields)
+	tx.Joins("left join `users` ON list.receiver_id = `users`.id AND list.talk_type = 1")
+	tx.Joins("left join `group` ON list.receiver_id = `group`.id AND list.talk_type = 2")
+	tx.Where("list.user_id = ? and list.is_delete = 0", uid)
+	tx.Order("list.updated_at desc")
 
-	if err != nil {
+	if err = tx.Scan(&items).Error; err != nil {
 		return nil, err
 	}
 
@@ -53,7 +54,7 @@ func (s *TalkListService) GetTalkList(ctx context.Context, uid int) ([]*model.Se
 func (s *TalkListService) Create(ctx context.Context, uid int, params *request.TalkListCreateRequest) (*model.TalkList, error) {
 	var (
 		err    error
-		result model.TalkList
+		result *model.TalkList
 	)
 
 	err = s.db.Where(&model.TalkList{
@@ -62,8 +63,12 @@ func (s *TalkListService) Create(ctx context.Context, uid int, params *request.T
 		ReceiverId: params.ReceiverId,
 	}).First(&result).Error
 
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, err
+	}
+
 	if errors.Is(err, gorm.ErrRecordNotFound) {
-		result = model.TalkList{
+		result = &model.TalkList{
 			TalkType:   params.TalkType,
 			UserId:     uid,
 			ReceiverId: params.ReceiverId,
@@ -71,7 +76,7 @@ func (s *TalkListService) Create(ctx context.Context, uid int, params *request.T
 			UpdatedAt:  time.Now(),
 		}
 
-		s.db.Create(&result)
+		s.db.Create(result)
 	} else {
 		result.IsTop = 0
 		result.IsDelete = 0
@@ -79,21 +84,15 @@ func (s *TalkListService) Create(ctx context.Context, uid int, params *request.T
 		s.db.Save(result)
 	}
 
-	if err != nil {
-		return nil, err
-	}
-
-	return &result, nil
+	return result, nil
 }
 
 // Delete 删除会话
 func (s *TalkListService) Delete(ctx context.Context, uid int, id int) error {
-	err := s.db.Model(&model.TalkList{}).Where("id = ? and user_id = ?", id, uid).Updates(map[string]interface{}{
+	return s.db.Model(&model.TalkList{}).Where("id = ? and user_id = ?", id, uid).Updates(map[string]interface{}{
 		"is_delete":  1,
 		"updated_at": time.Now(),
 	}).Error
-
-	return err
 }
 
 // Top 会话置顶

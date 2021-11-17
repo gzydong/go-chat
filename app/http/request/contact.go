@@ -23,6 +23,11 @@ type ContactApplyCreateRequest struct {
 }
 
 type ContactApplyAcceptRequest struct {
-	Remarks string `form:"remarks" json:"remarks" binding:"required" label:"remarks"`
+	Remarks string `form:"remark" json:"remark" binding:"required" label:"remark"`
+	ApplyId int    `form:"apply_id" json:"apply_id" binding:"required" label:"apply_id"`
+}
+
+type ContactApplyDeclineRequest struct {
+	Remarks string `form:"remark" json:"remark" binding:"required" label:"remark"`
 	ApplyId int    `form:"apply_id" json:"apply_id" binding:"required" label:"apply_id"`
 }
