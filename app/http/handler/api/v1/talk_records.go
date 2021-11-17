@@ -39,7 +39,9 @@ func (c *TalkRecords) GetRecords(ctx *gin.Context) {
 		return
 	}
 
-	response.Success(ctx, records)
+	response.Success(ctx, gin.H{
+		"rows": records,
+	})
 }
 
 // SearchRecords 查询下会话记录

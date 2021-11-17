@@ -3,9 +3,9 @@ package entity
 const (
 	CodeSuccess            = 200 // 状态成功
 	CodeInvalidParamsError = 305 // 参数错误
-	CodeUnauthorizedError  = 401 // 未授权
-	CodeNotLoginError      = 203 // 未登录
 	CodeBusinessError      = 400 // 业务错误
+	CodeNotLoginError      = 401 // 未登录
+	CodeUnauthorizedError  = 403 // 未授权
 	CodeSystemError        = 500 // 服务器异常
 )
 

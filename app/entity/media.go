@@ -21,8 +21,7 @@ var mediaMaps = map[string]int{
 }
 
 func GetMediaType(ext string) int {
-	val, ok := mediaMaps[ext]
-	if ok {
+	if val, ok := mediaMaps[ext]; ok {
 		return val
 	}
 

@@ -52,7 +52,7 @@ func RegisterApiRoute(conf *config.Config, router *gin.Engine, handler *handler.
 			contact.POST("/edit-remark", handler.Contact.EditRemark) // 编辑联系人备注
 
 			// 联系人申请相关
-			contact.GET("/apply/list", handler.ContactsApply.List)                 // 联系人申请列表
+			contact.GET("/apply/records", handler.ContactsApply.List)              // 联系人申请列表
 			contact.POST("/apply/create", handler.ContactsApply.Create)            // 添加联系人申请
 			contact.POST("/apply/accept", handler.ContactsApply.Accept)            // 同意人申请列表
 			contact.POST("/apply/decline", handler.ContactsApply.Decline)          // 拒绝人申请列表
