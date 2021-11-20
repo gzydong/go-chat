@@ -237,13 +237,17 @@ func (c *TalkMessage) Delete(ctx *gin.Context) {
 
 // HandleVote 投票处理
 func (c *TalkMessage) HandleVote(ctx *gin.Context) {
-	params := &request.TextMessageRequest{}
+	params := &request.VoteMessageHandleRequest{}
 	if err := ctx.ShouldBind(params); err != nil {
 		response.InvalidParams(ctx, err)
 		return
 	}
 
-	// c.service.SendTextMessage(ctx.Request.Context(), params)
+	err := c.service.VoteHandle(ctx.Request.Context(), auth.GetAuthUserID(ctx), params)
+	if err != nil {
+		response.BusinessError(ctx, err)
+		return
+	}
 
 	response.Success(ctx, gin.H{}, "消息推送成功！")
 }

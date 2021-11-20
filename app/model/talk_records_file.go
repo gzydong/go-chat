@@ -13,6 +13,6 @@ type TalkRecordsFile struct {
 	FileSuffix   string    `json:"file_suffix" grom:"comment:文件后缀名"`
 	FileSize     int       `json:"file_size" grom:"comment:文件大小"`
 	SaveDir      string    `json:"save_dir" grom:"comment:文件保存路径"`
-	IsDelete     int       `json:"is_delete" grom:"comment:是否已删除"`
-	CreatedAt    time.Time `json:"created_at" grom:"comment:上传时间"`
+	IsDelete     int       `json:"-" grom:"comment:是否已删除"`
+	CreatedAt    time.Time `json:"-" grom:"comment:上传时间"`
 }

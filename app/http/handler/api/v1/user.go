@@ -66,7 +66,7 @@ func (u *User) ChangeDetail(ctx *gin.Context) {
 		"nickname": params.Nickname,
 		"avatar":   params.Avatar,
 		"gender":   params.Gender,
-		"motto":    params.Profile,
+		"motto":    params.Motto,
 	})
 
 	response.Success(ctx, gin.H{}, "个人信息修改成功！")

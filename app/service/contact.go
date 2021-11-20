@@ -43,7 +43,7 @@ func (s *ContactService) List(ctx context.Context, uid int) ([]*model.ContactLis
 		"users_friends.remark",
 	})
 
-	tx.Joins("left join `users` ON `users`.id = users_friends.friend_id")
+	tx.Joins("inner join `users` ON `users`.id = users_friends.friend_id")
 	tx.Where("`users_friends`.user_id = ? and users_friends.status = ?", uid, 1)
 
 	if err := tx.Scan(&items).Error; err != nil {

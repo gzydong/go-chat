@@ -5,7 +5,9 @@ import (
 	"go-chat/app/entity"
 	"go-chat/app/http/dto"
 	"go-chat/app/model"
+	"go-chat/app/pkg/jsonutil"
 	"go-chat/app/pkg/timeutil"
+	"sort"
 	"time"
 )
 
@@ -43,7 +45,7 @@ func NewTalkRecordsService(base *BaseService) *TalkRecordsService {
 }
 
 // GetTalkRecords 获取对话消息
-func (s TalkRecordsService) GetTalkRecords(ctx context.Context, query *QueryTalkRecordsOpts) ([]*dto.TalkRecordsItem, error) {
+func (s *TalkRecordsService) GetTalkRecords(ctx context.Context, query *QueryTalkRecordsOpts) ([]*dto.TalkRecordsItem, error) {
 	var (
 		err    error
 		items  []*QueryTalkRecordsItem
@@ -95,6 +97,43 @@ func (s *TalkRecordsService) SearchTalkRecords() {
 
 }
 
+func (s *TalkRecordsService) GetTalkRecord(ctx context.Context, recordId int64) (*dto.TalkRecordsItem, error) {
+	var (
+		err    error
+		item   *QueryTalkRecordsItem
+		fields = []string{
+			"talk_records.id",
+			"talk_records.talk_type",
+			"talk_records.msg_type",
+			"talk_records.user_id",
+			"talk_records.receiver_id",
+			"talk_records.is_revoke",
+			"talk_records.content",
+			"talk_records.created_at",
+			"users.nickname",
+			"users.avatar as avatar",
+		}
+	)
+
+	tx := s.db.Table("talk_records")
+	tx.Joins("left join users on talk_records.user_id = users.id")
+	tx.Where("talk_records.id = ?", recordId)
+
+	if err = tx.Select(fields).Take(&item).Error; err != nil {
+		return nil, err
+	}
+
+	items := make([]*QueryTalkRecordsItem, 0)
+	items = append(items, item)
+
+	list, err := s.HandleTalkRecords(items)
+	if err != nil {
+		return nil, err
+	}
+
+	return list[0], nil
+}
+
 func (s *TalkRecordsService) HandleTalkRecords(items []*QueryTalkRecordsItem) ([]*dto.TalkRecordsItem, error) {
 	var (
 		files     []int
@@ -137,7 +176,7 @@ func (s *TalkRecordsService) HandleTalkRecords(items []*QueryTalkRecordsItem) ([
 
 	hashFiles := make(map[int]*model.TalkRecordsFile)
 	if len(files) > 0 {
-		s.db.Model(model.TalkRecordsFile{}).Where("record_id in ?", files).Scan(&fileItems)
+		s.db.Model(&model.TalkRecordsFile{}).Where("record_id in ?", files).Scan(&fileItems)
 		for _, item := range fileItems {
 			hashFiles[item.RecordId] = item
 		}
@@ -145,7 +184,7 @@ func (s *TalkRecordsService) HandleTalkRecords(items []*QueryTalkRecordsItem) ([
 
 	hashForwards := make(map[int]*model.TalkRecordsForward)
 	if len(forwards) > 0 {
-		s.db.Model(model.TalkRecordsForward{}).Where("record_id in ?", forwards).Scan(&forwardItems)
+		s.db.Model(&model.TalkRecordsForward{}).Where("record_id in ?", forwards).Scan(&forwardItems)
 		for _, item := range forwardItems {
 			hashForwards[item.RecordId] = item
 		}
@@ -153,7 +192,7 @@ func (s *TalkRecordsService) HandleTalkRecords(items []*QueryTalkRecordsItem) ([
 
 	hashCodes := make(map[int]*model.TalkRecordsCode)
 	if len(codes) > 0 {
-		s.db.Debug().Model(model.TalkRecordsCode{}).Where("record_id in ?", codes).Select("record_id", "code_lang", "code").Scan(&codeItems)
+		s.db.Model(&model.TalkRecordsCode{}).Where("record_id in ?", codes).Select("record_id", "code_lang", "code").Scan(&codeItems)
 		for _, item := range codeItems {
 			hashCodes[item.RecordId] = item
 		}
@@ -161,7 +200,7 @@ func (s *TalkRecordsService) HandleTalkRecords(items []*QueryTalkRecordsItem) ([
 
 	hashVotes := make(map[int]*model.TalkRecordsVote)
 	if len(votes) > 0 {
-		s.db.Model(model.TalkRecordsVote{}).Where("record_id in ?", votes).Scan(&voteItems)
+		s.db.Model(&model.TalkRecordsVote{}).Where("record_id in ?", votes).Scan(&voteItems)
 		for _, item := range voteItems {
 			hashVotes[item.RecordId] = item
 		}
@@ -169,7 +208,7 @@ func (s *TalkRecordsService) HandleTalkRecords(items []*QueryTalkRecordsItem) ([
 
 	hashLogins := make(map[int]*model.TalkRecordsLogin)
 	if len(logins) > 0 {
-		s.db.Model(model.TalkRecordsLogin{}).Where("record_id in ?", votes).Scan(&loginItems)
+		s.db.Model(&model.TalkRecordsLogin{}).Where("record_id in ?", votes).Scan(&loginItems)
 		for _, item := range loginItems {
 			hashLogins[item.RecordId] = item
 		}
@@ -177,7 +216,7 @@ func (s *TalkRecordsService) HandleTalkRecords(items []*QueryTalkRecordsItem) ([
 
 	hashInvites := make(map[int]*model.TalkRecordsInvite)
 	if len(invites) > 0 {
-		s.db.Model(model.TalkRecordsInvite{}).Where("record_id in ?", invites).Scan(&inviteItems)
+		s.db.Model(&model.TalkRecordsInvite{}).Where("record_id in ?", invites).Scan(&inviteItems)
 		for _, item := range inviteItems {
 			hashInvites[item.RecordId] = item
 		}
@@ -185,7 +224,7 @@ func (s *TalkRecordsService) HandleTalkRecords(items []*QueryTalkRecordsItem) ([
 
 	hashLocations := make(map[int]*model.TalkRecordsLocation)
 	if len(locations) > 0 {
-		s.db.Model(model.TalkRecordsLocation{}).Where("record_id in ?", locations).Scan(&locationItems)
+		s.db.Model(&model.TalkRecordsLocation{}).Where("record_id in ?", locations).Scan(&locationItems)
 		for _, item := range locationItems {
 			hashLocations[item.RecordId] = item
 		}
@@ -211,7 +250,9 @@ func (s *TalkRecordsService) HandleTalkRecords(items []*QueryTalkRecordsItem) ([
 
 		switch item.MsgType {
 		case entity.MsgTypeFile:
-
+			if value, ok := hashFiles[item.ID]; ok {
+				data.File = value
+			}
 		case entity.MsgTypeForward:
 
 		case entity.MsgTypeCode:
@@ -219,7 +260,44 @@ func (s *TalkRecordsService) HandleTalkRecords(items []*QueryTalkRecordsItem) ([
 				data.CodeBlock = value
 			}
 		case entity.MsgTypeVote:
+			if value, ok := hashVotes[item.ID]; ok {
+				options := make(map[string]interface{})
+				opts := make([]interface{}, 0)
 
+				if err := jsonutil.JsonDecode(value.AnswerOption, &options); err == nil {
+					arr := make([]string, 0, len(options))
+					for k := range options {
+						arr = append(arr, k)
+					}
+
+					sort.Strings(arr)
+
+					for _, v := range arr {
+						opts = append(opts, map[string]interface{}{
+							"key":   v,
+							"value": options[v],
+						})
+					}
+				}
+
+				data.Vote = map[string]interface{}{
+					"detail": map[string]interface{}{
+						"id":            value.ID,
+						"record_id":     value.RecordId,
+						"title":         value.Title,
+						"answer_mode":   value.AnswerMode,
+						"status":        value.Status,
+						"answer_option": opts,
+						"answer_num":    value.AnswerNum,
+						"answered_num":  value.AnsweredNum,
+					},
+					"statistics": map[string]interface{}{
+						"count":   0,
+						"options": map[string]int{},
+					},
+					"vote_users": []int64{}, // 已投票成员
+				}
+			}
 		case entity.MsgTypeGroupNotice:
 		case entity.MsgTypeFriendApply:
 		case entity.MsgTypeUserLogin:

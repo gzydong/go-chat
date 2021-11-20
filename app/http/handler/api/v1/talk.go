@@ -114,7 +114,7 @@ func (c *Talk) Create(ctx *gin.Context) {
 	}
 
 	key := fmt.Sprintf("talk:list:%d-%d-%d-%s", uid, params.ReceiverId, params.TalkType, agent)
-	if !c.redisLock.Lock(ctx.Request.Context(), key, 20) {
+	if !c.redisLock.Lock(ctx.Request.Context(), key, 10) {
 		response.BusinessError(ctx, "创建失败")
 		return
 	}

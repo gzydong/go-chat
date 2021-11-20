@@ -39,8 +39,15 @@ func (c *TalkRecords) GetRecords(ctx *gin.Context) {
 		return
 	}
 
+	rid := 0
+	if length := len(records); length > 0 {
+		rid = records[length-1].ID
+	}
+
 	response.Success(ctx, gin.H{
-		"rows": records,
+		"limit":     params.Limit,
+		"record_id": rid,
+		"rows":      records,
 	})
 }
 

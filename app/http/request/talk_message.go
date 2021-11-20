@@ -27,9 +27,14 @@ type FileMessageRequest struct {
 
 type VoteMessageRequest struct {
 	ReceiverId int      `form:"receiver_id" json:"receiver_id" binding:"required,numeric" label:"receiver_id"`
-	Mode       int      `form:"mode" json:"mode" binding:"required,oneof=0 1"`
+	Mode       int      `form:"mode" json:"mode" binding:"oneof=0 1"`
 	Title      string   `form:"title" json:"title" binding:"required"`
 	Options    []string `form:"options" json:"options"`
+}
+
+type VoteMessageHandleRequest struct {
+	RecordId int    `form:"record_id" json:"record_id" binding:"required"`
+	Options  string `form:"options" json:"options" binding:"required"`
 }
 
 type EmoticonMessageRequest struct {

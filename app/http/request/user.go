@@ -4,8 +4,8 @@ package request
 type ChangeDetailRequest struct {
 	Avatar   string `form:"avatar" json:"avatar" binding:"" label:"avatar"`
 	Nickname string `form:"nickname" json:"nickname" binding:"required,max=30" label:"nickname"`
-	Gender   string `form:"gender" json:"gender" binding:"required,oneof=0 1 2" label:"gender"`
-	Profile  string `form:"profile" json:"profile" binding:"max=255" label:"profile"`
+	Gender   int    `form:"gender" json:"gender" binding:"required,oneof=0 1 2" label:"gender"`
+	Motto    string `form:"motto" json:"motto" binding:"max=255" label:"motto"`
 }
 
 // ChangePasswordRequest ...

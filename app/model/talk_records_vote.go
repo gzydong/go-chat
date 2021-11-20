@@ -15,3 +15,15 @@ type TalkRecordsVote struct {
 	CreatedAt    time.Time `json:"created_at" grom:"comment:创建时间"`
 	UpdatedAt    time.Time `json:"updated_at" grom:"comment:更新时间"`
 }
+
+type QueryVoteModel struct {
+	RecordId     int    `json:"record_id" grom:"comment:消息记录ID"`
+	ReceiverId   int    `json:"receiver_id"`
+	TalkType     int    `json:"talk_type"`
+	MsgType      int    `json:"msg_type"`
+	VoteId       int    `json:"vote_id"`
+	AnswerMode   int    `json:"answer_mode"`
+	AnswerOption string `json:"answer_option"`
+	AnswerNum    int    `json:"answer_num"`
+	VoteStatus   int    `json:"vote_status"`
+}

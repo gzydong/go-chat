@@ -13,7 +13,9 @@ import (
 	"go-chat/app/pkg/timeutil"
 	"go-chat/config"
 	"gorm.io/gorm"
+	"sort"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -349,6 +351,93 @@ func (s *TalkMessageService) SendRevokeRecordMessage(ctx context.Context, uid in
 	return nil
 }
 
+// VoteHandle 投票处理
+func (s *TalkMessageService) VoteHandle(ctx context.Context, uid int, params *request.VoteMessageHandleRequest) error {
+	var (
+		err  error
+		vote *model.QueryVoteModel
+	)
+
+	tx := s.db.Table("talk_records")
+	tx.Select([]string{
+		"talk_records.receiver_id", "talk_records.talk_type", "talk_records.msg_type",
+		"vote.id as vote_id", "vote.id as record_id", "vote.answer_mode", "vote.answer_option",
+		"vote.answer_num", "vote.status as vote_status",
+	})
+	tx.Joins("left join talk_records_vote as vote on vote.record_id = talk_records.id")
+	tx.Where("talk_records.id = ?", params.RecordId)
+
+	res := tx.Take(&vote)
+	if err := res.Error; err != err {
+		return err
+	}
+
+	if res.RowsAffected == 0 {
+		return fmt.Errorf("投票信息不存在[%d]", params.RecordId)
+	}
+
+	if vote.MsgType != entity.MsgTypeVote {
+		return fmt.Errorf("当前记录属于投票信息[%d]", vote.MsgType)
+	}
+
+	// 判断是否有投票权限
+
+	var count int64
+	s.db.Table("talk_records_vote_answer").Where("vote_id = ? and user_id = ？", vote.VoteId, uid).Count(&count)
+	if count > 0 { // 判断是否已投票
+		return fmt.Errorf("不能重复投票[%d]", vote.VoteId)
+	}
+
+	options := strings.Split(params.Options, ",")
+	sort.Strings(options)
+
+	var answerOptions map[string]interface{}
+	if err = jsonutil.JsonDecode(vote.AnswerOption, &answerOptions); err != nil {
+		return err
+	}
+
+	for _, option := range options {
+		if _, ok := answerOptions[option]; !ok {
+			return fmt.Errorf("的投票选项不存在[%s]", option)
+		}
+	}
+
+	if vote.AnswerMode == 1 {
+		options = options[:1]
+	}
+
+	answers := make([]*model.TalkRecordsVoteAnswer, 0)
+
+	for _, option := range options {
+		answers = append(answers, &model.TalkRecordsVoteAnswer{
+			VoteId: vote.VoteId,
+			UserId: uid,
+			Option: option,
+		})
+	}
+
+	err = s.db.Transaction(func(tx *gorm.DB) error {
+		if err = tx.Table("talk_records_vote").Updates(map[string]interface{}{
+			"answered_num": gorm.Expr("answered_num + 1"),
+			"status":       gorm.Expr("if(answered_num >= answer_num, 1, 0)"),
+		}).Error; err != nil {
+			return err
+		}
+
+		if err = tx.Create(answers).Error; err != nil {
+			return err
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // 发送消息后置处理
 func (s *TalkMessageService) afterHandle(ctx context.Context, record *model.TalkRecords, opts map[string]string) {
 
@@ -365,13 +454,13 @@ func (s *TalkMessageService) afterHandle(ctx context.Context, record *model.Talk
 
 	body := map[string]interface{}{
 		"event_name": entity.EventTalk,
-		"data": jsonutil.JsonEncode(map[string]string{
-			"sender_id":   strconv.Itoa(record.UserId),
-			"receiver_id": strconv.Itoa(record.ReceiverId),
-			"talk_type":   strconv.Itoa(record.TalkType),
-			"record_id":   strconv.Itoa(record.ID),
+		"data": jsonutil.JsonEncode(map[string]interface{}{
+			"sender_id":   int64(record.UserId),
+			"receiver_id": int64(record.ReceiverId),
+			"talk_type":   record.TalkType,
+			"record_id":   int64(record.ID),
 		}),
 	}
 
-	s.rds.Publish(ctx, "chat", jsonutil.JsonEncode(body))
+	s.rds.Publish(ctx, "ws:all", jsonutil.JsonEncode(body))
 }
