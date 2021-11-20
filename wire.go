@@ -41,6 +41,7 @@ var providerSet = wire.NewSet(
 	cache.NewRedisLock,
 	cache.NewWsClientSession,
 	cache.NewLastMessage,
+	cache.NewTalkVote,
 	wire.Struct(new(cache.SmsCodeCache), "*"),
 
 	// dao 数据层
@@ -51,11 +52,11 @@ var providerSet = wire.NewSet(
 	wire.Struct(new(dao.TalkRecordsCodeDao), "*"),
 	wire.Struct(new(dao.TalkRecordsLoginDao), "*"),
 	wire.Struct(new(dao.TalkRecordsFileDao), "*"),
-	wire.Struct(new(dao.TalkRecordsVoteDao), "*"),
 	wire.Struct(new(dao.GroupDao), "*"),
 	wire.Struct(new(dao.GroupNoticeDao), "*"),
 	dao.NewTalkListDao,
 	dao.NewEmoticonDao,
+	dao.NewTalkRecordsVoteDao,
 
 	// 服务
 	service.NewBaseService,

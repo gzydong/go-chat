@@ -2,6 +2,7 @@ package v1
 
 import (
 	"github.com/gin-gonic/gin"
+	"go-chat/app/dao"
 	"go-chat/app/http/request"
 	"go-chat/app/http/response"
 	"go-chat/app/pkg/auth"
@@ -12,15 +13,17 @@ import (
 )
 
 type TalkMessage struct {
-	service     *service.TalkMessageService
-	talkService *service.TalkService
+	service            *service.TalkMessageService
+	talkService        *service.TalkService
+	talkRecordsVoteDao *dao.TalkRecordsVoteDao
 }
 
 func NewTalkMessageHandler(
 	service *service.TalkMessageService,
 	talkService *service.TalkService,
+	talkRecordsVoteDao *dao.TalkRecordsVoteDao,
 ) *TalkMessage {
-	return &TalkMessage{service: service, talkService: talkService}
+	return &TalkMessage{service: service, talkService: talkService, talkRecordsVoteDao: talkRecordsVoteDao}
 }
 
 // Text 发送文本消息
@@ -243,13 +246,15 @@ func (c *TalkMessage) HandleVote(ctx *gin.Context) {
 		return
 	}
 
-	err := c.service.VoteHandle(ctx.Request.Context(), auth.GetAuthUserID(ctx), params)
+	vid, err := c.service.VoteHandle(ctx.Request.Context(), auth.GetAuthUserID(ctx), params)
 	if err != nil {
 		response.BusinessError(ctx, err)
 		return
 	}
 
-	response.Success(ctx, gin.H{}, "消息推送成功！")
+	res, _ := c.talkRecordsVoteDao.GetVoteStatistics(ctx.Request.Context(), vid)
+
+	response.Success(ctx, res, "消息推送成功！")
 }
 
 // Location 发送位置消息

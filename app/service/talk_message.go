@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"go-chat/app/cache"
+	"go-chat/app/dao"
 	"go-chat/app/entity"
 	"go-chat/app/http/request"
 	"go-chat/app/model"
@@ -26,24 +27,11 @@ type TalkMessageService struct {
 	unreadTalkCache    *cache.UnreadTalkCache
 	forwardService     *TalkMessageForwardService
 	lastMessage        *cache.LastMessage
+	talkRecordsVoteDao *dao.TalkRecordsVoteDao
 }
 
-func NewTalkMessageService(
-	base *BaseService,
-	config *config.Config,
-	groupMemberService *GroupMemberService,
-	unreadTalkCache *cache.UnreadTalkCache,
-	forwardService *TalkMessageForwardService,
-	lastMessage *cache.LastMessage,
-) *TalkMessageService {
-	return &TalkMessageService{
-		BaseService:        base,
-		config:             config,
-		groupMemberService: groupMemberService,
-		unreadTalkCache:    unreadTalkCache,
-		forwardService:     forwardService,
-		lastMessage:        lastMessage,
-	}
+func NewTalkMessageService(baseService *BaseService, config *config.Config, groupMemberService *GroupMemberService, unreadTalkCache *cache.UnreadTalkCache, forwardService *TalkMessageForwardService, lastMessage *cache.LastMessage, talkRecordsVoteDao *dao.TalkRecordsVoteDao) *TalkMessageService {
+	return &TalkMessageService{BaseService: baseService, config: config, groupMemberService: groupMemberService, unreadTalkCache: unreadTalkCache, forwardService: forwardService, lastMessage: lastMessage, talkRecordsVoteDao: talkRecordsVoteDao}
 }
 
 // SendTextMessage 发送文本消息
@@ -352,7 +340,7 @@ func (s *TalkMessageService) SendRevokeRecordMessage(ctx context.Context, uid in
 }
 
 // VoteHandle 投票处理
-func (s *TalkMessageService) VoteHandle(ctx context.Context, uid int, params *request.VoteMessageHandleRequest) error {
+func (s *TalkMessageService) VoteHandle(ctx context.Context, uid int, params *request.VoteMessageHandleRequest) (int, error) {
 	var (
 		err  error
 		vote *model.QueryVoteModel
@@ -369,15 +357,15 @@ func (s *TalkMessageService) VoteHandle(ctx context.Context, uid int, params *re
 
 	res := tx.Take(&vote)
 	if err := res.Error; err != err {
-		return err
+		return 0, err
 	}
 
 	if res.RowsAffected == 0 {
-		return fmt.Errorf("投票信息不存在[%d]", params.RecordId)
+		return 0, fmt.Errorf("投票信息不存在[%d]", params.RecordId)
 	}
 
 	if vote.MsgType != entity.MsgTypeVote {
-		return fmt.Errorf("当前记录属于投票信息[%d]", vote.MsgType)
+		return 0, fmt.Errorf("当前记录属于投票信息[%d]", vote.MsgType)
 	}
 
 	// 判断是否有投票权限
@@ -385,7 +373,7 @@ func (s *TalkMessageService) VoteHandle(ctx context.Context, uid int, params *re
 	var count int64
 	s.db.Table("talk_records_vote_answer").Where("vote_id = ? and user_id = ？", vote.VoteId, uid).Count(&count)
 	if count > 0 { // 判断是否已投票
-		return fmt.Errorf("不能重复投票[%d]", vote.VoteId)
+		return 0, fmt.Errorf("不能重复投票[%d]", vote.VoteId)
 	}
 
 	options := strings.Split(params.Options, ",")
@@ -393,16 +381,17 @@ func (s *TalkMessageService) VoteHandle(ctx context.Context, uid int, params *re
 
 	var answerOptions map[string]interface{}
 	if err = jsonutil.JsonDecode(vote.AnswerOption, &answerOptions); err != nil {
-		return err
+		return 0, err
 	}
 
 	for _, option := range options {
 		if _, ok := answerOptions[option]; !ok {
-			return fmt.Errorf("的投票选项不存在[%s]", option)
+			return 0, fmt.Errorf("的投票选项不存在[%s]", option)
 		}
 	}
 
-	if vote.AnswerMode == 1 {
+	// 判断是否单选
+	if vote.AnswerMode == 0 {
 		options = options[:1]
 	}
 
@@ -417,7 +406,7 @@ func (s *TalkMessageService) VoteHandle(ctx context.Context, uid int, params *re
 	}
 
 	err = s.db.Transaction(func(tx *gorm.DB) error {
-		if err = tx.Table("talk_records_vote").Updates(map[string]interface{}{
+		if err = tx.Table("talk_records_vote").Where("id = ?", vote.VoteId).Updates(map[string]interface{}{
 			"answered_num": gorm.Expr("answered_num + 1"),
 			"status":       gorm.Expr("if(answered_num >= answer_num, 1, 0)"),
 		}).Error; err != nil {
@@ -432,10 +421,13 @@ func (s *TalkMessageService) VoteHandle(ctx context.Context, uid int, params *re
 	})
 
 	if err != nil {
-		return err
+		return 0, err
 	}
 
-	return nil
+	_, _ = s.talkRecordsVoteDao.SetVoteAnswerUser(ctx, vote.VoteId)
+	_, _ = s.talkRecordsVoteDao.SetVoteStatistics(ctx, vote.VoteId)
+
+	return vote.VoteId, nil
 }
 
 // 发送消息后置处理

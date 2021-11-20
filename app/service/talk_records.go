@@ -2,6 +2,8 @@ package service
 
 import (
 	"context"
+	"go-chat/app/cache"
+	"go-chat/app/dao"
 	"go-chat/app/entity"
 	"go-chat/app/http/dto"
 	"go-chat/app/model"
@@ -13,6 +15,12 @@ import (
 
 type TalkRecordsService struct {
 	*BaseService
+	talkVoteCache      *cache.TalkVote
+	talkRecordsVoteDao *dao.TalkRecordsVoteDao
+}
+
+func NewTalkRecordsService(baseService *BaseService, talkVoteCache *cache.TalkVote, talkRecordsVoteDao *dao.TalkRecordsVoteDao) *TalkRecordsService {
+	return &TalkRecordsService{BaseService: baseService, talkVoteCache: talkVoteCache, talkRecordsVoteDao: talkRecordsVoteDao}
 }
 
 type QueryTalkRecordsOpts struct {
@@ -38,10 +46,6 @@ type QueryTalkRecordsItem struct {
 	CreatedAt  time.Time `json:"created_at"`
 	Nickname   string    `json:"nickname"`
 	Avatar     string    `json:"avatar"`
-}
-
-func NewTalkRecordsService(base *BaseService) *TalkRecordsService {
-	return &TalkRecordsService{base}
 }
 
 // GetTalkRecords 获取对话消息
@@ -89,7 +93,7 @@ func (s *TalkRecordsService) GetTalkRecords(ctx context.Context, query *QueryTal
 		return nil, err
 	}
 
-	return s.HandleTalkRecords(items)
+	return s.HandleTalkRecords(ctx, items)
 }
 
 // SearchTalkRecords 对话搜索消息
@@ -126,7 +130,7 @@ func (s *TalkRecordsService) GetTalkRecord(ctx context.Context, recordId int64) 
 	items := make([]*QueryTalkRecordsItem, 0)
 	items = append(items, item)
 
-	list, err := s.HandleTalkRecords(items)
+	list, err := s.HandleTalkRecords(ctx, items)
 	if err != nil {
 		return nil, err
 	}
@@ -134,7 +138,7 @@ func (s *TalkRecordsService) GetTalkRecord(ctx context.Context, recordId int64) 
 	return list[0], nil
 }
 
-func (s *TalkRecordsService) HandleTalkRecords(items []*QueryTalkRecordsItem) ([]*dto.TalkRecordsItem, error) {
+func (s *TalkRecordsService) HandleTalkRecords(ctx context.Context, items []*QueryTalkRecordsItem) ([]*dto.TalkRecordsItem, error) {
 	var (
 		files     []int
 		codes     []int
@@ -280,6 +284,22 @@ func (s *TalkRecordsService) HandleTalkRecords(items []*QueryTalkRecordsItem) ([
 					}
 				}
 
+				users := make([]int, 0)
+				if uids, err := s.talkRecordsVoteDao.GetVoteAnswerUser(ctx, value.ID); err == nil {
+					users = uids
+				}
+
+				var statistics interface{}
+
+				if res, err := s.talkRecordsVoteDao.GetVoteStatistics(ctx, value.ID); err != nil {
+					statistics = map[string]interface{}{
+						"count":   0,
+						"options": map[string]int{},
+					}
+				} else {
+					statistics = res
+				}
+
 				data.Vote = map[string]interface{}{
 					"detail": map[string]interface{}{
 						"id":            value.ID,
@@ -291,11 +311,8 @@ func (s *TalkRecordsService) HandleTalkRecords(items []*QueryTalkRecordsItem) ([
 						"answer_num":    value.AnswerNum,
 						"answered_num":  value.AnsweredNum,
 					},
-					"statistics": map[string]interface{}{
-						"count":   0,
-						"options": map[string]int{},
-					},
-					"vote_users": []int64{}, // 已投票成员
+					"statistics": statistics,
+					"vote_users": users, // 已投票成员
 				}
 			}
 		case entity.MsgTypeGroupNotice:
