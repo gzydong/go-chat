@@ -65,6 +65,7 @@ func SystemError(c *gin.Context, message ...interface{}) {
 	NewError(c, entity.CodeSystemError, message...)
 }
 
+// Success 响应成功数据
 func Success(c *gin.Context, data interface{}, message ...string) {
 	msg := "success"
 	if len(message) > 0 {
