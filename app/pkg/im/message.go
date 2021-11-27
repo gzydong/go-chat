@@ -41,14 +41,14 @@ func (s *SenderContent) SetMessage(msg *Message) *SenderContent {
 }
 
 // SetReceive 设置推送客户端
-func (s *SenderContent) SetReceive(uid ...int64) *SenderContent {
-	s.receives = append(s.receives, uid...)
+func (s *SenderContent) SetReceive(cid ...int64) *SenderContent {
+	s.receives = append(s.receives, cid...)
 	return s
 }
 
 // SetExclude 设置广播推送中需要过滤的客户端
-func (s *SenderContent) SetExclude(uid ...int64) *SenderContent {
-	s.exclude = append(s.exclude, uid...)
+func (s *SenderContent) SetExclude(cid ...int64) *SenderContent {
+	s.exclude = append(s.exclude, cid...)
 	return s
 }
 

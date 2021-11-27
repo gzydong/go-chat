@@ -83,14 +83,14 @@ func (a *Auth) Register(ctx *gin.Context) {
 
 	a.smsService.DeleteSmsCode(ctx.Request.Context(), entity.SmsRegisterChannel, params.Mobile)
 
-	response.Success(ctx, gin.H{}, "账号注册成功")
+	response.Success(ctx, gin.H{}, "注册成功！")
 }
 
 // Logout 退出登录接口
 func (a *Auth) Logout(ctx *gin.Context) {
 	a.toBlackList(ctx)
 
-	response.Success(ctx, gin.H{}, "退出成功！")
+	response.Success(ctx, gin.H{}, "已退出登录！")
 }
 
 // Refresh Token 刷新接口

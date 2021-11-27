@@ -99,7 +99,7 @@ func (c *Group) Invite(ctx *gin.Context) {
 		return
 	}
 
-	if err := c.service.InviteUsers(params.GroupId, uid, uids); err != nil {
+	if err := c.service.InviteUsers(ctx, params.GroupId, uid, uids); err != nil {
 		response.BusinessError(ctx, "邀请好友加入群聊失败！")
 		return
 	}

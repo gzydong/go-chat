@@ -5,10 +5,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/go-redis/redis/v8"
+	"go-chat/app/cache"
 	"go-chat/app/entity"
 	"go-chat/app/pkg/im"
 	"go-chat/app/service"
 	"go-chat/config"
+	"strconv"
 )
 
 type MessagePayload struct {
@@ -20,10 +22,22 @@ type WsSubscribe struct {
 	rds                *redis.Client
 	conf               *config.Config
 	talkRecordsService *service.TalkRecordsService
+	ws                 *cache.WsClientSession
+	room               *cache.GroupRoom
 }
 
-func NewWsSubscribe(rds *redis.Client, conf *config.Config, talkRecordsService *service.TalkRecordsService) *WsSubscribe {
-	return &WsSubscribe{rds: rds, conf: conf, talkRecordsService: talkRecordsService}
+type JoinGroup struct {
+	GroupID int   `json:"group_id"`
+	Uids    []int `json:"uids"`
+}
+
+type KeyboardMessage struct {
+	SenderID   int `json:"sender_id"`
+	ReceiverID int `json:"receiver_id"`
+}
+
+func NewWsSubscribe(rds *redis.Client, conf *config.Config, talkRecordsService *service.TalkRecordsService, ws *cache.WsClientSession, room *cache.GroupRoom) *WsSubscribe {
+	return &WsSubscribe{rds: rds, conf: conf, talkRecordsService: talkRecordsService, ws: ws, room: room}
 }
 
 type SubscribeBody struct {
@@ -42,6 +56,7 @@ func (w *WsSubscribe) Handle(ctx context.Context) error {
 	channels := []string{
 		"ws:all",                              // 全局通道
 		fmt.Sprintf("ws:%s", w.conf.GetSid()), // 私有通道
+		entity.SubscribeCreateGroup,
 	}
 
 	// 订阅通道
@@ -51,17 +66,27 @@ func (w *WsSubscribe) Handle(ctx context.Context) error {
 
 	go func() {
 		for msg := range sub.Channel() {
-			var body *SubscribeBody
-
-			if err := json.Unmarshal([]byte(msg.Payload), &body); err != nil {
-				continue
-			}
 
 			fmt.Printf("channel=%s message=%s\n", msg.Channel, msg.Payload)
 
-			switch body.EventName {
-			case entity.EventTalk:
-				w.onConsumeTalk(body.Data)
+			if msg.Channel == entity.SubscribeCreateGroup {
+				go w.joinGroupRoom(msg.Payload)
+				continue
+			} else {
+				var body *SubscribeBody
+
+				fmt.Println("msg.Payload", msg.Payload)
+
+				if err := json.Unmarshal([]byte(msg.Payload), &body); err != nil {
+					continue
+				}
+
+				switch body.EventName {
+				case entity.EventTalk:
+					w.onConsumeTalk(body.Data)
+				case entity.EventKeyboard:
+					w.onConsumeKeyboard(body.Data)
+				}
 			}
 		}
 	}()
@@ -79,11 +104,19 @@ func (w *WsSubscribe) onConsumeTalk(value string) {
 		return
 	}
 
-	uids := make([]int64, 0)
+	ctx := context.Background()
+
+	cids := make([]int64, 0)
 	if msg.TalkType == 1 {
-		uids = append(uids, msg.SenderID, msg.ReceiverID)
+		arr := [2]int64{msg.SenderID, msg.ReceiverID}
+		for _, val := range arr {
+			ids := w.ws.GetUidFromClientIds(ctx, w.conf.GetSid(), im.Session.DefaultChannel.Name, strconv.Itoa(int(val)))
+
+			cids = append(cids, ids...)
+		}
 	} else {
-		// 读取群成员ID列表
+		ids := w.room.All(ctx, w.conf.GetSid(), strconv.Itoa(int(msg.ReceiverID)))
+		cids = append(cids, ids...)
 	}
 
 	data, err := w.talkRecordsService.GetTalkRecord(context.Background(), msg.RecordID)
@@ -93,8 +126,7 @@ func (w *WsSubscribe) onConsumeTalk(value string) {
 	}
 
 	c := im.NewSenderContent()
-	// c.SetReceive(uids...)
-	c.SetBroadcast(true)
+	c.SetReceive(cids...)
 	c.SetMessage(&im.Message{
 		Event: "event_talk",
 		Content: map[string]interface{}{
@@ -110,7 +142,27 @@ func (w *WsSubscribe) onConsumeTalk(value string) {
 
 // onConsumeKeyboard 键盘输入事件消息
 func (w *WsSubscribe) onConsumeKeyboard(value string) {
+	var msg *KeyboardMessage
 
+	fmt.Println("onConsumeKeyboard", value)
+	if err := json.Unmarshal([]byte(value), &msg); err != nil {
+		fmt.Println("onConsumeKeyboard json err:", err)
+		return
+	}
+
+	cids := w.ws.GetUidFromClientIds(context.Background(), w.conf.GetSid(), im.Session.DefaultChannel.Name, strconv.Itoa(msg.ReceiverID))
+
+	c := im.NewSenderContent()
+	c.SetReceive(cids...)
+	c.SetMessage(&im.Message{
+		Event: entity.EventKeyboard,
+		Content: map[string]interface{}{
+			"sender_id":   msg.SenderID,
+			"receiver_id": msg.ReceiverID,
+		},
+	})
+
+	im.Session.DefaultChannel.PushSendChannel(c)
 }
 
 // onConsumeOnline 用户上线或下线消息
@@ -126,4 +178,25 @@ func (w *WsSubscribe) onConsumeRevokeTalk(value string) {
 // onConsumeFriendApply 好友申请消息
 func (w *WsSubscribe) onConsumeFriendApply(value string) {
 
+}
+
+// 加入群聊
+func (w *WsSubscribe) joinGroupRoom(value string) {
+	var (
+		ctx = context.Background()
+		sid = w.conf.GetSid()
+		m   JoinGroup
+	)
+
+	if err := json.Unmarshal([]byte(value), &m); err != nil {
+		return
+	}
+
+	for _, uid := range m.Uids {
+		cids := w.ws.GetUidFromClientIds(ctx, sid, im.Session.DefaultChannel.Name, strconv.Itoa(uid))
+
+		for _, cid := range cids {
+			_ = w.room.Add(ctx, w.conf.GetSid(), strconv.Itoa(m.GroupID), cid)
+		}
+	}
 }

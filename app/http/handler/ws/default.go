@@ -1,19 +1,40 @@
 package ws
 
 import (
+	"context"
+	"encoding/json"
+	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/go-redis/redis/v8"
+	"github.com/tidwall/gjson"
+	"go-chat/app/cache"
+	"go-chat/app/entity"
+	wst "go-chat/app/http/dto/ws"
 	"go-chat/app/pkg/auth"
 	"go-chat/app/pkg/im"
+	"go-chat/app/pkg/jsonutil"
 	"go-chat/app/service"
+	"go-chat/config"
 	"log"
+	"strconv"
 )
 
 type DefaultWebSocket struct {
-	client *service.ClientService
+	rds                *redis.Client
+	conf               *config.Config
+	client             *service.ClientService
+	room               *cache.GroupRoom
+	groupMemberService *service.GroupMemberService
 }
 
-func NewDefaultWebSocket(client *service.ClientService) *DefaultWebSocket {
-	handler := &DefaultWebSocket{client: client}
+func NewDefaultWebSocket(
+	rds *redis.Client,
+	conf *config.Config,
+	client *service.ClientService,
+	room *cache.GroupRoom,
+	groupMemberService *service.GroupMemberService,
+) *DefaultWebSocket {
+	handler := &DefaultWebSocket{rds: rds, conf: conf, client: client, room: room, groupMemberService: groupMemberService}
 
 	channel := im.Session.DefaultChannel
 
@@ -42,25 +63,48 @@ func (ws *DefaultWebSocket) Connect(c *gin.Context) {
 
 // Open 连接成功回调事件
 func (ws *DefaultWebSocket) Open(client *im.Client) {
-	// fmt.Printf("[%s] 客户端已连接[%d] \n", client.Channel.Name, client.ClientId)
+	// 1.查询用户群列表
+	ids := ws.groupMemberService.GetUserGroupIds(client.UserId)
+
+	// 2.客户端加入群房间
+	for _, gid := range ids {
+		err := ws.room.Add(context.Background(), ws.conf.GetSid(), strconv.Itoa(gid), client.ClientId)
+		if err != nil {
+			fmt.Println("ERROR ==> UID:", client.UserId, ":", gid)
+		}
+	}
 }
 
 // Message 消息接收回调事件
 func (ws *DefaultWebSocket) Message(message *im.ReceiveContent) {
-	// fmt.Printf("[%s]消息通知 Client:%d，Content: %s \n", message.Client.Channel.Name, message.Client.ClientId, message.Content)
+	fmt.Printf("[%s]消息通知 Client:%d，Content: %s \n", message.Client.Channel.Name, message.Client.ClientId, message.Content)
 
-	// body := im.NewSenderContent().SetBroadcast(true).SetMessage(&im.Message{
-	// 	Event: "test",
-	// 	Content: &map[string]interface{}{
-	// 		"name":     "anskjfna",
-	// 		"nickname": message.Content,
-	// 	},
-	// })
-	//
-	// im.Session.DefaultChannel.PushSendChannel(body)
+	event := gjson.Get(message.Content, "event").String()
+
+	switch event {
+	case "event_keyboard":
+		var m *wst.KeyboardMessage
+		if err := json.Unmarshal([]byte(message.Content), &m); err == nil {
+			ws.rds.Publish(context.Background(), "ws:all", jsonutil.JsonEncode(map[string]interface{}{
+				"event_name": entity.EventKeyboard,
+				"data": jsonutil.JsonEncode(map[string]interface{}{
+					"sender_id":   m.Data.SenderID,
+					"receiver_id": m.Data.ReceiverID,
+				}),
+			}))
+		}
+	}
 }
 
 // Close 客户端关闭回调事件
 func (ws *DefaultWebSocket) Close(client *im.Client, code int, text string) {
-	// fmt.Printf("[%s] 客户端[%d] 已关闭 code:%d text:%s \n", client.Channel.Name, client.ClientId, code, text)
+	// 1.判断用户是否是多点登录
+
+	// 2.查询用户群列表
+	ids := ws.groupMemberService.GetUserGroupIds(client.UserId)
+
+	// 3.客户端退出群房间
+	for _, gid := range ids {
+		_ = ws.room.Del(context.Background(), ws.conf.GetSid(), strconv.Itoa(gid), client.ClientId)
+	}
 }

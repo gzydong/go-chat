@@ -22,3 +22,8 @@ type AckReplyContent struct {
 	ReceiverID int `json:"receiver_id"`
 	MsgID      int `json:"msg_id"`
 }
+
+type KeyboardMessage struct {
+	Event string                 `json:"event"`
+	Data  KeyboardMessageContent `json:"data"`
+}

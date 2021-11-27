@@ -1,13 +1,16 @@
 package service
 
 import (
+	"context"
 	"database/sql"
 	"errors"
 	"github.com/gin-gonic/gin"
 	"go-chat/app/dao"
+	"go-chat/app/entity"
 	"go-chat/app/http/request"
 	"go-chat/app/model"
 	"go-chat/app/pkg/auth"
+	"go-chat/app/pkg/jsonutil"
 	"go-chat/app/pkg/slice"
 	"gorm.io/gorm"
 	"reflect"
@@ -15,17 +18,13 @@ import (
 )
 
 type GroupService struct {
+	*BaseService
 	dao           *dao.GroupDao
-	db            *gorm.DB
 	memberService *GroupMemberService
 }
 
-func NewGroupService(dao *dao.GroupDao, db *gorm.DB, memberService *GroupMemberService) *GroupService {
-	return &GroupService{
-		dao:           dao,
-		db:            db,
-		memberService: memberService,
-	}
+func NewGroupService(baseService *BaseService, dao *dao.GroupDao, memberService *GroupMemberService) *GroupService {
+	return &GroupService{BaseService: baseService, dao: dao, memberService: memberService}
 }
 
 func (s *GroupService) FindById(id int) (*model.Group, error) {
@@ -42,13 +41,15 @@ func (s *GroupService) Create(ctx *gin.Context, request *request.GroupCreateRequ
 		err      error
 		members  []*model.GroupMember
 		talkList []*model.TalkList
+		groupId  int
 	)
 
 	// 登录用户ID
 	uid := auth.GetAuthUserID(ctx)
 
 	// 群成员用户ID
-	MembersIds := slice.ParseIds(request.MembersIds)
+	mids := slice.ParseIds(request.MembersIds)
+	mids = slice.UniqueInt(append(mids, uid))
 
 	err = s.db.Transaction(func(tx *gorm.DB) error {
 		group := &model.Group{
@@ -64,7 +65,9 @@ func (s *GroupService) Create(ctx *gin.Context, request *request.GroupCreateRequ
 			return err
 		}
 
-		for _, val := range MembersIds {
+		groupId = group.ID
+
+		for _, val := range mids {
 			leader := 0
 			if uid == val {
 				leader = 2
@@ -98,6 +101,12 @@ func (s *GroupService) Create(ctx *gin.Context, request *request.GroupCreateRequ
 
 		return nil
 	})
+
+	// 广播网关将在线的用户加入房间
+	s.rds.Publish(ctx, entity.SubscribeCreateGroup, jsonutil.JsonEncode(map[string]interface{}{
+		"group_id": groupId,
+		"uids":     mids,
+	}))
 
 	return err
 }
@@ -170,7 +179,7 @@ func (s *GroupService) Secede(GroupId int, UserId int) error {
 }
 
 // InviteUsers 邀请用户加入群聊
-func (s *GroupService) InviteUsers(groupId int, uid int, uids []int) error {
+func (s *GroupService) InviteUsers(ctx context.Context, groupId int, uid int, uids []int) error {
 	var (
 		err            error
 		addMembers     []*model.GroupMember
@@ -246,6 +255,12 @@ func (s *GroupService) InviteUsers(groupId int, uid int, uids []int) error {
 	if err != nil {
 		return err
 	}
+
+	// 广播网关将在线的用户加入房间
+	s.rds.Publish(ctx, entity.SubscribeCreateGroup, jsonutil.JsonEncode(map[string]interface{}{
+		"group_id": groupId,
+		"uids":     uids,
+	}))
 
 	return nil
 }

@@ -42,6 +42,7 @@ var providerSet = wire.NewSet(
 	cache.NewWsClientSession,
 	cache.NewLastMessage,
 	cache.NewTalkVote,
+	cache.NewGroupRoom,
 	wire.Struct(new(cache.SmsCodeCache), "*"),
 
 	// dao 数据层
