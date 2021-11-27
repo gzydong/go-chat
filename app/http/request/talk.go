@@ -2,7 +2,7 @@ package request
 
 type TalkListCreateRequest struct {
 	TalkType   int `form:"talk_type" json:"talk_type" binding:"required,oneof=1 2" label:"talk_type"`
-	ReceiverId int `form:"receiver_id" json:"receiver_id" binding:"required,numeric" label:"receiver_id"`
+	ReceiverId int `form:"receiver_id" json:"receiver_id" binding:"required,numeric,min=1" label:"receiver_id"`
 }
 
 type TalkListDeleteRequest struct {

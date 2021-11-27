@@ -49,15 +49,15 @@ func (ws *DefaultWebSocket) Open(client *im.Client) {
 func (ws *DefaultWebSocket) Message(message *im.ReceiveContent) {
 	// fmt.Printf("[%s]消息通知 Client:%d，Content: %s \n", message.Client.Channel.Name, message.Client.ClientId, message.Content)
 
-	body := im.NewSenderContent().SetBroadcast(true).SetMessage(&im.Message{
-		Event: "test",
-		Content: &map[string]interface{}{
-			"name":     "anskjfna",
-			"nickname": message.Content,
-		},
-	})
-
-	im.Session.DefaultChannel.PushSendChannel(body)
+	// body := im.NewSenderContent().SetBroadcast(true).SetMessage(&im.Message{
+	// 	Event: "test",
+	// 	Content: &map[string]interface{}{
+	// 		"name":     "anskjfna",
+	// 		"nickname": message.Content,
+	// 	},
+	// })
+	//
+	// im.Session.DefaultChannel.PushSendChannel(body)
 }
 
 // Close 客户端关闭回调事件

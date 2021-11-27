@@ -184,7 +184,7 @@ func (s *TalkMessageService) SendEmoticonMessage(ctx context.Context, uid int, p
 		err      error
 		emoticon model.EmoticonItem
 		record   = &model.TalkRecords{
-			TalkType:   entity.GroupChat,
+			TalkType:   params.TalkType,
 			MsgType:    entity.MsgTypeFile,
 			UserId:     uid,
 			ReceiverId: params.ReceiverId,
