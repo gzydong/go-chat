@@ -454,5 +454,5 @@ func (s *TalkMessageService) afterHandle(ctx context.Context, record *model.Talk
 		}),
 	}
 
-	s.rds.Publish(ctx, "ws:all", jsonutil.JsonEncode(body))
+	s.rds.Publish(ctx, entity.SubscribeWsGatewayAll, jsonutil.JsonEncode(body))
 }

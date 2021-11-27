@@ -85,7 +85,7 @@ func (ws *DefaultWebSocket) Message(message *im.ReceiveContent) {
 	case "event_keyboard":
 		var m *wst.KeyboardMessage
 		if err := json.Unmarshal([]byte(message.Content), &m); err == nil {
-			ws.rds.Publish(context.Background(), "ws:all", jsonutil.JsonEncode(map[string]interface{}{
+			ws.rds.Publish(context.Background(), entity.SubscribeWsGatewayAll, jsonutil.JsonEncode(map[string]interface{}{
 				"event_name": entity.EventKeyboard,
 				"data": jsonutil.JsonEncode(map[string]interface{}{
 					"sender_id":   m.Data.SenderID,

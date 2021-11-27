@@ -53,9 +53,11 @@ type TalkMessageBody struct {
 }
 
 func (w *WsSubscribe) Handle(ctx context.Context) error {
+	gateway := fmt.Sprintf(entity.SubscribeWsGatewayPrivate, w.conf.GetSid())
+
 	channels := []string{
-		"ws:all",                              // 全局通道
-		fmt.Sprintf("ws:%s", w.conf.GetSid()), // 私有通道
+		entity.SubscribeWsGatewayAll, // 全局通道
+		gateway,                      // 私有通道
 		entity.SubscribeCreateGroup,
 	}
 
@@ -66,16 +68,13 @@ func (w *WsSubscribe) Handle(ctx context.Context) error {
 
 	go func() {
 		for msg := range sub.Channel() {
+			fmt.Printf("消息订阅 : channel=%s message=%s\n", msg.Channel, msg.Payload)
 
-			fmt.Printf("channel=%s message=%s\n", msg.Channel, msg.Payload)
-
-			if msg.Channel == entity.SubscribeCreateGroup {
+			switch msg.Channel {
+			case entity.SubscribeCreateGroup:
 				go w.joinGroupRoom(msg.Payload)
-				continue
-			} else {
+			case entity.SubscribeWsGatewayAll, gateway:
 				var body *SubscribeBody
-
-				fmt.Println("msg.Payload", msg.Payload)
 
 				if err := json.Unmarshal([]byte(msg.Payload), &body); err != nil {
 					continue
