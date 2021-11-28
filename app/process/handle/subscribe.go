@@ -31,7 +31,7 @@ func NewSubscribeConsume(conf *config.Config, ws *cache.WsClientSession, room *c
 
 func (s *SubscribeConsume) Handle(event string, data string) {
 
-	handler := make(map[string]onConsumeFunc, 0)
+	handler := make(map[string]onConsumeFunc)
 
 	handler[entity.EventTalk] = s.onConsumeTalk
 	handler[entity.EventKeyboard] = s.onConsumeKeyboard
@@ -213,7 +213,7 @@ func (s *SubscribeConsume) onConsumeRevokeTalk(body string) {
 	im.Sessions.Default.PushSendChannel(c)
 }
 
-// onConsumeContactApply 好友申请消息
+// nolint onConsumeContactApply 好友申请消息
 func (s *SubscribeConsume) onConsumeContactApply(body string) {
 
 }

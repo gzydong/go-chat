@@ -57,8 +57,6 @@ func (w *WsClientSession) Del(ctx context.Context, channel, fd string) {
 // @params channel  渠道分组
 // @params uid      用户ID
 func (w *WsClientSession) IsOnline(ctx context.Context, channel, uid string) bool {
-
-	// todo 需要优化
 	for _, sid := range w.server.GetServerRunIdAll(ctx, 1) {
 		if w.IsCurrentServerOnline(ctx, sid, channel, uid) {
 			return true

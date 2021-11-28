@@ -355,7 +355,7 @@ func (s *TalkMessageService) VoteHandle(ctx context.Context, uid int, params *re
 	tx.Where("talk_records.id = ?", params.RecordId)
 
 	res := tx.Take(&vote)
-	if err := res.Error; err != err {
+	if err := res.Error; err != nil {
 		return 0, err
 	}
 
