@@ -42,7 +42,7 @@ func (c *Contact) List(ctx *gin.Context) {
 	}
 
 	for _, item := range items {
-		isOnline := c.wsClient.IsOnline(ctx, im.Session.DefaultChannel.Name, strconv.Itoa(item.Id))
+		isOnline := c.wsClient.IsOnline(ctx, im.Sessions.Default.Name, strconv.Itoa(item.Id))
 		item.IsOnline = strutil.BoolToInt(isOnline)
 	}
 

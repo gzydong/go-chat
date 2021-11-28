@@ -36,7 +36,7 @@ func NewDefaultWebSocket(
 ) *DefaultWebSocket {
 	handler := &DefaultWebSocket{rds: rds, conf: conf, client: client, room: room, groupMemberService: groupMemberService}
 
-	channel := im.Session.DefaultChannel
+	channel := im.Sessions.Default
 
 	channel.SetCallbackHandler(handler)
 
@@ -52,7 +52,7 @@ func (ws *DefaultWebSocket) Connect(c *gin.Context) {
 	}
 
 	options := &im.ClientOption{
-		Channel:       im.Session.DefaultChannel,
+		Channel:       im.Sessions.Default,
 		UserId:        auth.GetAuthUserID(c),
 		ClientService: ws.client,
 	}

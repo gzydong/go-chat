@@ -15,7 +15,6 @@ import (
 	"go-chat/config"
 	"gorm.io/gorm"
 	"sort"
-	"strconv"
 	"strings"
 	"time"
 )
@@ -329,12 +328,12 @@ func (s *TalkMessageService) SendRevokeRecordMessage(ctx context.Context, uid in
 
 	body := map[string]interface{}{
 		"event_name": entity.EventRevokeTalk,
-		"data": jsonutil.JsonEncode(map[string]string{
-			"record_id": strconv.Itoa(record.ID),
+		"data": jsonutil.JsonEncode(map[string]interface{}{
+			"record_id": record.ID,
 		}),
 	}
 
-	s.rds.Publish(ctx, "chat", jsonutil.JsonEncode(body))
+	s.rds.Publish(ctx, entity.SubscribeWsGatewayAll, jsonutil.JsonEncode(body))
 
 	return nil
 }

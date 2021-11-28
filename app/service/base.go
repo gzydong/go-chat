@@ -13,3 +13,7 @@ type BaseService struct {
 func NewBaseService(db *gorm.DB, rds *redis.Client) *BaseService {
 	return &BaseService{db, rds}
 }
+
+func (base *BaseService) Db() *gorm.DB {
+	return base.db
+}

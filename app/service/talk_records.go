@@ -13,16 +13,6 @@ import (
 	"time"
 )
 
-type TalkRecordsService struct {
-	*BaseService
-	talkVoteCache      *cache.TalkVote
-	talkRecordsVoteDao *dao.TalkRecordsVoteDao
-}
-
-func NewTalkRecordsService(baseService *BaseService, talkVoteCache *cache.TalkVote, talkRecordsVoteDao *dao.TalkRecordsVoteDao) *TalkRecordsService {
-	return &TalkRecordsService{BaseService: baseService, talkVoteCache: talkVoteCache, talkRecordsVoteDao: talkRecordsVoteDao}
-}
-
 type QueryTalkRecordsOpts struct {
 	TalkType   int `json:"talk_type"`   // 对话类型
 	UserId     int `json:"user_id"`     // 获取消息的用户
@@ -46,6 +36,16 @@ type QueryTalkRecordsItem struct {
 	CreatedAt  time.Time `json:"created_at"`
 	Nickname   string    `json:"nickname"`
 	Avatar     string    `json:"avatar"`
+}
+
+type TalkRecordsService struct {
+	*BaseService
+	talkVoteCache      *cache.TalkVote
+	talkRecordsVoteDao *dao.TalkRecordsVoteDao
+}
+
+func NewTalkRecordsService(baseService *BaseService, talkVoteCache *cache.TalkVote, talkRecordsVoteDao *dao.TalkRecordsVoteDao) *TalkRecordsService {
+	return &TalkRecordsService{BaseService: baseService, talkVoteCache: talkVoteCache, talkRecordsVoteDao: talkRecordsVoteDao}
 }
 
 // GetTalkRecords 获取对话消息

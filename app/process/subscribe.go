@@ -4,10 +4,13 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis/v8"
 	"go-chat/app/cache"
 	"go-chat/app/entity"
+	"go-chat/app/model"
 	"go-chat/app/pkg/im"
+	"go-chat/app/pkg/jsonutil"
 	"go-chat/app/service"
 	"go-chat/config"
 	"strconv"
@@ -78,7 +81,7 @@ func (w *WsSubscribe) Handle(ctx context.Context) error {
 
 			switch msg.Channel {
 			case entity.SubscribeCreateGroup:
-				go w.joinGroupRoom(msg.Payload)
+				w.joinGroupRoom(msg.Payload)
 			case entity.SubscribeWsGatewayAll, gateway:
 				var body *SubscribeBody
 
@@ -93,6 +96,8 @@ func (w *WsSubscribe) Handle(ctx context.Context) error {
 					w.onConsumeKeyboard(body.Data)
 				case entity.EventOnlineStatus:
 					w.onConsumeOnline(body.Data)
+				case entity.EventRevokeTalk:
+					w.onConsumeRevokeTalk(body.Data)
 				}
 			}
 		}
@@ -117,7 +122,7 @@ func (w *WsSubscribe) onConsumeTalk(value string) {
 	if msg.TalkType == 1 {
 		arr := [2]int64{msg.SenderID, msg.ReceiverID}
 		for _, val := range arr {
-			ids := w.ws.GetUidFromClientIds(ctx, w.conf.GetSid(), im.Session.DefaultChannel.Name, strconv.Itoa(int(val)))
+			ids := w.ws.GetUidFromClientIds(ctx, w.conf.GetSid(), im.Sessions.Default.Name, strconv.Itoa(int(val)))
 
 			cids = append(cids, ids...)
 		}
@@ -148,7 +153,7 @@ func (w *WsSubscribe) onConsumeTalk(value string) {
 		},
 	})
 
-	im.Session.DefaultChannel.PushSendChannel(c)
+	im.Sessions.Default.PushSendChannel(c)
 }
 
 // onConsumeKeyboard 键盘输入事件消息
@@ -159,7 +164,7 @@ func (w *WsSubscribe) onConsumeKeyboard(value string) {
 		return
 	}
 
-	cids := w.ws.GetUidFromClientIds(context.Background(), w.conf.GetSid(), im.Session.DefaultChannel.Name, strconv.Itoa(msg.ReceiverID))
+	cids := w.ws.GetUidFromClientIds(context.Background(), w.conf.GetSid(), im.Sessions.Default.Name, strconv.Itoa(msg.ReceiverID))
 
 	if len(cids) == 0 {
 		return
@@ -175,7 +180,7 @@ func (w *WsSubscribe) onConsumeKeyboard(value string) {
 		},
 	})
 
-	im.Session.DefaultChannel.PushSendChannel(c)
+	im.Sessions.Default.PushSendChannel(c)
 }
 
 // onConsumeOnline 用户上线或下线消息
@@ -191,7 +196,7 @@ func (w *WsSubscribe) onConsumeOnline(value string) {
 	uids := w.contactService.GetContactIds(context.Background(), msg.UserID)
 	sid := w.conf.GetSid()
 	for _, uid := range uids {
-		ids := w.ws.GetUidFromClientIds(context.Background(), sid, im.Session.DefaultChannel.Name, fmt.Sprintf("%d", uid))
+		ids := w.ws.GetUidFromClientIds(context.Background(), sid, im.Sessions.Default.Name, fmt.Sprintf("%d", uid))
 
 		cids = append(cids, ids...)
 	}
@@ -207,12 +212,56 @@ func (w *WsSubscribe) onConsumeOnline(value string) {
 		Content: msg,
 	})
 
-	im.Session.DefaultChannel.PushSendChannel(c)
+	im.Sessions.Default.PushSendChannel(c)
 }
 
 // onConsumeRevokeTalk 撤销聊天消息
 func (w *WsSubscribe) onConsumeRevokeTalk(value string) {
+	var (
+		msg    map[string]int
+		record *model.TalkRecords
+		ctx    = context.Background()
+	)
 
+	if err := jsonutil.JsonDecode(value, &msg); err != nil {
+		return
+	}
+
+	if _, ok := msg["record_id"]; !ok {
+		return
+	}
+
+	if err := w.talkRecordsService.Db().First(&record, msg["record_id"]).Error; err != nil {
+		return
+	}
+
+	cids := make([]int64, 0)
+	if record.TalkType == entity.PrivateChat {
+		for _, uid := range [2]int{record.UserId, record.ReceiverId} {
+			ids := w.ws.GetUidFromClientIds(ctx, w.conf.GetSid(), im.Sessions.Default.Name, strconv.Itoa(uid))
+			cids = append(cids, ids...)
+		}
+	} else {
+		cids = w.room.All(ctx, w.conf.GetSid(), strconv.Itoa(record.ReceiverId))
+	}
+
+	if len(cids) == 0 {
+		return
+	}
+
+	c := im.NewSenderContent()
+	c.SetReceive(cids...)
+	c.SetMessage(&im.Message{
+		Event: entity.EventRevokeTalk,
+		Content: gin.H{
+			"talk_type":   record.TalkType,
+			"sender_id":   record.UserId,
+			"receiver_id": record.ReceiverId,
+			"record_id":   record.ID,
+		},
+	})
+
+	im.Sessions.Default.PushSendChannel(c)
 }
 
 // onConsumeFriendApply 好友申请消息
@@ -233,7 +282,7 @@ func (w *WsSubscribe) joinGroupRoom(value string) {
 	}
 
 	for _, uid := range m.Uids {
-		cids := w.ws.GetUidFromClientIds(ctx, sid, im.Session.DefaultChannel.Name, strconv.Itoa(uid))
+		cids := w.ws.GetUidFromClientIds(ctx, sid, im.Sessions.Default.Name, strconv.Itoa(uid))
 
 		for _, cid := range cids {
 			_ = w.room.Add(ctx, w.conf.GetSid(), strconv.Itoa(m.GroupID), cid)
