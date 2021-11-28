@@ -7,6 +7,7 @@ import (
 	"go-chat/app/dao"
 	"go-chat/app/pkg/filesystem"
 	"go-chat/app/process"
+	"go-chat/app/process/handle"
 	"go-chat/provider"
 
 	"github.com/google/wire"
@@ -100,6 +101,7 @@ var providerSet = wire.NewSet(
 	process.NewWsSubscribe,
 	process.NewServerRun,
 	process.NewProcessManage,
+	handle.NewSubscribeConsume,
 )
 
 func Initialize(ctx context.Context) *provider.Services {

@@ -17,4 +17,6 @@ const (
 
 	// 好友申请消息通知 - 事件名
 	EventFriendApply = "event_friend_apply"
+
+	EventJoinGroupRoom = "event_join_group_room"
 )

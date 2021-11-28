@@ -103,10 +103,15 @@ func (s *GroupService) Create(ctx *gin.Context, request *request.GroupCreateRequ
 	})
 
 	// 广播网关将在线的用户加入房间
-	s.rds.Publish(ctx, entity.SubscribeCreateGroup, jsonutil.JsonEncode(map[string]interface{}{
-		"group_id": groupId,
-		"uids":     mids,
-	}))
+	body := map[string]interface{}{
+		"event_name": entity.EventJoinGroupRoom,
+		"data": jsonutil.JsonEncode(map[string]interface{}{
+			"group_id": groupId,
+			"uids":     mids,
+		}),
+	}
+
+	s.rds.Publish(ctx, entity.SubscribeWsGatewayAll, jsonutil.JsonEncode(body))
 
 	return err
 }
@@ -257,10 +262,15 @@ func (s *GroupService) InviteUsers(ctx context.Context, groupId int, uid int, ui
 	}
 
 	// 广播网关将在线的用户加入房间
-	s.rds.Publish(ctx, entity.SubscribeCreateGroup, jsonutil.JsonEncode(map[string]interface{}{
-		"group_id": groupId,
-		"uids":     uids,
-	}))
+	body := map[string]interface{}{
+		"event_name": entity.EventJoinGroupRoom,
+		"data": jsonutil.JsonEncode(map[string]interface{}{
+			"group_id": groupId,
+			"uids":     uids,
+		}),
+	}
+
+	s.rds.Publish(ctx, entity.SubscribeWsGatewayAll, jsonutil.JsonEncode(body))
 
 	return nil
 }
