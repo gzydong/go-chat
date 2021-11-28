@@ -15,62 +15,45 @@ import (
 	"strconv"
 )
 
-type JoinGroup struct {
-	GroupID int   `json:"group_id"`
-	Uids    []int `json:"uids"`
-}
-
-type KeyboardMessage struct {
-	SenderID   int `json:"sender_id"`
-	ReceiverID int `json:"receiver_id"`
-}
-
-type LoginMessage struct {
-	Status int `json:"status"`
-	UserID int `json:"user_id"`
-}
-
-type SubscribeBody struct {
-	EventName string `json:"event_name"`
-	Data      string `json:"data"`
-}
-
-type TalkMessageBody struct {
-	TalkType   int   `json:"talk_type"`
-	SenderID   int64 `json:"sender_id"`
-	ReceiverID int64 `json:"receiver_id"`
-	RecordID   int64 `json:"record_id"`
-}
+type onConsumeFunc func(data string)
 
 type SubscribeConsume struct {
-	conf               *config.Config
-	talkRecordsService *service.TalkRecordsService
-	ws                 *cache.WsClientSession
-	room               *cache.GroupRoom
-	contactService     *service.ContactService
+	conf           *config.Config
+	ws             *cache.WsClientSession
+	room           *cache.GroupRoom
+	recordsService *service.TalkRecordsService
+	contactService *service.ContactService
 }
 
-func NewSubscribeConsume(conf *config.Config, talkRecordsService *service.TalkRecordsService, ws *cache.WsClientSession, room *cache.GroupRoom, contactService *service.ContactService) *SubscribeConsume {
-	return &SubscribeConsume{conf: conf, talkRecordsService: talkRecordsService, ws: ws, room: room, contactService: contactService}
+func NewSubscribeConsume(conf *config.Config, ws *cache.WsClientSession, room *cache.GroupRoom, recordsService *service.TalkRecordsService, contactService *service.ContactService) *SubscribeConsume {
+	return &SubscribeConsume{conf: conf, ws: ws, room: room, recordsService: recordsService, contactService: contactService}
 }
 
 func (s *SubscribeConsume) Handle(event string, data string) {
-	switch event {
-	case entity.EventTalk:
-		s.onConsumeTalk(data)
-	case entity.EventKeyboard:
-		s.onConsumeKeyboard(data)
-	case entity.EventOnlineStatus:
-		s.onConsumeOnline(data)
-	case entity.EventRevokeTalk:
-		s.onConsumeRevokeTalk(data)
-	case entity.EventJoinGroupRoom:
-		s.onConsumeAddGroupRoom(data)
+
+	handler := make(map[string]onConsumeFunc, 0)
+
+	handler[entity.EventTalk] = s.onConsumeTalk
+	handler[entity.EventKeyboard] = s.onConsumeKeyboard
+	handler[entity.EventOnlineStatus] = s.onConsumeOnline
+	handler[entity.EventRevokeTalk] = s.onConsumeRevokeTalk
+	handler[entity.EventJoinGroupRoom] = s.onConsumeAddGroupRoom
+
+	if f, ok := handler[event]; ok {
+		f(data)
+	} else {
+		fmt.Printf("Event: [%s]未注册回调方法\n", event)
 	}
 }
 
 func (s *SubscribeConsume) onConsumeTalk(body string) {
-	var msg *TalkMessageBody
+	var msg struct {
+		TalkType   int   `json:"talk_type"`
+		SenderID   int64 `json:"sender_id"`
+		ReceiverID int64 `json:"receiver_id"`
+		RecordID   int64 `json:"record_id"`
+	}
+
 	if err := json.Unmarshal([]byte(body), &msg); err != nil {
 		fmt.Println("onConsumeTalk json", err)
 		return
@@ -91,7 +74,7 @@ func (s *SubscribeConsume) onConsumeTalk(body string) {
 		cids = append(cids, ids...)
 	}
 
-	data, err := s.talkRecordsService.GetTalkRecord(context.Background(), msg.RecordID)
+	data, err := s.recordsService.GetTalkRecord(context.Background(), msg.RecordID)
 	if err != nil {
 		fmt.Println("GetTalkRecord err", err)
 		return
@@ -118,7 +101,10 @@ func (s *SubscribeConsume) onConsumeTalk(body string) {
 
 // onConsumeKeyboard 键盘输入事件消息
 func (s *SubscribeConsume) onConsumeKeyboard(body string) {
-	var msg *KeyboardMessage
+	var msg struct {
+		SenderID   int `json:"sender_id"`
+		ReceiverID int `json:"receiver_id"`
+	}
 
 	if err := json.Unmarshal([]byte(body), &msg); err != nil {
 		return
@@ -145,7 +131,10 @@ func (s *SubscribeConsume) onConsumeKeyboard(body string) {
 
 // onConsumeOnline 用户上线或下线消息
 func (s *SubscribeConsume) onConsumeOnline(body string) {
-	var msg *LoginMessage
+	var msg struct {
+		Status int `json:"status"`
+		UserID int `json:"user_id"`
+	}
 
 	if err := json.Unmarshal([]byte(body), &msg); err != nil {
 		return
@@ -191,7 +180,7 @@ func (s *SubscribeConsume) onConsumeRevokeTalk(body string) {
 		return
 	}
 
-	if err := s.talkRecordsService.Db().First(&record, msg["record_id"]).Error; err != nil {
+	if err := s.recordsService.Db().First(&record, msg["record_id"]).Error; err != nil {
 		return
 	}
 
@@ -234,7 +223,10 @@ func (s *SubscribeConsume) onConsumeAddGroupRoom(body string) {
 	var (
 		ctx = context.Background()
 		sid = s.conf.GetSid()
-		m   JoinGroup
+		m   struct {
+			GroupID int   `json:"group_id"`
+			Uids    []int `json:"uids"`
+		}
 	)
 
 	if err := json.Unmarshal([]byte(body), &m); err != nil {
