@@ -72,7 +72,7 @@ func (w *WsClientSession) IsOnline(ctx context.Context, channel, uid string) boo
 // @params sid      服务ID
 // @params channel  渠道分组
 // @params uid      用户ID
-func (w WsClientSession) IsCurrentServerOnline(ctx context.Context, sid, channel, uid string) bool {
+func (w *WsClientSession) IsCurrentServerOnline(ctx context.Context, sid, channel, uid string) bool {
 	val, err := w.rds.SCard(ctx, w.getChannelUserKey(sid, channel, uid)).Result()
 
 	return err == nil && val > 0
