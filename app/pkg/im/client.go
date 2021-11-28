@@ -20,7 +20,7 @@ const (
 type Client struct {
 	Conn          *websocket.Conn        // 客户端连接
 	ClientId      int64                  // 客户端ID/客户端唯一标识
-	UserId        int                    // 用户ID
+	Uid           int                    // 用户ID
 	LastTime      int64                  // 客户端最后心跳时间/心跳检测
 	Channel       *ChannelManage         // 渠道分组
 	ClientService *service.ClientService // 服务信息
@@ -39,7 +39,7 @@ func NewClient(conn *websocket.Conn, options *ClientOption) *Client {
 		Conn:          conn,
 		ClientId:      GenClientID.GetID(),
 		LastTime:      time.Now().Unix(),
-		UserId:        options.UserId,
+		Uid:           options.UserId,
 		Channel:       options.Channel,
 		ClientService: options.ClientService,
 	}
@@ -61,7 +61,7 @@ func NewClient(conn *websocket.Conn, options *ClientOption) *Client {
 	client.Channel.RegisterClient(client)
 
 	// 绑定客户端映射关系
-	client.ClientService.Bind(context.Background(), client.Channel.Name, fmt.Sprintf("%d", client.ClientId), client.UserId)
+	client.ClientService.Bind(context.Background(), client.Channel.Name, fmt.Sprintf("%d", client.ClientId), client.Uid)
 
 	// 触发自定义的 open 事件
 	client.Channel.Handler.Open(client)

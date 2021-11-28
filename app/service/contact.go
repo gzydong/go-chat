@@ -52,3 +52,11 @@ func (s *ContactService) List(ctx context.Context, uid int) ([]*model.ContactLis
 
 	return items, nil
 }
+
+func (s *ContactService) GetContactIds(ctx context.Context, uid int) []int64 {
+	var ids []int64
+
+	s.db.Model(model.UsersFriends{}).Where("user_id = ? and status = ?", uid, 1).Pluck("friend_id", &ids)
+
+	return ids
+}

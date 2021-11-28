@@ -64,15 +64,21 @@ func (ws *DefaultWebSocket) Connect(c *gin.Context) {
 // Open 连接成功回调事件
 func (ws *DefaultWebSocket) Open(client *im.Client) {
 	// 1.查询用户群列表
-	ids := ws.groupMemberService.GetUserGroupIds(client.UserId)
+	ids := ws.groupMemberService.GetUserGroupIds(client.Uid)
 
 	// 2.客户端加入群房间
 	for _, gid := range ids {
-		err := ws.room.Add(context.Background(), ws.conf.GetSid(), strconv.Itoa(gid), client.ClientId)
-		if err != nil {
-			fmt.Println("ERROR ==> UID:", client.UserId, ":", gid)
-		}
+		_ = ws.room.Add(context.Background(), ws.conf.GetSid(), strconv.Itoa(gid), client.ClientId)
 	}
+
+	// 推送上线消息
+	ws.rds.Publish(context.Background(), entity.SubscribeWsGatewayAll, jsonutil.JsonEncode(map[string]interface{}{
+		"event_name": entity.EventOnlineStatus,
+		"data": jsonutil.JsonEncode(map[string]interface{}{
+			"user_id": client.Uid,
+			"status":  1,
+		}),
+	}))
 }
 
 // Message 消息接收回调事件
@@ -101,10 +107,19 @@ func (ws *DefaultWebSocket) Close(client *im.Client, code int, text string) {
 	// 1.判断用户是否是多点登录
 
 	// 2.查询用户群列表
-	ids := ws.groupMemberService.GetUserGroupIds(client.UserId)
+	ids := ws.groupMemberService.GetUserGroupIds(client.Uid)
 
 	// 3.客户端退出群房间
 	for _, gid := range ids {
 		_ = ws.room.Del(context.Background(), ws.conf.GetSid(), strconv.Itoa(gid), client.ClientId)
 	}
+
+	// 推送下线消息
+	ws.rds.Publish(context.Background(), entity.SubscribeWsGatewayAll, jsonutil.JsonEncode(map[string]interface{}{
+		"event_name": entity.EventOnlineStatus,
+		"data": jsonutil.JsonEncode(map[string]interface{}{
+			"user_id": client.Uid,
+			"status":  0,
+		}),
+	}))
 }

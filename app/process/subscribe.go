@@ -24,6 +24,11 @@ type WsSubscribe struct {
 	talkRecordsService *service.TalkRecordsService
 	ws                 *cache.WsClientSession
 	room               *cache.GroupRoom
+	contactService     *service.ContactService
+}
+
+func NewWsSubscribe(rds *redis.Client, conf *config.Config, talkRecordsService *service.TalkRecordsService, ws *cache.WsClientSession, room *cache.GroupRoom, contactService *service.ContactService) *WsSubscribe {
+	return &WsSubscribe{rds: rds, conf: conf, talkRecordsService: talkRecordsService, ws: ws, room: room, contactService: contactService}
 }
 
 type JoinGroup struct {
@@ -36,8 +41,9 @@ type KeyboardMessage struct {
 	ReceiverID int `json:"receiver_id"`
 }
 
-func NewWsSubscribe(rds *redis.Client, conf *config.Config, talkRecordsService *service.TalkRecordsService, ws *cache.WsClientSession, room *cache.GroupRoom) *WsSubscribe {
-	return &WsSubscribe{rds: rds, conf: conf, talkRecordsService: talkRecordsService, ws: ws, room: room}
+type LoginMessage struct {
+	Status int `json:"status"`
+	UserID int `json:"user_id"`
 }
 
 type SubscribeBody struct {
@@ -85,6 +91,8 @@ func (w *WsSubscribe) Handle(ctx context.Context) error {
 					w.onConsumeTalk(body.Data)
 				case entity.EventKeyboard:
 					w.onConsumeKeyboard(body.Data)
+				case entity.EventOnlineStatus:
+					w.onConsumeOnline(body.Data)
 				}
 			}
 		}
@@ -124,6 +132,10 @@ func (w *WsSubscribe) onConsumeTalk(value string) {
 		return
 	}
 
+	if len(cids) == 0 {
+		return
+	}
+
 	c := im.NewSenderContent()
 	c.SetReceive(cids...)
 	c.SetMessage(&im.Message{
@@ -143,13 +155,15 @@ func (w *WsSubscribe) onConsumeTalk(value string) {
 func (w *WsSubscribe) onConsumeKeyboard(value string) {
 	var msg *KeyboardMessage
 
-	fmt.Println("onConsumeKeyboard", value)
 	if err := json.Unmarshal([]byte(value), &msg); err != nil {
-		fmt.Println("onConsumeKeyboard json err:", err)
 		return
 	}
 
 	cids := w.ws.GetUidFromClientIds(context.Background(), w.conf.GetSid(), im.Session.DefaultChannel.Name, strconv.Itoa(msg.ReceiverID))
+
+	if len(cids) == 0 {
+		return
+	}
 
 	c := im.NewSenderContent()
 	c.SetReceive(cids...)
@@ -166,7 +180,34 @@ func (w *WsSubscribe) onConsumeKeyboard(value string) {
 
 // onConsumeOnline 用户上线或下线消息
 func (w *WsSubscribe) onConsumeOnline(value string) {
+	var msg *LoginMessage
 
+	if err := json.Unmarshal([]byte(value), &msg); err != nil {
+		return
+	}
+
+	cids := make([]int64, 0)
+
+	uids := w.contactService.GetContactIds(context.Background(), msg.UserID)
+	sid := w.conf.GetSid()
+	for _, uid := range uids {
+		ids := w.ws.GetUidFromClientIds(context.Background(), sid, im.Session.DefaultChannel.Name, fmt.Sprintf("%d", uid))
+
+		cids = append(cids, ids...)
+	}
+
+	if len(cids) == 0 {
+		return
+	}
+
+	c := im.NewSenderContent()
+	c.SetReceive(cids...)
+	c.SetMessage(&im.Message{
+		Event:   entity.EventOnlineStatus,
+		Content: msg,
+	})
+
+	im.Session.DefaultChannel.PushSendChannel(c)
 }
 
 // onConsumeRevokeTalk 撤销聊天消息

@@ -11,8 +11,8 @@ var Session = &session{
 		Count:   0,
 		Clients: make(map[int64]*Client),
 		Lock:    &sync.RWMutex{},
-		inChan:  make(chan *ReceiveContent, 3<<20),
-		outChan: make(chan *SenderContent, 3<<20),
+		inChan:  make(chan *ReceiveContent, 5<<20),
+		outChan: make(chan *SenderContent, 5<<20),
 	},
 }
 

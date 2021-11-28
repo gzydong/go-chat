@@ -25,6 +25,7 @@ func (i *Index) Index(c *gin.Context) {
 		"date":  timeutil.DateTime(),
 		"ip":    c.ClientIP(),
 		"websocket": gin.H{
+			"max_id":  im.GenClientID.GetMaxID(),
 			"default": im.Session.DefaultChannel.Count,
 		},
 	})

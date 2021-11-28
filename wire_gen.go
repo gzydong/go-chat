@@ -107,7 +107,7 @@ func Initialize(ctx context.Context) *provider.Services {
 	engine := router.NewRouter(config, handlerHandler, session)
 	server := provider.NewHttpServer(config, engine)
 	serverRun := process.NewServerRun(config, serverRunID)
-	wsSubscribe := process.NewWsSubscribe(client, config, talkRecordsService, wsClientSession, groupRoom)
+	wsSubscribe := process.NewWsSubscribe(client, config, talkRecordsService, wsClientSession, groupRoom, contactService)
 	processProcess := process.NewProcessManage(serverRun, wsSubscribe)
 	services := &provider.Services{
 		Config:     config,
