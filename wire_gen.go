@@ -107,7 +107,7 @@ func Initialize(ctx context.Context) *provider.Services {
 	}
 	engine := router.NewRouter(config, handlerHandler, session)
 	server := provider.NewHttpServer(config, engine)
-	serverRun := process.NewServerRun(config, serverRunID)
+	serverRun := process.NewServerRun(config, serverRunID, client)
 	subscribeConsume := handle.NewSubscribeConsume(config, wsClientSession, groupRoom, talkRecordsService, contactService)
 	wsSubscribe := process.NewWsSubscribe(client, config, talkRecordsService, wsClientSession, groupRoom, contactService, subscribeConsume)
 	processProcess := process.NewProcessManage(serverRun, wsSubscribe)
@@ -115,6 +115,7 @@ func Initialize(ctx context.Context) *provider.Services {
 		Config:     config,
 		HttpServer: server,
 		Process:    processProcess,
+		Redis:      client,
 	}
 	return services
 }

@@ -60,3 +60,7 @@ func (s *ServerRunID) GetServerRunIdAll(ctx context.Context, status int) []strin
 
 	return slice
 }
+
+func (s ServerRunID) Del(ctx context.Context, server string) error {
+	return s.Redis.HDel(ctx, ServerRunIdKey, server).Err()
+}

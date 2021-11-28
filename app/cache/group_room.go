@@ -16,7 +16,7 @@ func NewGroupRoom(rds *redis.Client) *GroupRoom {
 }
 
 func (room GroupRoom) key(sid, name string) string {
-	return fmt.Sprintf("room:group-room:%s:%s", sid, name)
+	return fmt.Sprintf("ws:%s:room:group-room:%s", sid, name)
 }
 
 // Add 添加房间成员
