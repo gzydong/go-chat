@@ -25,7 +25,7 @@ func (s *ServerRun) Handle(ctx context.Context) error {
 		case <-ctx.Done():
 			return nil
 		case <-time.After(10 * time.Second):
-			if err := s.server.SetServerID(ctx, s.conf.Server.ServerId, time.Now().Unix()); err != nil {
+			if err := s.server.SetServerID(ctx, s.conf.GetSid(), time.Now().Unix()); err != nil {
 				log.Printf("SetServerID Error: %s\n", err)
 				continue
 			}
