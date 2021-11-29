@@ -72,8 +72,8 @@ func Initialize(ctx context.Context) *provider.Services {
 	upload := v1.NewUploadHandler(config, filesystemFilesystem)
 	index := open.NewIndexHandler(client)
 	clientService := service.NewClientService(wsClientSession)
-	groupRoom := cache.NewGroupRoom(client)
-	defaultWebSocket := ws.NewDefaultWebSocket(client, config, clientService, groupRoom, groupMemberService)
+	room := cache.NewGroupRoom(client)
+	defaultWebSocket := ws.NewDefaultWebSocket(client, config, clientService, room, groupMemberService)
 	groupDao := &dao.GroupDao{
 		Base: base,
 	}
@@ -108,7 +108,7 @@ func Initialize(ctx context.Context) *provider.Services {
 	engine := router.NewRouter(config, handlerHandler, session)
 	server := provider.NewHttpServer(config, engine)
 	serverRun := process.NewServerRun(config, serverRunID, client)
-	subscribeConsume := handle.NewSubscribeConsume(config, wsClientSession, groupRoom, talkRecordsService, contactService)
+	subscribeConsume := handle.NewSubscribeConsume(config, wsClientSession, room, talkRecordsService, contactService)
 	wsSubscribe := process.NewWsSubscribe(client, config, subscribeConsume)
 	processProcess := process.NewProcessManage(serverRun, wsSubscribe)
 	services := &provider.Services{

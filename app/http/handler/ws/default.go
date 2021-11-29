@@ -23,7 +23,7 @@ type DefaultWebSocket struct {
 	rds                *redis.Client
 	conf               *config.Config
 	client             *service.ClientService
-	room               *cache.GroupRoom
+	room               *cache.Room
 	groupMemberService *service.GroupMemberService
 }
 
@@ -31,7 +31,7 @@ func NewDefaultWebSocket(
 	rds *redis.Client,
 	conf *config.Config,
 	client *service.ClientService,
-	room *cache.GroupRoom,
+	room *cache.Room,
 	groupMemberService *service.GroupMemberService,
 ) *DefaultWebSocket {
 	handler := &DefaultWebSocket{rds: rds, conf: conf, client: client, room: room, groupMemberService: groupMemberService}
@@ -66,7 +66,13 @@ func (ws *DefaultWebSocket) Open(client *im.Client) {
 
 	// 2.客户端加入群房间
 	for _, gid := range ids {
-		_ = ws.room.Add(context.Background(), ws.conf.GetSid(), strconv.Itoa(gid), client.ClientId)
+		_ = ws.room.Add(context.Background(), &cache.RoomOption{
+			Channel:  im.Sessions.Default.Name,
+			RoomType: entity.RoomGroupChat,
+			Number:   strconv.Itoa(gid),
+			Sid:      ws.conf.GetSid(),
+			Cid:      client.ClientId,
+		})
 	}
 
 	// 推送上线消息
@@ -109,7 +115,13 @@ func (ws *DefaultWebSocket) Close(client *im.Client, code int, text string) {
 
 	// 3.客户端退出群房间
 	for _, gid := range ids {
-		_ = ws.room.Del(context.Background(), ws.conf.GetSid(), strconv.Itoa(gid), client.ClientId)
+		_ = ws.room.Del(context.Background(), &cache.RoomOption{
+			Channel:  im.Sessions.Default.Name,
+			RoomType: entity.RoomGroupChat,
+			Number:   strconv.Itoa(gid),
+			Sid:      ws.conf.GetSid(),
+			Cid:      client.ClientId,
+		})
 	}
 
 	// 推送下线消息

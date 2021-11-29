@@ -20,12 +20,12 @@ type onConsumeFunc func(data string)
 type SubscribeConsume struct {
 	conf           *config.Config
 	ws             *cache.WsClientSession
-	room           *cache.GroupRoom
+	room           *cache.Room
 	recordsService *service.TalkRecordsService
 	contactService *service.ContactService
 }
 
-func NewSubscribeConsume(conf *config.Config, ws *cache.WsClientSession, room *cache.GroupRoom, recordsService *service.TalkRecordsService, contactService *service.ContactService) *SubscribeConsume {
+func NewSubscribeConsume(conf *config.Config, ws *cache.WsClientSession, room *cache.Room, recordsService *service.TalkRecordsService, contactService *service.ContactService) *SubscribeConsume {
 	return &SubscribeConsume{conf: conf, ws: ws, room: room, recordsService: recordsService, contactService: contactService}
 }
 
@@ -33,6 +33,7 @@ func (s *SubscribeConsume) Handle(event string, data string) {
 
 	handler := make(map[string]onConsumeFunc)
 
+	// 注册消息回调事件
 	handler[entity.EventTalk] = s.onConsumeTalk
 	handler[entity.EventKeyboard] = s.onConsumeKeyboard
 	handler[entity.EventOnlineStatus] = s.onConsumeOnline
@@ -70,7 +71,13 @@ func (s *SubscribeConsume) onConsumeTalk(body string) {
 			cids = append(cids, ids...)
 		}
 	} else {
-		ids := s.room.All(ctx, s.conf.GetSid(), strconv.Itoa(int(msg.ReceiverID)))
+		ids := s.room.All(context.Background(), &cache.RoomOption{
+			Channel:  im.Sessions.Default.Name,
+			RoomType: entity.RoomGroupChat,
+			Number:   strconv.Itoa(int(msg.ReceiverID)),
+			Sid:      s.conf.GetSid(),
+		})
+
 		cids = append(cids, ids...)
 	}
 
@@ -167,7 +174,9 @@ func (s *SubscribeConsume) onConsumeOnline(body string) {
 // onConsumeRevokeTalk 撤销聊天消息
 func (s *SubscribeConsume) onConsumeRevokeTalk(body string) {
 	var (
-		msg    map[string]int
+		msg struct {
+			RecordId int `json:"record_id"`
+		}
 		record *model.TalkRecords
 		ctx    = context.Background()
 	)
@@ -176,11 +185,7 @@ func (s *SubscribeConsume) onConsumeRevokeTalk(body string) {
 		return
 	}
 
-	if _, ok := msg["record_id"]; !ok {
-		return
-	}
-
-	if err := s.recordsService.Db().First(&record, msg["record_id"]).Error; err != nil {
+	if err := s.recordsService.Db().First(&record, msg.RecordId).Error; err != nil {
 		return
 	}
 
@@ -191,7 +196,12 @@ func (s *SubscribeConsume) onConsumeRevokeTalk(body string) {
 			cids = append(cids, ids...)
 		}
 	} else {
-		cids = s.room.All(ctx, s.conf.GetSid(), strconv.Itoa(record.ReceiverId))
+		cids = s.room.All(ctx, &cache.RoomOption{
+			Channel:  im.Sessions.Default.Name,
+			RoomType: entity.RoomGroupChat,
+			Number:   strconv.Itoa(record.ReceiverId),
+			Sid:      s.conf.GetSid(),
+		})
 	}
 
 	if len(cids) == 0 {
@@ -237,7 +247,13 @@ func (s *SubscribeConsume) onConsumeAddGroupRoom(body string) {
 		cids := s.ws.GetUidFromClientIds(ctx, sid, im.Sessions.Default.Name, strconv.Itoa(uid))
 
 		for _, cid := range cids {
-			_ = s.room.Add(ctx, s.conf.GetSid(), strconv.Itoa(m.GroupID), cid)
+			_ = s.room.Add(ctx, &cache.RoomOption{
+				Channel:  im.Sessions.Default.Name,
+				RoomType: entity.RoomGroupChat,
+				Number:   strconv.Itoa(m.GroupID),
+				Sid:      s.conf.GetSid(),
+				Cid:      cid,
+			})
 		}
 	}
 }
