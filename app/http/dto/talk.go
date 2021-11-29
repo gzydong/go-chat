@@ -37,11 +37,3 @@ type TalkRecordsItem struct {
 	Location   interface{} `json:"location,omitempty"`
 	CreatedAt  string      `json:"created_at"`
 }
-
-type TalkRecordsItemForward struct {
-	Num  int           `json:"num"`
-	List []interface{} `json:"list"`
-}
-
-type TalkRecordsItemLocation struct {
-}

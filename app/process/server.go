@@ -37,6 +37,8 @@ func (s *ServerRun) Handle(ctx context.Context) error {
 				// }
 
 				_ = s.server.Del(ctx, sid)
+
+				s.redis.SAdd(ctx, "server_ids_expire", sid)
 			}
 		}
 	}

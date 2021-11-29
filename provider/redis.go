@@ -10,7 +10,6 @@ import (
 
 func NewRedisClient(ctx context.Context, conf *config.Config) *redis.Client {
 
-	// 建立连接
 	client := redis.NewClient(&redis.Options{
 		Addr:     fmt.Sprintf("%s:%d", conf.Redis.Host, conf.Redis.Port),
 		Password: conf.Redis.Auth,

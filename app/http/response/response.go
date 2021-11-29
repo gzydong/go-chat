@@ -2,7 +2,6 @@ package response
 
 import (
 	"fmt"
-	"go-chat/app/http/dto"
 	"go-chat/app/pkg/validation"
 	"net/http"
 
@@ -15,6 +14,17 @@ type Response struct {
 	Code    int         `json:"code"`
 	Message string      `json:"message"`
 	Data    interface{} `json:"data,omitempty"`
+}
+
+type Paginate struct {
+	Page  int `json:"page"`
+	Size  int `json:"size"`
+	Total int `json:"total"`
+}
+
+type PaginateResponse struct {
+	Rows     interface{} `json:"rows"`
+	Paginate Paginate    `json:"paginate"`
 }
 
 func NewError(c *gin.Context, code int, message ...interface{}) {
@@ -78,9 +88,9 @@ func Success(c *gin.Context, data interface{}, message ...string) {
 
 // SuccessPaginate 响应分页数据
 func SuccessPaginate(c *gin.Context, rows interface{}, page, size, total int) {
-	c.JSON(http.StatusOK, &Response{Code: entity.CodeSuccess, Message: "success", Data: dto.PaginateResponse{
+	c.JSON(http.StatusOK, &Response{Code: entity.CodeSuccess, Message: "success", Data: PaginateResponse{
 		Rows:     rows,
-		Paginate: dto.Paginate{Page: page, Size: size, Total: total},
+		Paginate: Paginate{Page: page, Size: size, Total: total},
 	}})
 	c.Abort()
 }

@@ -127,7 +127,7 @@ func (a *Auth) Forget(ctx *gin.Context) {
 	response.Success(ctx, gin.H{}, "账号成功找回")
 }
 
-func (a *Auth) createToken(uid int) *dto.TokenAttribute {
+func (a *Auth) createToken(uid int) *dto.Token {
 	expiresAt := time.Now().Add(time.Second * time.Duration(a.config.Jwt.ExpiresTime)).Unix()
 
 	// 生成登录凭证
@@ -136,7 +136,7 @@ func (a *Auth) createToken(uid int) *dto.TokenAttribute {
 		Id:        strconv.Itoa(uid),
 	})
 
-	return &dto.TokenAttribute{
+	return &dto.Token{
 		Type:      "Bearer",
 		Token:     token,
 		ExpiresIn: expiresAt,

@@ -252,6 +252,7 @@ func (c *TalkMessage) HandleVote(ctx *gin.Context) {
 		return
 	}
 
+	// 获取同级数据
 	res, _ := c.talkRecordsVoteDao.GetVoteStatistics(ctx.Request.Context(), vid)
 
 	response.Success(ctx, res, "消息推送成功！")
