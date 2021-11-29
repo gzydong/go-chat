@@ -24,8 +24,8 @@ func NewGroupRoom(rds *redis.Client) *Room {
 	return &Room{rds: rds}
 }
 
+// 获取房间名 [ws:网关ID:room:房间类型:房间号]
 func (room *Room) key(opts *RoomOption) string {
-	// ws:网关ID:room:房间类型:房间号
 	return fmt.Sprintf("ws:%s:room:%s:%s", opts.Sid, opts.RoomType, opts.Number)
 }
 
