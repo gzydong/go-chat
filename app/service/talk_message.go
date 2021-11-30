@@ -453,5 +453,12 @@ func (s *TalkMessageService) afterHandle(ctx context.Context, record *model.Talk
 		}),
 	}
 
-	s.rds.Publish(ctx, entity.SubscribeWsGatewayAll, jsonutil.JsonEncode(body))
+	gateway := entity.SubscribeWsGatewayAll
+
+	// 点对点消息采用精确投递
+	if record.TalkType == entity.PrivateChat {
+		// todo ...
+	}
+
+	s.rds.Publish(ctx, gateway, jsonutil.JsonEncode(body))
 }

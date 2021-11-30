@@ -8,7 +8,6 @@ import (
 
 	"github.com/gorilla/websocket"
 	"go-chat/app/pkg/jsonutil"
-	"go-chat/app/pkg/slice"
 )
 
 type HandleInterface interface {
@@ -17,54 +16,67 @@ type HandleInterface interface {
 	Close(client *Client, code int, text string)
 }
 
-// ChannelManage 渠道管理（多渠道划分，实现不同业务之间隔离）
-type ChannelManage struct {
+// Channel 渠道管理（多渠道划分，实现不同业务之间隔离）
+type Channel struct {
 	Name    string               // 渠道名称
-	Count   int                  // 客户端连接数
-	Clients map[int64]*Client    // 客户端列表
+	count   int                  // 客户端连接数
+	maps    []*sync.Map          // 客户端列表【客户端ID取余拆分，降低 map 长度，减少 map 加锁时间提高并发处理量】
 	inChan  chan *ReceiveContent // 消息接收通道
 	outChan chan *SenderContent  // 消息发送通道
-	Lock    *sync.RWMutex        // 读写锁
 	Handler HandleInterface      // 回调处理
+	mapNum  int                  // map 拆分数
 }
 
-// RegisterClient 注册客户端
-func (c *ChannelManage) RegisterClient(client *Client) {
-	c.Lock.Lock()
-	defer c.Lock.Unlock()
-
-	c.Clients[client.ClientId] = client
-
-	c.Count++
+func NewChannel(name string, maps []*sync.Map, inChan chan *ReceiveContent, outChan chan *SenderContent) *Channel {
+	return &Channel{Name: name, maps: maps, inChan: inChan, outChan: outChan, mapNum: len(maps)}
 }
 
-// RemoveClient 删除客户端
-func (c *ChannelManage) RemoveClient(client *Client) bool {
-	c.Lock.Lock()
-	defer c.Lock.Unlock()
+// Count 获取客户端连接数
+func (c *Channel) Count() int {
+	return c.count
+}
 
-	if _, ok := c.Clients[client.ClientId]; !ok {
-		return false
+// addClient 添加客户端
+func (c *Channel) addClient(client *Client) {
+	c.getClientNode(client.ClientId).Store(client.ClientId, client)
+
+	c.count++
+}
+
+// delClient 删除客户端
+func (c *Channel) delClient(client *Client) bool {
+	node := c.getClientNode(client.ClientId)
+
+	if _, ok := node.Load(client.ClientId); ok {
+		node.Delete(client.ClientId)
+		c.count--
 	}
 
-	delete(c.Clients, client.ClientId)
-
-	c.Count--
 	return true
 }
 
+func (c *Channel) getClientNode(cid int64) *sync.Map {
+	return c.maps[getMapIndex(cid, c.mapNum)]
+}
+
 // GetClient 获取客户端
-func (c *ChannelManage) GetClient(cid int64) (*Client, bool) {
-	c.Lock.RLock()
-	defer c.Lock.RUnlock()
+func (c *Channel) GetClient(cid int64) (*Client, bool) {
+	node := c.getClientNode(cid)
 
-	client, ok := c.Clients[cid]
+	result, ok := node.Load(cid)
+	if !ok {
+		return nil, false
+	}
 
-	return client, ok
+	if client, isOk := result.(*Client); !isOk {
+		return nil, false
+	} else {
+		return client, true
+	}
 }
 
 // PushRecvChannel 推送消息到接收通道
-func (c *ChannelManage) PushRecvChannel(message *ReceiveContent) {
+func (c *Channel) PushRecvChannel(message *ReceiveContent) {
 	select {
 	case c.inChan <- message:
 		break
@@ -75,7 +87,7 @@ func (c *ChannelManage) PushRecvChannel(message *ReceiveContent) {
 }
 
 // PushSendChannel 推送消息到消费通道
-func (c *ChannelManage) PushSendChannel(msg *SenderContent) {
+func (c *Channel) PushSendChannel(msg *SenderContent) {
 	select {
 	case c.outChan <- msg:
 		break
@@ -86,14 +98,14 @@ func (c *ChannelManage) PushSendChannel(msg *SenderContent) {
 }
 
 // SetCallbackHandler 设置 WebSocket 处理事件
-func (c *ChannelManage) SetCallbackHandler(handle HandleInterface) *ChannelManage {
+func (c *Channel) SetCallbackHandler(handle HandleInterface) *Channel {
 	c.Handler = handle
 
 	return c
 }
 
 // Handle 渠道消费协程
-func (c *ChannelManage) Handle(ctx context.Context) error {
+func (c *Channel) Handle(ctx context.Context) error {
 	go c.recv(ctx)
 	go c.send(ctx)
 
@@ -101,7 +113,7 @@ func (c *ChannelManage) Handle(ctx context.Context) error {
 }
 
 // 接收客户端消息
-func (c *ChannelManage) recv(ctx context.Context) {
+func (c *Channel) recv(ctx context.Context) {
 	var (
 		out     = 2 * time.Second
 		timeout = time.NewTimer(out)
@@ -126,7 +138,7 @@ func (c *ChannelManage) recv(ctx context.Context) {
 }
 
 // 推送客户端数据
-func (c *ChannelManage) send(ctx context.Context) {
+func (c *Channel) send(ctx context.Context) {
 	var (
 		out     = 2 * time.Second
 		timeout = time.NewTimer(out)
@@ -145,18 +157,18 @@ func (c *ChannelManage) send(ctx context.Context) {
 
 				// 判断是否广播消息
 				if body.IsBroadcast() {
-					c.Lock.RLock()
-					for cid, client := range c.Clients {
-						if client.IsClosed || slice.InInt64(cid, body.exclude) {
-							continue
-						}
+					for _, node := range c.maps {
+						node.Range(func(key, value interface{}) bool {
+							if client, ok := value.(*Client); ok {
+								_ = client.Write(websocket.TextMessage, content)
+							}
 
-						_ = client.Write(websocket.TextMessage, content)
+							return true
+						})
 					}
-					c.Lock.RUnlock()
 				} else {
 					for _, cid := range body.receives {
-						if client, ok := c.Clients[cid]; ok && !client.IsClosed {
+						if client, ok := c.GetClient(cid); ok {
 							_ = client.Write(websocket.TextMessage, content)
 						}
 					}

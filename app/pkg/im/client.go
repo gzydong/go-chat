@@ -22,14 +22,14 @@ type Client struct {
 	ClientId      int64                  // 客户端ID/客户端唯一标识
 	Uid           int                    // 用户ID
 	LastTime      int64                  // 客户端最后心跳时间/心跳检测
-	Channel       *ChannelManage         // 渠道分组
+	Channel       *Channel               // 渠道分组
 	ClientService *service.ClientService // 服务信息
 	IsClosed      bool                   // 客户端是否关闭连接
 }
 
 type ClientOption struct {
 	UserId        int
-	Channel       *ChannelManage
+	Channel       *Channel
 	ClientService *service.ClientService
 }
 
@@ -50,7 +50,7 @@ func NewClient(conn *websocket.Conn, options *ClientOption) *Client {
 
 		client.Channel.Handler.Close(client, code, text)
 
-		client.Channel.RemoveClient(client)
+		client.Channel.delClient(client)
 
 		client.ClientService.UnBind(context.Background(), client.Channel.Name, fmt.Sprintf("%d", client.ClientId))
 
@@ -58,7 +58,7 @@ func NewClient(conn *websocket.Conn, options *ClientOption) *Client {
 	})
 
 	// 注册客户端
-	client.Channel.RegisterClient(client)
+	client.Channel.addClient(client)
 
 	// 绑定客户端映射关系
 	client.ClientService.Bind(context.Background(), client.Channel.Name, fmt.Sprintf("%d", client.ClientId), client.Uid)
@@ -81,6 +81,11 @@ func (w *Client) Close(code int, message string) {
 
 // Write 客户端写入数据
 func (w *Client) Write(messageType int, data []byte) error {
+
+	if w.IsClosed {
+		return fmt.Errorf("client closed")
+	}
+
 	// 需要做线程安全处理
 	return w.Conn.WriteMessage(messageType, data)
 }

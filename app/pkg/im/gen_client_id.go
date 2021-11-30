@@ -2,7 +2,7 @@ package im
 
 import "sync/atomic"
 
-// 发号器
+// 全局发号器
 var GenClientID = &genClientID{}
 
 type genClientID struct {

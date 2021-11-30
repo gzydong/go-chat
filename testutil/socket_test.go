@@ -3,7 +3,6 @@ package testutil
 import (
 	"fmt"
 	"log"
-	"strconv"
 	"testing"
 	"time"
 
@@ -20,7 +19,7 @@ func TestWsClient(t *testing.T) {
 }
 
 func NewClientTest(i int) {
-	url := "ws://127.0.0.1:8080/wss/default.io?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJndWFyZCI6ImFwaSIsImV4cCI6NTIzNjE5ODkwNywianRpIjoiMjA1NCJ9.vl5fibjsEXs1U56ZGdLW7aFlsQ6Fm76hNx6CAl7bzeM" // 服务器地址
+	url := "ws://im-serve.local-admin.com/wss/default.io?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJndWFyZCI6ImFwaSIsImV4cCI6NTIzODI4MjE0MCwianRpIjoiNDEzNSJ9.BEpQL_YR4JM7qfpP4CskM043HQg9hvIH7dkQCK8VTfw" // 服务器地址
 	ws, _, err := websocket.DefaultDialer.Dial(url, nil)
 	if err != nil {
 		log.Fatal(err)
@@ -28,15 +27,11 @@ func NewClientTest(i int) {
 
 	go func() {
 		for {
-			err := ws.WriteMessage(websocket.BinaryMessage, []byte("ping"))
+			err := ws.WriteMessage(websocket.BinaryMessage, []byte(`{"event":"heartbeat","data":"ping"}`))
 			if err != nil {
 				log.Fatal(err)
 			}
-			time.Sleep(time.Second * 1)
-
-			_ = ws.WriteMessage(websocket.BinaryMessage, []byte(strconv.Itoa(i)))
-
-			time.Sleep(time.Second * 5)
+			time.Sleep(time.Second * 10)
 		}
 	}()
 
