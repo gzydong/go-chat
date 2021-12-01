@@ -56,7 +56,7 @@ func NewClient(conn *websocket.Conn, options *ClientOption) *Client {
 	})
 
 	// 注册客户端
-	client.Channel.addClient(client)
+	options.Channel.addClient(client)
 
 	// 绑定客户端映射关系
 	client.ClientService.Bind(context.Background(), client.Channel.Name, fmt.Sprintf("%d", client.ClientId), client.Uid)
@@ -95,9 +95,6 @@ func (w *Client) Write(messageType int, data []byte) error {
 func (w *Client) InitConnection() {
 	// 启动协程处理接收信息
 	go w.accept()
-
-	// 启动客户端心跳检测
-	// go w.heartbeat()
 }
 
 // 循环接收客户端推送信息
@@ -123,18 +120,15 @@ func (w *Client) accept() {
 		// 心跳消息判断
 		if res.String() == "heartbeat" {
 			w.LastTime = time.Now().Unix()
-			_ = w.Write(mt, []byte(jsonutil.JsonEncode(&Message{
-				Event:   "heartbeat",
-				Content: "pong",
-			})))
+
+			data, _ := jsonutil.JsonEncodeByte(&Message{"heartbeat", "pong"})
+
+			_ = w.Write(mt, data)
 			continue
 		}
 
 		if len(msg) > 0 {
-			w.Channel.PushRecvChannel(&ReceiveContent{
-				Client:  w,
-				Content: msg,
-			})
+			w.Channel.PushRecvChannel(&ReceiveContent{w, msg})
 		}
 	}
 }

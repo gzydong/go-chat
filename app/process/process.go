@@ -17,12 +17,13 @@ type Process struct {
 	registers []InterfaceProcess
 }
 
-func NewProcessManage(run *ServerRun, ws *WsSubscribe) *Process {
+func NewProcessManage(run *ServerRun, ws *WsSubscribe, heart *Heartbeat) *Process {
 	pro := &Process{}
 
 	pro.Register(run)
 	pro.Register(ws)
 	pro.Register(im.Sessions.Default)
+	pro.Register(heart)
 
 	return pro
 }
