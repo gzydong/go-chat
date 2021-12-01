@@ -11,11 +11,6 @@ import (
 	"go-chat/app/service"
 )
 
-const (
-	heartbeatCheckInterval = 20 * time.Second // 心跳检测时间
-	heartbeatIdleTime      = 50               // 心跳超时时间
-)
-
 // Client WebSocket 客户端连接信息
 type Client struct {
 	Conn          *websocket.Conn        // 客户端连接
@@ -54,6 +49,9 @@ func NewClient(conn *websocket.Conn, options *ClientOption) *Client {
 
 		client.ClientService.UnBind(context.Background(), client.Channel.Name, fmt.Sprintf("%d", client.ClientId))
 
+		// 通知心跳管理
+		Heartbeat.delClient(client)
+
 		return nil
 	})
 
@@ -62,6 +60,9 @@ func NewClient(conn *websocket.Conn, options *ClientOption) *Client {
 
 	// 绑定客户端映射关系
 	client.ClientService.Bind(context.Background(), client.Channel.Name, fmt.Sprintf("%d", client.ClientId), client.Uid)
+
+	// 通知心跳管理
+	Heartbeat.addClient(client)
 
 	// 触发自定义的 open 事件
 	client.Channel.Handler.Open(client)
@@ -96,23 +97,7 @@ func (w *Client) InitConnection() {
 	go w.accept()
 
 	// 启动客户端心跳检测
-	go w.heartbeat()
-}
-
-// 心跳检测
-func (w *Client) heartbeat() {
-	for {
-		<-time.After(heartbeatCheckInterval)
-
-		if w.IsClosed {
-			break
-		}
-
-		if int(time.Now().Unix()-w.LastTime) > heartbeatIdleTime {
-			w.Close(2000, "心跳检测超时，连接自动关闭")
-			break
-		}
-	}
+	// go w.heartbeat()
 }
 
 // 循环接收客户端推送信息

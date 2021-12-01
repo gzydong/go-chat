@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/go-redis/redis/v8"
 	"go-chat/app/entity"
+	"go-chat/app/pkg/pool"
 	"go-chat/app/process/handle"
 	"go-chat/config"
 )
@@ -39,8 +40,11 @@ func (w *WsSubscribe) Handle(ctx context.Context) error {
 	defer sub.Close()
 
 	go func() {
+
+		work := pool.NewWorkerPool(2)
+
 		for msg := range sub.Channel() {
-			fmt.Printf("消息订阅 : channel=%s message=%s\n", msg.Channel, msg.Payload)
+			// fmt.Printf("消息订阅 : channel=%s message=%s\n", msg.Channel, msg.Payload)
 
 			switch msg.Channel {
 
@@ -49,7 +53,9 @@ func (w *WsSubscribe) Handle(ctx context.Context) error {
 				var message *SubscribeContent
 
 				if err := json.Unmarshal([]byte(msg.Payload), &message); err == nil {
-					w.consume.Handle(message.Event, message.Data)
+					work.Add(func() {
+						w.consume.Handle(message.Event, message.Data)
+					})
 				}
 			}
 		}
