@@ -1,6 +1,7 @@
 package im
 
 import (
+	"context"
 	"sync"
 	"time"
 )
@@ -15,6 +16,7 @@ var Heartbeat = &heartbeat{
 	nodes: maps(nodeLen),
 }
 
+// 客户端心跳管理
 type heartbeat struct {
 	nodes []*sync.Map
 }
@@ -24,29 +26,32 @@ func (h *heartbeat) node(cid int64) *sync.Map {
 }
 
 func (h *heartbeat) addClient(c *Client) {
-	h.node(c.ClientId).Store(c.ClientId, c)
+	h.node(c.cid).Store(c.cid, c)
 }
 
 func (h *heartbeat) delClient(c *Client) {
-	h.node(c.ClientId).Delete(c.ClientId)
+	h.node(c.cid).Delete(c.cid)
 }
 
-func (h *heartbeat) Run() {
+func (h *heartbeat) Run(ctx context.Context) error {
 	for {
-		<-time.After(heartbeatCheckInterval)
+		select {
+		case <-ctx.Done():
+			return nil
+		case <-time.After(heartbeatCheckInterval):
+			t := time.Now().Unix()
 
-		t := time.Now().Unix()
-
-		for _, node := range h.nodes {
-			node.Range(func(key, value interface{}) bool {
-				if c, ok := value.(*Client); ok && !c.IsClosed {
-					if int(t-c.LastTime) > heartbeatIdleTime {
-						c.Close(2000, "心跳检测超时，连接自动关闭")
+			for _, node := range h.nodes {
+				node.Range(func(key, value interface{}) bool {
+					if c, ok := value.(*Client); ok && !c.IsClosed() {
+						if int(t-c.lastTime) > heartbeatIdleTime {
+							c.Close(2000, "心跳检测超时，连接自动关闭")
+						}
 					}
-				}
 
-				return true
-			})
+					return true
+				})
+			}
 		}
 	}
 }

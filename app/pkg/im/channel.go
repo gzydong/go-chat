@@ -38,17 +38,17 @@ func (c *Channel) Count() int {
 
 // addClient 添加客户端
 func (c *Channel) addClient(client *Client) {
-	c.node(client.ClientId).Store(client.ClientId, client)
+	c.node(client.cid).Store(client.cid, client)
 
 	c.count++
 }
 
 // delClient 删除客户端
 func (c *Channel) delClient(client *Client) bool {
-	node := c.node(client.ClientId)
+	node := c.node(client.cid)
 
-	if _, ok := node.Load(client.ClientId); ok {
-		node.Delete(client.ClientId)
+	if _, ok := node.Load(client.cid); ok {
+		node.Delete(client.cid)
 		c.count--
 	}
 

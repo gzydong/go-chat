@@ -44,7 +44,7 @@ func (w *WsSubscribe) Handle(ctx context.Context) error {
 		work := pool.NewWorkerPool(2)
 
 		for msg := range sub.Channel() {
-			// fmt.Printf("消息订阅 : channel=%s message=%s\n", msg.Channel, msg.Payload)
+			// fmt.Printf("消息订阅 : channel=%s message=%s\n", msg.channel, msg.Payload)
 
 			switch msg.Channel {
 

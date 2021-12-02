@@ -49,10 +49,10 @@ func (ws *DefaultWebSocket) Connect(c *gin.Context) {
 		return
 	}
 
-	options := &im.ClientOption{
-		Channel:       im.Sessions.Default,
-		UserId:        auth.GetAuthUserID(c),
-		ClientService: ws.client,
+	options := &im.ClientOptions{
+		Channel: im.Sessions.Default,
+		Uid:     auth.GetAuthUserID(c),
+		Storage: ws.client,
 	}
 
 	// 创建客户端
@@ -62,7 +62,7 @@ func (ws *DefaultWebSocket) Connect(c *gin.Context) {
 // Open 连接成功回调事件
 func (ws *DefaultWebSocket) Open(client *im.Client) {
 	// 1.查询用户群列表
-	ids := ws.groupMemberService.GetUserGroupIds(client.Uid)
+	ids := ws.groupMemberService.GetUserGroupIds(client.Uid())
 
 	// 2.客户端加入群房间
 	for _, gid := range ids {
@@ -71,7 +71,7 @@ func (ws *DefaultWebSocket) Open(client *im.Client) {
 			RoomType: entity.RoomGroupChat,
 			Number:   strconv.Itoa(gid),
 			Sid:      ws.conf.GetSid(),
-			Cid:      client.ClientId,
+			Cid:      client.ClientId(),
 		})
 	}
 
@@ -79,7 +79,7 @@ func (ws *DefaultWebSocket) Open(client *im.Client) {
 	ws.rds.Publish(context.Background(), entity.SubscribeWsGatewayAll, jsonutil.JsonEncode(map[string]interface{}{
 		"event_name": entity.EventOnlineStatus,
 		"data": jsonutil.JsonEncode(map[string]interface{}{
-			"user_id": client.Uid,
+			"user_id": client.Uid(),
 			"status":  1,
 		}),
 	}))
@@ -87,7 +87,7 @@ func (ws *DefaultWebSocket) Open(client *im.Client) {
 
 // Message 消息接收回调事件
 func (ws *DefaultWebSocket) Message(message *im.ReceiveContent) {
-	fmt.Printf("[%s]消息通知 Client:%d，Content: %s \n", message.Client.Channel.Name, message.Client.ClientId, message.Content)
+	fmt.Printf("[%s]消息通知 Client:%d，Content: %s \n", message.Client.Channel().Name, message.Client.ClientId(), message.Content)
 
 	event := gjson.Get(message.Content, "event").String()
 
@@ -111,7 +111,7 @@ func (ws *DefaultWebSocket) Close(client *im.Client, code int, text string) {
 	// 1.判断用户是否是多点登录
 
 	// 2.查询用户群列表
-	ids := ws.groupMemberService.GetUserGroupIds(client.Uid)
+	ids := ws.groupMemberService.GetUserGroupIds(client.Uid())
 
 	// 3.客户端退出群房间
 	for _, gid := range ids {
@@ -120,7 +120,7 @@ func (ws *DefaultWebSocket) Close(client *im.Client, code int, text string) {
 			RoomType: entity.RoomGroupChat,
 			Number:   strconv.Itoa(gid),
 			Sid:      ws.conf.GetSid(),
-			Cid:      client.ClientId,
+			Cid:      client.ClientId(),
 		})
 	}
 
@@ -128,7 +128,7 @@ func (ws *DefaultWebSocket) Close(client *im.Client, code int, text string) {
 	ws.rds.Publish(context.Background(), entity.SubscribeWsGatewayAll, jsonutil.JsonEncode(map[string]interface{}{
 		"event_name": entity.EventOnlineStatus,
 		"data": jsonutil.JsonEncode(map[string]interface{}{
-			"user_id": client.Uid,
+			"user_id": client.Uid(),
 			"status":  0,
 		}),
 	}))
