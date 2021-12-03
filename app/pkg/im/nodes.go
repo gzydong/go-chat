@@ -5,8 +5,8 @@ import (
 )
 
 type Node struct {
-	len   int
-	nodes []*sync.Map
+	len   int         // 节点数量
+	nodes []*sync.Map // 节点列表
 }
 
 func NewNode(len int) *Node {

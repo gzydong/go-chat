@@ -102,6 +102,7 @@ var providerSet = wire.NewSet(
 	process.NewServerRun,
 	process.NewProcessManage,
 	process.NewImHeartbeat,
+	process.NewClearGarbage,
 	handle.NewSubscribeConsume,
 )
 
