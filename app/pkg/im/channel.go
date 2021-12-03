@@ -29,6 +29,7 @@ func NewChannel(name string, node *Node, inChan chan *ReceiveContent, outChan ch
 	return &Channel{name: name, node: node, inChan: inChan, outChan: outChan}
 }
 
+// Name 获取渠道名称
 func (c *Channel) Name() string {
 	return c.name
 }
@@ -36,6 +37,11 @@ func (c *Channel) Name() string {
 // Count 获取客户端连接数
 func (c *Channel) Count() int {
 	return c.count
+}
+
+// Client 获取客户端
+func (c *Channel) Client(cid int64) (*Client, bool) {
+	return c.node.get(cid)
 }
 
 // addClient 添加客户端
@@ -46,18 +52,13 @@ func (c *Channel) addClient(client *Client) {
 }
 
 // delClient 删除客户端
-func (c *Channel) delClient(client *Client) bool {
+func (c *Channel) delClient(client *Client) {
 	if !c.node.exist(client.cid) {
-		c.node.del(client)
-		c.count--
+		return
 	}
 
-	return true
-}
-
-// GetClient 获取客户端
-func (c *Channel) GetClient(cid int64) (*Client, bool) {
-	return c.node.get(cid)
+	c.node.del(client)
+	c.count--
 }
 
 // PushRecvChannel 推送消息到接收通道
@@ -147,7 +148,7 @@ func (c *Channel) send(ctx context.Context) {
 					})
 				} else {
 					for _, cid := range body.receives {
-						if client, ok := c.GetClient(cid); ok {
+						if client, ok := c.Client(cid); ok {
 							_ = client.Write(websocket.TextMessage, content)
 						}
 					}

@@ -23,6 +23,7 @@ import (
 )
 
 import (
+	_ "github.com/urfave/cli/v2"
 	_ "go-chat/app/pkg/validation"
 )
 
@@ -111,7 +112,7 @@ func Initialize(ctx context.Context) *provider.Services {
 	subscribeConsume := handle.NewSubscribeConsume(config, wsClientSession, room, talkRecordsService, contactService)
 	wsSubscribe := process.NewWsSubscribe(client, config, subscribeConsume)
 	heartbeat := process.NewImHeartbeat()
-	clearGarbage := process.NewClearGarbage(client)
+	clearGarbage := process.NewClearGarbage(client, redisLock)
 	processProcess := process.NewProcessManage(serverRun, wsSubscribe, heartbeat, clearGarbage)
 	services := &provider.Services{
 		Config:     config,

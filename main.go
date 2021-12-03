@@ -11,6 +11,7 @@ import (
 	"syscall"
 	"time"
 
+	_ "github.com/urfave/cli/v2"
 	"golang.org/x/sync/errgroup"
 )
 

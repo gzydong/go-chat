@@ -4,15 +4,17 @@ import (
 	"context"
 	"fmt"
 	"github.com/go-redis/redis/v8"
+	"go-chat/app/cache"
 	"time"
 )
 
 type ClearGarbage struct {
 	redis *redis.Client
+	lock  *cache.RedisLock
 }
 
-func NewClearGarbage(redis *redis.Client) *ClearGarbage {
-	return &ClearGarbage{redis: redis}
+func NewClearGarbage(redis *redis.Client, lock *cache.RedisLock) *ClearGarbage {
+	return &ClearGarbage{redis: redis, lock: lock}
 }
 
 func (p *ClearGarbage) Handle(ctx context.Context) error {
@@ -21,6 +23,10 @@ func (p *ClearGarbage) Handle(ctx context.Context) error {
 		case <-ctx.Done():
 			return nil
 		case <-time.After(time.Hour):
+
+			if !p.lock.Lock(ctx, "asfa", 600) {
+				continue
+			}
 
 			items := p.redis.SMembers(ctx, "server_ids_expire").Val()
 

@@ -31,13 +31,7 @@ func (s *ServerRun) Handle(ctx context.Context) error {
 			}
 
 			for _, sid := range s.server.GetServerRunIdAll(ctx, 2) {
-				// iter := s.redis.Scan(ctx, 0, fmt.Sprintf("ws:%s:*", sid), 10).Iterator()
-				// for iter.Next(ctx) {
-				// 	s.redis.Del(ctx, iter.Val())
-				// }
-
 				_ = s.server.Del(ctx, sid)
-
 				s.redis.SAdd(ctx, "server_ids_expire", sid)
 			}
 		}
