@@ -51,7 +51,7 @@ func NewClient(conn *websocket.Conn, options *ClientOptions) *Client {
 
 		options.Channel.delClient(client)
 
-		client.storage.UnBind(context.Background(), client.Channel().Name, fmt.Sprintf("%d", client.cid))
+		client.storage.UnBind(context.Background(), client.Channel().name, fmt.Sprintf("%d", client.cid))
 
 		// 通知心跳管理
 		Heartbeat.delClient(client)
@@ -60,7 +60,7 @@ func NewClient(conn *websocket.Conn, options *ClientOptions) *Client {
 	})
 
 	// 绑定客户端映射关系
-	client.storage.Bind(context.Background(), client.Channel().Name, fmt.Sprintf("%d", client.cid), client.uid)
+	client.storage.Bind(context.Background(), client.Channel().name, fmt.Sprintf("%d", client.cid), client.uid)
 
 	// 注册客户端
 	options.Channel.addClient(client)

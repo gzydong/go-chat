@@ -66,13 +66,13 @@ func (s *SubscribeConsume) onConsumeTalk(body string) {
 	if msg.TalkType == 1 {
 		arr := [2]int64{msg.SenderID, msg.ReceiverID}
 		for _, val := range arr {
-			ids := s.ws.GetUidFromClientIds(ctx, s.conf.GetSid(), im.Sessions.Default.Name, strconv.Itoa(int(val)))
+			ids := s.ws.GetUidFromClientIds(ctx, s.conf.GetSid(), im.Sessions.Default.Name(), strconv.Itoa(int(val)))
 
 			cids = append(cids, ids...)
 		}
 	} else {
 		ids := s.room.All(context.Background(), &cache.RoomOption{
-			Channel:  im.Sessions.Default.Name,
+			Channel:  im.Sessions.Default.Name(),
 			RoomType: entity.RoomGroupChat,
 			Number:   strconv.Itoa(int(msg.ReceiverID)),
 			Sid:      s.conf.GetSid(),
@@ -117,7 +117,7 @@ func (s *SubscribeConsume) onConsumeKeyboard(body string) {
 		return
 	}
 
-	cids := s.ws.GetUidFromClientIds(context.Background(), s.conf.GetSid(), im.Sessions.Default.Name, strconv.Itoa(msg.ReceiverID))
+	cids := s.ws.GetUidFromClientIds(context.Background(), s.conf.GetSid(), im.Sessions.Default.Name(), strconv.Itoa(msg.ReceiverID))
 
 	if len(cids) == 0 {
 		return
@@ -152,7 +152,7 @@ func (s *SubscribeConsume) onConsumeOnline(body string) {
 	uids := s.contactService.GetContactIds(context.Background(), msg.UserID)
 	sid := s.conf.GetSid()
 	for _, uid := range uids {
-		ids := s.ws.GetUidFromClientIds(context.Background(), sid, im.Sessions.Default.Name, fmt.Sprintf("%d", uid))
+		ids := s.ws.GetUidFromClientIds(context.Background(), sid, im.Sessions.Default.Name(), fmt.Sprintf("%d", uid))
 
 		cids = append(cids, ids...)
 	}
@@ -192,12 +192,12 @@ func (s *SubscribeConsume) onConsumeRevokeTalk(body string) {
 	cids := make([]int64, 0)
 	if record.TalkType == entity.PrivateChat {
 		for _, uid := range [2]int{record.UserId, record.ReceiverId} {
-			ids := s.ws.GetUidFromClientIds(ctx, s.conf.GetSid(), im.Sessions.Default.Name, strconv.Itoa(uid))
+			ids := s.ws.GetUidFromClientIds(ctx, s.conf.GetSid(), im.Sessions.Default.Name(), strconv.Itoa(uid))
 			cids = append(cids, ids...)
 		}
 	} else {
 		cids = s.room.All(ctx, &cache.RoomOption{
-			Channel:  im.Sessions.Default.Name,
+			Channel:  im.Sessions.Default.Name(),
 			RoomType: entity.RoomGroupChat,
 			Number:   strconv.Itoa(record.ReceiverId),
 			Sid:      s.conf.GetSid(),
@@ -244,11 +244,11 @@ func (s *SubscribeConsume) onConsumeAddGroupRoom(body string) {
 	}
 
 	for _, uid := range m.Uids {
-		cids := s.ws.GetUidFromClientIds(ctx, sid, im.Sessions.Default.Name, strconv.Itoa(uid))
+		cids := s.ws.GetUidFromClientIds(ctx, sid, im.Sessions.Default.Name(), strconv.Itoa(uid))
 
 		for _, cid := range cids {
 			_ = s.room.Add(ctx, &cache.RoomOption{
-				Channel:  im.Sessions.Default.Name,
+				Channel:  im.Sessions.Default.Name(),
 				RoomType: entity.RoomGroupChat,
 				Number:   strconv.Itoa(m.GroupID),
 				Sid:      s.conf.GetSid(),

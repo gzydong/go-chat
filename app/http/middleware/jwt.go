@@ -20,14 +20,14 @@ func JwtAuth(conf *config.Config, guard string, session *cache.Session) gin.Hand
 
 		claims, err := check(guard, conf.Jwt.Secret, token)
 		if err != nil {
-			response.Unauthorized(c, err)
+			response.NotLogin(c, err)
 			c.Abort()
 			return
 		}
 
 		// 这里还需要验证 token 黑名单
 		if session.IsExistBlackList(context.Background(), token) {
-			response.Unauthorized(c, "请登录再试！")
+			response.NotLogin(c, "请登录再试！")
 			c.Abort()
 			return
 		}

@@ -67,7 +67,7 @@ func (ws *DefaultWebSocket) Open(client *im.Client) {
 	// 2.客户端加入群房间
 	for _, gid := range ids {
 		_ = ws.room.Add(context.Background(), &cache.RoomOption{
-			Channel:  im.Sessions.Default.Name,
+			Channel:  im.Sessions.Default.Name(),
 			RoomType: entity.RoomGroupChat,
 			Number:   strconv.Itoa(gid),
 			Sid:      ws.conf.GetSid(),
@@ -87,7 +87,7 @@ func (ws *DefaultWebSocket) Open(client *im.Client) {
 
 // Message 消息接收回调事件
 func (ws *DefaultWebSocket) Message(message *im.ReceiveContent) {
-	fmt.Printf("[%s]消息通知 Client:%d，Content: %s \n", message.Client.Channel().Name, message.Client.ClientId(), message.Content)
+	fmt.Printf("[%s]消息通知 Client:%d，Content: %s \n", message.Client.Channel().Name(), message.Client.ClientId(), message.Content)
 
 	event := gjson.Get(message.Content, "event").String()
 
@@ -116,7 +116,7 @@ func (ws *DefaultWebSocket) Close(client *im.Client, code int, text string) {
 	// 3.客户端退出群房间
 	for _, gid := range ids {
 		_ = ws.room.Del(context.Background(), &cache.RoomOption{
-			Channel:  im.Sessions.Default.Name,
+			Channel:  im.Sessions.Default.Name(),
 			RoomType: entity.RoomGroupChat,
 			Number:   strconv.Itoa(gid),
 			Sid:      ws.conf.GetSid(),
