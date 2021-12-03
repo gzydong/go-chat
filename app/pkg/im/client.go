@@ -115,8 +115,8 @@ func (c *Client) Write(messageType int, data []byte) error {
 	return c.conn.WriteMessage(messageType, data)
 }
 
-// InitConnection 初始化连接
-func (c *Client) InitConnection() {
+// Init 初始化连接
+func (c *Client) Init() {
 	// 启动协程处理接收信息
 	go c.accept()
 }

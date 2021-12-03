@@ -56,7 +56,7 @@ func (ws *DefaultWebSocket) Connect(c *gin.Context) {
 	}
 
 	// 创建客户端
-	im.NewClient(conn, options).InitConnection()
+	im.NewClient(conn, options).Init()
 }
 
 // Open 连接成功回调事件
