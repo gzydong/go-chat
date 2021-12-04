@@ -110,7 +110,7 @@ func (c *Channel) recv(ctx context.Context) {
 
 		select {
 		case <-ctx.Done():
-			return
+			break
 
 		// 处理接收消息
 		case msg, ok := <-c.inChan:
@@ -135,7 +135,7 @@ func (c *Channel) send(ctx context.Context) {
 
 		select {
 		case <-ctx.Done():
-			return
+			break
 
 		case body, ok := <-c.outChan:
 			if ok {

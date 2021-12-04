@@ -26,3 +26,8 @@ type TalkRecordsRequest struct {
 	RecordId   int `form:"record_id" json:"record_id" binding:"min=0,numeric"`              // 上次查询的最小消息ID
 	Limit      int `form:"limit" json:"limit" binding:"required,numeric,max=100"`           // 数据行数
 }
+
+type TalkUnReadRequest struct {
+	TalkType   int `form:"talk_type" json:"talk_type" binding:"required,oneof=1 2" label:"talk_type"`
+	ReceiverId int `form:"receiver_id" json:"receiver_id" binding:"required,numeric,gt=0" label:"receiver_id"`
+}

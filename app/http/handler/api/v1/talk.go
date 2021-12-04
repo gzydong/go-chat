@@ -26,6 +26,7 @@ type Talk struct {
 	wsClient        *cache.WsClientSession
 	lastMessage     *cache.LastMessage
 	usersFriendsDao *dao.UsersFriendsDao
+	unreadTalkCache *cache.UnreadTalkCache
 }
 
 func NewTalkHandler(
@@ -36,6 +37,7 @@ func NewTalkHandler(
 	wsClient *cache.WsClientSession,
 	lastMessage *cache.LastMessage,
 	usersFriendsDao *dao.UsersFriendsDao,
+	unreadTalkCache *cache.UnreadTalkCache,
 ) *Talk {
 	return &Talk{
 		service:         service,
@@ -45,6 +47,7 @@ func NewTalkHandler(
 		wsClient:        wsClient,
 		lastMessage:     lastMessage,
 		usersFriendsDao: usersFriendsDao,
+		unreadTalkCache: unreadTalkCache,
 	}
 }
 
@@ -77,7 +80,7 @@ func (c *Talk) List(ctx *gin.Context) {
 			value.Name = item.Nickname
 			value.Avatar = item.UserAvatar
 			value.RemarkName = c.usersFriendsDao.GetFriendRemark(ctx.Request.Context(), uid, item.ReceiverId)
-			value.UnreadNum = 0
+			value.UnreadNum = c.unreadTalkCache.Get(ctx.Request.Context(), item.ReceiverId, uid)
 			value.IsOnline = strutil.BoolToInt(c.wsClient.IsOnline(ctx, im.Sessions.Default.Name(), strconv.Itoa(value.ReceiverId)))
 		} else {
 			value.Name = item.GroupName
@@ -191,6 +194,20 @@ func (c *Talk) Disturb(ctx *gin.Context) {
 	if err := c.talkListService.Disturb(ctx, auth.GetAuthUserID(ctx), params); err != nil {
 		response.BusinessError(ctx, err)
 		return
+	}
+
+	response.Success(ctx, gin.H{})
+}
+
+func (c *Talk) ClearUnReadMsg(ctx *gin.Context) {
+	params := &request.TalkUnReadRequest{}
+	if err := ctx.ShouldBind(params); err != nil {
+		response.InvalidParams(ctx, err)
+		return
+	}
+
+	if params.TalkType == 1 {
+		c.unreadTalkCache.Reset(ctx.Request.Context(), params.ReceiverId, auth.GetAuthUserID(ctx))
 	}
 
 	response.Success(ctx, gin.H{})

@@ -11,9 +11,10 @@ import (
 func NewRedisClient(ctx context.Context, conf *config.Config) *redis.Client {
 
 	client := redis.NewClient(&redis.Options{
-		Addr:     fmt.Sprintf("%s:%d", conf.Redis.Host, conf.Redis.Port),
-		Password: conf.Redis.Auth,
-		DB:       conf.Redis.Database,
+		Addr:        fmt.Sprintf("%s:%d", conf.Redis.Host, conf.Redis.Port),
+		Password:    conf.Redis.Auth,
+		DB:          conf.Redis.Database,
+		ReadTimeout: -1,
 	})
 
 	// 检测心跳

@@ -11,6 +11,11 @@ import (
 	"go-chat/config"
 )
 
+type SubscribeContent struct {
+	Event string `json:"event_name"`
+	Data  string `json:"data"`
+}
+
 type WsSubscribe struct {
 	rds     *redis.Client
 	conf    *config.Config
@@ -19,11 +24,6 @@ type WsSubscribe struct {
 
 func NewWsSubscribe(rds *redis.Client, conf *config.Config, consume *handle.SubscribeConsume) *WsSubscribe {
 	return &WsSubscribe{rds: rds, conf: conf, consume: consume}
-}
-
-type SubscribeContent struct {
-	Event string `json:"event_name"`
-	Data  string `json:"data"`
 }
 
 func (w *WsSubscribe) Handle(ctx context.Context) error {

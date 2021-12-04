@@ -89,6 +89,7 @@ func RegisterApiRoute(conf *config.Config, router *gin.Engine, handler *handler.
 			talk.POST("/topping", handler.Talk.Top)
 			talk.POST("/disturb", handler.Talk.Disturb)
 			talk.GET("/records", handler.TalkRecords.GetRecords)
+			talk.POST("/unread/clear", handler.Talk.ClearUnReadMsg)
 		}
 
 		talkMsg := group.Group("/talk/message").Use(authorize)

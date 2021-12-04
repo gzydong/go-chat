@@ -62,7 +62,7 @@ func Initialize(ctx context.Context) *provider.Services {
 	serverRunID := cache.NewServerRun(client)
 	wsClientSession := cache.NewWsClientSession(client, config, serverRunID)
 	usersFriendsDao := dao.NewUsersFriends(base, client)
-	talk := v1.NewTalkHandler(talkService, talkListService, redisLock, userService, wsClientSession, lastMessage, usersFriendsDao)
+	talk := v1.NewTalkHandler(talkService, talkListService, redisLock, userService, wsClientSession, lastMessage, usersFriendsDao, unreadTalkCache)
 	talkRecordsService := service.NewTalkRecordsService(baseService, talkVote, talkRecordsVoteDao)
 	talkRecords := v1.NewTalkRecordsHandler(talkRecordsService)
 	download := v1.NewDownloadHandler()
