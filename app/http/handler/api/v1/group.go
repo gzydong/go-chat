@@ -181,9 +181,9 @@ func (c *Group) Detail(ctx *gin.Context) {
 	response.Success(ctx, info)
 }
 
-// EditGroupCard 修改群备注接口
-func (c *Group) EditGroupRemarks(ctx *gin.Context) {
-	params := &request.GroupEditCardRequest{}
+// EditRemark 修改群备注接口
+func (c *Group) EditRemark(ctx *gin.Context) {
+	params := &request.GroupEditRemarkRequest{}
 	if err := ctx.ShouldBind(params); err != nil {
 		response.InvalidParams(ctx, err)
 		return

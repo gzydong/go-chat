@@ -1,7 +1,7 @@
 package dto
 
 type TalkListItem struct {
-	ID         int    `json:"id"`
+	Id         int    `json:"id"`
 	TalkType   int    `json:"talk_type"`
 	ReceiverId int    `json:"receiver_id"`
 	IsTop      int    `json:"is_top"`
@@ -17,11 +17,11 @@ type TalkListItem struct {
 }
 
 type TalkRecordsItem struct {
-	ID         int         `json:"id"`
+	Id         int         `json:"id"`
 	TalkType   int         `json:"talk_type"`
 	MsgType    int         `json:"msg_type"`
-	UserID     int         `json:"user_id"`
-	ReceiverID int         `json:"receiver_id"`
+	UserId     int         `json:"user_id"`
+	ReceiverId int         `json:"receiver_id"`
 	Nickname   string      `json:"nickname"`
 	Avatar     string      `json:"avatar"`
 	IsRevoke   int         `json:"is_revoke"`

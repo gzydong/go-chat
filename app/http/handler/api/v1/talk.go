@@ -65,7 +65,7 @@ func (c *Talk) List(ctx *gin.Context) {
 
 	for _, item := range data {
 		value := &dto.TalkListItem{
-			ID:         item.ID,
+			Id:         item.ID,
 			TalkType:   item.TalkType,
 			ReceiverId: item.ReceiverId,
 			IsTop:      item.IsTop,
@@ -129,7 +129,7 @@ func (c *Talk) Create(ctx *gin.Context) {
 	}
 
 	item := dto.TalkListItem{
-		ID:         result.ID,
+		Id:         result.ID,
 		TalkType:   result.TalkType,
 		ReceiverId: result.ReceiverId,
 		IsRobot:    result.IsRobot,

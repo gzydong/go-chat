@@ -40,7 +40,7 @@ type GroupDetailRequest struct {
 	GroupCommonRequest
 }
 
-type GroupEditCardRequest struct {
+type GroupEditRemarkRequest struct {
 	GroupCommonRequest
 	VisitCard string `form:"visit_card" json:"visit_card" binding:"required,max=20" label:"visit_card"`
 }

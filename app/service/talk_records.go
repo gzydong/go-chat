@@ -238,11 +238,11 @@ func (s *TalkRecordsService) HandleTalkRecords(ctx context.Context, items []*Que
 
 	for _, item := range items {
 		data := &dto.TalkRecordsItem{
-			ID:         item.ID,
+			Id:         item.ID,
 			TalkType:   item.TalkType,
 			MsgType:    item.MsgType,
-			UserID:     item.UserId,
-			ReceiverID: item.ReceiverId,
+			UserId:     item.UserId,
+			ReceiverId: item.ReceiverId,
 			Nickname:   item.Nickname,
 			Avatar:     item.Avatar,
 			IsRevoke:   item.IsRevoke,

@@ -20,8 +20,8 @@ func NewGroupNoticeService(dao *dao.GroupNoticeDao) *GroupNoticeService {
 	}
 }
 
-func (s *GroupNoticeService) Dao() {
-
+func (s *GroupNoticeService) Dao() *dao.GroupNoticeDao {
+	return s.dao
 }
 
 // Create 创建群公告

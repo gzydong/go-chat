@@ -41,7 +41,7 @@ func (c *TalkRecords) GetRecords(ctx *gin.Context) {
 
 	rid := 0
 	if length := len(records); length > 0 {
-		rid = records[length-1].ID
+		rid = records[length-1].Id
 	}
 
 	response.Success(ctx, gin.H{
