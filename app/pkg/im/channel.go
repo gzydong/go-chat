@@ -22,7 +22,7 @@ type Channel struct {
 	node    *Node                // 客户端列表【客户端ID取余拆分，降低 map 长度，减少 map 加锁时间提高并发处理量】
 	inChan  chan *ReceiveContent // 消息接收通道
 	outChan chan *SenderContent  // 消息发送通道
-	Handler HandleInterface      // 回调处理
+	handler HandleInterface      // 回调处理
 }
 
 func NewChannel(name string, node *Node, inChan chan *ReceiveContent, outChan chan *SenderContent) *Channel {
@@ -83,9 +83,9 @@ func (c *Channel) PushSendChannel(msg *SenderContent) {
 	}
 }
 
-// SetCallbackHandler 设置 WebSocket 处理事件
-func (c *Channel) SetCallbackHandler(handle HandleInterface) *Channel {
-	c.Handler = handle
+// SetHandler 设置 WebSocket 处理事件
+func (c *Channel) SetHandler(handle HandleInterface) *Channel {
+	c.handler = handle
 
 	return c
 }
@@ -115,7 +115,7 @@ func (c *Channel) recv(ctx context.Context) {
 		// 处理接收消息
 		case msg, ok := <-c.inChan:
 			if ok {
-				c.Handler.Message(msg)
+				c.handler.Message(msg)
 			}
 
 		case <-timeout.C:

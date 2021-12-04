@@ -47,7 +47,7 @@ func NewClient(conn *websocket.Conn, options *ClientOptions) *Client {
 	conn.SetCloseHandler(func(code int, text string) error {
 		client.isClosed = true
 
-		options.Channel.Handler.Close(client, code, text)
+		options.Channel.handler.Close(client, code, text)
 
 		options.Channel.delClient(client)
 
@@ -69,7 +69,7 @@ func NewClient(conn *websocket.Conn, options *ClientOptions) *Client {
 	Heartbeat.addClient(client)
 
 	// 触发自定义的 open 事件
-	options.Channel.Handler.Open(client)
+	options.Channel.handler.Open(client)
 
 	return client
 }
