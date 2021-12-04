@@ -14,7 +14,7 @@ func NewNode(len int) *Node {
 }
 
 func (n *Node) index(cid int64) int {
-	return getMapIndex(cid, n.len)
+	return int(cid) % n.len
 }
 
 func (n *Node) add(c *Client) {

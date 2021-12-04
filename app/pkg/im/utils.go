@@ -21,7 +21,7 @@ func NewWebsocket(ctx *gin.Context) (*websocket.Conn, error) {
 	return upGrader.Upgrade(ctx.Writer, ctx.Request, nil)
 }
 
-// 拆分数量
+// 获取 sync.Map 切片
 func maps(num int) []*sync.Map {
 	var items []*sync.Map
 
@@ -34,9 +34,4 @@ func maps(num int) []*sync.Map {
 	}
 
 	return items
-}
-
-// 获取客户端ID在第几个 map 中
-func getMapIndex(cid int64, num int) int {
-	return int(cid) % num
 }
