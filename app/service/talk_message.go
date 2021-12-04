@@ -22,15 +22,15 @@ import (
 type TalkMessageService struct {
 	*BaseService
 	config             *config.Config
-	groupMemberService *GroupMemberService
 	unreadTalkCache    *cache.UnreadTalkCache
 	forwardService     *TalkMessageForwardService
 	lastMessage        *cache.LastMessage
 	talkRecordsVoteDao *dao.TalkRecordsVoteDao
+	groupMemberDao     *dao.GroupMemberDao
 }
 
-func NewTalkMessageService(baseService *BaseService, config *config.Config, groupMemberService *GroupMemberService, unreadTalkCache *cache.UnreadTalkCache, forwardService *TalkMessageForwardService, lastMessage *cache.LastMessage, talkRecordsVoteDao *dao.TalkRecordsVoteDao) *TalkMessageService {
-	return &TalkMessageService{BaseService: baseService, config: config, groupMemberService: groupMemberService, unreadTalkCache: unreadTalkCache, forwardService: forwardService, lastMessage: lastMessage, talkRecordsVoteDao: talkRecordsVoteDao}
+func NewTalkMessageService(baseService *BaseService, config *config.Config, unreadTalkCache *cache.UnreadTalkCache, forwardService *TalkMessageForwardService, lastMessage *cache.LastMessage, talkRecordsVoteDao *dao.TalkRecordsVoteDao, groupMemberDao *dao.GroupMemberDao) *TalkMessageService {
+	return &TalkMessageService{BaseService: baseService, config: config, unreadTalkCache: unreadTalkCache, forwardService: forwardService, lastMessage: lastMessage, talkRecordsVoteDao: talkRecordsVoteDao, groupMemberDao: groupMemberDao}
 }
 
 // SendTextMessage 发送文本消息
@@ -104,10 +104,16 @@ func (s *TalkMessageService) SendCodeMessage(ctx context.Context, uid int, param
 	return nil
 }
 
+// SendImageMessage 发送图片消息
+// @params uid     用户ID
+// @params params  请求参数
 func (s *TalkMessageService) SendImageMessage(ctx context.Context, uid int, params *request.ImageMessageRequest) error {
 	return nil
 }
 
+// SendFileMessage 发送文件消息
+// @params uid     用户ID
+// @params params  请求参数
 func (s *TalkMessageService) SendFileMessage(ctx context.Context, params *request.FileMessageRequest) {
 
 }
@@ -123,7 +129,6 @@ func (s *TalkMessageService) SendCardMessage(ctx context.Context, params *reques
 // @params uid     用户ID
 // @params params  请求参数
 func (s *TalkMessageService) SendVoteMessage(ctx context.Context, uid int, params *request.VoteMessageRequest) error {
-
 	var (
 		err    error
 		record = &model.TalkRecords{
@@ -141,7 +146,7 @@ func (s *TalkMessageService) SendVoteMessage(ctx context.Context, uid int, param
 		options[fmt.Sprintf("%c", 65+i)] = value
 	}
 
-	num := s.groupMemberService.GetGroupMemberCount(params.ReceiverId)
+	num := s.groupMemberDao.CountMemberTotal(params.ReceiverId)
 
 	err = s.db.Transaction(func(tx *gorm.DB) error {
 		if err = s.db.Create(record).Error; err != nil {
@@ -339,6 +344,8 @@ func (s *TalkMessageService) SendRevokeRecordMessage(ctx context.Context, uid in
 }
 
 // VoteHandle 投票处理
+// @params uid       用户ID
+// @params recordId  消息记录ID
 func (s *TalkMessageService) VoteHandle(ctx context.Context, uid int, params *request.VoteMessageHandleRequest) (int, error) {
 	var (
 		err  error
@@ -431,7 +438,6 @@ func (s *TalkMessageService) VoteHandle(ctx context.Context, uid int, params *re
 
 // 发送消息后置处理
 func (s *TalkMessageService) afterHandle(ctx context.Context, record *model.TalkRecords, opts map[string]string) {
-
 	if record.TalkType == entity.PrivateChat {
 		s.unreadTalkCache.Increment(ctx, record.UserId, record.ReceiverId)
 	}

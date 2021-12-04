@@ -94,7 +94,7 @@ func (c *Group) Invite(ctx *gin.Context) {
 		return
 	}
 
-	if !c.memberService.IsMember(params.GroupId, uid) {
+	if !c.memberService.Dao().IsMember(params.GroupId, uid) {
 		response.BusinessError(ctx, "非群组成员，无权邀请好友！")
 		return
 	}
@@ -147,30 +147,30 @@ func (c *Group) Detail(ctx *gin.Context) {
 
 	uid := auth.GetAuthUserID(ctx)
 
-	groupInfo, err := c.service.FindById(params.GroupId)
+	groupInfo, err := c.service.Dao().FindById(params.GroupId)
 	if err != nil {
 		response.BusinessError(ctx, err)
 		return
 	}
 
-	if groupInfo.ID == 0 {
+	if groupInfo.Id == 0 {
 		response.BusinessError(ctx, "数据不存在")
 		return
 	}
 
 	info := gin.H{}
-	info["group_id"] = groupInfo.ID
+	info["group_id"] = groupInfo.Id
 	info["group_name"] = groupInfo.GroupName
 	info["profile"] = groupInfo.Profile
 	info["avatar"] = groupInfo.Avatar
 	info["created_at"] = timeutil.FormatDatetime(groupInfo.CreatedAt)
 	info["is_manager"] = uid == groupInfo.CreatorId
 	info["manager_nickname"] = ""
-	info["visit_card"] = c.memberService.GetMemberRemarks(params.GroupId, uid)
+	info["visit_card"] = c.memberService.Dao().GetMemberRemark(params.GroupId, uid)
 	info["is_disturb"] = 0
 	info["notice"] = []gin.H{}
 
-	if c.talkListService.Dao().IsDisturb(uid, groupInfo.ID, 2) {
+	if c.talkListService.Dao().IsDisturb(uid, groupInfo.Id, 2) {
 		info["is_disturb"] = 1
 	}
 
@@ -189,7 +189,7 @@ func (c *Group) EditGroupRemarks(ctx *gin.Context) {
 		return
 	}
 
-	if err := c.service.UpdateMemberCard(params.GroupId, auth.GetAuthUserID(ctx), params.VisitCard); err != nil {
+	if err := c.memberService.UpdateMemberCard(params.GroupId, auth.GetAuthUserID(ctx), params.VisitCard); err != nil {
 		response.BusinessError(ctx, "修改群备注失败！")
 		return
 	}
@@ -219,12 +219,12 @@ func (c *Group) GetGroupMembers(ctx *gin.Context) {
 		return
 	}
 
-	if !c.memberService.IsMember(params.GroupId, auth.GetAuthUserID(ctx)) {
+	if !c.memberService.Dao().IsMember(params.GroupId, auth.GetAuthUserID(ctx)) {
 		response.BusinessError(ctx, "非群成员无权查看成员列表！")
 		return
 	}
 
-	items := c.memberService.GetGroupMembers(params.GroupId)
+	items := c.memberService.Dao().GetMembers(params.GroupId)
 
 	response.Success(ctx, items)
 }

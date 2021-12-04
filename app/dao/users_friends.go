@@ -7,11 +7,11 @@ import (
 )
 
 type UsersFriendsDao struct {
-	*Base
+	*BaseDao
 	rds *redis.Client
 }
 
-func NewUsersFriends(base *Base, rds *redis.Client) *UsersFriendsDao {
+func NewUsersFriends(base *BaseDao, rds *redis.Client) *UsersFriendsDao {
 	return &UsersFriendsDao{base, rds}
 }
 

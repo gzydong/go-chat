@@ -6,7 +6,7 @@ import (
 )
 
 type GroupNoticeDao struct {
-	*Base
+	*BaseDao
 }
 
 func (dao *GroupNoticeDao) GetListAll(ctx context.Context, groupId int) ([]*model.SearchNoticeItem, error) {

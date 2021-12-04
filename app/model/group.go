@@ -5,8 +5,12 @@ import (
 	"time"
 )
 
+const (
+	GroupMemberMaxNum = 200 // 最大成员数量
+)
+
 type Group struct {
-	ID          int          `json:"id" grom:"comment:群ID"`
+	Id          int          `json:"id" grom:"comment:群ID"`
 	CreatorId   int          `json:"creator_id" grom:"comment:群主ID"`
 	GroupName   string       `json:"group_name" grom:"comment:群名称"`
 	Profile     string       `json:"profile" grom:"comment:群简介"`

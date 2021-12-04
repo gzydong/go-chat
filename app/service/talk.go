@@ -31,11 +31,11 @@ func (s *TalkService) RemoveRecords(ctx context.Context, uid int, req *request.D
 	findIds := make([]int64, 0)
 
 	if req.TalkType == entity.PrivateChat {
-		s.db.Model(model.TalkRecords{}).Where("id in ?", ids).Where("talk_type = ?", entity.PrivateChat).Where(
-			s.db.Where("user_id = ? and receiver_id = ?", uid, req.ReceiverId).
-				Or("user_id = ? and receiver_id = ?", req.ReceiverId, uid)).Pluck("id", &findIds)
+		subQuery := s.db.Where("user_id = ? and receiver_id = ?", uid, req.ReceiverId).Or("user_id = ? and receiver_id = ?", req.ReceiverId, uid)
+
+		s.db.Model(model.TalkRecords{}).Where("id in ?", ids).Where("talk_type = ?", entity.PrivateChat).Where(subQuery).Pluck("id", &findIds)
 	} else {
-		if !s.groupMemberService.IsMember(req.ReceiverId, uid) {
+		if !s.groupMemberService.Dao().IsMember(req.ReceiverId, uid) {
 			return errors.New("非群成员，暂无权限! ")
 		}
 
@@ -85,7 +85,7 @@ func (s *TalkService) CollectRecord(ctx context.Context, uid int, recordId int) 
 			return errors.New("暂无权限收藏！")
 		}
 	} else if record.TalkType == entity.GroupChat {
-		if !s.groupMemberService.IsMember(record.ReceiverId, uid) {
+		if !s.groupMemberService.Dao().IsMember(record.ReceiverId, uid) {
 			return errors.New("暂无权限收藏！")
 		}
 	}

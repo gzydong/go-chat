@@ -72,7 +72,7 @@ func (c *GroupNotice) List(ctx *gin.Context) {
 	}
 
 	// 判断是否是群成员
-	if !c.member.IsMember(params.GroupId, auth.GetAuthUserID(ctx)) {
+	if !c.member.Dao().IsMember(params.GroupId, auth.GetAuthUserID(ctx)) {
 		response.BusinessError(ctx, "无获取数据权限！")
 		return
 	}

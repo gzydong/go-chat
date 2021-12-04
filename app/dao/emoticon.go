@@ -6,11 +6,11 @@ import (
 )
 
 type EmoticonDao struct {
-	*Base
+	*BaseDao
 }
 
-func NewEmoticonDao(base *Base) *EmoticonDao {
-	return &EmoticonDao{Base: base}
+func NewEmoticonDao(base *BaseDao) *EmoticonDao {
+	return &EmoticonDao{BaseDao: base}
 }
 
 func (dao *EmoticonDao) FindById(emoticonId int) (*model.Emoticon, error) {

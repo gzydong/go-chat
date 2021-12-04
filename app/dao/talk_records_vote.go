@@ -8,7 +8,7 @@ import (
 )
 
 type TalkRecordsVoteDao struct {
-	*Base
+	*BaseDao
 	cache *cache.TalkVote
 }
 
@@ -17,8 +17,8 @@ type VoteStatistics struct {
 	Options map[string]int `json:"options"`
 }
 
-func NewTalkRecordsVoteDao(base *Base, cache *cache.TalkVote) *TalkRecordsVoteDao {
-	return &TalkRecordsVoteDao{Base: base, cache: cache}
+func NewTalkRecordsVoteDao(base *BaseDao, cache *cache.TalkVote) *TalkRecordsVoteDao {
+	return &TalkRecordsVoteDao{BaseDao: base, cache: cache}
 }
 
 // GetVoteAnswerUser

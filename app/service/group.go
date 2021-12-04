@@ -19,20 +19,16 @@ import (
 
 type GroupService struct {
 	*BaseService
-	dao           *dao.GroupDao
-	memberService *GroupMemberService
+	dao       *dao.GroupDao
+	memberDao *dao.GroupMemberDao
 }
 
-func NewGroupService(baseService *BaseService, dao *dao.GroupDao, memberService *GroupMemberService) *GroupService {
-	return &GroupService{BaseService: baseService, dao: dao, memberService: memberService}
+func NewGroupService(baseService *BaseService, dao *dao.GroupDao, groupMemberDao *dao.GroupMemberDao) *GroupService {
+	return &GroupService{BaseService: baseService, dao: dao, memberDao: groupMemberDao}
 }
 
-func (s *GroupService) FindById(id int) (*model.Group, error) {
-	info := &model.Group{}
-
-	s.db.First(&info, id)
-
-	return info, nil
+func (s *GroupService) Dao() *dao.GroupDao {
+	return s.dao
 }
 
 // Create 创建群聊
@@ -57,7 +53,7 @@ func (s *GroupService) Create(ctx *gin.Context, request *request.GroupCreateRequ
 			GroupName: request.Name,
 			Profile:   request.Profile,
 			Avatar:    request.Avatar,
-			MaxNum:    200,
+			MaxNum:    model.GroupMemberMaxNum,
 			CreatedAt: time.Now(),
 		}
 
@@ -65,7 +61,7 @@ func (s *GroupService) Create(ctx *gin.Context, request *request.GroupCreateRequ
 			return err
 		}
 
-		groupId = group.ID
+		groupId = group.Id
 
 		for _, val := range mids {
 			leader := 0
@@ -74,7 +70,7 @@ func (s *GroupService) Create(ctx *gin.Context, request *request.GroupCreateRequ
 			}
 
 			members = append(members, &model.GroupMember{
-				GroupId:   group.ID,
+				GroupId:   group.Id,
 				UserId:    val,
 				Leader:    leader,
 				CreatedAt: time.Now(),
@@ -83,7 +79,7 @@ func (s *GroupService) Create(ctx *gin.Context, request *request.GroupCreateRequ
 			talkList = append(talkList, &model.TalkList{
 				TalkType:   2,
 				UserId:     val,
-				ReceiverId: group.ID,
+				ReceiverId: group.Id,
 				CreatedAt:  time.Now(),
 				UpdatedAt:  time.Now(),
 			})
@@ -123,7 +119,7 @@ func (s *GroupService) Dismiss(GroupId int, UserId int) error {
 	)
 
 	err = s.db.Transaction(func(tx *gorm.DB) error {
-		queryModel := &model.Group{ID: GroupId, CreatorId: UserId}
+		queryModel := &model.Group{Id: GroupId, CreatorId: UserId}
 		dismissedAt := sql.NullTime{
 			Time:  time.Now(),
 			Valid: true,
@@ -194,7 +190,7 @@ func (s *GroupService) InviteUsers(ctx context.Context, groupId int, uid int, ui
 	)
 
 	m := make(map[int]struct{})
-	for _, value := range s.memberService.GetMemberIds(groupId) {
+	for _, value := range s.memberDao.GetMemberIds(groupId) {
 		m[value] = struct{}{}
 	}
 
@@ -273,14 +269,6 @@ func (s *GroupService) InviteUsers(ctx context.Context, groupId int, uid int, ui
 	s.rds.Publish(ctx, entity.SubscribeWsGatewayAll, jsonutil.JsonEncode(body))
 
 	return nil
-}
-
-// UpdateMemberCard 修改群名片
-func (s *GroupService) UpdateMemberCard(groupId int, userId int, remarks string) error {
-	return s.db.Model(model.GroupMember{}).
-		Where("group_id = ? and user_id = ?", groupId, userId).
-		Unscoped().
-		Update("user_card", remarks).Error
 }
 
 type Result struct {

@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+	"github.com/gin-gonic/gin"
 	"go-chat/app/dao"
 	"go-chat/app/http/request"
 	"go-chat/app/model"
@@ -23,16 +24,11 @@ func (s *UserService) Dao() *dao.UserDao {
 
 // Register 注册用户
 func (s *UserService) Register(param *request.RegisterRequest) (*model.User, error) {
-
-	if exist := s.dao.IsMobileExist(param.Mobile); exist {
+	if s.dao.IsMobileExist(param.Mobile) {
 		return nil, errors.New("账号已存在! ")
 	}
 
-	hash, err := auth.Encrypt(param.Password)
-	if err != nil {
-		return nil, err
-	}
-
+	hash, _ := auth.Encrypt(param.Password)
 	user, err := s.dao.Create(&model.User{
 		Mobile:    param.Mobile,
 		Nickname:  param.Nickname,
@@ -73,12 +69,7 @@ func (s *UserService) Forget(input *request.ForgetRequest) (bool, error) {
 	// 生成 hash 密码
 	hash, _ := auth.Encrypt(input.Password)
 
-	_, err = s.dao.Update(&model.User{
-		ID: user.ID,
-	}, map[string]interface{}{
-		"password": hash,
-	})
-
+	_, err = s.Dao().BaseUpdate(&model.User{}, gin.H{"id": user.ID}, gin.H{"password": hash})
 	if err != nil {
 		return false, errors.New("密码修改失败！")
 	}
@@ -100,10 +91,7 @@ func (s *UserService) UpdatePassword(uid int, oldPassword string, password strin
 
 	hash, _ := auth.Encrypt(password)
 
-	_, err := s.dao.Base.Update(&model.User{}, map[string]interface{}{"id": uid}, map[string]interface{}{
-		"password": hash,
-	})
-
+	_, err := s.dao.BaseUpdate(&model.User{}, gin.H{"id": user.ID}, gin.H{"password": hash})
 	if err != nil {
 		return err
 	}

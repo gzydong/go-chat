@@ -5,10 +5,10 @@ import (
 )
 
 type TalkListDao struct {
-	*Base
+	*BaseDao
 }
 
-func NewTalkListDao(base *Base) *TalkListDao {
+func NewTalkListDao(base *BaseDao) *TalkListDao {
 	return &TalkListDao{base}
 }
 

@@ -62,7 +62,7 @@ func (ws *DefaultWebSocket) Connect(c *gin.Context) {
 // Open 连接成功回调事件
 func (ws *DefaultWebSocket) Open(client *im.Client) {
 	// 1.查询用户群列表
-	ids := ws.groupMemberService.GetUserGroupIds(client.Uid())
+	ids := ws.groupMemberService.Dao().GetUserGroupIds(client.Uid())
 
 	// 2.客户端加入群房间
 	for _, gid := range ids {
@@ -111,7 +111,7 @@ func (ws *DefaultWebSocket) Close(client *im.Client, code int, text string) {
 	// 1.判断用户是否是多点登录
 
 	// 2.查询用户群列表
-	ids := ws.groupMemberService.GetUserGroupIds(client.Uid())
+	ids := ws.groupMemberService.Dao().GetUserGroupIds(client.Uid())
 
 	// 3.客户端退出群房间
 	for _, gid := range ids {

@@ -20,3 +20,13 @@ type GroupMember struct {
 func (m *GroupMember) TableName() string {
 	return "group_member"
 }
+
+type MemberItem struct {
+	UserId   string `json:"user_id"`
+	Avatar   string `json:"avatar"`
+	Nickname string `json:"nickname"`
+	Gender   int    `json:"gender"`
+	Motto    string `json:"motto"`
+	Leader   int    `json:"leader"`
+	UserCard string `json:"user_card"`
+}

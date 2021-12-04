@@ -2,40 +2,42 @@ package dao
 
 import (
 	"errors"
+	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
 
-type Base struct {
+type BaseDao struct {
 	Db *gorm.DB
 }
 
-func NewBaseDao(db *gorm.DB) *Base {
-	return &Base{db}
+func NewBaseDao(db *gorm.DB) *BaseDao {
+	return &BaseDao{db}
 }
 
-// Update 批量更新
-func (b *Base) Update(model interface{}, where map[string]interface{}, data map[string]interface{}) (int, error) {
-
+// BaseUpdate 批量更新
+func (b *BaseDao) BaseUpdate(model interface{}, where gin.H, data gin.H) (int, error) {
 	fields := make([]string, len(data))
+	values := make(map[string]interface{})
 
 	// 获取需要更新的字段
-	for field := range data {
+	for field, value := range data {
 		fields = append(fields, field)
+		values[field] = value
 	}
 
-	sql := b.Db.Model(model).Select(fields)
+	tx := b.Db.Model(model).Select(fields)
 
 	for key, val := range where {
-		sql.Where(key, val)
+		tx.Where(key, val)
 	}
 
-	result := sql.Updates(data)
+	result := tx.Unscoped().Updates(values)
 
 	return int(result.RowsAffected), result.Error
 }
 
 // FindByIds 根据主键查询一条或多条数据
-func (b *Base) FindByIds(model interface{}, ids []int, fields interface{}) (bool, error) {
+func (b *BaseDao) FindByIds(model interface{}, ids []int, fields interface{}) (bool, error) {
 	var err error
 
 	if len(ids) == 1 {
