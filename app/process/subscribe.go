@@ -42,24 +42,24 @@ func (w *WsSubscribe) Handle(ctx context.Context) error {
 	defer sub.Close()
 
 	go func() {
-
-		work := pool.NewWorkerPool(2)
+		work := pool.NewWorkerPool(5) // 设置协程并发处理数
 
 		for msg := range sub.Channel() {
 			// fmt.Printf("消息订阅 : channel=%s message=%s\n", msg.channel, msg.Payload)
 
-			switch msg.Channel {
+			consume := func(value *redis.Message) {
+				switch value.Channel {
 
-			// 私有通道及全局广播通道
-			case gateway, entity.SubscribeWsGatewayAll:
-				var message *SubscribeContent
-
-				if err := json.Unmarshal([]byte(msg.Payload), &message); err == nil {
-					work.Add(func() {
+				// 私有通道及全局广播通道
+				case gateway, entity.SubscribeWsGatewayAll:
+					var message *SubscribeContent
+					if err := json.Unmarshal([]byte(value.Payload), &message); err == nil {
 						w.consume.Handle(message.Event, message.Data)
-					})
+					}
 				}
 			}
+
+			work.Add(func() { consume(msg) })
 		}
 	}()
 
