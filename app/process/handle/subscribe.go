@@ -71,7 +71,7 @@ func (s *SubscribeConsume) onConsumeTalk(body string) {
 			cids = append(cids, ids...)
 		}
 	} else {
-		ids := s.room.All(context.Background(), &cache.RoomOption{
+		ids := s.room.All(ctx, &cache.RoomOption{
 			Channel:  im.Sessions.Default.Name(),
 			RoomType: entity.RoomGroupChat,
 			Number:   strconv.Itoa(int(msg.ReceiverID)),
@@ -81,7 +81,7 @@ func (s *SubscribeConsume) onConsumeTalk(body string) {
 		cids = append(cids, ids...)
 	}
 
-	data, err := s.recordsService.GetTalkRecord(context.Background(), msg.RecordID)
+	data, err := s.recordsService.GetTalkRecord(ctx, msg.RecordID)
 	if err != nil {
 		fmt.Println("GetTalkRecord err", err)
 		return
@@ -95,7 +95,7 @@ func (s *SubscribeConsume) onConsumeTalk(body string) {
 	c.SetReceive(cids...)
 	c.SetMessage(&im.Message{
 		Event: "event_talk",
-		Content: map[string]interface{}{
+		Content: gin.H{
 			"sender_id":   msg.SenderID,
 			"receiver_id": msg.ReceiverID,
 			"talk_type":   msg.TalkType,
@@ -127,7 +127,7 @@ func (s *SubscribeConsume) onConsumeKeyboard(body string) {
 	c.SetReceive(cids...)
 	c.SetMessage(&im.Message{
 		Event: entity.EventKeyboard,
-		Content: map[string]interface{}{
+		Content: gin.H{
 			"sender_id":   msg.SenderID,
 			"receiver_id": msg.ReceiverID,
 		},
@@ -147,12 +147,13 @@ func (s *SubscribeConsume) onConsumeOnline(body string) {
 		return
 	}
 
+	ctx := context.Background()
 	cids := make([]int64, 0)
 
-	uids := s.contactService.GetContactIds(context.Background(), msg.UserID)
+	uids := s.contactService.GetContactIds(ctx, msg.UserID)
 	sid := s.conf.GetSid()
 	for _, uid := range uids {
-		ids := s.ws.GetUidFromClientIds(context.Background(), sid, im.Sessions.Default.Name(), fmt.Sprintf("%d", uid))
+		ids := s.ws.GetUidFromClientIds(ctx, sid, im.Sessions.Default.Name(), fmt.Sprintf("%d", uid))
 
 		cids = append(cids, ids...)
 	}

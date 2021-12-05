@@ -24,7 +24,7 @@ func (p *ClearGarbage) Handle(ctx context.Context) error {
 			return nil
 		case <-time.After(time.Hour):
 
-			if !p.lock.Lock(ctx, "asfa", 600) {
+			if !p.lock.Lock(ctx, "server_ids_expire", 600) {
 				continue
 			}
 
