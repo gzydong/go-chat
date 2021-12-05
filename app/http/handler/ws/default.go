@@ -22,7 +22,7 @@ import (
 type DefaultWebSocket struct {
 	rds                *redis.Client
 	conf               *config.Config
-	client             *service.ClientService
+	cache              *service.ClientService
 	room               *cache.Room
 	groupMemberService *service.GroupMemberService
 }
@@ -34,7 +34,7 @@ func NewDefaultWebSocket(
 	room *cache.Room,
 	groupMemberService *service.GroupMemberService,
 ) *DefaultWebSocket {
-	handler := &DefaultWebSocket{rds: rds, conf: conf, client: client, room: room, groupMemberService: groupMemberService}
+	handler := &DefaultWebSocket{rds: rds, conf: conf, cache: client, room: room, groupMemberService: groupMemberService}
 
 	im.Sessions.Default.SetHandler(handler)
 
@@ -42,8 +42,8 @@ func NewDefaultWebSocket(
 }
 
 // Connect 初始化连接
-func (ws *DefaultWebSocket) Connect(c *gin.Context) {
-	conn, err := im.NewWebsocket(c)
+func (c *DefaultWebSocket) Connect(ctx *gin.Context) {
+	conn, err := im.NewWebsocket(ctx)
 	if err != nil {
 		log.Printf("websocket connect error: %s", err)
 		return
@@ -52,29 +52,29 @@ func (ws *DefaultWebSocket) Connect(c *gin.Context) {
 	// 创建客户端
 	im.NewClient(conn, &im.ClientOptions{
 		Channel: im.Sessions.Default,
-		Uid:     auth.GetAuthUserID(c),
-		Storage: ws.client,
+		Uid:     auth.GetAuthUserID(ctx),
+		Storage: c.cache,
 	}).Init()
 }
 
 // Open 连接成功回调事件
-func (ws *DefaultWebSocket) Open(client *im.Client) {
+func (c *DefaultWebSocket) Open(client *im.Client) {
 	// 1.查询用户群列表
-	ids := ws.groupMemberService.Dao().GetUserGroupIds(client.Uid())
+	ids := c.groupMemberService.Dao().GetUserGroupIds(client.Uid())
 
 	// 2.客户端加入群房间
 	for _, gid := range ids {
-		_ = ws.room.Add(context.Background(), &cache.RoomOption{
+		_ = c.room.Add(context.Background(), &cache.RoomOption{
 			Channel:  im.Sessions.Default.Name(),
 			RoomType: entity.RoomGroupChat,
 			Number:   strconv.Itoa(gid),
-			Sid:      ws.conf.GetSid(),
+			Sid:      c.conf.GetSid(),
 			Cid:      client.ClientId(),
 		})
 	}
 
 	// 推送上线消息
-	ws.rds.Publish(context.Background(), entity.SubscribeWsGatewayAll, jsonutil.JsonEncode(gin.H{
+	c.rds.Publish(context.Background(), entity.SubscribeWsGatewayAll, jsonutil.JsonEncode(gin.H{
 		"event": entity.EventOnlineStatus,
 		"data": jsonutil.JsonEncode(gin.H{
 			"user_id": client.Uid(),
@@ -84,7 +84,7 @@ func (ws *DefaultWebSocket) Open(client *im.Client) {
 }
 
 // Message 消息接收回调事件
-func (ws *DefaultWebSocket) Message(message *im.ReceiveContent) {
+func (c *DefaultWebSocket) Message(message *im.ReceiveContent) {
 	fmt.Printf("[%s]消息通知 Client:%d，Content: %s \n", message.Client.Channel().Name(), message.Client.ClientId(), message.Content)
 
 	event := gjson.Get(message.Content, "event").String()
@@ -93,7 +93,7 @@ func (ws *DefaultWebSocket) Message(message *im.ReceiveContent) {
 	case "event_keyboard":
 		var m *wst.KeyboardMessage
 		if err := json.Unmarshal([]byte(message.Content), &m); err == nil {
-			ws.rds.Publish(context.Background(), entity.SubscribeWsGatewayAll, jsonutil.JsonEncode(gin.H{
+			c.rds.Publish(context.Background(), entity.SubscribeWsGatewayAll, jsonutil.JsonEncode(gin.H{
 				"event": entity.EventKeyboard,
 				"data": jsonutil.JsonEncode(gin.H{
 					"sender_id":   m.Data.SenderID,
@@ -105,25 +105,25 @@ func (ws *DefaultWebSocket) Message(message *im.ReceiveContent) {
 }
 
 // Close 客户端关闭回调事件
-func (ws *DefaultWebSocket) Close(client *im.Client, code int, text string) {
+func (c *DefaultWebSocket) Close(client *im.Client, code int, text string) {
 	// 1.判断用户是否是多点登录
 
 	// 2.查询用户群列表
-	ids := ws.groupMemberService.Dao().GetUserGroupIds(client.Uid())
+	ids := c.groupMemberService.Dao().GetUserGroupIds(client.Uid())
 
 	// 3.客户端退出群房间
 	for _, gid := range ids {
-		_ = ws.room.Del(context.Background(), &cache.RoomOption{
+		_ = c.room.Del(context.Background(), &cache.RoomOption{
 			Channel:  im.Sessions.Default.Name(),
 			RoomType: entity.RoomGroupChat,
 			Number:   strconv.Itoa(gid),
-			Sid:      ws.conf.GetSid(),
+			Sid:      c.conf.GetSid(),
 			Cid:      client.ClientId(),
 		})
 	}
 
 	// 推送下线消息
-	ws.rds.Publish(context.Background(), entity.SubscribeWsGatewayAll, jsonutil.JsonEncode(gin.H{
+	c.rds.Publish(context.Background(), entity.SubscribeWsGatewayAll, jsonutil.JsonEncode(gin.H{
 		"event": entity.EventOnlineStatus,
 		"data": jsonutil.JsonEncode(gin.H{
 			"user_id": client.Uid(),
