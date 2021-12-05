@@ -99,9 +99,7 @@ func (c *Client) Close(code int, message string) {
 	defer c.conn.Close()
 
 	// 触发客户端关闭回调事件
-	handler := c.conn.CloseHandler()
-
-	_ = handler(code, message)
+	_ = c.conn.CloseHandler()(code, message)
 }
 
 // Write 客户端写入数据

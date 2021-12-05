@@ -37,6 +37,8 @@ func (w *WsSubscribe) Handle(ctx context.Context) error {
 	// 订阅通道
 	sub := w.rds.Subscribe(ctx, channels...)
 
+	_, _ = sub.ReceiveTimeout(ctx, 0)
+
 	defer sub.Close()
 
 	go func() {
