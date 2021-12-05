@@ -12,7 +12,6 @@ import (
 	wst "go-chat/app/http/dto/ws"
 	"go-chat/app/pkg/auth"
 	"go-chat/app/pkg/im"
-	"go-chat/app/pkg/jsonutil"
 	"go-chat/app/service"
 	"go-chat/config"
 	"log"
@@ -74,13 +73,13 @@ func (c *DefaultWebSocket) Open(client *im.Client) {
 	}
 
 	// 推送上线消息
-	c.rds.Publish(context.Background(), entity.SubscribeWsGatewayAll, jsonutil.JsonEncode(gin.H{
+	c.rds.Publish(context.Background(), entity.SubscribeWsGatewayAll, entity.JsonText{
 		"event": entity.EventOnlineStatus,
-		"data": jsonutil.JsonEncode(gin.H{
+		"data": entity.JsonText{
 			"user_id": client.Uid(),
 			"status":  1,
-		}),
-	}))
+		}.Json(),
+	}.Json())
 }
 
 // Message 消息接收回调事件
@@ -93,13 +92,13 @@ func (c *DefaultWebSocket) Message(message *im.ReceiveContent) {
 	case "event_keyboard":
 		var m *wst.KeyboardMessage
 		if err := json.Unmarshal([]byte(message.Content), &m); err == nil {
-			c.rds.Publish(context.Background(), entity.SubscribeWsGatewayAll, jsonutil.JsonEncode(gin.H{
+			c.rds.Publish(context.Background(), entity.SubscribeWsGatewayAll, entity.JsonText{
 				"event": entity.EventKeyboard,
-				"data": jsonutil.JsonEncode(gin.H{
+				"data": entity.JsonText{
 					"sender_id":   m.Data.SenderID,
 					"receiver_id": m.Data.ReceiverID,
-				}),
-			}))
+				}.Json(),
+			}.Json())
 		}
 	}
 }
@@ -123,11 +122,11 @@ func (c *DefaultWebSocket) Close(client *im.Client, code int, text string) {
 	}
 
 	// 推送下线消息
-	c.rds.Publish(context.Background(), entity.SubscribeWsGatewayAll, jsonutil.JsonEncode(gin.H{
+	c.rds.Publish(context.Background(), entity.SubscribeWsGatewayAll, entity.JsonText{
 		"event": entity.EventOnlineStatus,
-		"data": jsonutil.JsonEncode(gin.H{
+		"data": entity.JsonText{
 			"user_id": client.Uid(),
 			"status":  0,
-		}),
-	}))
+		}.Json(),
+	}.Json())
 }
