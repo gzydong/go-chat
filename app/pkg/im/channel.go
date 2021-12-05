@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/gorilla/websocket"
 	"go-chat/app/pkg/jsonutil"
 )
 
@@ -144,12 +143,12 @@ func (c *Channel) send(ctx context.Context) {
 				// 判断是否广播消息
 				if body.IsBroadcast() {
 					c.node.each(func(c *Client) {
-						_ = c.Write(websocket.TextMessage, content)
+						_ = c.Write(content)
 					})
 				} else {
 					for _, cid := range body.receives {
 						if client, ok := c.Client(cid); ok {
-							_ = client.Write(websocket.TextMessage, content)
+							_ = client.Write(content)
 						}
 					}
 				}

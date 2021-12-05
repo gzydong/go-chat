@@ -49,14 +49,12 @@ func (ws *DefaultWebSocket) Connect(c *gin.Context) {
 		return
 	}
 
-	options := &im.ClientOptions{
+	// 创建客户端
+	im.NewClient(conn, &im.ClientOptions{
 		Channel: im.Sessions.Default,
 		Uid:     auth.GetAuthUserID(c),
 		Storage: ws.client,
-	}
-
-	// 创建客户端
-	im.NewClient(conn, options).Init()
+	}).Init()
 }
 
 // Open 连接成功回调事件
@@ -76,9 +74,9 @@ func (ws *DefaultWebSocket) Open(client *im.Client) {
 	}
 
 	// 推送上线消息
-	ws.rds.Publish(context.Background(), entity.SubscribeWsGatewayAll, jsonutil.JsonEncode(map[string]interface{}{
-		"event_name": entity.EventOnlineStatus,
-		"data": jsonutil.JsonEncode(map[string]interface{}{
+	ws.rds.Publish(context.Background(), entity.SubscribeWsGatewayAll, jsonutil.JsonEncode(gin.H{
+		"event": entity.EventOnlineStatus,
+		"data": jsonutil.JsonEncode(gin.H{
 			"user_id": client.Uid(),
 			"status":  1,
 		}),
@@ -95,9 +93,9 @@ func (ws *DefaultWebSocket) Message(message *im.ReceiveContent) {
 	case "event_keyboard":
 		var m *wst.KeyboardMessage
 		if err := json.Unmarshal([]byte(message.Content), &m); err == nil {
-			ws.rds.Publish(context.Background(), entity.SubscribeWsGatewayAll, jsonutil.JsonEncode(map[string]interface{}{
-				"event_name": entity.EventKeyboard,
-				"data": jsonutil.JsonEncode(map[string]interface{}{
+			ws.rds.Publish(context.Background(), entity.SubscribeWsGatewayAll, jsonutil.JsonEncode(gin.H{
+				"event": entity.EventKeyboard,
+				"data": jsonutil.JsonEncode(gin.H{
 					"sender_id":   m.Data.SenderID,
 					"receiver_id": m.Data.ReceiverID,
 				}),
@@ -125,9 +123,9 @@ func (ws *DefaultWebSocket) Close(client *im.Client, code int, text string) {
 	}
 
 	// 推送下线消息
-	ws.rds.Publish(context.Background(), entity.SubscribeWsGatewayAll, jsonutil.JsonEncode(map[string]interface{}{
-		"event_name": entity.EventOnlineStatus,
-		"data": jsonutil.JsonEncode(map[string]interface{}{
+	ws.rds.Publish(context.Background(), entity.SubscribeWsGatewayAll, jsonutil.JsonEncode(gin.H{
+		"event": entity.EventOnlineStatus,
+		"data": jsonutil.JsonEncode(gin.H{
 			"user_id": client.Uid(),
 			"status":  0,
 		}),

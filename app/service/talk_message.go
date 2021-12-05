@@ -332,7 +332,7 @@ func (s *TalkMessageService) SendRevokeRecordMessage(ctx context.Context, uid in
 	}
 
 	body := map[string]interface{}{
-		"event_name": entity.EventRevokeTalk,
+		"event": entity.EventRevokeTalk,
 		"data": jsonutil.JsonEncode(map[string]interface{}{
 			"record_id": record.ID,
 		}),
@@ -450,7 +450,7 @@ func (s *TalkMessageService) afterHandle(ctx context.Context, record *model.Talk
 	// 推送消息至 redis
 
 	body := map[string]interface{}{
-		"event_name": entity.EventTalk,
+		"event": entity.EventTalk,
 		"data": jsonutil.JsonEncode(map[string]interface{}{
 			"sender_id":   int64(record.UserId),
 			"receiver_id": int64(record.ReceiverId),

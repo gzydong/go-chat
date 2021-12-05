@@ -24,6 +24,7 @@ type Client struct {
 	channel  *Channel         // 渠道分组
 	storage  StorageInterface // 缓存服务
 	isClosed bool             // 客户端是否关闭连接
+	outChan  chan []byte      // 发送通道
 }
 
 type ClientOptions struct {
@@ -41,17 +42,23 @@ func NewClient(conn *websocket.Conn, options *ClientOptions) *Client {
 		uid:      options.Uid,
 		channel:  options.Channel,
 		storage:  options.Storage,
+		outChan:  make(chan []byte, 5),
 	}
+
+	ctx := context.Background()
 
 	// 设置客户端连接关闭回调事件
 	conn.SetCloseHandler(func(code int, text string) error {
 		client.isClosed = true
 
+		// 关闭通道
+		close(client.outChan)
+
 		options.Channel.handler.Close(client, code, text)
 
 		options.Channel.delClient(client)
 
-		client.storage.UnBind(context.Background(), client.Channel().name, fmt.Sprintf("%d", client.cid))
+		client.storage.UnBind(ctx, client.Channel().name, fmt.Sprintf("%d", client.cid))
 
 		// 通知心跳管理
 		Heartbeat.delClient(client)
@@ -60,7 +67,7 @@ func NewClient(conn *websocket.Conn, options *ClientOptions) *Client {
 	})
 
 	// 绑定客户端映射关系
-	client.storage.Bind(context.Background(), client.Channel().name, fmt.Sprintf("%d", client.cid), client.uid)
+	client.storage.Bind(ctx, client.Channel().name, fmt.Sprintf("%d", client.cid), client.uid)
 
 	// 注册客户端
 	options.Channel.addClient(client)
@@ -103,20 +110,23 @@ func (c *Client) Close(code int, message string) {
 }
 
 // Write 客户端写入数据
-func (c *Client) Write(messageType int, data []byte) error {
+func (c *Client) Write(data []byte) error {
 
 	if c.IsClosed() {
 		return fmt.Errorf("client closed")
 	}
 
-	// 需要做线程安全处理
-	return c.conn.WriteMessage(messageType, data)
+	// 消息写入缓冲通道
+	c.outChan <- data
+
+	return nil
 }
 
 // Init 初始化连接
 func (c *Client) Init() {
 	// 启动协程处理接收信息
 	go c.accept()
+	go c.write()
 }
 
 // 循环接收客户端推送信息
@@ -125,7 +135,7 @@ func (c *Client) accept() {
 
 	for {
 		// 读取客户端中的数据
-		mt, message, err := c.conn.ReadMessage()
+		_, message, err := c.conn.ReadMessage()
 		if err != nil {
 			break
 		}
@@ -145,12 +155,19 @@ func (c *Client) accept() {
 
 			data, _ := jsonutil.JsonEncodeByte(&Message{"heartbeat", "pong"})
 
-			_ = c.Write(mt, data)
+			_ = c.Write(data)
 			continue
 		}
 
 		if len(msg) > 0 {
 			c.Channel().PushRecvChannel(&ReceiveContent{c, msg})
 		}
+	}
+}
+
+// 循环推送客户端信息
+func (c *Client) write() {
+	for msg := range c.outChan {
+		_ = c.conn.WriteMessage(websocket.TextMessage, msg)
 	}
 }

@@ -100,7 +100,7 @@ func (s *GroupService) Create(ctx *gin.Context, request *request.GroupCreateRequ
 
 	// 广播网关将在线的用户加入房间
 	body := map[string]interface{}{
-		"event_name": entity.EventJoinGroupRoom,
+		"event": entity.EventJoinGroupRoom,
 		"data": jsonutil.JsonEncode(map[string]interface{}{
 			"group_id": groupId,
 			"uids":     mids,
@@ -259,7 +259,7 @@ func (s *GroupService) InviteUsers(ctx context.Context, groupId int, uid int, ui
 
 	// 广播网关将在线的用户加入房间
 	body := map[string]interface{}{
-		"event_name": entity.EventJoinGroupRoom,
+		"event": entity.EventJoinGroupRoom,
 		"data": jsonutil.JsonEncode(map[string]interface{}{
 			"group_id": groupId,
 			"uids":     uids,

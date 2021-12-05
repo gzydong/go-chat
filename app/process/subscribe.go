@@ -12,7 +12,7 @@ import (
 )
 
 type SubscribeContent struct {
-	Event string `json:"event_name"`
+	Event string `json:"event"`
 	Data  string `json:"data"`
 }
 
