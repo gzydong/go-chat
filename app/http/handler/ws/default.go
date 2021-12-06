@@ -62,11 +62,11 @@ func (c *DefaultWebSocket) Open(client *im.Client) {
 	ids := c.groupMemberService.Dao().GetUserGroupIds(client.Uid())
 
 	// 2.客户端加入群房间
-	for _, gid := range ids {
+	for _, id := range ids {
 		_ = c.room.Add(context.Background(), &cache.RoomOption{
 			Channel:  im.Sessions.Default.Name(),
 			RoomType: entity.RoomGroupChat,
-			Number:   strconv.Itoa(gid),
+			Number:   strconv.Itoa(id),
 			Sid:      c.conf.GetSid(),
 			Cid:      client.ClientId(),
 		})
@@ -111,11 +111,11 @@ func (c *DefaultWebSocket) Close(client *im.Client, code int, text string) {
 	ids := c.groupMemberService.Dao().GetUserGroupIds(client.Uid())
 
 	// 3.客户端退出群房间
-	for _, gid := range ids {
+	for _, id := range ids {
 		_ = c.room.Del(context.Background(), &cache.RoomOption{
 			Channel:  im.Sessions.Default.Name(),
 			RoomType: entity.RoomGroupChat,
-			Number:   strconv.Itoa(gid),
+			Number:   strconv.Itoa(id),
 			Sid:      c.conf.GetSid(),
 			Cid:      client.ClientId(),
 		})

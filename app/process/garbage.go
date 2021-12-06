@@ -9,34 +9,29 @@ import (
 )
 
 type ClearGarbage struct {
-	redis *redis.Client
-	lock  *cache.RedisLock
+	redis  *redis.Client
+	lock   *cache.RedisLock
+	server *cache.Server
 }
 
+// 清除 Websocket 相关过期垃圾数据
 func NewClearGarbage(redis *redis.Client, lock *cache.RedisLock) *ClearGarbage {
 	return &ClearGarbage{redis: redis, lock: lock}
 }
 
-func (p *ClearGarbage) Handle(ctx context.Context) error {
+func (s *ClearGarbage) Handle(ctx context.Context) error {
 	for {
 		select {
 		case <-ctx.Done():
 			return nil
 		case <-time.After(time.Hour):
-
-			if !p.lock.Lock(ctx, "server_ids_expire", 600) {
-				continue
-			}
-
-			items := p.redis.SMembers(ctx, "server_ids_expire").Val()
-
-			for _, sid := range items {
-				iter := p.redis.Scan(ctx, 0, fmt.Sprintf("ws:%s:*", sid), 100).Iterator()
+			for _, sid := range s.server.GetExpireServerAll(ctx) {
+				iter := s.server.Redis().Scan(ctx, 0, fmt.Sprintf("ws:%s:*", sid), 100).Iterator()
 				for iter.Next(ctx) {
-					p.redis.Del(ctx, iter.Val())
+					s.server.Redis().Del(ctx, iter.Val())
 				}
 
-				p.redis.SRem(ctx, "server_ids_expire", sid)
+				_ = s.server.DelExpireServer(ctx, sid)
 			}
 		}
 	}

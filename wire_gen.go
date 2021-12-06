@@ -58,8 +58,8 @@ func Initialize(ctx context.Context) *provider.Services {
 	talkMessage := v1.NewTalkMessageHandler(talkMessageService, talkService, talkRecordsVoteDao)
 	talkListDao := dao.NewTalkListDao(baseDao)
 	talkListService := service.NewTalkListService(baseService, talkListDao)
-	serverRunID := cache.NewServerRun(client)
-	wsClientSession := cache.NewWsClientSession(client, config, serverRunID)
+	server := cache.NewServerRun(client)
+	wsClientSession := cache.NewWsClientSession(client, config, server)
 	usersFriendsDao := dao.NewUsersFriends(baseDao, client)
 	talk := v1.NewTalkHandler(talkService, talkListService, redisLock, userService, wsClientSession, lastMessage, usersFriendsDao, unreadTalkCache)
 	talkRecordsService := service.NewTalkRecordsService(baseService, talkVote, talkRecordsVoteDao)
@@ -104,16 +104,16 @@ func Initialize(ctx context.Context) *provider.Services {
 		ContactsApply:    contactApply,
 	}
 	engine := router.NewRouter(config, handlerHandler, session)
-	server := provider.NewHttpServer(config, engine)
-	serverRun := process.NewServerRun(config, serverRunID, client)
+	httpServer := provider.NewHttpServer(config, engine)
+	processServer := process.NewServerRun(config, server)
 	subscribeConsume := handle.NewSubscribeConsume(config, wsClientSession, room, talkRecordsService, contactService)
 	wsSubscribe := process.NewWsSubscribe(client, config, subscribeConsume)
 	heartbeat := process.NewImHeartbeat()
 	clearGarbage := process.NewClearGarbage(client, redisLock)
-	processProcess := process.NewProcessManage(serverRun, wsSubscribe, heartbeat, clearGarbage)
+	processProcess := process.NewProcessManage(processServer, wsSubscribe, heartbeat, clearGarbage)
 	services := &provider.Services{
 		Config:     config,
-		HttpServer: server,
+		HttpServer: httpServer,
 		Process:    processProcess,
 		Redis:      client,
 	}

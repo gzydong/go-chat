@@ -9,28 +9,41 @@ import (
 )
 
 const (
-	ServerRunIdKey = "server_ids"
+	// 正在的运行服务
+	ServerKey = "server_ids"
+
+	// 过期的运行服务
+	ServerKeyExpire = "server_ids_expire"
 
 	// ServerOverTime 运行检测超时时间（单位秒）
-	ServerOverTime = 35
+	ServerOverTime = 50
 )
 
-type ServerRunID struct {
-	Redis *redis.Client
+type Server struct {
+	rds *redis.Client
 }
 
-func NewServerRun(redis *redis.Client) *ServerRunID {
-	return &ServerRunID{Redis: redis}
+func NewServerRun(redis *redis.Client) *Server {
+	return &Server{rds: redis}
 }
 
-func (s *ServerRunID) SetServerID(ctx context.Context, server string, time int64) error {
-	return s.Redis.HSet(ctx, ServerRunIdKey, server, time).Err()
+// SetServer 更新服务心跳时间
+func (s *Server) SetServer(ctx context.Context, server string, time int64) error {
+
+	_ = s.DelExpireServer(ctx, server)
+
+	return s.rds.HSet(ctx, ServerKey, server, time).Err()
 }
 
-// GetServerRunIdAll 获取指定状态的运行ID
+// DelServer 删除指定 Server
+func (s *Server) DelServer(ctx context.Context, server string) error {
+	return s.rds.HDel(ctx, ServerKey, server).Err()
+}
+
+// GetServerAll 获取指定状态的运行 Server
 // status 状态[1:运行中;2:已超时;3:全部]
-func (s *ServerRunID) GetServerRunIdAll(ctx context.Context, status int) []string {
-	result, err := s.Redis.HGetAll(ctx, ServerRunIdKey).Result()
+func (s *Server) GetServerAll(ctx context.Context, status int) []string {
+	result, err := s.rds.HGetAll(ctx, ServerKey).Result()
 
 	slice := make([]string, 0)
 
@@ -61,6 +74,20 @@ func (s *ServerRunID) GetServerRunIdAll(ctx context.Context, status int) []strin
 	return slice
 }
 
-func (s ServerRunID) Del(ctx context.Context, server string) error {
-	return s.Redis.HDel(ctx, ServerRunIdKey, server).Err()
+// SetExpireServer
+func (s *Server) SetExpireServer(ctx context.Context, server string) error {
+	return s.rds.SAdd(ctx, ServerKeyExpire, server).Err()
+}
+
+// DelExpireServer
+func (s *Server) DelExpireServer(ctx context.Context, server string) error {
+	return s.rds.SRem(ctx, ServerKeyExpire, server).Err()
+}
+
+func (s *Server) GetExpireServerAll(ctx context.Context) []string {
+	return s.rds.SMembers(ctx, ServerKeyExpire).Val()
+}
+
+func (s *Server) Redis() *redis.Client {
+	return s.rds
 }
