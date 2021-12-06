@@ -37,7 +37,7 @@ var providerSet = wire.NewSet(
 
 	// 缓存
 	cache.NewSession,
-	cache.NewServerRun,
+	cache.NewSid,
 	cache.NewUnreadTalkCache,
 	cache.NewRedisLock,
 	cache.NewWsClientSession,

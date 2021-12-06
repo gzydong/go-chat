@@ -19,30 +19,30 @@ const (
 	ServerOverTime = 50
 )
 
-type Server struct {
+type SidServer struct {
 	rds *redis.Client
 }
 
-func NewServerRun(redis *redis.Client) *Server {
-	return &Server{rds: redis}
+func NewSid(redis *redis.Client) *SidServer {
+	return &SidServer{rds: redis}
 }
 
 // SetServer 更新服务心跳时间
-func (s *Server) SetServer(ctx context.Context, server string, time int64) error {
+func (s *SidServer) SetServer(ctx context.Context, server string, time int64) error {
 
 	_ = s.DelExpireServer(ctx, server)
 
 	return s.rds.HSet(ctx, ServerKey, server, time).Err()
 }
 
-// DelServer 删除指定 Server
-func (s *Server) DelServer(ctx context.Context, server string) error {
+// DelServer 删除指定 SidServer
+func (s *SidServer) DelServer(ctx context.Context, server string) error {
 	return s.rds.HDel(ctx, ServerKey, server).Err()
 }
 
-// GetServerAll 获取指定状态的运行 Server
+// GetServerAll 获取指定状态的运行 SidServer
 // status 状态[1:运行中;2:已超时;3:全部]
-func (s *Server) GetServerAll(ctx context.Context, status int) []string {
+func (s *SidServer) GetServerAll(ctx context.Context, status int) []string {
 	result, err := s.rds.HGetAll(ctx, ServerKey).Result()
 
 	slice := make([]string, 0)
@@ -75,19 +75,19 @@ func (s *Server) GetServerAll(ctx context.Context, status int) []string {
 }
 
 // SetExpireServer
-func (s *Server) SetExpireServer(ctx context.Context, server string) error {
+func (s *SidServer) SetExpireServer(ctx context.Context, server string) error {
 	return s.rds.SAdd(ctx, ServerKeyExpire, server).Err()
 }
 
 // DelExpireServer
-func (s *Server) DelExpireServer(ctx context.Context, server string) error {
+func (s *SidServer) DelExpireServer(ctx context.Context, server string) error {
 	return s.rds.SRem(ctx, ServerKeyExpire, server).Err()
 }
 
-func (s *Server) GetExpireServerAll(ctx context.Context) []string {
+func (s *SidServer) GetExpireServerAll(ctx context.Context) []string {
 	return s.rds.SMembers(ctx, ServerKeyExpire).Val()
 }
 
-func (s *Server) Redis() *redis.Client {
+func (s *SidServer) Redis() *redis.Client {
 	return s.rds
 }

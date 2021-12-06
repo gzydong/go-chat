@@ -10,10 +10,10 @@ import (
 
 type Server struct {
 	conf   *config.Config
-	server *cache.Server
+	server *cache.SidServer
 }
 
-func NewServerRun(conf *config.Config, server *cache.Server) *Server {
+func NewServerRun(conf *config.Config, server *cache.SidServer) *Server {
 	return &Server{conf: conf, server: server}
 }
 

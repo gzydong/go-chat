@@ -9,12 +9,14 @@ import (
 	"go-chat/app/entity"
 	"go-chat/app/http/request"
 	"go-chat/app/model"
+	"go-chat/app/pkg/im"
 	"go-chat/app/pkg/jsonutil"
 	"go-chat/app/pkg/strutil"
 	"go-chat/app/pkg/timeutil"
 	"go-chat/config"
 	"gorm.io/gorm"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -27,10 +29,12 @@ type TalkMessageService struct {
 	lastMessage        *cache.LastMessage
 	talkRecordsVoteDao *dao.TalkRecordsVoteDao
 	groupMemberDao     *dao.GroupMemberDao
+	sidServer          *cache.SidServer
+	client             *cache.WsClientSession
 }
 
-func NewTalkMessageService(baseService *BaseService, config *config.Config, unreadTalkCache *cache.UnreadTalkCache, forwardService *TalkMessageForwardService, lastMessage *cache.LastMessage, talkRecordsVoteDao *dao.TalkRecordsVoteDao, groupMemberDao *dao.GroupMemberDao) *TalkMessageService {
-	return &TalkMessageService{BaseService: baseService, config: config, unreadTalkCache: unreadTalkCache, forwardService: forwardService, lastMessage: lastMessage, talkRecordsVoteDao: talkRecordsVoteDao, groupMemberDao: groupMemberDao}
+func NewTalkMessageService(baseService *BaseService, config *config.Config, unreadTalkCache *cache.UnreadTalkCache, forwardService *TalkMessageForwardService, lastMessage *cache.LastMessage, talkRecordsVoteDao *dao.TalkRecordsVoteDao, groupMemberDao *dao.GroupMemberDao, sid *cache.SidServer, client *cache.WsClientSession) *TalkMessageService {
+	return &TalkMessageService{BaseService: baseService, config: config, unreadTalkCache: unreadTalkCache, forwardService: forwardService, lastMessage: lastMessage, talkRecordsVoteDao: talkRecordsVoteDao, groupMemberDao: groupMemberDao, sidServer: sid, client: client}
 }
 
 // SendTextMessage 发送文本消息
@@ -459,12 +463,26 @@ func (s *TalkMessageService) afterHandle(ctx context.Context, record *model.Talk
 		}),
 	}
 
-	gateway := entity.SubscribeWsGatewayAll
+	content := jsonutil.JsonEncode(body)
 
 	// 点对点消息采用精确投递
 	if record.TalkType == entity.PrivateChat {
-		// todo ...
-	}
+		sids := s.sidServer.GetServerAll(ctx, 1)
 
-	s.rds.Publish(ctx, gateway, jsonutil.JsonEncode(body))
+		// 小于两台服务器则采用全局广播
+		if len(sids) <= 3 {
+			s.rds.Publish(ctx, entity.SubscribeWsGatewayAll, content)
+		} else {
+			to := []int{record.UserId, record.ReceiverId}
+			for _, sid := range s.sidServer.GetServerAll(ctx, 1) {
+				for _, uid := range to {
+					if s.client.IsCurrentServerOnline(ctx, sid, im.Sessions.Default.Name(), strconv.Itoa(uid)) {
+						s.rds.Publish(ctx, entity.GetSubscribeWsGatewayPrivate(sid), content)
+					}
+				}
+			}
+		}
+	} else {
+		s.rds.Publish(ctx, entity.SubscribeWsGatewayAll, content)
+	}
 }

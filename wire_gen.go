@@ -52,14 +52,14 @@ func Initialize(ctx context.Context) *provider.Services {
 	talkVote := cache.NewTalkVote(client)
 	talkRecordsVoteDao := dao.NewTalkRecordsVoteDao(baseDao, talkVote)
 	groupMemberDao := dao.NewGroupMemberDao(baseDao)
-	talkMessageService := service.NewTalkMessageService(baseService, config, unreadTalkCache, talkMessageForwardService, lastMessage, talkRecordsVoteDao, groupMemberDao)
+	sidServer := cache.NewSid(client)
+	wsClientSession := cache.NewWsClientSession(client, config, sidServer)
+	talkMessageService := service.NewTalkMessageService(baseService, config, unreadTalkCache, talkMessageForwardService, lastMessage, talkRecordsVoteDao, groupMemberDao, sidServer, wsClientSession)
 	groupMemberService := service.NewGroupMemberService(groupMemberDao)
 	talkService := service.NewTalkService(baseService, groupMemberService)
 	talkMessage := v1.NewTalkMessageHandler(talkMessageService, talkService, talkRecordsVoteDao)
 	talkListDao := dao.NewTalkListDao(baseDao)
 	talkListService := service.NewTalkListService(baseService, talkListDao)
-	server := cache.NewServerRun(client)
-	wsClientSession := cache.NewWsClientSession(client, config, server)
 	usersFriendsDao := dao.NewUsersFriends(baseDao, client)
 	talk := v1.NewTalkHandler(talkService, talkListService, redisLock, userService, wsClientSession, lastMessage, usersFriendsDao, unreadTalkCache)
 	talkRecordsService := service.NewTalkRecordsService(baseService, talkVote, talkRecordsVoteDao)
@@ -104,8 +104,8 @@ func Initialize(ctx context.Context) *provider.Services {
 		ContactsApply:    contactApply,
 	}
 	engine := router.NewRouter(config, handlerHandler, session)
-	httpServer := provider.NewHttpServer(config, engine)
-	processServer := process.NewServerRun(config, server)
+	server := provider.NewHttpServer(config, engine)
+	processServer := process.NewServerRun(config, sidServer)
 	subscribeConsume := handle.NewSubscribeConsume(config, wsClientSession, room, talkRecordsService, contactService)
 	wsSubscribe := process.NewWsSubscribe(client, config, subscribeConsume)
 	heartbeat := process.NewImHeartbeat()
@@ -113,7 +113,7 @@ func Initialize(ctx context.Context) *provider.Services {
 	processProcess := process.NewProcessManage(processServer, wsSubscribe, heartbeat, clearGarbage)
 	services := &provider.Services{
 		Config:     config,
-		HttpServer: httpServer,
+		HttpServer: server,
 		Process:    processProcess,
 		Redis:      client,
 	}
@@ -122,4 +122,4 @@ func Initialize(ctx context.Context) *provider.Services {
 
 // wire.go:
 
-var providerSet = wire.NewSet(provider.NewConfig, provider.NewLogger, provider.NewMySQLClient, provider.NewRedisClient, provider.NewHttpClient, provider.NewHttpServer, router.NewRouter, filesystem.NewFilesystem, cache.NewSession, cache.NewServerRun, cache.NewUnreadTalkCache, cache.NewRedisLock, cache.NewWsClientSession, cache.NewLastMessage, cache.NewTalkVote, cache.NewGroupRoom, wire.Struct(new(cache.SmsCodeCache), "*"), dao.NewBaseDao, dao.NewUsersFriends, dao.NewGroupMemberDao, dao.NewUserDao, dao.NewGroupDao, wire.Struct(new(dao.TalkRecordsDao), "*"), wire.Struct(new(dao.TalkRecordsCodeDao), "*"), wire.Struct(new(dao.TalkRecordsLoginDao), "*"), wire.Struct(new(dao.TalkRecordsFileDao), "*"), wire.Struct(new(dao.GroupNoticeDao), "*"), dao.NewTalkListDao, dao.NewEmoticonDao, dao.NewTalkRecordsVoteDao, service.NewBaseService, service.NewUserService, service.NewSmsService, service.NewTalkService, service.NewTalkMessageService, service.NewClientService, service.NewGroupService, service.NewGroupMemberService, service.NewGroupNoticeService, service.NewTalkListService, service.NewTalkMessageForwardService, service.NewEmoticonService, service.NewTalkRecordsService, service.NewContactService, service.NewContactsApplyService, v1.NewAuthHandler, v1.NewCommonHandler, v1.NewUserHandler, v1.NewContactHandler, v1.NewContactsApplyHandler, v1.NewGroupHandler, v1.NewGroupNoticeHandler, v1.NewTalkHandler, v1.NewTalkMessageHandler, v1.NewUploadHandler, v1.NewDownloadHandler, v1.NewEmoticonHandler, v1.NewTalkRecordsHandler, open.NewIndexHandler, ws.NewDefaultWebSocket, wire.Struct(new(handler.Handler), "*"), wire.Struct(new(provider.Services), "*"), process.NewWsSubscribe, process.NewServerRun, process.NewProcessManage, process.NewImHeartbeat, process.NewClearGarbage, handle.NewSubscribeConsume)
+var providerSet = wire.NewSet(provider.NewConfig, provider.NewLogger, provider.NewMySQLClient, provider.NewRedisClient, provider.NewHttpClient, provider.NewHttpServer, router.NewRouter, filesystem.NewFilesystem, cache.NewSession, cache.NewSid, cache.NewUnreadTalkCache, cache.NewRedisLock, cache.NewWsClientSession, cache.NewLastMessage, cache.NewTalkVote, cache.NewGroupRoom, wire.Struct(new(cache.SmsCodeCache), "*"), dao.NewBaseDao, dao.NewUsersFriends, dao.NewGroupMemberDao, dao.NewUserDao, dao.NewGroupDao, wire.Struct(new(dao.TalkRecordsDao), "*"), wire.Struct(new(dao.TalkRecordsCodeDao), "*"), wire.Struct(new(dao.TalkRecordsLoginDao), "*"), wire.Struct(new(dao.TalkRecordsFileDao), "*"), wire.Struct(new(dao.GroupNoticeDao), "*"), dao.NewTalkListDao, dao.NewEmoticonDao, dao.NewTalkRecordsVoteDao, service.NewBaseService, service.NewUserService, service.NewSmsService, service.NewTalkService, service.NewTalkMessageService, service.NewClientService, service.NewGroupService, service.NewGroupMemberService, service.NewGroupNoticeService, service.NewTalkListService, service.NewTalkMessageForwardService, service.NewEmoticonService, service.NewTalkRecordsService, service.NewContactService, service.NewContactsApplyService, v1.NewAuthHandler, v1.NewCommonHandler, v1.NewUserHandler, v1.NewContactHandler, v1.NewContactsApplyHandler, v1.NewGroupHandler, v1.NewGroupNoticeHandler, v1.NewTalkHandler, v1.NewTalkMessageHandler, v1.NewUploadHandler, v1.NewDownloadHandler, v1.NewEmoticonHandler, v1.NewTalkRecordsHandler, open.NewIndexHandler, ws.NewDefaultWebSocket, wire.Struct(new(handler.Handler), "*"), wire.Struct(new(provider.Services), "*"), process.NewWsSubscribe, process.NewServerRun, process.NewProcessManage, process.NewImHeartbeat, process.NewClearGarbage, handle.NewSubscribeConsume)

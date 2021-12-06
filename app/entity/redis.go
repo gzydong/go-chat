@@ -1,7 +1,12 @@
 package entity
 
+import "fmt"
+
 const (
 	SubscribeWsGatewayAll     = "ws:gateway:all"
 	SubscribeWsGatewayPrivate = "ws:gateway:%s"
-	SubscribeCreateGroup      = "subscribe_join_group"
 )
+
+func GetSubscribeWsGatewayPrivate(sid string) string {
+	return fmt.Sprintf(SubscribeWsGatewayPrivate, sid)
+}

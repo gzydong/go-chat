@@ -11,7 +11,7 @@ import (
 type ClearGarbage struct {
 	redis  *redis.Client
 	lock   *cache.RedisLock
-	server *cache.Server
+	server *cache.SidServer
 }
 
 // 清除 Websocket 相关过期垃圾数据

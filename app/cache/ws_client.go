@@ -11,13 +11,13 @@ import (
 type WsClientSession struct {
 	rds    *redis.Client
 	conf   *config.Config
-	server *Server
+	server *SidServer
 }
 
 func NewWsClientSession(
 	rds *redis.Client,
 	conf *config.Config,
-	server *Server,
+	server *SidServer,
 ) *WsClientSession {
 	return &WsClientSession{rds, conf, server}
 }
