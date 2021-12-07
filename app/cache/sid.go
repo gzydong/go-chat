@@ -23,8 +23,8 @@ type SidServer struct {
 	rds *redis.Client
 }
 
-func NewSid(redis *redis.Client) *SidServer {
-	return &SidServer{rds: redis}
+func NewSid(rds *redis.Client) *SidServer {
+	return &SidServer{rds: rds}
 }
 
 // SetServer 更新服务心跳时间

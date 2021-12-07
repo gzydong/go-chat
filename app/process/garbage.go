@@ -15,8 +15,8 @@ type ClearGarbage struct {
 }
 
 // 清除 Websocket 相关过期垃圾数据
-func NewClearGarbage(redis *redis.Client, lock *cache.RedisLock) *ClearGarbage {
-	return &ClearGarbage{redis: redis, lock: lock}
+func NewClearGarbage(redis *redis.Client, lock *cache.RedisLock, server *cache.SidServer) *ClearGarbage {
+	return &ClearGarbage{redis: redis, lock: lock, server: server}
 }
 
 func (s *ClearGarbage) Handle(ctx context.Context) error {

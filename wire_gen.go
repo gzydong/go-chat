@@ -109,7 +109,7 @@ func Initialize(ctx context.Context) *provider.Services {
 	subscribeConsume := handle.NewSubscribeConsume(config, wsClientSession, room, talkRecordsService, contactService)
 	wsSubscribe := process.NewWsSubscribe(client, config, subscribeConsume)
 	heartbeat := process.NewImHeartbeat()
-	clearGarbage := process.NewClearGarbage(client, redisLock)
+	clearGarbage := process.NewClearGarbage(client, redisLock, sidServer)
 	processProcess := process.NewProcessManage(processServer, wsSubscribe, heartbeat, clearGarbage)
 	services := &provider.Services{
 		Config:     config,
