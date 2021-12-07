@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"errors"
+	"go-chat/app/pkg/im"
 	_ "go-chat/app/pkg/validation"
 	"log"
 	"net/http"
@@ -16,6 +17,9 @@ import (
 )
 
 func main() {
+	// 初始化 IM 渠道配置，后面将 IM 独立拆分部署，Http 服务下无需加载
+	im.Initialize()
+
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
