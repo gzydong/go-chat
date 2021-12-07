@@ -10,7 +10,6 @@ import (
 	"go-chat/app/http/request"
 	"go-chat/app/http/response"
 	"go-chat/app/pkg/auth"
-	"go-chat/app/pkg/im"
 	"go-chat/app/pkg/strutil"
 	"go-chat/app/pkg/timeutil"
 	"go-chat/app/service"
@@ -81,7 +80,7 @@ func (c *Talk) List(ctx *gin.Context) {
 			value.Avatar = item.UserAvatar
 			value.RemarkName = c.usersFriendsDao.GetFriendRemark(ctx.Request.Context(), uid, item.ReceiverId)
 			value.UnreadNum = c.unreadTalkCache.Get(ctx.Request.Context(), item.ReceiverId, uid)
-			value.IsOnline = strutil.BoolToInt(c.wsClient.IsOnline(ctx, im.Sessions.Default.Name(), strconv.Itoa(value.ReceiverId)))
+			value.IsOnline = strutil.BoolToInt(c.wsClient.IsOnline(ctx, entity.ImChannelDefault, strconv.Itoa(value.ReceiverId)))
 		} else {
 			value.Name = item.GroupName
 			value.Avatar = item.GroupAvatar

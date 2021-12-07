@@ -9,7 +9,6 @@ import (
 	"go-chat/app/entity"
 	"go-chat/app/http/request"
 	"go-chat/app/model"
-	"go-chat/app/pkg/im"
 	"go-chat/app/pkg/jsonutil"
 	"go-chat/app/pkg/strutil"
 	"go-chat/app/pkg/timeutil"
@@ -476,7 +475,7 @@ func (s *TalkMessageService) afterHandle(ctx context.Context, record *model.Talk
 			to := []int{record.UserId, record.ReceiverId}
 			for _, sid := range s.sidServer.GetServerAll(ctx, 1) {
 				for _, uid := range to {
-					if s.client.IsCurrentServerOnline(ctx, sid, im.Sessions.Default.Name(), strconv.Itoa(uid)) {
+					if s.client.IsCurrentServerOnline(ctx, sid, entity.ImChannelDefault, strconv.Itoa(uid)) {
 						s.rds.Publish(ctx, entity.GetSubscribeWsGatewayPrivate(sid), content)
 					}
 				}

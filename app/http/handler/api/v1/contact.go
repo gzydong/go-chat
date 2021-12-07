@@ -4,10 +4,10 @@ import (
 	"errors"
 	"github.com/gin-gonic/gin"
 	"go-chat/app/cache"
+	"go-chat/app/entity"
 	"go-chat/app/http/request"
 	"go-chat/app/http/response"
 	"go-chat/app/pkg/auth"
-	"go-chat/app/pkg/im"
 	"go-chat/app/pkg/strutil"
 	"go-chat/app/service"
 	"gorm.io/gorm"
@@ -42,7 +42,7 @@ func (c *Contact) List(ctx *gin.Context) {
 	}
 
 	for _, item := range items {
-		isOnline := c.wsClient.IsOnline(ctx, im.Sessions.Default.Name(), strconv.Itoa(item.Id))
+		isOnline := c.wsClient.IsOnline(ctx, entity.ImChannelDefault, strconv.Itoa(item.Id))
 		item.IsOnline = strutil.BoolToInt(isOnline)
 	}
 
