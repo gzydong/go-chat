@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-type Services struct {
+type Providers struct {
 	Config     *config.Config
 	HttpServer *http.Server
 	Process    *process.Process

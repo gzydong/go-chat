@@ -29,7 +29,7 @@ import (
 
 // Injectors from wire.go:
 
-func Initialize(ctx context.Context) *provider.Services {
+func Initialize(ctx context.Context) *provider.Providers {
 	config := provider.NewConfig()
 	client := provider.NewRedisClient(ctx, config)
 	smsCodeCache := &cache.SmsCodeCache{
@@ -111,15 +111,14 @@ func Initialize(ctx context.Context) *provider.Services {
 	heartbeat := process.NewImHeartbeat()
 	clearGarbage := process.NewClearGarbage(client, redisLock, sidServer)
 	processProcess := process.NewProcessManage(processServer, wsSubscribe, heartbeat, clearGarbage)
-	services := &provider.Services{
+	providers := &provider.Providers{
 		Config:     config,
 		HttpServer: server,
 		Process:    processProcess,
-		Redis:      client,
 	}
-	return services
+	return providers
 }
 
 // wire.go:
 
-var providerSet = wire.NewSet(provider.NewConfig, provider.NewLogger, provider.NewMySQLClient, provider.NewRedisClient, provider.NewHttpClient, provider.NewHttpServer, router.NewRouter, filesystem.NewFilesystem, cache.NewSession, cache.NewSid, cache.NewUnreadTalkCache, cache.NewRedisLock, cache.NewWsClientSession, cache.NewLastMessage, cache.NewTalkVote, cache.NewGroupRoom, wire.Struct(new(cache.SmsCodeCache), "*"), dao.NewBaseDao, dao.NewUsersFriends, dao.NewGroupMemberDao, dao.NewUserDao, dao.NewGroupDao, wire.Struct(new(dao.TalkRecordsDao), "*"), wire.Struct(new(dao.TalkRecordsCodeDao), "*"), wire.Struct(new(dao.TalkRecordsLoginDao), "*"), wire.Struct(new(dao.TalkRecordsFileDao), "*"), wire.Struct(new(dao.GroupNoticeDao), "*"), dao.NewTalkListDao, dao.NewEmoticonDao, dao.NewTalkRecordsVoteDao, service.NewBaseService, service.NewUserService, service.NewSmsService, service.NewTalkService, service.NewTalkMessageService, service.NewClientService, service.NewGroupService, service.NewGroupMemberService, service.NewGroupNoticeService, service.NewTalkListService, service.NewTalkMessageForwardService, service.NewEmoticonService, service.NewTalkRecordsService, service.NewContactService, service.NewContactsApplyService, v1.NewAuthHandler, v1.NewCommonHandler, v1.NewUserHandler, v1.NewContactHandler, v1.NewContactsApplyHandler, v1.NewGroupHandler, v1.NewGroupNoticeHandler, v1.NewTalkHandler, v1.NewTalkMessageHandler, v1.NewUploadHandler, v1.NewDownloadHandler, v1.NewEmoticonHandler, v1.NewTalkRecordsHandler, open.NewIndexHandler, ws.NewDefaultWebSocket, wire.Struct(new(handler.Handler), "*"), wire.Struct(new(provider.Services), "*"), process.NewWsSubscribe, process.NewServerRun, process.NewProcessManage, process.NewImHeartbeat, process.NewClearGarbage, handle.NewSubscribeConsume)
+var providerSet = wire.NewSet(provider.NewConfig, provider.NewLogger, provider.NewMySQLClient, provider.NewRedisClient, provider.NewHttpClient, provider.NewHttpServer, router.NewRouter, filesystem.NewFilesystem, cache.NewSession, cache.NewSid, cache.NewUnreadTalkCache, cache.NewRedisLock, cache.NewWsClientSession, cache.NewLastMessage, cache.NewTalkVote, cache.NewGroupRoom, wire.Struct(new(cache.SmsCodeCache), "*"), dao.NewBaseDao, dao.NewUsersFriends, dao.NewGroupMemberDao, dao.NewUserDao, dao.NewGroupDao, wire.Struct(new(dao.TalkRecordsDao), "*"), wire.Struct(new(dao.TalkRecordsCodeDao), "*"), wire.Struct(new(dao.TalkRecordsLoginDao), "*"), wire.Struct(new(dao.TalkRecordsFileDao), "*"), wire.Struct(new(dao.GroupNoticeDao), "*"), dao.NewTalkListDao, dao.NewEmoticonDao, dao.NewTalkRecordsVoteDao, service.NewBaseService, service.NewUserService, service.NewSmsService, service.NewTalkService, service.NewTalkMessageService, service.NewClientService, service.NewGroupService, service.NewGroupMemberService, service.NewGroupNoticeService, service.NewTalkListService, service.NewTalkMessageForwardService, service.NewEmoticonService, service.NewTalkRecordsService, service.NewContactService, service.NewContactsApplyService, v1.NewAuthHandler, v1.NewCommonHandler, v1.NewUserHandler, v1.NewContactHandler, v1.NewContactsApplyHandler, v1.NewGroupHandler, v1.NewGroupNoticeHandler, v1.NewTalkHandler, v1.NewTalkMessageHandler, v1.NewUploadHandler, v1.NewDownloadHandler, v1.NewEmoticonHandler, v1.NewTalkRecordsHandler, open.NewIndexHandler, ws.NewDefaultWebSocket, wire.Struct(new(handler.Handler), "*"), wire.Struct(new(provider.Providers), "*"), process.NewWsSubscribe, process.NewServerRun, process.NewProcessManage, process.NewImHeartbeat, process.NewClearGarbage, handle.NewSubscribeConsume)
