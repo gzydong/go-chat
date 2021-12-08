@@ -7,6 +7,7 @@ import (
 	"go-chat/app/dao"
 	"go-chat/app/http/request"
 	"go-chat/app/http/response"
+	"go-chat/app/model"
 	"go-chat/app/pkg/auth"
 	"go-chat/app/pkg/slice"
 	"go-chat/app/pkg/timeutil"
@@ -19,6 +20,7 @@ type Group struct {
 	talkListService *service.TalkListService
 	userDao         *dao.UserDao
 	redisLock       *cache.RedisLock
+	contactService  *service.ContactService
 }
 
 func NewGroupHandler(
@@ -27,6 +29,7 @@ func NewGroupHandler(
 	talkListService *service.TalkListService,
 	userRepo *dao.UserDao,
 	redisLock *cache.RedisLock,
+	contactService *service.ContactService,
 ) *Group {
 	return &Group{
 		service:         service,
@@ -34,6 +37,7 @@ func NewGroupHandler(
 		talkListService: talkListService,
 		userDao:         userRepo,
 		redisLock:       redisLock,
+		contactService:  contactService,
 	}
 }
 
@@ -198,7 +202,37 @@ func (c *Group) EditRemark(ctx *gin.Context) {
 }
 
 func (c *Group) GetInviteFriends(ctx *gin.Context) {
+	params := &request.GetInviteFriendsRequest{}
+	if err := ctx.ShouldBind(params); err != nil {
+		response.InvalidParams(ctx, err)
+		return
+	}
 
+	items, err := c.contactService.List(ctx, auth.GetAuthUserID(ctx))
+	if err != nil {
+		response.BusinessError(ctx, err)
+		return
+	}
+
+	if params.GroupId <= 0 {
+		response.Success(ctx, items)
+		return
+	}
+
+	mids := c.memberService.Dao().GetMemberIds(params.GroupId)
+	if len(mids) == 0 {
+		response.Success(ctx, items)
+		return
+	}
+
+	data := make([]*model.ContactListItem, 0)
+	for i := 0; i < len(items); i++ {
+		if !slice.InInt(items[i].Id, mids) {
+			data = append(data, items[i])
+		}
+	}
+
+	response.Success(ctx, data)
 }
 
 func (c *Group) GetGroups(ctx *gin.Context) {

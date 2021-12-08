@@ -71,9 +71,10 @@ func RegisterApiRoute(conf *config.Config, router *gin.Engine, handler *handler.
 			userGroup.POST("/setting", handler.Group.Setting) // 设置群组信息
 
 			// 群成员相关
-			userGroup.GET("/members", handler.Group.GetGroupMembers)       // 群成员列表
-			userGroup.POST("/members/remove", handler.Group.RemoveMembers) // 移出指定群成员
-			userGroup.POST("/members/remark", handler.Group.EditRemark)    // 设置群名片
+			userGroup.GET("/members", handler.Group.GetGroupMembers)          // 群成员列表
+			userGroup.GET("/members/invites", handler.Group.GetInviteFriends) // 群成员列表
+			userGroup.POST("/members/remove", handler.Group.RemoveMembers)    // 移出指定群成员
+			userGroup.POST("/members/remark", handler.Group.EditRemark)       // 设置群名片
 
 			// 群公告相关
 			userGroup.GET("/notice/list", handler.GroupNotice.List)             // 群公告列表

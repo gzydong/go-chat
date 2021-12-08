@@ -93,7 +93,25 @@ func (s *GroupService) Create(ctx *gin.Context, request *request.GroupCreateRequ
 			return err
 		}
 
-		// 需要插入群邀请记录
+		record := &model.TalkRecords{
+			TalkType:   entity.GroupChat,
+			ReceiverId: group.Id,
+			MsgType:    entity.MsgTypeGroupInvite,
+		}
+		if err = tx.Create(record).Error; err != nil {
+			return err
+		}
+
+		invite := &model.TalkRecordsInvite{
+			RecordId:      record.ID,
+			Type:          1,
+			OperateUserId: uid,
+			UserIds:       slice.IntToIds(mids[0 : len(mids)-1]),
+		}
+
+		if err = tx.Create(invite).Error; err != nil {
+			return err
+		}
 
 		return nil
 	})

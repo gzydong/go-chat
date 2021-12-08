@@ -3,7 +3,9 @@ package dao
 import (
 	"context"
 	"fmt"
+	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis/v8"
+	"go-chat/app/model"
 )
 
 type UsersFriendsDao struct {
@@ -25,5 +27,6 @@ func (dao *UsersFriendsDao) GetFriendRemark(ctx context.Context, uid int, friend
 }
 
 func (dao *UsersFriendsDao) SetFriendRemark(ctx context.Context, uid int, friendId int, remark string) error {
-	return nil
+	_, err := dao.BaseUpdate(&model.UsersFriends{}, gin.H{"user_id": uid, "friend_id": friendId}, gin.H{"remark": remark})
+	return err
 }

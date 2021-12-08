@@ -8,6 +8,7 @@ import (
 	"go-chat/app/http/dto"
 	"go-chat/app/model"
 	"go-chat/app/pkg/jsonutil"
+	"go-chat/app/pkg/slice"
 	"go-chat/app/pkg/timeutil"
 	"sort"
 	"time"
@@ -181,56 +182,56 @@ func (s *TalkRecordsService) HandleTalkRecords(ctx context.Context, items []*Que
 	hashFiles := make(map[int]*model.TalkRecordsFile)
 	if len(files) > 0 {
 		s.db.Model(&model.TalkRecordsFile{}).Where("record_id in ?", files).Scan(&fileItems)
-		for _, item := range fileItems {
-			hashFiles[item.RecordId] = item
+		for i := range fileItems {
+			hashFiles[fileItems[i].RecordId] = fileItems[i]
 		}
 	}
 
 	hashForwards := make(map[int]*model.TalkRecordsForward)
 	if len(forwards) > 0 {
 		s.db.Model(&model.TalkRecordsForward{}).Where("record_id in ?", forwards).Scan(&forwardItems)
-		for _, item := range forwardItems {
-			hashForwards[item.RecordId] = item
+		for i := range forwardItems {
+			hashForwards[forwardItems[i].RecordId] = forwardItems[i]
 		}
 	}
 
 	hashCodes := make(map[int]*model.TalkRecordsCode)
 	if len(codes) > 0 {
 		s.db.Model(&model.TalkRecordsCode{}).Where("record_id in ?", codes).Select("record_id", "code_lang", "code").Scan(&codeItems)
-		for _, item := range codeItems {
-			hashCodes[item.RecordId] = item
+		for i := range codeItems {
+			hashCodes[codeItems[i].RecordId] = codeItems[i]
 		}
 	}
 
 	hashVotes := make(map[int]*model.TalkRecordsVote)
 	if len(votes) > 0 {
 		s.db.Model(&model.TalkRecordsVote{}).Where("record_id in ?", votes).Scan(&voteItems)
-		for _, item := range voteItems {
-			hashVotes[item.RecordId] = item
+		for i := range voteItems {
+			hashVotes[voteItems[i].RecordId] = voteItems[i]
 		}
 	}
 
 	hashLogins := make(map[int]*model.TalkRecordsLogin)
 	if len(logins) > 0 {
 		s.db.Model(&model.TalkRecordsLogin{}).Where("record_id in ?", votes).Scan(&loginItems)
-		for _, item := range loginItems {
-			hashLogins[item.RecordId] = item
+		for i := range loginItems {
+			hashLogins[loginItems[i].RecordId] = loginItems[i]
 		}
 	}
 
 	hashInvites := make(map[int]*model.TalkRecordsInvite)
 	if len(invites) > 0 {
 		s.db.Model(&model.TalkRecordsInvite{}).Where("record_id in ?", invites).Scan(&inviteItems)
-		for _, item := range inviteItems {
-			hashInvites[item.RecordId] = item
+		for i := range inviteItems {
+			hashInvites[inviteItems[i].RecordId] = inviteItems[i]
 		}
 	}
 
 	hashLocations := make(map[int]*model.TalkRecordsLocation)
 	if len(locations) > 0 {
 		s.db.Model(&model.TalkRecordsLocation{}).Where("record_id in ?", locations).Scan(&locationItems)
-		for _, item := range locationItems {
-			hashLocations[item.RecordId] = item
+		for i := range locationItems {
+			hashLocations[locationItems[i].RecordId] = locationItems[i]
 		}
 	}
 
@@ -322,7 +323,26 @@ func (s *TalkRecordsService) HandleTalkRecords(ctx context.Context, items []*Que
 				data.Login = value
 			}
 		case entity.MsgTypeGroupInvite:
+			if value, ok := hashInvites[item.ID]; ok {
+				m := map[string]interface{}{
+					"type": value.Type,
+					"operate_user": map[string]interface{}{
+						"id":       value.OperateUserId,
+						"nickname": "sf",
+					},
+					"users": map[string]interface{}{},
+				}
 
+				if value.Type == 1 || value.Type == 3 {
+					var results []map[string]interface{}
+					s.db.Model(&model.User{}).Select("id", "nickname").Where("id in ?", slice.ParseIds(value.UserIds)).Scan(&results)
+					m["users"] = results
+				} else {
+					m["users"] = m["operate_user"]
+				}
+
+				data.Invite = m
+			}
 		case entity.MsgTypeLocation:
 			if value, ok := hashLocations[item.ID]; ok {
 				data.Location = value

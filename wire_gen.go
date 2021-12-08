@@ -76,13 +76,13 @@ func Initialize(ctx context.Context) *provider.Services {
 	defaultWebSocket := ws.NewDefaultWebSocket(client, config, clientService, room, groupMemberService)
 	groupDao := dao.NewGroupDao(baseDao)
 	groupService := service.NewGroupService(baseService, groupDao, groupMemberDao)
-	group := v1.NewGroupHandler(groupService, groupMemberService, talkListService, userDao, redisLock)
+	contactService := service.NewContactService(baseService)
+	group := v1.NewGroupHandler(groupService, groupMemberService, talkListService, userDao, redisLock, contactService)
 	groupNoticeDao := &dao.GroupNoticeDao{
 		BaseDao: baseDao,
 	}
 	groupNoticeService := service.NewGroupNoticeService(groupNoticeDao)
 	groupNotice := v1.NewGroupNoticeHandler(groupNoticeService, groupMemberService)
-	contactService := service.NewContactService(baseService)
 	contact := v1.NewContactHandler(contactService, wsClientSession, userService)
 	contactApplyService := service.NewContactsApplyService(baseService)
 	contactApply := v1.NewContactsApplyHandler(contactApplyService, userService)

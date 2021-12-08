@@ -58,3 +58,7 @@ type GroupDeleteNoticeRequest struct {
 	GroupCommonRequest
 	NoticeId int `form:"notice_id" json:"notice_id" binding:"required"`
 }
+
+type GetInviteFriendsRequest struct {
+	GroupId int `form:"group_id" json:"group_id" binding:"min=0"`
+}
