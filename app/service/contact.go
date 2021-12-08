@@ -2,15 +2,21 @@ package service
 
 import (
 	"context"
+	"go-chat/app/dao"
 	"go-chat/app/model"
 )
 
 type ContactService struct {
 	*BaseService
+	dao *dao.UsersFriendsDao
 }
 
-func NewContactService(base *BaseService) *ContactService {
-	return &ContactService{BaseService: base}
+func NewContactService(baseService *BaseService, dao *dao.UsersFriendsDao) *ContactService {
+	return &ContactService{BaseService: baseService, dao: dao}
+}
+
+func (s *ContactService) Dao() *dao.UsersFriendsDao {
+	return s.dao
 }
 
 // EditRemark 编辑联系人备注

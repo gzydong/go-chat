@@ -39,8 +39,8 @@ func Initialize(ctx context.Context) *provider.Services {
 	db := provider.NewMySQLClient(config)
 	baseDao := dao.NewBaseDao(db)
 	userDao := dao.NewUserDao(baseDao)
-	common := v1.NewCommonHandler(config, smsService, userDao)
 	userService := service.NewUserService(userDao)
+	common := v1.NewCommonHandler(config, smsService, userService)
 	session := cache.NewSession(client)
 	redisLock := cache.NewRedisLock(client)
 	auth := v1.NewAuthHandler(config, userService, smsService, session, redisLock)
@@ -61,7 +61,8 @@ func Initialize(ctx context.Context) *provider.Services {
 	talkListDao := dao.NewTalkListDao(baseDao)
 	talkListService := service.NewTalkListService(baseService, talkListDao)
 	usersFriendsDao := dao.NewUsersFriends(baseDao, client)
-	talk := v1.NewTalkHandler(talkService, talkListService, redisLock, userService, wsClientSession, lastMessage, usersFriendsDao, unreadTalkCache)
+	contactService := service.NewContactService(baseService, usersFriendsDao)
+	talk := v1.NewTalkHandler(talkService, talkListService, redisLock, userService, wsClientSession, lastMessage, unreadTalkCache, contactService)
 	talkRecordsService := service.NewTalkRecordsService(baseService, talkVote, talkRecordsVoteDao)
 	talkRecords := v1.NewTalkRecordsHandler(talkRecordsService)
 	download := v1.NewDownloadHandler()
@@ -76,8 +77,7 @@ func Initialize(ctx context.Context) *provider.Services {
 	defaultWebSocket := ws.NewDefaultWebSocket(client, config, clientService, room, groupMemberService)
 	groupDao := dao.NewGroupDao(baseDao)
 	groupService := service.NewGroupService(baseService, groupDao, groupMemberDao)
-	contactService := service.NewContactService(baseService)
-	group := v1.NewGroupHandler(groupService, groupMemberService, talkListService, userDao, redisLock, contactService)
+	group := v1.NewGroupHandler(groupService, groupMemberService, talkListService, redisLock, contactService, userService)
 	groupNoticeDao := &dao.GroupNoticeDao{
 		BaseDao: baseDao,
 	}

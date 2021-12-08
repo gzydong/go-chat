@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"go-chat/app/cache"
-	"go-chat/app/dao"
 	"go-chat/app/entity"
 	"go-chat/app/http/dto"
 	"go-chat/app/http/request"
@@ -24,7 +23,7 @@ type Talk struct {
 	userService     *service.UserService
 	wsClient        *cache.WsClientSession
 	lastMessage     *cache.LastMessage
-	usersFriendsDao *dao.UsersFriendsDao
+	contactService  *service.ContactService
 	unreadTalkCache *cache.UnreadTalkCache
 }
 
@@ -35,8 +34,8 @@ func NewTalkHandler(
 	userService *service.UserService,
 	wsClient *cache.WsClientSession,
 	lastMessage *cache.LastMessage,
-	usersFriendsDao *dao.UsersFriendsDao,
 	unreadTalkCache *cache.UnreadTalkCache,
+	contactService *service.ContactService,
 ) *Talk {
 	return &Talk{
 		service:         service,
@@ -45,8 +44,8 @@ func NewTalkHandler(
 		userService:     userService,
 		wsClient:        wsClient,
 		lastMessage:     lastMessage,
-		usersFriendsDao: usersFriendsDao,
 		unreadTalkCache: unreadTalkCache,
+		contactService:  contactService,
 	}
 }
 
@@ -78,7 +77,7 @@ func (c *Talk) List(ctx *gin.Context) {
 		if item.TalkType == 1 {
 			value.Name = item.Nickname
 			value.Avatar = item.UserAvatar
-			value.RemarkName = c.usersFriendsDao.GetFriendRemark(ctx.Request.Context(), uid, item.ReceiverId)
+			value.RemarkName = c.contactService.Dao().GetFriendRemark(ctx.Request.Context(), uid, item.ReceiverId)
 			value.UnreadNum = c.unreadTalkCache.Get(ctx.Request.Context(), item.ReceiverId, uid)
 			value.IsOnline = strutil.BoolToInt(c.wsClient.IsOnline(ctx, entity.ImChannelDefault, strconv.Itoa(value.ReceiverId)))
 		} else {

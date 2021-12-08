@@ -2,7 +2,6 @@ package v1
 
 import (
 	"github.com/gin-gonic/gin"
-	"go-chat/app/dao"
 	"go-chat/app/entity"
 	"go-chat/app/http/request"
 	"go-chat/app/http/response"
@@ -12,20 +11,20 @@ import (
 )
 
 type Common struct {
-	config     *config.Config
-	smsService *service.SmsService
-	userDao    *dao.UserDao
+	config      *config.Config
+	smsService  *service.SmsService
+	userService *service.UserService
 }
 
 func NewCommonHandler(
 	config *config.Config,
 	sms *service.SmsService,
-	user *dao.UserDao,
+	userService *service.UserService,
 ) *Common {
 	return &Common{
-		config:     config,
-		smsService: sms,
-		userDao:    user,
+		config:      config,
+		smsService:  sms,
+		userService: userService,
 	}
 }
 
@@ -40,14 +39,14 @@ func (c *Common) SmsCode(ctx *gin.Context) {
 	switch params.Channel {
 	// 需要判断账号是否存在
 	case entity.SmsLoginChannel, entity.SmsForgetAccountChannel:
-		if !c.userDao.IsMobileExist(params.Mobile) {
+		if !c.userService.Dao().IsMobileExist(params.Mobile) {
 			response.BusinessError(ctx, "账号不存在！")
 			return
 		}
 
 	// 需要判断账号是否存在
 	case entity.SmsRegisterChannel, entity.SmsChangeAccountChannel:
-		if c.userDao.IsMobileExist(params.Mobile) {
+		if c.userService.Dao().IsMobileExist(params.Mobile) {
 			response.BusinessError(ctx, "手机号已被他人使用！")
 			return
 		}

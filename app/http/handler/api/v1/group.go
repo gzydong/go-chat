@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"go-chat/app/cache"
-	"go-chat/app/dao"
 	"go-chat/app/http/request"
 	"go-chat/app/http/response"
 	"go-chat/app/model"
@@ -18,7 +17,7 @@ type Group struct {
 	service         *service.GroupService
 	memberService   *service.GroupMemberService
 	talkListService *service.TalkListService
-	userDao         *dao.UserDao
+	userService     *service.UserService
 	redisLock       *cache.RedisLock
 	contactService  *service.ContactService
 }
@@ -27,17 +26,17 @@ func NewGroupHandler(
 	service *service.GroupService,
 	memberService *service.GroupMemberService,
 	talkListService *service.TalkListService,
-	userRepo *dao.UserDao,
 	redisLock *cache.RedisLock,
 	contactService *service.ContactService,
+	userService *service.UserService,
 ) *Group {
 	return &Group{
 		service:         service,
 		memberService:   memberService,
 		talkListService: talkListService,
-		userDao:         userRepo,
 		redisLock:       redisLock,
 		contactService:  contactService,
+		userService:     userService,
 	}
 }
 
@@ -178,7 +177,7 @@ func (c *Group) Detail(ctx *gin.Context) {
 		info["is_disturb"] = 1
 	}
 
-	if userInfo, err := c.userDao.FindById(uid); err == nil {
+	if userInfo, err := c.userService.Dao().FindById(uid); err == nil {
 		info["manager_nickname"] = userInfo.Nickname
 	}
 
