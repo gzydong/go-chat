@@ -76,6 +76,7 @@ func (c *Common) EmailCode(ctx *gin.Context) {
 		Body:    "xxxxxxx",
 	}
 
+	// todo 需修改
 	go func() {
 		_ = email.SendMail(c.config.Email, data)
 	}()

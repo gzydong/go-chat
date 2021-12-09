@@ -257,7 +257,5 @@ func (c *Group) GetGroupMembers(ctx *gin.Context) {
 		return
 	}
 
-	items := c.memberService.Dao().GetMembers(params.GroupId)
-
-	response.Success(ctx, items)
+	response.Success(ctx, c.memberService.Dao().GetMembers(params.GroupId))
 }

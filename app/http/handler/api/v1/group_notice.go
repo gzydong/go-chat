@@ -77,7 +77,5 @@ func (c *GroupNotice) List(ctx *gin.Context) {
 		return
 	}
 
-	items := c.service.List(ctx, params.GroupId)
-
-	response.Success(ctx, items)
+	response.Success(ctx, c.service.List(ctx, params.GroupId))
 }

@@ -68,7 +68,6 @@ func (a *Auth) Register(ctx *gin.Context) {
 		response.InvalidParams(ctx, err)
 		return
 	}
-	fmt.Println(jsonutil.JsonEncode(params))
 
 	// 验证短信验证码是否正确
 	if !a.smsService.CheckSmsCode(ctx.Request.Context(), entity.SmsRegisterChannel, params.Mobile, params.SmsCode) {
