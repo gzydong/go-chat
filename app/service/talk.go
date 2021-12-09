@@ -33,13 +33,13 @@ func (s *TalkService) RemoveRecords(ctx context.Context, uid int, req *request.D
 	if req.TalkType == entity.PrivateChat {
 		subQuery := s.db.Where("user_id = ? and receiver_id = ?", uid, req.ReceiverId).Or("user_id = ? and receiver_id = ?", req.ReceiverId, uid)
 
-		s.db.Model(model.TalkRecords{}).Where("id in ?", ids).Where("talk_type = ?", entity.PrivateChat).Where(subQuery).Pluck("id", &findIds)
+		s.db.Model(&model.TalkRecords{}).Where("id in ?", ids).Where("talk_type = ?", entity.PrivateChat).Where(subQuery).Pluck("id", &findIds)
 	} else {
 		if !s.groupMemberService.Dao().IsMember(req.ReceiverId, uid) {
 			return errors.New("非群成员，暂无权限! ")
 		}
 
-		s.db.Model(model.TalkRecords{}).Where("id in ? and talk_type = ?", ids, entity.GroupChat).Pluck("id", &findIds)
+		s.db.Model(&model.TalkRecords{}).Where("id in ? and talk_type = ?", ids, entity.GroupChat).Pluck("id", &findIds)
 	}
 
 	if len(ids) != len(findIds) {

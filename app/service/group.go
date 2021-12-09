@@ -132,9 +132,7 @@ func (s *GroupService) Create(ctx *gin.Context, request *request.GroupCreateRequ
 
 // Dismiss 解散群组(群主权限)
 func (s *GroupService) Dismiss(GroupId int, UserId int) error {
-	var (
-		err error
-	)
+	var err error
 
 	err = s.db.Transaction(func(tx *gorm.DB) error {
 		queryModel := &model.Group{Id: GroupId, CreatorId: UserId}
@@ -246,7 +244,7 @@ func (s *GroupService) InviteUsers(ctx context.Context, groupId int, uid int, ui
 
 	err = s.db.Transaction(func(tx *gorm.DB) error {
 		// 删除已存在成员记录
-		tx.Where("group_id = ? and user_id in ? and is_quit = 1", groupId, uids).Unscoped().Delete(model.GroupMember{})
+		tx.Where("group_id = ? and user_id in ? and is_quit = 1", groupId, uids).Unscoped().Delete(&model.GroupMember{})
 
 		// 添加新成员
 		if err = tx.Omit("deleted_at").Create(&addMembers).Error; err != nil {
@@ -266,6 +264,26 @@ func (s *GroupService) InviteUsers(ctx context.Context, groupId int, uid int, ui
 				"is_delete":  0,
 				"created_at": time.Now(),
 			})
+		}
+
+		record := &model.TalkRecords{
+			TalkType:   entity.GroupChat,
+			ReceiverId: groupId,
+			MsgType:    entity.MsgTypeGroupInvite,
+		}
+		if err = tx.Create(record).Error; err != nil {
+			return err
+		}
+
+		invite := &model.TalkRecordsInvite{
+			RecordId:      record.ID,
+			Type:          1,
+			OperateUserId: uid,
+			UserIds:       slice.IntToIds(uids),
+		}
+
+		if err = tx.Create(invite).Error; err != nil {
+			return err
 		}
 
 		return nil
@@ -290,34 +308,32 @@ func (s *GroupService) InviteUsers(ctx context.Context, groupId int, uid int, ui
 }
 
 func (s *GroupService) UserGroupList(userId int) ([]*model.GroupItem, error) {
-	var err error
+	tx := s.db.Table("group_member")
+	tx.Select("`group`.id,`group`.group_name,`group`.avatar,`group`.profile,group_member.leader")
+	tx.Joins("left join `group` on `group`.id = group_member.group_id")
+	tx.Where("group_member.user_id = ? and group_member.is_quit = ?", userId, 0)
+
 	items := make([]*model.GroupItem, 0)
-
-	res := s.db.Table("group_member").
-		Select("`group`.id,`group`.group_name,`group`.avatar,`group`.profile,group_member.leader").
-		Joins("left join `group` on `group`.id = group_member.group_id").
-		Where("group_member.user_id = ? and group_member.is_quit = ?", userId, 0).
-		Unscoped().
-		Scan(&items)
-
-	if res.Error != nil {
-		return nil, res.Error
+	if err := tx.Unscoped().Scan(&items).Error; err != nil {
+		return nil, err
 	}
 
-	if res.RowsAffected == 0 {
+	length := len(items)
+	if length == 0 {
 		return items, nil
 	}
 
-	ids := make([]int, res.RowsAffected)
+	ids := make([]int, 0, length)
 	for _, item := range items {
 		ids = append(ids, item.Id)
 	}
 
-	var list []map[string]interface{}
-	err = s.db.Table("talk_list").
-		Select("receiver_id,is_disturb").
-		Where("talk_type = ? and receiver_id in ?", 2, ids).Find(&list).Error
-	if err != nil {
+	query := s.db.Table("talk_list")
+	query.Select("receiver_id,is_disturb")
+	query.Where("talk_type = ? and receiver_id in ?", 2, ids)
+
+	list := make([]map[string]interface{}, 0)
+	if err := query.Find(&list).Error; err != nil {
 		return nil, err
 	}
 

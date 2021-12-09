@@ -77,9 +77,8 @@ func (s *TalkRecordsService) GetTalkRecords(ctx context.Context, query *QueryTal
 	}
 
 	if query.TalkType == entity.PrivateChat {
-		subWhere := s.db.
-			Where("talk_records.user_id = ? and talk_records.receiver_id = ?", query.UserId, query.ReceiverId).
-			Or("talk_records.user_id = ? and talk_records.receiver_id = ?", query.ReceiverId, query.UserId)
+		subWhere := s.db.Where("talk_records.user_id = ? and talk_records.receiver_id = ?", query.UserId, query.ReceiverId)
+		subWhere.Or("talk_records.user_id = ? and talk_records.receiver_id = ?", query.ReceiverId, query.UserId)
 
 		tx.Where(subWhere)
 	} else {
