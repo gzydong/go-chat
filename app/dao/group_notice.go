@@ -10,8 +10,7 @@ type GroupNoticeDao struct {
 }
 
 func (dao *GroupNoticeDao) GetListAll(ctx context.Context, groupId int) ([]*model.SearchNoticeItem, error) {
-	var items []*model.SearchNoticeItem
-
+	items := make([]*model.SearchNoticeItem, 0)
 	fields := []string{
 		"group_notice.id",
 		"group_notice.creator_id",

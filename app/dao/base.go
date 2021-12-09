@@ -16,7 +16,7 @@ func NewBaseDao(db *gorm.DB) *BaseDao {
 
 // BaseUpdate 批量更新
 func (b *BaseDao) BaseUpdate(model interface{}, where gin.H, data gin.H) (int, error) {
-	fields := make([]string, len(data))
+	fields := make([]string, 0, len(data))
 	values := make(map[string]interface{})
 
 	// 获取需要更新的字段

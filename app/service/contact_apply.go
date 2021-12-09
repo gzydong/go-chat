@@ -32,7 +32,7 @@ func (s *ContactApplyService) Create(ctx context.Context, uid int, req *request.
 func (s *ContactApplyService) Accept(ctx context.Context, uid int, req *request.ContactApplyAcceptRequest) error {
 	var (
 		err       error
-		applyInfo model.UsersFriendsApply
+		applyInfo *model.UsersFriendsApply
 	)
 
 	if err := s.db.First(&applyInfo, req.ApplyId).Error; err != nil {

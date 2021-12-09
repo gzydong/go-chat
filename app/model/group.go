@@ -26,3 +26,12 @@ type Group struct {
 func (m *Group) TableName() string {
 	return "group"
 }
+
+type GroupItem struct {
+	Id        int    `json:"id"`
+	GroupName string `json:"group_name"`
+	Avatar    string `json:"avatar"`
+	Profile   string `json:"profile"`
+	Leader    int    `json:"leader"`
+	IsDisturb int    `json:"is_disturb"`
+}

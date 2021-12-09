@@ -20,7 +20,7 @@ type GroupNotice struct {
 }
 
 type SearchNoticeItem struct {
-	Id           int    `json:"id"`
+	Id           int    `json:"id" grom:"column:id"`
 	CreatorId    int    `json:"creator_id"`
 	Title        string `json:"title"`
 	Content      string `json:"content"`

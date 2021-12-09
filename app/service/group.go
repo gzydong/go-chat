@@ -289,18 +289,9 @@ func (s *GroupService) InviteUsers(ctx context.Context, groupId int, uid int, ui
 	return nil
 }
 
-type Result struct {
-	Id        int    `json:"id"`
-	GroupName string `json:"group_name"`
-	Avatar    string `json:"avatar"`
-	Profile   string `json:"profile"`
-	Leader    int    `json:"leader"`
-	IsDisturb int    `json:"is_disturb"`
-}
-
-func (s *GroupService) UserGroupList(userId int) ([]*Result, error) {
+func (s *GroupService) UserGroupList(userId int) ([]*model.GroupItem, error) {
 	var err error
-	items := make([]*Result, 0)
+	items := make([]*model.GroupItem, 0)
 
 	res := s.db.Table("group_member").
 		Select("`group`.id,`group`.group_name,`group`.avatar,`group`.profile,group_member.leader").

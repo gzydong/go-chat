@@ -46,7 +46,7 @@ func (s *TalkService) RemoveRecords(ctx context.Context, uid int, req *request.D
 		return errors.New("删除异常! ")
 	}
 
-	var items []*model.TalkRecordsDelete
+	items := make([]*model.TalkRecordsDelete, 0)
 	for _, val := range ids {
 		items = append(items, &model.TalkRecordsDelete{
 			RecordId:  val,
@@ -95,7 +95,6 @@ func (s *TalkService) CollectRecord(ctx context.Context, uid int, recordId int) 
 	}
 
 	emoticon := &model.EmoticonItem{
-		EmoticonId: 0,
 		UserId:     uid,
 		Url:        fileInfo.SaveDir,
 		FileSuffix: fileInfo.FileSuffix,

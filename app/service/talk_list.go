@@ -26,7 +26,7 @@ func (s *TalkListService) Dao() *dao.TalkListDao {
 func (s *TalkListService) GetTalkList(ctx context.Context, uid int) ([]*model.SearchTalkList, error) {
 	var (
 		err   error
-		items []*model.SearchTalkList
+		items = make([]*model.SearchTalkList, 0)
 	)
 
 	fields := []string{

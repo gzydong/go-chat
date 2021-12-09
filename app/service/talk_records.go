@@ -53,7 +53,7 @@ func NewTalkRecordsService(baseService *BaseService, talkVoteCache *cache.TalkVo
 func (s *TalkRecordsService) GetTalkRecords(ctx context.Context, query *QueryTalkRecordsOpts) ([]*dto.TalkRecordsItem, error) {
 	var (
 		err    error
-		items  []*QueryTalkRecordsItem
+		items  = make([]*QueryTalkRecordsItem, 0)
 		fields = []string{
 			"talk_records.id",
 			"talk_records.talk_type",
@@ -92,6 +92,10 @@ func (s *TalkRecordsService) GetTalkRecords(ctx context.Context, query *QueryTal
 
 	if err = tx.Scan(&items).Error; err != nil {
 		return nil, err
+	}
+
+	if len(items) == 0 {
+		return make([]*dto.TalkRecordsItem, 0), err
 	}
 
 	return s.HandleTalkRecords(ctx, items)

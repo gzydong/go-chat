@@ -68,7 +68,7 @@ func (dao *TalkRecordsVoteDao) SetVoteStatistics(ctx context.Context, vid int) (
 		err          error
 		vote         *model.TalkRecordsVote
 		answerOption map[string]interface{}
-		options      []string
+		options      = make([]string, 0)
 	)
 
 	if err = dao.Db.Table("talk_records_vote").First(&vote, vid).Error; err != nil {
