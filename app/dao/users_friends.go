@@ -3,9 +3,9 @@ package dao
 import (
 	"context"
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis/v8"
 	"go-chat/app/model"
+	"time"
 )
 
 type UsersFriendsDao struct {
@@ -17,16 +17,29 @@ func NewUsersFriends(base *BaseDao, rds *redis.Client) *UsersFriendsDao {
 	return &UsersFriendsDao{base, rds}
 }
 
-func (dao *UsersFriendsDao) GetFriendRemark(ctx context.Context, uid int, friendId int) string {
-	res, err := dao.rds.HGet(ctx, "rds:hash:friend-remark", fmt.Sprintf("%d_%d", uid, friendId)).Result()
-	if err != nil {
-		return res
+func (dao *UsersFriendsDao) GetFriendRemark(ctx context.Context, uid int, friendId int, isCache bool) string {
+
+	if isCache {
+		remark := dao.rds.HGet(ctx, fmt.Sprintf("rds:hash:friend-remark:%d", uid), fmt.Sprintf("%d_%d", uid, friendId)).Val()
+		if remark != "" {
+			return remark
+		}
 	}
 
-	return ""
+	remark := ""
+	err := dao.Db.Model(&model.UsersFriends{}).Select("remark").Where("user_id = ? and friend_id = ?", uid, friendId).Scan(&remark).Error
+	if err != nil {
+		_ = dao.SetFriendRemark(ctx, uid, friendId, remark)
+	}
+
+	return remark
 }
 
 func (dao *UsersFriendsDao) SetFriendRemark(ctx context.Context, uid int, friendId int, remark string) error {
-	_, err := dao.BaseUpdate(&model.UsersFriends{}, gin.H{"user_id": uid, "friend_id": friendId}, gin.H{"remark": remark})
+	err := dao.rds.HSet(ctx, fmt.Sprintf("rds:hash:friend-remark:%d", uid), fmt.Sprintf("%d_%d", uid, friendId), remark).Err()
+	if err == nil {
+		dao.rds.Expire(ctx, fmt.Sprintf("rds:hash:friend-remark:%d", uid), 72*time.Hour)
+	}
+
 	return err
 }

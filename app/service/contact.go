@@ -23,7 +23,11 @@ func (s *ContactService) Dao() *dao.UsersFriendsDao {
 // @params uid      用户ID
 // @params friendId 联系人ID
 func (s *ContactService) EditRemark(ctx context.Context, uid int, friendId int, remark string) error {
-	return s.db.Model(&model.UsersFriends{}).Where("user_id = ? and friend_id = ?", uid, friendId).Update("remark", remark).Error
+	err := s.db.Model(&model.UsersFriends{}).Where("user_id = ? and friend_id = ?", uid, friendId).Update("remark", remark).Error
+
+	_ = s.dao.SetFriendRemark(ctx, uid, friendId, remark)
+
+	return err
 }
 
 // Delete 删除联系人
