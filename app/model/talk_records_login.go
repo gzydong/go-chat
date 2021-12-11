@@ -1,13 +1,15 @@
 package model
 
+import "time"
+
 type TalkRecordsLogin struct {
-	ID        int    `json:"id" grom:"comment:登录ID"`
-	RecordId  int    `json:"record_id" grom:"comment:消息记录ID"`
-	UserId    int    `json:"user_id" grom:"comment:用户ID"`
-	Ip        string `json:"ip" grom:"comment:登录IP"`
-	Platform  string `json:"platform" grom:"comment:登录平台"`
-	Agent     string `json:"agent" grom:"comment:设备信息"`
-	Address   string `json:"address" grom:"comment:登录地址"`
-	Reason    string `json:"reason" grom:"comment:异常信息"`
-	CreatedAt string `json:"created_at" grom:"comment:登录时间"`
+	Id        int       `gorm:"column:id;primary_key;AUTO_INCREMENT" json:"id"` // 登录ID
+	RecordId  int       `gorm:"column:record_id;default:0" json:"record_id"`    // 消息记录ID
+	UserId    int       `gorm:"column:user_id;default:0" json:"user_id"`        // 用户ID
+	Ip        string    `gorm:"column:ip;NOT NULL" json:"ip"`                   // IP地址
+	Platform  string    `gorm:"column:platform;NOT NULL" json:"platform"`       // 登录平台[h5,ios,windows,mac,web]
+	Agent     string    `gorm:"column:agent;NOT NULL" json:"agent"`             // 设备信息
+	Address   string    `gorm:"column:address;NOT NULL" json:"address"`         // IP所在地
+	Reason    string    `gorm:"column:reason;NOT NULL" json:"reason"`           // 登录异常提示
+	CreatedAt time.Time `gorm:"column:created_at;NOT NULL" json:"created_at"`   // 登录时间
 }

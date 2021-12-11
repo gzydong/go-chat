@@ -6,15 +6,15 @@ import (
 )
 
 type GroupMember struct {
-	ID        int            `json:"id" grom:"comment:群成员ID"`
-	GroupId   int            `json:"group_id" grom:"comment:群组ID"`
-	UserId    int            `json:"user_id" grom:"comment:用户ID"`
-	Leader    int            `json:"leader" grom:"comment:成员属性"`
-	IsMute    int            `json:"is_mute" grom:"comment:是否禁言"`
-	IsQuit    int            `json:"is_quit" grom:"comment:是否退群"`
-	UserCard  string         `json:"user_card" grom:"comment:群名片"`
-	CreatedAt time.Time      `json:"created_at" grom:"comment:入群时间"`
-	DeletedAt gorm.DeletedAt `json:"deleted_at" grom:"comment:退群时间,"`
+	Id        int            `gorm:"column:id;primary_key;AUTO_INCREMENT" json:"id"`     // 自增ID
+	GroupId   int            `gorm:"column:group_id;default:0;NOT NULL" json:"group_id"` // 群组ID
+	UserId    int            `gorm:"column:user_id;default:0;NOT NULL" json:"user_id"`   // 用户ID
+	Leader    int            `gorm:"column:leader;default:0" json:"leader"`              // 成员属性[0:普通成员;1:管理员;2:群主;]
+	IsQuit    int            `gorm:"column:is_quit;default:0" json:"is_quit"`            // 是否退群[0:否;1:是;]
+	UserCard  string         `gorm:"column:user_card;NOT NULL" json:"user_card"`         // 群名片
+	IsMute    int            `gorm:"column:is_mute;default:0" json:"is_mute"`            // 是否禁言[0:否;1:是;]
+	CreatedAt time.Time      `gorm:"column:created_at" json:"created_at"`                // 入群时间
+	DeletedAt gorm.DeletedAt `gorm:"column:deleted_at" json:"deleted_at"`                // 退群时间
 }
 
 func (m *GroupMember) TableName() string {

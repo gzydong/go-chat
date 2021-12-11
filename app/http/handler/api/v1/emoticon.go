@@ -54,16 +54,16 @@ func (c *Emoticon) CollectList(ctx *gin.Context) {
 		if _, err := c.service.Dao.FindByIds(&items, ids, "*"); err == nil {
 			for _, item := range items {
 				data := &api.SysEmoticonResponse{
-					EmoticonId: item.ID,
+					EmoticonId: item.Id,
 					Url:        item.Icon,
 					Name:       item.Name,
 					List:       make([]*api.EmoticonItem, 0),
 				}
 
-				if items, err := c.service.Dao.GetDetailsAll(item.ID, 0); err == nil {
+				if items, err := c.service.Dao.GetDetailsAll(item.Id, 0); err == nil {
 					for _, item := range items {
 						data.List = append(data.List, &api.EmoticonItem{
-							MediaId: item.ID,
+							MediaId: item.Id,
 							Src:     item.Url,
 						})
 					}
@@ -77,7 +77,7 @@ func (c *Emoticon) CollectList(ctx *gin.Context) {
 	if items, err := c.service.Dao.GetDetailsAll(0, uid); err == nil {
 		for _, item := range items {
 			collect = append(collect, &api.EmoticonItem{
-				MediaId: item.ID,
+				MediaId: item.Id,
 				Src:     item.Url,
 			})
 		}
@@ -160,10 +160,10 @@ func (c *Emoticon) SystemList(ctx *gin.Context) {
 	data := make([]*api.SysEmoticonList, 0, len(items))
 	for _, item := range items {
 		data = append(data, &api.SysEmoticonList{
-			ID:     item.ID,
+			ID:     item.Id,
 			Name:   item.Name,
 			Icon:   item.Icon,
-			Status: strutil.BoolToInt(slice.InInt(item.ID, ids)), // 查询用户是否使用
+			Status: strutil.BoolToInt(slice.InInt(item.Id, ids)), // 查询用户是否使用
 		})
 	}
 
@@ -217,14 +217,14 @@ func (c *Emoticon) SetSystemEmoticon(ctx *gin.Context) {
 	if list, err := c.service.Dao.GetDetailsAll(params.EmoticonId, 0); err == nil {
 		for _, item := range list {
 			items = append(items, &api.EmoticonItem{
-				MediaId: item.ID,
+				MediaId: item.Id,
 				Src:     item.Url,
 			})
 		}
 	}
 
 	response.Success(ctx, &api.SysEmoticonResponse{
-		EmoticonId: info.ID,
+		EmoticonId: info.Id,
 		Url:        info.Icon,
 		Name:       info.Name,
 		List:       items,

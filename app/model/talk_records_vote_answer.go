@@ -3,9 +3,9 @@ package model
 import "time"
 
 type TalkRecordsVoteAnswer struct {
-	ID        int       `json:"id" grom:"comment:自增ID"`
-	VoteId    int       `json:"vote_id" grom:"comment:投票ID"`
-	UserId    int       `json:"user_id" grom:"comment:投票用户"`
-	Option    string    `json:"option" grom:"comment:投票选项"`
-	CreatedAt time.Time `json:"created_at" grom:"comment:投票时间"`
+	Id        int       `gorm:"column:id;primary_key;AUTO_INCREMENT" json:"id"` // 答题ID
+	VoteId    int       `gorm:"column:vote_id;default:0" json:"vote_id"`        // 投票ID
+	UserId    int       `gorm:"column:user_id;default:0" json:"user_id"`        // 用户ID
+	Option    string    `gorm:"column:option;NOT NULL" json:"option"`           // 投票选项[A、B、C 、D、E、F]
+	CreatedAt time.Time `gorm:"column:created_at" json:"created_at"`            // 答题时间
 }

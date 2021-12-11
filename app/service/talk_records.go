@@ -289,13 +289,13 @@ func (s *TalkRecordsService) HandleTalkRecords(ctx context.Context, items []*Que
 				}
 
 				users := make([]int, 0)
-				if uids, err := s.talkRecordsVoteDao.GetVoteAnswerUser(ctx, value.ID); err == nil {
+				if uids, err := s.talkRecordsVoteDao.GetVoteAnswerUser(ctx, value.Id); err == nil {
 					users = uids
 				}
 
 				var statistics interface{}
 
-				if res, err := s.talkRecordsVoteDao.GetVoteStatistics(ctx, value.ID); err != nil {
+				if res, err := s.talkRecordsVoteDao.GetVoteStatistics(ctx, value.Id); err != nil {
 					statistics = map[string]interface{}{
 						"count":   0,
 						"options": map[string]int{},
@@ -306,7 +306,7 @@ func (s *TalkRecordsService) HandleTalkRecords(ctx context.Context, items []*Que
 
 				data.Vote = map[string]interface{}{
 					"detail": map[string]interface{}{
-						"id":            value.ID,
+						"id":            value.Id,
 						"record_id":     value.RecordId,
 						"title":         value.Title,
 						"answer_mode":   value.AnswerMode,

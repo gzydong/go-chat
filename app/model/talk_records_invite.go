@@ -1,9 +1,9 @@
 package model
 
 type TalkRecordsInvite struct {
-	ID            int    `json:"id" grom:"comment:入群或退群通知ID"`
-	RecordId      int    `json:"record_id" grom:"comment:消息记录ID"`
-	Type          int    `json:"type" grom:"comment:通知类通知类型[1:入群通知;2:自动退群;3:管理员踢群]型"`
-	OperateUserId int    `json:"operate_user_id" grom:"comment:操作人的用户ID[邀请人OR管理员ID]"`
-	UserIds       string `json:"user_ids" grom:"comment:用户ID(多个用 , 分割)"`
+	Id            int    `gorm:"column:id;primary_key;AUTO_INCREMENT" json:"id"`          // 入群或退群通知ID
+	RecordId      int    `gorm:"column:record_id;default:0" json:"record_id"`             // 消息记录ID
+	Type          int    `gorm:"column:type;default:1" json:"type"`                       // 通知类型 （1:入群通知 2:自动退群 3:管理员踢群）
+	OperateUserId int    `gorm:"column:operate_user_id;default:0" json:"operate_user_id"` // 操作人的用户ID（邀请人OR管理员ID）
+	UserIds       string `gorm:"column:user_ids" json:"user_ids"`                         // 用户ID，多个用 , 分割
 }

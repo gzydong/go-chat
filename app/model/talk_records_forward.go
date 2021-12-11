@@ -1,10 +1,12 @@
 package model
 
+import "time"
+
 type TalkRecordsForward struct {
-	ID        int    `json:"id" grom:"comment:转发ID"`
-	RecordId  int    `json:"record_id" grom:"comment:聊天记录ID"`
-	UserId    int    `json:"user_id" grom:"comment:用户ID"`
-	RecordsId int    `json:"records_id" grom:"comment:聊天记录ID，多个用英文','拼接"`
-	Text      string `json:"text" grom:"comment:缓存信息"`
-	CreatedAt string `json:"created_at" grom:"comment:转发时间"`
+	Id        int       `gorm:"column:id;primary_key;AUTO_INCREMENT" json:"id"` // 合并转发ID
+	RecordId  int       `gorm:"column:record_id;default:0" json:"record_id"`    // 消息记录ID
+	UserId    int       `gorm:"column:user_id;default:0" json:"user_id"`        // 转发用户ID
+	RecordsId string    `gorm:"column:records_id" json:"records_id"`            // 转发的聊天记录ID （多个用 , 拼接），最多只能30条记录信息
+	Text      string    `gorm:"column:text" json:"text"`                        // 记录快照（避免后端再次查询数据）
+	CreatedAt time.Time `gorm:"column:created_at" json:"created_at"`            // 转发时间
 }
