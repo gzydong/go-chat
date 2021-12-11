@@ -4,13 +4,13 @@ import "time"
 
 // 用户好友关系表
 type UsersFriends struct {
-	Id        int       `gorm:"column:id" json:"id" form:"id"`                         // 关系ID
-	UserId    int       `gorm:"column:user_id" json:"user_id" form:"user_id"`          // 用户id
-	FriendId  int       `gorm:"column:friend_id" json:"friend_id" form:"friend_id"`    // 好友id
-	Remark    string    `gorm:"column:remark" json:"remark" form:"remark"`             // 好友的备注
-	Status    int8      `gorm:"column:status" json:"status" form:"status"`             // 好友状态 [0:否;1:是]
-	UpdatedAt time.Time `gorm:"column:updated_at" json:"updated_at" form:"updated_at"` // 更新时间
-	CreatedAt time.Time `gorm:"column:created_at" json:"created_at" form:"created_at"` // 创建时间
+	Id        int       `gorm:"column:id;primary_key;AUTO_INCREMENT" json:"id"`                         // 关系ID
+	UserId    int       `gorm:"column:user_id;default:0" json:"user_id"`                                // 用户id
+	FriendId  int       `gorm:"column:friend_id;default:0" json:"friend_id"`                            // 好友id
+	Remark    string    `gorm:"column:remark" json:"remark"`                                            // 好友的备注
+	Status    int       `gorm:"column:status;default:0" json:"status"`                                  // 好友状态 [0:否;1:是]
+	UpdatedAt time.Time `gorm:"column:updated_at;default:CURRENT_TIMESTAMP;NOT NULL" json:"updated_at"` // 更新时间
+	CreatedAt time.Time `gorm:"column:created_at;default:CURRENT_TIMESTAMP" json:"created_at"`          // 创建时间
 }
 
 type ContactListItem struct {

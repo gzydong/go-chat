@@ -1,7 +1,7 @@
 package model
 
 type UsersEmoticon struct {
-	ID          int    `json:"id" grom:"comment:收藏ID"`
-	UserId      int    `json:"user_id" grom:"comment:用户ID"`
-	EmoticonIds string `json:"emoticon_ids" grom:"comment:表情包ID，多个用英文逗号拼接"`
+	Id          int    `gorm:"column:id;primary_key;AUTO_INCREMENT" json:"id"` // 表情包收藏ID
+	UserId      int    `gorm:"column:user_id;NOT NULL" json:"user_id"`         // 用户ID
+	EmoticonIds string `gorm:"column:emoticon_ids" json:"emoticon_ids"`        // 表情包ID
 }
