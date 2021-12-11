@@ -10,12 +10,12 @@ import (
 )
 
 func TestWsClient(t *testing.T) {
-	for i := 0; i < 100; i++ {
-		go NewClientTest(i)
-		time.Sleep(100 * time.Millisecond)
-	}
-
-	time.Sleep(120000 * time.Second)
+	// for i := 0; i < 100; i++ {
+	// 	go NewClientTest(i)
+	// 	time.Sleep(100 * time.Millisecond)
+	// }
+	//
+	// time.Sleep(120000 * time.Second)
 }
 
 func NewClientTest(i int) {
