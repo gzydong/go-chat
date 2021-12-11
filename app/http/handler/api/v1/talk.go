@@ -9,6 +9,7 @@ import (
 	"go-chat/app/http/request"
 	"go-chat/app/http/response"
 	"go-chat/app/pkg/auth"
+	"go-chat/app/pkg/encrypt"
 	"go-chat/app/pkg/strutil"
 	"go-chat/app/pkg/timeutil"
 	"go-chat/app/service"
@@ -111,7 +112,7 @@ func (c *Talk) Create(ctx *gin.Context) {
 	}
 
 	if agent != "" {
-		agent = strutil.Md5([]byte(agent))
+		agent = encrypt.Md5(agent)
 	}
 
 	key := fmt.Sprintf("talk:list:%d-%d-%d-%s", uid, params.ReceiverId, params.TalkType, agent)

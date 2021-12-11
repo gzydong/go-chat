@@ -6,7 +6,7 @@ import (
 	"go-chat/app/dao"
 	"go-chat/app/http/request"
 	"go-chat/app/model"
-	"go-chat/app/pkg/auth"
+	"go-chat/app/pkg/encrypt"
 )
 
 type UserService struct {
@@ -27,7 +27,7 @@ func (s *UserService) Register(param *request.RegisterRequest) (*model.Users, er
 		return nil, errors.New("账号已存在! ")
 	}
 
-	hash, _ := auth.Encrypt(param.Password)
+	hash, _ := encrypt.HashPassword(param.Password)
 	user, err := s.dao.Create(&model.Users{
 		Mobile:   param.Mobile,
 		Nickname: param.Nickname,
@@ -48,7 +48,7 @@ func (s *UserService) Login(mobile string, password string) (*model.Users, error
 		return nil, errors.New("登录账号不存在! ")
 	}
 
-	if !auth.Compare(user.Password, password) {
+	if !encrypt.VerifyPassword(user.Password, password) {
 		return nil, errors.New("登录密码填写错误! ")
 	}
 
@@ -64,7 +64,7 @@ func (s *UserService) Forget(input *request.ForgetRequest) (bool, error) {
 	}
 
 	// 生成 hash 密码
-	hash, _ := auth.Encrypt(input.Password)
+	hash, _ := encrypt.HashPassword(input.Password)
 
 	_, err = s.Dao().BaseUpdate(&model.Users{}, gin.H{"id": user.Id}, gin.H{"password": hash})
 	if err != nil {
@@ -82,11 +82,11 @@ func (s *UserService) UpdatePassword(uid int, oldPassword string, password strin
 		return errors.New("用户不存在！")
 	}
 
-	if !auth.Compare(user.Password, oldPassword) {
+	if !encrypt.VerifyPassword(user.Password, oldPassword) {
 		return errors.New("密码验证不正确！")
 	}
 
-	hash, _ := auth.Encrypt(password)
+	hash, _ := encrypt.HashPassword(password)
 
 	_, err := s.dao.BaseUpdate(&model.Users{}, gin.H{"id": user.Id}, gin.H{"password": hash})
 	if err != nil {

@@ -7,6 +7,7 @@ import (
 	"go-chat/app/http/response"
 	"go-chat/app/model"
 	"go-chat/app/pkg/auth"
+	"go-chat/app/pkg/encrypt"
 	"go-chat/app/service"
 )
 
@@ -110,7 +111,7 @@ func (u *User) ChangeMobile(ctx *gin.Context) {
 		return
 	}
 
-	if !auth.Compare(user.Password, params.Password) {
+	if !encrypt.VerifyPassword(user.Password, params.Password) {
 		response.BusinessError(ctx, "账号密码填写错误！")
 		return
 	}

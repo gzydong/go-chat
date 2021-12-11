@@ -2,7 +2,6 @@ package strutil
 
 import (
 	"crypto/md5"
-	"encoding/hex"
 	"fmt"
 	"math/rand"
 	"strings"
@@ -57,13 +56,6 @@ func MtSubstr(value *string, start, end int) string {
 	}
 
 	return string(str[start:end])
-}
-
-func Md5(data []byte) string {
-	h := md5.New()
-	h.Write(data)
-
-	return hex.EncodeToString(h.Sum(nil))
 }
 
 func BoolToInt(value bool) int {

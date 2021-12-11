@@ -5,20 +5,8 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"go-chat/app/entity"
-	"golang.org/x/crypto/bcrypt"
 	"strings"
 )
-
-// Encrypt 使用 bcrypt 加密纯文本
-func Encrypt(source string) (string, error) {
-	hashedBytes, err := bcrypt.GenerateFromPassword([]byte(source), bcrypt.DefaultCost)
-	return string(hashedBytes), err
-}
-
-// Compare 验证加密的文本是否与纯文本相同
-func Compare(hashedPassword, password string) bool {
-	return bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password)) == nil
-}
 
 type JwtOptions jwt.StandardClaims
 

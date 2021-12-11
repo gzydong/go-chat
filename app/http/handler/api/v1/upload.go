@@ -1,12 +1,12 @@
 package v1
 
 import (
-	"encoding/base64"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"go-chat/app/http/request"
 	"go-chat/app/http/response"
 	"go-chat/app/pkg/auth"
+	"go-chat/app/pkg/encrypt"
 	"go-chat/app/pkg/filesystem"
 	"go-chat/app/pkg/strutil"
 	"go-chat/app/service"
@@ -44,7 +44,7 @@ func (u *Upload) Stream(ctx *gin.Context) {
 	params.Stream = strings.Replace(params.Stream, "data:image/png;base64,", "", 1)
 	params.Stream = strings.Replace(params.Stream, " ", "+", 1)
 
-	stream, _ := base64.StdEncoding.DecodeString(params.Stream)
+	stream, _ := encrypt.Base64Decode(params.Stream)
 
 	object := fmt.Sprintf("public/media/image/avatar/%s/%s", time.Now().Format("20060102"), strutil.GenImageName("png", 200, 200))
 

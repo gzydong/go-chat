@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"go-chat/app/model"
+	"go-chat/app/pkg/encrypt"
 	"go-chat/app/pkg/strutil"
 	"math"
 	"path"
@@ -31,7 +32,7 @@ func (s *SplitUploadService) InitiateMultipartUpload(ctx context.Context, params
 	m := &model.FileSplitUpload{
 		FileType:     1,
 		UserId:       params.UserId,
-		HashName:     strutil.Md5([]byte(strutil.GenRandomString(20))),
+		HashName:     encrypt.Md5(strutil.GenRandomString(20)),
 		OriginalName: params.Name,
 		SplitNum:     int(num),
 		FileExt:      strings.TrimPrefix(path.Ext(params.Name), "."),
