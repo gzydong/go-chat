@@ -127,7 +127,7 @@ func (c *Talk) Create(ctx *gin.Context) {
 	}
 
 	item := dto.TalkListItem{
-		Id:         result.ID,
+		Id:         result.Id,
 		TalkType:   result.TalkType,
 		ReceiverId: result.ReceiverId,
 		IsRobot:    result.IsRobot,

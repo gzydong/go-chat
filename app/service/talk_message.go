@@ -84,7 +84,7 @@ func (s *TalkMessageService) SendCodeMessage(ctx context.Context, uid int, param
 		}
 
 		if err = s.db.Create(&model.TalkRecordsCode{
-			RecordId:  record.ID,
+			RecordId:  record.Id,
 			UserId:    uid,
 			CodeLang:  params.Lang,
 			Code:      params.Code,
@@ -157,7 +157,7 @@ func (s *TalkMessageService) SendVoteMessage(ctx context.Context, uid int, param
 		}
 
 		if err = s.db.Create(&model.TalkRecordsVote{
-			RecordId:     record.ID,
+			RecordId:     record.Id,
 			UserId:       uid,
 			Title:        params.Title,
 			AnswerMode:   params.Mode,
@@ -214,7 +214,7 @@ func (s *TalkMessageService) SendEmoticonMessage(ctx context.Context, uid int, p
 		}
 
 		if err = s.db.Create(&model.TalkRecordsFile{
-			RecordId:     record.ID,
+			RecordId:     record.Id,
 			UserId:       uid,
 			FileSource:   2,
 			FileType:     entity.GetMediaType(emoticon.FileSuffix),
@@ -282,7 +282,7 @@ func (s *TalkMessageService) SendLocationMessage(ctx context.Context, uid int, p
 		}
 
 		if err = s.db.Create(&model.TalkRecordsLocation{
-			RecordId:  record.ID,
+			RecordId:  record.Id,
 			UserId:    uid,
 			Longitude: params.Longitude,
 			Latitude:  params.Latitude,
@@ -330,14 +330,14 @@ func (s *TalkMessageService) SendRevokeRecordMessage(ctx context.Context, uid in
 		return errors.New("超出有效撤回时间范围，无法进行撤销！")
 	}
 
-	if err = s.db.Model(&model.TalkRecords{ID: recordId}).Update("is_revoke", 1).Error; err != nil {
+	if err = s.db.Model(&model.TalkRecords{Id: recordId}).Update("is_revoke", 1).Error; err != nil {
 		return err
 	}
 
 	body := map[string]interface{}{
 		"event": entity.EventRevokeTalk,
 		"data": jsonutil.JsonEncode(map[string]interface{}{
-			"record_id": record.ID,
+			"record_id": record.Id,
 		}),
 	}
 
@@ -458,7 +458,7 @@ func (s *TalkMessageService) afterHandle(ctx context.Context, record *model.Talk
 			"sender_id":   int64(record.UserId),
 			"receiver_id": int64(record.ReceiverId),
 			"talk_type":   record.TalkType,
-			"record_id":   int64(record.ID),
+			"record_id":   int64(record.Id),
 		}),
 	}
 

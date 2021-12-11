@@ -217,7 +217,7 @@ func (s *SubscribeConsume) onConsumeRevokeTalk(body string) {
 			"talk_type":   record.TalkType,
 			"sender_id":   record.UserId,
 			"receiver_id": record.ReceiverId,
-			"record_id":   record.ID,
+			"record_id":   record.Id,
 		},
 	})
 

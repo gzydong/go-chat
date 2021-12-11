@@ -103,7 +103,7 @@ func (s *GroupService) Create(ctx *gin.Context, request *request.GroupCreateRequ
 		}
 
 		invite := &model.TalkRecordsInvite{
-			RecordId:      record.ID,
+			RecordId:      record.Id,
 			Type:          1,
 			OperateUserId: uid,
 			UserIds:       slice.IntToIds(mids[0 : len(mids)-1]),
@@ -234,7 +234,7 @@ func (s *GroupService) InviteUsers(ctx context.Context, groupId int, uid int, ui
 				UpdatedAt:  time.Now(),
 			})
 		} else if item.IsDelete == 1 {
-			updateTalkList = append(updateTalkList, item.ID)
+			updateTalkList = append(updateTalkList, item.Id)
 		}
 	}
 
@@ -276,7 +276,7 @@ func (s *GroupService) InviteUsers(ctx context.Context, groupId int, uid int, ui
 		}
 
 		invite := &model.TalkRecordsInvite{
-			RecordId:      record.ID,
+			RecordId:      record.Id,
 			Type:          1,
 			OperateUserId: uid,
 			UserIds:       slice.IntToIds(uids),

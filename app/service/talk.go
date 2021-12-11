@@ -90,7 +90,7 @@ func (s *TalkService) CollectRecord(ctx context.Context, uid int, recordId int) 
 		}
 	}
 
-	if err = s.db.First(&fileInfo, "record_id = ? and file_type = ?", record.ID, 1).Error; err != nil {
+	if err = s.db.First(&fileInfo, "record_id = ? and file_type = ?", record.Id, 1).Error; err != nil {
 		return err
 	}
 

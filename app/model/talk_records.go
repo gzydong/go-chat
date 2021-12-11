@@ -3,17 +3,17 @@ package model
 import "time"
 
 type TalkRecords struct {
-	ID         int       `json:"id" grom:"comment:聊天消息ID"`
-	TalkType   int       `json:"talk_type" grom:"comment:对话类型"`
-	MsgType    int       `json:"msg_type" grom:"comment:消息类型"`
-	UserId     int       `json:"user_id" grom:"comment:发送者ID"`
-	ReceiverId int       `json:"receiver_id" grom:"comment:接收者ID"`
-	IsRevoke   int       `json:"is_revoke" grom:"comment:是否撤回消息"`
-	IsMark     int       `json:"is_mark" grom:"comment:是否重要消息"`
-	IsRead     int       `json:"is_read" grom:"comment:是否已读"`
-	QuoteId    int       `json:"quote_id" grom:"comment:引用消息ID"`
-	WarnUsers  string    `json:"warn_users" grom:"comment:引用好友"`
-	Content    string    `json:"content" grom:"comment:文本消息"`
-	CreatedAt  time.Time `json:"created_at" grom:"comment:创建时间"`
-	UpdatedAt  time.Time `json:"updated_at" grom:"comment:更新时间"`
+	Id         int       `gorm:"column:id;primary_key;AUTO_INCREMENT" json:"id"`  // 聊天记录ID
+	TalkType   int       `gorm:"column:talk_type;default:1" json:"talk_type"`     // 对话类型[1:私信;2:群聊;]
+	MsgType    int       `gorm:"column:msg_type;default:1" json:"msg_type"`       // 消息类型[1:文本消息;2:文件消息;3:会话消息;4:代码消息;5:投票消息;6:群公告;7:好友申请;8:登录通知;9:入群消息/退群消息;]
+	UserId     int       `gorm:"column:user_id;default:0" json:"user_id"`         // 发送者ID（0:代表系统消息 >0: 用户ID）
+	ReceiverId int       `gorm:"column:receiver_id;default:0" json:"receiver_id"` // 接收者ID（用户ID 或 群ID）
+	IsRevoke   int       `gorm:"column:is_revoke;default:0" json:"is_revoke"`     // 是否撤回消息[0:否;1:是;]
+	IsMark     int       `gorm:"column:is_mark;default:0" json:"is_mark"`         // 是否重要消息[0:否;1:是;]
+	IsRead     int       `gorm:"column:is_read;default:0" json:"is_read"`         // 是否已读[0:否;1:是;]
+	QuoteId    int       `gorm:"column:quote_id;default:0" json:"quote_id"`       // 引用消息ID
+	WarnUsers  string    `gorm:"column:warn_users;NOT NULL" json:"warn_users"`    // @好友 、 多个用英文逗号 “,” 拼接 (0:代表所有人)
+	Content    string    `gorm:"column:content" json:"content"`                   // 文本消息 {@nickname@}
+	CreatedAt  time.Time `gorm:"column:created_at" json:"created_at"`             // 创建时间
+	UpdatedAt  time.Time `gorm:"column:updated_at" json:"updated_at"`             // 更新时间
 }
