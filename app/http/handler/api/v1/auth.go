@@ -57,7 +57,7 @@ func (a *Auth) Login(ctx *gin.Context) {
 
 	// 处理登录日志消息
 
-	response.Success(ctx, a.createToken(user.ID))
+	response.Success(ctx, a.createToken(user.Id))
 }
 
 // Register 注册接口

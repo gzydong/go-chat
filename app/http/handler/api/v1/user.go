@@ -38,7 +38,7 @@ func (u *User) Setting(ctx *gin.Context) {
 
 	response.Success(ctx, gin.H{
 		"user_info": gin.H{
-			"uid":      user.ID,
+			"uid":      user.Id,
 			"nickname": user.Nickname,
 			"avatar":   user.Avatar,
 			"motto":    user.Motto,
@@ -62,7 +62,7 @@ func (u *User) ChangeDetail(ctx *gin.Context) {
 		return
 	}
 
-	_, _ = u.service.Dao().BaseUpdate(&model.User{}, gin.H{
+	_, _ = u.service.Dao().BaseUpdate(&model.Users{}, gin.H{
 		"id": auth.GetAuthUserID(ctx),
 	}, gin.H{
 		"nickname": params.Nickname,
@@ -115,7 +115,7 @@ func (u *User) ChangeMobile(ctx *gin.Context) {
 		return
 	}
 
-	_, err := u.service.Dao().BaseUpdate(&model.User{}, gin.H{"id": user.ID}, gin.H{"mobile": params.Mobile})
+	_, err := u.service.Dao().BaseUpdate(&model.Users{}, gin.H{"id": user.Id}, gin.H{"mobile": params.Mobile})
 
 	if err != nil {
 		response.BusinessError(ctx, "手机号修改失败！")

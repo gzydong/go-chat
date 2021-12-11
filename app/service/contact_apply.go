@@ -65,7 +65,7 @@ func (s *ContactApplyService) Accept(ctx context.Context, uid int, req *request.
 			}).Error
 		}
 
-		var user model.User
+		var user model.Users
 		if err := tx.Select("id", "nickname").First(&user, applyInfo.FriendId).Error; err != nil {
 			return err
 		}

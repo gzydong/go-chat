@@ -7,7 +7,6 @@ import (
 	"go-chat/app/http/request"
 	"go-chat/app/model"
 	"go-chat/app/pkg/auth"
-	"go-chat/app/pkg/timeutil"
 )
 
 type UserService struct {
@@ -23,18 +22,16 @@ func (s *UserService) Dao() *dao.UserDao {
 }
 
 // Register 注册用户
-func (s *UserService) Register(param *request.RegisterRequest) (*model.User, error) {
+func (s *UserService) Register(param *request.RegisterRequest) (*model.Users, error) {
 	if s.dao.IsMobileExist(param.Mobile) {
 		return nil, errors.New("账号已存在! ")
 	}
 
 	hash, _ := auth.Encrypt(param.Password)
-	user, err := s.dao.Create(&model.User{
-		Mobile:    param.Mobile,
-		Nickname:  param.Nickname,
-		Password:  hash,
-		CreatedAt: timeutil.DateTime(),
-		UpdatedAt: timeutil.DateTime(),
+	user, err := s.dao.Create(&model.Users{
+		Mobile:   param.Mobile,
+		Nickname: param.Nickname,
+		Password: hash,
 	})
 
 	if err != nil {
@@ -45,7 +42,7 @@ func (s *UserService) Register(param *request.RegisterRequest) (*model.User, err
 }
 
 // Login 登录处理
-func (s *UserService) Login(mobile string, password string) (*model.User, error) {
+func (s *UserService) Login(mobile string, password string) (*model.Users, error) {
 	user, err := s.dao.FindByMobile(mobile)
 	if err != nil {
 		return nil, errors.New("登录账号不存在! ")
@@ -62,14 +59,14 @@ func (s *UserService) Login(mobile string, password string) (*model.User, error)
 func (s *UserService) Forget(input *request.ForgetRequest) (bool, error) {
 	// 账号查询
 	user, err := s.dao.FindByMobile(input.Mobile)
-	if err != nil || user.ID == 0 {
+	if err != nil || user.Id == 0 {
 		return false, errors.New("账号不存在! ")
 	}
 
 	// 生成 hash 密码
 	hash, _ := auth.Encrypt(input.Password)
 
-	_, err = s.Dao().BaseUpdate(&model.User{}, gin.H{"id": user.ID}, gin.H{"password": hash})
+	_, err = s.Dao().BaseUpdate(&model.Users{}, gin.H{"id": user.Id}, gin.H{"password": hash})
 	if err != nil {
 		return false, errors.New("密码修改失败！")
 	}
@@ -79,7 +76,7 @@ func (s *UserService) Forget(input *request.ForgetRequest) (bool, error) {
 
 // UpdatePassword 修改用户密码
 func (s *UserService) UpdatePassword(uid int, oldPassword string, password string) error {
-	user := &model.User{}
+	user := &model.Users{}
 
 	if ok, _ := s.dao.FindByIds(user, []int{uid}, "id,password"); !ok {
 		return errors.New("用户不存在！")
@@ -91,7 +88,7 @@ func (s *UserService) UpdatePassword(uid int, oldPassword string, password strin
 
 	hash, _ := auth.Encrypt(password)
 
-	_, err := s.dao.BaseUpdate(&model.User{}, gin.H{"id": user.ID}, gin.H{"password": hash})
+	_, err := s.dao.BaseUpdate(&model.Users{}, gin.H{"id": user.Id}, gin.H{"password": hash})
 	if err != nil {
 		return err
 	}

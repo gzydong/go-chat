@@ -338,7 +338,7 @@ func (s *TalkRecordsService) HandleTalkRecords(ctx context.Context, items []*Que
 
 				if value.Type == 1 || value.Type == 3 {
 					var results []map[string]interface{}
-					s.db.Model(&model.User{}).Select("id", "nickname").Where("id in ?", slice.ParseIds(value.UserIds)).Scan(&results)
+					s.db.Model(&model.Users{}).Select("id", "nickname").Where("id in ?", slice.ParseIds(value.UserIds)).Scan(&results)
 					m["users"] = results
 				} else {
 					m["users"] = m["operate_user"]

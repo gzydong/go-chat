@@ -77,6 +77,7 @@ var providerSet = wire.NewSet(
 	service.NewTalkRecordsService,
 	service.NewContactService,
 	service.NewContactsApplyService,
+	service.NewSplitUploadService,
 
 	// handler 处理
 	v1.NewAuthHandler,

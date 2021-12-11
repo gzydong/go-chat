@@ -84,7 +84,7 @@ func (c *Contact) Search(ctx *gin.Context) {
 	}
 
 	response.Success(ctx, &gin.H{
-		"id":       user.ID,
+		"id":       user.Id,
 		"mobile":   user.Mobile,
 		"nickname": user.Nickname,
 		"avatar":   user.Avatar,
@@ -133,7 +133,7 @@ func (c *Contact) Detail(ctx *gin.Context) {
 		"friend_apply":    0,
 		"friend_status":   0,
 		"gender":          user.Gender,
-		"id":              user.ID,
+		"id":              user.Id,
 		"mobile":          user.Mobile,
 		"motto":           user.Motto,
 		"nickname":        user.Nickname,

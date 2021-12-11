@@ -6,8 +6,10 @@ import (
 	"github.com/gin-gonic/gin"
 	"go-chat/app/http/request"
 	"go-chat/app/http/response"
+	"go-chat/app/pkg/auth"
 	"go-chat/app/pkg/filesystem"
 	"go-chat/app/pkg/strutil"
+	"go-chat/app/service"
 	"go-chat/config"
 	"strings"
 	"time"
@@ -16,23 +18,23 @@ import (
 type Upload struct {
 	config     *config.Config
 	filesystem *filesystem.Filesystem
+	service    *service.SplitUploadService
 }
 
 func NewUploadHandler(
 	config *config.Config,
 	filesystem *filesystem.Filesystem,
+	service *service.SplitUploadService,
 ) *Upload {
 	return &Upload{
 		config:     config,
 		filesystem: filesystem,
+		service:    service,
 	}
 }
 
-func (u *Upload) Index(ctx *gin.Context) {
-	response.Success(ctx, "")
-}
-
-func (u *Upload) FileStream(ctx *gin.Context) {
+// 文件流上传
+func (u *Upload) Stream(ctx *gin.Context) {
 	params := &request.UploadFileStreamRequest{}
 	if err := ctx.ShouldBind(params); err != nil {
 		response.InvalidParams(ctx, err)
@@ -55,4 +57,39 @@ func (u *Upload) FileStream(ctx *gin.Context) {
 	response.Success(ctx, gin.H{
 		"avatar": u.filesystem.PublicUrl(object),
 	})
+}
+
+// 批量上传初始化
+func (u *Upload) InitiateMultipart(ctx *gin.Context) {
+	params := &request.UploadInitiateMultipartRequest{}
+	if err := ctx.ShouldBind(params); err != nil {
+		response.InvalidParams(ctx, err)
+		return
+	}
+
+	info, err := u.service.InitiateMultipartUpload(ctx.Request.Context(), &service.InitiateParams{
+		Name:   params.FileName,
+		Size:   params.FileSize,
+		UserId: auth.GetAuthUserID(ctx),
+	})
+	if err != nil {
+		response.BusinessError(ctx, err)
+		return
+	}
+
+	response.Success(ctx, &gin.H{
+		"file_type":     info.FileType,
+		"user_id":       info.UserId,
+		"original_name": info.OriginalName,
+		"hash_name":     info.HashName,
+		"file_ext":      info.FileExt,
+		"file_size":     info.FileSize,
+		"split_num":     info.SplitNum,
+		"split_index":   info.SplitIndex,
+	})
+}
+
+// 批量分片上传
+func (u *Upload) MultipartUpload(ctx *gin.Context) {
+
 }
