@@ -28,7 +28,11 @@ func NewOssFilesystem(conf *config.Config) *OssFilesystem {
 	}
 
 	// 获取存储空间。
-	bucket, _ := client.Bucket(conf.Filesystem.Oss.Bucket)
+	bucket, err := client.Bucket(conf.Filesystem.Oss.Bucket)
+
+	if err != nil {
+		panic(err)
+	}
 
 	return &OssFilesystem{
 		conf:   conf,

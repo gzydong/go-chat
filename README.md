@@ -19,3 +19,31 @@ Lumen IM 后端
    resource/                资源目录
    runtime/                 运行目录，存放日志
 ```
+
+### 图片域名部署
+
+```nginx
+server {
+    listen 80;
+    server_name im-img.local-admin.com;
+    index  index.html;
+
+    location / {
+        # 项目文件上传目录
+        root /path/to/../../uploads;
+    }
+
+    # 私有目录禁止访问
+    location /private {
+        deny all;
+    }
+
+    location ~ .*\.(gif|jpg|jpeg|png|bmp|swf|flv)$ {
+        # 设置缓存过期时间
+        expires 30d;
+        
+        # 关闭访问日志
+        access_log off;
+    }
+}
+```

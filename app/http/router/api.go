@@ -84,13 +84,14 @@ func RegisterApiRoute(conf *config.Config, router *gin.Engine, handler *handler.
 
 		talk := group.Group("/talk").Use(authorize)
 		{
-			talk.GET("/list", handler.Talk.List)                    // 会话列表
-			talk.POST("/create", handler.Talk.Create)               // 创建会话
-			talk.POST("/delete", handler.Talk.Delete)               // 删除会话
-			talk.POST("/topping", handler.Talk.Top)                 // 置顶会话
-			talk.POST("/disturb", handler.Talk.Disturb)             // 会话免打扰
-			talk.GET("/records", handler.TalkRecords.GetRecords)    // 会话记录
-			talk.POST("/unread/clear", handler.Talk.ClearUnReadMsg) // 清除会话未读数
+			talk.GET("/list", handler.Talk.List)                                   // 会话列表
+			talk.POST("/create", handler.Talk.Create)                              // 创建会话
+			talk.POST("/delete", handler.Talk.Delete)                              // 删除会话
+			talk.POST("/topping", handler.Talk.Top)                                // 置顶会话
+			talk.POST("/disturb", handler.Talk.Disturb)                            // 会话免打扰
+			talk.GET("/records", handler.TalkRecords.GetRecords)                   // 会话记录
+			talk.GET("/records/history", handler.TalkRecords.SearchHistoryRecords) // 会话记录
+			talk.POST("/unread/clear", handler.Talk.ClearUnReadMsg)                // 清除会话未读数
 		}
 
 		talkMsg := group.Group("/talk/message").Use(authorize)
@@ -121,9 +122,9 @@ func RegisterApiRoute(conf *config.Config, router *gin.Engine, handler *handler.
 			emoticon.POST("/system/install", handler.Emoticon.SetSystemEmoticon) // 添加或移除系统表情包
 		}
 
-		upload := group.Group("/upload")
+		upload := group.Group("/upload").Use(authorize)
 		{
-			upload.POST("/index", handler.Upload.Index)
+			upload.POST("/file/stream", handler.Upload.FileStream)
 		}
 
 		download := group.Group("/download").Use(authorize)

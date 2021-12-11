@@ -22,9 +22,22 @@ type QiniuSystem struct {
 	Domain    string `json:"domain" yaml:"domain"`
 }
 
+// OssSystem 阿里云 OSS 文件存储
+type CosSystem struct {
+	SecretId  string `json:"secret_id" yaml:"secret_id"`
+	SecretKey string `json:"secret_key" yaml:"secret_key"`
+	Bucket    string `json:"bucket" yaml:"bucket"`
+	Region    string `json:"region" yaml:"region"`
+}
+
+// SecretId: AKIDveAQhjd4MPDl3BmsZ4LOCmESSDj1IuUq
+// SecretKey: HK9j4A1g7KI4f7RZXFgrseAQQAdqmX3N
+// Bucket: im-1256209919
+
 type Filesystem struct {
 	Default string      `json:"default" yaml:"default"`
 	Local   LocalSystem `json:"local" yaml:"local"`
 	Oss     OssSystem   `json:"oss" yaml:"oss"`
 	Qiniu   QiniuSystem `json:"qiniu" yaml:"qiniu"`
+	Cos     CosSystem   `json:"cos" yaml:"cos"`
 }

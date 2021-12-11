@@ -51,7 +51,7 @@ func (c *TalkRecords) GetRecords(ctx *gin.Context) {
 	})
 }
 
-// SearchRecords 查询下会话记录
-func (c *TalkRecords) SearchRecords(ctx *gin.Context) {
-
+// SearchHistoryRecords 查询下会话记录
+func (c *TalkRecords) SearchHistoryRecords(ctx *gin.Context) {
+	c.GetRecords(ctx)
 }
