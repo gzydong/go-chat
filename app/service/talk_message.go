@@ -241,24 +241,6 @@ func (s *TalkMessageService) SendEmoticonMessage(ctx context.Context, uid int, p
 	return nil
 }
 
-// SendForwardMessage 转发聊天记录
-// @params uid     用户ID
-// @params params  请求参数
-func (s *TalkMessageService) SendForwardMessage(ctx context.Context, uid int, params *request.ForwardMessageRequest) error {
-	var (
-		recordsIds []int
-		receives   []int
-	)
-
-	if params.ForwardMode == 1 {
-		s.forwardService.MultiSplitForward(ctx, uid, params.ReceiverId, params.TalkType, recordsIds, receives)
-	} else {
-		s.forwardService.MultiMergeForward(ctx, uid, params.ReceiverId, params.TalkType, recordsIds, receives)
-	}
-
-	return nil
-}
-
 // SendLocationMessage 发送位置消息
 // @params uid     用户ID
 // @params params  请求参数

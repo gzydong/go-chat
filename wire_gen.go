@@ -57,7 +57,7 @@ func Initialize(ctx context.Context) *provider.Providers {
 	talkMessageService := service.NewTalkMessageService(baseService, config, unreadTalkCache, talkMessageForwardService, lastMessage, talkRecordsVoteDao, groupMemberDao, sidServer, wsClientSession)
 	groupMemberService := service.NewGroupMemberService(groupMemberDao)
 	talkService := service.NewTalkService(baseService, groupMemberService)
-	talkMessage := v1.NewTalkMessageHandler(talkMessageService, talkService, talkRecordsVoteDao)
+	talkMessage := v1.NewTalkMessageHandler(talkMessageService, talkService, talkRecordsVoteDao, talkMessageForwardService)
 	talkListDao := dao.NewTalkListDao(baseDao)
 	talkListService := service.NewTalkListService(baseService, talkListDao)
 	usersFriendsDao := dao.NewUsersFriends(baseDao, client)

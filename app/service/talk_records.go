@@ -262,7 +262,16 @@ func (s *TalkRecordsService) HandleTalkRecords(ctx context.Context, items []*Que
 				data.File = value
 			}
 		case entity.MsgTypeForward:
+			if value, ok := hashForwards[item.ID]; ok {
+				list := make([]map[string]interface{}, 0)
 
+				_ = jsonutil.JsonDecode(value.Text, &list)
+
+				data.Forward = map[string]interface{}{
+					"num":  len(slice.ParseIds(value.RecordsId)),
+					"list": list,
+				}
+			}
 		case entity.MsgTypeCode:
 			if value, ok := hashCodes[item.ID]; ok {
 				data.CodeBlock = value

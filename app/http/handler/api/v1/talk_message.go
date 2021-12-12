@@ -16,14 +16,16 @@ type TalkMessage struct {
 	service            *service.TalkMessageService
 	talkService        *service.TalkService
 	talkRecordsVoteDao *dao.TalkRecordsVoteDao
+	forwardService     *service.TalkMessageForwardService
 }
 
 func NewTalkMessageHandler(
 	service *service.TalkMessageService,
 	talkService *service.TalkService,
 	talkRecordsVoteDao *dao.TalkRecordsVoteDao,
+	forwardService *service.TalkMessageForwardService,
 ) *TalkMessage {
-	return &TalkMessage{service: service, talkService: talkService, talkRecordsVoteDao: talkRecordsVoteDao}
+	return &TalkMessage{service: service, talkService: talkService, talkRecordsVoteDao: talkRecordsVoteDao, forwardService: forwardService}
 }
 
 // Text 发送文本消息
@@ -166,7 +168,16 @@ func (c *TalkMessage) Forward(ctx *gin.Context) {
 		return
 	}
 
-	if err := c.service.SendForwardMessage(ctx.Request.Context(), auth.GetAuthUserID(ctx), params); err != nil {
+	forward := &service.ForwardParams{
+		UserId:     auth.GetAuthUserID(ctx),
+		ReceiverId: params.ReceiverId,
+		TalkType:   params.TalkType,
+		RecordsIds: slice.ParseIds(params.RecordsIds),
+		UserIds:    slice.ParseIds(params.ReceiveUserIds),
+		GroupIds:   slice.ParseIds(params.ReceiveGroupIds),
+	}
+
+	if err := c.forwardService.SendForwardMessage(ctx.Request.Context(), forward); err != nil {
 		response.Success(ctx, gin.H{}, "消息推送失败！")
 		return
 	}
