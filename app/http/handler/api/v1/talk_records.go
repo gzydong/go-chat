@@ -55,3 +55,22 @@ func (c *TalkRecords) GetRecords(ctx *gin.Context) {
 func (c *TalkRecords) SearchHistoryRecords(ctx *gin.Context) {
 	c.GetRecords(ctx)
 }
+
+// GetForwardRecords 获取转发记录
+func (c *TalkRecords) GetForwardRecords(ctx *gin.Context) {
+	params := &request.TalkForwardRecordsRequest{}
+	if err := ctx.ShouldBind(params); err != nil {
+		response.InvalidParams(ctx, err)
+		return
+	}
+
+	records, err := c.service.GetForwardRecords(ctx.Request.Context(), int64(params.RecordId))
+	if err != nil {
+		response.BusinessError(ctx, err)
+		return
+	}
+
+	response.Success(ctx, gin.H{
+		"rows": records,
+	})
+}

@@ -89,8 +89,9 @@ func RegisterApiRoute(conf *config.Config, router *gin.Engine, handler *handler.
 			talk.POST("/delete", handler.Talk.Delete)                              // 删除会话
 			talk.POST("/topping", handler.Talk.Top)                                // 置顶会话
 			talk.POST("/disturb", handler.Talk.Disturb)                            // 会话免打扰
-			talk.GET("/records", handler.TalkRecords.GetRecords)                   // 会话记录
-			talk.GET("/records/history", handler.TalkRecords.SearchHistoryRecords) // 会话记录
+			talk.GET("/records", handler.TalkRecords.GetRecords)                   // 会话面板记录
+			talk.GET("/records/history", handler.TalkRecords.SearchHistoryRecords) // 历史会话记录
+			talk.GET("/records/forward", handler.TalkRecords.GetForwardRecords)    // 会话转发记录
 			talk.POST("/unread/clear", handler.Talk.ClearUnReadMsg)                // 清除会话未读数
 		}
 

@@ -142,6 +142,48 @@ func (s *TalkRecordsService) GetTalkRecord(ctx context.Context, recordId int64) 
 	return list[0], nil
 }
 
+// GetForwardRecords 获取转发消息记录
+func (s *TalkRecordsService) GetForwardRecords(ctx context.Context, recordId int64) ([]*dto.TalkRecordsItem, error) {
+	record := &model.TalkRecords{}
+	if err := s.db.First(&record, recordId).Error; err != nil {
+		return nil, err
+	}
+
+	// todo 需要判断权限
+
+	forward := &model.TalkRecordsForward{}
+	if err := s.db.Where("record_id = ?", recordId).First(forward).Error; err != nil {
+		return nil, err
+	}
+
+	var (
+		items  = make([]*QueryTalkRecordsItem, 0)
+		fields = []string{
+			"talk_records.id",
+			"talk_records.talk_type",
+			"talk_records.msg_type",
+			"talk_records.user_id",
+			"talk_records.receiver_id",
+			"talk_records.is_revoke",
+			"talk_records.content",
+			"talk_records.created_at",
+			"users.nickname",
+			"users.avatar as avatar",
+		}
+	)
+
+	query := s.db.Table("talk_records")
+	query.Select(fields)
+	query.Joins("left join users on talk_records.user_id = users.id")
+	query.Where("talk_records.id in ?", slice.ParseIds(forward.RecordsId))
+
+	if err := query.Scan(&items).Error; err != nil {
+		return nil, err
+	}
+
+	return s.HandleTalkRecords(ctx, items)
+}
+
 func (s *TalkRecordsService) HandleTalkRecords(ctx context.Context, items []*QueryTalkRecordsItem) ([]*dto.TalkRecordsItem, error) {
 	var (
 		files     []int
