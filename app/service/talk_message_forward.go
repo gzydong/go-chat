@@ -140,32 +140,39 @@ func (t *TalkMessageForwardService) MultiMergeForward(ctx context.Context, forwa
 
 	str := slice.IntToIds(forward.RecordsIds)
 	err = t.db.Transaction(func(tx *gorm.DB) error {
+		forwards := make([]*model.TalkRecordsForward, 0)
+		records := make([]*model.TalkRecords, 0)
+
 		for _, receive := range receives {
-			record := &model.TalkRecords{
+			records = append(records, &model.TalkRecords{
 				TalkType:   receive.TalkType,
 				MsgType:    entity.MsgTypeForward,
 				UserId:     forward.UserId,
 				ReceiverId: receive.ReceiverId,
-			}
+			})
+		}
 
-			if err := tx.Create(record).Error; err != nil {
-				return err
-			}
+		if err := tx.Create(records).Error; err != nil {
+			return err
+		}
 
-			if err := tx.Create(&model.TalkRecordsForward{
+		for _, record := range records {
+			forwards = append(forwards, &model.TalkRecordsForward{
 				RecordId:  record.Id,
 				UserId:    record.UserId,
 				RecordsId: str,
 				Text:      text,
-			}).Error; err != nil {
-				return err
-			}
+			})
 
 			arr = append(arr, &PushReceive{
 				RecordId:   record.Id,
 				ReceiverId: record.ReceiverId,
 				TalkType:   record.TalkType,
 			})
+		}
+
+		if err := tx.Create(&forwards).Error; err != nil {
+			return err
 		}
 
 		return nil
@@ -180,5 +187,67 @@ func (t *TalkMessageForwardService) MultiMergeForward(ctx context.Context, forwa
 
 // MultiSplitForward 转发消息（多条拆分转发）
 func (t *TalkMessageForwardService) MultiSplitForward(ctx context.Context, forward *ForwardParams) ([]*PushReceive, error) {
-	return nil, nil
+	var (
+		receives = make([]*Receives, 0)
+		arr      = make([]*PushReceive, 0)
+		records  = make([]*model.TalkRecords, 0)
+	)
+
+	for _, uid := range forward.UserIds {
+		receives = append(receives, &Receives{uid, 1})
+	}
+
+	for _, gid := range forward.GroupIds {
+		receives = append(receives, &Receives{gid, 2})
+	}
+
+	if err := t.db.Model(&model.TalkRecords{}).Where("id = ?", forward.RecordsIds).Scan(&records).Error; err != nil {
+		return nil, err
+	}
+
+	err := t.db.Transaction(func(tx *gorm.DB) error {
+		for _, item := range records {
+			items := make([]*model.TalkRecords, 0)
+			for _, receive := range receives {
+				items = append(items, &model.TalkRecords{
+					TalkType:   receive.TalkType,
+					MsgType:    item.MsgType,
+					UserId:     forward.UserId,
+					ReceiverId: receive.ReceiverId,
+					Content:    item.Content,
+				})
+			}
+
+			if err := tx.Create(items).Error; err != nil {
+				return err
+			}
+
+			files := make([]model.TalkRecordsFile, 0)
+			codes := make([]model.TalkRecordsCode, 0)
+
+			for _, record := range items {
+				arr = append(arr, &PushReceive{
+					RecordId:   record.Id,
+					ReceiverId: record.ReceiverId,
+					TalkType:   record.TalkType,
+				})
+			}
+
+			if len(files) > 0 {
+
+			}
+
+			if len(codes) > 0 {
+
+			}
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	return arr, nil
 }
