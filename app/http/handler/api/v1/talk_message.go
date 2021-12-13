@@ -169,6 +169,7 @@ func (c *TalkMessage) Forward(ctx *gin.Context) {
 	}
 
 	forward := &service.ForwardParams{
+		Mode:       params.ForwardMode,
 		UserId:     auth.GetAuthUserID(ctx),
 		ReceiverId: params.ReceiverId,
 		TalkType:   params.TalkType,

@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"errors"
 	"go-chat/app/entity"
 	"go-chat/app/model"
 	"go-chat/app/pkg/jsonutil"
@@ -18,6 +19,7 @@ type ForwardParams struct {
 	RecordsIds []int `json:"records_ids"`
 	UserIds    []int `json:"user_ids"`
 	GroupIds   []int `json:"group_ids"`
+	Mode       int   `json:"mode"`
 }
 
 type TalkMessageForwardService struct {
@@ -30,6 +32,30 @@ func NewTalkMessageForwardService(base *BaseService) *TalkMessageForwardService 
 
 // 验证消息转发
 func (t *TalkMessageForwardService) verifyForward(forward *ForwardParams) error {
+
+	query := t.db.Model(&model.TalkRecords{})
+
+	query.Where("id in ?", forward.RecordsIds)
+
+	if forward.TalkType == entity.PrivateChat {
+		subWhere := t.db.Where("user_id = ? and receiver_id = ?", forward.UserId, forward.ReceiverId)
+		subWhere.Or("user_id = ? and receiver_id = ?", forward.ReceiverId, forward.UserId)
+		query.Where(subWhere)
+	}
+
+	query.Where("talk_type = ?", forward.TalkType)
+	query.Where("msg_type in ?", []int{1, 2, 4})
+	query.Where("is_revoke = ?", 0)
+
+	var count int64
+	if err := query.Count(&count).Error; err != nil {
+		return err
+	}
+
+	if int(count) != len(forward.RecordsIds) {
+		return errors.New("转发消息异常")
+	}
+
 	return nil
 }
 
@@ -44,7 +70,7 @@ func (t *TalkMessageForwardService) SendForwardMessage(ctx context.Context, forw
 		return err
 	}
 
-	if forward.TalkType == 1 {
+	if forward.Mode == 2 {
 		items, err = t.MultiMergeForward(ctx, forward)
 	} else {
 		items, err = t.MultiSplitForward(ctx, forward)
@@ -188,9 +214,11 @@ func (t *TalkMessageForwardService) MultiMergeForward(ctx context.Context, forwa
 // MultiSplitForward 转发消息（多条拆分转发）
 func (t *TalkMessageForwardService) MultiSplitForward(ctx context.Context, forward *ForwardParams) ([]*PushReceive, error) {
 	var (
-		receives = make([]*Receives, 0)
-		arr      = make([]*PushReceive, 0)
-		records  = make([]*model.TalkRecords, 0)
+		receives  = make([]*Receives, 0)
+		arr       = make([]*PushReceive, 0)
+		records   = make([]*model.TalkRecords, 0)
+		hashFiles = make(map[int]*model.TalkRecordsFile, 0)
+		hashCodes = make(map[int]*model.TalkRecordsCode, 0)
 	)
 
 	for _, uid := range forward.UserIds {
@@ -201,13 +229,45 @@ func (t *TalkMessageForwardService) MultiSplitForward(ctx context.Context, forwa
 		receives = append(receives, &Receives{gid, 2})
 	}
 
-	if err := t.db.Model(&model.TalkRecords{}).Where("id = ?", forward.RecordsIds).Scan(&records).Error; err != nil {
+	if err := t.db.Model(&model.TalkRecords{}).Where("id IN ?", forward.RecordsIds).Scan(&records).Error; err != nil {
 		return nil, err
+	}
+
+	codeIds, fileIds := make([]int, 0), make([]int, 0)
+
+	for _, record := range records {
+		switch record.MsgType {
+		case entity.MsgTypeFile:
+			fileIds = append(fileIds, record.Id)
+		case entity.MsgTypeCode:
+			codeIds = append(codeIds, record.Id)
+		}
+	}
+
+	if len(codeIds) > 0 {
+		items := make([]*model.TalkRecordsCode, 0)
+		if err := t.db.Model(&model.TalkRecordsCode{}).Where("record_id IN ?", codeIds).Scan(&items).Error; err == nil {
+			for i := range items {
+				hashCodes[items[i].RecordId] = items[i]
+			}
+		}
+	}
+
+	if len(fileIds) > 0 {
+		items := make([]*model.TalkRecordsFile, 0)
+		if err := t.db.Model(&model.TalkRecordsFile{}).Where("record_id IN ?", fileIds).Scan(&items).Error; err == nil {
+			for i := range items {
+				hashFiles[items[i].RecordId] = items[i]
+			}
+		}
 	}
 
 	err := t.db.Transaction(func(tx *gorm.DB) error {
 		for _, item := range records {
 			items := make([]*model.TalkRecords, 0)
+			files := make([]*model.TalkRecordsFile, 0)
+			codes := make([]*model.TalkRecordsCode, 0)
+
 			for _, receive := range receives {
 				items = append(items, &model.TalkRecords{
 					TalkType:   receive.TalkType,
@@ -222,23 +282,50 @@ func (t *TalkMessageForwardService) MultiSplitForward(ctx context.Context, forwa
 				return err
 			}
 
-			files := make([]model.TalkRecordsFile, 0)
-			codes := make([]model.TalkRecordsCode, 0)
-
 			for _, record := range items {
 				arr = append(arr, &PushReceive{
 					RecordId:   record.Id,
 					ReceiverId: record.ReceiverId,
 					TalkType:   record.TalkType,
 				})
+
+				switch record.MsgType {
+				case entity.MsgTypeFile:
+					if file, ok := hashFiles[item.Id]; ok {
+						files = append(files, &model.TalkRecordsFile{
+							RecordId:     record.Id,
+							UserId:       forward.UserId,
+							FileSource:   file.FileSource,
+							FileType:     file.FileType,
+							SaveType:     file.SaveType,
+							OriginalName: file.OriginalName,
+							FileSuffix:   file.FileSuffix,
+							FileSize:     file.FileSize,
+							SaveDir:      file.SaveDir,
+						})
+					}
+				case entity.MsgTypeCode:
+					if code, ok := hashCodes[item.Id]; ok {
+						codes = append(codes, &model.TalkRecordsCode{
+							RecordId: record.Id,
+							UserId:   forward.UserId,
+							CodeLang: code.CodeLang,
+							Code:     code.Code,
+						})
+					}
+				}
 			}
 
 			if len(files) > 0 {
-
+				if err := tx.Create(files).Error; err != nil {
+					return err
+				}
 			}
 
 			if len(codes) > 0 {
-
+				if err := tx.Create(codes).Error; err != nil {
+					return err
+				}
 			}
 		}
 
