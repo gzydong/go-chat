@@ -19,7 +19,7 @@ func (s *GroupMemberService) Dao() *dao.GroupMemberDao {
 	return s.dao
 }
 
-// UpdateMemberCard 修改群名片
+// nolint UpdateMemberCard 修改群名片
 func (s *GroupMemberService) UpdateMemberCard(groupId int, userId int, remark string) error {
 
 	_, err := s.dao.BaseUpdate(&model.GroupMember{}, gin.H{"group_id": groupId, "user_id": userId}, gin.H{"user_card": remark})

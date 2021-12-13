@@ -4,6 +4,7 @@ package im
 type AckBuffer struct {
 }
 
+// nolint
 func (a *AckBuffer) name() {
 
 }

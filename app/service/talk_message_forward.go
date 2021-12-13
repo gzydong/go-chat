@@ -76,6 +76,10 @@ func (t *TalkMessageForwardService) SendForwardMessage(ctx context.Context, forw
 		items, err = t.MultiSplitForward(ctx, forward)
 	}
 
+	if err != nil {
+		return err
+	}
+
 	for _, item := range items {
 		body := entity.JsonText{
 			"event": entity.EventTalk,
@@ -217,8 +221,8 @@ func (t *TalkMessageForwardService) MultiSplitForward(ctx context.Context, forwa
 		receives  = make([]*Receives, 0)
 		arr       = make([]*PushReceive, 0)
 		records   = make([]*model.TalkRecords, 0)
-		hashFiles = make(map[int]*model.TalkRecordsFile, 0)
-		hashCodes = make(map[int]*model.TalkRecordsCode, 0)
+		hashFiles = make(map[int]*model.TalkRecordsFile)
+		hashCodes = make(map[int]*model.TalkRecordsCode)
 	)
 
 	for _, uid := range forward.UserIds {
