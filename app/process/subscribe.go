@@ -61,6 +61,8 @@ func (w *WsSubscribe) Handle(ctx context.Context) error {
 
 			work.Add(func() { consume(msg) })
 		}
+
+		work.Wait()
 	}()
 
 	<-ctx.Done()

@@ -50,9 +50,8 @@ func (s *TalkMessageService) SendTextMessage(ctx context.Context, uid int, param
 		UpdatedAt:  time.Now(),
 	}
 
-	result := s.db.Create(record)
-	if result.Error != nil {
-		return result.Error
+	if err := s.db.Create(record).Error; err != nil {
+		return err
 	}
 
 	s.afterHandle(ctx, record, map[string]string{
@@ -386,7 +385,7 @@ func (s *TalkMessageService) VoteHandle(ctx context.Context, uid int, params *re
 		options = options[:1]
 	}
 
-	answers := make([]*model.TalkRecordsVoteAnswer, 0)
+	answers := make([]*model.TalkRecordsVoteAnswer, 0, len(options))
 
 	for _, option := range options {
 		answers = append(answers, &model.TalkRecordsVoteAnswer{

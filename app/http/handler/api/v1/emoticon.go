@@ -48,10 +48,10 @@ func (c *Emoticon) CollectList(ctx *gin.Context) {
 		collect = make([]*api.EmoticonItem, 0)
 	)
 
-	if ids := c.service.Dao.GetUserInstallIds(uid); len(ids) > 0 {
-		var items []*model.Emoticon
+	if ids := c.service.Dao().GetUserInstallIds(uid); len(ids) > 0 {
+		items := make([]*model.Emoticon, 0)
 
-		if _, err := c.service.Dao.FindByIds(&items, ids, "*"); err == nil {
+		if _, err := c.service.Dao().FindByIds(&items, ids, "*"); err == nil {
 			for _, item := range items {
 				data := &api.SysEmoticonResponse{
 					EmoticonId: item.Id,
@@ -60,7 +60,7 @@ func (c *Emoticon) CollectList(ctx *gin.Context) {
 					List:       make([]*api.EmoticonItem, 0),
 				}
 
-				if items, err := c.service.Dao.GetDetailsAll(item.Id, 0); err == nil {
+				if items, err := c.service.Dao().GetDetailsAll(item.Id, 0); err == nil {
 					for _, item := range items {
 						data.List = append(data.List, &api.EmoticonItem{
 							MediaId: item.Id,
@@ -74,7 +74,7 @@ func (c *Emoticon) CollectList(ctx *gin.Context) {
 		}
 	}
 
-	if items, err := c.service.Dao.GetDetailsAll(0, uid); err == nil {
+	if items, err := c.service.Dao().GetDetailsAll(0, uid); err == nil {
 		for _, item := range items {
 			collect = append(collect, &api.EmoticonItem{
 				MediaId: item.Id,
@@ -148,14 +148,14 @@ func (c *Emoticon) Upload(ctx *gin.Context) {
 
 // SystemList 系统表情包列表
 func (c *Emoticon) SystemList(ctx *gin.Context) {
-	items, err := c.service.Dao.GetSystemEmoticonList()
+	items, err := c.service.Dao().GetSystemEmoticonList()
 
 	if err != nil {
 		response.BusinessError(ctx, err)
 		return
 	}
 
-	ids := c.service.Dao.GetUserInstallIds(auth.GetAuthUserID(ctx))
+	ids := c.service.Dao().GetUserInstallIds(auth.GetAuthUserID(ctx))
 
 	data := make([]*api.SysEmoticonList, 0, len(items))
 	for _, item := range items {
@@ -202,7 +202,7 @@ func (c *Emoticon) SetSystemEmoticon(ctx *gin.Context) {
 	}
 
 	// 查询表情包是否存在
-	info, err := c.service.Dao.FindById(params.EmoticonId)
+	info, err := c.service.Dao().FindById(params.EmoticonId)
 	if err != nil {
 		response.BusinessError(ctx, err.Error())
 		return
@@ -214,7 +214,7 @@ func (c *Emoticon) SetSystemEmoticon(ctx *gin.Context) {
 	}
 
 	items := make([]*api.EmoticonItem, 0)
-	if list, err := c.service.Dao.GetDetailsAll(params.EmoticonId, 0); err == nil {
+	if list, err := c.service.Dao().GetDetailsAll(params.EmoticonId, 0); err == nil {
 		for _, item := range list {
 			items = append(items, &api.EmoticonItem{
 				MediaId: item.Id,

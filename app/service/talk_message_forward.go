@@ -116,7 +116,9 @@ type ForwardMsgItem struct {
 
 // 聚合转发数据
 func (t *TalkMessageForwardService) aggregation(ctx context.Context, forward *ForwardParams) (string, error) {
+
 	rows := make([]*ForwardMsgItem, 0)
+
 	query := t.db.Table("talk_records")
 	query.Joins("left join users on users.id = talk_records.user_id")
 	query.Where("talk_records.id in ?", forward.RecordsIds[:3])
@@ -170,8 +172,8 @@ func (t *TalkMessageForwardService) MultiMergeForward(ctx context.Context, forwa
 
 	str := slice.IntToIds(forward.RecordsIds)
 	err = t.db.Transaction(func(tx *gorm.DB) error {
-		forwards := make([]*model.TalkRecordsForward, 0)
-		records := make([]*model.TalkRecords, 0)
+		forwards := make([]*model.TalkRecordsForward, 0, len(receives))
+		records := make([]*model.TalkRecords, 0, len(receives))
 
 		for _, receive := range receives {
 			records = append(records, &model.TalkRecords{
@@ -268,7 +270,7 @@ func (t *TalkMessageForwardService) MultiSplitForward(ctx context.Context, forwa
 
 	err := t.db.Transaction(func(tx *gorm.DB) error {
 		for _, item := range records {
-			items := make([]*model.TalkRecords, 0)
+			items := make([]*model.TalkRecords, 0, len(receives))
 			files := make([]*model.TalkRecordsFile, 0)
 			codes := make([]*model.TalkRecordsCode, 0)
 

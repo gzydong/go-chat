@@ -11,15 +11,19 @@ import (
 
 type EmoticonService struct {
 	*BaseService
-	Dao *dao.EmoticonDao
+	dao *dao.EmoticonDao
 }
 
 func NewEmoticonService(base *BaseService, dao *dao.EmoticonDao) *EmoticonService {
-	return &EmoticonService{BaseService: base, Dao: dao}
+	return &EmoticonService{BaseService: base, dao: dao}
+}
+
+func (s *EmoticonService) Dao() *dao.EmoticonDao {
+	return s.dao
 }
 
 func (s *EmoticonService) RemoveUserSysEmoticon(uid int, emoticonId int) error {
-	ids := s.Dao.GetUserInstallIds(uid)
+	ids := s.dao.GetUserInstallIds(uid)
 
 	if !slice.InInt(emoticonId, ids) {
 		return fmt.Errorf("数据不存在！")
@@ -37,7 +41,7 @@ func (s *EmoticonService) RemoveUserSysEmoticon(uid int, emoticonId int) error {
 }
 
 func (s *EmoticonService) AddUserSysEmoticon(uid int, emoticonId int) error {
-	ids := s.Dao.GetUserInstallIds(uid)
+	ids := s.dao.GetUserInstallIds(uid)
 
 	if slice.InInt(emoticonId, ids) {
 		return nil

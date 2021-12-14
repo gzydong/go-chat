@@ -1,9 +1,7 @@
 package v1
 
 import (
-	"fmt"
 	"go-chat/app/http/dto"
-	"go-chat/app/pkg/jsonutil"
 	"strconv"
 	"time"
 
@@ -64,7 +62,6 @@ func (a *Auth) Login(ctx *gin.Context) {
 func (a *Auth) Register(ctx *gin.Context) {
 	params := &request.RegisterRequest{}
 	if err := ctx.ShouldBind(params); err != nil {
-		fmt.Println(jsonutil.JsonEncode(params))
 		response.InvalidParams(ctx, err)
 		return
 	}
