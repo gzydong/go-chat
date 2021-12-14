@@ -72,8 +72,6 @@ func (s *TalkMessageService) SendCodeMessage(ctx context.Context, uid int, param
 			MsgType:    entity.MsgTypeCode,
 			UserId:     uid,
 			ReceiverId: params.ReceiverId,
-			CreatedAt:  time.Now(),
-			UpdatedAt:  time.Now(),
 		}
 	)
 
@@ -83,11 +81,10 @@ func (s *TalkMessageService) SendCodeMessage(ctx context.Context, uid int, param
 		}
 
 		if err = s.db.Create(&model.TalkRecordsCode{
-			RecordId:  record.Id,
-			UserId:    uid,
-			CodeLang:  params.Lang,
-			Code:      params.Code,
-			CreatedAt: time.Now(),
+			RecordId: record.Id,
+			UserId:   uid,
+			CodeLang: params.Lang,
+			Code:     params.Code,
 		}).Error; err != nil {
 			return err
 		}
@@ -138,8 +135,6 @@ func (s *TalkMessageService) SendVoteMessage(ctx context.Context, uid int, param
 			MsgType:    entity.MsgTypeVote,
 			UserId:     uid,
 			ReceiverId: params.ReceiverId,
-			CreatedAt:  time.Now(),
-			UpdatedAt:  time.Now(),
 		}
 	)
 
@@ -162,8 +157,6 @@ func (s *TalkMessageService) SendVoteMessage(ctx context.Context, uid int, param
 			AnswerMode:   params.Mode,
 			AnswerOption: jsonutil.JsonEncode(options),
 			AnswerNum:    int(num),
-			CreatedAt:    time.Now(),
-			UpdatedAt:    time.Now(),
 		}).Error; err != nil {
 			return err
 		}
@@ -194,8 +187,6 @@ func (s *TalkMessageService) SendEmoticonMessage(ctx context.Context, uid int, p
 			MsgType:    entity.MsgTypeFile,
 			UserId:     uid,
 			ReceiverId: params.ReceiverId,
-			CreatedAt:  time.Now(),
-			UpdatedAt:  time.Now(),
 		}
 	)
 
@@ -252,8 +243,6 @@ func (s *TalkMessageService) SendLocationMessage(ctx context.Context, uid int, p
 			MsgType:    entity.MsgTypeLocation,
 			UserId:     uid,
 			ReceiverId: params.ReceiverId,
-			CreatedAt:  time.Now(),
-			UpdatedAt:  time.Now(),
 		}
 	)
 
@@ -304,7 +293,7 @@ func (s *TalkMessageService) SendRevokeRecordMessage(ctx context.Context, uid in
 	}
 
 	if record.UserId != uid {
-		return errors.New("无权限测回消息")
+		return errors.New("无权撤回回消息")
 	}
 
 	if time.Now().Unix() > record.CreatedAt.Add(3*time.Minute).Unix() {

@@ -141,11 +141,11 @@ func (s *GroupService) Dismiss(GroupId int, UserId int) error {
 			Valid: true,
 		}
 
-		if err = tx.Model(queryModel).Updates(model.Group{IsDismiss: 1, DismissedAt: dismissedAt}).Error; err != nil {
+		if err = tx.Model(queryModel).Updates(&model.Group{IsDismiss: 1, DismissedAt: dismissedAt}).Error; err != nil {
 			return err
 		}
 
-		if err = s.db.Model(&model.GroupMember{}).Where("group_id = ?", GroupId).Unscoped().Updates(model.GroupMember{
+		if err = s.db.Model(&model.GroupMember{}).Where("group_id = ?", GroupId).Unscoped().Updates(&model.GroupMember{
 			IsQuit:    1,
 			DeletedAt: gorm.DeletedAt{Time: time.Now(), Valid: true},
 		}).Error; err != nil {
@@ -164,7 +164,7 @@ func (s *GroupService) Secede(GroupId int, UserId int) error {
 	var err error
 
 	info := &model.GroupMember{}
-	err = s.db.Model(model.GroupMember{}).Where("group_id = ? AND user_id = ?", GroupId, UserId).Unscoped().First(info).Error
+	err = s.db.Model(&model.GroupMember{}).Where("group_id = ? AND user_id = ?", GroupId, UserId).Unscoped().First(info).Error
 	if err != nil {
 		return err
 	}
@@ -178,7 +178,7 @@ func (s *GroupService) Secede(GroupId int, UserId int) error {
 	}
 
 	err = s.db.Transaction(func(tx *gorm.DB) error {
-		count := tx.Model(&model.GroupMember{}).Where("group_id = ? AND user_id = ?", GroupId, UserId).Unscoped().Updates(model.GroupMember{
+		count := tx.Model(&model.GroupMember{}).Where("group_id = ? AND user_id = ?", GroupId, UserId).Unscoped().Updates(&model.GroupMember{
 			IsQuit:    1,
 			DeletedAt: gorm.DeletedAt{Time: time.Now(), Valid: true},
 		}).RowsAffected

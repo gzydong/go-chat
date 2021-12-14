@@ -41,13 +41,13 @@ func (s *ContactApplyService) Accept(ctx context.Context, uid int, req *request.
 
 	err = s.db.Transaction(func(tx *gorm.DB) error {
 		addFriendFunc := func(uid, fid int, remark string) error {
-			var friends model.UsersFriends
+			var friends *model.UsersFriends
 
 			err = tx.Where("user_id = ? and friend_id = ?", uid, fid).First(&friends).Error
 
 			// 数据存在则更新
 			if err == nil {
-				return tx.Model(&model.UsersFriends{}).Where("id = ?", friends.Id).Updates(model.UsersFriends{
+				return tx.Model(&model.UsersFriends{}).Where("id = ?", friends.Id).Updates(&model.UsersFriends{
 					Remark: remark,
 					Status: 1,
 				}).Error
@@ -65,7 +65,7 @@ func (s *ContactApplyService) Accept(ctx context.Context, uid int, req *request.
 			}).Error
 		}
 
-		var user model.Users
+		var user *model.Users
 		if err := tx.Select("id", "nickname").First(&user, applyInfo.FriendId).Error; err != nil {
 			return err
 		}
