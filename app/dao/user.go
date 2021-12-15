@@ -22,10 +22,10 @@ func (dao *UserDao) Create(user *model.Users) (*model.Users, error) {
 }
 
 // FindById ID查询
-func (dao *UserDao) FindById(userid int) (*model.Users, error) {
+func (dao *UserDao) FindById(userId int) (*model.Users, error) {
 	user := &model.Users{}
 
-	if err := dao.Db().Where(&model.Users{Id: userid}).First(user).Error; err != nil {
+	if err := dao.Db().Where(&model.Users{Id: userId}).First(user).Error; err != nil {
 		return nil, err
 	}
 

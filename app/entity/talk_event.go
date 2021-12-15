@@ -2,6 +2,8 @@ package entity
 
 // WebSocket 消息事件枚举
 
+type ImEventType string
+
 const (
 	// 对话消息通知 - 事件名
 	EventTalk = "event_talk"

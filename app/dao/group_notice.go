@@ -10,7 +10,7 @@ type GroupNoticeDao struct {
 }
 
 func (dao *GroupNoticeDao) GetListAll(ctx context.Context, groupId int) ([]*model.SearchNoticeItem, error) {
-	items := make([]*model.SearchNoticeItem, 0)
+
 	fields := []string{
 		"group_notice.id",
 		"group_notice.creator_id",
@@ -25,15 +25,14 @@ func (dao *GroupNoticeDao) GetListAll(ctx context.Context, groupId int) ([]*mode
 		"users.nickname",
 	}
 
-	err := dao.Db().Table("group_notice").
-		Select(fields).
-		Joins("left join users on users.id = group_notice.creator_id").
-		Where("group_notice.group_id = ? and group_notice.is_delete = ?", groupId, 0).
-		Order("group_notice.is_top desc").
-		Order("group_notice.updated_at desc").
-		Scan(&items).Error
+	query := dao.Db().Table("group_notice")
+	query.Joins("left join users on users.id = group_notice.creator_id")
+	query.Where("group_notice.group_id = ? and group_notice.is_delete = ?", groupId, 0)
+	query.Order("group_notice.is_top desc")
+	query.Order("group_notice.updated_at desc")
 
-	if err != nil {
+	items := make([]*model.SearchNoticeItem, 0)
+	if err := query.Select(fields).Scan(&items).Error; err != nil {
 		return nil, err
 	}
 

@@ -47,6 +47,7 @@ func (s *SubscribeConsume) Handle(event string, data string) {
 	}
 }
 
+// onConsumeTalk 聊天消息事件
 func (s *SubscribeConsume) onConsumeTalk(body string) {
 	var msg struct {
 		TalkType   int   `json:"talk_type"`
@@ -64,8 +65,7 @@ func (s *SubscribeConsume) onConsumeTalk(body string) {
 
 	cids := make([]int64, 0)
 	if msg.TalkType == 1 {
-		arr := [2]int64{msg.SenderID, msg.ReceiverID}
-		for _, val := range arr {
+		for _, val := range [2]int64{msg.SenderID, msg.ReceiverID} {
 			ids := s.ws.GetUidFromClientIds(ctx, s.conf.GetSid(), im.Sessions.Default.Name(), strconv.Itoa(int(val)))
 
 			cids = append(cids, ids...)
@@ -94,7 +94,7 @@ func (s *SubscribeConsume) onConsumeTalk(body string) {
 	c := im.NewSenderContent()
 	c.SetReceive(cids...)
 	c.SetMessage(&im.Message{
-		Event: "event_talk",
+		Event: entity.EventTalk,
 		Content: gin.H{
 			"sender_id":   msg.SenderID,
 			"receiver_id": msg.ReceiverID,
