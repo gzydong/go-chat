@@ -123,10 +123,10 @@ func (t *TalkMessageForwardService) SendForwardMessage(ctx context.Context, forw
 		return err
 	}
 
-	if forward.Mode == 2 {
-		items, err = t.MultiMergeForward(ctx, forward)
-	} else {
+	if forward.Mode == 1 {
 		items, err = t.MultiSplitForward(ctx, forward)
+	} else {
+		items, err = t.MultiMergeForward(ctx, forward)
 	}
 
 	if err != nil {
