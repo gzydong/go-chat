@@ -39,7 +39,7 @@ func (dao *TalkRecordsVoteDao) GetVoteAnswerUser(ctx context.Context, vid int) (
 func (dao *TalkRecordsVoteDao) SetVoteAnswerUser(ctx context.Context, vid int) ([]int, error) {
 	uids := make([]int, 0)
 
-	err := dao.Db.Table("talk_records_vote_answer").Where("vote_id = ?", vid).Pluck("user_id", &uids).Error
+	err := dao.Db().Table("talk_records_vote_answer").Where("vote_id = ?", vid).Pluck("user_id", &uids).Error
 
 	if err != nil {
 		return nil, err
@@ -71,13 +71,13 @@ func (dao *TalkRecordsVoteDao) SetVoteStatistics(ctx context.Context, vid int) (
 		options      = make([]string, 0)
 	)
 
-	if err = dao.Db.Table("talk_records_vote").First(&vote, vid).Error; err != nil {
+	if err = dao.Db().Table("talk_records_vote").First(&vote, vid).Error; err != nil {
 		return nil, err
 	}
 
 	_ = jsonutil.JsonDecode(vote.AnswerOption, &answerOption)
 
-	err = dao.Db.Table("talk_records_vote_answer").Where("vote_id = ?", vid).Pluck("option", &options).Error
+	err = dao.Db().Table("talk_records_vote_answer").Where("vote_id = ?", vid).Pluck("option", &options).Error
 	if err != nil {
 		return nil, err
 	}

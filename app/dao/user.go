@@ -14,7 +14,7 @@ func NewUserDao(baseDao *BaseDao) *UserDao {
 
 // Create 创建数据
 func (dao *UserDao) Create(user *model.Users) (*model.Users, error) {
-	if err := dao.Db.Create(user).Error; err != nil {
+	if err := dao.Db().Create(user).Error; err != nil {
 		return nil, err
 	}
 
@@ -25,7 +25,7 @@ func (dao *UserDao) Create(user *model.Users) (*model.Users, error) {
 func (dao *UserDao) FindById(userid int) (*model.Users, error) {
 	user := &model.Users{}
 
-	if err := dao.Db.Where(&model.Users{Id: userid}).First(user).Error; err != nil {
+	if err := dao.Db().Where(&model.Users{Id: userid}).First(user).Error; err != nil {
 		return nil, err
 	}
 
@@ -36,7 +36,7 @@ func (dao *UserDao) FindById(userid int) (*model.Users, error) {
 func (dao *UserDao) FindByMobile(mobile string) (*model.Users, error) {
 	user := &model.Users{}
 
-	if err := dao.Db.Where(&model.Users{Mobile: mobile}).First(user).Error; err != nil {
+	if err := dao.Db().Where(&model.Users{Mobile: mobile}).First(user).Error; err != nil {
 		return nil, err
 	}
 
@@ -47,7 +47,7 @@ func (dao *UserDao) FindByMobile(mobile string) (*model.Users, error) {
 func (dao *UserDao) IsMobileExist(mobile string) bool {
 	user := &model.Users{}
 
-	rowsAffects := dao.Db.Select("id").Where(&model.Users{Mobile: mobile}).First(user).RowsAffected
+	rowsAffects := dao.Db().Select("id").Where(&model.Users{Mobile: mobile}).First(user).RowsAffected
 
 	return rowsAffects != 0
 }

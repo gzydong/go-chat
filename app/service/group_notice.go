@@ -37,7 +37,7 @@ func (s *GroupNoticeService) Create(ctx context.Context, input *request.GroupNot
 		UpdatedAt: time.Now(),
 	}
 
-	return s.dao.Db.Omit("deleted_at", "confirm_users").Create(notice).Error
+	return s.dao.Db().Omit("deleted_at", "confirm_users").Create(notice).Error
 }
 
 // Update 更新群公告

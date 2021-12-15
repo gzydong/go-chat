@@ -16,7 +16,7 @@ func NewEmoticonDao(base *BaseDao) *EmoticonDao {
 func (dao *EmoticonDao) FindById(emoticonId int) (*model.Emoticon, error) {
 	var data *model.Emoticon
 
-	if err := dao.Db.First(&data, emoticonId).Error; err != nil {
+	if err := dao.Db().First(&data, emoticonId).Error; err != nil {
 		return nil, err
 	}
 
@@ -27,7 +27,7 @@ func (dao *EmoticonDao) FindById(emoticonId int) (*model.Emoticon, error) {
 func (dao *EmoticonDao) GetUserInstallIds(uid int) []int {
 	data := &model.UsersEmoticon{}
 
-	if err := dao.Db.First(data, "user_id = ?", uid).Error; err != nil {
+	if err := dao.Db().First(data, "user_id = ?", uid).Error; err != nil {
 		return []int{}
 	}
 
@@ -41,7 +41,7 @@ func (dao *EmoticonDao) GetSystemEmoticonList() ([]*model.Emoticon, error) {
 		items = make([]*model.Emoticon, 0)
 	)
 
-	err = dao.Db.Model(&model.Emoticon{}).Where("status = ?", 0).Scan(&items).Error
+	err = dao.Db().Model(&model.Emoticon{}).Where("status = ?", 0).Scan(&items).Error
 	if err != nil {
 		return nil, err
 	}
@@ -56,7 +56,7 @@ func (dao *EmoticonDao) GetDetailsAll(emoticonId, uid int) ([]*model.EmoticonIte
 		items = make([]*model.EmoticonItem, 0)
 	)
 
-	if err = dao.Db.Model(&model.EmoticonItem{}).Where("emoticon_id = ? and user_id = ?", emoticonId, uid).Scan(&items).Error; err != nil {
+	if err = dao.Db().Model(&model.EmoticonItem{}).Where("emoticon_id = ? and user_id = ?", emoticonId, uid).Scan(&items).Error; err != nil {
 		return nil, err
 	}
 

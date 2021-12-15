@@ -25,7 +25,7 @@ func (dao *GroupNoticeDao) GetListAll(ctx context.Context, groupId int) ([]*mode
 		"users.nickname",
 	}
 
-	err := dao.Db.Table("group_notice").
+	err := dao.Db().Table("group_notice").
 		Select(fields).
 		Joins("left join users on users.id = group_notice.creator_id").
 		Where("group_notice.group_id = ? and group_notice.is_delete = ?", groupId, 0).

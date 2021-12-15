@@ -13,7 +13,7 @@ func NewGroupDao(baseDao *BaseDao) *GroupDao {
 func (dao *GroupDao) FindById(id int) (*model.Group, error) {
 	info := &model.Group{}
 
-	dao.Db.First(&info, id)
+	dao.Db().First(&info, id)
 
 	return info, nil
 }

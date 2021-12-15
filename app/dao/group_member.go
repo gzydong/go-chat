@@ -16,7 +16,7 @@ func NewGroupMemberDao(baseDao *BaseDao) *GroupMemberDao {
 func (dao *GroupMemberDao) IsMember(groupId, userId int) bool {
 	result := &model.GroupMember{}
 
-	count := dao.Db.Select("id").Where("group_id = ? and user_id = ? and is_quit = ?", groupId, userId, 0).Unscoped().First(result).RowsAffected
+	count := dao.Db().Select("id").Where("group_id = ? and user_id = ? and is_quit = ?", groupId, userId, 0).Unscoped().First(result).RowsAffected
 
 	return count != 0
 }
@@ -25,7 +25,7 @@ func (dao *GroupMemberDao) IsMember(groupId, userId int) bool {
 func (dao *GroupMemberDao) GetMemberIds(groupId int) []int {
 	var ids []int
 
-	_ = dao.Db.Model(&model.GroupMember{}).Select("user_id").Where("group_id = ? and is_quit = ?", groupId, 0).Unscoped().Scan(&ids)
+	_ = dao.Db().Model(&model.GroupMember{}).Select("user_id").Where("group_id = ? and is_quit = ?", groupId, 0).Unscoped().Scan(&ids)
 
 	return ids
 }
@@ -34,7 +34,7 @@ func (dao *GroupMemberDao) GetMemberIds(groupId int) []int {
 func (dao *GroupMemberDao) GetUserGroupIds(uid int) []int {
 	var ids []int
 
-	_ = dao.Db.Model(&model.GroupMember{}).Where("user_id = ? and is_quit = ?", uid, 0).Unscoped().Pluck("group_id", &ids)
+	_ = dao.Db().Model(&model.GroupMember{}).Where("user_id = ? and is_quit = ?", uid, 0).Unscoped().Pluck("group_id", &ids)
 
 	return ids
 }
@@ -43,7 +43,7 @@ func (dao *GroupMemberDao) GetUserGroupIds(uid int) []int {
 func (dao *GroupMemberDao) CountMemberTotal(gid int) int64 {
 	num := int64(0)
 
-	dao.Db.Model(&model.GroupMember{}).Where("group_id = ? and is_quit = ?", gid, 0).Unscoped().Count(&num)
+	dao.Db().Model(&model.GroupMember{}).Where("group_id = ? and is_quit = ?", gid, 0).Unscoped().Count(&num)
 
 	return num
 }
@@ -52,7 +52,7 @@ func (dao *GroupMemberDao) CountMemberTotal(gid int) int64 {
 func (dao *GroupMemberDao) GetMemberRemark(groupId int, userId int) string {
 	var remarks string
 
-	dao.Db.Model(&model.GroupMember{}).Select("user_card").Where("group_id = ? and user_id = ?", groupId, userId).Unscoped().Scan(&remarks)
+	dao.Db().Model(&model.GroupMember{}).Select("user_card").Where("group_id = ? and user_id = ?", groupId, userId).Unscoped().Scan(&remarks)
 
 	return remarks
 }
@@ -71,7 +71,7 @@ func (dao *GroupMemberDao) GetMembers(groupId int) []*model.MemberItem {
 		"users.motto",
 	}
 
-	tx := dao.Db.Table("group_member")
+	tx := dao.Db().Table("group_member")
 	tx.Joins("left join users on users.id = group_member.user_id")
 	tx.Where("group_member.group_id = ? and group_member.is_quit = ?", groupId, 0)
 	tx.Order("group_member.leader desc")
