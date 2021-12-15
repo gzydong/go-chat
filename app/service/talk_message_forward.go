@@ -22,6 +22,23 @@ type ForwardParams struct {
 	Mode       int   `json:"mode"`
 }
 
+type receive struct {
+	ReceiverId int `json:"receiver_id"`
+	TalkType   int `json:"talk_type"`
+}
+
+type talkRecord struct {
+	RecordId   int `json:"record_id"`
+	ReceiverId int `json:"receiver_id"`
+	TalkType   int `json:"talk_type"`
+}
+
+type forwardMsgItem struct {
+	MsgType  int    `json:"msg_type"`
+	Content  string `json:"content"`
+	Nickname string `json:"nickname"`
+}
+
 type TalkMessageForwardService struct {
 	*BaseService
 }
@@ -31,7 +48,7 @@ func NewTalkMessageForwardService(base *BaseService) *TalkMessageForwardService 
 }
 
 // 验证消息转发
-func (t *TalkMessageForwardService) verifyForward(forward *ForwardParams) error {
+func (t *TalkMessageForwardService) verify(forward *ForwardParams) error {
 
 	query := t.db.Model(&model.TalkRecords{})
 
@@ -59,65 +76,10 @@ func (t *TalkMessageForwardService) verifyForward(forward *ForwardParams) error 
 	return nil
 }
 
-// SendForwardMessage 推送转发消息
-func (t *TalkMessageForwardService) SendForwardMessage(ctx context.Context, forward *ForwardParams) error {
-	var (
-		err   error
-		items []*PushReceive
-	)
-
-	if err = t.verifyForward(forward); err != nil {
-		return err
-	}
-
-	if forward.Mode == 2 {
-		items, err = t.MultiMergeForward(ctx, forward)
-	} else {
-		items, err = t.MultiSplitForward(ctx, forward)
-	}
-
-	if err != nil {
-		return err
-	}
-
-	for _, item := range items {
-		body := entity.JsonText{
-			"event": entity.EventTalk,
-			"data": entity.JsonText{
-				"sender_id":   int64(forward.UserId),
-				"receiver_id": int64(item.ReceiverId),
-				"talk_type":   item.TalkType,
-				"record_id":   int64(item.RecordId),
-			}.Json(),
-		}
-
-		t.rds.Publish(ctx, entity.SubscribeWsGatewayAll, body.Json())
-	}
-
-	return nil
-}
-
-type Receives struct {
-	ReceiverId int `json:"receiver_id"`
-	TalkType   int `json:"talk_type"`
-}
-
-type PushReceive struct {
-	RecordId   int `json:"record_id"`
-	ReceiverId int `json:"receiver_id"`
-	TalkType   int `json:"talk_type"`
-}
-
-type ForwardMsgItem struct {
-	MsgType  int    `json:"msg_type"`
-	Content  string `json:"content"`
-	Nickname string `json:"nickname"`
-}
-
 // 聚合转发数据
 func (t *TalkMessageForwardService) aggregation(ctx context.Context, forward *ForwardParams) (string, error) {
 
-	rows := make([]*ForwardMsgItem, 0)
+	rows := make([]*forwardMsgItem, 0)
 
 	query := t.db.Table("talk_records")
 	query.Joins("left join users on users.id = talk_records.user_id")
@@ -150,19 +112,55 @@ func (t *TalkMessageForwardService) aggregation(ctx context.Context, forward *Fo
 	return jsonutil.JsonEncode(data), nil
 }
 
-// MultiMergeForward 转发消息（多条合并转发）
-func (t *TalkMessageForwardService) MultiMergeForward(ctx context.Context, forward *ForwardParams) ([]*PushReceive, error) {
+// SendForwardMessage 推送转发消息
+func (t *TalkMessageForwardService) SendForwardMessage(ctx context.Context, forward *ForwardParams) error {
 	var (
-		receives = make([]*Receives, 0)
-		arr      = make([]*PushReceive, 0)
+		err   error
+		items []*talkRecord
+	)
+
+	if err = t.verify(forward); err != nil {
+		return err
+	}
+
+	if forward.Mode == 2 {
+		items, err = t.MultiMergeForward(ctx, forward)
+	} else {
+		items, err = t.MultiSplitForward(ctx, forward)
+	}
+
+	if err != nil {
+		return err
+	}
+
+	for _, item := range items {
+		t.rds.Publish(ctx, entity.SubscribeWsGatewayAll, entity.JsonText{
+			"event": entity.EventTalk,
+			"data": entity.JsonText{
+				"sender_id":   int64(forward.UserId),
+				"receiver_id": int64(item.ReceiverId),
+				"talk_type":   item.TalkType,
+				"record_id":   int64(item.RecordId),
+			}.Json(),
+		}.Json())
+	}
+
+	return nil
+}
+
+// MultiMergeForward 转发消息（多条合并转发）
+func (t *TalkMessageForwardService) MultiMergeForward(ctx context.Context, forward *ForwardParams) ([]*talkRecord, error) {
+	var (
+		receives = make([]*receive, 0)
+		arr      = make([]*talkRecord, 0)
 	)
 
 	for _, uid := range forward.UserIds {
-		receives = append(receives, &Receives{uid, 1})
+		receives = append(receives, &receive{uid, 1})
 	}
 
 	for _, gid := range forward.GroupIds {
-		receives = append(receives, &Receives{gid, 2})
+		receives = append(receives, &receive{gid, 2})
 	}
 
 	text, err := t.aggregation(ctx, forward)
@@ -175,12 +173,12 @@ func (t *TalkMessageForwardService) MultiMergeForward(ctx context.Context, forwa
 		forwards := make([]*model.TalkRecordsForward, 0, len(receives))
 		records := make([]*model.TalkRecords, 0, len(receives))
 
-		for _, receive := range receives {
+		for _, item := range receives {
 			records = append(records, &model.TalkRecords{
-				TalkType:   receive.TalkType,
+				TalkType:   item.TalkType,
 				MsgType:    entity.MsgTypeForward,
 				UserId:     forward.UserId,
-				ReceiverId: receive.ReceiverId,
+				ReceiverId: item.ReceiverId,
 			})
 		}
 
@@ -196,7 +194,7 @@ func (t *TalkMessageForwardService) MultiMergeForward(ctx context.Context, forwa
 				Text:      text,
 			})
 
-			arr = append(arr, &PushReceive{
+			arr = append(arr, &talkRecord{
 				RecordId:   record.Id,
 				ReceiverId: record.ReceiverId,
 				TalkType:   record.TalkType,
@@ -218,21 +216,21 @@ func (t *TalkMessageForwardService) MultiMergeForward(ctx context.Context, forwa
 }
 
 // MultiSplitForward 转发消息（多条拆分转发）
-func (t *TalkMessageForwardService) MultiSplitForward(ctx context.Context, forward *ForwardParams) ([]*PushReceive, error) {
+func (t *TalkMessageForwardService) MultiSplitForward(ctx context.Context, forward *ForwardParams) ([]*talkRecord, error) {
 	var (
-		receives  = make([]*Receives, 0)
-		arr       = make([]*PushReceive, 0)
+		receives  = make([]*receive, 0)
+		arr       = make([]*talkRecord, 0)
 		records   = make([]*model.TalkRecords, 0)
 		hashFiles = make(map[int]*model.TalkRecordsFile)
 		hashCodes = make(map[int]*model.TalkRecordsCode)
 	)
 
 	for _, uid := range forward.UserIds {
-		receives = append(receives, &Receives{uid, 1})
+		receives = append(receives, &receive{uid, 1})
 	}
 
 	for _, gid := range forward.GroupIds {
-		receives = append(receives, &Receives{gid, 2})
+		receives = append(receives, &receive{gid, 2})
 	}
 
 	if err := t.db.Model(&model.TalkRecords{}).Where("id IN ?", forward.RecordsIds).Scan(&records).Error; err != nil {
@@ -274,12 +272,12 @@ func (t *TalkMessageForwardService) MultiSplitForward(ctx context.Context, forwa
 			files := make([]*model.TalkRecordsFile, 0)
 			codes := make([]*model.TalkRecordsCode, 0)
 
-			for _, receive := range receives {
+			for _, val := range receives {
 				items = append(items, &model.TalkRecords{
-					TalkType:   receive.TalkType,
+					TalkType:   val.TalkType,
 					MsgType:    item.MsgType,
 					UserId:     forward.UserId,
-					ReceiverId: receive.ReceiverId,
+					ReceiverId: val.ReceiverId,
 					Content:    item.Content,
 				})
 			}
@@ -289,7 +287,7 @@ func (t *TalkMessageForwardService) MultiSplitForward(ctx context.Context, forwa
 			}
 
 			for _, record := range items {
-				arr = append(arr, &PushReceive{
+				arr = append(arr, &talkRecord{
 					RecordId:   record.Id,
 					ReceiverId: record.ReceiverId,
 					TalkType:   record.TalkType,
