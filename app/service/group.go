@@ -125,7 +125,7 @@ func (s *GroupService) Create(ctx *gin.Context, request *request.GroupCreateRequ
 		}),
 	}
 
-	s.rds.Publish(ctx, entity.SubscribeWsGatewayAll, jsonutil.JsonEncode(body))
+	s.rds.Publish(ctx, entity.IMGatewayAll, jsonutil.JsonEncode(body))
 
 	return err
 }
@@ -302,7 +302,7 @@ func (s *GroupService) InviteUsers(ctx context.Context, groupId int, uid int, ui
 		}),
 	}
 
-	s.rds.Publish(ctx, entity.SubscribeWsGatewayAll, jsonutil.JsonEncode(body))
+	s.rds.Publish(ctx, entity.IMGatewayAll, jsonutil.JsonEncode(body))
 
 	return nil
 }

@@ -73,7 +73,7 @@ func (c *DefaultWebSocket) Open(client *im.Client) {
 	}
 
 	// 推送上线消息
-	c.rds.Publish(context.Background(), entity.SubscribeWsGatewayAll, entity.JsonText{
+	c.rds.Publish(context.Background(), entity.IMGatewayAll, entity.JsonText{
 		"event": entity.EventOnlineStatus,
 		"data": entity.JsonText{
 			"user_id": client.Uid(),
@@ -92,7 +92,7 @@ func (c *DefaultWebSocket) Message(message *im.ReceiveContent) {
 	case "event_keyboard":
 		var m *wst.KeyboardMessage
 		if err := json.Unmarshal([]byte(message.Content), &m); err == nil {
-			c.rds.Publish(context.Background(), entity.SubscribeWsGatewayAll, entity.JsonText{
+			c.rds.Publish(context.Background(), entity.IMGatewayAll, entity.JsonText{
 				"event": entity.EventKeyboard,
 				"data": entity.JsonText{
 					"sender_id":   m.Data.SenderID,
@@ -122,7 +122,7 @@ func (c *DefaultWebSocket) Close(client *im.Client, code int, text string) {
 	}
 
 	// 推送下线消息
-	c.rds.Publish(context.Background(), entity.SubscribeWsGatewayAll, entity.JsonText{
+	c.rds.Publish(context.Background(), entity.IMGatewayAll, entity.JsonText{
 		"event": entity.EventOnlineStatus,
 		"data": entity.JsonText{
 			"user_id": client.Uid(),

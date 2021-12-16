@@ -3,10 +3,10 @@ package entity
 import "fmt"
 
 const (
-	SubscribeWsGatewayAll     = "ws:gateway:all"
-	SubscribeWsGatewayPrivate = "ws:gateway:%s"
+	IMGatewayAll     = "ws:gateway:all"
+	IMGatewayPrivate = "ws:gateway:%s"
 )
 
-func GetSubscribeWsGatewayPrivate(sid string) string {
-	return fmt.Sprintf(SubscribeWsGatewayPrivate, sid)
+func GetIMGatewayPrivate(sid string) string {
+	return fmt.Sprintf(IMGatewayPrivate, sid)
 }

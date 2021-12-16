@@ -27,11 +27,11 @@ func NewWsSubscribe(rds *redis.Client, conf *config.Config, consume *handle.Subs
 }
 
 func (w *WsSubscribe) Handle(ctx context.Context) error {
-	gateway := fmt.Sprintf(entity.SubscribeWsGatewayPrivate, w.conf.GetSid())
+	gateway := fmt.Sprintf(entity.IMGatewayPrivate, w.conf.GetSid())
 
 	channels := []string{
-		entity.SubscribeWsGatewayAll, // 全局通道
-		gateway,                      // 私有通道
+		entity.IMGatewayAll, // 全局通道
+		gateway,             // 私有通道
 	}
 
 	// 订阅通道
@@ -51,7 +51,7 @@ func (w *WsSubscribe) Handle(ctx context.Context) error {
 				switch value.Channel {
 
 				// 私有通道及全局广播通道
-				case gateway, entity.SubscribeWsGatewayAll:
+				case gateway, entity.IMGatewayAll:
 					var message *SubscribeContent
 					if err := json.Unmarshal([]byte(value.Payload), &message); err == nil {
 						w.consume.Handle(message.Event, message.Data)
