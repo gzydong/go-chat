@@ -235,8 +235,8 @@ func (s *SubscribeConsume) onConsumeAddGroupRoom(body string) {
 		ctx  = context.Background()
 		sid  = s.conf.GetSid()
 		data struct {
-			gid  int
-			uids []int
+			Gid  int
+			Uids []int
 		}
 	)
 
@@ -244,14 +244,14 @@ func (s *SubscribeConsume) onConsumeAddGroupRoom(body string) {
 		return
 	}
 
-	for _, uid := range data.uids {
+	for _, uid := range data.Uids {
 		cids := s.ws.GetUidFromClientIds(ctx, sid, im.Sessions.Default.Name(), strconv.Itoa(uid))
 
 		for _, cid := range cids {
 			_ = s.room.Add(ctx, &cache.RoomOption{
 				Channel:  im.Sessions.Default.Name(),
 				RoomType: entity.RoomGroupChat,
-				Number:   strconv.Itoa(data.gid),
+				Number:   strconv.Itoa(data.Gid),
 				Sid:      s.conf.GetSid(),
 				Cid:      cid,
 			})
