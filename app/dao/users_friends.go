@@ -3,18 +3,16 @@ package dao
 import (
 	"context"
 	"fmt"
-	"github.com/go-redis/redis/v8"
 	"go-chat/app/model"
 	"time"
 )
 
 type UsersFriendsDao struct {
 	*BaseDao
-	rds *redis.Client
 }
 
-func NewUsersFriends(base *BaseDao, rds *redis.Client) *UsersFriendsDao {
-	return &UsersFriendsDao{base, rds}
+func NewUsersFriends(base *BaseDao) *UsersFriendsDao {
+	return &UsersFriendsDao{base}
 }
 
 func (dao *UsersFriendsDao) GetFriendRemark(ctx context.Context, uid int, friendId int, isCache bool) string {

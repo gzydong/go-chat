@@ -23,7 +23,7 @@ func (dao *GroupMemberDao) IsMember(groupId, userId int) bool {
 
 // GetMemberIds 获取所有群成员用户ID
 func (dao *GroupMemberDao) GetMemberIds(groupId int) []int {
-	var ids []int
+	ids := make([]int, 0)
 
 	_ = dao.Db().Model(&model.GroupMember{}).Select("user_id").Where("group_id = ? and is_quit = ?", groupId, 0).Unscoped().Scan(&ids)
 
@@ -32,7 +32,7 @@ func (dao *GroupMemberDao) GetMemberIds(groupId int) []int {
 
 // GetUserGroupIds 获取所有群成员ID
 func (dao *GroupMemberDao) GetUserGroupIds(uid int) []int {
-	var ids []int
+	ids := make([]int, 0)
 
 	_ = dao.Db().Model(&model.GroupMember{}).Where("user_id = ? and is_quit = ?", uid, 0).Unscoped().Pluck("group_id", &ids)
 
@@ -59,8 +59,6 @@ func (dao *GroupMemberDao) GetMemberRemark(groupId int, userId int) string {
 
 // GetMembers 获取群组成员列表
 func (dao *GroupMemberDao) GetMembers(groupId int) []*model.MemberItem {
-	var items []*model.MemberItem
-
 	fields := []string{
 		"group_member.leader",
 		"group_member.user_card",
@@ -75,6 +73,8 @@ func (dao *GroupMemberDao) GetMembers(groupId int) []*model.MemberItem {
 	tx.Joins("left join users on users.id = group_member.user_id")
 	tx.Where("group_member.group_id = ? and group_member.is_quit = ?", groupId, 0)
 	tx.Order("group_member.leader desc")
+
+	items := make([]*model.MemberItem, 0)
 	tx.Unscoped().Select(fields).Scan(&items)
 
 	return items

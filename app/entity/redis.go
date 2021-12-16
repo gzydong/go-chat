@@ -3,8 +3,8 @@ package entity
 import "fmt"
 
 const (
-	IMGatewayAll     = "ws:gateway:all"
-	IMGatewayPrivate = "ws:gateway:%s"
+	IMGatewayAll     = "im:gateway:all"
+	IMGatewayPrivate = "im:gateway:%s"
 )
 
 func GetIMGatewayPrivate(sid string) string {

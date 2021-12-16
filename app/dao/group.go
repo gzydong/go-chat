@@ -13,7 +13,9 @@ func NewGroupDao(baseDao *BaseDao) *GroupDao {
 func (dao *GroupDao) FindById(id int) (*model.Group, error) {
 	info := &model.Group{}
 
-	dao.Db().First(&info, id)
+	if err := dao.Db().First(&info, id).Error; err != nil {
+		return nil, err
+	}
 
 	return info, nil
 }

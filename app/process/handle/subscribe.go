@@ -232,26 +232,26 @@ func (s *SubscribeConsume) onConsumeContactApply(body string) {
 // onConsumeAddGroupRoom 加入群房间
 func (s *SubscribeConsume) onConsumeAddGroupRoom(body string) {
 	var (
-		ctx = context.Background()
-		sid = s.conf.GetSid()
-		m   struct {
-			GroupID int   `json:"group_id"`
-			Uids    []int `json:"uids"`
+		ctx  = context.Background()
+		sid  = s.conf.GetSid()
+		data struct {
+			gid  int
+			uids []int
 		}
 	)
 
-	if err := json.Unmarshal([]byte(body), &m); err != nil {
+	if err := json.Unmarshal([]byte(body), &data); err != nil {
 		return
 	}
 
-	for _, uid := range m.Uids {
+	for _, uid := range data.uids {
 		cids := s.ws.GetUidFromClientIds(ctx, sid, im.Sessions.Default.Name(), strconv.Itoa(uid))
 
 		for _, cid := range cids {
 			_ = s.room.Add(ctx, &cache.RoomOption{
 				Channel:  im.Sessions.Default.Name(),
 				RoomType: entity.RoomGroupChat,
-				Number:   strconv.Itoa(m.GroupID),
+				Number:   strconv.Itoa(data.gid),
 				Sid:      s.conf.GetSid(),
 				Cid:      cid,
 			})

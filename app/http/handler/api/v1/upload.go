@@ -86,10 +86,25 @@ func (u *Upload) InitiateMultipart(ctx *gin.Context) {
 		"file_size":     info.FileSize,
 		"split_num":     info.SplitNum,
 		"split_index":   info.SplitIndex,
+		"split_size":    2 << 20,
 	})
 }
 
 // 批量分片上传
 func (u *Upload) MultipartUpload(ctx *gin.Context) {
+	params := &request.UploadMultipartRequest{}
+	if err := ctx.ShouldBind(params); err != nil {
+		response.InvalidParams(ctx, err)
+		return
+	}
 
+	file, err := ctx.FormFile("file")
+	if err != nil {
+		response.InvalidParams(ctx, "文件上传失败！")
+		return
+	}
+
+	_, _ = u.service.MultipartAppendUpload(ctx.Request.Context(), params, file)
+
+	response.Success(ctx, gin.H{"is_file_merge": false})
 }

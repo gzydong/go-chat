@@ -10,14 +10,14 @@ import (
 )
 
 type UserService struct {
-	dao *dao.UserDao
+	dao *dao.UsersDao
 }
 
-func NewUserService(userDao *dao.UserDao) *UserService {
+func NewUserService(userDao *dao.UsersDao) *UserService {
 	return &UserService{dao: userDao}
 }
 
-func (s *UserService) Dao() *dao.UserDao {
+func (s *UserService) Dao() *dao.UsersDao {
 	return s.dao
 }
 

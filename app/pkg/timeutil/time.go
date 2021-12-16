@@ -5,6 +5,7 @@ import "time"
 const (
 	DatetimeFormat = "2006-01-02 15:04:05"
 	DateFormat     = "2006-01-02"
+	DateDayFormat  = "20060102"
 	TimeFormat     = "15:04:05"
 )
 
@@ -14,6 +15,10 @@ func DateTime() string {
 
 func Date() string {
 	return time.Now().Format(DateFormat)
+}
+
+func DateDay() string {
+	return time.Now().Format(DateDayFormat)
 }
 
 func Time() string {

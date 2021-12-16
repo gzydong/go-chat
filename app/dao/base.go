@@ -3,15 +3,17 @@ package dao
 import (
 	"errors"
 	"github.com/gin-gonic/gin"
+	"github.com/go-redis/redis/v8"
 	"gorm.io/gorm"
 )
 
 type BaseDao struct {
-	db *gorm.DB
+	db  *gorm.DB
+	rds *redis.Client
 }
 
-func NewBaseDao(db *gorm.DB) *BaseDao {
-	return &BaseDao{db}
+func NewBaseDao(db *gorm.DB, rds *redis.Client) *BaseDao {
+	return &BaseDao{db: db, rds: rds}
 }
 
 func (dao *BaseDao) Db() *gorm.DB {
