@@ -54,3 +54,8 @@ filesystem:
     secret_key:
     bucket:
     domain:
+  cos:
+    secret_id: ""
+    secret_key: ""
+    bucket: "im-xxx"
+    region: "ap-shanghai"
