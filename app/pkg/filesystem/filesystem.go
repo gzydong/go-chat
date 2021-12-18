@@ -1,6 +1,7 @@
 package filesystem
 
 import (
+	"fmt"
 	"time"
 
 	"go-chat/config"
@@ -34,7 +35,7 @@ type AdapterInterface interface {
 
 	ReadStream(filePath string) ([]byte, error)
 
-	InitiateMultipartUpload(filePath string) (string, error)
+	InitiateMultipartUpload(filePath string, fileName string) (string, error)
 }
 
 // FileStat 文件信息
@@ -57,18 +58,18 @@ func NewFilesystem(conf *config.Config) *Filesystem {
 	s := &Filesystem{}
 
 	s.driver = conf.Filesystem.Default
-	cos := NewCosFilesystem(conf)
-	local := NewLocalFilesystem(conf)
 
-	switch conf.Filesystem.Default {
+	s.Local = NewLocalFilesystem(conf)
+	s.Cos = NewCosFilesystem(conf)
+
+	switch s.driver {
 	case "cos":
-		s.Default = NewCosFilesystem(conf)
+		s.Default = s.Cos
 	default:
-		s.Default = NewLocalFilesystem(conf)
+		s.Default = s.Local
 	}
 
-	s.Local = local
-	s.Cos = cos
+	fmt.Println(s.Default)
 
 	return s
 }

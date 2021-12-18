@@ -4,11 +4,14 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/sirupsen/logrus"
 	"go-chat/app/cache"
 	"go-chat/app/dao"
 	"go-chat/app/entity"
 	"go-chat/app/http/request"
 	"go-chat/app/model"
+	"go-chat/app/pkg/encrypt"
+	"go-chat/app/pkg/filesystem"
 	"go-chat/app/pkg/jsonutil"
 	"go-chat/app/pkg/strutil"
 	"go-chat/app/pkg/timeutil"
@@ -30,10 +33,11 @@ type TalkMessageService struct {
 	groupMemberDao     *dao.GroupMemberDao
 	sidServer          *cache.SidServer
 	client             *cache.WsClientSession
+	fileSystem         *filesystem.Filesystem
 }
 
-func NewTalkMessageService(baseService *BaseService, config *config.Config, unreadTalkCache *cache.UnreadTalkCache, forwardService *TalkMessageForwardService, lastMessage *cache.LastMessage, talkRecordsVoteDao *dao.TalkRecordsVoteDao, groupMemberDao *dao.GroupMemberDao, sid *cache.SidServer, client *cache.WsClientSession) *TalkMessageService {
-	return &TalkMessageService{BaseService: baseService, config: config, unreadTalkCache: unreadTalkCache, forwardService: forwardService, lastMessage: lastMessage, talkRecordsVoteDao: talkRecordsVoteDao, groupMemberDao: groupMemberDao, sidServer: sid, client: client}
+func NewTalkMessageService(baseService *BaseService, config *config.Config, unreadTalkCache *cache.UnreadTalkCache, forwardService *TalkMessageForwardService, lastMessage *cache.LastMessage, talkRecordsVoteDao *dao.TalkRecordsVoteDao, groupMemberDao *dao.GroupMemberDao, sidServer *cache.SidServer, client *cache.WsClientSession, fileSystem *filesystem.Filesystem) *TalkMessageService {
+	return &TalkMessageService{BaseService: baseService, config: config, unreadTalkCache: unreadTalkCache, forwardService: forwardService, lastMessage: lastMessage, talkRecordsVoteDao: talkRecordsVoteDao, groupMemberDao: groupMemberDao, sidServer: sidServer, client: client, fileSystem: fileSystem}
 }
 
 // SendTextMessage 发送文本消息
@@ -113,8 +117,55 @@ func (s *TalkMessageService) SendImageMessage(ctx context.Context, uid int, para
 // SendFileMessage 发送文件消息
 // @params uid     用户ID
 // @params params  请求参数
-func (s *TalkMessageService) SendFileMessage(ctx context.Context, params *request.FileMessageRequest) {
+func (s *TalkMessageService) SendFileMessage(ctx context.Context, params *request.FileMessageRequest, file *model.FileSplitUpload) error {
 
+	var (
+		err    error
+		record = &model.TalkRecords{
+			TalkType:   params.TalkType,
+			MsgType:    entity.MsgTypeFile,
+			UserId:     params.UserId,
+			ReceiverId: params.ReceiverId,
+		}
+	)
+
+	dir := fmt.Sprintf("private/files/talks/%s/%s.%s", timeutil.DateDay(), encrypt.Md5(strutil.Random(16)), file.FileExt)
+	if err := s.fileSystem.Default.Copy(file.SaveDir, dir); err != nil {
+		logrus.Error("文件拷贝失败 err: ", err.Error())
+		return err
+	}
+
+	err = s.db.Transaction(func(tx *gorm.DB) error {
+		if err = s.db.Create(record).Error; err != nil {
+			return err
+		}
+
+		if err = s.db.Create(&model.TalkRecordsFile{
+			RecordId:     record.Id,
+			UserId:       params.UserId,
+			FileSource:   1,
+			FileType:     entity.GetMediaType(file.FileExt),
+			SaveType:     file.Drive,
+			OriginalName: file.OriginalName,
+			FileSuffix:   file.FileExt,
+			FileSize:     int(file.FileSize),
+			SaveDir:      dir,
+		}).Error; err != nil {
+			return err
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		return err
+	}
+
+	s.afterHandle(ctx, record, map[string]string{
+		"text": "[文件消息]",
+	})
+
+	return nil
 }
 
 // SendCardMessage 发送用户名片消息

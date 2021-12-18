@@ -132,6 +132,7 @@ func RegisterApiRoute(conf *config.Config, router *gin.Engine, handler *handler.
 
 		download := group.Group("/download").Use(authorize)
 		{
+			download.GET("/user-chat-file", handler.Download.ChatFile)
 			download.GET("/chat/file", handler.Download.ArticleAnnex)
 		}
 	}

@@ -37,6 +37,10 @@ func NewSplitUploadService(baseService *BaseService, dao *dao.FileSplitUploadDao
 	return &SplitUploadService{BaseService: baseService, dao: dao, conf: conf, fileSystem: fileSystem}
 }
 
+func (s *SplitUploadService) Dao() *dao.FileSplitUploadDao {
+	return s.dao
+}
+
 // IsUploadFile 判断拆分文件上传ID是否存在
 func (s *SplitUploadService) IsUploadFile(ctx context.Context, uid int, hashId string) {
 
@@ -63,7 +67,7 @@ func (s *SplitUploadService) InitiateMultipartUpload(ctx context.Context, params
 		m.Drive = 2
 	}
 
-	uploadId, err := s.fileSystem.Default.InitiateMultipartUpload(m.SaveDir)
+	uploadId, err := s.fileSystem.Default.InitiateMultipartUpload(m.SaveDir, m.OriginalName)
 	if err != nil {
 		return nil, err
 	}

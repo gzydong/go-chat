@@ -134,12 +134,17 @@ func (c *CosFilesystem) PrivateUrl(filePath string, timeout int) string {
 
 // 读取文件流信息
 func (c *CosFilesystem) ReadStream(filePath string) ([]byte, error) {
-
 	return nil, nil
 }
 
-func (c *CosFilesystem) InitiateMultipartUpload(filePath string) (string, error) {
-	resp, _, err := c.client.Object.InitiateMultipartUpload(context.Background(), filePath, nil)
+func (c *CosFilesystem) InitiateMultipartUpload(filePath string, fileName string) (string, error) {
+	opt := &cos.InitiateMultipartUploadOptions{
+		ObjectPutHeaderOptions: &cos.ObjectPutHeaderOptions{
+			ContentDisposition: fmt.Sprintf("attachment; filename=\"%s\"", fileName),
+		},
+	}
+
+	resp, _, err := c.client.Object.InitiateMultipartUpload(context.Background(), filePath, opt)
 	if err != nil {
 		return "", err
 	}

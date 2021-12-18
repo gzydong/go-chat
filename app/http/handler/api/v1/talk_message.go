@@ -17,6 +17,7 @@ type TalkMessage struct {
 	talkService        *service.TalkService
 	talkRecordsVoteDao *dao.TalkRecordsVoteDao
 	forwardService     *service.TalkMessageForwardService
+	splitUploadService *service.SplitUploadService
 }
 
 func NewTalkMessageHandler(
@@ -24,8 +25,9 @@ func NewTalkMessageHandler(
 	talkService *service.TalkService,
 	talkRecordsVoteDao *dao.TalkRecordsVoteDao,
 	forwardService *service.TalkMessageForwardService,
+	splitUploadService *service.SplitUploadService,
 ) *TalkMessage {
-	return &TalkMessage{service: service, talkService: talkService, talkRecordsVoteDao: talkRecordsVoteDao, forwardService: forwardService}
+	return &TalkMessage{service: service, talkService: talkService, talkRecordsVoteDao: talkRecordsVoteDao, forwardService: forwardService, splitUploadService: splitUploadService}
 }
 
 // Text 发送文本消息
@@ -108,7 +110,20 @@ func (c *TalkMessage) File(ctx *gin.Context) {
 		return
 	}
 
-	// c.service.SendFileMessage(ctx.Request.Context(), params)
+	uid := auth.GetAuthUserID(ctx)
+
+	file, err := c.splitUploadService.Dao().GetFile(uid, params.UploadId)
+	if err != nil {
+		response.BusinessError(ctx, "文件信息不存在！")
+		return
+	}
+
+	params.UserId = uid
+
+	if err := c.service.SendFileMessage(ctx.Request.Context(), params, file); err != nil {
+		response.BusinessError(ctx, err)
+		return
+	}
 
 	response.Success(ctx, gin.H{}, "消息推送成功！")
 }

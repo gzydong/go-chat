@@ -3,7 +3,6 @@ package v1
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/sirupsen/logrus"
 	"go-chat/app/http/request"
 	"go-chat/app/http/response"
 	"go-chat/app/pkg/auth"
@@ -77,8 +76,6 @@ func (u *Upload) InitiateMultipart(ctx *gin.Context) {
 		response.BusinessError(ctx, err)
 		return
 	}
-
-	logrus.Error("asjkfanskjfa")
 
 	response.Success(ctx, &gin.H{
 		"file_type":     info.Type,
