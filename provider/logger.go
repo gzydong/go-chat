@@ -2,16 +2,18 @@ package provider
 
 import (
 	"github.com/sirupsen/logrus"
-	"go-chat/config"
 	"os"
 )
 
-func NewLogger(conf *config.Config) *logrus.Logger {
-	log := logrus.New()
+func init() {
+	logrus.SetFormatter(&logrus.JSONFormatter{
+		TimestampFormat: "2006-01-02 15:04:05",
+	})
 
-	log.SetFormatter(&logrus.JSONFormatter{})
+	src, err := os.OpenFile("runtime/logs/logger.log", os.O_APPEND|os.O_WRONLY, os.ModeAppend)
+	if err != nil {
+		panic(err)
+	}
 
-	log.SetOutput(os.Stdout)
-
-	return log
+	logrus.SetOutput(src)
 }
