@@ -131,3 +131,34 @@ func (c *CosFilesystem) PrivateUrl(filePath string, timeout int) string {
 
 	return result.String()
 }
+
+// 读取文件流信息
+func (c *CosFilesystem) ReadStream(filePath string) ([]byte, error) {
+
+	return nil, nil
+}
+
+func (c *CosFilesystem) InitiateMultipartUpload(filePath string) (string, error) {
+	resp, _, err := c.client.Object.InitiateMultipartUpload(context.Background(), filePath, nil)
+	if err != nil {
+		return "", err
+	}
+
+	return resp.UploadID, nil
+}
+
+func (c *CosFilesystem) UploadPart(filePath string, uploadID string, num int, stream []byte) (string, error) {
+	resp, err := c.client.Object.UploadPart(context.Background(), filePath, uploadID, num, bytes.NewBuffer(stream), nil)
+
+	if err != nil {
+		return "", err
+	}
+
+	return strings.Trim(resp.Header.Get("ETag"), `"`), nil
+}
+
+func (c *CosFilesystem) CompleteMultipartUpload(filePath string, uploadID string, opt *cos.CompleteMultipartUploadOptions) error {
+	_, _, err := c.client.Object.CompleteMultipartUpload(context.Background(), filePath, uploadID, opt)
+
+	return err
+}

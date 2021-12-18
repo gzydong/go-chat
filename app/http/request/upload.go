@@ -10,7 +10,7 @@ type UploadInitiateMultipartRequest struct {
 }
 
 type UploadMultipartRequest struct {
-	Hash       string `form:"hash" json:"hash" binding:"required"`
+	UploadId   string `form:"hash" json:"hash" binding:"required"`
 	Name       string `form:"name" json:"name" binding:"required"`
 	Size       int64  `form:"size" json:"size" binding:"required"`
 	Ext        string `form:"ext" json:"ext" binding:"required"`

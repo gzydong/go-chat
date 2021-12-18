@@ -31,6 +31,10 @@ type AdapterInterface interface {
 	PublicUrl(filePath string) string
 
 	PrivateUrl(filePath string, timeout int) string
+
+	ReadStream(filePath string) ([]byte, error)
+
+	InitiateMultipartUpload(filePath string) (string, error)
 }
 
 // FileStat 文件信息
@@ -43,21 +47,32 @@ type FileStat struct {
 }
 
 type Filesystem struct {
-	AdapterInterface
+	driver  string
+	Default AdapterInterface
+	Local   *LocalFilesystem
+	Cos     *CosFilesystem
 }
 
 func NewFilesystem(conf *config.Config) *Filesystem {
-	var driver AdapterInterface
+	s := &Filesystem{}
+
+	s.driver = conf.Filesystem.Default
+	cos := NewCosFilesystem(conf)
+	local := NewLocalFilesystem(conf)
+
 	switch conf.Filesystem.Default {
-	case "oss":
-		driver = NewOssFilesystem(conf)
-	case "qiniu":
-		driver = NewQiniuFilesystem(conf)
 	case "cos":
-		driver = NewCosFilesystem(conf)
+		s.Default = NewCosFilesystem(conf)
 	default:
-		driver = NewLocalFilesystem(conf)
+		s.Default = NewLocalFilesystem(conf)
 	}
 
-	return &Filesystem{driver}
+	s.Local = local
+	s.Cos = cos
+
+	return s
+}
+
+func (f *Filesystem) Driver() string {
+	return f.driver
 }

@@ -135,14 +135,14 @@ func (c *Emoticon) Upload(ctx *gin.Context) {
 
 	src := fmt.Sprintf("media/images/emoticon/%s/%s", time.Now().Format("20060102"), strutil.GenImageName(ext, size["width"], size["height"]))
 
-	err = c.filesystem.Write(fileBytes, src)
+	err = c.filesystem.Default.Write(fileBytes, src)
 	if err != nil {
 		response.BusinessError(ctx, err)
 		return
 	}
 
 	response.Success(ctx, gin.H{
-		"url": c.filesystem.PublicUrl(src),
+		"url": c.filesystem.Default.PublicUrl(src),
 	}, "文件上传成功")
 }
 

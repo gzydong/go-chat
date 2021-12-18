@@ -48,14 +48,14 @@ func (u *Upload) Stream(ctx *gin.Context) {
 
 	object := fmt.Sprintf("public/media/image/avatar/%s/%s", time.Now().Format("20060102"), strutil.GenImageName("png", 200, 200))
 
-	err := u.filesystem.Write(stream, object)
+	err := u.filesystem.Default.Write(stream, object)
 	if err != nil {
 		response.BusinessError(ctx, "文件上传失败")
 		return
 	}
 
 	response.Success(ctx, gin.H{
-		"avatar": u.filesystem.PublicUrl(object),
+		"avatar": u.filesystem.Default.PublicUrl(object),
 	})
 }
 
@@ -78,10 +78,10 @@ func (u *Upload) InitiateMultipart(ctx *gin.Context) {
 	}
 
 	response.Success(ctx, &gin.H{
-		"file_type":     info.FileType,
+		"file_type":     info.Type,
 		"user_id":       info.UserId,
 		"original_name": info.OriginalName,
-		"hash_name":     info.HashName,
+		"hash_name":     info.UploadId,
 		"file_ext":      info.FileExt,
 		"file_size":     info.FileSize,
 		"split_num":     info.SplitNum,
@@ -104,7 +104,17 @@ func (u *Upload) MultipartUpload(ctx *gin.Context) {
 		return
 	}
 
-	_, _ = u.service.MultipartAppendUpload(ctx.Request.Context(), params, file)
+	_, err = u.service.MultipartUpload(ctx.Request.Context(), auth.GetAuthUserID(ctx), params, file)
+	if err != nil {
+		response.BusinessError(ctx, err.Error())
+	}
 
-	response.Success(ctx, gin.H{"is_file_merge": false})
+	fmt.Println(err)
+
+	if params.SplitIndex != params.SplitNum-1 {
+		response.Success(ctx, gin.H{"is_file_merge": false})
+	} else {
+		response.Success(ctx, gin.H{"is_file_merge": true, "hash": params.UploadId})
+	}
+
 }

@@ -30,10 +30,6 @@ type CosSystem struct {
 	Region    string `json:"region" yaml:"region"`
 }
 
-// SecretId: AKIDveAQhjd4MPDl3BmsZ4LOCmESSDj1IuUq
-// SecretKey: HK9j4A1g7KI4f7RZXFgrseAQQAdqmX3N
-// Bucket: im-1256209919
-
 type Filesystem struct {
 	Default string      `json:"default" yaml:"default"`
 	Local   LocalSystem `json:"local" yaml:"local"`
