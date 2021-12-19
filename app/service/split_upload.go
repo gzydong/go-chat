@@ -13,7 +13,6 @@ import (
 	"go-chat/app/pkg/strutil"
 	"go-chat/app/pkg/timeutil"
 	"go-chat/config"
-	"io/ioutil"
 	"math"
 	"mime/multipart"
 	"path"
@@ -82,22 +81,12 @@ func (s *SplitUploadService) InitiateMultipartUpload(ctx context.Context, params
 }
 
 func (s *SplitUploadService) MultipartUpload(ctx context.Context, uid int, req *request.UploadMultipartRequest, file *multipart.FileHeader) (interface{}, error) {
-
 	info := &model.FileSplitUpload{}
-
-	err := s.Db().First(info, "upload_id = ? and type = 1", req.UploadId).Error
-	if err != nil {
+	if err := s.Db().First(info, "upload_id = ? and type = 1", req.UploadId).Error; err != nil {
 		return nil, err
 	}
 
-	src, err := file.Open()
-	if err != nil {
-		return nil, err
-	}
-
-	defer src.Close()
-
-	content, err := ioutil.ReadAll(src)
+	stream, err := filesystem.ReadMultipartStream(file)
 	if err != nil {
 		return nil, err
 	}
@@ -118,9 +107,9 @@ func (s *SplitUploadService) MultipartUpload(ctx context.Context, uid int, req *
 
 	switch data.Drive {
 	case 1:
-		_ = s.fileSystem.Default.Write(content, data.SaveDir)
+		_ = s.fileSystem.Default.Write(stream, data.SaveDir)
 	case 2:
-		etag, err := s.fileSystem.Cos.UploadPart(info.SaveDir, data.UploadId, data.SplitIndex+1, content)
+		etag, err := s.fileSystem.Cos.UploadPart(info.SaveDir, data.UploadId, data.SplitIndex+1, stream)
 		if err != nil {
 			return nil, err
 		}
@@ -146,7 +135,6 @@ func (s *SplitUploadService) MultipartUpload(ctx context.Context, uid int, req *
 func (s *SplitUploadService) merge(info *model.FileSplitUpload) error {
 	items, err := s.dao.GetSplitList(info.UploadId)
 	if err != nil {
-		fmt.Println(err)
 		return err
 	}
 

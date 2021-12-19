@@ -16,3 +16,11 @@ type TalkRecordsFile struct {
 	IsDelete     int       `gorm:"column:is_delete;default:0" json:"-"`              // 文件是否已删除 （0:否 1:已删除）
 	CreatedAt    time.Time `gorm:"column:created_at" json:"-"`                       // 创建时间
 }
+
+type TalkFileMsgBody struct {
+	FileType     int    `json:"file_type"`
+	OriginalName string `json:"original_name"`
+	FileSuffix   string `json:"file_suffix"`
+	FileSize     int    `json:"file_size"`
+	FileUrl      string `json:"file_url"`
+}

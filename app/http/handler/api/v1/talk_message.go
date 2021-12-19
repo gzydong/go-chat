@@ -94,7 +94,7 @@ func (c *TalkMessage) Image(ctx *gin.Context) {
 
 	// todo 需要对色情图片识别处理
 
-	if err := c.service.SendImageMessage(ctx.Request.Context(), auth.GetAuthUserID(ctx), params); err != nil {
+	if err := c.service.SendImageMessage(ctx.Request.Context(), auth.GetAuthUserID(ctx), params, file); err != nil {
 		response.Success(ctx, gin.H{}, "消息推送失败！")
 		return
 	}

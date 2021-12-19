@@ -1,6 +1,7 @@
 package service
 
 import (
+	"bytes"
 	"context"
 	"errors"
 	"fmt"
@@ -15,8 +16,11 @@ import (
 	"go-chat/app/pkg/jsonutil"
 	"go-chat/app/pkg/strutil"
 	"go-chat/app/pkg/timeutil"
+	"go-chat/app/pkg/utils"
 	"go-chat/config"
 	"gorm.io/gorm"
+	"mime/multipart"
+	"path"
 	"sort"
 	"strconv"
 	"strings"
@@ -110,7 +114,68 @@ func (s *TalkMessageService) SendCodeMessage(ctx context.Context, uid int, param
 // SendImageMessage 发送图片消息
 // @params uid     用户ID
 // @params params  请求参数
-func (s *TalkMessageService) SendImageMessage(ctx context.Context, uid int, params *request.ImageMessageRequest) error {
+func (s *TalkMessageService) SendImageMessage(ctx context.Context, uid int, params *request.ImageMessageRequest, file *multipart.FileHeader) error {
+	var (
+		err    error
+		record = &model.TalkRecords{
+			TalkType:   params.TalkType,
+			MsgType:    entity.MsgTypeFile,
+			UserId:     uid,
+			ReceiverId: params.ReceiverId,
+		}
+	)
+
+	stream, err := filesystem.ReadMultipartStream(file)
+	if err != nil {
+		return err
+	}
+
+	ext := strings.TrimPrefix(path.Ext(file.Filename), ".")
+
+	m := utils.ReadFileImage(bytes.NewReader(stream))
+
+	filePath := fmt.Sprintf("public/media/image/talk/%s/%s", timeutil.DateDay(), strutil.GenImageName(ext, m.Width, m.Height))
+
+	if err := s.fileSystem.Default.Write(stream, filePath); err != nil {
+		logrus.Error("文件上传失败 err:", err.Error())
+		return err
+	}
+
+	saveType := 1
+	if s.fileSystem.Driver() == "cos" {
+		saveType = 2
+	}
+
+	err = s.db.Transaction(func(tx *gorm.DB) error {
+		if err = s.db.Create(record).Error; err != nil {
+			return err
+		}
+
+		if err = s.db.Create(&model.TalkRecordsFile{
+			RecordId:     record.Id,
+			UserId:       uid,
+			FileSource:   1,
+			FileType:     entity.GetMediaType(ext),
+			SaveType:     saveType,
+			OriginalName: file.Filename,
+			FileSuffix:   ext,
+			FileSize:     int(file.Size),
+			SaveDir:      filePath,
+		}).Error; err != nil {
+			return err
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		return err
+	}
+
+	s.afterHandle(ctx, record, map[string]string{
+		"text": "[图片消息]",
+	})
+
 	return nil
 }
 

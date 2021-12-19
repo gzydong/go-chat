@@ -7,6 +7,7 @@ import (
 	"go-chat/app/entity"
 	"go-chat/app/http/dto"
 	"go-chat/app/model"
+	"go-chat/app/pkg/filesystem"
 	"go-chat/app/pkg/jsonutil"
 	"go-chat/app/pkg/slice"
 	"go-chat/app/pkg/timeutil"
@@ -43,10 +44,11 @@ type TalkRecordsService struct {
 	*BaseService
 	talkVoteCache      *cache.TalkVote
 	talkRecordsVoteDao *dao.TalkRecordsVoteDao
+	fileSystem         *filesystem.Filesystem
 }
 
-func NewTalkRecordsService(baseService *BaseService, talkVoteCache *cache.TalkVote, talkRecordsVoteDao *dao.TalkRecordsVoteDao) *TalkRecordsService {
-	return &TalkRecordsService{BaseService: baseService, talkVoteCache: talkVoteCache, talkRecordsVoteDao: talkRecordsVoteDao}
+func NewTalkRecordsService(baseService *BaseService, talkVoteCache *cache.TalkVote, talkRecordsVoteDao *dao.TalkRecordsVoteDao, fileSystem *filesystem.Filesystem) *TalkRecordsService {
+	return &TalkRecordsService{BaseService: baseService, talkVoteCache: talkVoteCache, talkRecordsVoteDao: talkRecordsVoteDao, fileSystem: fileSystem}
 }
 
 // GetTalkRecords 获取对话消息
@@ -301,7 +303,24 @@ func (s *TalkRecordsService) HandleTalkRecords(ctx context.Context, items []*Que
 		switch item.MsgType {
 		case entity.MsgTypeFile:
 			if value, ok := hashFiles[item.ID]; ok {
-				data.File = value
+				body := &model.TalkFileMsgBody{
+					FileType:     value.FileType,
+					OriginalName: value.OriginalName,
+					FileSuffix:   value.FileSuffix,
+					FileSize:     value.FileSize,
+					FileUrl:      "",
+				}
+
+				if value.FileType <= 3 {
+					switch value.SaveType {
+					case 1:
+						body.FileUrl = s.fileSystem.Local.PublicUrl(value.SaveDir)
+					case 2:
+						body.FileUrl = s.fileSystem.Cos.PublicUrl(value.SaveDir)
+					}
+				}
+
+				data.File = body
 			}
 		case entity.MsgTypeForward:
 			if value, ok := hashForwards[item.ID]; ok {

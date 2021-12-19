@@ -7,6 +7,7 @@ import (
 	"github.com/tencentyun/cos-go-sdk-v5"
 	"go-chat/app/pkg/timeutil"
 	"go-chat/config"
+	"mime/multipart"
 	"net/http"
 	"net/url"
 	"path"
@@ -15,7 +16,7 @@ import (
 	"time"
 )
 
-// @link https://cloud.tencent.com/document/product/436/31215
+// See: https://cloud.tencent.com/document/product/436/31215
 type CosFilesystem struct {
 	conf   *config.Config
 	client *cos.Client
@@ -34,13 +35,13 @@ func NewCosFilesystem(conf *config.Config) *CosFilesystem {
 		},
 	})
 
-	return &CosFilesystem{conf: conf, client: client}
+	return &CosFilesystem{conf, client}
 }
 
 // Write 文件写入
 func (c *CosFilesystem) Write(data []byte, filePath string) error {
 
-	_, err := c.client.Object.Put(context.Background(), filePath, bytes.NewBuffer(data), &cos.ObjectPutOptions{})
+	_, err := c.client.Object.Put(context.Background(), filePath, bytes.NewBuffer(data), nil)
 
 	return err
 }
@@ -50,6 +51,10 @@ func (c *CosFilesystem) WriteLocal(localFile string, filePath string) error {
 	_, _, err := c.client.Object.Upload(context.Background(), filePath, localFile, nil)
 
 	return err
+}
+
+func (c *CosFilesystem) WriteFromFile(file *multipart.FileHeader, filePath string) error {
+	return nil
 }
 
 // Copy 文件拷贝

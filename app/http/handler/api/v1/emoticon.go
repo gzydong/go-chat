@@ -133,7 +133,7 @@ func (c *Emoticon) Upload(ctx *gin.Context) {
 
 	size := utils.ReadFileImage(bytes.NewReader(fileBytes))
 
-	src := fmt.Sprintf("media/images/emoticon/%s/%s", time.Now().Format("20060102"), strutil.GenImageName(ext, size["width"], size["height"]))
+	src := fmt.Sprintf("media/images/emoticon/%s/%s", time.Now().Format("20060102"), strutil.GenImageName(ext, size.Width, size.Height))
 
 	err = c.filesystem.Default.Write(fileBytes, src)
 	if err != nil {
