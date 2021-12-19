@@ -33,7 +33,7 @@ type talkRecord struct {
 	TalkType   int `json:"talk_type"`
 }
 
-type forwardMsgItem struct {
+type forwardItem struct {
 	MsgType  int    `json:"msg_type"`
 	Content  string `json:"content"`
 	Nickname string `json:"nickname"`
@@ -79,7 +79,7 @@ func (t *TalkMessageForwardService) verify(forward *ForwardParams) error {
 // 聚合转发数据
 func (t *TalkMessageForwardService) aggregation(ctx context.Context, forward *ForwardParams) (string, error) {
 
-	rows := make([]*forwardMsgItem, 0)
+	rows := make([]*forwardItem, 0)
 
 	query := t.db.Table("talk_records")
 	query.Joins("left join users on users.id = talk_records.user_id")

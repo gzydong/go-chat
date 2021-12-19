@@ -71,7 +71,7 @@ func Initialize(ctx context.Context) *provider.Providers {
 	talkRecordsDao := &dao.TalkRecordsDao{
 		BaseDao: baseDao,
 	}
-	download := v1.NewDownloadHandler(filesystemFilesystem, talkRecordsDao)
+	download := v1.NewDownloadHandler(filesystemFilesystem, talkRecordsDao, groupMemberService)
 	emoticonDao := dao.NewEmoticonDao(baseDao)
 	emoticonService := service.NewEmoticonService(baseService, emoticonDao)
 	emoticon := v1.NewEmoticonHandler(emoticonService, filesystemFilesystem, redisLock)

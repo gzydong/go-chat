@@ -6,7 +6,6 @@ import (
 	"go-chat/app/http/request"
 	"go-chat/app/model"
 	"gorm.io/gorm"
-	"time"
 )
 
 type ContactApplyService struct {
@@ -19,10 +18,9 @@ func NewContactsApplyService(base *BaseService) *ContactApplyService {
 
 func (s *ContactApplyService) Create(ctx context.Context, uid int, req *request.ContactApplyCreateRequest) error {
 	err := s.db.Create(&model.UsersFriendsApply{
-		UserId:    uid,
-		FriendId:  req.FriendId,
-		Remark:    req.Remarks,
-		CreatedAt: time.Now(),
+		UserId:   uid,
+		FriendId: req.FriendId,
+		Remark:   req.Remarks,
 	}).Error
 
 	return err
