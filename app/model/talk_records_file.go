@@ -17,7 +17,7 @@ type TalkRecordsFile struct {
 	CreatedAt    time.Time `gorm:"column:created_at" json:"-"`                       // 创建时间
 }
 
-type TalkFileMsgBody struct {
+type TalkRecordFileItem struct {
 	FileType     int    `json:"file_type"`
 	OriginalName string `json:"original_name"`
 	FileSuffix   string `json:"file_suffix"`

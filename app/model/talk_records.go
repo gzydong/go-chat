@@ -17,3 +17,20 @@ type TalkRecords struct {
 	CreatedAt  time.Time `gorm:"column:created_at" json:"created_at"`             // 创建时间
 	UpdatedAt  time.Time `gorm:"column:updated_at" json:"updated_at"`             // 更新时间
 }
+
+type QueryTalkRecordsItem struct {
+	Id         int       `json:"id"`
+	TalkType   int       `json:"talk_type"`
+	MsgType    int       `json:"msg_type"`
+	UserId     int       `json:"user_id"`
+	ReceiverId int       `json:"receiver_id"`
+	IsRevoke   int       `json:"is_revoke"`
+	IsMark     int       `json:"is_mark"`
+	IsRead     int       `json:"is_read"`
+	QuoteId    int       `json:"quote_id"`
+	WarnUsers  string    `json:"warn_users"`
+	Content    string    `json:"content"`
+	CreatedAt  time.Time `json:"created_at"`
+	Nickname   string    `json:"nickname"`
+	Avatar     string    `json:"avatar"`
+}
