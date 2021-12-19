@@ -109,12 +109,9 @@ func (u *Upload) MultipartUpload(ctx *gin.Context) {
 		response.BusinessError(ctx, err.Error())
 	}
 
-	fmt.Println(err)
-
 	if params.SplitIndex != params.SplitNum-1 {
 		response.Success(ctx, gin.H{"is_file_merge": false})
 	} else {
 		response.Success(ctx, gin.H{"is_file_merge": true, "hash": params.UploadId})
 	}
-
 }
