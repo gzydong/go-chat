@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/tencentyun/cos-go-sdk-v5"
 	"go-chat/app/dao"
+	"go-chat/app/entity"
 	"go-chat/app/http/request"
 	"go-chat/app/model"
 	"go-chat/app/pkg/encrypt"
@@ -52,7 +53,7 @@ func (s *SplitUploadService) InitiateMultipartUpload(ctx context.Context, params
 
 	m := &model.FileSplitUpload{
 		Type:         1,
-		Drive:        1,
+		Drive:        entity.FileSystemDriveType(s.fileSystem.Driver()),
 		UserId:       params.UserId,
 		OriginalName: params.Name,
 		SplitNum:     int(num),
@@ -60,10 +61,6 @@ func (s *SplitUploadService) InitiateMultipartUpload(ctx context.Context, params
 		FileSize:     params.Size,
 		SaveDir:      fmt.Sprintf("private/tmp/multipart/%s/%s.tmp", timeutil.DateDay(), encrypt.Md5(strutil.Random(20))),
 		Attr:         "{}",
-	}
-
-	if s.fileSystem.Driver() == "cos" {
-		m.Drive = 2
 	}
 
 	uploadId, err := s.fileSystem.Default.InitiateMultipartUpload(m.SaveDir, m.OriginalName)
@@ -106,9 +103,9 @@ func (s *SplitUploadService) MultipartUpload(ctx context.Context, uid int, req *
 	}
 
 	switch data.Drive {
-	case 1:
+	case entity.FileDriveLocal:
 		_ = s.fileSystem.Default.Write(stream, data.SaveDir)
-	case 2:
+	case entity.FileDriveCos:
 		etag, err := s.fileSystem.Cos.UploadPart(info.SaveDir, data.UploadId, data.SplitIndex+1, stream)
 		if err != nil {
 			return nil, err
@@ -139,7 +136,7 @@ func (s *SplitUploadService) merge(info *model.FileSplitUpload) error {
 	}
 
 	switch info.Drive {
-	case 1:
+	case entity.FileDriveLocal:
 		for _, item := range items {
 			stream, err := s.fileSystem.Default.ReadStream(item.SaveDir)
 			if err != nil {
@@ -152,10 +149,11 @@ func (s *SplitUploadService) merge(info *model.FileSplitUpload) error {
 				return err
 			}
 		}
-	case 2:
+	case entity.FileDriveCos:
 		opt := &cos.CompleteMultipartUploadOptions{}
 		for _, item := range items {
 			attr := make(map[string]string)
+
 			if err := jsonutil.JsonDecode(item.Attr, &attr); err != nil {
 				return err
 			}
@@ -166,8 +164,7 @@ func (s *SplitUploadService) merge(info *model.FileSplitUpload) error {
 			})
 		}
 
-		err := s.fileSystem.Cos.CompleteMultipartUpload(info.SaveDir, info.UploadId, opt)
-		if err != nil {
+		if err := s.fileSystem.Cos.CompleteMultipartUpload(info.SaveDir, info.UploadId, opt); err != nil {
 			return err
 		}
 	}

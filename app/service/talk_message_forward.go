@@ -299,13 +299,13 @@ func (t *TalkMessageForwardService) MultiSplitForward(ctx context.Context, forwa
 						files = append(files, &model.TalkRecordsFile{
 							RecordId:     record.Id,
 							UserId:       forward.UserId,
-							FileSource:   file.FileSource,
-							FileType:     file.FileType,
-							SaveType:     file.SaveType,
+							Source:       file.Source,
+							Type:         file.Type,
+							Drive:        file.Drive,
 							OriginalName: file.OriginalName,
-							FileSuffix:   file.FileSuffix,
-							FileSize:     file.FileSize,
-							SaveDir:      file.SaveDir,
+							Suffix:       file.Suffix,
+							Size:         file.Size,
+							Path:         file.Path,
 						})
 					}
 				case entity.MsgTypeCode:

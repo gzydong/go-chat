@@ -90,15 +90,15 @@ func (s *TalkService) CollectRecord(ctx context.Context, uid int, recordId int) 
 		}
 	}
 
-	if err = s.db.First(&fileInfo, "record_id = ? and file_type = ?", record.Id, 1).Error; err != nil {
+	if err = s.db.First(&fileInfo, "record_id = ? and type = ?", record.Id, 1).Error; err != nil {
 		return err
 	}
 
 	emoticon := &model.EmoticonItem{
 		UserId:     uid,
-		Url:        fileInfo.SaveDir,
-		FileSuffix: fileInfo.FileSuffix,
-		FileSize:   fileInfo.FileSize,
+		Url:        fileInfo.Url,
+		FileSuffix: fileInfo.Suffix,
+		FileSize:   fileInfo.Size,
 		CreatedAt:  time.Now(),
 		UpdatedAt:  time.Now(),
 	}

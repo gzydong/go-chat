@@ -284,24 +284,7 @@ func (s *TalkRecordsService) HandleTalkRecords(ctx context.Context, items []*mod
 		switch item.MsgType {
 		case entity.MsgTypeFile:
 			if value, ok := hashFiles[item.Id]; ok {
-				body := &model.TalkRecordFileItem{
-					FileType:     value.FileType,
-					OriginalName: value.OriginalName,
-					FileSuffix:   value.FileSuffix,
-					FileSize:     value.FileSize,
-					FileUrl:      "",
-				}
-
-				if value.FileType <= 3 {
-					switch value.SaveType {
-					case 1:
-						body.FileUrl = s.fileSystem.Local.PublicUrl(value.SaveDir)
-					case 2:
-						body.FileUrl = s.fileSystem.Cos.PublicUrl(value.SaveDir)
-					}
-				}
-
-				data.File = body
+				data.File = value
 			}
 		case entity.MsgTypeForward:
 			if value, ok := hashForwards[item.Id]; ok {

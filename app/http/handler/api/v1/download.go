@@ -50,13 +50,13 @@ func (c *Download) TalkFile(ctx *gin.Context) {
 		}
 	}
 
-	switch resp.FileInfo.SaveType {
+	switch resp.FileInfo.Drive {
 	case 1:
-		filePath := c.fileSystem.Local.Path(resp.FileInfo.SaveDir)
+		filePath := c.fileSystem.Local.Path(resp.FileInfo.Path)
 		ctx.FileAttachment(filePath, resp.FileInfo.OriginalName)
 		return
 	case 2:
-		ctx.Redirect(http.StatusFound, c.fileSystem.Cos.PrivateUrl(resp.FileInfo.SaveDir, 60))
+		ctx.Redirect(http.StatusFound, c.fileSystem.Cos.PrivateUrl(resp.FileInfo.Path, 60))
 		return
 	}
 }

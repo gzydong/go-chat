@@ -54,8 +54,6 @@ func (s *TalkMessageService) SendTextMessage(ctx context.Context, uid int, param
 		UserId:     uid,
 		ReceiverId: params.ReceiverId,
 		Content:    params.Text,
-		CreatedAt:  time.Now(),
-		UpdatedAt:  time.Now(),
 	}
 
 	if err := s.db.Create(record).Error; err != nil {
@@ -141,11 +139,6 @@ func (s *TalkMessageService) SendImageMessage(ctx context.Context, uid int, para
 		return err
 	}
 
-	saveType := 1
-	if s.fileSystem.Driver() == "cos" {
-		saveType = 2
-	}
-
 	err = s.db.Transaction(func(tx *gorm.DB) error {
 		if err = s.db.Create(record).Error; err != nil {
 			return err
@@ -154,13 +147,14 @@ func (s *TalkMessageService) SendImageMessage(ctx context.Context, uid int, para
 		if err = s.db.Create(&model.TalkRecordsFile{
 			RecordId:     record.Id,
 			UserId:       uid,
-			FileSource:   1,
-			FileType:     entity.GetMediaType(ext),
-			SaveType:     saveType,
+			Source:       1,
+			Type:         entity.GetMediaType(ext),
+			Drive:        entity.FileSystemDriveType(s.fileSystem.Driver()),
 			OriginalName: file.Filename,
-			FileSuffix:   ext,
-			FileSize:     int(file.Size),
-			SaveDir:      filePath,
+			Suffix:       ext,
+			Size:         int(file.Size),
+			Path:         filePath,
+			Url:          s.fileSystem.Default.PublicUrl(filePath),
 		}).Error; err != nil {
 			return err
 		}
@@ -194,8 +188,8 @@ func (s *TalkMessageService) SendFileMessage(ctx context.Context, params *reques
 		}
 	)
 
-	dir := fmt.Sprintf("private/files/talks/%s/%s.%s", timeutil.DateDay(), encrypt.Md5(strutil.Random(16)), file.FileExt)
-	if err := s.fileSystem.Default.Copy(file.SaveDir, dir); err != nil {
+	filePath := fmt.Sprintf("private/files/talks/%s/%s.%s", timeutil.DateDay(), encrypt.Md5(strutil.Random(16)), file.FileExt)
+	if err := s.fileSystem.Default.Copy(file.SaveDir, filePath); err != nil {
 		logrus.Error("文件拷贝失败 err: ", err.Error())
 		return err
 	}
@@ -208,13 +202,13 @@ func (s *TalkMessageService) SendFileMessage(ctx context.Context, params *reques
 		if err = s.db.Create(&model.TalkRecordsFile{
 			RecordId:     record.Id,
 			UserId:       params.UserId,
-			FileSource:   1,
-			FileType:     entity.GetMediaType(file.FileExt),
-			SaveType:     file.Drive,
+			Source:       1,
+			Type:         entity.GetMediaType(file.FileExt),
+			Drive:        file.Drive,
 			OriginalName: file.OriginalName,
-			FileSuffix:   file.FileExt,
-			FileSize:     int(file.FileSize),
-			SaveDir:      dir,
+			Suffix:       file.FileExt,
+			Size:         int(file.FileSize),
+			Path:         filePath,
 		}).Error; err != nil {
 			return err
 		}
@@ -322,13 +316,13 @@ func (s *TalkMessageService) SendEmoticonMessage(ctx context.Context, uid int, p
 		if err = s.db.Create(&model.TalkRecordsFile{
 			RecordId:     record.Id,
 			UserId:       uid,
-			FileSource:   2,
-			FileType:     entity.GetMediaType(emoticon.FileSuffix),
+			Source:       2,
+			Type:         entity.GetMediaType(emoticon.FileSuffix),
 			OriginalName: "图片表情",
-			FileSuffix:   emoticon.FileSuffix,
-			FileSize:     emoticon.FileSize,
-			SaveDir:      emoticon.Url,
-			CreatedAt:    time.Now(),
+			Suffix:       emoticon.FileSuffix,
+			Size:         emoticon.FileSize,
+			Path:         emoticon.Url,
+			Url:          emoticon.Url,
 		}).Error; err != nil {
 			return err
 		}
@@ -372,7 +366,6 @@ func (s *TalkMessageService) SendLocationMessage(ctx context.Context, uid int, p
 			UserId:    uid,
 			Longitude: params.Longitude,
 			Latitude:  params.Latitude,
-			CreatedAt: time.Now(),
 		}).Error; err != nil {
 			return err
 		}
