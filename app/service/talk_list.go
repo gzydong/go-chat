@@ -36,14 +36,13 @@ func (s *TalkListService) GetTalkList(ctx context.Context, uid int) ([]*model.Se
 		"`group`.group_name", "`group`.avatar as group_avatar",
 	}
 
-	tx := s.db.Table("talk_list list")
-	tx.Select(fields)
-	tx.Joins("left join `users` ON list.receiver_id = `users`.id AND list.talk_type = 1")
-	tx.Joins("left join `group` ON list.receiver_id = `group`.id AND list.talk_type = 2")
-	tx.Where("list.user_id = ? and list.is_delete = 0", uid)
-	tx.Order("list.updated_at desc")
+	query := s.db.Table("talk_list list")
+	query.Joins("left join `users` ON list.receiver_id = `users`.id AND list.talk_type = 1")
+	query.Joins("left join `group` ON list.receiver_id = `group`.id AND list.talk_type = 2")
+	query.Where("list.user_id = ? and list.is_delete = 0", uid)
+	query.Order("list.updated_at desc")
 
-	if err = tx.Scan(&items).Error; err != nil {
+	if err = query.Select(fields).Scan(&items).Error; err != nil {
 		return nil, err
 	}
 
@@ -72,8 +71,6 @@ func (s *TalkListService) Create(ctx context.Context, uid int, params *request.T
 			TalkType:   params.TalkType,
 			UserId:     uid,
 			ReceiverId: params.ReceiverId,
-			CreatedAt:  time.Now(),
-			UpdatedAt:  time.Now(),
 		}
 
 		s.db.Create(result)

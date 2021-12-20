@@ -33,8 +33,6 @@ func (s *GroupNoticeService) Create(ctx context.Context, input *request.GroupNot
 		Content:   input.Content,
 		IsTop:     input.IsTop,
 		IsConfirm: input.IsConfirm,
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
 	}
 
 	return s.dao.Db().Omit("deleted_at", "confirm_users").Create(notice).Error

@@ -20,6 +20,7 @@ type Group struct {
 	IsOvert     int          `gorm:"column:is_overt;default:0" json:"is_overt"`      // 是否公开可见[0:否;1:是;]
 	IsMute      int          `gorm:"column:is_mute;default:0" json:"is_mute"`        // 是否全员禁言 [0:否;1:是;]，提示:不包含群主或管理员
 	CreatedAt   time.Time    `gorm:"column:created_at" json:"created_at"`            // 创建时间
+	UpdatedAt   time.Time    `gorm:"column:updated_at" json:"updated_at"`            // 更新时间
 	DismissedAt sql.NullTime `gorm:"column:dismissed_at" json:"dismissed_at"`        // 解散时间
 }
 

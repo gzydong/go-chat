@@ -64,7 +64,7 @@ func (c *Talk) List(ctx *gin.Context) {
 
 	for _, item := range data {
 		value := &dto.TalkListItem{
-			Id:         item.ID,
+			Id:         item.Id,
 			TalkType:   item.TalkType,
 			ReceiverId: item.ReceiverId,
 			IsTop:      item.IsTop,

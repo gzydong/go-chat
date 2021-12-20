@@ -54,7 +54,6 @@ func (s *GroupService) Create(ctx *gin.Context, request *request.GroupCreateRequ
 			Profile:   request.Profile,
 			Avatar:    request.Avatar,
 			MaxNum:    model.GroupMemberMaxNum,
-			CreatedAt: time.Now(),
 		}
 
 		if err = tx.Create(group).Error; err != nil {

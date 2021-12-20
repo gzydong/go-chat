@@ -16,16 +16,16 @@ type TalkList struct {
 }
 
 type SearchTalkList struct {
-	ID          int       `json:"id" grom:"comment:聊天列表ID"`
-	TalkType    int       `json:"talk_type" grom:"comment:聊天类型"`
-	ReceiverId  int       `json:"receiver_id" grom:"comment:接收者ID"`
-	IsDelete    int       `json:"is_delete" grom:"comment:是否删除"`
-	IsTop       int       `json:"is_top" grom:"comment:是否置顶"`
-	IsRobot     int       `json:"is_robot" grom:"comment:消息免打扰"`
-	IsDisturb   int       `json:"is_disturb" grom:"comment:是否机器人"`
-	UpdatedAt   time.Time `json:"updated_at" grom:"comment:更新时间"`
+	Id          int       `json:"id" `
+	TalkType    int       `json:"talk_type" `
+	ReceiverId  int       `json:"receiver_id" `
+	IsDelete    int       `json:"is_delete"`
+	IsTop       int       `json:"is_top"`
+	IsRobot     int       `json:"is_robot"`
+	IsDisturb   int       `json:"is_disturb"`
 	UserAvatar  string    `json:"user_avatar"`
 	Nickname    string    `json:"nickname"`
 	GroupName   string    `json:"group_name"`
 	GroupAvatar string    `json:"group_avatar"`
+	UpdatedAt   time.Time `json:"updated_at"`
 }

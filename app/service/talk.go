@@ -99,8 +99,6 @@ func (s *TalkService) CollectRecord(ctx context.Context, uid int, recordId int) 
 		Url:        fileInfo.Url,
 		FileSuffix: fileInfo.Suffix,
 		FileSize:   fileInfo.Size,
-		CreatedAt:  time.Now(),
-		UpdatedAt:  time.Now(),
 	}
 
 	return s.db.Create(emoticon).Error
