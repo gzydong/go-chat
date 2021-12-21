@@ -3,8 +3,10 @@ package service
 import (
 	"context"
 	"errors"
+	"go-chat/app/entity"
 	"go-chat/app/http/request"
 	"go-chat/app/model"
+	"go-chat/app/pkg/jsonutil"
 	"gorm.io/gorm"
 )
 
@@ -17,13 +19,28 @@ func NewContactsApplyService(base *BaseService) *ContactApplyService {
 }
 
 func (s *ContactApplyService) Create(ctx context.Context, uid int, req *request.ContactApplyCreateRequest) error {
-	err := s.db.Create(&model.UsersFriendsApply{
+
+	apply := &model.UsersFriendsApply{
 		UserId:   uid,
 		FriendId: req.FriendId,
 		Remark:   req.Remarks,
-	}).Error
+	}
 
-	return err
+	if err := s.db.Create(apply).Error; err != nil {
+		return err
+	}
+
+	body := map[string]interface{}{
+		"event": entity.EventFriendApply,
+		"data": jsonutil.JsonEncode(map[string]interface{}{
+			"apply_id": int64(apply.Id),
+			"type":     1,
+		}),
+	}
+
+	s.rds.Publish(ctx, entity.IMGatewayAll, jsonutil.JsonEncode(body))
+
+	return nil
 }
 
 // Accept 同意好友申请
@@ -79,16 +96,42 @@ func (s *ContactApplyService) Accept(ctx context.Context, uid int, req *request.
 		return tx.Delete(&model.UsersFriendsApply{}, applyInfo.Id).Error
 	})
 
-	return nil
+	if err == nil {
+		body := map[string]interface{}{
+			"event": entity.EventFriendApply,
+			"data": jsonutil.JsonEncode(map[string]interface{}{
+				"apply_id": int64(applyInfo.Id),
+				"type":     2,
+			}),
+		}
+
+		s.rds.Publish(ctx, entity.IMGatewayAll, jsonutil.JsonEncode(body))
+	}
+
+	return err
 }
 
 // Decline 拒绝好友申请
 func (s *ContactApplyService) Decline(ctx context.Context, uid int, req *request.ContactApplyDeclineRequest) error {
-	return s.db.Delete(&model.UsersFriendsApply{}, "id = ? and friend_id = ?", req.ApplyId, uid).Error
+	err := s.db.Delete(&model.UsersFriendsApply{}, "id = ? and friend_id = ?", req.ApplyId, uid).Error
+
+	if err == nil {
+		body := map[string]interface{}{
+			"event": entity.EventFriendApply,
+			"data": jsonutil.JsonEncode(map[string]interface{}{
+				"apply_id": int64(req.ApplyId),
+				"type":     2,
+			}),
+		}
+
+		s.rds.Publish(ctx, entity.IMGatewayAll, jsonutil.JsonEncode(body))
+	}
+
+	return err
 }
 
 // List 联系人申请列表
-func (s *ContactApplyService) List(ctx context.Context, uid, page, size int) ([]*model.ApplyListItem, error) {
+func (s *ContactApplyService) List(ctx context.Context, uid, page, size int) ([]*model.ApplyItem, error) {
 	fields := []string{
 		"users_friends_apply.id",
 		"users_friends_apply.remark",
@@ -106,7 +149,7 @@ func (s *ContactApplyService) List(ctx context.Context, uid, page, size int) ([]
 	tx.Where("users_friends_apply.friend_id = ?", uid)
 	tx.Order("users_friends_apply.id desc")
 
-	items := make([]*model.ApplyListItem, 0)
+	items := make([]*model.ApplyItem, 0)
 	if err := tx.Scan(&items).Error; err != nil {
 		return nil, err
 	}

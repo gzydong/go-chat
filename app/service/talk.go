@@ -36,7 +36,7 @@ func (s *TalkService) RemoveRecords(ctx context.Context, uid int, req *request.D
 		s.db.Model(&model.TalkRecords{}).Where("id in ?", ids).Where("talk_type = ?", entity.PrivateChat).Where(subQuery).Pluck("id", &findIds)
 	} else {
 		if !s.groupMemberService.Dao().IsMember(req.ReceiverId, uid) {
-			return errors.New("非群成员，暂无权限! ")
+			return entity.ErrPermissionDenied
 		}
 
 		s.db.Model(&model.TalkRecords{}).Where("id in ? and talk_type = ?", ids, entity.GroupChat).Pluck("id", &findIds)
@@ -82,11 +82,11 @@ func (s *TalkService) CollectRecord(ctx context.Context, uid int, recordId int) 
 
 	if record.TalkType == entity.PrivateChat {
 		if record.UserId != uid && record.ReceiverId != uid {
-			return errors.New("暂无权限收藏！")
+			return entity.ErrPermissionDenied
 		}
 	} else if record.TalkType == entity.GroupChat {
 		if !s.groupMemberService.Dao().IsMember(record.ReceiverId, uid) {
-			return errors.New("暂无权限收藏！")
+			return entity.ErrPermissionDenied
 		}
 	}
 

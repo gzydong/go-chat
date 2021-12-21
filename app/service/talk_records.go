@@ -27,10 +27,11 @@ type TalkRecordsService struct {
 	talkVoteCache      *cache.TalkVote
 	talkRecordsVoteDao *dao.TalkRecordsVoteDao
 	fileSystem         *filesystem.Filesystem
+	groupMemberDao     *dao.GroupMemberDao
 }
 
-func NewTalkRecordsService(baseService *BaseService, talkVoteCache *cache.TalkVote, talkRecordsVoteDao *dao.TalkRecordsVoteDao, fileSystem *filesystem.Filesystem) *TalkRecordsService {
-	return &TalkRecordsService{BaseService: baseService, talkVoteCache: talkVoteCache, talkRecordsVoteDao: talkRecordsVoteDao, fileSystem: fileSystem}
+func NewTalkRecordsService(baseService *BaseService, talkVoteCache *cache.TalkVote, talkRecordsVoteDao *dao.TalkRecordsVoteDao, fileSystem *filesystem.Filesystem, groupMemberDao *dao.GroupMemberDao) *TalkRecordsService {
+	return &TalkRecordsService{BaseService: baseService, talkVoteCache: talkVoteCache, talkRecordsVoteDao: talkRecordsVoteDao, fileSystem: fileSystem, groupMemberDao: groupMemberDao}
 }
 
 // GetTalkRecords 获取对话消息
@@ -126,13 +127,23 @@ func (s *TalkRecordsService) GetTalkRecord(ctx context.Context, recordId int64) 
 }
 
 // GetForwardRecords 获取转发消息记录
-func (s *TalkRecordsService) GetForwardRecords(ctx context.Context, recordId int64) ([]*dto.TalkRecordsItem, error) {
+func (s *TalkRecordsService) GetForwardRecords(ctx context.Context, uid int, recordId int64) ([]*dto.TalkRecordsItem, error) {
 	record := &model.TalkRecords{}
 	if err := s.db.First(&record, recordId).Error; err != nil {
 		return nil, err
 	}
 
-	// todo 需要判断权限
+	if record.TalkType == entity.PrivateChat {
+		if record.UserId != uid && record.ReceiverId != uid {
+			return nil, entity.ErrPermissionDenied
+		}
+	} else if record.TalkType == entity.GroupChat {
+		if !s.groupMemberDao.IsMember(record.ReceiverId, uid) {
+			return nil, entity.ErrPermissionDenied
+		}
+	} else {
+		return nil, entity.ErrPermissionDenied
+	}
 
 	forward := &model.TalkRecordsForward{}
 	if err := s.db.Where("record_id = ?", recordId).First(forward).Error; err != nil {

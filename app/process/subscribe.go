@@ -9,6 +9,7 @@ import (
 	"go-chat/app/pkg/pool"
 	"go-chat/app/process/handle"
 	"go-chat/config"
+	"time"
 )
 
 type SubscribeContent struct {
@@ -37,14 +38,12 @@ func (w *WsSubscribe) Handle(ctx context.Context) error {
 	// 订阅通道
 	sub := w.rds.Subscribe(ctx, channels...)
 
-	_, _ = sub.ReceiveTimeout(ctx, 0)
-
 	defer sub.Close()
 
 	go func() {
 		work := pool.NewWorkerPool(5) // 设置协程并发处理数
 
-		for msg := range sub.Channel() {
+		for msg := range sub.Channel(redis.WithChannelHealthCheckInterval(30 * time.Second)) {
 			// fmt.Printf("消息订阅 : channel=%s message=%s\n", msg.channel, msg.Payload)
 
 			consume := func(value *redis.Message) {

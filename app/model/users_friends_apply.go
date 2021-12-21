@@ -12,10 +12,12 @@ type UsersFriendsApply struct {
 }
 
 // 用户添加好友申请表
-type ApplyListItem struct {
-	Id        int       `gorm:"column:id" json:"id" form:"id"`                         // 申请ID
-	UserId    int       `gorm:"column:user_id" json:"user_id" form:"user_id"`          // 申请人ID
-	FriendId  int       `gorm:"column:friend_id" json:"friend_id" form:"friend_id"`    // 被申请人
-	Remark    string    `gorm:"column:remark" json:"remark" form:"remark"`             // 申请备注
-	CreatedAt time.Time `gorm:"column:created_at" json:"created_at" form:"created_at"` // 申请时间
+type ApplyItem struct {
+	Id        int       `gorm:"column:id" json:"id"`                 // 申请ID
+	UserId    int       `gorm:"column:user_id" json:"user_id"`       // 申请人ID
+	FriendId  int       `gorm:"column:friend_id" json:"friend_id"`   // 被申请人
+	Remark    string    `gorm:"column:remark" json:"remark"`         // 申请备注
+	Nickname  string    `gorm:"column:nickname" json:"nickname"`     // 申请备注
+	Avatar    string    `gorm:"column:avatar" json:"avatar"`         // 申请备注
+	CreatedAt time.Time `gorm:"column:created_at" json:"created_at"` // 申请时间
 }

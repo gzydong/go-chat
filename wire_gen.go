@@ -66,7 +66,7 @@ func Initialize(ctx context.Context) *provider.Providers {
 	usersFriendsDao := dao.NewUsersFriends(baseDao)
 	contactService := service.NewContactService(baseService, usersFriendsDao)
 	talk := v1.NewTalkHandler(talkService, talkListService, redisLock, userService, wsClientSession, lastMessage, unreadTalkCache, contactService)
-	talkRecordsService := service.NewTalkRecordsService(baseService, talkVote, talkRecordsVoteDao, filesystemFilesystem)
+	talkRecordsService := service.NewTalkRecordsService(baseService, talkVote, talkRecordsVoteDao, filesystemFilesystem, groupMemberDao)
 	talkRecords := v1.NewTalkRecordsHandler(talkRecordsService)
 	talkRecordsDao := &dao.TalkRecordsDao{
 		BaseDao: baseDao,

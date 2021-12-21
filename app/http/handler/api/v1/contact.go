@@ -131,7 +131,7 @@ func (c *Contact) Detail(ctx *gin.Context) {
 	resp := gin.H{
 		"avatar":          user.Avatar,
 		"friend_apply":    0,
-		"friend_status":   0,
+		"friend_status":   1, // 朋友关系[0:本人;1:陌生人;2:朋友;]
 		"gender":          user.Gender,
 		"id":              user.Id,
 		"mobile":          user.Mobile,

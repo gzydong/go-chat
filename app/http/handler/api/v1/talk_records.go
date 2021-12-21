@@ -64,7 +64,7 @@ func (c *TalkRecords) GetForwardRecords(ctx *gin.Context) {
 		return
 	}
 
-	records, err := c.service.GetForwardRecords(ctx.Request.Context(), int64(params.RecordId))
+	records, err := c.service.GetForwardRecords(ctx.Request.Context(), auth.GetAuthUserID(ctx), int64(params.RecordId))
 	if err != nil {
 		response.BusinessError(ctx, err)
 		return

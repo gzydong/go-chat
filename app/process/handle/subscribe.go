@@ -39,6 +39,7 @@ func (s *SubscribeConsume) Handle(event string, data string) {
 	handler[entity.EventOnlineStatus] = s.onConsumeOnline
 	handler[entity.EventRevokeTalk] = s.onConsumeRevokeTalk
 	handler[entity.EventJoinGroupRoom] = s.onConsumeAddGroupRoom
+	handler[entity.EventFriendApply] = s.onConsumeContactApply
 
 	if f, ok := handler[event]; ok {
 		f(data)
@@ -226,7 +227,63 @@ func (s *SubscribeConsume) onConsumeRevokeTalk(body string) {
 
 // nolint onConsumeContactApply 好友申请消息
 func (s *SubscribeConsume) onConsumeContactApply(body string) {
+	var (
+		msg struct {
+			ApplId int `json:"apply_id"`
+			Type   int `json:"type"`
+		}
+		ctx   = context.Background()
+		apply *model.UsersFriendsApply
+	)
 
+	if err := jsonutil.JsonDecode(body, &msg); err != nil {
+		return
+	}
+
+	err := s.contactService.Db().Model(model.UsersFriendsApply{}).First(&apply, msg.ApplId).Error
+	if err != nil {
+		return
+	}
+
+	cids := make([]int64, 0)
+
+	if msg.Type == 1 {
+		cids = s.ws.GetUidFromClientIds(ctx, s.conf.GetSid(), im.Sessions.Default.Name(), strconv.Itoa(apply.FriendId))
+	} else {
+		cids = s.ws.GetUidFromClientIds(ctx, s.conf.GetSid(), im.Sessions.Default.Name(), strconv.Itoa(apply.UserId))
+	}
+
+	if len(cids) == 0 {
+		return
+	}
+
+	data := gin.H{}
+	if msg.Type == 1 {
+		data["sender_id"] = apply.UserId
+		data["receiver_id"] = apply.FriendId
+		data["remark"] = apply.Remark
+	} else {
+		data["sender_id"] = apply.FriendId
+		data["receiver_id"] = apply.UserId
+		data["remark"] = apply.Remark
+		data["status"] = 1
+	}
+
+	data["friend"] = gin.H{
+		"user_id":  1,
+		"avatar":   "$friendInfo->avatar",
+		"nickname": "$friendInfo->nickname",
+		"mobile":   "$friendInfo->mobile",
+	}
+
+	c := im.NewSenderContent()
+	c.SetReceive(cids...)
+	c.SetMessage(&im.Message{
+		Event:   entity.EventFriendApply,
+		Content: data,
+	})
+
+	im.Sessions.Default.PushSendChannel(c)
 }
 
 // onConsumeAddGroupRoom 加入群房间
