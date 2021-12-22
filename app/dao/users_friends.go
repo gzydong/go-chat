@@ -3,25 +3,35 @@ package dao
 import (
 	"context"
 	"fmt"
+	"go-chat/app/cache"
 	"go-chat/app/model"
 	"time"
 )
 
 type UsersFriendsDao struct {
 	*BaseDao
+	relation *cache.Relation
 }
 
-func NewUsersFriends(base *BaseDao) *UsersFriendsDao {
-	return &UsersFriendsDao{base}
+func NewUsersFriendsDao(baseDao *BaseDao, relation *cache.Relation) *UsersFriendsDao {
+	return &UsersFriendsDao{BaseDao: baseDao, relation: relation}
 }
 
 // IsFriend 判断是否为好友关系
-func (dao *UsersFriendsDao) IsFriend(ctx context.Context, uid int, friendId int) bool {
+func (dao *UsersFriendsDao) IsFriend(ctx context.Context, uid int, friendId int, cache bool) bool {
+	if dao.relation.GetContactRelation(ctx, uid, friendId) == nil {
+		return true
+	}
+
 	sql := `SELECT count(1) from users_friends where ((user_id = ? and friend_id = ?) or (user_id = ? and friend_id = ?)) and status = 1`
 
 	var count int
 	if err := dao.Db().Raw(sql, uid, friendId, friendId, uid).Scan(&count).Error; err != nil {
 		return false
+	}
+
+	if count == 2 {
+		dao.relation.SetContactRelation(ctx, uid, friendId)
 	}
 
 	return count == 2

@@ -38,7 +38,7 @@ type AuthPermission struct {
 func (c *TalkMessage) permission(prem *AuthPermission) bool {
 	// todo 后面需要加缓存
 	if prem.TalkType == entity.PrivateChat {
-		return c.contactService.Dao().IsFriend(prem.ctx, prem.UserId, prem.ReceiverId)
+		return c.contactService.Dao().IsFriend(prem.ctx, prem.UserId, prem.ReceiverId, true)
 	} else {
 		return c.groupMemberService.Dao().IsMember(prem.ReceiverId, prem.UserId)
 	}

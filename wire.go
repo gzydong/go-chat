@@ -43,11 +43,12 @@ var providerSet = wire.NewSet(
 	cache.NewLastMessage,
 	cache.NewTalkVote,
 	cache.NewGroupRoom,
+	cache.NewRelation,
 	wire.Struct(new(cache.SmsCodeCache), "*"),
 
 	// dao 数据层
 	dao.NewBaseDao,
-	dao.NewUsersFriends,
+	dao.NewUsersFriendsDao,
 	dao.NewGroupMemberDao,
 	dao.NewUserDao,
 	dao.NewGroupDao,
