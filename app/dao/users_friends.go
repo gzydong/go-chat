@@ -19,7 +19,7 @@ func NewUsersFriendsDao(baseDao *BaseDao, relation *cache.Relation) *UsersFriend
 
 // IsFriend 判断是否为好友关系
 func (dao *UsersFriendsDao) IsFriend(ctx context.Context, uid int, friendId int, cache bool) bool {
-	if dao.relation.IsContactRelation(ctx, uid, friendId) == nil {
+	if cache && dao.relation.IsContactRelation(ctx, uid, friendId) == nil {
 		return true
 	}
 
