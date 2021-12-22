@@ -15,6 +15,18 @@ func NewUsersFriends(base *BaseDao) *UsersFriendsDao {
 	return &UsersFriendsDao{base}
 }
 
+// IsFriend 判断是否为好友关系
+func (dao *UsersFriendsDao) IsFriend(ctx context.Context, uid int, friendId int) bool {
+	sql := `SELECT count(1) from users_friends where ((user_id = ? and friend_id = ?) or (user_id = ? and friend_id = ?)) and status = 1`
+
+	var count int
+	if err := dao.Db().Raw(sql, uid, friendId, friendId, uid).Scan(&count).Error; err != nil {
+		return false
+	}
+
+	return count == 2
+}
+
 func (dao *UsersFriendsDao) GetFriendRemark(ctx context.Context, uid int, friendId int, isCache bool) string {
 
 	if isCache {

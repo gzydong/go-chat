@@ -56,8 +56,6 @@ func (c *ContactApply) Accept(ctx *gin.Context) {
 		return
 	}
 
-	// todo 推送消息
-
 	response.Success(ctx, gin.H{})
 }
 
@@ -73,8 +71,6 @@ func (c *ContactApply) Decline(ctx *gin.Context) {
 		response.BusinessError(ctx, err)
 		return
 	}
-
-	// todo 推送消息
 
 	response.Success(ctx, gin.H{})
 }

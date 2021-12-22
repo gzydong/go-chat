@@ -1,15 +1,16 @@
 package v1
 
 import (
+	"context"
 	"github.com/gin-gonic/gin"
 	"go-chat/app/dao"
+	"go-chat/app/entity"
 	"go-chat/app/http/request"
 	"go-chat/app/http/response"
 	"go-chat/app/pkg/auth"
 	"go-chat/app/pkg/slice"
+	"go-chat/app/pkg/strutil"
 	"go-chat/app/service"
-	"path"
-	"strings"
 )
 
 type TalkMessage struct {
@@ -18,16 +19,29 @@ type TalkMessage struct {
 	talkRecordsVoteDao *dao.TalkRecordsVoteDao
 	forwardService     *service.TalkMessageForwardService
 	splitUploadService *service.SplitUploadService
+	contactService     *service.ContactService
+	groupMemberService *service.GroupMemberService
 }
 
-func NewTalkMessageHandler(
-	service *service.TalkMessageService,
-	talkService *service.TalkService,
-	talkRecordsVoteDao *dao.TalkRecordsVoteDao,
-	forwardService *service.TalkMessageForwardService,
-	splitUploadService *service.SplitUploadService,
-) *TalkMessage {
-	return &TalkMessage{service: service, talkService: talkService, talkRecordsVoteDao: talkRecordsVoteDao, forwardService: forwardService, splitUploadService: splitUploadService}
+func NewTalkMessageHandler(service *service.TalkMessageService, talkService *service.TalkService, talkRecordsVoteDao *dao.TalkRecordsVoteDao, forwardService *service.TalkMessageForwardService, splitUploadService *service.SplitUploadService, contactService *service.ContactService, groupMemberService *service.GroupMemberService) *TalkMessage {
+	return &TalkMessage{service: service, talkService: talkService, talkRecordsVoteDao: talkRecordsVoteDao, forwardService: forwardService, splitUploadService: splitUploadService, contactService: contactService, groupMemberService: groupMemberService}
+}
+
+type AuthPermission struct {
+	ctx        context.Context
+	TalkType   int
+	UserId     int
+	ReceiverId int
+}
+
+// 权限控制
+func (c *TalkMessage) permission(prem *AuthPermission) bool {
+	// todo 后面需要加缓存
+	if prem.TalkType == entity.PrivateChat {
+		return c.contactService.Dao().IsFriend(prem.ctx, prem.UserId, prem.ReceiverId)
+	} else {
+		return c.groupMemberService.Dao().IsMember(prem.ReceiverId, prem.UserId)
+	}
 }
 
 // Text 发送文本消息
@@ -38,9 +52,19 @@ func (c *TalkMessage) Text(ctx *gin.Context) {
 		return
 	}
 
-	// todo 需要做文字检测处理
+	uid := auth.GetAuthUserID(ctx)
 
-	if err := c.service.SendTextMessage(ctx.Request.Context(), auth.GetAuthUserID(ctx), params); err != nil {
+	if !c.permission(&AuthPermission{
+		ctx:        ctx.Request.Context(),
+		TalkType:   params.TalkType,
+		UserId:     auth.GetAuthUserID(ctx),
+		ReceiverId: params.ReceiverId,
+	}) {
+		response.Unauthorized(ctx, "无权限访问！")
+		return
+	}
+
+	if err := c.service.SendTextMessage(ctx.Request.Context(), uid, params); err != nil {
 		response.Success(ctx, gin.H{}, "消息推送失败！")
 		return
 	}
@@ -56,7 +80,19 @@ func (c *TalkMessage) Code(ctx *gin.Context) {
 		return
 	}
 
-	if err := c.service.SendCodeMessage(ctx.Request.Context(), auth.GetAuthUserID(ctx), params); err != nil {
+	uid := auth.GetAuthUserID(ctx)
+
+	if !c.permission(&AuthPermission{
+		ctx:        ctx.Request.Context(),
+		TalkType:   params.TalkType,
+		UserId:     uid,
+		ReceiverId: params.ReceiverId,
+	}) {
+		response.BusinessError(ctx, "无权限访问！")
+		return
+	}
+
+	if err := c.service.SendCodeMessage(ctx.Request.Context(), uid, params); err != nil {
 		response.Success(ctx, gin.H{}, "消息推送失败！")
 		return
 	}
@@ -78,10 +114,7 @@ func (c *TalkMessage) Image(ctx *gin.Context) {
 		return
 	}
 
-	arr := []string{"png", "jpg", "jpeg", "gif"}
-	ext := strings.Trim(path.Ext(file.Filename), ".")
-
-	if !slice.InStr(ext, arr) {
+	if !slice.InStr(strutil.FileSuffix(file.Filename), []string{"png", "jpg", "jpeg", "gif"}) {
 		response.InvalidParams(ctx, "上传文件格式不正确,仅支持 png、jpg、jpeg 和 gif")
 		return
 	}
@@ -92,7 +125,19 @@ func (c *TalkMessage) Image(ctx *gin.Context) {
 		return
 	}
 
-	if err := c.service.SendImageMessage(ctx.Request.Context(), auth.GetAuthUserID(ctx), params, file); err != nil {
+	uid := auth.GetAuthUserID(ctx)
+
+	if !c.permission(&AuthPermission{
+		ctx:        ctx.Request.Context(),
+		TalkType:   params.TalkType,
+		UserId:     uid,
+		ReceiverId: params.ReceiverId,
+	}) {
+		response.BusinessError(ctx, "无权限访问！")
+		return
+	}
+
+	if err := c.service.SendImageMessage(ctx.Request.Context(), uid, params, file); err != nil {
 		response.Success(ctx, gin.H{}, "消息推送失败！")
 		return
 	}
@@ -110,15 +155,23 @@ func (c *TalkMessage) File(ctx *gin.Context) {
 
 	uid := auth.GetAuthUserID(ctx)
 
+	if !c.permission(&AuthPermission{
+		ctx:        ctx.Request.Context(),
+		TalkType:   params.TalkType,
+		UserId:     uid,
+		ReceiverId: params.ReceiverId,
+	}) {
+		response.BusinessError(ctx, "无权限访问！")
+		return
+	}
+
 	file, err := c.splitUploadService.Dao().GetFile(uid, params.UploadId)
 	if err != nil {
 		response.BusinessError(ctx, "文件信息不存在！")
 		return
 	}
 
-	params.UserId = uid
-
-	if err := c.service.SendFileMessage(ctx.Request.Context(), params, file); err != nil {
+	if err := c.service.SendFileMessage(ctx.Request.Context(), uid, params, file); err != nil {
 		response.BusinessError(ctx, err)
 		return
 	}
@@ -144,7 +197,19 @@ func (c *TalkMessage) Vote(ctx *gin.Context) {
 		return
 	}
 
-	if err := c.service.SendVoteMessage(ctx.Request.Context(), auth.GetAuthUserID(ctx), params); err != nil {
+	uid := auth.GetAuthUserID(ctx)
+
+	if !c.permission(&AuthPermission{
+		ctx:        ctx.Request.Context(),
+		TalkType:   entity.GroupChat,
+		UserId:     uid,
+		ReceiverId: params.ReceiverId,
+	}) {
+		response.BusinessError(ctx, "无权限访问！")
+		return
+	}
+
+	if err := c.service.SendVoteMessage(ctx.Request.Context(), uid, params); err != nil {
 		response.Success(ctx, gin.H{}, "消息推送失败！")
 		return
 	}
@@ -160,7 +225,19 @@ func (c *TalkMessage) Emoticon(ctx *gin.Context) {
 		return
 	}
 
-	if err := c.service.SendEmoticonMessage(ctx.Request.Context(), auth.GetAuthUserID(ctx), params); err != nil {
+	uid := auth.GetAuthUserID(ctx)
+
+	if !c.permission(&AuthPermission{
+		ctx:        ctx.Request.Context(),
+		TalkType:   params.TalkType,
+		UserId:     uid,
+		ReceiverId: params.ReceiverId,
+	}) {
+		response.BusinessError(ctx, "无权限访问！")
+		return
+	}
+
+	if err := c.service.SendEmoticonMessage(ctx.Request.Context(), uid, params); err != nil {
 		response.Success(ctx, gin.H{}, "消息推送失败！")
 		return
 	}
@@ -181,9 +258,21 @@ func (c *TalkMessage) Forward(ctx *gin.Context) {
 		return
 	}
 
+	uid := auth.GetAuthUserID(ctx)
+
+	if !c.permission(&AuthPermission{
+		ctx:        ctx.Request.Context(),
+		TalkType:   params.TalkType,
+		UserId:     uid,
+		ReceiverId: params.ReceiverId,
+	}) {
+		response.BusinessError(ctx, "无权限访问！")
+		return
+	}
+
 	forward := &service.ForwardParams{
 		Mode:       params.ForwardMode,
-		UserId:     auth.GetAuthUserID(ctx),
+		UserId:     uid,
 		ReceiverId: params.ReceiverId,
 		TalkType:   params.TalkType,
 		RecordsIds: slice.ParseIds(params.RecordsIds),
@@ -204,6 +293,18 @@ func (c *TalkMessage) Card(ctx *gin.Context) {
 	params := &request.CardMessageRequest{}
 	if err := ctx.ShouldBind(params); err != nil {
 		response.InvalidParams(ctx, err)
+		return
+	}
+
+	uid := auth.GetAuthUserID(ctx)
+
+	if !c.permission(&AuthPermission{
+		ctx:        ctx.Request.Context(),
+		TalkType:   params.TalkType,
+		UserId:     uid,
+		ReceiverId: params.ReceiverId,
+	}) {
+		response.BusinessError(ctx, "无权限访问！")
 		return
 	}
 
@@ -291,7 +392,19 @@ func (c *TalkMessage) Location(ctx *gin.Context) {
 		return
 	}
 
-	if err := c.service.SendLocationMessage(ctx.Request.Context(), auth.GetAuthUserID(ctx), params); err != nil {
+	uid := auth.GetAuthUserID(ctx)
+
+	if !c.permission(&AuthPermission{
+		ctx:        ctx.Request.Context(),
+		TalkType:   params.TalkType,
+		UserId:     uid,
+		ReceiverId: params.ReceiverId,
+	}) {
+		response.BusinessError(ctx, "无权限访问！")
+		return
+	}
+
+	if err := c.service.SendLocationMessage(ctx.Request.Context(), uid, params); err != nil {
 		response.Success(ctx, gin.H{}, "消息推送失败！")
 		return
 	}

@@ -50,6 +50,8 @@ func NewError(c *gin.Context, code int, message ...interface{}) {
 	status := http.StatusOK
 	if code == 404 {
 		status = http.StatusNotFound
+	} else if code == 403 {
+		status = http.StatusForbidden
 	}
 
 	c.JSON(status, &Response{Code: code, Message: msg})

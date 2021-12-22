@@ -132,7 +132,7 @@ func (s *TalkMessageService) SendImageMessage(ctx context.Context, uid int, para
 
 	m := utils.ReadFileImage(bytes.NewReader(stream))
 
-	filePath := fmt.Sprintf("public/media/image/talk/%s/%s", timeutil.DateDay(), strutil.GenImageName(ext, m.Width, m.Height))
+	filePath := fmt.Sprintf("public/media/image/talk/%s/%s", timeutil.DateNumber(), strutil.GenImageName(ext, m.Width, m.Height))
 
 	if err := s.fileSystem.Default.Write(stream, filePath); err != nil {
 		logrus.Error("文件上传失败 err:", err.Error())
@@ -149,7 +149,7 @@ func (s *TalkMessageService) SendImageMessage(ctx context.Context, uid int, para
 			UserId:       uid,
 			Source:       1,
 			Type:         entity.GetMediaType(ext),
-			Drive:        entity.FileSystemDriveType(s.fileSystem.Driver()),
+			Drive:        entity.FileDriveMode(s.fileSystem.Driver()),
 			OriginalName: file.Filename,
 			Suffix:       ext,
 			Size:         int(file.Size),
@@ -176,19 +176,19 @@ func (s *TalkMessageService) SendImageMessage(ctx context.Context, uid int, para
 // SendFileMessage 发送文件消息
 // @params uid     用户ID
 // @params params  请求参数
-func (s *TalkMessageService) SendFileMessage(ctx context.Context, params *request.FileMessageRequest, file *model.FileSplitUpload) error {
+func (s *TalkMessageService) SendFileMessage(ctx context.Context, uid int, params *request.FileMessageRequest, file *model.FileSplitUpload) error {
 
 	var (
 		err    error
 		record = &model.TalkRecords{
 			TalkType:   params.TalkType,
 			MsgType:    entity.MsgTypeFile,
-			UserId:     params.UserId,
+			UserId:     uid,
 			ReceiverId: params.ReceiverId,
 		}
 	)
 
-	filePath := fmt.Sprintf("private/files/talks/%s/%s.%s", timeutil.DateDay(), encrypt.Md5(strutil.Random(16)), file.FileExt)
+	filePath := fmt.Sprintf("private/files/talks/%s/%s.%s", timeutil.DateNumber(), encrypt.Md5(strutil.Random(16)), file.FileExt)
 	if err := s.fileSystem.Default.Copy(file.SaveDir, filePath); err != nil {
 		logrus.Error("文件拷贝失败 err: ", err.Error())
 		return err
@@ -201,7 +201,7 @@ func (s *TalkMessageService) SendFileMessage(ctx context.Context, params *reques
 
 		if err = s.db.Create(&model.TalkRecordsFile{
 			RecordId:     record.Id,
-			UserId:       params.UserId,
+			UserId:       uid,
 			Source:       1,
 			Type:         entity.GetMediaType(file.FileExt),
 			Drive:        file.Drive,

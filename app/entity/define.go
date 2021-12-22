@@ -11,7 +11,7 @@ var fileDrives = map[string]int{
 	"cos":   FileDriveCos,
 }
 
-func FileSystemDriveType(drive string) int {
+func FileDriveMode(drive string) int {
 	if val, ok := fileDrives[drive]; ok {
 		return val
 	}

@@ -53,13 +53,13 @@ func (s *SplitUploadService) InitiateMultipartUpload(ctx context.Context, params
 
 	m := &model.FileSplitUpload{
 		Type:         1,
-		Drive:        entity.FileSystemDriveType(s.fileSystem.Driver()),
+		Drive:        entity.FileDriveMode(s.fileSystem.Driver()),
 		UserId:       params.UserId,
 		OriginalName: params.Name,
 		SplitNum:     int(num),
 		FileExt:      strings.TrimPrefix(path.Ext(params.Name), "."),
 		FileSize:     params.Size,
-		SaveDir:      fmt.Sprintf("private/tmp/multipart/%s/%s.tmp", timeutil.DateDay(), encrypt.Md5(strutil.Random(20))),
+		SaveDir:      fmt.Sprintf("private/tmp/multipart/%s/%s.tmp", timeutil.DateNumber(), encrypt.Md5(strutil.Random(20))),
 		Attr:         "{}",
 	}
 
@@ -96,7 +96,7 @@ func (s *SplitUploadService) MultipartUpload(ctx context.Context, uid int, req *
 		OriginalName: req.Name,
 		SplitIndex:   req.SplitIndex,
 		SplitNum:     req.SplitNum,
-		SaveDir:      fmt.Sprintf("private/tmp/%s/%s/%d-%s.tmp", timeutil.DateDay(), req.UploadId, req.SplitIndex, req.UploadId),
+		SaveDir:      fmt.Sprintf("private/tmp/%s/%s/%d-%s.tmp", timeutil.DateNumber(), req.UploadId, req.SplitIndex, req.UploadId),
 		FileExt:      req.Ext,
 		FileSize:     file.Size,
 		Attr:         "{}",

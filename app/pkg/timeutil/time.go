@@ -17,7 +17,7 @@ func Date() string {
 	return time.Now().Format(DateFormat)
 }
 
-func DateDay() string {
+func DateNumber() string {
 	return time.Now().Format(DateDayFormat)
 }
 
