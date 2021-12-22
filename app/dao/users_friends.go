@@ -32,6 +32,8 @@ func (dao *UsersFriendsDao) IsFriend(ctx context.Context, uid int, friendId int,
 
 	if count == 2 {
 		dao.relation.SetContactRelation(ctx, uid, friendId)
+	} else {
+		dao.relation.DelContactRelation(ctx, uid, friendId)
 	}
 
 	return count == 2
