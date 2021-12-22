@@ -23,7 +23,7 @@ func (r *Relation) keyContactRelation(uid, uid2 int) string {
 	return fmt.Sprintf("rds:contact:relation:%d_%d", uid, uid2)
 }
 
-func (r *Relation) GetContactRelation(ctx context.Context, uid, uid2 int) error {
+func (r *Relation) IsContactRelation(ctx context.Context, uid, uid2 int) error {
 	return r.rds.Get(ctx, r.keyContactRelation(uid, uid2)).Err()
 }
 
