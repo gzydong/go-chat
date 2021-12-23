@@ -20,7 +20,7 @@ func NewContactsApplyService(base *BaseService) *ContactApplyService {
 
 func (s *ContactApplyService) Create(ctx context.Context, uid int, req *request.ContactApplyCreateRequest) error {
 
-	apply := &model.UsersFriendsApply{
+	apply := &model.ContactApply{
 		UserId:   uid,
 		FriendId: req.FriendId,
 		Remark:   req.Remarks,
@@ -47,7 +47,7 @@ func (s *ContactApplyService) Create(ctx context.Context, uid int, req *request.
 func (s *ContactApplyService) Accept(ctx context.Context, uid int, req *request.ContactApplyAcceptRequest) error {
 	var (
 		err       error
-		applyInfo *model.UsersFriendsApply
+		applyInfo *model.ContactApply
 	)
 
 	if err := s.db.First(&applyInfo, req.ApplyId).Error; err != nil {
@@ -56,13 +56,13 @@ func (s *ContactApplyService) Accept(ctx context.Context, uid int, req *request.
 
 	err = s.db.Transaction(func(tx *gorm.DB) error {
 		addFriendFunc := func(uid, fid int, remark string) error {
-			var friends *model.UsersFriends
+			var friends *model.Contact
 
 			err = tx.Where("user_id = ? and friend_id = ?", uid, fid).First(&friends).Error
 
 			// 数据存在则更新
 			if err == nil {
-				return tx.Model(&model.UsersFriends{}).Where("id = ?", friends.Id).Updates(&model.UsersFriends{
+				return tx.Model(&model.Contact{}).Where("id = ?", friends.Id).Updates(&model.Contact{
 					Remark: remark,
 					Status: 1,
 				}).Error
@@ -72,7 +72,7 @@ func (s *ContactApplyService) Accept(ctx context.Context, uid int, req *request.
 				return err
 			}
 
-			return tx.Create(&model.UsersFriends{
+			return tx.Create(&model.Contact{
 				UserId:   uid,
 				FriendId: fid,
 				Remark:   remark,
@@ -93,7 +93,7 @@ func (s *ContactApplyService) Accept(ctx context.Context, uid int, req *request.
 			return err
 		}
 
-		return tx.Delete(&model.UsersFriendsApply{}, applyInfo.Id).Error
+		return tx.Delete(&model.ContactApply{}, applyInfo.Id).Error
 	})
 
 	if err == nil {
@@ -113,7 +113,7 @@ func (s *ContactApplyService) Accept(ctx context.Context, uid int, req *request.
 
 // Decline 拒绝好友申请
 func (s *ContactApplyService) Decline(ctx context.Context, uid int, req *request.ContactApplyDeclineRequest) error {
-	err := s.db.Delete(&model.UsersFriendsApply{}, "id = ? and friend_id = ?", req.ApplyId, uid).Error
+	err := s.db.Delete(&model.ContactApply{}, "id = ? and friend_id = ?", req.ApplyId, uid).Error
 
 	if err == nil {
 		body := map[string]interface{}{
@@ -133,21 +133,21 @@ func (s *ContactApplyService) Decline(ctx context.Context, uid int, req *request
 // List 联系人申请列表
 func (s *ContactApplyService) List(ctx context.Context, uid, page, size int) ([]*model.ApplyItem, error) {
 	fields := []string{
-		"users_friends_apply.id",
-		"users_friends_apply.remark",
+		"contact_apply.id",
+		"contact_apply.remark",
 		"users.nickname",
 		"users.avatar",
 		"users.mobile",
-		"users_friends_apply.user_id",
-		"users_friends_apply.friend_id",
-		"users_friends_apply.created_at",
+		"contact_apply.user_id",
+		"contact_apply.friend_id",
+		"contact_apply.created_at",
 	}
 
-	tx := s.db.Table("users_friends_apply")
+	tx := s.db.Table("contact_apply")
 	tx.Select(fields)
-	tx.Joins("left join `users` ON `users`.id = users_friends_apply.user_id")
-	tx.Where("users_friends_apply.friend_id = ?", uid)
-	tx.Order("users_friends_apply.id desc")
+	tx.Joins("left join `users` ON `users`.id = contact_apply.user_id")
+	tx.Where("contact_apply.friend_id = ?", uid)
+	tx.Order("contact_apply.id desc")
 
 	items := make([]*model.ApplyItem, 0)
 	if err := tx.Scan(&items).Error; err != nil {

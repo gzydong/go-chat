@@ -19,7 +19,7 @@ import (
 
 type Talk struct {
 	service         *service.TalkService
-	talkListService *service.TalkListService
+	talkListService *service.TalkSessionService
 	redisLock       *cache.RedisLock
 	userService     *service.UserService
 	wsClient        *cache.WsClientSession
@@ -30,7 +30,7 @@ type Talk struct {
 
 func NewTalkHandler(
 	service *service.TalkService,
-	talkListService *service.TalkListService,
+	talkListService *service.TalkSessionService,
 	redisLock *cache.RedisLock,
 	userService *service.UserService,
 	wsClient *cache.WsClientSession,

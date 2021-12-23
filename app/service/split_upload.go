@@ -28,16 +28,16 @@ type InitiateParams struct {
 
 type SplitUploadService struct {
 	*BaseService
-	dao        *dao.FileSplitUploadDao
+	dao        *dao.SplitUploadDao
 	conf       *config.Config
 	fileSystem *filesystem.Filesystem
 }
 
-func NewSplitUploadService(baseService *BaseService, dao *dao.FileSplitUploadDao, conf *config.Config, fileSystem *filesystem.Filesystem) *SplitUploadService {
+func NewSplitUploadService(baseService *BaseService, dao *dao.SplitUploadDao, conf *config.Config, fileSystem *filesystem.Filesystem) *SplitUploadService {
 	return &SplitUploadService{BaseService: baseService, dao: dao, conf: conf, fileSystem: fileSystem}
 }
 
-func (s *SplitUploadService) Dao() *dao.FileSplitUploadDao {
+func (s *SplitUploadService) Dao() *dao.SplitUploadDao {
 	return s.dao
 }
 
@@ -46,12 +46,12 @@ func (s *SplitUploadService) IsUploadFile(ctx context.Context, uid int, hashId s
 
 }
 
-func (s *SplitUploadService) InitiateMultipartUpload(ctx context.Context, params *InitiateParams) (*model.FileSplitUpload, error) {
+func (s *SplitUploadService) InitiateMultipartUpload(ctx context.Context, params *InitiateParams) (*model.SplitUpload, error) {
 
 	// 计算拆分数量
 	num := math.Ceil(float64(params.Size) / float64(2<<20))
 
-	m := &model.FileSplitUpload{
+	m := &model.SplitUpload{
 		Type:         1,
 		Drive:        entity.FileDriveMode(s.fileSystem.Driver()),
 		UserId:       params.UserId,
@@ -78,7 +78,7 @@ func (s *SplitUploadService) InitiateMultipartUpload(ctx context.Context, params
 }
 
 func (s *SplitUploadService) MultipartUpload(ctx context.Context, uid int, req *request.UploadMultipartRequest, file *multipart.FileHeader) (interface{}, error) {
-	info := &model.FileSplitUpload{}
+	info := &model.SplitUpload{}
 	if err := s.Db().First(info, "upload_id = ? and type = 1", req.UploadId).Error; err != nil {
 		return nil, err
 	}
@@ -88,7 +88,7 @@ func (s *SplitUploadService) MultipartUpload(ctx context.Context, uid int, req *
 		return nil, err
 	}
 
-	data := &model.FileSplitUpload{
+	data := &model.SplitUpload{
 		Type:         2,
 		Drive:        info.Drive,
 		UserId:       uid,
@@ -129,7 +129,7 @@ func (s *SplitUploadService) MultipartUpload(ctx context.Context, uid int, req *
 }
 
 // combine
-func (s *SplitUploadService) merge(info *model.FileSplitUpload) error {
+func (s *SplitUploadService) merge(info *model.SplitUpload) error {
 	items, err := s.dao.GetSplitList(info.UploadId)
 	if err != nil {
 		return err

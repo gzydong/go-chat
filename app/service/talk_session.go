@@ -10,23 +10,23 @@ import (
 	"time"
 )
 
-type TalkListService struct {
+type TalkSessionService struct {
 	*BaseService
-	dao *dao.TalkListDao
+	dao *dao.TalkSessionDao
 }
 
-func NewTalkListService(base *BaseService, dao *dao.TalkListDao) *TalkListService {
-	return &TalkListService{base, dao}
+func NewTalkSessionService(base *BaseService, dao *dao.TalkSessionDao) *TalkSessionService {
+	return &TalkSessionService{base, dao}
 }
 
-func (s *TalkListService) Dao() *dao.TalkListDao {
+func (s *TalkSessionService) Dao() *dao.TalkSessionDao {
 	return s.dao
 }
 
-func (s *TalkListService) GetTalkList(ctx context.Context, uid int) ([]*model.SearchTalkList, error) {
+func (s *TalkSessionService) GetTalkList(ctx context.Context, uid int) ([]*model.SearchTalkSession, error) {
 	var (
 		err   error
-		items = make([]*model.SearchTalkList, 0)
+		items = make([]*model.SearchTalkSession, 0)
 	)
 
 	fields := []string{
@@ -36,7 +36,7 @@ func (s *TalkListService) GetTalkList(ctx context.Context, uid int) ([]*model.Se
 		"`group`.group_name", "`group`.avatar as group_avatar",
 	}
 
-	query := s.db.Table("talk_list list")
+	query := s.db.Table("talk_session list")
 	query.Joins("left join `users` ON list.receiver_id = `users`.id AND list.talk_type = 1")
 	query.Joins("left join `group` ON list.receiver_id = `group`.id AND list.talk_type = 2")
 	query.Where("list.user_id = ? and list.is_delete = 0", uid)
@@ -50,13 +50,13 @@ func (s *TalkListService) GetTalkList(ctx context.Context, uid int) ([]*model.Se
 }
 
 // Create 创建会话列表
-func (s *TalkListService) Create(ctx context.Context, uid int, params *request.TalkListCreateRequest) (*model.TalkList, error) {
+func (s *TalkSessionService) Create(ctx context.Context, uid int, params *request.TalkListCreateRequest) (*model.TalkSession, error) {
 	var (
 		err    error
-		result *model.TalkList
+		result *model.TalkSession
 	)
 
-	err = s.db.Where(&model.TalkList{
+	err = s.db.Where(&model.TalkSession{
 		TalkType:   params.TalkType,
 		UserId:     uid,
 		ReceiverId: params.ReceiverId,
@@ -67,7 +67,7 @@ func (s *TalkListService) Create(ctx context.Context, uid int, params *request.T
 	}
 
 	if errors.Is(err, gorm.ErrRecordNotFound) {
-		result = &model.TalkList{
+		result = &model.TalkSession{
 			TalkType:   params.TalkType,
 			UserId:     uid,
 			ReceiverId: params.ReceiverId,
@@ -85,15 +85,15 @@ func (s *TalkListService) Create(ctx context.Context, uid int, params *request.T
 }
 
 // Delete 删除会话
-func (s *TalkListService) Delete(ctx context.Context, uid int, id int) error {
-	return s.db.Model(&model.TalkList{}).Where("id = ? and user_id = ?", id, uid).Updates(map[string]interface{}{
+func (s *TalkSessionService) Delete(ctx context.Context, uid int, id int) error {
+	return s.db.Model(&model.TalkSession{}).Where("id = ? and user_id = ?", id, uid).Updates(map[string]interface{}{
 		"is_delete":  1,
 		"updated_at": time.Now(),
 	}).Error
 }
 
 // Top 会话置顶
-func (s *TalkListService) Top(ctx context.Context, uid int, params *request.TalkListTopRequest) error {
+func (s *TalkSessionService) Top(ctx context.Context, uid int, params *request.TalkListTopRequest) error {
 
 	isTop := 0
 
@@ -101,7 +101,7 @@ func (s *TalkListService) Top(ctx context.Context, uid int, params *request.Talk
 		isTop = 1
 	}
 
-	err := s.db.Model(&model.TalkList{}).Where("id = ? and user_id = ?", params.Id, uid).
+	err := s.db.Model(&model.TalkSession{}).Where("id = ? and user_id = ?", params.Id, uid).
 		Updates(map[string]interface{}{
 			"is_top":     isTop,
 			"updated_at": time.Now(),
@@ -111,8 +111,8 @@ func (s *TalkListService) Top(ctx context.Context, uid int, params *request.Talk
 }
 
 // Top 会话置顶
-func (s *TalkListService) Disturb(ctx context.Context, uid int, params *request.TalkListDisturbRequest) error {
-	err := s.db.Model(&model.TalkList{}).
+func (s *TalkSessionService) Disturb(ctx context.Context, uid int, params *request.TalkListDisturbRequest) error {
+	err := s.db.Model(&model.TalkSession{}).
 		Where("user_id = ? and receiver_id = ? and talk_type = ?", uid, params.ReceiverId, params.TalkType).
 		Updates(map[string]interface{}{
 			"is_disturb": params.IsDisturb,

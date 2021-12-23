@@ -23,7 +23,7 @@ func (dao *UsersFriendsDao) IsFriend(ctx context.Context, uid int, friendId int,
 		return true
 	}
 
-	sql := `SELECT count(1) from users_friends where ((user_id = ? and friend_id = ?) or (user_id = ? and friend_id = ?)) and status = 1`
+	sql := `SELECT count(1) from contact where ((user_id = ? and friend_id = ?) or (user_id = ? and friend_id = ?)) and status = 1`
 
 	var count int
 	if err := dao.Db().Raw(sql, uid, friendId, friendId, uid).Scan(&count).Error; err != nil {
@@ -49,7 +49,7 @@ func (dao *UsersFriendsDao) GetFriendRemark(ctx context.Context, uid int, friend
 	}
 
 	remark := ""
-	err := dao.Db().Model(&model.UsersFriends{}).Select("remark").Where("user_id = ? and friend_id = ?", uid, friendId).Scan(&remark).Error
+	err := dao.Db().Model(&model.Contact{}).Select("remark").Where("user_id = ? and friend_id = ?", uid, friendId).Scan(&remark).Error
 	if err != nil {
 		_ = dao.SetFriendRemark(ctx, uid, friendId, remark)
 	}

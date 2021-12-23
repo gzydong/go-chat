@@ -233,14 +233,14 @@ func (s *SubscribeConsume) onConsumeContactApply(body string) {
 			Type   int `json:"type"`
 		}
 		ctx   = context.Background()
-		apply *model.UsersFriendsApply
+		apply *model.ContactApply
 	)
 
 	if err := jsonutil.JsonDecode(body, &msg); err != nil {
 		return
 	}
 
-	err := s.contactService.Db().Model(model.UsersFriendsApply{}).First(&apply, msg.ApplId).Error
+	err := s.contactService.Db().Model(model.ContactApply{}).First(&apply, msg.ApplId).Error
 	if err != nil {
 		return
 	}

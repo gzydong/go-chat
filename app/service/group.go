@@ -36,7 +36,7 @@ func (s *GroupService) Create(ctx *gin.Context, request *request.GroupCreateRequ
 	var (
 		err      error
 		members  []*model.GroupMember
-		talkList []*model.TalkList
+		talkList []*model.TalkSession
 		groupId  int
 	)
 
@@ -75,7 +75,7 @@ func (s *GroupService) Create(ctx *gin.Context, request *request.GroupCreateRequ
 				CreatedAt: time.Now(),
 			})
 
-			talkList = append(talkList, &model.TalkList{
+			talkList = append(talkList, &model.TalkSession{
 				TalkType:   2,
 				UserId:     val,
 				ReceiverId: group.Id,
@@ -88,7 +88,7 @@ func (s *GroupService) Create(ctx *gin.Context, request *request.GroupCreateRequ
 			return err
 		}
 
-		if err = tx.Model(&model.TalkList{}).Create(talkList).Error; err != nil {
+		if err = tx.Model(&model.TalkSession{}).Create(talkList).Error; err != nil {
 			return err
 		}
 
@@ -199,9 +199,9 @@ func (s *GroupService) InviteUsers(ctx context.Context, groupId int, uid int, ui
 	var (
 		err            error
 		addMembers     []*model.GroupMember
-		addTalkList    []*model.TalkList
+		addTalkList    []*model.TalkSession
 		updateTalkList []int
-		talkList       []*model.TalkList
+		talkList       []*model.TalkSession
 	)
 
 	m := make(map[int]struct{})
@@ -209,7 +209,7 @@ func (s *GroupService) InviteUsers(ctx context.Context, groupId int, uid int, ui
 		m[value] = struct{}{}
 	}
 
-	listHash := make(map[int]*model.TalkList)
+	listHash := make(map[int]*model.TalkSession)
 	s.db.Select("id", "user_id", "is_delete").Where("user_id in ? and receiver_id = ? and talk_type = 2", uids, groupId).Find(&talkList)
 	for _, item := range talkList {
 		listHash[item.UserId] = item
@@ -225,7 +225,7 @@ func (s *GroupService) InviteUsers(ctx context.Context, groupId int, uid int, ui
 		}
 
 		if item, ok := listHash[value]; !ok {
-			addTalkList = append(addTalkList, &model.TalkList{
+			addTalkList = append(addTalkList, &model.TalkSession{
 				TalkType:   2,
 				UserId:     value,
 				ReceiverId: groupId,
@@ -259,7 +259,7 @@ func (s *GroupService) InviteUsers(ctx context.Context, groupId int, uid int, ui
 
 		// 更新用户的对话列表
 		if len(updateTalkList) > 0 {
-			tx.Model(&model.TalkList{}).Where("id in ?", updateTalkList).Updates(map[string]interface{}{
+			tx.Model(&model.TalkSession{}).Where("id in ?", updateTalkList).Updates(map[string]interface{}{
 				"is_delete":  0,
 				"created_at": time.Now(),
 			})

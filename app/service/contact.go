@@ -23,7 +23,7 @@ func (s *ContactService) Dao() *dao.UsersFriendsDao {
 // @params uid      用户ID
 // @params friendId 联系人ID
 func (s *ContactService) EditRemark(ctx context.Context, uid int, friendId int, remark string) error {
-	err := s.db.Model(&model.UsersFriends{}).Where("user_id = ? and friend_id = ?", uid, friendId).Update("remark", remark).Error
+	err := s.db.Model(&model.Contact{}).Where("user_id = ? and friend_id = ?", uid, friendId).Update("remark", remark).Error
 
 	_ = s.dao.SetFriendRemark(ctx, uid, friendId, remark)
 
@@ -34,25 +34,25 @@ func (s *ContactService) EditRemark(ctx context.Context, uid int, friendId int, 
 // @params uid      用户ID
 // @params friendId 联系人ID
 func (s *ContactService) Delete(ctx context.Context, uid, friendId int) error {
-	return s.db.Model(&model.UsersFriends{}).Where("user_id = ? and friend_id = ?", uid, friendId).Update("status", 0).Error
+	return s.db.Model(&model.Contact{}).Where("user_id = ? and friend_id = ?", uid, friendId).Update("status", 0).Error
 }
 
 // List 获取联系人列表
 // @params uid      用户ID
 func (s *ContactService) List(ctx context.Context, uid int) ([]*model.ContactListItem, error) {
 
-	tx := s.db.Table("users_friends")
+	tx := s.db.Table("contact")
 	tx.Select([]string{
 		"users.id",
 		"users.nickname",
 		"users.avatar",
 		"users.motto",
 		"users.gender",
-		"users_friends.remark",
+		"contact.remark",
 	})
 
-	tx.Joins("inner join `users` ON `users`.id = users_friends.friend_id")
-	tx.Where("`users_friends`.user_id = ? and users_friends.status = ?", uid, 1)
+	tx.Joins("inner join `users` ON `users`.id = contact.friend_id")
+	tx.Where("`contact`.user_id = ? and contact.status = ?", uid, 1)
 
 	items := make([]*model.ContactListItem, 0)
 	if err := tx.Scan(&items).Error; err != nil {
@@ -65,7 +65,7 @@ func (s *ContactService) List(ctx context.Context, uid int) ([]*model.ContactLis
 func (s *ContactService) GetContactIds(ctx context.Context, uid int) []int64 {
 	ids := make([]int64, 0)
 
-	s.db.Model(&model.UsersFriends{}).Where("user_id = ? and status = ?", uid, 1).Pluck("friend_id", &ids)
+	s.db.Model(&model.Contact{}).Where("user_id = ? and status = ?", uid, 1).Pluck("friend_id", &ids)
 
 	return ids
 }

@@ -2,7 +2,7 @@ package model
 
 import "time"
 
-type TalkList struct {
+type TalkSession struct {
 	Id         int       `gorm:"column:id;primary_key;AUTO_INCREMENT" json:"id"`  // 聊天列表ID
 	TalkType   int       `gorm:"column:talk_type;default:1" json:"talk_type"`     // 聊天类型[1:私信;2:群聊;]
 	UserId     int       `gorm:"column:user_id;default:0" json:"user_id"`         // 用户ID
@@ -15,7 +15,7 @@ type TalkList struct {
 	UpdatedAt  time.Time `gorm:"column:updated_at" json:"updated_at"`             // 更新时间
 }
 
-type SearchTalkList struct {
+type SearchTalkSession struct {
 	Id          int       `json:"id" `
 	TalkType    int       `json:"talk_type" `
 	ReceiverId  int       `json:"receiver_id" `

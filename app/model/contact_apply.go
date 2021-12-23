@@ -3,7 +3,7 @@ package model
 import "time"
 
 // 用户添加好友申请表
-type UsersFriendsApply struct {
+type ContactApply struct {
 	Id        int       `gorm:"column:id;primary_key;AUTO_INCREMENT" json:"id"` // 申请ID
 	UserId    int       `gorm:"column:user_id;default:0" json:"user_id"`        // 申请人ID
 	FriendId  int       `gorm:"column:friend_id;default:0" json:"friend_id"`    // 被申请人

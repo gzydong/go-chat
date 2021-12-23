@@ -4,7 +4,7 @@ import (
 	"time"
 )
 
-type FileSplitUpload struct {
+type SplitUpload struct {
 	Id           int       `gorm:"column:id;primary_key;AUTO_INCREMENT" json:"id"`  // 临时文件ID
 	Type         int       `gorm:"column:type;default:1" json:"type"`               // 文件属性[1:合并文件;2:拆分文件]
 	Drive        int       `gorm:"column:drive;default:1" json:"drive"`             // 保存方式[1:本地;2:cos;]

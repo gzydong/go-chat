@@ -176,7 +176,7 @@ func (s *TalkMessageService) SendImageMessage(ctx context.Context, uid int, para
 // SendFileMessage 发送文件消息
 // @params uid     用户ID
 // @params params  请求参数
-func (s *TalkMessageService) SendFileMessage(ctx context.Context, uid int, params *request.FileMessageRequest, file *model.FileSplitUpload) error {
+func (s *TalkMessageService) SendFileMessage(ctx context.Context, uid int, params *request.FileMessageRequest, file *model.SplitUpload) error {
 
 	var (
 		err    error

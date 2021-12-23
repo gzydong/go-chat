@@ -137,10 +137,10 @@ func (t *TalkMessageForwardService) SendForwardMessage(ctx context.Context, forw
 		t.rds.Publish(ctx, entity.IMGatewayAll, entity.JsonText{
 			"event": entity.EventTalk,
 			"data": entity.JsonText{
-				"sender_id":   int64(forward.UserId),
-				"receiver_id": int64(item.ReceiverId),
+				"sender_id":   forward.UserId,
+				"receiver_id": item.ReceiverId,
 				"talk_type":   item.TalkType,
-				"record_id":   int64(item.RecordId),
+				"record_id":   item.RecordId,
 			}.Json(),
 		}.Json())
 	}

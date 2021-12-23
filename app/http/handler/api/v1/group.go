@@ -16,7 +16,7 @@ import (
 type Group struct {
 	service         *service.GroupService
 	memberService   *service.GroupMemberService
-	talkListService *service.TalkListService
+	talkListService *service.TalkSessionService
 	userService     *service.UserService
 	redisLock       *cache.RedisLock
 	contactService  *service.ContactService
@@ -25,7 +25,7 @@ type Group struct {
 func NewGroupHandler(
 	service *service.GroupService,
 	memberService *service.GroupMemberService,
-	talkListService *service.TalkListService,
+	talkListService *service.TalkSessionService,
 	redisLock *cache.RedisLock,
 	contactService *service.ContactService,
 	userService *service.UserService,
