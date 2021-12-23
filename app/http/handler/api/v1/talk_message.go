@@ -40,7 +40,7 @@ func (c *TalkMessage) permission(prem *AuthPermission) bool {
 	if prem.TalkType == entity.PrivateChat {
 		return c.contactService.Dao().IsFriend(prem.ctx, prem.UserId, prem.ReceiverId, true)
 	} else {
-		return c.groupMemberService.Dao().IsMember(prem.ReceiverId, prem.UserId)
+		return c.groupMemberService.Dao().IsMember(prem.ReceiverId, prem.UserId, true)
 	}
 }
 

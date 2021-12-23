@@ -43,7 +43,7 @@ func (c *Download) TalkFile(ctx *gin.Context) {
 				return
 			}
 		} else {
-			if !c.groupMemberService.Dao().IsMember(resp.Record.ReceiverId, uid) {
+			if !c.groupMemberService.Dao().IsMember(resp.Record.ReceiverId, uid, false) {
 				response.Unauthorized(ctx, "无访问权限！")
 				return
 			}

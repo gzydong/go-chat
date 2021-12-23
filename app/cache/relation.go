@@ -23,6 +23,10 @@ func (r *Relation) keyContactRelation(uid, uid2 int) string {
 	return fmt.Sprintf("rds:contact:relation:%d_%d", uid, uid2)
 }
 
+func (r *Relation) keyGroupRelation(uid, gid int) string {
+	return fmt.Sprintf("rds:contact:relation:%d_%d", uid, gid)
+}
+
 func (r *Relation) IsContactRelation(ctx context.Context, uid, uid2 int) error {
 	return r.rds.Get(ctx, r.keyContactRelation(uid, uid2)).Err()
 }
@@ -33,4 +37,16 @@ func (r *Relation) SetContactRelation(ctx context.Context, uid, uid2 int) {
 
 func (r *Relation) DelContactRelation(ctx context.Context, uid, uid2 int) {
 	r.rds.Del(ctx, r.keyContactRelation(uid, uid2))
+}
+
+func (r *Relation) IsGroupRelation(ctx context.Context, uid, gid int) error {
+	return r.rds.Get(ctx, r.keyGroupRelation(uid, gid)).Err()
+}
+
+func (r *Relation) SetGroupRelation(ctx context.Context, uid, gid int) {
+	r.rds.SetEX(ctx, r.keyGroupRelation(uid, gid), "1", time.Hour*1)
+}
+
+func (r *Relation) DelGroupRelation(ctx context.Context, uid, gid int) {
+	r.rds.Del(ctx, r.keyGroupRelation(uid, gid))
 }

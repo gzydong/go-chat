@@ -138,7 +138,7 @@ func (s *TalkRecordsService) GetForwardRecords(ctx context.Context, uid int, rec
 			return nil, entity.ErrPermissionDenied
 		}
 	} else if record.TalkType == entity.GroupChat {
-		if !s.groupMemberDao.IsMember(record.ReceiverId, uid) {
+		if !s.groupMemberDao.IsMember(record.ReceiverId, uid, true) {
 			return nil, entity.ErrPermissionDenied
 		}
 	} else {

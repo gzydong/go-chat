@@ -97,7 +97,7 @@ func (c *Group) Invite(ctx *gin.Context) {
 		return
 	}
 
-	if !c.memberService.Dao().IsMember(params.GroupId, uid) {
+	if !c.memberService.Dao().IsMember(params.GroupId, uid, true) {
 		response.BusinessError(ctx, "非群组成员，无权邀请好友！")
 		return
 	}
@@ -252,7 +252,7 @@ func (c *Group) GetGroupMembers(ctx *gin.Context) {
 		return
 	}
 
-	if !c.memberService.Dao().IsMember(params.GroupId, auth.GetAuthUserID(ctx)) {
+	if !c.memberService.Dao().IsMember(params.GroupId, auth.GetAuthUserID(ctx), false) {
 		response.BusinessError(ctx, "非群成员无权查看成员列表！")
 		return
 	}

@@ -1,22 +1,33 @@
 package dao
 
 import (
+	"context"
+	"go-chat/app/cache"
 	"go-chat/app/model"
 )
 
 type GroupMemberDao struct {
 	*BaseDao
+	relation *cache.Relation
 }
 
-func NewGroupMemberDao(baseDao *BaseDao) *GroupMemberDao {
-	return &GroupMemberDao{BaseDao: baseDao}
+func NewGroupMemberDao(baseDao *BaseDao, relation *cache.Relation) *GroupMemberDao {
+	return &GroupMemberDao{BaseDao: baseDao, relation: relation}
 }
 
 // IsMember 检测是属于群成员
-func (dao *GroupMemberDao) IsMember(groupId, userId int) bool {
+func (dao *GroupMemberDao) IsMember(gid, uid int, cache bool) bool {
+	if dao.relation.IsGroupRelation(context.Background(), uid, gid) == nil {
+		return true
+	}
+
 	result := &model.GroupMember{}
 
-	count := dao.Db().Select("id").Where("group_id = ? and user_id = ? and is_quit = ?", groupId, userId, 0).Unscoped().First(result).RowsAffected
+	count := dao.Db().Select("id").Where("group_id = ? and user_id = ? and is_quit = ?", gid, uid, 0).Unscoped().First(result).RowsAffected
+
+	if count == 1 {
+		dao.relation.SetGroupRelation(context.Background(), uid, gid)
+	}
 
 	return count != 0
 }
