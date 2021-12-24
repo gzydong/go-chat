@@ -6,8 +6,8 @@ import (
 )
 
 const (
-	heartbeatCheckInterval = 30 * time.Second // 心跳检测时间
-	heartbeatIdleTime      = 70               // 心跳超时时间
+	heartbeatCheckInterval = 30 * time.Second // 心跳检测间隔时间
+	heartbeatIdleTime      = 75               // 心跳检测超时时间（超时时间是隔间检测时间的2.5倍）
 )
 
 var Heartbeat = &heartbeat{

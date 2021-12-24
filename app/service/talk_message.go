@@ -189,6 +189,12 @@ func (s *TalkMessageService) SendFileMessage(ctx context.Context, uid int, param
 	)
 
 	filePath := fmt.Sprintf("private/files/talks/%s/%s.%s", timeutil.DateNumber(), encrypt.Md5(strutil.Random(16)), file.FileExt)
+	url := ""
+	if entity.GetMediaType(file.FileExt) <= 3 {
+		filePath = fmt.Sprintf("public/media/%s/%s.%s", timeutil.DateNumber(), encrypt.Md5(strutil.Random(16)), file.FileExt)
+		url = s.fileSystem.Default.PublicUrl(filePath)
+	}
+
 	if err := s.fileSystem.Default.Copy(file.SaveDir, filePath); err != nil {
 		logrus.Error("文件拷贝失败 err: ", err.Error())
 		return err
@@ -209,6 +215,7 @@ func (s *TalkMessageService) SendFileMessage(ctx context.Context, uid int, param
 			Suffix:       file.FileExt,
 			Size:         int(file.FileSize),
 			Path:         filePath,
+			Url:          url,
 		}).Error; err != nil {
 			return err
 		}
