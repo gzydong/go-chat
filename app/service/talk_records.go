@@ -209,7 +209,7 @@ func (s *TalkRecordsService) HandleTalkRecords(ctx context.Context, items []*mod
 			votes = append(votes, item.Id)
 		case entity.MsgTypeGroupNotice:
 		case entity.MsgTypeFriendApply:
-		case entity.MsgTypeUserLogin:
+		case entity.MsgTypeLogin:
 			logins = append(logins, item.Id)
 		case entity.MsgTypeGroupInvite:
 			invites = append(invites, item.Id)
@@ -252,7 +252,7 @@ func (s *TalkRecordsService) HandleTalkRecords(ctx context.Context, items []*mod
 
 	hashLogins := make(map[int]*model.TalkRecordsLogin)
 	if len(logins) > 0 {
-		s.db.Model(&model.TalkRecordsLogin{}).Where("record_id in ?", votes).Scan(&loginItems)
+		s.db.Model(&model.TalkRecordsLogin{}).Where("record_id in ?", logins).Scan(&loginItems)
 		for i := range loginItems {
 			hashLogins[loginItems[i].RecordId] = loginItems[i]
 		}
@@ -366,9 +366,16 @@ func (s *TalkRecordsService) HandleTalkRecords(ctx context.Context, items []*mod
 			}
 		case entity.MsgTypeGroupNotice:
 		case entity.MsgTypeFriendApply:
-		case entity.MsgTypeUserLogin:
+		case entity.MsgTypeLogin:
 			if value, ok := hashLogins[item.Id]; ok {
-				data.Login = value
+				data.Login = map[string]interface{}{
+					"address":    value.Address,
+					"agent":      value.Agent,
+					"created_at": value.CreatedAt.Format(timeutil.DatetimeFormat),
+					"ip":         value.Ip,
+					"platform":   value.Platform,
+					"reason":     value.Reason,
+				}
 			}
 		case entity.MsgTypeGroupInvite:
 			if value, ok := hashInvites[item.Id]; ok {

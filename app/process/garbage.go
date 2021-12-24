@@ -24,7 +24,7 @@ func (s *ClearGarbage) Handle(ctx context.Context) error {
 		select {
 		case <-ctx.Done():
 			return nil
-		case <-time.After(time.Hour):
+		case <-time.After(time.Minute * 5):
 			for _, sid := range s.server.GetExpireServerAll(ctx) {
 				iter := s.server.Redis().Scan(ctx, 0, fmt.Sprintf("ws:%s:*", sid), 100).Iterator()
 				for iter.Next(ctx) {

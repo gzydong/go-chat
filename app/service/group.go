@@ -327,7 +327,7 @@ func (s *GroupService) UserGroupList(userId int) ([]*model.GroupItem, error) {
 		ids = append(ids, item.Id)
 	}
 
-	query := s.db.Table("talk_list")
+	query := s.db.Table("talk_session")
 	query.Select("receiver_id,is_disturb")
 	query.Where("talk_type = ? and receiver_id in ?", 2, ids)
 

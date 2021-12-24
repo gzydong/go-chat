@@ -518,6 +518,54 @@ func (s *TalkMessageService) VoteHandle(ctx context.Context, uid int, params *re
 	return vote.VoteId, nil
 }
 
+type LoginInfo struct {
+	UserId   int    `json:"user_id"`
+	Ip       string `json:"ip"`
+	Address  string `json:"address"`
+	Platform string `json:"platform"`
+	Agent    string `json:"agent"`
+}
+
+func (s *TalkMessageService) SendLoginMessage(ctx context.Context, login *LoginInfo) error {
+	var (
+		err    error
+		record = &model.TalkRecords{
+			TalkType:   entity.PrivateChat,
+			MsgType:    entity.MsgTypeLogin,
+			UserId:     4257,
+			ReceiverId: login.UserId,
+		}
+	)
+
+	err = s.db.Transaction(func(tx *gorm.DB) error {
+		if err = s.db.Create(record).Error; err != nil {
+			return err
+		}
+
+		if err = s.db.Create(&model.TalkRecordsLogin{
+			RecordId: record.Id,
+			UserId:   login.UserId,
+			Ip:       login.Ip,
+			Platform: login.Platform,
+			Agent:    login.Agent,
+			Address:  login.Address,
+			Reason:   "常用设备登录",
+		}).Error; err != nil {
+			return err
+		}
+
+		return nil
+	})
+
+	if err == nil {
+		s.afterHandle(ctx, record, map[string]string{
+			"text": "[系统通知]",
+		})
+	}
+
+	return err
+}
+
 // 发送消息后置处理
 func (s *TalkMessageService) afterHandle(ctx context.Context, record *model.TalkRecords, opts map[string]string) {
 	if record.TalkType == entity.PrivateChat {

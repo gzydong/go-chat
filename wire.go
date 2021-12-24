@@ -6,6 +6,7 @@ import (
 	"context"
 	"go-chat/app/dao"
 	"go-chat/app/pkg/filesystem"
+	"go-chat/app/pkg/request"
 	"go-chat/app/process"
 	"go-chat/app/process/handle"
 	"go-chat/provider"
@@ -27,6 +28,7 @@ var providerSet = wire.NewSet(
 	provider.NewRedisClient,
 	provider.NewHttpClient,
 	provider.NewHttpServer,
+	request.NewHttpClient,
 
 	// 注册路由
 	router.NewRouter,
@@ -79,6 +81,7 @@ var providerSet = wire.NewSet(
 	service.NewContactService,
 	service.NewContactsApplyService,
 	service.NewSplitUploadService,
+	service.NewIpAddressService,
 
 	// handler 处理
 	v1.NewAuthHandler,
