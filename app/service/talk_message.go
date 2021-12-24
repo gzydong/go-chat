@@ -89,7 +89,7 @@ func (s *TalkMessageService) SendCodeMessage(ctx context.Context, uid int, param
 		if err = s.db.Create(&model.TalkRecordsCode{
 			RecordId: record.Id,
 			UserId:   uid,
-			CodeLang: params.Lang,
+			Lang:     params.Lang,
 			Code:     params.Code,
 		}).Error; err != nil {
 			return err

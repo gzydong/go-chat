@@ -236,7 +236,7 @@ func (s *TalkRecordsService) HandleTalkRecords(ctx context.Context, items []*mod
 
 	hashCodes := make(map[int]*model.TalkRecordsCode)
 	if len(codes) > 0 {
-		s.db.Model(&model.TalkRecordsCode{}).Where("record_id in ?", codes).Select("record_id", "code_lang", "code").Scan(&codeItems)
+		s.db.Model(&model.TalkRecordsCode{}).Where("record_id in ?", codes).Select("record_id", "lang", "code").Scan(&codeItems)
 		for i := range codeItems {
 			hashCodes[codeItems[i].RecordId] = codeItems[i]
 		}

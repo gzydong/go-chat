@@ -313,7 +313,7 @@ func (t *TalkMessageForwardService) MultiSplitForward(ctx context.Context, forwa
 						codes = append(codes, &model.TalkRecordsCode{
 							RecordId: record.Id,
 							UserId:   forward.UserId,
-							CodeLang: code.CodeLang,
+							Lang:     code.Lang,
 							Code:     code.Code,
 						})
 					}
