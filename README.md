@@ -47,3 +47,65 @@ server {
     }
 }
 ```
+
+### Nginx 后端代理
+
+```nginx
+# http 代理
+upstream imhttp {
+    server 127.0.0.1:8080;
+}
+
+# ws 代理
+upstream imwss {
+    server 127.0.0.1:8080;
+}
+
+server {
+    listen       443 ssl;
+    server_name  www.domain.com;
+
+    ssl_certificate             /etc/nginx/cert/www.domain.com/server.crt;
+    ssl_certificate_key         /etc/nginx/cert/www.domain.com/server.key;
+    ssl_session_cache           shared:SSL:1m;
+    ssl_protocols               TLSv1.1 TLSv1.2;
+    ssl_session_timeout         5m;
+    ssl_ciphers                 ECDHE-RSA-AES128-GCM-SHA256:HIGH:!aNULL:!MD5:!RC4:!DHE;
+    ssl_prefer_server_ciphers   on;
+
+    # http 转发
+    location / {
+        client_max_body_size    20m;
+
+        # 将客户端的 Host 和 IP 信息一并转发到对应节点
+        proxy_set_header Host $http_host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+
+        # 转发Cookie，设置 SameSite
+        proxy_cookie_path / "/; secure; HttpOnly; SameSite=strict";
+
+        # 执行代理访问真实服务器
+        proxy_pass http://imhttp;
+    }
+
+    # Websocket 转发
+    location /wss/ {
+        # WebSocket Header
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade websocket;
+        proxy_set_header Connection "Upgrade";
+
+        # 将客户端的 Host 和 IP 信息一并转发到对应节点
+        proxy_set_header Host $http_host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+
+        # 客户端与服务端无交互 60s 后自动断开连接，请根据实际业务场景设置
+        proxy_read_timeout 180s;
+
+        # 执行代理访问真实服务器
+        proxy_pass http://imwss;
+    }
+}
+```
