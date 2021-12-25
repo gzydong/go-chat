@@ -292,12 +292,13 @@ func (s *SubscribeConsume) onConsumeAddGroupRoom(body string) {
 		ctx  = context.Background()
 		sid  = s.conf.GetSid()
 		data struct {
-			Gid  int
-			Uids []int
+			Gid  int   `json:"group_id"`
+			Uids []int `json:"uids"`
 		}
 	)
 
 	if err := json.Unmarshal([]byte(body), &data); err != nil {
+		fmt.Println("onConsumeAddGroupRoom Unmarshal err: ", err.Error())
 		return
 	}
 

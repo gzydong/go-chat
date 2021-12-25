@@ -32,7 +32,7 @@ func (s *GroupService) Dao() *dao.GroupDao {
 }
 
 // Create 创建群聊
-func (s *GroupService) Create(ctx *gin.Context, request *request.GroupCreateRequest) error {
+func (s *GroupService) Create(ctx *gin.Context, request *request.GroupCreateRequest) (int, error) {
 	var (
 		err      error
 		members  []*model.GroupMember
@@ -126,7 +126,7 @@ func (s *GroupService) Create(ctx *gin.Context, request *request.GroupCreateRequ
 
 	s.rds.Publish(ctx, entity.IMGatewayAll, jsonutil.JsonEncode(body))
 
-	return err
+	return groupId, err
 }
 
 // Dismiss 解散群组(群主权限)

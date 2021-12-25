@@ -48,12 +48,15 @@ func (c *Group) Create(ctx *gin.Context) {
 		return
 	}
 
-	if err := c.service.Create(ctx, params); err != nil {
+	gid, err := c.service.Create(ctx, params)
+	if err != nil {
 		response.BusinessError(ctx, "创建群聊失败，请稍后再试！")
 		return
 	}
 
-	response.Success(ctx, gin.H{})
+	response.Success(ctx, gin.H{
+		"group_id": gid,
+	})
 }
 
 // Dismiss 解散群组
