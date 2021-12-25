@@ -78,7 +78,7 @@ func Initialize(ctx context.Context) *provider.Providers {
 	}
 	download := v1.NewDownloadHandler(filesystemFilesystem, talkRecordsDao, groupMemberService)
 	emoticonDao := dao.NewEmoticonDao(baseDao)
-	emoticonService := service.NewEmoticonService(baseService, emoticonDao)
+	emoticonService := service.NewEmoticonService(baseService, emoticonDao, filesystemFilesystem)
 	emoticon := v1.NewEmoticonHandler(emoticonService, filesystemFilesystem, redisLock)
 	upload := v1.NewUploadHandler(config, filesystemFilesystem, splitUploadService)
 	index := open.NewIndexHandler(client)

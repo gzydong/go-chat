@@ -1,7 +1,6 @@
 package v1
 
 import (
-	"bytes"
 	"fmt"
 	"go-chat/app/cache"
 	"go-chat/app/http/dto/api"
@@ -14,12 +13,7 @@ import (
 	"go-chat/app/pkg/filesystem"
 	"go-chat/app/pkg/slice"
 	"go-chat/app/pkg/strutil"
-	"go-chat/app/pkg/utils"
 	"go-chat/app/service"
-	"io/ioutil"
-	"path"
-	"strings"
-	"time"
 )
 
 type Emoticon struct {
@@ -112,10 +106,7 @@ func (c *Emoticon) Upload(ctx *gin.Context) {
 		return
 	}
 
-	arr := []string{"png", "jpg", "jpeg", "gif"}
-	ext := strings.Trim(path.Ext(file.Filename), ".")
-
-	if !slice.InStr(ext, arr) {
+	if !slice.InStr(strutil.FileSuffix(file.Filename), []string{"png", "jpg", "jpeg", "gif"}) {
 		response.InvalidParams(ctx, "上传文件格式不正确,仅支持 png、jpg、jpeg 和 gif")
 		return
 	}
@@ -126,23 +117,15 @@ func (c *Emoticon) Upload(ctx *gin.Context) {
 		return
 	}
 
-	open, _ := file.Open()
-	defer open.Close()
-
-	fileBytes, _ := ioutil.ReadAll(open)
-
-	size := utils.ReadFileImage(bytes.NewReader(fileBytes))
-
-	src := fmt.Sprintf("public/media/image/emoticon/%s/%s", time.Now().Format("20060102"), strutil.GenImageName(ext, size.Width, size.Height))
-
-	err = c.filesystem.Default.Write(fileBytes, src)
+	info, err := c.service.CustomizeUpload(ctx.Request.Context(), auth.GetAuthUserID(ctx), file)
 	if err != nil {
-		response.BusinessError(ctx, err)
+		response.BusinessError(ctx, "文件上传失败！")
 		return
 	}
 
 	response.Success(ctx, gin.H{
-		"url": c.filesystem.Default.PublicUrl(src),
+		"media_id": info.Id,
+		"src":      info.Url,
 	}, "文件上传成功")
 }
 
