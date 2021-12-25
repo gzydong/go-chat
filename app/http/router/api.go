@@ -130,6 +130,39 @@ func RegisterApiRoute(conf *config.Config, router *gin.Engine, handler *handler.
 			upload.POST("/multipart", handler.Upload.MultipartUpload)
 		}
 
+		note := group.Group("/note").Use(authorize)
+		{
+			// 文章相关
+			note.GET("/article/list", handler.Article.List)
+			note.POST("/article/editor", handler.Article.Edit)
+			note.GET("/article/detail", handler.Article.Detail)
+			note.POST("/article/delete", handler.Article.Delete)
+			note.POST("/article/upload/image", handler.Article.Upload)
+			note.POST("/article/recover", handler.Article.Recover)
+			note.POST("/article/move", handler.Article.Move)
+			note.POST("/article/asterisk", handler.Article.Asterisk)
+			note.POST("/article/tag", handler.Article.UpdateTag)
+
+			// 文章分类
+			note.GET("/class/list", handler.ArticleClass.List)
+			note.POST("/class/editor", handler.ArticleClass.Edit)
+			note.POST("/class/delete", handler.ArticleClass.Delete)
+			note.POST("/class/sort", handler.ArticleClass.Sort)
+
+			// 文章标签
+			note.GET("/tag/list", handler.ArticleTag.List)
+			note.POST("/tag/editor", handler.ArticleTag.Edit)
+			note.POST("/tag/delete", handler.ArticleTag.Delete)
+
+			// 文章附件
+			note.GET("/annex/list", handler.ArticleAnnex.List)
+			note.POST("/annex/editor", handler.ArticleAnnex.Upload)
+			note.POST("/annex/delete", handler.ArticleAnnex.Delete)
+			note.POST("/annex/recover", handler.ArticleAnnex.Recover)
+			note.POST("/annex/forever/delete", handler.ArticleAnnex.ForeverDelete)
+			note.GET("/annex/recover/list", handler.ArticleAnnex.RecoverList)
+		}
+
 		download := group.Group("/download").Use(authorize)
 		{
 			download.GET("/user-chat-file", handler.Download.TalkFile)

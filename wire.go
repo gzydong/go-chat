@@ -5,10 +5,12 @@ package main
 import (
 	"context"
 	"go-chat/app/dao"
+	"go-chat/app/http/handler/api/v1/article"
 	"go-chat/app/pkg/filesystem"
 	"go-chat/app/pkg/request"
 	"go-chat/app/process"
 	"go-chat/app/process/handle"
+	"go-chat/app/service/note"
 	"go-chat/provider"
 
 	"github.com/google/wire"
@@ -82,6 +84,10 @@ var providerSet = wire.NewSet(
 	service.NewContactsApplyService,
 	service.NewSplitUploadService,
 	service.NewIpAddressService,
+	note.NewArticleService,
+	note.NewArticleTagService,
+	note.NewArticleClassService,
+	note.NewArticleAnnexService,
 
 	// handler 处理
 	v1.NewAuthHandler,
@@ -98,6 +104,10 @@ var providerSet = wire.NewSet(
 	v1.NewEmoticonHandler,
 	v1.NewTalkRecordsHandler,
 	open.NewIndexHandler,
+	article.NewAnnexHandler,
+	article.NewArticleHandler,
+	article.NewClassHandler,
+	article.NewTagHandler,
 	ws.NewDefaultWebSocket,
 
 	wire.Struct(new(handler.Handler), "*"),

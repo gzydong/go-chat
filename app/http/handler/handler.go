@@ -2,6 +2,7 @@ package handler
 
 import (
 	"go-chat/app/http/handler/api/v1"
+	"go-chat/app/http/handler/api/v1/article"
 	"go-chat/app/http/handler/open"
 	"go-chat/app/http/handler/ws"
 )
@@ -22,4 +23,8 @@ type Handler struct {
 	GroupNotice      *v1.GroupNotice
 	Contact          *v1.Contact
 	ContactsApply    *v1.ContactApply
+	Article          *article.Article
+	ArticleAnnex     *article.Annex
+	ArticleClass     *article.Class
+	ArticleTag       *article.Tag
 }
