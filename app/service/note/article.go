@@ -3,6 +3,7 @@ package note
 import (
 	"context"
 	"errors"
+	"fmt"
 	"go-chat/app/http/request"
 	"go-chat/app/model"
 	"go-chat/app/pkg/slice"
@@ -127,7 +128,7 @@ func (s *ArticleService) List(ctx context.Context, uid int, req *request.Article
 	}
 
 	if req.Keyword != "" {
-		query.Where("article.title like %?%", req.Keyword)
+		query.Where("article.title like ?", fmt.Sprintf("%%%s%%", req.Keyword))
 	}
 
 	if req.FindType == 1 {
