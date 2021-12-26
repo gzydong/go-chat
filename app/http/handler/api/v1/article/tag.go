@@ -24,7 +24,9 @@ func (c *Tag) List(ctx *gin.Context) {
 		return
 	}
 
-	response.Success(ctx, items)
+	response.Success(ctx, gin.H{
+		"tags": items,
+	})
 }
 
 // Edit 添加或修改标签

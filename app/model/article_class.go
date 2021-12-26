@@ -8,3 +8,10 @@ type ArticleClass struct {
 	IsDefault int    `gorm:"column:is_default;default:0" json:"is_default"`  // 默认分类1:是 0:不是
 	CreatedAt int    `gorm:"column:created_at;default:0" json:"created_at"`  // 创建时间
 }
+
+type ArticleClassItem struct {
+	Id        int    `json:"id"`         // 文章分类ID
+	ClassName string `json:"class_name"` // 分类名
+	IsDefault int    `json:"is_default"` // 默认分类1:是 0:不是
+	Count     int    `json:"count"`      // 分类名
+}

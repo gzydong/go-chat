@@ -18,7 +18,15 @@ func NewClassHandler(service *note.ArticleClassService) *Class {
 
 // List 分类列表
 func (c *Class) List(ctx *gin.Context) {
+	items, err := c.service.List(ctx.Request.Context(), auth.GetAuthUserID(ctx))
+	if err != nil {
+		response.BusinessError(ctx, err)
+		return
+	}
 
+	response.Success(ctx, gin.H{
+		"rows": items,
+	})
 }
 
 // Edit 添加或修改分类
@@ -69,5 +77,17 @@ func (c *Class) Delete(ctx *gin.Context) {
 
 // Sort 删除分类
 func (c *Class) Sort(ctx *gin.Context) {
+	params := &request.ArticleClassSortRequest{}
 
+	if err := ctx.ShouldBind(params); err != nil {
+		response.InvalidParams(ctx, err)
+		return
+	}
+
+	err := c.service.Sort(ctx.Request.Context(), auth.GetAuthUserID(ctx), params.ClassId, params.SortType)
+	if err != nil {
+		response.BusinessError(ctx, err)
+	} else {
+		response.Success(ctx, gin.H{}, "操作成功")
+	}
 }

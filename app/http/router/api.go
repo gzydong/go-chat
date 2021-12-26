@@ -142,6 +142,7 @@ func RegisterApiRoute(conf *config.Config, router *gin.Engine, handler *handler.
 			note.POST("/article/move", handler.Article.Move)
 			note.POST("/article/asterisk", handler.Article.Asterisk)
 			note.POST("/article/tag", handler.Article.UpdateTag)
+			note.POST("/article/forever/delete", handler.Article.ForeverDelete)
 
 			// 文章分类
 			note.GET("/class/list", handler.ArticleClass.List)

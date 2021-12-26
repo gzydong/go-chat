@@ -5,6 +5,7 @@ package main
 import (
 	"context"
 	"go-chat/app/dao"
+	note2 "go-chat/app/dao/note"
 	"go-chat/app/http/handler/api/v1/article"
 	"go-chat/app/pkg/filesystem"
 	"go-chat/app/pkg/request"
@@ -65,6 +66,7 @@ var providerSet = wire.NewSet(
 	dao.NewEmoticonDao,
 	dao.NewTalkRecordsVoteDao,
 	dao.NewFileSplitUploadDao,
+	note2.NewArticleClassDao,
 
 	// 服务
 	service.NewBaseService,

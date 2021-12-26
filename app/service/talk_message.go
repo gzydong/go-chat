@@ -20,7 +20,6 @@ import (
 	"go-chat/config"
 	"gorm.io/gorm"
 	"mime/multipart"
-	"path"
 	"sort"
 	"strconv"
 	"strings"
@@ -128,8 +127,7 @@ func (s *TalkMessageService) SendImageMessage(ctx context.Context, uid int, para
 		return err
 	}
 
-	ext := strings.TrimPrefix(path.Ext(file.Filename), ".")
-
+	ext := strutil.FileSuffix(file.Filename)
 	m := utils.ReadFileImage(bytes.NewReader(stream))
 
 	filePath := fmt.Sprintf("public/media/image/talk/%s/%s", timeutil.DateNumber(), strutil.GenImageName(ext, m.Width, m.Height))

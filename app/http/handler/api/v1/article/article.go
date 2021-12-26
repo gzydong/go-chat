@@ -1,31 +1,122 @@
 package article
 
 import (
+	"bytes"
+	"fmt"
 	"github.com/gin-gonic/gin"
+	"go-chat/app/http/request"
+	"go-chat/app/http/response"
+	"go-chat/app/pkg/auth"
+	"go-chat/app/pkg/filesystem"
+	"go-chat/app/pkg/slice"
+	"go-chat/app/pkg/strutil"
+	"go-chat/app/pkg/timeutil"
+	"go-chat/app/pkg/utils"
 	"go-chat/app/service/note"
 )
 
 type Article struct {
-	service *note.ArticleService
+	service    *note.ArticleService
+	fileSystem *filesystem.Filesystem
 }
 
-func NewArticleHandler(service *note.ArticleService) *Article {
-	return &Article{service}
+func NewArticleHandler(service *note.ArticleService, fileSystem *filesystem.Filesystem) *Article {
+	return &Article{service, fileSystem}
 }
 
 // List 文章列表
 func (c *Article) List(ctx *gin.Context) {
+	params := &request.ArticleListRequest{}
 
+	if err := ctx.ShouldBind(params); err != nil {
+		response.InvalidParams(ctx, err)
+		return
+	}
+
+	items, err := c.service.List(ctx.Request.Context(), auth.GetAuthUserID(ctx), params)
+	if err != nil {
+		response.BusinessError(ctx, err)
+		return
+	}
+
+	list := make([]map[string]interface{}, 0)
+	for _, item := range items {
+		list = append(list, map[string]interface{}{
+			"abstract":    item.Abstract,
+			"class_id":    item.ClassId,
+			"created_at":  timeutil.FormatDatetime(item.CreatedAt),
+			"id":          item.Id,
+			"image":       item.Image,
+			"is_asterisk": item.IsAsterisk,
+			"status":      item.Status,
+			"tags_id":     item.TagsId,
+			"title":       item.Title,
+			"updated_at":  timeutil.FormatDatetime(item.UpdatedAt),
+		})
+	}
+
+	response.SuccessPaginate(ctx, list, 1, 1000, len(items))
 }
 
 // Detail 文章详情
 func (c *Article) Detail(ctx *gin.Context) {
+	params := &request.ArticleDetailRequest{}
 
+	if err := ctx.ShouldBind(params); err != nil {
+		response.InvalidParams(ctx, err)
+		return
+	}
+
+	uid := auth.GetAuthUserID(ctx)
+
+	detail, err := c.service.Detail(ctx.Request.Context(), uid, params.ArticleId)
+	if err != nil {
+		response.BusinessError(ctx, "笔记不存在")
+		return
+	}
+
+	response.Success(ctx, gin.H{
+		"id":          detail.Id,
+		"class_id":    detail.ClassId,
+		"title":       detail.Title,
+		"md_content":  detail.MdContent,
+		"content":     detail.Content,
+		"is_asterisk": detail.IsAsterisk,
+		"status":      detail.Status,
+		"created_at":  timeutil.FormatDatetime(detail.CreatedAt),
+		"updated_at":  timeutil.FormatDatetime(detail.UpdatedAt),
+		"tags":        []string{},
+		"files":       []string{},
+	})
 }
 
 // Class 添加或编辑文章
 func (c *Article) Edit(ctx *gin.Context) {
+	var (
+		err    error
+		params = &request.ArticleEditRequest{}
+		uid    = auth.GetAuthUserID(ctx)
+	)
 
+	if err = ctx.ShouldBind(params); err != nil {
+		response.InvalidParams(ctx, err)
+		return
+	}
+
+	if params.ArticleId == 0 {
+		params.ArticleId, err = c.service.Create(ctx.Request.Context(), uid, params)
+	} else {
+		err = c.service.Update(ctx.Request.Context(), uid, params)
+	}
+
+	if err != nil {
+		response.BusinessError(ctx, err)
+		return
+	}
+
+	response.Success(ctx, gin.H{
+		"id": params.ArticleId,
+	})
 }
 
 // Delete 删除文章
@@ -40,7 +131,40 @@ func (c *Article) Recover(ctx *gin.Context) {
 
 // Upload 文章图片上传
 func (c *Article) Upload(ctx *gin.Context) {
+	file, err := ctx.FormFile("image")
+	if err != nil {
+		response.InvalidParams(ctx, "image 字段必传！")
+		return
+	}
 
+	if !slice.InStr(strutil.FileSuffix(file.Filename), []string{"png", "jpg", "jpeg", "gif", "webp"}) {
+		response.InvalidParams(ctx, "上传文件格式不正确,仅支持 png、jpg、jpeg、gif 和 webp")
+		return
+	}
+
+	// 判断上传文件大小（5M）
+	if file.Size > 5<<20 {
+		response.InvalidParams(ctx, "上传文件大小不能超过5M！")
+		return
+	}
+
+	stream, err := filesystem.ReadMultipartStream(file)
+	if err != nil {
+		response.BusinessError(ctx, "文件上传失败")
+		return
+	}
+
+	ext := strutil.FileSuffix(file.Filename)
+	m := utils.ReadFileImage(bytes.NewReader(stream))
+
+	filePath := fmt.Sprintf("public/media/image/note/%s/%s", timeutil.DateNumber(), strutil.GenImageName(ext, m.Width, m.Height))
+
+	if err := c.fileSystem.Default.Write(stream, filePath); err != nil {
+		response.BusinessError(ctx, "文件上传失败")
+		return
+	}
+
+	response.Success(ctx, gin.H{"save_path": c.fileSystem.Default.PublicUrl(filePath)})
 }
 
 // Move 文章移动
