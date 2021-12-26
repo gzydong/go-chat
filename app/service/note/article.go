@@ -2,8 +2,10 @@ package note
 
 import (
 	"context"
+	"errors"
 	"go-chat/app/http/request"
 	"go-chat/app/model"
+	"go-chat/app/pkg/slice"
 	"go-chat/app/pkg/strutil"
 	"go-chat/app/service"
 	"gorm.io/gorm"
@@ -107,10 +109,32 @@ func (s *ArticleService) Update(ctx context.Context, uid int, req *request.Artic
 func (s *ArticleService) List(ctx context.Context, uid int, req *request.ArticleListRequest) ([]*model.Article, error) {
 
 	query := s.Db().Model(&model.Article{})
+	query.Joins("left join article_class on article_class.id = article.class_id")
+	query.Where("article.user_id = ?", uid)
 
-	query.Where("user_id = ?", uid)
+	if req.FindType == 2 {
+		query.Where("article.is_asterisk = ?", 1)
+	} else if req.FindType == 3 {
+		query.Where("article.class_id = ?", req.Cid)
+	} else if req.FindType == 4 {
+		query.Where("FIND_IN_SET(?,article.tags_id)", req.Cid)
+	}
 
-	query.Order("id desc")
+	if req.FindType == 5 {
+		query.Where("article.status = ?", 2)
+	} else {
+		query.Where("article.status = ?", 1)
+	}
+
+	if req.Keyword != "" {
+		query.Where("article.title like %?%", req.Keyword)
+	}
+
+	if req.FindType == 1 {
+		query.Order("article.updated_at desc").Limit(20)
+	} else {
+		query.Order("article.id desc")
+	}
 
 	items := make([]*model.Article, 0)
 	if err := query.Scan(&items).Error; err != nil {
@@ -118,4 +142,54 @@ func (s *ArticleService) List(ctx context.Context, uid int, req *request.Article
 	}
 
 	return items, nil
+}
+
+func (s *ArticleService) Asterisk(ctx context.Context, uid int, req *request.ArticleAsteriskRequest) error {
+
+	mode := 0
+	if req.Type == 1 {
+		mode = 1
+	}
+
+	return s.Db().Model(&model.Article{}).Where("id = ? and user_id = ?", req.ArticleId, uid).Update("is_asterisk", mode).Error
+}
+
+func (s ArticleService) UpdateTag(ctx context.Context, uid int, req *request.ArticleTagsRequest) error {
+	return s.Db().Model(&model.Article{}).Where("id = ? and user_id = ?", req.ArticleId, uid).Update("tags_id", slice.IntToIds(req.Tags)).Error
+}
+
+func (s *ArticleService) Move(ctx context.Context, uid int, req *request.ArticleMoveRequest) error {
+	return s.Db().Model(&model.Article{}).Where("id = ? and user_id = ?", req.ArticleId, uid).Update("class_id", req.ClassId).Error
+}
+
+func (s *ArticleService) UpdateStatus(ctx context.Context, uid int, articleId int, status int) error {
+	return s.Db().Model(&model.Article{}).Where("id = ? and user_id = ?", articleId, uid).Update("status", status).Error
+}
+
+func (s *ArticleService) ForeverDelete(ctx context.Context, uid int, req *request.ArticleForeverDeleteRequest) error {
+	var detail *model.Article
+	if err := s.Db().First(&detail, "id = ? and user_id = ?", req.ArticleId, uid).Error; err != nil {
+		return err
+	}
+
+	if detail.Status != 2 {
+		return errors.New("文章不能被删除")
+	}
+
+	return s.Db().Transaction(func(tx *gorm.DB) error {
+
+		if err := tx.Delete(&model.ArticleDetail{}, "article_id = ?", detail.Id).Error; err != nil {
+			return err
+		}
+
+		if err := tx.Delete(&model.Article{}, detail.Id).Error; err != nil {
+			return err
+		}
+
+		if err := tx.Delete(&model.ArticleAnnex{}, "user_id = ? and article_id = ?", uid, detail.Id).Error; err != nil {
+			return err
+		}
+
+		return nil
+	})
 }

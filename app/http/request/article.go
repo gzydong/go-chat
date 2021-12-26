@@ -9,14 +9,41 @@ type ArticleEditRequest struct {
 }
 
 type ArticleListRequest struct {
-	Keyword  string `json:"keyword"`
-	FindType int    `json:"find_type"`
-	Cid      int    `json:"cid"`
-	Page     int    `json:"page"`
+	Keyword  string `form:"keyword" json:"keyword"`
+	FindType int    `form:"find_type" json:"find_type"`
+	Cid      int    `form:"cid" json:"cid"`
+	Page     int    `form:"page" json:"page"`
 }
 
 type ArticleDetailRequest struct {
 	ArticleId int `form:"article_id" json:"article_id"`
+}
+
+type ArticleAsteriskRequest struct {
+	ArticleId int `form:"article_id" json:"article_id" binding:"required"`
+	Type      int `form:"article_id" json:"type" binding:"required,oneof=1 2"`
+}
+
+type ArticleTagsRequest struct {
+	ArticleId int   `form:"article_id" json:"article_id" binding:"required"`
+	Tags      []int `form:"tags" json:"tags"`
+}
+
+type ArticleMoveRequest struct {
+	ArticleId int `form:"article_id" json:"article_id" binding:"required,gt=0"`
+	ClassId   int `form:"class_id" json:"class_id" binding:"required,gt=0"`
+}
+
+type ArticleDeleteRequest struct {
+	ArticleId int `form:"article_id" json:"article_id" binding:"required"`
+}
+
+type ArticleRecoverRequest struct {
+	ArticleId int `form:"article_id" json:"article_id" binding:"required"`
+}
+
+type ArticleForeverDeleteRequest struct {
+	ArticleId int `form:"article_id" json:"article_id" binding:"required"`
 }
 
 type ArticleClassEditRequest struct {
