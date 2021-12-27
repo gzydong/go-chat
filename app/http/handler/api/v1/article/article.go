@@ -16,12 +16,13 @@ import (
 )
 
 type Article struct {
-	service    *note.ArticleService
-	fileSystem *filesystem.Filesystem
+	service             *note.ArticleService
+	fileSystem          *filesystem.Filesystem
+	articleAnnexService *note.ArticleAnnexService
 }
 
-func NewArticleHandler(service *note.ArticleService, fileSystem *filesystem.Filesystem) *Article {
-	return &Article{service, fileSystem}
+func NewArticleHandler(service *note.ArticleService, fileSystem *filesystem.Filesystem, articleAnnexService *note.ArticleAnnexService) *Article {
+	return &Article{service, fileSystem, articleAnnexService}
 }
 
 // List 文章列表
@@ -32,8 +33,6 @@ func (c *Article) List(ctx *gin.Context) {
 		response.InvalidParams(ctx, err)
 		return
 	}
-
-	fmt.Printf("%#v\n", params)
 
 	items, err := c.service.List(ctx.Request.Context(), auth.GetAuthUserID(ctx), params)
 	if err != nil {
@@ -81,9 +80,22 @@ func (c *Article) Detail(ctx *gin.Context) {
 
 	for _, tagId := range slice.ParseIds(detail.TagsId) {
 		tags = append(tags, map[string]interface{}{
-			"id":       tagId,
-			"tag_name": "",
+			"id": tagId,
 		})
+	}
+
+	files := make([]map[string]interface{}, 0)
+	items, err := c.articleAnnexService.AnnexList(ctx, uid, params.ArticleId)
+	if err == nil {
+		for _, item := range items {
+			files = append(files, map[string]interface{}{
+				"id":            item.Id,
+				"file_suffix":   item.FileSuffix,
+				"file_size":     item.FileSize,
+				"original_name": item.OriginalName,
+				"created_at":    timeutil.FormatDatetime(item.CreatedAt),
+			})
+		}
 	}
 
 	response.Success(ctx, gin.H{
@@ -97,7 +109,7 @@ func (c *Article) Detail(ctx *gin.Context) {
 		"created_at":  timeutil.FormatDatetime(detail.CreatedAt),
 		"updated_at":  timeutil.FormatDatetime(detail.UpdatedAt),
 		"tags":        tags,
-		"files":       []string{},
+		"files":       files,
 	})
 }
 

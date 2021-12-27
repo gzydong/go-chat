@@ -157,7 +157,7 @@ func RegisterApiRoute(conf *config.Config, router *gin.Engine, handler *handler.
 
 			// 文章附件
 			note.GET("/annex/list", handler.ArticleAnnex.List)
-			note.POST("/annex/editor", handler.ArticleAnnex.Upload)
+			note.POST("/annex/upload", handler.ArticleAnnex.Upload)
 			note.POST("/annex/delete", handler.ArticleAnnex.Delete)
 			note.POST("/annex/recover", handler.ArticleAnnex.Recover)
 			note.POST("/annex/forever/delete", handler.ArticleAnnex.ForeverDelete)

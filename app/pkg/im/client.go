@@ -49,10 +49,12 @@ func NewClient(conn *websocket.Conn, options *ClientOptions) *Client {
 
 	// 设置客户端连接关闭回调事件
 	conn.SetCloseHandler(func(code int, text string) error {
-		client.isClosed = true
 
-		// 关闭通道
-		close(client.outChan)
+		if !client.isClosed {
+			close(client.outChan) // 关闭通道
+		}
+
+		client.isClosed = true
 
 		options.Channel.handler.Close(client, code, text)
 

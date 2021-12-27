@@ -44,6 +44,12 @@ func GenImageName(ext string, width, height int) string {
 	return fmt.Sprintf("%x_%dx%d.%s", md5.Sum([]byte(str)), width, height, ext)
 }
 
+func GenFileName(ext string) string {
+	str := fmt.Sprintf("%d%s", time.Now().Unix(), Random(10))
+
+	return fmt.Sprintf("%x.%s", md5.Sum([]byte(str)), ext)
+}
+
 // MtSubstr 字符串截取
 func MtSubstr(value *string, start, end int) string {
 

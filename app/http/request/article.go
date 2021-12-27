@@ -68,3 +68,7 @@ type ArticleTagEditRequest struct {
 type ArticleTagDeleteRequest struct {
 	TagId int `form:"tag_id" json:"tag_id" binding:"required"`
 }
+
+type ArticleAnnexUploadRequest struct {
+	ArticleId int `form:"article_id" json:"article_id" binding:"required"`
+}
