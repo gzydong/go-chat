@@ -67,6 +67,7 @@ var providerSet = wire.NewSet(
 	dao.NewTalkRecordsVoteDao,
 	dao.NewFileSplitUploadDao,
 	note2.NewArticleClassDao,
+	note2.NewArticleAnnexDao,
 
 	// 服务
 	service.NewBaseService,

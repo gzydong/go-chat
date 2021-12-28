@@ -122,7 +122,7 @@ func (c *Annex) Recover(ctx *gin.Context) {
 
 // RecoverList 附件回收站列表
 func (c *Annex) RecoverList(ctx *gin.Context) {
-	items, err := c.service.RecoverList(ctx.Request.Context(), auth.GetAuthUserID(ctx))
+	items, err := c.service.Dao().RecoverList(ctx.Request.Context(), auth.GetAuthUserID(ctx))
 
 	if err != nil {
 		response.BusinessError(ctx, err)
@@ -161,7 +161,7 @@ func (c *Annex) Download(ctx *gin.Context) {
 		return
 	}
 
-	info, err := c.service.FindById(ctx.Request.Context(), params.AnnexId)
+	info, err := c.service.Dao().FindById(ctx.Request.Context(), params.AnnexId)
 	if err != nil {
 		response.BusinessError(ctx, err)
 		return

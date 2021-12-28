@@ -85,7 +85,7 @@ func (c *Article) Detail(ctx *gin.Context) {
 	}
 
 	files := make([]map[string]interface{}, 0)
-	items, err := c.articleAnnexService.AnnexList(ctx, uid, params.ArticleId)
+	items, err := c.articleAnnexService.Dao().AnnexList(ctx, uid, params.ArticleId)
 	if err == nil {
 		for _, item := range items {
 			files = append(files, map[string]interface{}{
