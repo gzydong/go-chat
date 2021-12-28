@@ -72,3 +72,15 @@ type ArticleTagDeleteRequest struct {
 type ArticleAnnexUploadRequest struct {
 	ArticleId int `form:"article_id" json:"article_id" binding:"required"`
 }
+
+type ArticleAnnexDownloadRequest struct {
+	AnnexId int `form:"annex_id" json:"annex_id" binding:"required"`
+}
+
+type ArticleAnnexDeleteRequest struct {
+	AnnexId int `form:"annex_id" json:"annex_id" binding:"required"`
+}
+
+type ArticleAnnexRecoverRequest struct {
+	AnnexId int `form:"annex_id" json:"annex_id" binding:"required"`
+}

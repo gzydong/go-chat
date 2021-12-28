@@ -3,6 +3,7 @@ package article
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"go-chat/app/entity"
 	"go-chat/app/http/request"
 	"go-chat/app/http/response"
 	"go-chat/app/model"
@@ -11,6 +12,9 @@ import (
 	"go-chat/app/pkg/strutil"
 	"go-chat/app/pkg/timeutil"
 	"go-chat/app/service/note"
+	"math"
+	"net/http"
+	"time"
 )
 
 type Annex struct {
@@ -20,11 +24,6 @@ type Annex struct {
 
 func NewAnnexHandler(service *note.ArticleAnnexService, fileSystem *filesystem.Filesystem) *Annex {
 	return &Annex{service, fileSystem}
-}
-
-// List 附件列表
-func (c *Annex) List(ctx *gin.Context) {
-
 }
 
 // Upload 上传附件
@@ -65,9 +64,10 @@ func (c *Annex) Upload(ctx *gin.Context) {
 	data := &model.ArticleAnnex{
 		UserId:       auth.GetAuthUserID(ctx),
 		ArticleId:    params.ArticleId,
-		FileSuffix:   ext,
-		FileSize:     int(file.Size),
-		SaveDir:      filePath,
+		Drive:        entity.FileDriveMode(c.fileSystem.Driver()),
+		Suffix:       ext,
+		Size:         int(file.Size),
+		Path:         filePath,
 		OriginalName: file.Filename,
 		Status:       1,
 	}
@@ -79,29 +79,103 @@ func (c *Annex) Upload(ctx *gin.Context) {
 
 	response.Success(ctx, gin.H{
 		"id":            data.Id,
-		"file_size":     data.FileSize,
-		"save_dir":      data.SaveDir,
+		"file_size":     data.Size,
+		"save_dir":      data.Path,
 		"original_name": data.OriginalName,
-		"file_suffix":   data.FileSuffix,
+		"file_suffix":   data.Suffix,
 	})
 }
 
 // Delete 删除附件
 func (c *Annex) Delete(ctx *gin.Context) {
+	params := &request.ArticleAnnexDeleteRequest{}
+	if err := ctx.ShouldBind(params); err != nil {
+		response.InvalidParams(ctx, err)
+		return
+	}
 
+	err := c.service.UpdateStatus(ctx.Request.Context(), auth.GetAuthUserID(ctx), params.AnnexId, 2)
+	if err != nil {
+		response.BusinessError(ctx, err)
+		return
+	}
+
+	response.Success(ctx, gin.H{})
 }
 
 // Recover 恢复附件
 func (c *Annex) Recover(ctx *gin.Context) {
+	params := &request.ArticleAnnexRecoverRequest{}
+	if err := ctx.ShouldBind(params); err != nil {
+		response.InvalidParams(ctx, err)
+		return
+	}
 
+	err := c.service.UpdateStatus(ctx.Request.Context(), auth.GetAuthUserID(ctx), params.AnnexId, 1)
+	if err != nil {
+		response.BusinessError(ctx, err)
+		return
+	}
+
+	response.Success(ctx, gin.H{})
 }
 
 // RecoverList 附件回收站列表
 func (c *Annex) RecoverList(ctx *gin.Context) {
+	items, err := c.service.RecoverList(ctx.Request.Context(), auth.GetAuthUserID(ctx))
 
+	if err != nil {
+		response.BusinessError(ctx, err)
+		return
+	}
+
+	data := make([]map[string]interface{}, 0)
+
+	for _, item := range items {
+		m := map[string]interface{}{
+			"id":            item.Id,
+			"article_id":    item.ArticleId,
+			"title":         item.Title,
+			"original_name": item.OriginalName,
+			"day":           math.Ceil(item.DeletedAt.AddDate(0, 0, 30).Sub(time.Now()).Seconds() / 86400),
+		}
+
+		data = append(data, m)
+	}
+
+	response.Success(ctx, gin.H{
+		"rows": data,
+	})
 }
 
 // ForeverDelete 永久删除附件
 func (c *Annex) ForeverDelete(ctx *gin.Context) {
 
+}
+
+// Download 下载笔记附件
+func (c *Annex) Download(ctx *gin.Context) {
+	params := &request.ArticleAnnexDownloadRequest{}
+	if err := ctx.ShouldBind(params); err != nil {
+		response.InvalidParams(ctx, err)
+		return
+	}
+
+	info, err := c.service.FindById(ctx.Request.Context(), params.AnnexId)
+	if err != nil {
+		response.BusinessError(ctx, err)
+		return
+	}
+
+	if info.UserId != auth.GetAuthUserID(ctx) {
+		response.Unauthorized(ctx, "无权限下载")
+		return
+	}
+
+	switch info.Drive {
+	case 1:
+		ctx.FileAttachment(c.fileSystem.Local.Path(info.Path), info.OriginalName)
+	case 2:
+		ctx.Redirect(http.StatusFound, c.fileSystem.Cos.PrivateUrl(info.Path, 60))
+	}
 }

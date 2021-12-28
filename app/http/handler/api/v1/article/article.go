@@ -90,8 +90,8 @@ func (c *Article) Detail(ctx *gin.Context) {
 		for _, item := range items {
 			files = append(files, map[string]interface{}{
 				"id":            item.Id,
-				"file_suffix":   item.FileSuffix,
-				"file_size":     item.FileSize,
+				"file_suffix":   item.Suffix,
+				"file_size":     item.Size,
 				"original_name": item.OriginalName,
 				"created_at":    timeutil.FormatDatetime(item.CreatedAt),
 			})

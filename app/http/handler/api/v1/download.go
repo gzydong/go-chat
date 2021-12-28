@@ -60,8 +60,3 @@ func (c *Download) TalkFile(ctx *gin.Context) {
 		return
 	}
 }
-
-// ArticleAnnex 下载笔记附件
-func (c *Download) ArticleAnnex(ctx *gin.Context) {
-
-}

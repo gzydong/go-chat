@@ -156,18 +156,17 @@ func RegisterApiRoute(conf *config.Config, router *gin.Engine, handler *handler.
 			note.POST("/tag/delete", handler.ArticleTag.Delete)
 
 			// 文章附件
-			note.GET("/annex/list", handler.ArticleAnnex.List)
 			note.POST("/annex/upload", handler.ArticleAnnex.Upload)
 			note.POST("/annex/delete", handler.ArticleAnnex.Delete)
 			note.POST("/annex/recover", handler.ArticleAnnex.Recover)
 			note.POST("/annex/forever/delete", handler.ArticleAnnex.ForeverDelete)
 			note.GET("/annex/recover/list", handler.ArticleAnnex.RecoverList)
+			note.GET("/annex/download", handler.ArticleAnnex.Download)
 		}
 
 		download := group.Group("/download").Use(authorize)
 		{
 			download.GET("/user-chat-file", handler.Download.TalkFile)
-			download.GET("/chat/file", handler.Download.ArticleAnnex)
 		}
 	}
 }
