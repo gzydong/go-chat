@@ -120,7 +120,7 @@ func (c *Annex) Recover(ctx *gin.Context) {
 	response.Success(ctx, gin.H{})
 }
 
-// RecoverList 附件回收站列表
+// nolint RecoverList 附件回收站列表
 func (c *Annex) RecoverList(ctx *gin.Context) {
 	items, err := c.service.Dao().RecoverList(ctx.Request.Context(), auth.GetAuthUserID(ctx))
 
@@ -132,15 +132,15 @@ func (c *Annex) RecoverList(ctx *gin.Context) {
 	data := make([]map[string]interface{}, 0)
 
 	for _, item := range items {
-		m := map[string]interface{}{
+		second := item.DeletedAt.AddDate(0, 0, 30).Sub(time.Now()).Seconds()
+
+		data = append(data, map[string]interface{}{
 			"id":            item.Id,
 			"article_id":    item.ArticleId,
 			"title":         item.Title,
 			"original_name": item.OriginalName,
-			"day":           math.Ceil(item.DeletedAt.AddDate(0, 0, 30).Sub(time.Now()).Seconds() / 86400),
-		}
-
-		data = append(data, m)
+			"day":           math.Ceil(second / 86400),
+		})
 	}
 
 	response.Success(ctx, gin.H{
