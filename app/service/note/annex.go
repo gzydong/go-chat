@@ -42,14 +42,15 @@ func (s *ArticleAnnexService) FindById(ctx context.Context, id int) (*model.Arti
 
 func (s *ArticleAnnexService) UpdateStatus(ctx context.Context, uid int, id int, status int) error {
 
-	if status == 1 {
-		return s.Db().Model(&model.ArticleAnnex{}).Where("id = ? and user_id = ?", id, uid).Update("status", status).Error
+	data := map[string]interface{}{
+		"status": status,
 	}
 
-	return s.Db().Model(&model.ArticleAnnex{}).Where("id = ? and user_id = ?", id, uid).Updates(map[string]interface{}{
-		"status":     status,
-		"deleted_at": timeutil.DateTime(),
-	}).Error
+	if status == 2 {
+		data["deleted_at"] = timeutil.DateTime()
+	}
+
+	return s.Db().Model(&model.ArticleAnnex{}).Where("id = ? and user_id = ?", id, uid).Updates(data).Error
 }
 
 func (s *ArticleAnnexService) RecoverList(ctx context.Context, uid int) ([]*model.RecoverAnnexItem, error) {

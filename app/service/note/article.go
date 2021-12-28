@@ -8,6 +8,7 @@ import (
 	"go-chat/app/model"
 	"go-chat/app/pkg/slice"
 	"go-chat/app/pkg/strutil"
+	"go-chat/app/pkg/timeutil"
 	"go-chat/app/service"
 	"gorm.io/gorm"
 	"html"
@@ -164,7 +165,15 @@ func (s *ArticleService) Move(ctx context.Context, uid int, req *request.Article
 }
 
 func (s *ArticleService) UpdateStatus(ctx context.Context, uid int, articleId int, status int) error {
-	return s.Db().Model(&model.Article{}).Where("id = ? and user_id = ?", articleId, uid).Update("status", status).Error
+	data := map[string]interface{}{
+		"status": status,
+	}
+
+	if status == 2 {
+		data["deleted_at"] = timeutil.DateTime()
+	}
+
+	return s.Db().Model(&model.Article{}).Where("id = ? and user_id = ?", articleId, uid).Updates(data).Error
 }
 
 func (s *ArticleService) ForeverDelete(ctx context.Context, uid int, req *request.ArticleForeverDeleteRequest) error {
