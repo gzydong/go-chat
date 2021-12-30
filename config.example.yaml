@@ -5,6 +5,10 @@ server:
   port: 8080
   debug: false
 
+app:
+  log: ""
+  juhe_key: "836xxxxxxxxd90"
+
 # Redis 相关配置
 redis:
   host: 127.0.0.1

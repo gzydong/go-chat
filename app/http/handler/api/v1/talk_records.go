@@ -2,19 +2,26 @@ package v1
 
 import (
 	"github.com/gin-gonic/gin"
+	"go-chat/app/entity"
 	"go-chat/app/http/request"
 	"go-chat/app/http/response"
 	"go-chat/app/pkg/auth"
+	"go-chat/app/pkg/filesystem"
 	"go-chat/app/service"
+	"net/http"
 )
 
 type TalkRecords struct {
-	service *service.TalkRecordsService
+	service            *service.TalkRecordsService
+	groupMemberService *service.GroupMemberService
+	fileSystem         *filesystem.Filesystem
 }
 
-func NewTalkRecordsHandler(service *service.TalkRecordsService) *TalkRecords {
+func NewTalkRecordsHandler(service *service.TalkRecordsService, groupMemberService *service.GroupMemberService, fileSystem *filesystem.Filesystem) *TalkRecords {
 	return &TalkRecords{
-		service: service,
+		service:            service,
+		groupMemberService: groupMemberService,
+		fileSystem:         fileSystem,
 	}
 }
 
@@ -73,4 +80,43 @@ func (c *TalkRecords) GetForwardRecords(ctx *gin.Context) {
 	response.Success(ctx, gin.H{
 		"rows": records,
 	})
+}
+
+// Download 聊天文件下载
+func (c *TalkRecords) Download(ctx *gin.Context) {
+	params := &request.DownloadChatFileRequest{}
+	if err := ctx.ShouldBindQuery(params); err != nil {
+		response.InvalidParams(ctx, err)
+		return
+	}
+
+	resp, err := c.service.Dao().FindFileRecord(ctx.Request.Context(), params.RecordId)
+	if err != nil {
+		return
+	}
+
+	uid := auth.GetAuthUserID(ctx)
+	if uid != resp.Record.UserId {
+		if resp.Record.TalkType == entity.PrivateChat {
+			if resp.Record.ReceiverId != uid {
+				response.Unauthorized(ctx, "无访问权限！")
+				return
+			}
+		} else {
+			if !c.groupMemberService.Dao().IsMember(resp.Record.ReceiverId, uid, false) {
+				response.Unauthorized(ctx, "无访问权限！")
+				return
+			}
+		}
+	}
+
+	switch resp.FileInfo.Drive {
+	case 1:
+		filePath := c.fileSystem.Local.Path(resp.FileInfo.Path)
+		ctx.FileAttachment(filePath, resp.FileInfo.OriginalName)
+		return
+	case 2:
+		ctx.Redirect(http.StatusFound, c.fileSystem.Cos.PrivateUrl(resp.FileInfo.Path, 60))
+		return
+	}
 }

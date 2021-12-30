@@ -28,10 +28,15 @@ type TalkRecordsService struct {
 	talkRecordsVoteDao *dao.TalkRecordsVoteDao
 	fileSystem         *filesystem.Filesystem
 	groupMemberDao     *dao.GroupMemberDao
+	dao                *dao.TalkRecordsDao
 }
 
-func NewTalkRecordsService(baseService *BaseService, talkVoteCache *cache.TalkVote, talkRecordsVoteDao *dao.TalkRecordsVoteDao, fileSystem *filesystem.Filesystem, groupMemberDao *dao.GroupMemberDao) *TalkRecordsService {
-	return &TalkRecordsService{BaseService: baseService, talkVoteCache: talkVoteCache, talkRecordsVoteDao: talkRecordsVoteDao, fileSystem: fileSystem, groupMemberDao: groupMemberDao}
+func NewTalkRecordsService(baseService *BaseService, talkVoteCache *cache.TalkVote, talkRecordsVoteDao *dao.TalkRecordsVoteDao, fileSystem *filesystem.Filesystem, groupMemberDao *dao.GroupMemberDao, dao *dao.TalkRecordsDao) *TalkRecordsService {
+	return &TalkRecordsService{BaseService: baseService, talkVoteCache: talkVoteCache, talkRecordsVoteDao: talkRecordsVoteDao, fileSystem: fileSystem, groupMemberDao: groupMemberDao, dao: dao}
+}
+
+func (s *TalkRecordsService) Dao() *dao.TalkRecordsDao {
+	return s.dao
 }
 
 // GetTalkRecords 获取对话消息
@@ -379,13 +384,20 @@ func (s *TalkRecordsService) HandleTalkRecords(ctx context.Context, items []*mod
 			}
 		case entity.MsgTypeGroupInvite:
 			if value, ok := hashInvites[item.Id]; ok {
+				operateUser := map[string]interface{}{
+					"id":       value.OperateUserId,
+					"nickname": "",
+				}
+
+				var user *model.Users
+				if err := s.db.First(&user, value.OperateUserId).Error; err == nil {
+					operateUser["nickname"] = user.Nickname
+				}
+
 				m := map[string]interface{}{
-					"type": value.Type,
-					"operate_user": map[string]interface{}{
-						"id":       value.OperateUserId,
-						"nickname": "",
-					},
-					"users": map[string]interface{}{},
+					"type":         value.Type,
+					"operate_user": operateUser,
+					"users":        map[string]interface{}{},
 				}
 
 				if value.Type == 1 || value.Type == 3 {
@@ -393,7 +405,7 @@ func (s *TalkRecordsService) HandleTalkRecords(ctx context.Context, items []*mod
 					s.db.Model(&model.Users{}).Select("id", "nickname").Where("id in ?", slice.ParseIds(value.UserIds)).Scan(&results)
 					m["users"] = results
 				} else {
-					m["users"] = m["operate_user"]
+					m["users"] = operateUser
 				}
 
 				data.Invite = m

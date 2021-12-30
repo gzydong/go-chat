@@ -92,6 +92,7 @@ func RegisterApiRoute(conf *config.Config, router *gin.Engine, handler *handler.
 			talk.GET("/records", handler.TalkRecords.GetRecords)                   // 会话面板记录
 			talk.GET("/records/history", handler.TalkRecords.SearchHistoryRecords) // 历史会话记录
 			talk.GET("/records/forward", handler.TalkRecords.GetForwardRecords)    // 会话转发记录
+			talk.GET("/records/file/download", handler.TalkRecords.Download)       // 会话转发记录
 			talk.POST("/unread/clear", handler.Talk.ClearUnReadMsg)                // 清除会话未读数
 		}
 
@@ -162,11 +163,6 @@ func RegisterApiRoute(conf *config.Config, router *gin.Engine, handler *handler.
 			note.POST("/annex/forever/delete", handler.ArticleAnnex.ForeverDelete)
 			note.GET("/annex/recover/list", handler.ArticleAnnex.RecoverList)
 			note.GET("/annex/download", handler.ArticleAnnex.Download)
-		}
-
-		download := group.Group("/download").Use(authorize)
-		{
-			download.GET("/user-chat-file", handler.Download.TalkFile)
 		}
 	}
 }

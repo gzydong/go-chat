@@ -103,7 +103,6 @@ var providerSet = wire.NewSet(
 	v1.NewTalkHandler,
 	v1.NewTalkMessageHandler,
 	v1.NewUploadHandler,
-	v1.NewDownloadHandler,
 	v1.NewEmoticonHandler,
 	v1.NewTalkRecordsHandler,
 	open.NewIndexHandler,
