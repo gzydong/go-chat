@@ -5,6 +5,8 @@ import (
 	"errors"
 	"go-chat/app/pkg/im"
 	_ "go-chat/app/pkg/validation"
+	"go-chat/app/process"
+	"go-chat/config"
 	"log"
 	"net/http"
 	"os"
@@ -15,6 +17,12 @@ import (
 	_ "github.com/urfave/cli/v2"
 	"golang.org/x/sync/errgroup"
 )
+
+type Providers struct {
+	Config     *config.Config
+	HttpServer *http.Server
+	Process    *process.Process
+}
 
 func main() {
 	// 初始化 IM 渠道配置，后面将 IM 独立拆分部署，Http 服务下无需加载
@@ -34,9 +42,9 @@ func main() {
 
 	// 启动 http 服务
 	eg.Go(func() error {
-		log.Printf("HTTP listen :%d", providers.Config.Server.Port)
+		log.Printf("HTTP listen %s", providers.HttpServer.Addr)
 		if err := providers.HttpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			log.Fatalf("HTTP listen: %s", err)
+			log.Fatalf("HTTP listen : %s", err)
 		}
 
 		return nil

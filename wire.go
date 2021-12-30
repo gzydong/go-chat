@@ -113,7 +113,7 @@ var providerSet = wire.NewSet(
 	ws.NewDefaultWebSocket,
 
 	wire.Struct(new(handler.Handler), "*"),
-	wire.Struct(new(provider.Providers), "*"),
+	wire.Struct(new(Providers), "*"),
 
 	// 持久化协程相关
 	process.NewWsSubscribe,
@@ -124,6 +124,6 @@ var providerSet = wire.NewSet(
 	handle.NewSubscribeConsume,
 )
 
-func Initialize(ctx context.Context) *provider.Providers {
+func Initialize(ctx context.Context) *Providers {
 	panic(wire.Build(providerSet))
 }
