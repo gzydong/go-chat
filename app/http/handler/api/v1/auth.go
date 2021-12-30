@@ -3,6 +3,7 @@ package v1
 import (
 	"fmt"
 	"go-chat/app/http/dto"
+	"go-chat/app/pkg/utils"
 	"strconv"
 	"time"
 
@@ -60,16 +61,16 @@ func (c *Auth) Login(ctx *gin.Context) {
 		return
 	}
 
-	ip, _ := ctx.RemoteIP()
+	ip, _ := utils.GetIP(ctx.Request)
 
-	address, err := c.ipAddressService.FindAddress(ip.String())
+	address, err := c.ipAddressService.FindAddress(ip)
 	if err == nil {
 		fmt.Println(address)
 	}
 
 	_ = c.talkMessageService.SendLoginMessage(ctx.Request.Context(), &service.LoginInfo{
 		UserId:   user.Id,
-		Ip:       ip.String(),
+		Ip:       ip,
 		Address:  address,
 		Platform: params.Platform,
 		Agent:    ctx.GetHeader("user-agent"),
