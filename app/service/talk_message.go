@@ -235,6 +235,7 @@ func (s *TalkMessageService) SendFileMessage(ctx context.Context, uid int, param
 // @params uid     用户ID
 // @params params  请求参数
 func (s *TalkMessageService) SendCardMessage(ctx context.Context, uid int, params *request.CardMessageRequest) error {
+	// todo 发送用户名片消息待开发
 	return nil
 }
 
@@ -282,9 +283,7 @@ func (s *TalkMessageService) SendVoteMessage(ctx context.Context, uid int, param
 		return err
 	}
 
-	s.afterHandle(ctx, record, map[string]string{
-		"text": "[投票消息]",
-	})
+	s.afterHandle(ctx, record, map[string]string{"text": "[投票消息]"})
 
 	return nil
 }
@@ -338,9 +337,7 @@ func (s *TalkMessageService) SendEmoticonMessage(ctx context.Context, uid int, p
 		return err
 	}
 
-	s.afterHandle(ctx, record, map[string]string{
-		"text": "[图片消息]",
-	})
+	s.afterHandle(ctx, record, map[string]string{"text": "[图片消息]"})
 
 	return nil
 }
@@ -381,9 +378,7 @@ func (s *TalkMessageService) SendLocationMessage(ctx context.Context, uid int, p
 		return err
 	}
 
-	s.afterHandle(ctx, record, map[string]string{
-		"text": "[位置消息]",
-	})
+	s.afterHandle(ctx, record, map[string]string{"text": "[位置消息]"})
 
 	return nil
 }
@@ -562,9 +557,7 @@ func (s *TalkMessageService) SendLoginMessage(ctx context.Context, login *LoginI
 	})
 
 	if err == nil {
-		s.afterHandle(ctx, record, map[string]string{
-			"text": "[系统通知]",
-		})
+		s.afterHandle(ctx, record, map[string]string{"text": "[系统通知]"})
 	}
 
 	return err

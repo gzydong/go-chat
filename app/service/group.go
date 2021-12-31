@@ -12,6 +12,7 @@ import (
 	"go-chat/app/pkg/auth"
 	"go-chat/app/pkg/jsonutil"
 	"go-chat/app/pkg/slice"
+	"go-chat/app/pkg/timeutil"
 	"gorm.io/gorm"
 	"time"
 )
@@ -128,6 +129,16 @@ func (s *GroupService) Create(ctx *gin.Context, request *request.GroupCreateRequ
 	return groupId, err
 }
 
+func (s *GroupService) Update(ctx context.Context, req *request.GroupSettingRequest) error {
+	_, err := s.Dao().BaseUpdate(&model.Group{Id: req.GroupId}, nil, gin.H{
+		"group_name": req.GroupName,
+		"avatar":     req.Avatar,
+		"profile":    req.Profile,
+	})
+
+	return err
+}
+
 // Dismiss 解散群组(群主权限)
 func (s *GroupService) Dismiss(GroupId int, UserId int) error {
 	var err error
@@ -240,12 +251,18 @@ func (s *GroupService) InviteUsers(ctx context.Context, groupId int, uid int, ui
 		return errors.New("邀请的好友，都已成为群成员")
 	}
 
+	record := &model.TalkRecords{
+		TalkType:   entity.GroupChat,
+		ReceiverId: groupId,
+		MsgType:    entity.MsgTypeGroupInvite,
+	}
+
 	err = s.db.Transaction(func(tx *gorm.DB) error {
 		// 删除已存在成员记录
-		tx.Where("group_id = ? and user_id in ? and is_quit = 1", groupId, uids).Unscoped().Delete(&model.GroupMember{})
+		tx.Where("group_id = ? and user_id in ? and is_quit = 1", groupId, uids).Delete(&model.GroupMember{})
 
 		// 添加新成员
-		if err = tx.Omit("deleted_at").Create(&addMembers).Error; err != nil {
+		if err = tx.Create(&addMembers).Error; err != nil {
 			return err
 		}
 
@@ -260,27 +277,20 @@ func (s *GroupService) InviteUsers(ctx context.Context, groupId int, uid int, ui
 		if len(updateTalkList) > 0 {
 			tx.Model(&model.TalkSession{}).Where("id in ?", updateTalkList).Updates(map[string]interface{}{
 				"is_delete":  0,
-				"created_at": time.Now(),
+				"created_at": timeutil.DateTime(),
 			})
 		}
 
-		record := &model.TalkRecords{
-			TalkType:   entity.GroupChat,
-			ReceiverId: groupId,
-			MsgType:    entity.MsgTypeGroupInvite,
-		}
 		if err = tx.Create(record).Error; err != nil {
 			return err
 		}
 
-		invite := &model.TalkRecordsInvite{
+		if err := tx.Create(&model.TalkRecordsInvite{
 			RecordId:      record.Id,
 			Type:          1,
 			OperateUserId: uid,
 			UserIds:       slice.IntToIds(uids),
-		}
-
-		if err = tx.Create(invite).Error; err != nil {
+		}).Error; err != nil {
 			return err
 		}
 
@@ -292,15 +302,23 @@ func (s *GroupService) InviteUsers(ctx context.Context, groupId int, uid int, ui
 	}
 
 	// 广播网关将在线的用户加入房间
-	body := map[string]interface{}{
+	s.rds.Publish(ctx, entity.IMGatewayAll, jsonutil.JsonEncode(map[string]interface{}{
 		"event": entity.EventJoinGroupRoom,
 		"data": jsonutil.JsonEncode(map[string]interface{}{
 			"group_id": groupId,
 			"uids":     uids,
 		}),
-	}
+	}))
 
-	s.rds.Publish(ctx, entity.IMGatewayAll, jsonutil.JsonEncode(body))
+	s.rds.Publish(ctx, entity.IMGatewayAll, jsonutil.JsonEncode(map[string]interface{}{
+		"event": entity.EventTalk,
+		"data": jsonutil.JsonEncode(map[string]interface{}{
+			"sender_id":   int64(record.UserId),
+			"receiver_id": int64(record.ReceiverId),
+			"talk_type":   record.TalkType,
+			"record_id":   int64(record.Id),
+		}),
+	}))
 
 	return nil
 }

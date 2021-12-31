@@ -30,10 +30,15 @@ func (c *GroupNotice) CreateAndUpdate(ctx *gin.Context) {
 		err error
 	)
 
-	// 这里需要判断权限
+	uid := auth.GetAuthUserID(ctx)
+
+	if !c.member.Dao().IsLeader(params.GroupId, uid) {
+		response.BusinessError(ctx, "无权限操作")
+		return
+	}
 
 	if params.NoticeId == 0 {
-		err = c.service.Create(ctx.Request.Context(), params, auth.GetAuthUserID(ctx))
+		err = c.service.Create(ctx.Request.Context(), params, uid)
 		msg = "添加群公告成功！"
 	} else {
 		err = c.service.Update(ctx.Request.Context(), params)

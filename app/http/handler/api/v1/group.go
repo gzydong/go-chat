@@ -131,7 +131,22 @@ func (c *Group) SignOut(ctx *gin.Context) {
 
 // Setting 群设置接口（预留）
 func (c *Group) Setting(ctx *gin.Context) {
+	params := &request.GroupSettingRequest{}
+	if err := ctx.ShouldBind(params); err != nil {
+		response.InvalidParams(ctx, err)
+		return
+	}
 
+	if !c.memberService.Dao().IsLeader(params.GroupId, auth.GetAuthUserID(ctx)) {
+		response.BusinessError(ctx, "无权限操作")
+		return
+	}
+
+	if err := c.service.Update(ctx.Request.Context(), params); err != nil {
+		response.BusinessError(ctx, err)
+	} else {
+		response.Success(ctx, nil)
+	}
 }
 
 // RemoveMembers 移除指定成员(群组&管理员权限)
@@ -141,6 +156,15 @@ func (c *Group) RemoveMembers(ctx *gin.Context) {
 		response.InvalidParams(ctx, err)
 		return
 	}
+
+	if !c.memberService.Dao().IsLeader(params.GroupId, auth.GetAuthUserID(ctx)) {
+		response.BusinessError(ctx, "无权限操作")
+		return
+	}
+
+	// todo 移除指定成员
+
+	response.Success(ctx, nil)
 }
 
 // Detail 获取群组信息

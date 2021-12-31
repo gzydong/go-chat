@@ -4,7 +4,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis/v8"
 	"go-chat/app/http/response"
-	"go-chat/app/pkg/im"
 	"go-chat/app/pkg/timeutil"
 )
 
@@ -23,10 +22,5 @@ func (i *Index) Index(c *gin.Context) {
 	response.Success(c, map[string]interface{}{
 		"title": "go-chat",
 		"date":  timeutil.DateTime(),
-		"ip":    c.ClientIP(),
-		"websocket": gin.H{
-			"max_id":  im.GenClientID.GetMaxID(),
-			"default": im.Sessions.Default.Count(),
-		},
 	})
 }
