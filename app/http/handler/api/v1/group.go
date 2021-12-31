@@ -72,7 +72,7 @@ func (c *Group) Dismiss(ctx *gin.Context) {
 		return
 	}
 
-	response.Success(ctx, gin.H{})
+	response.Success(ctx, nil)
 }
 
 // Invite 邀请好友加入群聊
@@ -110,7 +110,7 @@ func (c *Group) Invite(ctx *gin.Context) {
 		return
 	}
 
-	response.Success(ctx, gin.H{}, "邀请成功！")
+	response.Success(ctx, nil)
 }
 
 // SignOut 退出群聊
@@ -126,7 +126,7 @@ func (c *Group) SignOut(ctx *gin.Context) {
 		return
 	}
 
-	response.Success(ctx, gin.H{})
+	response.Success(ctx, nil)
 }
 
 // Setting 群设置接口（预留）
@@ -200,7 +200,7 @@ func (c *Group) EditRemark(ctx *gin.Context) {
 		return
 	}
 
-	response.Success(ctx, gin.H{})
+	response.Success(ctx, nil)
 }
 
 func (c *Group) GetInviteFriends(ctx *gin.Context) {

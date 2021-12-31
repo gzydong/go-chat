@@ -19,14 +19,12 @@ func NewClassHandler(service *note.ArticleClassService) *Class {
 // List 分类列表
 func (c *Class) List(ctx *gin.Context) {
 	items, err := c.service.List(ctx.Request.Context(), auth.GetAuthUserID(ctx))
+
 	if err != nil {
 		response.BusinessError(ctx, err)
-		return
+	} else {
+		response.Success(ctx, gin.H{"rows": items})
 	}
-
-	response.Success(ctx, gin.H{
-		"rows": items,
-	})
 }
 
 // Edit 添加或修改分类
@@ -50,12 +48,9 @@ func (c *Class) Edit(ctx *gin.Context) {
 
 	if err != nil {
 		response.BusinessError(ctx, "笔记标签编辑失败")
-		return
+	} else {
+		response.Success(ctx, gin.H{"id": params.ClassId})
 	}
-
-	response.Success(ctx, gin.H{
-		"id": params.ClassId,
-	})
 }
 
 // Delete 删除分类

@@ -106,7 +106,7 @@ func (u *Upload) MultipartUpload(ctx *gin.Context) {
 
 	_, err = u.service.MultipartUpload(ctx.Request.Context(), auth.GetAuthUserID(ctx), params, file)
 	if err != nil {
-		response.BusinessError(ctx, err.Error())
+		response.BusinessError(ctx, err)
 	}
 
 	if params.SplitIndex != params.SplitNum-1 {

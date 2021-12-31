@@ -21,12 +21,9 @@ func (c *Tag) List(ctx *gin.Context) {
 	items, err := c.service.List(ctx.Request.Context(), auth.GetAuthUserID(ctx))
 	if err != nil {
 		response.BusinessError(ctx, err)
-		return
+	} else {
+		response.Success(ctx, gin.H{"tags": items})
 	}
-
-	response.Success(ctx, gin.H{
-		"tags": items,
-	})
 }
 
 // Edit 添加或修改标签
@@ -50,12 +47,9 @@ func (c *Tag) Edit(ctx *gin.Context) {
 
 	if err != nil {
 		response.BusinessError(ctx, "笔记标签编辑失败")
-		return
+	} else {
+		response.Success(ctx, gin.H{"id": params.TagId})
 	}
-
-	response.Success(ctx, gin.H{
-		"id": params.TagId,
-	})
 }
 
 // 删除标签

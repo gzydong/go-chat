@@ -40,7 +40,7 @@ func (c *ContactApply) Create(ctx *gin.Context) {
 		return
 	}
 
-	response.Success(ctx, gin.H{})
+	response.Success(ctx, nil)
 }
 
 // Accept 同意联系人添加申请
@@ -56,7 +56,7 @@ func (c *ContactApply) Accept(ctx *gin.Context) {
 		return
 	}
 
-	response.Success(ctx, gin.H{})
+	response.Success(ctx, nil)
 }
 
 // Decline 拒绝联系人添加申请
@@ -72,7 +72,7 @@ func (c *ContactApply) Decline(ctx *gin.Context) {
 		return
 	}
 
-	response.Success(ctx, gin.H{})
+	response.Success(ctx, nil)
 }
 
 // List 获取联系人申请列表

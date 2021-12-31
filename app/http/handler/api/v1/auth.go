@@ -1,7 +1,6 @@
 package v1
 
 import (
-	"fmt"
 	"go-chat/app/http/dto"
 	"go-chat/app/pkg/utils"
 	"strconv"
@@ -63,11 +62,9 @@ func (c *Auth) Login(ctx *gin.Context) {
 
 	ip, _ := utils.GetIP(ctx.Request)
 
-	address, err := c.ipAddressService.FindAddress(ip)
-	if err == nil {
-		fmt.Println(address)
-	}
+	address, _ := c.ipAddressService.FindAddress(ip)
 
+	// 推送登录消息
 	_ = c.talkMessageService.SendLoginMessage(ctx.Request.Context(), &service.LoginInfo{
 		UserId:   user.Id,
 		Ip:       ip,
@@ -100,14 +97,14 @@ func (c *Auth) Register(ctx *gin.Context) {
 
 	c.smsService.DeleteSmsCode(ctx.Request.Context(), entity.SmsRegisterChannel, params.Mobile)
 
-	response.Success(ctx, gin.H{}, "注册成功！")
+	response.Success(ctx, nil, "注册成功！")
 }
 
 // Logout 退出登录接口
 func (c *Auth) Logout(ctx *gin.Context) {
 	c.toBlackList(ctx)
 
-	response.Success(ctx, gin.H{}, "已退出登录！")
+	response.Success(ctx, nil, "已退出登录！")
 }
 
 // Refresh Token 刷新接口
@@ -141,7 +138,7 @@ func (c *Auth) Forget(ctx *gin.Context) {
 
 	c.smsService.DeleteSmsCode(ctx.Request.Context(), entity.SmsForgetAccountChannel, params.Mobile)
 
-	response.Success(ctx, gin.H{}, "账号成功找回")
+	response.Success(ctx, nil, "账号成功找回")
 }
 
 func (c *Auth) createToken(uid int) *dto.Token {

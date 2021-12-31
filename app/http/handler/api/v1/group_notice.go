@@ -43,7 +43,7 @@ func (c *GroupNotice) CreateAndUpdate(ctx *gin.Context) {
 	if err != nil {
 		response.BusinessError(ctx, err)
 	} else {
-		response.Success(ctx, gin.H{}, msg)
+		response.Success(ctx, nil, msg)
 	}
 }
 
@@ -60,7 +60,7 @@ func (c *GroupNotice) Delete(ctx *gin.Context) {
 		return
 	}
 
-	response.Success(ctx, gin.H{}, "群公告删除成功！")
+	response.Success(ctx, nil, "群公告删除成功！")
 }
 
 // List 获取群公告列表(所有)

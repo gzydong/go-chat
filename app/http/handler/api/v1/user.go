@@ -72,7 +72,7 @@ func (u *User) ChangeDetail(ctx *gin.Context) {
 		"motto":    params.Motto,
 	})
 
-	response.Success(ctx, gin.H{}, "个人信息修改成功！")
+	response.Success(ctx, nil, "个人信息修改成功！")
 }
 
 // ChangePassword 修改密码接口
@@ -88,7 +88,7 @@ func (u *User) ChangePassword(ctx *gin.Context) {
 		return
 	}
 
-	response.Success(ctx, gin.H{}, "密码修改成功！")
+	response.Success(ctx, nil, "密码修改成功！")
 }
 
 // ChangeMobile 修改手机号接口
@@ -117,13 +117,12 @@ func (u *User) ChangeMobile(ctx *gin.Context) {
 	}
 
 	_, err := u.service.Dao().BaseUpdate(&model.Users{}, gin.H{"id": user.Id}, gin.H{"mobile": params.Mobile})
-
 	if err != nil {
 		response.BusinessError(ctx, "手机号修改失败！")
 		return
 	}
 
-	response.Success(ctx, gin.H{}, "手机号修改成功！")
+	response.Success(ctx, nil, "手机号修改成功！")
 }
 
 // ChangeEmail 修改邮箱接口

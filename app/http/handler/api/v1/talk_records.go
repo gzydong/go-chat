@@ -111,12 +111,9 @@ func (c *TalkRecords) Download(ctx *gin.Context) {
 	}
 
 	switch resp.FileInfo.Drive {
-	case 1:
-		filePath := c.fileSystem.Local.Path(resp.FileInfo.Path)
-		ctx.FileAttachment(filePath, resp.FileInfo.OriginalName)
-		return
-	case 2:
+	case entity.FileDriveLocal:
+		ctx.FileAttachment(c.fileSystem.Local.Path(resp.FileInfo.Path), resp.FileInfo.OriginalName)
+	case entity.FileDriveCos:
 		ctx.Redirect(http.StatusFound, c.fileSystem.Cos.PrivateUrl(resp.FileInfo.Path, 60))
-		return
 	}
 }

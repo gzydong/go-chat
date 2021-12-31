@@ -36,7 +36,6 @@ type AuthPermission struct {
 
 // 权限控制
 func (c *TalkMessage) permission(prem *AuthPermission) bool {
-	// todo 后面需要加缓存
 	if prem.TalkType == entity.PrivateChat {
 		return c.contactService.Dao().IsFriend(prem.ctx, prem.UserId, prem.ReceiverId, true)
 	} else {
@@ -65,11 +64,10 @@ func (c *TalkMessage) Text(ctx *gin.Context) {
 	}
 
 	if err := c.service.SendTextMessage(ctx.Request.Context(), uid, params); err != nil {
-		response.Success(ctx, gin.H{}, "消息推送失败！")
-		return
+		response.BusinessError(ctx, err)
+	} else {
+		response.Success(ctx, nil)
 	}
-
-	response.Success(ctx, gin.H{}, "消息推送成功！")
 }
 
 // Code 发送代码块消息
@@ -93,11 +91,10 @@ func (c *TalkMessage) Code(ctx *gin.Context) {
 	}
 
 	if err := c.service.SendCodeMessage(ctx.Request.Context(), uid, params); err != nil {
-		response.Success(ctx, gin.H{}, "消息推送失败！")
-		return
+		response.BusinessError(ctx, err)
+	} else {
+		response.Success(ctx, nil)
 	}
-
-	response.Success(ctx, gin.H{}, "消息推送成功！")
 }
 
 // Image 发送图片消息
@@ -138,11 +135,10 @@ func (c *TalkMessage) Image(ctx *gin.Context) {
 	}
 
 	if err := c.service.SendImageMessage(ctx.Request.Context(), uid, params, file); err != nil {
-		response.Success(ctx, gin.H{}, "消息推送失败！")
-		return
+		response.BusinessError(ctx, err)
+	} else {
+		response.Success(ctx, nil)
 	}
-
-	response.Success(ctx, gin.H{}, "消息推送成功！")
 }
 
 // File 发送文件消息
@@ -173,10 +169,9 @@ func (c *TalkMessage) File(ctx *gin.Context) {
 
 	if err := c.service.SendFileMessage(ctx.Request.Context(), uid, params, file); err != nil {
 		response.BusinessError(ctx, err)
-		return
+	} else {
+		response.Success(ctx, nil)
 	}
-
-	response.Success(ctx, gin.H{}, "消息推送成功！")
 }
 
 // Vote 发送投票消息
@@ -210,11 +205,10 @@ func (c *TalkMessage) Vote(ctx *gin.Context) {
 	}
 
 	if err := c.service.SendVoteMessage(ctx.Request.Context(), uid, params); err != nil {
-		response.Success(ctx, gin.H{}, "消息推送失败！")
-		return
+		response.BusinessError(ctx, err)
+	} else {
+		response.Success(ctx, nil)
 	}
-
-	response.Success(ctx, gin.H{}, "消息推送成功！")
 }
 
 // Emoticon 发送表情包消息
@@ -238,11 +232,10 @@ func (c *TalkMessage) Emoticon(ctx *gin.Context) {
 	}
 
 	if err := c.service.SendEmoticonMessage(ctx.Request.Context(), uid, params); err != nil {
-		response.Success(ctx, gin.H{}, "消息推送失败！")
-		return
+		response.BusinessError(ctx, err)
+	} else {
+		response.Success(ctx, nil)
 	}
-
-	response.Success(ctx, gin.H{}, "消息推送成功！")
 }
 
 // Forward 发送转发消息
@@ -281,11 +274,10 @@ func (c *TalkMessage) Forward(ctx *gin.Context) {
 	}
 
 	if err := c.forwardService.SendForwardMessage(ctx.Request.Context(), forward); err != nil {
-		response.Success(ctx, gin.H{}, "消息推送失败！")
-		return
+		response.BusinessError(ctx, err)
+	} else {
+		response.Success(ctx, nil)
 	}
-
-	response.Success(ctx, gin.H{}, "消息推送成功！")
 }
 
 // Card 发送用户名片消息
@@ -308,9 +300,11 @@ func (c *TalkMessage) Card(ctx *gin.Context) {
 		return
 	}
 
-	// c.service.SendCardMessage(ctx.Request.Context(), params)
-
-	response.Success(ctx, gin.H{}, "消息推送成功！")
+	if err := c.service.SendCardMessage(ctx.Request.Context(), auth.GetAuthUserID(ctx), params); err != nil {
+		response.BusinessError(ctx, err)
+	} else {
+		response.Success(ctx, nil)
+	}
 }
 
 // Collect 收藏聊天图片
@@ -321,13 +315,11 @@ func (c *TalkMessage) Collect(ctx *gin.Context) {
 		return
 	}
 
-	err := c.talkService.CollectRecord(ctx.Request.Context(), auth.GetAuthUserID(ctx), params.RecordId)
-	if err != nil {
+	if err := c.talkService.CollectRecord(ctx.Request.Context(), auth.GetAuthUserID(ctx), params.RecordId); err != nil {
 		response.BusinessError(ctx, err)
-		return
+	} else {
+		response.Success(ctx, nil)
 	}
-
-	response.Success(ctx, gin.H{}, "已收藏！")
 }
 
 // Revoke 撤销聊天记录
@@ -338,13 +330,11 @@ func (c *TalkMessage) Revoke(ctx *gin.Context) {
 		return
 	}
 
-	err := c.service.SendRevokeRecordMessage(ctx.Request.Context(), auth.GetAuthUserID(ctx), params.RecordId)
-	if err != nil {
+	if err := c.service.SendRevokeRecordMessage(ctx.Request.Context(), auth.GetAuthUserID(ctx), params.RecordId); err != nil {
 		response.BusinessError(ctx, err)
-		return
+	} else {
+		response.Success(ctx, nil)
 	}
-
-	response.Success(ctx, gin.H{}, "消息推送成功！")
 }
 
 // Delete 删除聊天记录
@@ -355,13 +345,11 @@ func (c *TalkMessage) Delete(ctx *gin.Context) {
 		return
 	}
 
-	err := c.talkService.RemoveRecords(ctx.Request.Context(), auth.GetAuthUserID(ctx), params)
-	if err != nil {
+	if err := c.talkService.RemoveRecords(ctx.Request.Context(), auth.GetAuthUserID(ctx), params); err != nil {
 		response.BusinessError(ctx, err)
-		return
+	} else {
+		response.Success(ctx, nil)
 	}
-
-	response.Success(ctx, gin.H{}, "消息推送成功！")
 }
 
 // HandleVote 投票处理
@@ -381,7 +369,7 @@ func (c *TalkMessage) HandleVote(ctx *gin.Context) {
 	// 获取同级数据
 	res, _ := c.talkRecordsVoteDao.GetVoteStatistics(ctx.Request.Context(), vid)
 
-	response.Success(ctx, res, "消息推送成功！")
+	response.Success(ctx, res)
 }
 
 // Location 发送位置消息
@@ -405,9 +393,8 @@ func (c *TalkMessage) Location(ctx *gin.Context) {
 	}
 
 	if err := c.service.SendLocationMessage(ctx.Request.Context(), uid, params); err != nil {
-		response.Success(ctx, gin.H{}, "消息推送失败！")
-		return
+		response.BusinessError(ctx, err)
+	} else {
+		response.Success(ctx, nil)
 	}
-
-	response.Success(ctx, gin.H{}, "消息推送成功！")
 }

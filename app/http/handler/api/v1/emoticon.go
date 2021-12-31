@@ -92,9 +92,9 @@ func (c *Emoticon) DeleteCollect(ctx *gin.Context) {
 	}
 
 	if err := c.service.DeleteCollect(auth.GetAuthUserID(ctx), slice.ParseIds(params.Ids)); err != nil {
-		response.BusinessError(ctx, err.Error())
+		response.BusinessError(ctx, err)
 	} else {
-		response.Success(ctx, "")
+		response.Success(ctx, nil)
 	}
 }
 
@@ -176,9 +176,9 @@ func (c *Emoticon) SetSystemEmoticon(ctx *gin.Context) {
 
 	if params.Type == 2 {
 		if err = c.service.RemoveUserSysEmoticon(uid, params.EmoticonId); err != nil {
-			response.BusinessError(ctx, err.Error())
+			response.BusinessError(ctx, err)
 		} else {
-			response.Success(ctx, "")
+			response.Success(ctx, nil)
 		}
 
 		return
@@ -187,12 +187,12 @@ func (c *Emoticon) SetSystemEmoticon(ctx *gin.Context) {
 	// 查询表情包是否存在
 	info, err := c.service.Dao().FindById(params.EmoticonId)
 	if err != nil {
-		response.BusinessError(ctx, err.Error())
+		response.BusinessError(ctx, err)
 		return
 	}
 
 	if err = c.service.AddUserSysEmoticon(uid, params.EmoticonId); err != nil {
-		response.BusinessError(ctx, err.Error())
+		response.BusinessError(ctx, err)
 		return
 	}
 
@@ -211,5 +211,5 @@ func (c *Emoticon) SetSystemEmoticon(ctx *gin.Context) {
 		Url:        info.Icon,
 		Name:       info.Name,
 		List:       items,
-	}, "添加成功！")
+	})
 }

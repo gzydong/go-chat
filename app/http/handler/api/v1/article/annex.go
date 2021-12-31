@@ -182,9 +182,9 @@ func (c *Annex) Download(ctx *gin.Context) {
 	}
 
 	switch info.Drive {
-	case 1:
+	case entity.FileDriveLocal:
 		ctx.FileAttachment(c.fileSystem.Local.Path(info.Path), info.OriginalName)
-	case 2:
+	case entity.FileDriveCos:
 		ctx.Redirect(http.StatusFound, c.fileSystem.Cos.PrivateUrl(info.Path, 60))
 	}
 }

@@ -123,7 +123,7 @@ func (c *Talk) Create(ctx *gin.Context) {
 
 	result, err := c.talkListService.Create(ctx.Request.Context(), uid, params)
 	if err != nil {
-		response.BusinessError(ctx, err.Error())
+		response.BusinessError(ctx, err)
 		return
 	}
 
@@ -163,7 +163,7 @@ func (c *Talk) Delete(ctx *gin.Context) {
 		return
 	}
 
-	response.Success(ctx, gin.H{})
+	response.Success(ctx, nil)
 }
 
 // Top 置顶列表
@@ -179,7 +179,7 @@ func (c *Talk) Top(ctx *gin.Context) {
 		return
 	}
 
-	response.Success(ctx, gin.H{})
+	response.Success(ctx, nil)
 }
 
 // Disturb 会话免打扰
@@ -195,7 +195,7 @@ func (c *Talk) Disturb(ctx *gin.Context) {
 		return
 	}
 
-	response.Success(ctx, gin.H{})
+	response.Success(ctx, nil)
 }
 
 func (c *Talk) ClearUnReadMsg(ctx *gin.Context) {
@@ -209,5 +209,5 @@ func (c *Talk) ClearUnReadMsg(ctx *gin.Context) {
 		c.unreadTalkCache.Reset(ctx.Request.Context(), params.ReceiverId, auth.GetAuthUserID(ctx))
 	}
 
-	response.Success(ctx, gin.H{})
+	response.Success(ctx, nil)
 }

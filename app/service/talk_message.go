@@ -234,8 +234,8 @@ func (s *TalkMessageService) SendFileMessage(ctx context.Context, uid int, param
 // SendCardMessage 发送用户名片消息
 // @params uid     用户ID
 // @params params  请求参数
-func (s *TalkMessageService) SendCardMessage(ctx context.Context, params *request.CardMessageRequest) {
-
+func (s *TalkMessageService) SendCardMessage(ctx context.Context, uid int, params *request.CardMessageRequest) error {
+	return nil
 }
 
 // SendVoteMessage 发送投票消息

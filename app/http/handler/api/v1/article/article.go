@@ -141,7 +141,6 @@ func (c *Article) Edit(ctx *gin.Context) {
 
 // Delete 删除文章
 func (c *Article) Delete(ctx *gin.Context) {
-
 	params := &request.ArticleDeleteRequest{}
 	if err := ctx.ShouldBind(params); err != nil {
 		response.InvalidParams(ctx, err)
@@ -151,10 +150,9 @@ func (c *Article) Delete(ctx *gin.Context) {
 	err := c.service.UpdateStatus(ctx.Request.Context(), auth.GetAuthUserID(ctx), params.ArticleId, 2)
 	if err != nil {
 		response.BusinessError(ctx, err)
-		return
+	} else {
+		response.Success(ctx, nil)
 	}
-
-	response.Success(ctx, nil)
 }
 
 // Recover 恢复文章
@@ -168,10 +166,9 @@ func (c *Article) Recover(ctx *gin.Context) {
 	err := c.service.UpdateStatus(ctx.Request.Context(), auth.GetAuthUserID(ctx), params.ArticleId, 1)
 	if err != nil {
 		response.BusinessError(ctx, err)
-		return
+	} else {
+		response.Success(ctx, nil)
 	}
-
-	response.Success(ctx, nil)
 }
 
 // Upload 文章图片上传
@@ -221,31 +218,26 @@ func (c *Article) Move(ctx *gin.Context) {
 		return
 	}
 
-	err := c.service.Move(ctx.Request.Context(), auth.GetAuthUserID(ctx), params)
-	if err != nil {
+	if err := c.service.Move(ctx.Request.Context(), auth.GetAuthUserID(ctx), params); err != nil {
 		response.BusinessError(ctx, err)
-		return
+	} else {
+		response.Success(ctx, nil)
 	}
-
-	response.Success(ctx, nil)
 }
 
 // Asterisk 标记文章
 func (c Article) Asterisk(ctx *gin.Context) {
-
 	params := &request.ArticleAsteriskRequest{}
 	if err := ctx.ShouldBind(params); err != nil {
 		response.InvalidParams(ctx, err)
 		return
 	}
 
-	err := c.service.Asterisk(ctx.Request.Context(), auth.GetAuthUserID(ctx), params)
-	if err != nil {
+	if err := c.service.Asterisk(ctx.Request.Context(), auth.GetAuthUserID(ctx), params); err != nil {
 		response.BusinessError(ctx, err)
-		return
+	} else {
+		response.Success(ctx, nil)
 	}
-
-	response.Success(ctx, nil)
 }
 
 // Tag 文章标签
@@ -256,13 +248,11 @@ func (c *Article) Tag(ctx *gin.Context) {
 		return
 	}
 
-	err := c.service.UpdateTag(ctx.Request.Context(), auth.GetAuthUserID(ctx), params)
-	if err != nil {
+	if err := c.service.UpdateTag(ctx.Request.Context(), auth.GetAuthUserID(ctx), params); err != nil {
 		response.BusinessError(ctx, err)
-		return
+	} else {
+		response.Success(ctx, nil)
 	}
-
-	response.Success(ctx, nil)
 }
 
 // ForeverDelete 永久删除文章
@@ -273,11 +263,9 @@ func (c *Article) ForeverDelete(ctx *gin.Context) {
 		return
 	}
 
-	err := c.service.ForeverDelete(ctx.Request.Context(), auth.GetAuthUserID(ctx), params)
-	if err != nil {
+	if err := c.service.ForeverDelete(ctx.Request.Context(), auth.GetAuthUserID(ctx), params); err != nil {
 		response.BusinessError(ctx, err)
-		return
+	} else {
+		response.Success(ctx, nil)
 	}
-
-	response.Success(ctx, nil)
 }

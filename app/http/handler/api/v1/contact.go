@@ -61,7 +61,7 @@ func (c *Contact) Delete(ctx *gin.Context) {
 		return
 	}
 
-	response.Success(ctx, gin.H{})
+	response.Success(ctx, nil)
 }
 
 // Search 查找联系人
@@ -106,7 +106,7 @@ func (c *Contact) EditRemark(ctx *gin.Context) {
 		return
 	}
 
-	response.Success(ctx, gin.H{})
+	response.Success(ctx, nil)
 }
 
 // Detail 联系人详情信息
