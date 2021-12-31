@@ -1,7 +1,6 @@
 package filesystem
 
 import (
-	"fmt"
 	"time"
 
 	"go-chat/config"
@@ -68,8 +67,6 @@ func NewFilesystem(conf *config.Config) *Filesystem {
 	default:
 		s.Default = s.Local
 	}
-
-	fmt.Println(s.Default)
 
 	return s
 }
