@@ -5,7 +5,6 @@ import (
 	"errors"
 	"go-chat/app/model"
 	"go-chat/app/service"
-	"time"
 )
 
 type ArticleTagService struct {
@@ -18,10 +17,9 @@ func NewArticleTagService(baseService *service.BaseService) *ArticleTagService {
 
 func (s *ArticleTagService) Create(ctx context.Context, uid int, tag string) (int, error) {
 	data := &model.ArticleTag{
-		UserId:    uid,
-		TagName:   tag,
-		Sort:      1,
-		CreatedAt: int(time.Now().Unix()),
+		UserId:  uid,
+		TagName: tag,
+		Sort:    1,
 	}
 
 	if err := s.Db().Create(data).Error; err != nil {

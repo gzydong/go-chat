@@ -84,3 +84,7 @@ type ArticleAnnexDeleteRequest struct {
 type ArticleAnnexRecoverRequest struct {
 	AnnexId int `form:"annex_id" json:"annex_id" binding:"required"`
 }
+
+type ArticleAnnexForeverDeleteRequest struct {
+	AnnexId int `form:"annex_id" json:"annex_id" binding:"required"`
+}

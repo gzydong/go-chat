@@ -13,7 +13,6 @@ import (
 	"go-chat/app/pkg/jsonutil"
 	"go-chat/app/pkg/slice"
 	"gorm.io/gorm"
-	"reflect"
 	"time"
 )
 
@@ -50,7 +49,7 @@ func (s *GroupService) Create(ctx *gin.Context, request *request.GroupCreateRequ
 	err = s.db.Transaction(func(tx *gorm.DB) error {
 		group := &model.Group{
 			CreatorId: uid,
-			GroupName: request.Name,
+			Name:      request.Name,
 			Profile:   request.Profile,
 			Avatar:    request.Avatar,
 			MaxNum:    model.GroupMemberMaxNum,
@@ -146,7 +145,7 @@ func (s *GroupService) Dismiss(GroupId int, UserId int) error {
 
 		if err = s.db.Model(&model.GroupMember{}).Where("group_id = ?", GroupId).Unscoped().Updates(&model.GroupMember{
 			IsQuit:    1,
-			DeletedAt: gorm.DeletedAt{Time: time.Now(), Valid: true},
+			DeletedAt: sql.NullTime{Time: time.Now(), Valid: true},
 		}).Error; err != nil {
 			return err
 		}
@@ -179,7 +178,7 @@ func (s *GroupService) Secede(GroupId int, UserId int) error {
 	err = s.db.Transaction(func(tx *gorm.DB) error {
 		count := tx.Model(&model.GroupMember{}).Where("group_id = ? AND user_id = ?", GroupId, UserId).Unscoped().Updates(&model.GroupMember{
 			IsQuit:    1,
-			DeletedAt: gorm.DeletedAt{Time: time.Now(), Valid: true},
+			DeletedAt: sql.NullTime{Time: time.Now(), Valid: true},
 		}).RowsAffected
 
 		if count == 0 {
@@ -306,6 +305,11 @@ func (s *GroupService) InviteUsers(ctx context.Context, groupId int, uid int, ui
 	return nil
 }
 
+type session struct {
+	ReceiverID int `json:"receiver_id"`
+	IsDisturb  int `json:"is_disturb"`
+}
+
 func (s *GroupService) UserGroupList(userId int) ([]*model.GroupItem, error) {
 	tx := s.db.Table("group_member")
 	tx.Select("`group`.id,`group`.group_name,`group`.avatar,`group`.profile,group_member.leader")
@@ -313,7 +317,7 @@ func (s *GroupService) UserGroupList(userId int) ([]*model.GroupItem, error) {
 	tx.Where("group_member.user_id = ? and group_member.is_quit = ?", userId, 0)
 
 	items := make([]*model.GroupItem, 0)
-	if err := tx.Unscoped().Scan(&items).Error; err != nil {
+	if err := tx.Scan(&items).Error; err != nil {
 		return nil, err
 	}
 
@@ -323,28 +327,27 @@ func (s *GroupService) UserGroupList(userId int) ([]*model.GroupItem, error) {
 	}
 
 	ids := make([]int, 0, length)
-	for _, item := range items {
-		ids = append(ids, item.Id)
+	for i := range items {
+		ids = append(ids, items[i].Id)
 	}
 
 	query := s.db.Table("talk_session")
 	query.Select("receiver_id,is_disturb")
 	query.Where("talk_type = ? and receiver_id in ?", 2, ids)
 
-	list := make([]map[string]interface{}, 0)
+	list := make([]*session, 0)
 	if err := query.Find(&list).Error; err != nil {
 		return nil, err
 	}
 
-	lists, err := slice.ToMap(list, "receiver_id")
-	if err != nil {
-		return nil, err
+	hash := make(map[int]*session)
+	for i := range list {
+		hash[list[i].ReceiverID] = list[i]
 	}
 
-	for _, item := range items {
-		if data, ok := lists[int64(item.Id)]; ok {
-			val := data["is_disturb"]
-			item.IsDisturb = int(reflect.ValueOf(val).Int())
+	for i := range items {
+		if value, ok := hash[items[i].Id]; ok {
+			items[i].IsDisturb = value.IsDisturb
 		}
 	}
 

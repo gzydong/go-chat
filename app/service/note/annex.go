@@ -4,17 +4,19 @@ import (
 	"context"
 	"go-chat/app/dao/note"
 	"go-chat/app/model"
+	"go-chat/app/pkg/filesystem"
 	"go-chat/app/pkg/timeutil"
 	"go-chat/app/service"
 )
 
 type ArticleAnnexService struct {
 	*service.BaseService
-	dao *note.ArticleAnnexDao
+	dao        *note.ArticleAnnexDao
+	fileSystem *filesystem.Filesystem
 }
 
-func NewArticleAnnexService(baseService *service.BaseService, dao *note.ArticleAnnexDao) *ArticleAnnexService {
-	return &ArticleAnnexService{BaseService: baseService, dao: dao}
+func NewArticleAnnexService(baseService *service.BaseService, dao *note.ArticleAnnexDao, fileSystem *filesystem.Filesystem) *ArticleAnnexService {
+	return &ArticleAnnexService{BaseService: baseService, dao: dao, fileSystem: fileSystem}
 }
 
 func (s *ArticleAnnexService) Dao() *note.ArticleAnnexDao {
@@ -25,6 +27,7 @@ func (s *ArticleAnnexService) Create(ctx context.Context, data *model.ArticleAnn
 	return s.Db().Create(data).Error
 }
 
+// UpdateStatus 更新附件状态
 func (s *ArticleAnnexService) UpdateStatus(ctx context.Context, uid int, id int, status int) error {
 
 	data := map[string]interface{}{
@@ -36,4 +39,22 @@ func (s *ArticleAnnexService) UpdateStatus(ctx context.Context, uid int, id int,
 	}
 
 	return s.Db().Model(&model.ArticleAnnex{}).Where("id = ? and user_id = ?", id, uid).Updates(data).Error
+}
+
+// ForeverDelete 永久删除笔记附件
+func (s *ArticleAnnexService) ForeverDelete(ctx context.Context, uid int, id int) error {
+	var annex *model.ArticleAnnex
+
+	if err := s.Db().First(&annex, "id = ? and user_id = ?", id, uid).Error; err != nil {
+		return err
+	}
+
+	switch annex.Drive {
+	case 1:
+		_ = s.fileSystem.Local.Delete(annex.Path)
+	case 2:
+		_ = s.fileSystem.Cos.Delete(annex.Path)
+	}
+
+	return s.Db().Delete(&model.ArticleAnnex{}, id).Error
 }

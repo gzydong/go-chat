@@ -71,7 +71,7 @@ func (c *Class) Delete(ctx *gin.Context) {
 	if err != nil {
 		response.BusinessError(ctx, err)
 	} else {
-		response.Success(ctx, gin.H{}, "删除成功")
+		response.Success(ctx, nil, "删除成功")
 	}
 }
 
@@ -88,6 +88,6 @@ func (c *Class) Sort(ctx *gin.Context) {
 	if err != nil {
 		response.BusinessError(ctx, err)
 	} else {
-		response.Success(ctx, gin.H{}, "操作成功")
+		response.Success(ctx, nil, "操作成功")
 	}
 }

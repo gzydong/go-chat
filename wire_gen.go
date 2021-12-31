@@ -100,7 +100,7 @@ func Initialize(ctx context.Context) *Providers {
 	contactApply := v1.NewContactsApplyHandler(contactApplyService, userService)
 	articleService := note.NewArticleService(baseService)
 	articleAnnexDao := note2.NewArticleAnnexDao(baseDao)
-	articleAnnexService := note.NewArticleAnnexService(baseService, articleAnnexDao)
+	articleAnnexService := note.NewArticleAnnexService(baseService, articleAnnexDao, filesystemFilesystem)
 	articleArticle := article.NewArticleHandler(articleService, filesystemFilesystem, articleAnnexService)
 	annex := article.NewAnnexHandler(articleAnnexService, filesystemFilesystem)
 	articleClassDao := note2.NewArticleClassDao(baseDao)

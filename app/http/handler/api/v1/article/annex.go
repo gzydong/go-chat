@@ -100,7 +100,7 @@ func (c *Annex) Delete(ctx *gin.Context) {
 		return
 	}
 
-	response.Success(ctx, gin.H{})
+	response.Success(ctx, nil)
 }
 
 // Recover 恢复附件
@@ -143,14 +143,23 @@ func (c *Annex) RecoverList(ctx *gin.Context) {
 		})
 	}
 
-	response.Success(ctx, gin.H{
-		"rows": data,
-	})
+	response.Success(ctx, gin.H{"rows": data})
 }
 
 // ForeverDelete 永久删除附件
 func (c *Annex) ForeverDelete(ctx *gin.Context) {
+	params := &request.ArticleAnnexForeverDeleteRequest{}
+	if err := ctx.ShouldBind(params); err != nil {
+		response.InvalidParams(ctx, err)
+		return
+	}
 
+	if err := c.service.ForeverDelete(ctx.Request.Context(), auth.GetAuthUserID(ctx), params.AnnexId); err != nil {
+		response.BusinessError(ctx, err)
+		return
+	}
+
+	response.Success(ctx, nil)
 }
 
 // Download 下载笔记附件

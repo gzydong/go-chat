@@ -71,6 +71,6 @@ func (c *Tag) Delete(ctx *gin.Context) {
 	if err != nil {
 		response.BusinessError(ctx, err)
 	} else {
-		response.Success(ctx, gin.H{}, "删除成功")
+		response.Success(ctx, nil, "删除成功")
 	}
 }

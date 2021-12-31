@@ -7,7 +7,6 @@ import (
 	"go-chat/app/model"
 	"go-chat/app/service"
 	"gorm.io/gorm"
-	"time"
 )
 
 type ArticleClassService struct {
@@ -19,6 +18,7 @@ func NewArticleClassService(baseService *service.BaseService, dao *note.ArticleC
 	return &ArticleClassService{BaseService: baseService, dao: dao}
 }
 
+// List 分类列表
 func (s *ArticleClassService) List(ctx context.Context, uid int) ([]*model.ArticleClassItem, error) {
 	items := make([]*model.ArticleClassItem, 0)
 
@@ -41,13 +41,12 @@ func (s *ArticleClassService) List(ctx context.Context, uid int) ([]*model.Artic
 	return items, nil
 }
 
+// Create 创建分类
 func (s *ArticleClassService) Create(ctx context.Context, uid int, name string) (int, error) {
-
 	data := &model.ArticleClass{
 		UserId:    uid,
 		ClassName: name,
 		Sort:      1,
-		CreatedAt: int(time.Now().Unix()),
 	}
 
 	err := s.Db().Transaction(func(tx *gorm.DB) error {

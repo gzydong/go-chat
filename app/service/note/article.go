@@ -22,6 +22,7 @@ func NewArticleService(baseService *service.BaseService) *ArticleService {
 	return &ArticleService{BaseService: baseService}
 }
 
+// Detail 笔记详情
 func (s *ArticleService) Detail(ctx context.Context, uid, articleId int) (*model.ArticleDetailInfo, error) {
 	data := &model.Article{}
 
@@ -50,6 +51,7 @@ func (s *ArticleService) Detail(ctx context.Context, uid, articleId int) (*model
 	}, nil
 }
 
+// Create 创建笔记
 func (s *ArticleService) Create(ctx context.Context, uid int, req *request.ArticleEditRequest) (int, error) {
 
 	data := &model.Article{
@@ -86,6 +88,7 @@ func (s *ArticleService) Create(ctx context.Context, uid int, req *request.Artic
 	return data.Id, nil
 }
 
+// Update 更新笔记信息
 func (s *ArticleService) Update(ctx context.Context, uid int, req *request.ArticleEditRequest) error {
 	return s.Db().Transaction(func(tx *gorm.DB) error {
 
@@ -108,6 +111,7 @@ func (s *ArticleService) Update(ctx context.Context, uid int, req *request.Artic
 	})
 }
 
+// List 笔记列表
 func (s *ArticleService) List(ctx context.Context, uid int, req *request.ArticleListRequest) ([]*model.Article, error) {
 
 	query := s.Db().Model(&model.Article{})
@@ -146,6 +150,7 @@ func (s *ArticleService) List(ctx context.Context, uid int, req *request.Article
 	return items, nil
 }
 
+// Asterisk 笔记标记星号
 func (s *ArticleService) Asterisk(ctx context.Context, uid int, req *request.ArticleAsteriskRequest) error {
 
 	mode := 0
@@ -156,14 +161,17 @@ func (s *ArticleService) Asterisk(ctx context.Context, uid int, req *request.Art
 	return s.Db().Model(&model.Article{}).Where("id = ? and user_id = ?", req.ArticleId, uid).Update("is_asterisk", mode).Error
 }
 
+// UpdateTag 更新笔记标签
 func (s ArticleService) UpdateTag(ctx context.Context, uid int, req *request.ArticleTagsRequest) error {
 	return s.Db().Model(&model.Article{}).Where("id = ? and user_id = ?", req.ArticleId, uid).Update("tags_id", slice.IntToIds(req.Tags)).Error
 }
 
+// Move 移动笔记分类
 func (s *ArticleService) Move(ctx context.Context, uid int, req *request.ArticleMoveRequest) error {
 	return s.Db().Model(&model.Article{}).Where("id = ? and user_id = ?", req.ArticleId, uid).Update("class_id", req.ClassId).Error
 }
 
+// UpdateStatus 修改笔记状态
 func (s *ArticleService) UpdateStatus(ctx context.Context, uid int, articleId int, status int) error {
 	data := map[string]interface{}{
 		"status": status,
@@ -176,6 +184,7 @@ func (s *ArticleService) UpdateStatus(ctx context.Context, uid int, articleId in
 	return s.Db().Model(&model.Article{}).Where("id = ? and user_id = ?", articleId, uid).Updates(data).Error
 }
 
+// ForeverDelete 永久笔记
 func (s *ArticleService) ForeverDelete(ctx context.Context, uid int, req *request.ArticleForeverDeleteRequest) error {
 	var detail *model.Article
 	if err := s.Db().First(&detail, "id = ? and user_id = ?", req.ArticleId, uid).Error; err != nil {

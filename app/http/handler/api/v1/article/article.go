@@ -77,11 +77,8 @@ func (c *Article) Detail(ctx *gin.Context) {
 	}
 
 	tags := make([]map[string]interface{}, 0)
-
 	for _, tagId := range slice.ParseIds(detail.TagsId) {
-		tags = append(tags, map[string]interface{}{
-			"id": tagId,
-		})
+		tags = append(tags, map[string]interface{}{"id": tagId})
 	}
 
 	files := make([]map[string]interface{}, 0)
@@ -157,7 +154,7 @@ func (c *Article) Delete(ctx *gin.Context) {
 		return
 	}
 
-	response.Success(ctx, gin.H{})
+	response.Success(ctx, nil)
 }
 
 // Recover 恢复文章
@@ -174,7 +171,7 @@ func (c *Article) Recover(ctx *gin.Context) {
 		return
 	}
 
-	response.Success(ctx, gin.H{})
+	response.Success(ctx, nil)
 }
 
 // Upload 文章图片上传
@@ -212,7 +209,7 @@ func (c *Article) Upload(ctx *gin.Context) {
 		return
 	}
 
-	response.Success(ctx, gin.H{"save_path": c.fileSystem.Default.PublicUrl(filePath)})
+	response.Success(ctx, gin.H{"url": c.fileSystem.Default.PublicUrl(filePath)})
 }
 
 // Move 文章移动
@@ -230,7 +227,7 @@ func (c *Article) Move(ctx *gin.Context) {
 		return
 	}
 
-	response.Success(ctx, gin.H{})
+	response.Success(ctx, nil)
 }
 
 // Asterisk 标记文章
@@ -248,11 +245,11 @@ func (c Article) Asterisk(ctx *gin.Context) {
 		return
 	}
 
-	response.Success(ctx, gin.H{})
+	response.Success(ctx, nil)
 }
 
-// UpdateTag 文章标签
-func (c *Article) UpdateTag(ctx *gin.Context) {
+// Tag 文章标签
+func (c *Article) Tag(ctx *gin.Context) {
 	params := &request.ArticleTagsRequest{}
 	if err := ctx.ShouldBind(params); err != nil {
 		response.InvalidParams(ctx, err)
@@ -265,7 +262,7 @@ func (c *Article) UpdateTag(ctx *gin.Context) {
 		return
 	}
 
-	response.Success(ctx, gin.H{})
+	response.Success(ctx, nil)
 }
 
 // ForeverDelete 永久删除文章
@@ -282,5 +279,5 @@ func (c *Article) ForeverDelete(ctx *gin.Context) {
 		return
 	}
 
-	response.Success(ctx, gin.H{})
+	response.Success(ctx, nil)
 }

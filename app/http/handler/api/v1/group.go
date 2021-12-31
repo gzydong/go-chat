@@ -166,7 +166,7 @@ func (c *Group) Detail(ctx *gin.Context) {
 
 	info := gin.H{}
 	info["group_id"] = groupInfo.Id
-	info["group_name"] = groupInfo.GroupName
+	info["group_name"] = groupInfo.Name
 	info["profile"] = groupInfo.Profile
 	info["avatar"] = groupInfo.Avatar
 	info["created_at"] = timeutil.FormatDatetime(groupInfo.CreatedAt)
