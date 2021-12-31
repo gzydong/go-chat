@@ -30,7 +30,6 @@ type TalkMessageService struct {
 	*BaseService
 	config             *config.Config
 	unreadTalkCache    *cache.UnreadTalkCache
-	forwardService     *TalkMessageForwardService
 	lastMessage        *cache.LastMessage
 	talkRecordsVoteDao *dao.TalkRecordsVoteDao
 	groupMemberDao     *dao.GroupMemberDao
@@ -39,8 +38,8 @@ type TalkMessageService struct {
 	fileSystem         *filesystem.Filesystem
 }
 
-func NewTalkMessageService(baseService *BaseService, config *config.Config, unreadTalkCache *cache.UnreadTalkCache, forwardService *TalkMessageForwardService, lastMessage *cache.LastMessage, talkRecordsVoteDao *dao.TalkRecordsVoteDao, groupMemberDao *dao.GroupMemberDao, sidServer *cache.SidServer, client *cache.WsClientSession, fileSystem *filesystem.Filesystem) *TalkMessageService {
-	return &TalkMessageService{BaseService: baseService, config: config, unreadTalkCache: unreadTalkCache, forwardService: forwardService, lastMessage: lastMessage, talkRecordsVoteDao: talkRecordsVoteDao, groupMemberDao: groupMemberDao, sidServer: sidServer, client: client, fileSystem: fileSystem}
+func NewTalkMessageService(baseService *BaseService, config *config.Config, unreadTalkCache *cache.UnreadTalkCache, lastMessage *cache.LastMessage, talkRecordsVoteDao *dao.TalkRecordsVoteDao, groupMemberDao *dao.GroupMemberDao, sidServer *cache.SidServer, client *cache.WsClientSession, fileSystem *filesystem.Filesystem) *TalkMessageService {
+	return &TalkMessageService{BaseService: baseService, config: config, unreadTalkCache: unreadTalkCache, lastMessage: lastMessage, talkRecordsVoteDao: talkRecordsVoteDao, groupMemberDao: groupMemberDao, sidServer: sidServer, client: client, fileSystem: fileSystem}
 }
 
 // SendTextMessage 发送文本消息

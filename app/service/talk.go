@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"errors"
+	"go-chat/app/dao"
 	"go-chat/app/entity"
 	"go-chat/app/http/request"
 	"go-chat/app/model"
@@ -12,11 +13,11 @@ import (
 
 type TalkService struct {
 	*BaseService
-	groupMemberService *GroupMemberService
+	groupMemberDao *dao.GroupMemberDao
 }
 
-func NewTalkService(base *BaseService, groupMemberService *GroupMemberService) *TalkService {
-	return &TalkService{base, groupMemberService}
+func NewTalkService(baseService *BaseService, groupMemberDao *dao.GroupMemberDao) *TalkService {
+	return &TalkService{BaseService: baseService, groupMemberDao: groupMemberDao}
 }
 
 // RemoveRecords 删除消息记录
@@ -35,7 +36,7 @@ func (s *TalkService) RemoveRecords(ctx context.Context, uid int, req *request.D
 
 		s.db.Model(&model.TalkRecords{}).Where("id in ?", ids).Where("talk_type = ?", entity.PrivateChat).Where(subQuery).Pluck("id", &findIds)
 	} else {
-		if !s.groupMemberService.Dao().IsMember(req.ReceiverId, uid, false) {
+		if !s.groupMemberDao.IsMember(req.ReceiverId, uid, false) {
 			return entity.ErrPermissionDenied
 		}
 
@@ -85,7 +86,7 @@ func (s *TalkService) CollectRecord(ctx context.Context, uid int, recordId int) 
 			return entity.ErrPermissionDenied
 		}
 	} else if record.TalkType == entity.GroupChat {
-		if !s.groupMemberService.Dao().IsMember(record.ReceiverId, uid, true) {
+		if !s.groupMemberDao.IsMember(record.ReceiverId, uid, true) {
 			return entity.ErrPermissionDenied
 		}
 	}
