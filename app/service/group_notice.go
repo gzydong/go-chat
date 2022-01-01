@@ -2,8 +2,8 @@ package service
 
 import (
 	"context"
-	"github.com/gin-gonic/gin"
 	"go-chat/app/dao"
+	"go-chat/app/entity"
 	"go-chat/app/http/request"
 	"go-chat/app/model"
 	"go-chat/app/pkg/timeutil"
@@ -40,10 +40,10 @@ func (s *GroupNoticeService) Create(ctx context.Context, input *request.GroupNot
 
 // Update 更新群公告
 func (s *GroupNoticeService) Update(ctx context.Context, input *request.GroupNoticeEditRequest) error {
-	_, err := s.dao.BaseUpdate(&model.GroupNotice{}, gin.H{
+	_, err := s.dao.BaseUpdate(&model.GroupNotice{}, entity.Map{
 		"id":       input.NoticeId,
 		"group_id": input.GroupId,
-	}, gin.H{
+	}, entity.Map{
 		"title":      input.Title,
 		"content":    input.Content,
 		"is_top":     input.IsTop,
@@ -55,10 +55,10 @@ func (s *GroupNoticeService) Update(ctx context.Context, input *request.GroupNot
 }
 
 func (s *GroupNoticeService) Delete(ctx context.Context, groupId, noticeId int) error {
-	_, err := s.dao.BaseUpdate(&model.GroupNotice{}, gin.H{
+	_, err := s.dao.BaseUpdate(&model.GroupNotice{}, entity.Map{
 		"id":       noticeId,
 		"group_id": groupId,
-	}, gin.H{
+	}, entity.Map{
 		"is_delete":  1,
 		"deleted_at": timeutil.DateTime(),
 	})

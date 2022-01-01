@@ -48,7 +48,14 @@ func (c *Group) Create(ctx *gin.Context) {
 		return
 	}
 
-	gid, err := c.service.Create(ctx, params)
+	// 创建群组
+	gid, err := c.service.Create(ctx.Request.Context(), &service.CreateGroupOpts{
+		UserId:    auth.GetAuthUserID(ctx),
+		Name:      params.Name,
+		Avatar:    params.Avatar,
+		Profile:   params.Profile,
+		MemberIds: slice.ParseIds(params.MembersIds),
+	})
 	if err != nil {
 		response.BusinessError(ctx, "创建群聊失败，请稍后再试！")
 		return
@@ -67,7 +74,7 @@ func (c *Group) Dismiss(ctx *gin.Context) {
 		return
 	}
 
-	if err := c.service.Dismiss(params.GroupId, auth.GetAuthUserID(ctx)); err != nil {
+	if err := c.service.Dismiss(ctx.Request.Context(), params.GroupId, auth.GetAuthUserID(ctx)); err != nil {
 		response.BusinessError(ctx, "群组解散失败！")
 		return
 	}
@@ -89,7 +96,6 @@ func (c *Group) Invite(ctx *gin.Context) {
 		return
 	}
 
-	// 释放锁
 	defer c.redisLock.Release(ctx, key)
 
 	uid := auth.GetAuthUserID(ctx)
@@ -105,12 +111,15 @@ func (c *Group) Invite(ctx *gin.Context) {
 		return
 	}
 
-	if err := c.service.InviteUsers(ctx, params.GroupId, uid, uids); err != nil {
+	if err := c.service.InviteMembers(ctx, &service.InviteGroupMembersOpts{
+		UserId:    uid,
+		GroupId:   params.GroupId,
+		MemberIds: uids,
+	}); err != nil {
 		response.BusinessError(ctx, "邀请好友加入群聊失败！")
-		return
+	} else {
+		response.Success(ctx, nil)
 	}
-
-	response.Success(ctx, nil)
 }
 
 // SignOut 退出群聊
@@ -121,7 +130,7 @@ func (c *Group) SignOut(ctx *gin.Context) {
 		return
 	}
 
-	if err := c.service.Secede(params.GroupId, auth.GetAuthUserID(ctx)); err != nil {
+	if err := c.service.Secede(ctx.Request.Context(), params.GroupId, auth.GetAuthUserID(ctx)); err != nil {
 		response.BusinessError(ctx, "退出群组失败！")
 		return
 	}
@@ -137,12 +146,19 @@ func (c *Group) Setting(ctx *gin.Context) {
 		return
 	}
 
-	if !c.memberService.Dao().IsLeader(params.GroupId, auth.GetAuthUserID(ctx)) {
+	uid := auth.GetAuthUserID(ctx)
+
+	if !c.memberService.Dao().IsLeader(params.GroupId, uid) {
 		response.BusinessError(ctx, "无权限操作")
 		return
 	}
 
-	if err := c.service.Update(ctx.Request.Context(), params); err != nil {
+	if err := c.service.Update(ctx.Request.Context(), &service.UpdateGroupOpts{
+		GroupId: params.GroupId,
+		Name:    params.GroupName,
+		Avatar:  params.Avatar,
+		Profile: params.Profile,
+	}); err != nil {
 		response.BusinessError(ctx, err)
 	} else {
 		response.Success(ctx, nil)
@@ -157,14 +173,24 @@ func (c *Group) RemoveMembers(ctx *gin.Context) {
 		return
 	}
 
-	if !c.memberService.Dao().IsLeader(params.GroupId, auth.GetAuthUserID(ctx)) {
+	uid := auth.GetAuthUserID(ctx)
+
+	if !c.memberService.Dao().IsLeader(params.GroupId, uid) {
 		response.BusinessError(ctx, "无权限操作")
 		return
 	}
 
-	// todo 移除指定成员
+	err := c.service.RemoveMembers(ctx.Request.Context(), &service.RemoveMembersOpts{
+		UserId:    uid,
+		GroupId:   params.GroupId,
+		MemberIds: slice.ParseIds(params.MembersIds),
+	})
 
-	response.Success(ctx, nil)
+	if err != nil {
+		response.BusinessError(ctx, err)
+	} else {
+		response.Success(ctx, nil)
+	}
 }
 
 // Detail 获取群组信息
@@ -262,7 +288,7 @@ func (c *Group) GetInviteFriends(ctx *gin.Context) {
 }
 
 func (c *Group) GetGroups(ctx *gin.Context) {
-	items, err := c.service.UserGroupList(auth.GetAuthUserID(ctx))
+	items, err := c.service.List(auth.GetAuthUserID(ctx))
 	if err != nil {
 		response.BusinessError(ctx, items)
 		return

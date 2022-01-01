@@ -2,8 +2,8 @@ package dao
 
 import (
 	"errors"
-	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis/v8"
+	"go-chat/app/entity"
 	"gorm.io/gorm"
 )
 
@@ -21,7 +21,7 @@ func (dao *BaseDao) Db() *gorm.DB {
 }
 
 // BaseUpdate 批量更新
-func (dao *BaseDao) BaseUpdate(model interface{}, where gin.H, data gin.H) (int, error) {
+func (dao *BaseDao) BaseUpdate(model interface{}, where entity.Map, data entity.Map) (int, error) {
 	fields := make([]string, 0, len(data))
 	values := make(map[string]interface{})
 

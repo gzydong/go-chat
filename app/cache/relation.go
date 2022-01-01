@@ -50,3 +50,9 @@ func (r *Relation) SetGroupRelation(ctx context.Context, uid, gid int) {
 func (r *Relation) DelGroupRelation(ctx context.Context, uid, gid int) {
 	r.rds.Del(ctx, r.keyGroupRelation(uid, gid))
 }
+
+func (r *Relation) BatchDelGroupRelation(ctx context.Context, uids []int, gid int) {
+	for _, uid := range uids {
+		r.DelGroupRelation(ctx, uid, gid)
+	}
+}

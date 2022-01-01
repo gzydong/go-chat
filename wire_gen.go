@@ -69,7 +69,7 @@ func Initialize(ctx context.Context) *Providers {
 	splitUploadService := service.NewSplitUploadService(baseService, splitUploadDao, config, filesystemFilesystem)
 	usersFriendsDao := dao.NewUsersFriendsDao(baseDao, relation)
 	contactService := service.NewContactService(baseService, usersFriendsDao)
-	groupMemberService := service.NewGroupMemberService(groupMemberDao)
+	groupMemberService := service.NewGroupMemberService(baseService, groupMemberDao)
 	talkMessage := v1.NewTalkMessageHandler(talkMessageService, talkService, talkRecordsVoteDao, talkMessageForwardService, splitUploadService, contactService, groupMemberService)
 	talkSessionDao := dao.NewTalkSessionDao(baseDao)
 	talkSessionService := service.NewTalkSessionService(baseService, talkSessionDao)
@@ -88,7 +88,7 @@ func Initialize(ctx context.Context) *Providers {
 	room := cache.NewGroupRoom(client)
 	defaultWebSocket := ws.NewDefaultWebSocket(client, config, clientService, room, groupMemberService)
 	groupDao := dao.NewGroupDao(baseDao)
-	groupService := service.NewGroupService(baseService, groupDao, groupMemberDao)
+	groupService := service.NewGroupService(baseService, groupDao, groupMemberDao, relation)
 	group := v1.NewGroupHandler(groupService, groupMemberService, talkSessionService, redisLock, contactService, userService)
 	groupNoticeDao := &dao.GroupNoticeDao{
 		BaseDao: baseDao,

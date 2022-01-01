@@ -2,8 +2,8 @@ package service
 
 import (
 	"errors"
-	"github.com/gin-gonic/gin"
 	"go-chat/app/dao"
+	"go-chat/app/entity"
 	"go-chat/app/http/request"
 	"go-chat/app/model"
 	"go-chat/app/pkg/encrypt"
@@ -66,7 +66,7 @@ func (s *UserService) Forget(input *request.ForgetRequest) (bool, error) {
 	// 生成 hash 密码
 	hash, _ := encrypt.HashPassword(input.Password)
 
-	_, err = s.Dao().BaseUpdate(&model.Users{}, gin.H{"id": user.Id}, gin.H{"password": hash})
+	_, err = s.Dao().BaseUpdate(&model.Users{}, entity.Map{"id": user.Id}, entity.Map{"password": hash})
 	if err != nil {
 		return false, errors.New("密码修改失败！")
 	}
@@ -88,7 +88,7 @@ func (s *UserService) UpdatePassword(uid int, oldPassword string, password strin
 
 	hash, _ := encrypt.HashPassword(password)
 
-	_, err := s.dao.BaseUpdate(&model.Users{}, gin.H{"id": user.Id}, gin.H{"password": hash})
+	_, err := s.dao.BaseUpdate(&model.Users{}, entity.Map{"id": user.Id}, entity.Map{"password": hash})
 	if err != nil {
 		return err
 	}

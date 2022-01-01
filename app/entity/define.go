@@ -1,5 +1,7 @@
 package entity
 
+type Map map[string]interface{}
+
 // 文件系统相关
 const (
 	FileDriveLocal = 1

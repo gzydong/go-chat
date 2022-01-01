@@ -80,6 +80,7 @@ func (dao *GroupMemberDao) GetMemberRemark(groupId int, userId int) string {
 // GetMembers 获取群组成员列表
 func (dao *GroupMemberDao) GetMembers(groupId int) []*model.MemberItem {
 	fields := []string{
+		"group_member.id",
 		"group_member.leader",
 		"group_member.user_card",
 		"group_member.user_id",

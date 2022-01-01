@@ -33,7 +33,7 @@ type GroupSettingRequest struct {
 
 type GroupRemoveMembersRequest struct {
 	GroupCommonRequest
-	MembersIds string `form:"ids" json:"ids" binding:"required,ids"`
+	MembersIds string `form:"members_ids" json:"members_ids" binding:"required,ids"`
 }
 
 type GroupDetailRequest struct {
