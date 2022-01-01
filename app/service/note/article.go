@@ -54,14 +54,17 @@ func (s *ArticleService) Detail(ctx context.Context, uid, articleId int) (*model
 // Create 创建笔记
 func (s *ArticleService) Create(ctx context.Context, uid int, req *request.ArticleEditRequest) (int, error) {
 
+	abstract := strutil.MtSubstr(req.MdContent, 0, 200)
+
+	abstract = strutil.Strip(abstract)
+
 	data := &model.Article{
-		UserId:     uid,
-		ClassId:    req.ClassId,
-		Title:      req.Title,
-		Image:      strutil.ParseImage(req.Content),
-		Abstract:   strutil.MtSubstr(&req.Content, 0, 200),
-		IsAsterisk: 0,
-		Status:     1,
+		UserId:   uid,
+		ClassId:  req.ClassId,
+		Title:    req.Title,
+		Image:    strutil.ParseImage(req.Content),
+		Abstract: abstract,
+		Status:   1,
 	}
 
 	err := s.Db().Transaction(func(tx *gorm.DB) error {
@@ -90,12 +93,16 @@ func (s *ArticleService) Create(ctx context.Context, uid int, req *request.Artic
 
 // Update 更新笔记信息
 func (s *ArticleService) Update(ctx context.Context, uid int, req *request.ArticleEditRequest) error {
+
+	abstract := strutil.Strip(req.MdContent)
+	abstract = strutil.MtSubstr(abstract, 0, 200)
+
 	return s.Db().Transaction(func(tx *gorm.DB) error {
 
 		if err := tx.Model(&model.Article{}).Where("id = ? and user_id = ?", req.ArticleId, uid).Updates(&model.Article{
 			Title:    req.Title,
 			Image:    strutil.ParseImage(req.Content),
-			Abstract: strutil.MtSubstr(&req.Content, 0, 200),
+			Abstract: abstract,
 		}).Error; err != nil {
 			return err
 		}

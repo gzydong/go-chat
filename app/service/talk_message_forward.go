@@ -97,7 +97,7 @@ func (t *TalkMessageForwardService) aggregation(ctx context.Context, forward *Fo
 		case entity.MsgTypeText:
 			text := strings.TrimSpace(row.Content)
 			item["nickname"] = row.Nickname
-			item["text"] = strutil.MtSubstr(&text, 0, 30)
+			item["text"] = strutil.MtSubstr(text, 0, 30)
 		case entity.MsgTypeCode:
 			item["nickname"] = row.Nickname
 			item["text"] = "【代码消息】"

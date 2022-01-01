@@ -51,13 +51,13 @@ func GenFileName(ext string) string {
 }
 
 // MtSubstr 字符串截取
-func MtSubstr(value *string, start, end int) string {
+func MtSubstr(value string, start, end int) string {
 
 	if start > end {
 		return ""
 	}
 
-	str := []rune(*value)
+	str := []rune(value)
 
 	if length := len(str); end > length {
 		end = length

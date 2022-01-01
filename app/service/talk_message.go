@@ -59,7 +59,7 @@ func (s *TalkMessageService) SendTextMessage(ctx context.Context, uid int, param
 	}
 
 	s.afterHandle(ctx, record, map[string]string{
-		"text": strutil.MtSubstr(&record.Content, 0, 30),
+		"text": strutil.MtSubstr(record.Content, 0, 30),
 	})
 
 	return nil
