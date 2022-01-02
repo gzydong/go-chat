@@ -5,7 +5,6 @@ import (
 	"go-chat/app/cache"
 	"go-chat/app/dao"
 	"go-chat/app/entity"
-	"go-chat/app/http/dto"
 	"go-chat/app/model"
 	"go-chat/app/pkg/filesystem"
 	"go-chat/app/pkg/jsonutil"
@@ -20,6 +19,28 @@ type QueryTalkRecordsOpts struct {
 	ReceiverId int `json:"receiver_id"` // 接收者ID
 	RecordId   int `json:"record_id"`   // 上次查询的最小消息ID
 	Limit      int `json:"limit"`       // 数据行数
+}
+
+type TalkRecordsItem struct {
+	Id         int         `json:"id"`
+	TalkType   int         `json:"talk_type"`
+	MsgType    int         `json:"msg_type"`
+	UserId     int         `json:"user_id"`
+	ReceiverId int         `json:"receiver_id"`
+	Nickname   string      `json:"nickname"`
+	Avatar     string      `json:"avatar"`
+	IsRevoke   int         `json:"is_revoke"`
+	IsMark     int         `json:"is_mark"`
+	IsRead     int         `json:"is_read"`
+	Content    string      `json:"content,omitempty"`
+	File       interface{} `json:"file,omitempty"`
+	CodeBlock  interface{} `json:"code_block,omitempty"`
+	Forward    interface{} `json:"forward,omitempty"`
+	Invite     interface{} `json:"invite,omitempty"`
+	Vote       interface{} `json:"vote,omitempty"`
+	Login      interface{} `json:"login,omitempty"`
+	Location   interface{} `json:"location,omitempty"`
+	CreatedAt  string      `json:"created_at"`
 }
 
 type TalkRecordsService struct {
@@ -40,7 +61,7 @@ func (s *TalkRecordsService) Dao() *dao.TalkRecordsDao {
 }
 
 // GetTalkRecords 获取对话消息
-func (s *TalkRecordsService) GetTalkRecords(ctx context.Context, opt *QueryTalkRecordsOpts) ([]*dto.TalkRecordsItem, error) {
+func (s *TalkRecordsService) GetTalkRecords(ctx context.Context, opt *QueryTalkRecordsOpts) ([]*TalkRecordsItem, error) {
 	var (
 		err    error
 		items  = make([]*model.QueryTalkRecordsItem, 0)
@@ -83,7 +104,7 @@ func (s *TalkRecordsService) GetTalkRecords(ctx context.Context, opt *QueryTalkR
 	}
 
 	if len(items) == 0 {
-		return make([]*dto.TalkRecordsItem, 0), err
+		return make([]*TalkRecordsItem, 0), err
 	}
 
 	return s.HandleTalkRecords(ctx, items)
@@ -94,7 +115,7 @@ func (s *TalkRecordsService) SearchTalkRecords() {
 
 }
 
-func (s *TalkRecordsService) GetTalkRecord(ctx context.Context, recordId int64) (*dto.TalkRecordsItem, error) {
+func (s *TalkRecordsService) GetTalkRecord(ctx context.Context, recordId int64) (*TalkRecordsItem, error) {
 	var (
 		err    error
 		item   *model.QueryTalkRecordsItem
@@ -132,7 +153,7 @@ func (s *TalkRecordsService) GetTalkRecord(ctx context.Context, recordId int64) 
 }
 
 // GetForwardRecords 获取转发消息记录
-func (s *TalkRecordsService) GetForwardRecords(ctx context.Context, uid int, recordId int64) ([]*dto.TalkRecordsItem, error) {
+func (s *TalkRecordsService) GetForwardRecords(ctx context.Context, uid int, recordId int64) ([]*TalkRecordsItem, error) {
 	record := &model.TalkRecords{}
 	if err := s.db.First(&record, recordId).Error; err != nil {
 		return nil, err
@@ -183,7 +204,7 @@ func (s *TalkRecordsService) GetForwardRecords(ctx context.Context, uid int, rec
 	return s.HandleTalkRecords(ctx, items)
 }
 
-func (s *TalkRecordsService) HandleTalkRecords(ctx context.Context, items []*model.QueryTalkRecordsItem) ([]*dto.TalkRecordsItem, error) {
+func (s *TalkRecordsService) HandleTalkRecords(ctx context.Context, items []*model.QueryTalkRecordsItem) ([]*TalkRecordsItem, error) {
 	var (
 		files     []int
 		codes     []int
@@ -279,10 +300,10 @@ func (s *TalkRecordsService) HandleTalkRecords(ctx context.Context, items []*mod
 		}
 	}
 
-	newItems := make([]*dto.TalkRecordsItem, 0, len(items))
+	newItems := make([]*TalkRecordsItem, 0, len(items))
 
 	for _, item := range items {
-		data := &dto.TalkRecordsItem{
+		data := &TalkRecordsItem{
 			Id:         item.Id,
 			TalkType:   item.TalkType,
 			MsgType:    item.MsgType,

@@ -50,11 +50,6 @@ func (s *SplitUploadService) Dao() *dao.SplitUploadDao {
 	return s.dao
 }
 
-// IsUploadFile 判断拆分文件上传ID是否存在
-func (s *SplitUploadService) IsUploadFile(ctx context.Context, uid int, hashId string) {
-
-}
-
 func (s *SplitUploadService) InitiateMultipartUpload(ctx context.Context, params *MultipartInitiateOpts) (*model.SplitUpload, error) {
 
 	// 计算拆分数量

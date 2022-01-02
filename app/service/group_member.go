@@ -15,7 +15,6 @@ func NewGroupMemberService(baseService *BaseService, dao *dao.GroupMemberDao) *G
 	return &GroupMemberService{BaseService: baseService, dao: dao}
 }
 
-// Dao 获取数据 dao 层
 func (s *GroupMemberService) Dao() *dao.GroupMemberDao {
 	return s.dao
 }
