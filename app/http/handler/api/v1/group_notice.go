@@ -38,10 +38,25 @@ func (c *GroupNotice) CreateAndUpdate(ctx *gin.Context) {
 	}
 
 	if params.NoticeId == 0 {
-		err = c.service.Create(ctx.Request.Context(), params, uid)
+		err = c.service.Create(ctx.Request.Context(), &service.GroupNoticeEditOpts{
+			UserId:    uid,
+			GroupId:   params.GroupId,
+			NoticeId:  params.NoticeId,
+			Title:     params.Title,
+			Content:   params.Content,
+			IsTop:     params.IsTop,
+			IsConfirm: params.IsConfirm,
+		})
 		msg = "添加群公告成功！"
 	} else {
-		err = c.service.Update(ctx.Request.Context(), params)
+		err = c.service.Update(ctx.Request.Context(), &service.GroupNoticeEditOpts{
+			GroupId:   params.GroupId,
+			NoticeId:  params.NoticeId,
+			Title:     params.Title,
+			Content:   params.Content,
+			IsTop:     params.IsTop,
+			IsConfirm: params.IsConfirm,
+		})
 		msg = "更新群公告成功！"
 	}
 

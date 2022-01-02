@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"go-chat/app/http/request"
 	"go-chat/app/model"
 	"go-chat/app/pkg/slice"
 	"go-chat/app/pkg/strutil"
@@ -13,6 +12,23 @@ import (
 	"gorm.io/gorm"
 	"html"
 )
+
+type ArticleEditOpts struct {
+	UserId    int
+	ArticleId int
+	ClassId   int
+	Title     string
+	Content   string
+	MdContent string
+}
+
+type ArticleListOpts struct {
+	UserId   int
+	Keyword  string
+	FindType int
+	Cid      int
+	Page     int
+}
 
 type ArticleService struct {
 	*service.BaseService
@@ -52,17 +68,17 @@ func (s *ArticleService) Detail(ctx context.Context, uid, articleId int) (*model
 }
 
 // Create 创建笔记
-func (s *ArticleService) Create(ctx context.Context, uid int, req *request.ArticleEditRequest) (int, error) {
+func (s *ArticleService) Create(ctx context.Context, opts *ArticleEditOpts) (int, error) {
 
-	abstract := strutil.MtSubstr(req.MdContent, 0, 200)
+	abstract := strutil.MtSubstr(opts.MdContent, 0, 200)
 
 	abstract = strutil.Strip(abstract)
 
 	data := &model.Article{
-		UserId:   uid,
-		ClassId:  req.ClassId,
-		Title:    req.Title,
-		Image:    strutil.ParseImage(req.Content),
+		UserId:   opts.UserId,
+		ClassId:  opts.ClassId,
+		Title:    opts.Title,
+		Image:    strutil.ParseImage(opts.Content),
 		Abstract: abstract,
 		Status:   1,
 	}
@@ -75,8 +91,8 @@ func (s *ArticleService) Create(ctx context.Context, uid int, req *request.Artic
 
 		if err := tx.Create(&model.ArticleDetail{
 			ArticleId: data.Id,
-			MdContent: html.EscapeString(req.MdContent),
-			Content:   html.EscapeString(req.Content),
+			MdContent: html.EscapeString(opts.MdContent),
+			Content:   html.EscapeString(opts.Content),
 		}).Error; err != nil {
 			return err
 		}
@@ -92,24 +108,24 @@ func (s *ArticleService) Create(ctx context.Context, uid int, req *request.Artic
 }
 
 // Update 更新笔记信息
-func (s *ArticleService) Update(ctx context.Context, uid int, req *request.ArticleEditRequest) error {
+func (s *ArticleService) Update(ctx context.Context, opts *ArticleEditOpts) error {
 
-	abstract := strutil.Strip(req.MdContent)
+	abstract := strutil.Strip(opts.MdContent)
 	abstract = strutil.MtSubstr(abstract, 0, 200)
 
 	return s.Db().Transaction(func(tx *gorm.DB) error {
 
-		if err := tx.Model(&model.Article{}).Where("id = ? and user_id = ?", req.ArticleId, uid).Updates(&model.Article{
-			Title:    req.Title,
-			Image:    strutil.ParseImage(req.Content),
+		if err := tx.Model(&model.Article{}).Where("id = ? and user_id = ?", opts.ArticleId, opts.UserId).Updates(&model.Article{
+			Title:    opts.Title,
+			Image:    strutil.ParseImage(opts.Content),
 			Abstract: abstract,
 		}).Error; err != nil {
 			return err
 		}
 
-		if err := tx.Model(&model.ArticleDetail{}).Where("article_id = ?", req.ArticleId).Updates(&model.ArticleDetail{
-			MdContent: html.EscapeString(req.MdContent),
-			Content:   html.EscapeString(req.Content),
+		if err := tx.Model(&model.ArticleDetail{}).Where("article_id = ?", opts.ArticleId).Updates(&model.ArticleDetail{
+			MdContent: html.EscapeString(opts.MdContent),
+			Content:   html.EscapeString(opts.Content),
 		}).Error; err != nil {
 			return err
 		}
@@ -119,31 +135,31 @@ func (s *ArticleService) Update(ctx context.Context, uid int, req *request.Artic
 }
 
 // List 笔记列表
-func (s *ArticleService) List(ctx context.Context, uid int, req *request.ArticleListRequest) ([]*model.Article, error) {
+func (s *ArticleService) List(ctx context.Context, opts *ArticleListOpts) ([]*model.Article, error) {
 
 	query := s.Db().Model(&model.Article{})
 	query.Joins("left join article_class on article_class.id = article.class_id")
-	query.Where("article.user_id = ?", uid)
+	query.Where("article.user_id = ?", opts.UserId)
 
-	if req.FindType == 2 {
+	if opts.FindType == 2 {
 		query.Where("article.is_asterisk = ?", 1)
-	} else if req.FindType == 3 {
-		query.Where("article.class_id = ?", req.Cid)
-	} else if req.FindType == 4 {
-		query.Where("FIND_IN_SET(?,article.tags_id)", req.Cid)
+	} else if opts.FindType == 3 {
+		query.Where("article.class_id = ?", opts.Cid)
+	} else if opts.FindType == 4 {
+		query.Where("FIND_IN_SET(?,article.tags_id)", opts.Cid)
 	}
 
-	if req.FindType == 5 {
+	if opts.FindType == 5 {
 		query.Where("article.status = ?", 2)
 	} else {
 		query.Where("article.status = ?", 1)
 	}
 
-	if req.Keyword != "" {
-		query.Where("article.title like ?", fmt.Sprintf("%%%s%%", req.Keyword))
+	if opts.Keyword != "" {
+		query.Where("article.title like ?", fmt.Sprintf("%%%s%%", opts.Keyword))
 	}
 
-	if req.FindType == 1 {
+	if opts.FindType == 1 {
 		query.Order("article.updated_at desc").Limit(20)
 	} else {
 		query.Order("article.id desc")
@@ -158,24 +174,23 @@ func (s *ArticleService) List(ctx context.Context, uid int, req *request.Article
 }
 
 // Asterisk 笔记标记星号
-func (s *ArticleService) Asterisk(ctx context.Context, uid int, req *request.ArticleAsteriskRequest) error {
+func (s *ArticleService) Asterisk(ctx context.Context, uid int, articleId int, mode int) error {
 
-	mode := 0
-	if req.Type == 1 {
-		mode = 1
+	if mode != 1 {
+		mode = 0
 	}
 
-	return s.Db().Model(&model.Article{}).Where("id = ? and user_id = ?", req.ArticleId, uid).Update("is_asterisk", mode).Error
+	return s.Db().Model(&model.Article{}).Where("id = ? and user_id = ?", articleId, uid).Update("is_asterisk", mode).Error
 }
 
-// UpdateTag 更新笔记标签
-func (s ArticleService) UpdateTag(ctx context.Context, uid int, req *request.ArticleTagsRequest) error {
-	return s.Db().Model(&model.Article{}).Where("id = ? and user_id = ?", req.ArticleId, uid).Update("tags_id", slice.IntToIds(req.Tags)).Error
+// Tag 更新笔记标签
+func (s *ArticleService) Tag(ctx context.Context, uid int, articleId int, tags []int) error {
+	return s.Db().Model(&model.Article{}).Where("id = ? and user_id = ?", articleId, uid).Update("tags_id", slice.IntToIds(tags)).Error
 }
 
 // Move 移动笔记分类
-func (s *ArticleService) Move(ctx context.Context, uid int, req *request.ArticleMoveRequest) error {
-	return s.Db().Model(&model.Article{}).Where("id = ? and user_id = ?", req.ArticleId, uid).Update("class_id", req.ClassId).Error
+func (s *ArticleService) Move(ctx context.Context, uid, articleId, classId int) error {
+	return s.Db().Model(&model.Article{}).Where("id = ? and user_id = ?", articleId, uid).Update("class_id", classId).Error
 }
 
 // UpdateStatus 修改笔记状态
@@ -192,9 +207,9 @@ func (s *ArticleService) UpdateStatus(ctx context.Context, uid int, articleId in
 }
 
 // ForeverDelete 永久笔记
-func (s *ArticleService) ForeverDelete(ctx context.Context, uid int, req *request.ArticleForeverDeleteRequest) error {
+func (s *ArticleService) ForeverDelete(ctx context.Context, uid int, articleId int) error {
 	var detail *model.Article
-	if err := s.Db().First(&detail, "id = ? and user_id = ?", req.ArticleId, uid).Error; err != nil {
+	if err := s.Db().First(&detail, "id = ? and user_id = ?", articleId, uid).Error; err != nil {
 		return err
 	}
 

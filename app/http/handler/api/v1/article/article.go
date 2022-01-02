@@ -34,7 +34,13 @@ func (c *Article) List(ctx *gin.Context) {
 		return
 	}
 
-	items, err := c.service.List(ctx.Request.Context(), auth.GetAuthUserID(ctx), params)
+	items, err := c.service.List(ctx.Request.Context(), &note.ArticleListOpts{
+		UserId:   auth.GetAuthUserID(ctx),
+		Keyword:  params.Keyword,
+		FindType: params.FindType,
+		Cid:      params.Cid,
+		Page:     params.Page,
+	})
 	if err != nil {
 		response.BusinessError(ctx, err)
 		return
@@ -123,10 +129,19 @@ func (c *Article) Edit(ctx *gin.Context) {
 		return
 	}
 
+	opts := &note.ArticleEditOpts{
+		UserId:    uid,
+		ArticleId: params.ArticleId,
+		ClassId:   params.ClassId,
+		Title:     params.Title,
+		Content:   params.Content,
+		MdContent: params.MdContent,
+	}
+
 	if params.ArticleId == 0 {
-		params.ArticleId, err = c.service.Create(ctx.Request.Context(), uid, params)
+		params.ArticleId, err = c.service.Create(ctx.Request.Context(), opts)
 	} else {
-		err = c.service.Update(ctx.Request.Context(), uid, params)
+		err = c.service.Update(ctx.Request.Context(), opts)
 	}
 
 	if err != nil {
@@ -218,7 +233,7 @@ func (c *Article) Move(ctx *gin.Context) {
 		return
 	}
 
-	if err := c.service.Move(ctx.Request.Context(), auth.GetAuthUserID(ctx), params); err != nil {
+	if err := c.service.Move(ctx.Request.Context(), auth.GetAuthUserID(ctx), params.ArticleId, params.ClassId); err != nil {
 		response.BusinessError(ctx, err)
 	} else {
 		response.Success(ctx, nil)
@@ -233,7 +248,7 @@ func (c Article) Asterisk(ctx *gin.Context) {
 		return
 	}
 
-	if err := c.service.Asterisk(ctx.Request.Context(), auth.GetAuthUserID(ctx), params); err != nil {
+	if err := c.service.Asterisk(ctx.Request.Context(), auth.GetAuthUserID(ctx), params.ArticleId, params.Type); err != nil {
 		response.BusinessError(ctx, err)
 	} else {
 		response.Success(ctx, nil)
@@ -248,7 +263,7 @@ func (c *Article) Tag(ctx *gin.Context) {
 		return
 	}
 
-	if err := c.service.UpdateTag(ctx.Request.Context(), auth.GetAuthUserID(ctx), params); err != nil {
+	if err := c.service.Tag(ctx.Request.Context(), auth.GetAuthUserID(ctx), params.ArticleId, params.Tags); err != nil {
 		response.BusinessError(ctx, err)
 	} else {
 		response.Success(ctx, nil)
@@ -263,7 +278,7 @@ func (c *Article) ForeverDelete(ctx *gin.Context) {
 		return
 	}
 
-	if err := c.service.ForeverDelete(ctx.Request.Context(), auth.GetAuthUserID(ctx), params); err != nil {
+	if err := c.service.ForeverDelete(ctx.Request.Context(), auth.GetAuthUserID(ctx), params.ArticleId); err != nil {
 		response.BusinessError(ctx, err)
 	} else {
 		response.Success(ctx, nil)

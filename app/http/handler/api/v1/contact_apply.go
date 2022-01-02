@@ -35,7 +35,11 @@ func (c *ContactApply) Create(ctx *gin.Context) {
 		return
 	}
 
-	if err := c.service.Create(ctx, auth.GetAuthUserID(ctx), params); err != nil {
+	if err := c.service.Create(ctx, &service.ContactApplyCreateOpts{
+		UserId:   auth.GetAuthUserID(ctx),
+		Remarks:  params.Remarks,
+		FriendId: params.FriendId,
+	}); err != nil {
 		response.BusinessError(ctx, err)
 		return
 	}
@@ -51,7 +55,10 @@ func (c *ContactApply) Accept(ctx *gin.Context) {
 		return
 	}
 
-	if err := c.service.Accept(ctx, auth.GetAuthUserID(ctx), params); err != nil {
+	if err := c.service.Accept(ctx, &service.ContactApplyAcceptOpts{
+		Remarks: params.Remarks,
+		ApplyId: params.ApplyId,
+	}); err != nil {
 		response.BusinessError(ctx, err)
 		return
 	}
@@ -67,7 +74,11 @@ func (c *ContactApply) Decline(ctx *gin.Context) {
 		return
 	}
 
-	if err := c.service.Decline(ctx, auth.GetAuthUserID(ctx), params); err != nil {
+	if err := c.service.Decline(ctx, &service.ContactApplyDeclineOpts{
+		UserId:  auth.GetAuthUserID(ctx),
+		Remarks: params.Remarks,
+		ApplyId: params.ApplyId,
+	}); err != nil {
 		response.BusinessError(ctx, err)
 		return
 	}

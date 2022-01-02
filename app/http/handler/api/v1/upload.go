@@ -67,7 +67,7 @@ func (u *Upload) InitiateMultipart(ctx *gin.Context) {
 		return
 	}
 
-	info, err := u.service.InitiateMultipartUpload(ctx.Request.Context(), &service.InitiateParams{
+	info, err := u.service.InitiateMultipartUpload(ctx.Request.Context(), &service.MultipartInitiateOpts{
 		Name:   params.FileName,
 		Size:   params.FileSize,
 		UserId: auth.GetAuthUserID(ctx),
@@ -104,7 +104,15 @@ func (u *Upload) MultipartUpload(ctx *gin.Context) {
 		return
 	}
 
-	_, err = u.service.MultipartUpload(ctx.Request.Context(), auth.GetAuthUserID(ctx), params, file)
+	_, err = u.service.MultipartUpload(ctx.Request.Context(), &service.MultipartUploadOpts{
+		UserId:     auth.GetAuthUserID(ctx),
+		UploadId:   params.UploadId,
+		Name:       params.Name,
+		Ext:        params.Ext,
+		SplitIndex: params.SplitIndex,
+		SplitNum:   params.SplitNum,
+		File:       file,
+	})
 	if err != nil {
 		response.BusinessError(ctx, err)
 	}

@@ -6,7 +6,6 @@ import (
 	"github.com/tencentyun/cos-go-sdk-v5"
 	"go-chat/app/dao"
 	"go-chat/app/entity"
-	"go-chat/app/http/request"
 	"go-chat/app/model"
 	"go-chat/app/pkg/encrypt"
 	"go-chat/app/pkg/filesystem"
@@ -20,10 +19,20 @@ import (
 	"strings"
 )
 
-type InitiateParams struct {
-	Name   string `json:"name"`
-	Size   int64  `json:"size"`
-	UserId int    `json:"user_id"`
+type MultipartInitiateOpts struct {
+	UserId int
+	Name   string
+	Size   int64
+}
+
+type MultipartUploadOpts struct {
+	UserId     int
+	UploadId   string
+	Name       string
+	Ext        string
+	SplitIndex int
+	SplitNum   int
+	File       *multipart.FileHeader
 }
 
 type SplitUploadService struct {
@@ -46,7 +55,7 @@ func (s *SplitUploadService) IsUploadFile(ctx context.Context, uid int, hashId s
 
 }
 
-func (s *SplitUploadService) InitiateMultipartUpload(ctx context.Context, params *InitiateParams) (*model.SplitUpload, error) {
+func (s *SplitUploadService) InitiateMultipartUpload(ctx context.Context, params *MultipartInitiateOpts) (*model.SplitUpload, error) {
 
 	// 计算拆分数量
 	num := math.Ceil(float64(params.Size) / float64(2<<20))
@@ -77,13 +86,13 @@ func (s *SplitUploadService) InitiateMultipartUpload(ctx context.Context, params
 	return m, nil
 }
 
-func (s *SplitUploadService) MultipartUpload(ctx context.Context, uid int, req *request.UploadMultipartRequest, file *multipart.FileHeader) (interface{}, error) {
+func (s *SplitUploadService) MultipartUpload(ctx context.Context, opts *MultipartUploadOpts) (interface{}, error) {
 	info := &model.SplitUpload{}
-	if err := s.Db().First(info, "upload_id = ? and type = 1", req.UploadId).Error; err != nil {
+	if err := s.Db().First(info, "upload_id = ? and type = 1", opts.UploadId).Error; err != nil {
 		return nil, err
 	}
 
-	stream, err := filesystem.ReadMultipartStream(file)
+	stream, err := filesystem.ReadMultipartStream(opts.File)
 	if err != nil {
 		return nil, err
 	}
@@ -91,14 +100,14 @@ func (s *SplitUploadService) MultipartUpload(ctx context.Context, uid int, req *
 	data := &model.SplitUpload{
 		Type:         2,
 		Drive:        info.Drive,
-		UserId:       uid,
-		UploadId:     req.UploadId,
-		OriginalName: req.Name,
-		SplitIndex:   req.SplitIndex,
-		SplitNum:     req.SplitNum,
-		SaveDir:      fmt.Sprintf("private/tmp/%s/%s/%d-%s.tmp", timeutil.DateNumber(), req.UploadId, req.SplitIndex, req.UploadId),
-		FileExt:      req.Ext,
-		FileSize:     file.Size,
+		UserId:       opts.UserId,
+		UploadId:     opts.UploadId,
+		OriginalName: opts.Name,
+		SplitIndex:   opts.SplitIndex,
+		SplitNum:     opts.SplitNum,
+		SaveDir:      fmt.Sprintf("private/tmp/%s/%s/%d-%s.tmp", timeutil.DateNumber(), opts.UploadId, opts.SplitIndex, opts.UploadId),
+		FileExt:      opts.Ext,
+		FileSize:     opts.File.Size,
 		Attr:         "{}",
 	}
 
@@ -121,7 +130,7 @@ func (s *SplitUploadService) MultipartUpload(ctx context.Context, uid int, req *
 	}
 
 	// 判断是否为最后一个分片上传
-	if req.SplitNum == req.SplitIndex+1 {
+	if opts.SplitNum == opts.SplitIndex+1 {
 		_ = s.merge(info)
 	}
 

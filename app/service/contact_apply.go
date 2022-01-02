@@ -4,11 +4,28 @@ import (
 	"context"
 	"errors"
 	"go-chat/app/entity"
-	"go-chat/app/http/request"
 	"go-chat/app/model"
 	"go-chat/app/pkg/jsonutil"
 	"gorm.io/gorm"
 )
+
+type ContactApplyCreateOpts struct {
+	UserId   int
+	Remarks  string
+	FriendId int
+}
+
+type ContactApplyAcceptOpts struct {
+	UserId  int
+	Remarks string
+	ApplyId int
+}
+
+type ContactApplyDeclineOpts struct {
+	UserId  int
+	Remarks string
+	ApplyId int
+}
 
 type ContactApplyService struct {
 	*BaseService
@@ -18,12 +35,12 @@ func NewContactsApplyService(base *BaseService) *ContactApplyService {
 	return &ContactApplyService{BaseService: base}
 }
 
-func (s *ContactApplyService) Create(ctx context.Context, uid int, req *request.ContactApplyCreateRequest) error {
+func (s *ContactApplyService) Create(ctx context.Context, opts *ContactApplyCreateOpts) error {
 
 	apply := &model.ContactApply{
-		UserId:   uid,
-		FriendId: req.FriendId,
-		Remark:   req.Remarks,
+		UserId:   opts.UserId,
+		FriendId: opts.FriendId,
+		Remark:   opts.Remarks,
 	}
 
 	if err := s.db.Create(apply).Error; err != nil {
@@ -44,13 +61,13 @@ func (s *ContactApplyService) Create(ctx context.Context, uid int, req *request.
 }
 
 // Accept 同意好友申请
-func (s *ContactApplyService) Accept(ctx context.Context, uid int, req *request.ContactApplyAcceptRequest) error {
+func (s *ContactApplyService) Accept(ctx context.Context, opts *ContactApplyAcceptOpts) error {
 	var (
 		err       error
 		applyInfo *model.ContactApply
 	)
 
-	if err := s.db.First(&applyInfo, req.ApplyId).Error; err != nil {
+	if err := s.db.First(&applyInfo, "id = ? and friend_id = ?", opts.ApplyId, opts.UserId).Error; err != nil {
 		return err
 	}
 
@@ -89,7 +106,7 @@ func (s *ContactApplyService) Accept(ctx context.Context, uid int, req *request.
 			return err
 		}
 
-		if err := addFriendFunc(applyInfo.FriendId, applyInfo.UserId, req.Remarks); err != nil {
+		if err := addFriendFunc(applyInfo.FriendId, applyInfo.UserId, opts.Remarks); err != nil {
 			return err
 		}
 
@@ -112,14 +129,14 @@ func (s *ContactApplyService) Accept(ctx context.Context, uid int, req *request.
 }
 
 // Decline 拒绝好友申请
-func (s *ContactApplyService) Decline(ctx context.Context, uid int, req *request.ContactApplyDeclineRequest) error {
-	err := s.db.Delete(&model.ContactApply{}, "id = ? and friend_id = ?", req.ApplyId, uid).Error
+func (s *ContactApplyService) Decline(ctx context.Context, opts *ContactApplyDeclineOpts) error {
+	err := s.db.Delete(&model.ContactApply{}, "id = ? and friend_id = ?", opts.ApplyId, opts.UserId).Error
 
 	if err == nil {
 		body := map[string]interface{}{
 			"event": entity.EventFriendApply,
 			"data": jsonutil.JsonEncode(map[string]interface{}{
-				"apply_id": int64(req.ApplyId),
+				"apply_id": int64(opts.ApplyId),
 				"type":     2,
 			}),
 		}

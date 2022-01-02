@@ -4,11 +4,20 @@ import (
 	"context"
 	"go-chat/app/dao"
 	"go-chat/app/entity"
-	"go-chat/app/http/request"
 	"go-chat/app/model"
 	"go-chat/app/pkg/timeutil"
 	"time"
 )
+
+type GroupNoticeEditOpts struct {
+	UserId    int
+	GroupId   int
+	NoticeId  int
+	Title     string
+	Content   string
+	IsTop     int
+	IsConfirm int
+}
 
 type GroupNoticeService struct {
 	dao *dao.GroupNoticeDao
@@ -25,29 +34,29 @@ func (s *GroupNoticeService) Dao() *dao.GroupNoticeDao {
 }
 
 // Create 创建群公告
-func (s *GroupNoticeService) Create(ctx context.Context, input *request.GroupNoticeEditRequest, uid int) error {
+func (s *GroupNoticeService) Create(ctx context.Context, opts *GroupNoticeEditOpts) error {
 	notice := &model.GroupNotice{
-		GroupId:   input.GroupId,
-		CreatorId: uid,
-		Title:     input.Title,
-		Content:   input.Content,
-		IsTop:     input.IsTop,
-		IsConfirm: input.IsConfirm,
+		GroupId:   opts.GroupId,
+		CreatorId: opts.UserId,
+		Title:     opts.Title,
+		Content:   opts.Content,
+		IsTop:     opts.IsTop,
+		IsConfirm: opts.IsConfirm,
 	}
 
 	return s.dao.Db().Omit("deleted_at", "confirm_users").Create(notice).Error
 }
 
 // Update 更新群公告
-func (s *GroupNoticeService) Update(ctx context.Context, input *request.GroupNoticeEditRequest) error {
+func (s *GroupNoticeService) Update(ctx context.Context, opts *GroupNoticeEditOpts) error {
 	_, err := s.dao.BaseUpdate(&model.GroupNotice{}, entity.Map{
-		"id":       input.NoticeId,
-		"group_id": input.GroupId,
+		"id":       opts.NoticeId,
+		"group_id": opts.GroupId,
 	}, entity.Map{
-		"title":      input.Title,
-		"content":    input.Content,
-		"is_top":     input.IsTop,
-		"is_confirm": input.IsConfirm,
+		"title":      opts.Title,
+		"content":    opts.Content,
+		"is_top":     opts.IsTop,
+		"is_confirm": opts.IsConfirm,
 		"updated_at": time.Now(),
 	})
 

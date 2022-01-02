@@ -377,7 +377,12 @@ func (c *TalkMessage) Delete(ctx *gin.Context) {
 		return
 	}
 
-	if err := c.talkService.RemoveRecords(ctx.Request.Context(), auth.GetAuthUserID(ctx), params); err != nil {
+	if err := c.talkService.RemoveRecords(ctx.Request.Context(), &service.TalkMessageDeleteOpts{
+		UserId:     auth.GetAuthUserID(ctx),
+		TalkType:   params.TalkType,
+		ReceiverId: params.ReceiverId,
+		RecordIds:  params.RecordIds,
+	}); err != nil {
 		response.BusinessError(ctx, err)
 	} else {
 		response.Success(ctx, nil)

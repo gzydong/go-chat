@@ -5,11 +5,17 @@ import (
 	"errors"
 	"go-chat/app/dao"
 	"go-chat/app/entity"
-	"go-chat/app/http/request"
 	"go-chat/app/model"
 	"go-chat/app/pkg/slice"
 	"time"
 )
+
+type TalkMessageDeleteOpts struct {
+	UserId     int
+	TalkType   int    `form:"talk_type" json:"talk_type" binding:"required,oneof=1 2" label:"talk_type"`
+	ReceiverId int    `form:"receiver_id" json:"receiver_id" binding:"required,numeric,gt=0" label:"receiver_id"`
+	RecordIds  string `form:"record_id" json:"record_id" binding:"required,ids" label:"record_id"`
+}
 
 type TalkService struct {
 	*BaseService
@@ -21,22 +27,20 @@ func NewTalkService(baseService *BaseService, groupMemberDao *dao.GroupMemberDao
 }
 
 // RemoveRecords 删除消息记录
-// @params uid 用户ID
-// @params req 请求参数
-func (s *TalkService) RemoveRecords(ctx context.Context, uid int, req *request.DeleteMessageRequest) error {
+func (s *TalkService) RemoveRecords(ctx context.Context, opts *TalkMessageDeleteOpts) error {
 
 	// 需要删除的消息记录ID
-	ids := slice.UniqueInt(slice.ParseIds(req.RecordIds))
+	ids := slice.UniqueInt(slice.ParseIds(opts.RecordIds))
 
 	// 查询的ids
 	findIds := make([]int64, 0)
 
-	if req.TalkType == entity.PrivateChat {
-		subQuery := s.db.Where("user_id = ? and receiver_id = ?", uid, req.ReceiverId).Or("user_id = ? and receiver_id = ?", req.ReceiverId, uid)
+	if opts.TalkType == entity.PrivateChat {
+		subQuery := s.db.Where("user_id = ? and receiver_id = ?", opts.UserId, opts.ReceiverId).Or("user_id = ? and receiver_id = ?", opts.ReceiverId, opts.UserId)
 
 		s.db.Model(&model.TalkRecords{}).Where("id in ?", ids).Where("talk_type = ?", entity.PrivateChat).Where(subQuery).Pluck("id", &findIds)
 	} else {
-		if !s.groupMemberDao.IsMember(req.ReceiverId, uid, false) {
+		if !s.groupMemberDao.IsMember(opts.ReceiverId, opts.UserId, false) {
 			return entity.ErrPermissionDenied
 		}
 
@@ -51,7 +55,7 @@ func (s *TalkService) RemoveRecords(ctx context.Context, uid int, req *request.D
 	for _, val := range ids {
 		items = append(items, &model.TalkRecordsDelete{
 			RecordId:  val,
-			UserId:    uid,
+			UserId:    opts.UserId,
 			CreatedAt: time.Now(),
 		})
 	}
@@ -60,8 +64,6 @@ func (s *TalkService) RemoveRecords(ctx context.Context, uid int, req *request.D
 }
 
 // CollectRecord 收藏表情包
-// @params uid      用户ID
-// @params recordId 消息记录ID
 func (s *TalkService) CollectRecord(ctx context.Context, uid int, recordId int) error {
 	var (
 		err      error

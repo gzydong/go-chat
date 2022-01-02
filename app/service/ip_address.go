@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"go-chat/app/pkg/request"
+	"go-chat/app/pkg/client"
 	"go-chat/app/pkg/slice"
 	"go-chat/config"
 	"net/url"
@@ -14,10 +14,10 @@ import (
 type IpAddressService struct {
 	*BaseService
 	conf       *config.Config
-	httpClient *request.HttpClient
+	httpClient *client.HttpClient
 }
 
-func NewIpAddressService(baseService *BaseService, conf *config.Config, httpClient *request.HttpClient) *IpAddressService {
+func NewIpAddressService(baseService *BaseService, conf *config.Config, httpClient *client.HttpClient) *IpAddressService {
 	return &IpAddressService{BaseService: baseService, conf: conf, httpClient: httpClient}
 }
 
