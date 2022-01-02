@@ -131,10 +131,9 @@ func (c *Group) SignOut(ctx *gin.Context) {
 
 	if err := c.service.Secede(ctx.Request.Context(), params.GroupId, auth.GetAuthUserID(ctx)); err != nil {
 		response.BusinessError(ctx, "退出群组失败！")
-		return
+	} else {
+		response.Success(ctx, nil)
 	}
-
-	response.Success(ctx, nil)
 }
 
 // Setting 群设置接口（预留）
@@ -244,7 +243,7 @@ func (c *Group) EditRemark(ctx *gin.Context) {
 		return
 	}
 
-	if err := c.memberService.UpdateMemberCard(params.GroupId, auth.GetAuthUserID(ctx), params.VisitCard); err != nil {
+	if err := c.memberService.EditMemberCard(params.GroupId, auth.GetAuthUserID(ctx), params.VisitCard); err != nil {
 		response.BusinessError(ctx, "修改群备注失败！")
 		return
 	}

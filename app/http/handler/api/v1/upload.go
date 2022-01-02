@@ -104,7 +104,7 @@ func (u *Upload) MultipartUpload(ctx *gin.Context) {
 		return
 	}
 
-	_, err = u.service.MultipartUpload(ctx.Request.Context(), &service.MultipartUploadOpts{
+	err = u.service.MultipartUpload(ctx.Request.Context(), &service.MultipartUploadOpts{
 		UserId:     auth.GetAuthUserID(ctx),
 		UploadId:   params.UploadId,
 		Name:       params.Name,

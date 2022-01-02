@@ -12,9 +12,9 @@ import (
 
 type TalkMessageDeleteOpts struct {
 	UserId     int
-	TalkType   int    `form:"talk_type" json:"talk_type" binding:"required,oneof=1 2" label:"talk_type"`
-	ReceiverId int    `form:"receiver_id" json:"receiver_id" binding:"required,numeric,gt=0" label:"receiver_id"`
-	RecordIds  string `form:"record_id" json:"record_id" binding:"required,ids" label:"record_id"`
+	TalkType   int
+	ReceiverId int
+	RecordIds  string
 }
 
 type TalkService struct {

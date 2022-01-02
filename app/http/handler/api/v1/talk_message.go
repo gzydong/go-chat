@@ -289,7 +289,7 @@ func (c *TalkMessage) Forward(ctx *gin.Context) {
 		return
 	}
 
-	forward := &service.ForwardParams{
+	forward := &service.TalkForwardOpts{
 		Mode:       params.ForwardMode,
 		UserId:     uid,
 		ReceiverId: params.ReceiverId,

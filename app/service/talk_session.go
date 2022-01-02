@@ -23,9 +23,9 @@ type TalkSessionTopOpts struct {
 
 type TalkSessionDisturbOpts struct {
 	UserId     int
-	TalkType   int `form:"talk_type" json:"talk_type" binding:"required,oneof=1 2" label:"talk_type"`
-	ReceiverId int `form:"receiver_id" json:"receiver_id" binding:"required,numeric" label:"receiver_id"`
-	IsDisturb  int `form:"is_disturb" json:"is_disturb" binding:"oneof=0 1" label:"is_disturb"`
+	TalkType   int
+	ReceiverId int
+	IsDisturb  int
 }
 
 type TalkSessionService struct {

@@ -19,13 +19,10 @@ func (s *GroupMemberService) Dao() *dao.GroupMemberDao {
 	return s.dao
 }
 
-// nolint UpdateMemberCard 修改群名片
-func (s *GroupMemberService) UpdateMemberCard(groupId int, userId int, remark string) error {
+// EditMemberCard 修改群名片
+func (s *GroupMemberService) EditMemberCard(groupId int, userId int, remark string) error {
 
 	_, err := s.dao.BaseUpdate(&model.GroupMember{}, entity.Map{"group_id": groupId, "user_id": userId}, entity.Map{"user_card": remark})
-	if err == nil {
-		// todo 更新缓存
-	}
 
 	return err
 }

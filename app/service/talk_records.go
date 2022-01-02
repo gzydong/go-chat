@@ -14,11 +14,11 @@ import (
 )
 
 type QueryTalkRecordsOpts struct {
-	TalkType   int `json:"talk_type"`   // 对话类型
-	UserId     int `json:"user_id"`     // 获取消息的用户
-	ReceiverId int `json:"receiver_id"` // 接收者ID
-	RecordId   int `json:"record_id"`   // 上次查询的最小消息ID
-	Limit      int `json:"limit"`       // 数据行数
+	TalkType   int // 对话类型
+	UserId     int // 获取消息的用户
+	ReceiverId int // 接收者ID
+	RecordId   int // 上次查询的最小消息ID
+	Limit      int // 数据行数
 }
 
 type TalkRecordsItem struct {

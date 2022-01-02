@@ -77,10 +77,9 @@ func (c *GroupNotice) Delete(ctx *gin.Context) {
 
 	if err := c.service.Delete(ctx, params.GroupId, params.NoticeId); err != nil {
 		response.BusinessError(ctx, err)
-		return
+	} else {
+		response.Success(ctx, nil, "群公告删除成功！")
 	}
-
-	response.Success(ctx, nil, "群公告删除成功！")
 }
 
 // List 获取群公告列表(所有)

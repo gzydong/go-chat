@@ -58,10 +58,9 @@ func (c *Contact) Delete(ctx *gin.Context) {
 
 	if err := c.service.Delete(ctx, auth.GetAuthUserID(ctx), params.FriendId); err != nil {
 		response.BusinessError(ctx, err)
-		return
+	} else {
+		response.Success(ctx, nil)
 	}
-
-	response.Success(ctx, nil)
 }
 
 // Search 查找联系人
@@ -103,10 +102,9 @@ func (c *Contact) EditRemark(ctx *gin.Context) {
 
 	if err := c.service.EditRemark(ctx, auth.GetAuthUserID(ctx), params.FriendId, params.Remarks); err != nil {
 		response.BusinessError(ctx, err)
-		return
+	} else {
+		response.Success(ctx, nil)
 	}
-
-	response.Success(ctx, nil)
 }
 
 // Detail 联系人详情信息

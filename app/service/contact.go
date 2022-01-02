@@ -41,7 +41,7 @@ func (s *ContactService) Delete(ctx context.Context, uid, friendId int) error {
 // @params uid      用户ID
 func (s *ContactService) List(ctx context.Context, uid int) ([]*model.ContactListItem, error) {
 
-	tx := s.db.Table("contact")
+	tx := s.db.Model(&model.Contact{})
 	tx.Select([]string{
 		"users.id",
 		"users.nickname",

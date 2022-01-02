@@ -52,8 +52,8 @@ func (s *SplitUploadService) Dao() *dao.SplitUploadDao {
 
 func (s *SplitUploadService) InitiateMultipartUpload(ctx context.Context, params *MultipartInitiateOpts) (*model.SplitUpload, error) {
 
-	// 计算拆分数量
-	num := math.Ceil(float64(params.Size) / float64(2<<20))
+	// 计算拆分数量 3M
+	num := math.Ceil(float64(params.Size) / float64(3<<20))
 
 	m := &model.SplitUpload{
 		Type:         1,
@@ -81,15 +81,15 @@ func (s *SplitUploadService) InitiateMultipartUpload(ctx context.Context, params
 	return m, nil
 }
 
-func (s *SplitUploadService) MultipartUpload(ctx context.Context, opts *MultipartUploadOpts) (interface{}, error) {
+func (s *SplitUploadService) MultipartUpload(ctx context.Context, opts *MultipartUploadOpts) error {
 	info := &model.SplitUpload{}
 	if err := s.Db().First(info, "upload_id = ? and type = 1", opts.UploadId).Error; err != nil {
-		return nil, err
+		return err
 	}
 
 	stream, err := filesystem.ReadMultipartStream(opts.File)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	data := &model.SplitUpload{
@@ -112,7 +112,7 @@ func (s *SplitUploadService) MultipartUpload(ctx context.Context, opts *Multipar
 	case entity.FileDriveCos:
 		etag, err := s.fileSystem.Cos.UploadPart(info.SaveDir, data.UploadId, data.SplitIndex+1, stream)
 		if err != nil {
-			return nil, err
+			return err
 		}
 
 		data.Attr = jsonutil.JsonEncode(map[string]string{
@@ -121,15 +121,15 @@ func (s *SplitUploadService) MultipartUpload(ctx context.Context, opts *Multipar
 	}
 
 	if err := s.Db().Create(data).Error; err != nil {
-		return nil, err
+		return err
 	}
 
 	// 判断是否为最后一个分片上传
 	if opts.SplitNum == opts.SplitIndex+1 {
-		_ = s.merge(info)
+		err = s.merge(info)
 	}
 
-	return nil, nil
+	return err
 }
 
 // combine

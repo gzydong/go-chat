@@ -35,16 +35,15 @@ func (s *GroupNoticeService) Dao() *dao.GroupNoticeDao {
 
 // Create 创建群公告
 func (s *GroupNoticeService) Create(ctx context.Context, opts *GroupNoticeEditOpts) error {
-	notice := &model.GroupNotice{
-		GroupId:   opts.GroupId,
-		CreatorId: opts.UserId,
-		Title:     opts.Title,
-		Content:   opts.Content,
-		IsTop:     opts.IsTop,
-		IsConfirm: opts.IsConfirm,
-	}
-
-	return s.dao.Db().Omit("deleted_at", "confirm_users").Create(notice).Error
+	return s.dao.Db().Create(&model.GroupNotice{
+		GroupId:      opts.GroupId,
+		CreatorId:    opts.UserId,
+		Title:        opts.Title,
+		Content:      opts.Content,
+		IsTop:        opts.IsTop,
+		IsConfirm:    opts.IsConfirm,
+		ConfirmUsers: "{}",
+	}).Error
 }
 
 // Update 更新群公告
