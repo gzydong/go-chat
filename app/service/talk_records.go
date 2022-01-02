@@ -14,11 +14,12 @@ import (
 )
 
 type QueryTalkRecordsOpts struct {
-	TalkType   int // 对话类型
-	UserId     int // 获取消息的用户
-	ReceiverId int // 接收者ID
-	RecordId   int // 上次查询的最小消息ID
-	Limit      int // 数据行数
+	TalkType   int   // 对话类型
+	UserId     int   // 获取消息的用户
+	ReceiverId int   // 接收者ID
+	MsgType    []int // 消息类型
+	RecordId   int   // 上次查询的最小消息ID
+	Limit      int   // 数据行数
 }
 
 type TalkRecordsItem struct {
@@ -61,7 +62,7 @@ func (s *TalkRecordsService) Dao() *dao.TalkRecordsDao {
 }
 
 // GetTalkRecords 获取对话消息
-func (s *TalkRecordsService) GetTalkRecords(ctx context.Context, opt *QueryTalkRecordsOpts) ([]*TalkRecordsItem, error) {
+func (s *TalkRecordsService) GetTalkRecords(ctx context.Context, opts *QueryTalkRecordsOpts) ([]*TalkRecordsItem, error) {
 	var (
 		err    error
 		items  = make([]*model.QueryTalkRecordsItem, 0)
@@ -82,22 +83,26 @@ func (s *TalkRecordsService) GetTalkRecords(ctx context.Context, opt *QueryTalkR
 	query := s.db.Table("talk_records")
 	query.Joins("left join users on talk_records.user_id = users.id")
 
-	if opt.RecordId > 0 {
-		query.Where("talk_records.id < ?", opt.RecordId)
+	if opts.RecordId > 0 {
+		query.Where("talk_records.id < ?", opts.RecordId)
 	}
 
-	if opt.TalkType == entity.PrivateChat {
-		subQuery := s.db.Where("talk_records.user_id = ? and talk_records.receiver_id = ?", opt.UserId, opt.ReceiverId)
-		subQuery.Or("talk_records.user_id = ? and talk_records.receiver_id = ?", opt.ReceiverId, opt.UserId)
+	if opts.TalkType == entity.PrivateChat {
+		subQuery := s.db.Where("talk_records.user_id = ? and talk_records.receiver_id = ?", opts.UserId, opts.ReceiverId)
+		subQuery.Or("talk_records.user_id = ? and talk_records.receiver_id = ?", opts.ReceiverId, opts.UserId)
 
 		query.Where(subQuery)
 	} else {
-		query.Where("talk_records.receiver_id = ?", opt.ReceiverId)
+		query.Where("talk_records.receiver_id = ?", opts.ReceiverId)
 	}
 
-	query.Where("talk_records.talk_type = ?", opt.TalkType)
-	query.Where("NOT EXISTS (SELECT 1 FROM `talk_records_delete` WHERE talk_records_delete.record_id = talk_records.id AND talk_records_delete.user_id = ? LIMIT 1)", opt.UserId)
-	query.Select(fields).Order("talk_records.id desc").Limit(opt.Limit)
+	if opts.MsgType != nil && len(opts.MsgType) > 0 {
+		query.Where("talk_records.msg_type in ?", opts.MsgType)
+	}
+
+	query.Where("talk_records.talk_type = ?", opts.TalkType)
+	query.Where("NOT EXISTS (SELECT 1 FROM `talk_records_delete` WHERE talk_records_delete.record_id = talk_records.id AND talk_records_delete.user_id = ? LIMIT 1)", opts.UserId)
+	query.Select(fields).Order("talk_records.id desc").Limit(opts.Limit)
 
 	if err = query.Scan(&items).Error; err != nil {
 		return nil, err

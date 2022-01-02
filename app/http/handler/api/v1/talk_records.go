@@ -7,6 +7,7 @@ import (
 	"go-chat/app/http/response"
 	"go-chat/app/pkg/auth"
 	"go-chat/app/pkg/filesystem"
+	"go-chat/app/pkg/slice"
 	"go-chat/app/service"
 	"net/http"
 )
@@ -60,7 +61,48 @@ func (c *TalkRecords) GetRecords(ctx *gin.Context) {
 
 // SearchHistoryRecords 查询下会话记录
 func (c *TalkRecords) SearchHistoryRecords(ctx *gin.Context) {
-	c.GetRecords(ctx)
+	params := &request.TalkRecordsRequest{}
+	if err := ctx.ShouldBindQuery(params); err != nil {
+		response.InvalidParams(ctx, err)
+		return
+	}
+
+	m := []int{
+		entity.MsgTypeText,
+		entity.MsgTypeFile,
+		entity.MsgTypeForward,
+		entity.MsgTypeCode,
+		entity.MsgTypeVote,
+	}
+
+	if slice.InInt(params.MsgType, m) {
+		m = []int{params.MsgType}
+	}
+
+	records, err := c.service.GetTalkRecords(ctx, &service.QueryTalkRecordsOpts{
+		TalkType:   params.TalkType,
+		MsgType:    m,
+		UserId:     auth.GetAuthUserID(ctx),
+		ReceiverId: params.ReceiverId,
+		RecordId:   params.RecordId,
+		Limit:      params.Limit,
+	})
+
+	if err != nil {
+		response.BusinessError(ctx, err)
+		return
+	}
+
+	rid := 0
+	if length := len(records); length > 0 {
+		rid = records[length-1].Id
+	}
+
+	response.Success(ctx, gin.H{
+		"limit":     params.Limit,
+		"record_id": rid,
+		"rows":      records,
+	})
 }
 
 // GetForwardRecords 获取转发记录
