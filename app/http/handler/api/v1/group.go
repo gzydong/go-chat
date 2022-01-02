@@ -76,10 +76,9 @@ func (c *Group) Dismiss(ctx *gin.Context) {
 
 	if err := c.service.Dismiss(ctx.Request.Context(), params.GroupId, auth.GetAuthUserID(ctx)); err != nil {
 		response.BusinessError(ctx, "群组解散失败！")
-		return
+	} else {
+		response.Success(ctx, nil)
 	}
-
-	response.Success(ctx, nil)
 }
 
 // Invite 邀请好友加入群聊
@@ -297,8 +296,8 @@ func (c *Group) GetGroups(ctx *gin.Context) {
 	response.Success(ctx, items)
 }
 
-// GetGroupMembers 获取群成员列表
-func (c *Group) GetGroupMembers(ctx *gin.Context) {
+// GetMembers 获取群成员列表
+func (c *Group) GetMembers(ctx *gin.Context) {
 	params := &request.GroupCommonRequest{}
 	if err := ctx.ShouldBind(params); err != nil {
 		response.InvalidParams(ctx, err)
@@ -307,8 +306,7 @@ func (c *Group) GetGroupMembers(ctx *gin.Context) {
 
 	if !c.memberService.Dao().IsMember(params.GroupId, auth.GetAuthUserID(ctx), false) {
 		response.BusinessError(ctx, "非群成员无权查看成员列表！")
-		return
+	} else {
+		response.Success(ctx, c.memberService.Dao().GetMembers(params.GroupId))
 	}
-
-	response.Success(ctx, c.memberService.Dao().GetMembers(params.GroupId))
 }

@@ -4,11 +4,29 @@ import (
 	"context"
 	"errors"
 	"go-chat/app/dao"
-	"go-chat/app/http/request"
 	"go-chat/app/model"
 	"gorm.io/gorm"
 	"time"
 )
+
+type TalkSessionCreateOpts struct {
+	UserId     int
+	TalkType   int
+	ReceiverId int
+}
+
+type TalkSessionTopOpts struct {
+	UserId int
+	Id     int
+	Type   int
+}
+
+type TalkSessionDisturbOpts struct {
+	UserId     int
+	TalkType   int `form:"talk_type" json:"talk_type" binding:"required,oneof=1 2" label:"talk_type"`
+	ReceiverId int `form:"receiver_id" json:"receiver_id" binding:"required,numeric" label:"receiver_id"`
+	IsDisturb  int `form:"is_disturb" json:"is_disturb" binding:"oneof=0 1" label:"is_disturb"`
+}
 
 type TalkSessionService struct {
 	*BaseService
@@ -23,7 +41,7 @@ func (s *TalkSessionService) Dao() *dao.TalkSessionDao {
 	return s.dao
 }
 
-func (s *TalkSessionService) GetTalkList(ctx context.Context, uid int) ([]*model.SearchTalkSession, error) {
+func (s *TalkSessionService) List(ctx context.Context, uid int) ([]*model.SearchTalkSession, error) {
 	var (
 		err   error
 		items = make([]*model.SearchTalkSession, 0)
@@ -50,16 +68,16 @@ func (s *TalkSessionService) GetTalkList(ctx context.Context, uid int) ([]*model
 }
 
 // Create 创建会话列表
-func (s *TalkSessionService) Create(ctx context.Context, uid int, params *request.TalkListCreateRequest) (*model.TalkSession, error) {
+func (s *TalkSessionService) Create(ctx context.Context, opts *TalkSessionCreateOpts) (*model.TalkSession, error) {
 	var (
 		err    error
 		result *model.TalkSession
 	)
 
 	err = s.db.Where(&model.TalkSession{
-		TalkType:   params.TalkType,
-		UserId:     uid,
-		ReceiverId: params.ReceiverId,
+		TalkType:   opts.TalkType,
+		UserId:     opts.UserId,
+		ReceiverId: opts.ReceiverId,
 	}).First(&result).Error
 
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
@@ -68,9 +86,9 @@ func (s *TalkSessionService) Create(ctx context.Context, uid int, params *reques
 
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		result = &model.TalkSession{
-			TalkType:   params.TalkType,
-			UserId:     uid,
-			ReceiverId: params.ReceiverId,
+			TalkType:   opts.TalkType,
+			UserId:     opts.UserId,
+			ReceiverId: opts.ReceiverId,
 		}
 
 		s.db.Create(result)
@@ -93,15 +111,15 @@ func (s *TalkSessionService) Delete(ctx context.Context, uid int, id int) error 
 }
 
 // Top 会话置顶
-func (s *TalkSessionService) Top(ctx context.Context, uid int, params *request.TalkListTopRequest) error {
+func (s *TalkSessionService) Top(ctx context.Context, opts *TalkSessionTopOpts) error {
 
 	isTop := 0
 
-	if params.Type == 1 {
+	if opts.Type == 1 {
 		isTop = 1
 	}
 
-	err := s.db.Model(&model.TalkSession{}).Where("id = ? and user_id = ?", params.Id, uid).
+	err := s.db.Model(&model.TalkSession{}).Where("id = ? and user_id = ?", opts.Id, opts.UserId).
 		Updates(map[string]interface{}{
 			"is_top":     isTop,
 			"updated_at": time.Now(),
@@ -110,12 +128,12 @@ func (s *TalkSessionService) Top(ctx context.Context, uid int, params *request.T
 	return err
 }
 
-// Top 会话置顶
-func (s *TalkSessionService) Disturb(ctx context.Context, uid int, params *request.TalkListDisturbRequest) error {
+// Disturb 会话免打扰
+func (s *TalkSessionService) Disturb(ctx context.Context, opts *TalkSessionDisturbOpts) error {
 	err := s.db.Model(&model.TalkSession{}).
-		Where("user_id = ? and receiver_id = ? and talk_type = ?", uid, params.ReceiverId, params.TalkType).
+		Where("user_id = ? and receiver_id = ? and talk_type = ?", opts.UserId, opts.ReceiverId, opts.TalkType).
 		Updates(map[string]interface{}{
-			"is_disturb": params.IsDisturb,
+			"is_disturb": opts.IsDisturb,
 			"updated_at": time.Now(),
 		}).Error
 

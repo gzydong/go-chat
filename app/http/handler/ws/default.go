@@ -3,7 +3,6 @@ package ws
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis/v8"
 	"github.com/tidwall/gjson"
@@ -84,7 +83,7 @@ func (c *DefaultWebSocket) Open(client *im.Client) {
 
 // Message 消息接收回调事件
 func (c *DefaultWebSocket) Message(message *im.ReceiveContent) {
-	fmt.Printf("[%s]消息通知 Client:%d，Content: %s \n", message.Client.Channel().Name(), message.Client.ClientId(), message.Content)
+	// fmt.Printf("[%s]消息通知 Client:%d，Content: %s \n", message.Client.Channel().Name(), message.Client.ClientId(), message.Content)
 
 	event := gjson.Get(message.Content, "event").String()
 

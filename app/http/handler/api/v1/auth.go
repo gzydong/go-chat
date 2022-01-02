@@ -65,7 +65,7 @@ func (c *Auth) Login(ctx *gin.Context) {
 	address, _ := c.ipAddressService.FindAddress(ip)
 
 	// 推送登录消息
-	_ = c.talkMessageService.SendLoginMessage(ctx.Request.Context(), &service.LoginInfo{
+	_ = c.talkMessageService.SendLoginMessage(ctx.Request.Context(), &service.LoginMessageOpts{
 		UserId:   user.Id,
 		Ip:       ip,
 		Address:  address,
@@ -90,7 +90,13 @@ func (c *Auth) Register(ctx *gin.Context) {
 		return
 	}
 
-	if _, err := c.userService.Register(params); err != nil {
+	if _, err := c.userService.Register(&service.UserRegisterOpts{
+		Nickname: params.Nickname,
+		Mobile:   params.Mobile,
+		Password: params.Password,
+		SmsCode:  params.SmsCode,
+		Platform: params.Platform,
+	}); err != nil {
 		response.BusinessError(ctx, err)
 		return
 	}
@@ -131,7 +137,11 @@ func (c *Auth) Forget(ctx *gin.Context) {
 		return
 	}
 
-	if _, err := c.userService.Forget(params); err != nil {
+	if _, err := c.userService.Forget(&service.UserForgetOpts{
+		Mobile:   params.Mobile,
+		Password: params.Password,
+		SmsCode:  params.SmsCode,
+	}); err != nil {
 		response.BusinessError(ctx, err)
 		return
 	}

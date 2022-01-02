@@ -9,7 +9,6 @@ import (
 	"go-chat/app/cache"
 	"go-chat/app/dao"
 	"go-chat/app/entity"
-	"go-chat/app/http/request"
 	"go-chat/app/model"
 	"go-chat/app/pkg/encrypt"
 	"go-chat/app/pkg/filesystem"
@@ -26,6 +25,79 @@ import (
 	"time"
 )
 
+type TextMessageOpts struct {
+	UserId     int
+	TalkType   int
+	ReceiverId int
+	Text       string
+}
+
+type LoginMessageOpts struct {
+	UserId   int
+	Ip       string
+	Address  string
+	Platform string
+	Agent    string
+}
+
+type FileMessageOpts struct {
+	UserId     int
+	TalkType   int
+	ReceiverId int
+	UploadId   string
+}
+
+type ImageMessageOpts struct {
+	UserId     int
+	TalkType   int
+	ReceiverId int
+	File       *multipart.FileHeader
+}
+
+type LocationMessageOpts struct {
+	UserId     int
+	TalkType   int
+	ReceiverId int
+	Longitude  string
+	Latitude   string
+}
+
+type CodeMessageOpts struct {
+	UserId     int
+	TalkType   int
+	ReceiverId int
+	Lang       string
+	Code       string
+}
+
+type CardMessageOpts struct {
+	UserId     int
+	TalkType   int
+	ReceiverId int
+	ContactId  int
+}
+
+type VoteMessageOpts struct {
+	UserId     int
+	ReceiverId int
+	Mode       int
+	Title      string
+	Options    []string
+}
+
+type EmoticonMessageOpts struct {
+	UserId     int
+	TalkType   int
+	ReceiverId int
+	EmoticonId int
+}
+
+type VoteMessageHandleOpts struct {
+	UserId   int
+	RecordId int
+	Options  string
+}
+
 type TalkMessageService struct {
 	*BaseService
 	config             *config.Config
@@ -36,22 +108,21 @@ type TalkMessageService struct {
 	sidServer          *cache.SidServer
 	client             *cache.WsClientSession
 	fileSystem         *filesystem.Filesystem
+	splitUploadDao     *dao.SplitUploadDao
 }
 
-func NewTalkMessageService(baseService *BaseService, config *config.Config, unreadTalkCache *cache.UnreadTalkCache, lastMessage *cache.LastMessage, talkRecordsVoteDao *dao.TalkRecordsVoteDao, groupMemberDao *dao.GroupMemberDao, sidServer *cache.SidServer, client *cache.WsClientSession, fileSystem *filesystem.Filesystem) *TalkMessageService {
-	return &TalkMessageService{BaseService: baseService, config: config, unreadTalkCache: unreadTalkCache, lastMessage: lastMessage, talkRecordsVoteDao: talkRecordsVoteDao, groupMemberDao: groupMemberDao, sidServer: sidServer, client: client, fileSystem: fileSystem}
+func NewTalkMessageService(baseService *BaseService, config *config.Config, unreadTalkCache *cache.UnreadTalkCache, lastMessage *cache.LastMessage, talkRecordsVoteDao *dao.TalkRecordsVoteDao, groupMemberDao *dao.GroupMemberDao, sidServer *cache.SidServer, client *cache.WsClientSession, fileSystem *filesystem.Filesystem, splitUploadDao *dao.SplitUploadDao) *TalkMessageService {
+	return &TalkMessageService{BaseService: baseService, config: config, unreadTalkCache: unreadTalkCache, lastMessage: lastMessage, talkRecordsVoteDao: talkRecordsVoteDao, groupMemberDao: groupMemberDao, sidServer: sidServer, client: client, fileSystem: fileSystem, splitUploadDao: splitUploadDao}
 }
 
 // SendTextMessage 发送文本消息
-// @params uid     用户ID
-// @params params  请求参数
-func (s *TalkMessageService) SendTextMessage(ctx context.Context, uid int, params *request.TextMessageRequest) error {
+func (s *TalkMessageService) SendTextMessage(ctx context.Context, opts *TextMessageOpts) error {
 	record := &model.TalkRecords{
-		TalkType:   params.TalkType,
+		TalkType:   opts.TalkType,
 		MsgType:    entity.MsgTypeText,
-		UserId:     uid,
-		ReceiverId: params.ReceiverId,
-		Content:    params.Text,
+		UserId:     opts.UserId,
+		ReceiverId: opts.ReceiverId,
+		Content:    opts.Text,
 	}
 
 	if err := s.db.Create(record).Error; err != nil {
@@ -66,16 +137,14 @@ func (s *TalkMessageService) SendTextMessage(ctx context.Context, uid int, param
 }
 
 // SendCodeMessage 发送代码消息
-// @params uid     用户ID
-// @params params  请求参数
-func (s *TalkMessageService) SendCodeMessage(ctx context.Context, uid int, params *request.CodeMessageRequest) error {
+func (s *TalkMessageService) SendCodeMessage(ctx context.Context, opts *CodeMessageOpts) error {
 	var (
 		err    error
 		record = &model.TalkRecords{
-			TalkType:   params.TalkType,
+			TalkType:   opts.TalkType,
 			MsgType:    entity.MsgTypeCode,
-			UserId:     uid,
-			ReceiverId: params.ReceiverId,
+			UserId:     opts.UserId,
+			ReceiverId: opts.ReceiverId,
 		}
 	)
 
@@ -86,9 +155,9 @@ func (s *TalkMessageService) SendCodeMessage(ctx context.Context, uid int, param
 
 		if err = s.db.Create(&model.TalkRecordsCode{
 			RecordId: record.Id,
-			UserId:   uid,
-			Lang:     params.Lang,
-			Code:     params.Code,
+			UserId:   opts.UserId,
+			Lang:     opts.Lang,
+			Code:     opts.Code,
 		}).Error; err != nil {
 			return err
 		}
@@ -100,39 +169,35 @@ func (s *TalkMessageService) SendCodeMessage(ctx context.Context, uid int, param
 		return err
 	}
 
-	s.afterHandle(ctx, record, map[string]string{
-		"text": "[代码消息]",
-	})
+	s.afterHandle(ctx, record, map[string]string{"text": "[代码消息]"})
 
 	return nil
 }
 
 // SendImageMessage 发送图片消息
-// @params uid     用户ID
-// @params params  请求参数
-func (s *TalkMessageService) SendImageMessage(ctx context.Context, uid int, params *request.ImageMessageRequest, file *multipart.FileHeader) error {
+func (s *TalkMessageService) SendImageMessage(ctx context.Context, opts *ImageMessageOpts) error {
 	var (
 		err    error
 		record = &model.TalkRecords{
-			TalkType:   params.TalkType,
+			TalkType:   opts.TalkType,
 			MsgType:    entity.MsgTypeFile,
-			UserId:     uid,
-			ReceiverId: params.ReceiverId,
+			UserId:     opts.UserId,
+			ReceiverId: opts.ReceiverId,
 		}
 	)
 
-	stream, err := filesystem.ReadMultipartStream(file)
+	stream, err := filesystem.ReadMultipartStream(opts.File)
 	if err != nil {
 		return err
 	}
 
-	ext := strutil.FileSuffix(file.Filename)
+	ext := strutil.FileSuffix(opts.File.Filename)
+
 	m := utils.ReadFileImage(bytes.NewReader(stream))
 
 	filePath := fmt.Sprintf("public/media/image/talk/%s/%s", timeutil.DateNumber(), strutil.GenImageName(ext, m.Width, m.Height))
 
 	if err := s.fileSystem.Default.Write(stream, filePath); err != nil {
-		logrus.Error("文件上传失败 err:", err.Error())
 		return err
 	}
 
@@ -143,13 +208,13 @@ func (s *TalkMessageService) SendImageMessage(ctx context.Context, uid int, para
 
 		if err = s.db.Create(&model.TalkRecordsFile{
 			RecordId:     record.Id,
-			UserId:       uid,
+			UserId:       opts.UserId,
 			Source:       1,
 			Type:         entity.GetMediaType(ext),
 			Drive:        entity.FileDriveMode(s.fileSystem.Driver()),
-			OriginalName: file.Filename,
+			OriginalName: opts.File.Filename,
 			Suffix:       ext,
-			Size:         int(file.Size),
+			Size:         int(opts.File.Size),
 			Path:         filePath,
 			Url:          s.fileSystem.Default.PublicUrl(filePath),
 		}).Error; err != nil {
@@ -163,27 +228,28 @@ func (s *TalkMessageService) SendImageMessage(ctx context.Context, uid int, para
 		return err
 	}
 
-	s.afterHandle(ctx, record, map[string]string{
-		"text": "[图片消息]",
-	})
+	s.afterHandle(ctx, record, map[string]string{"text": "[图片消息]"})
 
 	return nil
 }
 
 // SendFileMessage 发送文件消息
-// @params uid     用户ID
-// @params params  请求参数
-func (s *TalkMessageService) SendFileMessage(ctx context.Context, uid int, params *request.FileMessageRequest, file *model.SplitUpload) error {
+func (s *TalkMessageService) SendFileMessage(ctx context.Context, opts *FileMessageOpts) error {
 
 	var (
 		err    error
 		record = &model.TalkRecords{
-			TalkType:   params.TalkType,
+			TalkType:   opts.TalkType,
 			MsgType:    entity.MsgTypeFile,
-			UserId:     uid,
-			ReceiverId: params.ReceiverId,
+			UserId:     opts.UserId,
+			ReceiverId: opts.ReceiverId,
 		}
 	)
+
+	file, err := s.splitUploadDao.GetFile(opts.UserId, opts.UploadId)
+	if err != nil {
+		return err
+	}
 
 	filePath := fmt.Sprintf("private/files/talks/%s/%s.%s", timeutil.DateNumber(), encrypt.Md5(strutil.Random(16)), file.FileExt)
 	url := ""
@@ -204,7 +270,7 @@ func (s *TalkMessageService) SendFileMessage(ctx context.Context, uid int, param
 
 		if err = s.db.Create(&model.TalkRecordsFile{
 			RecordId:     record.Id,
-			UserId:       uid,
+			UserId:       opts.UserId,
 			Source:       1,
 			Type:         entity.GetMediaType(file.FileExt),
 			Drive:        file.Drive,
@@ -224,41 +290,35 @@ func (s *TalkMessageService) SendFileMessage(ctx context.Context, uid int, param
 		return err
 	}
 
-	s.afterHandle(ctx, record, map[string]string{
-		"text": "[文件消息]",
-	})
+	s.afterHandle(ctx, record, map[string]string{"text": "[文件消息]"})
 
 	return nil
 }
 
 // SendCardMessage 发送用户名片消息
-// @params uid     用户ID
-// @params params  请求参数
-func (s *TalkMessageService) SendCardMessage(ctx context.Context, uid int, params *request.CardMessageRequest) error {
+func (s *TalkMessageService) SendCardMessage(ctx context.Context, opts *CardMessageOpts) error {
 	// todo 发送用户名片消息待开发
 	return nil
 }
 
 // SendVoteMessage 发送投票消息
-// @params uid     用户ID
-// @params params  请求参数
-func (s *TalkMessageService) SendVoteMessage(ctx context.Context, uid int, params *request.VoteMessageRequest) error {
+func (s *TalkMessageService) SendVoteMessage(ctx context.Context, opts *VoteMessageOpts) error {
 	var (
 		err    error
 		record = &model.TalkRecords{
 			TalkType:   entity.GroupChat,
 			MsgType:    entity.MsgTypeVote,
-			UserId:     uid,
-			ReceiverId: params.ReceiverId,
+			UserId:     opts.UserId,
+			ReceiverId: opts.ReceiverId,
 		}
 	)
 
 	options := make(map[string]string)
-	for i, value := range params.Options {
+	for i, value := range opts.Options {
 		options[fmt.Sprintf("%c", 65+i)] = value
 	}
 
-	num := s.groupMemberDao.CountMemberTotal(params.ReceiverId)
+	num := s.groupMemberDao.CountMemberTotal(opts.ReceiverId)
 
 	err = s.db.Transaction(func(tx *gorm.DB) error {
 		if err = s.db.Create(record).Error; err != nil {
@@ -267,9 +327,9 @@ func (s *TalkMessageService) SendVoteMessage(ctx context.Context, uid int, param
 
 		if err = s.db.Create(&model.TalkRecordsVote{
 			RecordId:     record.Id,
-			UserId:       uid,
-			Title:        params.Title,
-			AnswerMode:   params.Mode,
+			UserId:       opts.UserId,
+			Title:        opts.Title,
+			AnswerMode:   opts.Mode,
 			AnswerOption: jsonutil.JsonEncode(options),
 			AnswerNum:    int(num),
 		}).Error; err != nil {
@@ -289,25 +349,23 @@ func (s *TalkMessageService) SendVoteMessage(ctx context.Context, uid int, param
 }
 
 // SendEmoticonMessage 发送表情包消息
-// @params uid     用户ID
-// @params params  请求参数
-func (s *TalkMessageService) SendEmoticonMessage(ctx context.Context, uid int, params *request.EmoticonMessageRequest) error {
+func (s *TalkMessageService) SendEmoticonMessage(ctx context.Context, opts *EmoticonMessageOpts) error {
 	var (
 		err      error
 		emoticon model.EmoticonItem
 		record   = &model.TalkRecords{
-			TalkType:   params.TalkType,
+			TalkType:   opts.TalkType,
 			MsgType:    entity.MsgTypeFile,
-			UserId:     uid,
-			ReceiverId: params.ReceiverId,
+			UserId:     opts.UserId,
+			ReceiverId: opts.ReceiverId,
 		}
 	)
 
-	if err = s.db.Model(&model.EmoticonItem{}).Where("id = ?", params.EmoticonId).First(&emoticon).Error; err != nil {
+	if err = s.db.Model(&model.EmoticonItem{}).Where("id = ?", opts.EmoticonId).First(&emoticon).Error; err != nil {
 		return err
 	}
 
-	if emoticon.UserId > 0 && emoticon.UserId != uid {
+	if emoticon.UserId > 0 && emoticon.UserId != opts.UserId {
 		return errors.New("表情包不存在！")
 	}
 
@@ -318,7 +376,7 @@ func (s *TalkMessageService) SendEmoticonMessage(ctx context.Context, uid int, p
 
 		if err = s.db.Create(&model.TalkRecordsFile{
 			RecordId:     record.Id,
-			UserId:       uid,
+			UserId:       opts.UserId,
 			Source:       2,
 			Type:         entity.GetMediaType(emoticon.FileSuffix),
 			OriginalName: "图片表情",
@@ -343,17 +401,15 @@ func (s *TalkMessageService) SendEmoticonMessage(ctx context.Context, uid int, p
 }
 
 // SendLocationMessage 发送位置消息
-// @params uid     用户ID
-// @params params  请求参数
-func (s *TalkMessageService) SendLocationMessage(ctx context.Context, uid int, params *request.LocationMessageRequest) error {
+func (s *TalkMessageService) SendLocationMessage(ctx context.Context, opts *LocationMessageOpts) error {
 
 	var (
 		err    error
 		record = &model.TalkRecords{
-			TalkType:   params.TalkType,
+			TalkType:   opts.TalkType,
 			MsgType:    entity.MsgTypeLocation,
-			UserId:     uid,
-			ReceiverId: params.ReceiverId,
+			UserId:     opts.UserId,
+			ReceiverId: opts.ReceiverId,
 		}
 	)
 
@@ -364,9 +420,9 @@ func (s *TalkMessageService) SendLocationMessage(ctx context.Context, uid int, p
 
 		if err = s.db.Create(&model.TalkRecordsLocation{
 			RecordId:  record.Id,
-			UserId:    uid,
-			Longitude: params.Longitude,
-			Latitude:  params.Latitude,
+			UserId:    opts.UserId,
+			Longitude: opts.Longitude,
+			Latitude:  opts.Latitude,
 		}).Error; err != nil {
 			return err
 		}
@@ -383,9 +439,7 @@ func (s *TalkMessageService) SendLocationMessage(ctx context.Context, uid int, p
 	return nil
 }
 
-// SendLocationMessage 撤销推送消息
-// @params uid       用户ID
-// @params recordId  消息记录ID
+// SendRevokeRecordMessage 撤销推送消息
 func (s *TalkMessageService) SendRevokeRecordMessage(ctx context.Context, uid int, recordId int) error {
 	var (
 		err    error
@@ -425,9 +479,7 @@ func (s *TalkMessageService) SendRevokeRecordMessage(ctx context.Context, uid in
 }
 
 // VoteHandle 投票处理
-// @params uid       用户ID
-// @params recordId  消息记录ID
-func (s *TalkMessageService) VoteHandle(ctx context.Context, uid int, params *request.VoteMessageHandleRequest) (int, error) {
+func (s *TalkMessageService) VoteHandle(ctx context.Context, opts *VoteMessageHandleOpts) (int, error) {
 	var (
 		err  error
 		vote *model.QueryVoteModel
@@ -440,7 +492,7 @@ func (s *TalkMessageService) VoteHandle(ctx context.Context, uid int, params *re
 		"vote.answer_num", "vote.status as vote_status",
 	})
 	tx.Joins("left join talk_records_vote as vote on vote.record_id = talk_records.id")
-	tx.Where("talk_records.id = ?", params.RecordId)
+	tx.Where("talk_records.id = ?", opts.RecordId)
 
 	res := tx.Take(&vote)
 	if err := res.Error; err != nil {
@@ -448,7 +500,7 @@ func (s *TalkMessageService) VoteHandle(ctx context.Context, uid int, params *re
 	}
 
 	if res.RowsAffected == 0 {
-		return 0, fmt.Errorf("投票信息不存在[%d]", params.RecordId)
+		return 0, fmt.Errorf("投票信息不存在[%d]", opts.RecordId)
 	}
 
 	if vote.MsgType != entity.MsgTypeVote {
@@ -458,12 +510,12 @@ func (s *TalkMessageService) VoteHandle(ctx context.Context, uid int, params *re
 	// 判断是否有投票权限
 
 	var count int64
-	s.db.Table("talk_records_vote_answer").Where("vote_id = ? and user_id = ？", vote.VoteId, uid).Count(&count)
+	s.db.Table("talk_records_vote_answer").Where("vote_id = ? and user_id = ？", vote.VoteId, opts.UserId).Count(&count)
 	if count > 0 { // 判断是否已投票
 		return 0, fmt.Errorf("不能重复投票[%d]", vote.VoteId)
 	}
 
-	options := strings.Split(params.Options, ",")
+	options := strings.Split(opts.Options, ",")
 	sort.Strings(options)
 
 	var answerOptions map[string]interface{}
@@ -487,7 +539,7 @@ func (s *TalkMessageService) VoteHandle(ctx context.Context, uid int, params *re
 	for _, option := range options {
 		answers = append(answers, &model.TalkRecordsVoteAnswer{
 			VoteId: vote.VoteId,
-			UserId: uid,
+			UserId: opts.UserId,
 			Option: option,
 		})
 	}
@@ -517,22 +569,15 @@ func (s *TalkMessageService) VoteHandle(ctx context.Context, uid int, params *re
 	return vote.VoteId, nil
 }
 
-type LoginInfo struct {
-	UserId   int    `json:"user_id"`
-	Ip       string `json:"ip"`
-	Address  string `json:"address"`
-	Platform string `json:"platform"`
-	Agent    string `json:"agent"`
-}
-
-func (s *TalkMessageService) SendLoginMessage(ctx context.Context, login *LoginInfo) error {
+// SendLoginMessage 添加登录消息
+func (s *TalkMessageService) SendLoginMessage(ctx context.Context, opts *LoginMessageOpts) error {
 	var (
 		err    error
 		record = &model.TalkRecords{
 			TalkType:   entity.PrivateChat,
 			MsgType:    entity.MsgTypeLogin,
 			UserId:     4257,
-			ReceiverId: login.UserId,
+			ReceiverId: opts.UserId,
 		}
 	)
 
@@ -543,11 +588,11 @@ func (s *TalkMessageService) SendLoginMessage(ctx context.Context, login *LoginI
 
 		if err = s.db.Create(&model.TalkRecordsLogin{
 			RecordId: record.Id,
-			UserId:   login.UserId,
-			Ip:       login.Ip,
-			Platform: login.Platform,
-			Agent:    login.Agent,
-			Address:  login.Address,
+			UserId:   opts.UserId,
+			Ip:       opts.Ip,
+			Platform: opts.Platform,
+			Agent:    opts.Agent,
+			Address:  opts.Address,
 			Reason:   "常用设备登录",
 		}).Error; err != nil {
 			return err
@@ -574,19 +619,15 @@ func (s *TalkMessageService) afterHandle(ctx context.Context, record *model.Talk
 		Datetime: timeutil.DateTime(),
 	})
 
-	// 推送消息至 redis
-
-	body := map[string]interface{}{
+	content := jsonutil.JsonEncode(map[string]interface{}{
 		"event": entity.EventTalk,
 		"data": jsonutil.JsonEncode(map[string]interface{}{
-			"sender_id":   int64(record.UserId),
-			"receiver_id": int64(record.ReceiverId),
+			"sender_id":   record.UserId,
+			"receiver_id": record.ReceiverId,
 			"talk_type":   record.TalkType,
-			"record_id":   int64(record.Id),
+			"record_id":   record.Id,
 		}),
-	}
-
-	content := jsonutil.JsonEncode(body)
+	})
 
 	// 点对点消息采用精确投递
 	if record.TalkType == entity.PrivateChat {

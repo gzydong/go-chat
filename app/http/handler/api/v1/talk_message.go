@@ -63,7 +63,12 @@ func (c *TalkMessage) Text(ctx *gin.Context) {
 		return
 	}
 
-	if err := c.service.SendTextMessage(ctx.Request.Context(), uid, params); err != nil {
+	if err := c.service.SendTextMessage(ctx.Request.Context(), &service.TextMessageOpts{
+		UserId:     uid,
+		TalkType:   params.TalkType,
+		ReceiverId: params.ReceiverId,
+		Text:       params.Text,
+	}); err != nil {
 		response.BusinessError(ctx, err)
 	} else {
 		response.Success(ctx, nil)
@@ -90,7 +95,13 @@ func (c *TalkMessage) Code(ctx *gin.Context) {
 		return
 	}
 
-	if err := c.service.SendCodeMessage(ctx.Request.Context(), uid, params); err != nil {
+	if err := c.service.SendCodeMessage(ctx.Request.Context(), &service.CodeMessageOpts{
+		UserId:     uid,
+		TalkType:   params.TalkType,
+		ReceiverId: params.ReceiverId,
+		Lang:       params.Lang,
+		Code:       params.Code,
+	}); err != nil {
 		response.BusinessError(ctx, err)
 	} else {
 		response.Success(ctx, nil)
@@ -134,7 +145,12 @@ func (c *TalkMessage) Image(ctx *gin.Context) {
 		return
 	}
 
-	if err := c.service.SendImageMessage(ctx.Request.Context(), uid, params, file); err != nil {
+	if err := c.service.SendImageMessage(ctx.Request.Context(), &service.ImageMessageOpts{
+		UserId:     uid,
+		TalkType:   params.TalkType,
+		ReceiverId: params.ReceiverId,
+		File:       file,
+	}); err != nil {
 		response.BusinessError(ctx, err)
 	} else {
 		response.Success(ctx, nil)
@@ -161,13 +177,12 @@ func (c *TalkMessage) File(ctx *gin.Context) {
 		return
 	}
 
-	file, err := c.splitUploadService.Dao().GetFile(uid, params.UploadId)
-	if err != nil {
-		response.BusinessError(ctx, "文件信息不存在！")
-		return
-	}
-
-	if err := c.service.SendFileMessage(ctx.Request.Context(), uid, params, file); err != nil {
+	if err := c.service.SendFileMessage(ctx.Request.Context(), &service.FileMessageOpts{
+		UserId:     uid,
+		TalkType:   params.TalkType,
+		ReceiverId: params.ReceiverId,
+		UploadId:   params.UploadId,
+	}); err != nil {
 		response.BusinessError(ctx, err)
 	} else {
 		response.Success(ctx, nil)
@@ -204,7 +219,13 @@ func (c *TalkMessage) Vote(ctx *gin.Context) {
 		return
 	}
 
-	if err := c.service.SendVoteMessage(ctx.Request.Context(), uid, params); err != nil {
+	if err := c.service.SendVoteMessage(ctx.Request.Context(), &service.VoteMessageOpts{
+		UserId:     uid,
+		ReceiverId: params.ReceiverId,
+		Mode:       params.Mode,
+		Title:      params.Title,
+		Options:    params.Options,
+	}); err != nil {
 		response.BusinessError(ctx, err)
 	} else {
 		response.Success(ctx, nil)
@@ -231,7 +252,12 @@ func (c *TalkMessage) Emoticon(ctx *gin.Context) {
 		return
 	}
 
-	if err := c.service.SendEmoticonMessage(ctx.Request.Context(), uid, params); err != nil {
+	if err := c.service.SendEmoticonMessage(ctx.Request.Context(), &service.EmoticonMessageOpts{
+		UserId:     uid,
+		TalkType:   params.TalkType,
+		ReceiverId: params.ReceiverId,
+		EmoticonId: params.EmoticonId,
+	}); err != nil {
 		response.BusinessError(ctx, err)
 	} else {
 		response.Success(ctx, nil)
@@ -300,7 +326,13 @@ func (c *TalkMessage) Card(ctx *gin.Context) {
 		return
 	}
 
-	if err := c.service.SendCardMessage(ctx.Request.Context(), auth.GetAuthUserID(ctx), params); err != nil {
+	// todo SendCardMessage
+	if err := c.service.SendCardMessage(ctx.Request.Context(), &service.CardMessageOpts{
+		UserId:     uid,
+		TalkType:   params.TalkType,
+		ReceiverId: params.ReceiverId,
+		ContactId:  0,
+	}); err != nil {
 		response.BusinessError(ctx, err)
 	} else {
 		response.Success(ctx, nil)
@@ -360,16 +392,18 @@ func (c *TalkMessage) HandleVote(ctx *gin.Context) {
 		return
 	}
 
-	vid, err := c.service.VoteHandle(ctx.Request.Context(), auth.GetAuthUserID(ctx), params)
+	vid, err := c.service.VoteHandle(ctx.Request.Context(), &service.VoteMessageHandleOpts{
+		UserId:   auth.GetAuthUserID(ctx),
+		RecordId: params.RecordId,
+		Options:  params.Options,
+	})
 	if err != nil {
 		response.BusinessError(ctx, err)
-		return
+	} else {
+		res, _ := c.talkRecordsVoteDao.GetVoteStatistics(ctx.Request.Context(), vid)
+
+		response.Success(ctx, res)
 	}
-
-	// 获取同级数据
-	res, _ := c.talkRecordsVoteDao.GetVoteStatistics(ctx.Request.Context(), vid)
-
-	response.Success(ctx, res)
 }
 
 // Location 发送位置消息
@@ -392,7 +426,13 @@ func (c *TalkMessage) Location(ctx *gin.Context) {
 		return
 	}
 
-	if err := c.service.SendLocationMessage(ctx.Request.Context(), uid, params); err != nil {
+	if err := c.service.SendLocationMessage(ctx.Request.Context(), &service.LocationMessageOpts{
+		UserId:     uid,
+		TalkType:   params.TalkType,
+		ReceiverId: params.ReceiverId,
+		Longitude:  params.Longitude,
+		Latitude:   params.Latitude,
+	}); err != nil {
 		response.BusinessError(ctx, err)
 	} else {
 		response.Success(ctx, nil)

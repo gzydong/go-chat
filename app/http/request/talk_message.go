@@ -52,9 +52,8 @@ type ForwardMessageRequest struct {
 }
 
 type CardMessageRequest struct {
-	TalkType   int    `form:"talk_type" json:"talk_type" binding:"required,oneof=1 2" label:"talk_type"`
-	ReceiverId int    `form:"receiver_id" json:"receiver_id" binding:"required,numeric,gt=0" label:"receiver_id"`
-	EmoticonId string `form:"emoticon_id" json:"emoticon_id" binding:"required,numeric,gt=0"`
+	TalkType   int `form:"talk_type" json:"talk_type" binding:"required,oneof=1 2" label:"talk_type"`
+	ReceiverId int `form:"receiver_id" json:"receiver_id" binding:"required,numeric,gt=0" label:"receiver_id"`
 }
 
 type LocationMessageRequest struct {

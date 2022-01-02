@@ -4,10 +4,24 @@ import (
 	"errors"
 	"go-chat/app/dao"
 	"go-chat/app/entity"
-	"go-chat/app/http/request"
 	"go-chat/app/model"
 	"go-chat/app/pkg/encrypt"
 )
+
+type UserRegisterOpts struct {
+	Nickname string
+	Mobile   string
+	Password string
+	SmsCode  string
+	Platform string
+}
+
+// ForgetRequest 账号找回接口验证
+type UserForgetOpts struct {
+	Mobile   string
+	Password string
+	SmsCode  string
+}
 
 type UserService struct {
 	dao *dao.UsersDao
@@ -22,15 +36,15 @@ func (s *UserService) Dao() *dao.UsersDao {
 }
 
 // Register 注册用户
-func (s *UserService) Register(param *request.RegisterRequest) (*model.Users, error) {
-	if s.dao.IsMobileExist(param.Mobile) {
+func (s *UserService) Register(opts *UserRegisterOpts) (*model.Users, error) {
+	if s.dao.IsMobileExist(opts.Mobile) {
 		return nil, errors.New("账号已存在! ")
 	}
 
-	hash, _ := encrypt.HashPassword(param.Password)
+	hash, _ := encrypt.HashPassword(opts.Password)
 	user, err := s.dao.Create(&model.Users{
-		Mobile:   param.Mobile,
-		Nickname: param.Nickname,
+		Mobile:   opts.Mobile,
+		Nickname: opts.Nickname,
 		Password: hash,
 	})
 
@@ -56,15 +70,15 @@ func (s *UserService) Login(mobile string, password string) (*model.Users, error
 }
 
 // Forget 账号找回
-func (s *UserService) Forget(input *request.ForgetRequest) (bool, error) {
-	// 账号查询
-	user, err := s.dao.FindByMobile(input.Mobile)
+func (s *UserService) Forget(opts *UserForgetOpts) (bool, error) {
+
+	user, err := s.dao.FindByMobile(opts.Mobile)
 	if err != nil || user.Id == 0 {
 		return false, errors.New("账号不存在! ")
 	}
 
 	// 生成 hash 密码
-	hash, _ := encrypt.HashPassword(input.Password)
+	hash, _ := encrypt.HashPassword(opts.Password)
 
 	_, err = s.Dao().BaseUpdate(&model.Users{}, entity.Map{"id": user.Id}, entity.Map{"password": hash})
 	if err != nil {

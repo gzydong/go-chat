@@ -54,7 +54,7 @@ func NewTalkHandler(
 func (c *Talk) List(ctx *gin.Context) {
 	uid := auth.GetAuthUserID(ctx)
 
-	data, err := c.talkListService.GetTalkList(ctx.Request.Context(), uid)
+	data, err := c.talkListService.List(ctx.Request.Context(), uid)
 	if err != nil {
 		response.BusinessError(ctx, err)
 		return
@@ -121,7 +121,11 @@ func (c *Talk) Create(ctx *gin.Context) {
 		return
 	}
 
-	result, err := c.talkListService.Create(ctx.Request.Context(), uid, params)
+	result, err := c.talkListService.Create(ctx.Request.Context(), &service.TalkSessionCreateOpts{
+		UserId:     uid,
+		TalkType:   params.TalkType,
+		ReceiverId: params.ReceiverId,
+	})
 	if err != nil {
 		response.BusinessError(ctx, err)
 		return
@@ -174,7 +178,11 @@ func (c *Talk) Top(ctx *gin.Context) {
 		return
 	}
 
-	if err := c.talkListService.Top(ctx, auth.GetAuthUserID(ctx), params); err != nil {
+	if err := c.talkListService.Top(ctx, &service.TalkSessionTopOpts{
+		UserId: auth.GetAuthUserID(ctx),
+		Id:     params.Id,
+		Type:   params.Type,
+	}); err != nil {
 		response.BusinessError(ctx, err)
 		return
 	}
@@ -190,7 +198,12 @@ func (c *Talk) Disturb(ctx *gin.Context) {
 		return
 	}
 
-	if err := c.talkListService.Disturb(ctx, auth.GetAuthUserID(ctx), params); err != nil {
+	if err := c.talkListService.Disturb(ctx, &service.TalkSessionDisturbOpts{
+		UserId:     auth.GetAuthUserID(ctx),
+		TalkType:   params.TalkType,
+		ReceiverId: params.ReceiverId,
+		IsDisturb:  params.IsDisturb,
+	}); err != nil {
 		response.BusinessError(ctx, err)
 		return
 	}
