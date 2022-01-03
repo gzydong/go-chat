@@ -13,7 +13,7 @@ type SplitUpload struct {
 	OriginalName string    `gorm:"column:original_name;NOT NULL" json:"original_name"`       // 原文件名
 	SplitIndex   int       `gorm:"column:split_index;default:0;NOT NULL" json:"split_index"` // 当前索引块
 	SplitNum     int       `gorm:"column:split_num;default:0;NOT NULL" json:"split_num"`     // 总上传索引块
-	SaveDir      string    `gorm:"column:save_dir;NOT NULL" json:"save_dir"`                 // 临时保存路径
+	Path         string    `gorm:"column:path;NOT NULL" json:"path"`                         // 临时保存路径
 	FileExt      string    `gorm:"column:file_ext;NOT NULL" json:"file_ext"`                 // 文件后缀名
 	FileSize     int64     `gorm:"column:file_size;NOT NULL" json:"file_size"`               // 文件大小
 	IsDelete     int       `gorm:"column:is_delete;default:0;NOT NULL" json:"is_delete"`     // 文件是否删除[0:否;1:是;]

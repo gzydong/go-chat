@@ -28,8 +28,6 @@ type MultipartInitiateOpts struct {
 type MultipartUploadOpts struct {
 	UserId     int
 	UploadId   string
-	Name       string
-	Ext        string
 	SplitIndex int
 	SplitNum   int
 	File       *multipart.FileHeader
@@ -63,11 +61,11 @@ func (s *SplitUploadService) InitiateMultipartUpload(ctx context.Context, params
 		SplitNum:     int(num),
 		FileExt:      strings.TrimPrefix(path.Ext(params.Name), "."),
 		FileSize:     params.Size,
-		SaveDir:      fmt.Sprintf("private/tmp/multipart/%s/%s.tmp", timeutil.DateNumber(), encrypt.Md5(strutil.Random(20))),
+		Path:         fmt.Sprintf("private/tmp/multipart/%s/%s.tmp", timeutil.DateNumber(), encrypt.Md5(strutil.Random(20))),
 		Attr:         "{}",
 	}
 
-	uploadId, err := s.fileSystem.Default.InitiateMultipartUpload(m.SaveDir, m.OriginalName)
+	uploadId, err := s.fileSystem.Default.InitiateMultipartUpload(m.Path, m.OriginalName)
 	if err != nil {
 		return nil, err
 	}
@@ -97,20 +95,20 @@ func (s *SplitUploadService) MultipartUpload(ctx context.Context, opts *Multipar
 		Drive:        info.Drive,
 		UserId:       opts.UserId,
 		UploadId:     opts.UploadId,
-		OriginalName: opts.Name,
+		OriginalName: info.OriginalName,
 		SplitIndex:   opts.SplitIndex,
 		SplitNum:     opts.SplitNum,
-		SaveDir:      fmt.Sprintf("private/tmp/%s/%s/%d-%s.tmp", timeutil.DateNumber(), opts.UploadId, opts.SplitIndex, opts.UploadId),
-		FileExt:      opts.Ext,
+		Path:         fmt.Sprintf("private/tmp/%s/%s/%d-%s.tmp", timeutil.DateNumber(), opts.UploadId, opts.SplitIndex, opts.UploadId),
+		FileExt:      info.FileExt,
 		FileSize:     opts.File.Size,
 		Attr:         "{}",
 	}
 
 	switch data.Drive {
 	case entity.FileDriveLocal:
-		_ = s.fileSystem.Default.Write(stream, data.SaveDir)
+		_ = s.fileSystem.Default.Write(stream, data.Path)
 	case entity.FileDriveCos:
-		etag, err := s.fileSystem.Cos.UploadPart(info.SaveDir, data.UploadId, data.SplitIndex+1, stream)
+		etag, err := s.fileSystem.Cos.UploadPart(info.Path, data.UploadId, data.SplitIndex+1, stream)
 		if err != nil {
 			return err
 		}
@@ -142,13 +140,13 @@ func (s *SplitUploadService) merge(info *model.SplitUpload) error {
 	switch info.Drive {
 	case entity.FileDriveLocal:
 		for _, item := range items {
-			stream, err := s.fileSystem.Default.ReadStream(item.SaveDir)
+			stream, err := s.fileSystem.Default.ReadStream(item.Path)
 			if err != nil {
 				fmt.Println("ReadContent err:", err.Error())
 				return err
 			}
 
-			if err := s.fileSystem.Local.AppendWrite(stream, info.SaveDir); err != nil {
+			if err := s.fileSystem.Local.AppendWrite(stream, info.Path); err != nil {
 				fmt.Println("AppendWrite err:", err)
 				return err
 			}
@@ -168,7 +166,7 @@ func (s *SplitUploadService) merge(info *model.SplitUpload) error {
 			})
 		}
 
-		if err := s.fileSystem.Cos.CompleteMultipartUpload(info.SaveDir, info.UploadId, opt); err != nil {
+		if err := s.fileSystem.Cos.CompleteMultipartUpload(info.Path, info.UploadId, opt); err != nil {
 			return err
 		}
 	}

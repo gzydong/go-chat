@@ -258,7 +258,7 @@ func (s *TalkMessageService) SendFileMessage(ctx context.Context, opts *FileMess
 		url = s.fileSystem.Default.PublicUrl(filePath)
 	}
 
-	if err := s.fileSystem.Default.Copy(file.SaveDir, filePath); err != nil {
+	if err := s.fileSystem.Default.Copy(file.Path, filePath); err != nil {
 		logrus.Error("文件拷贝失败 err: ", err.Error())
 		return err
 	}
