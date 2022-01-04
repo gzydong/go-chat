@@ -126,7 +126,7 @@ func RegisterApiRoute(conf *config.Config, router *gin.Engine, handler *handler.
 
 		upload := group.Group("/upload").Use(authorize)
 		{
-			upload.POST("/stream", handler.Upload.Stream)
+			upload.POST("/avatar", handler.Upload.Avatar)
 			upload.POST("/multipart/initiate", handler.Upload.InitiateMultipart)
 			upload.POST("/multipart", handler.Upload.MultipartUpload)
 		}

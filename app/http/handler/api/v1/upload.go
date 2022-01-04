@@ -6,12 +6,10 @@ import (
 	"go-chat/app/http/request"
 	"go-chat/app/http/response"
 	"go-chat/app/pkg/auth"
-	"go-chat/app/pkg/encrypt"
 	"go-chat/app/pkg/filesystem"
 	"go-chat/app/pkg/strutil"
 	"go-chat/app/service"
 	"go-chat/config"
-	"strings"
 	"time"
 )
 
@@ -33,23 +31,19 @@ func NewUploadHandler(
 	}
 }
 
-// 文件流上传
-func (u *Upload) Stream(ctx *gin.Context) {
-	params := &request.UploadFileStreamRequest{}
-	if err := ctx.ShouldBind(params); err != nil {
-		response.InvalidParams(ctx, err)
+// Avatar 头像上传上传
+func (u *Upload) Avatar(ctx *gin.Context) {
+
+	file, err := ctx.FormFile("file")
+	if err != nil {
+		response.InvalidParams(ctx, "文件上传失败！")
 		return
 	}
 
-	params.Stream = strings.Replace(params.Stream, "data:image/png;base64,", "", 1)
-	params.Stream = strings.Replace(params.Stream, " ", "+", 1)
-
-	stream, _ := encrypt.Base64Decode(params.Stream)
-
+	stream, _ := filesystem.ReadMultipartStream(file)
 	object := fmt.Sprintf("public/media/image/avatar/%s/%s", time.Now().Format("20060102"), strutil.GenImageName("png", 200, 200))
 
-	err := u.filesystem.Default.Write(stream, object)
-	if err != nil {
+	if err := u.filesystem.Default.Write(stream, object); err != nil {
 		response.BusinessError(ctx, "文件上传失败")
 		return
 	}
