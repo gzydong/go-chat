@@ -1,4 +1,4 @@
-package ws
+package dto
 
 type RevokeTalkMessageContent struct {
 	ReceiverID int `json:"receiver_id"`

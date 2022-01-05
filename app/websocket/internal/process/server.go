@@ -13,7 +13,7 @@ type Server struct {
 	server *cache.SidServer
 }
 
-func NewServerRun(conf *config.Config, server *cache.SidServer) *Server {
+func NewServer(conf *config.Config, server *cache.SidServer) *Server {
 	return &Server{conf: conf, server: server}
 }
 

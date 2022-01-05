@@ -9,8 +9,6 @@ import (
 	"go-chat/app/http/handler/api/v1/article"
 	"go-chat/app/pkg/client"
 	"go-chat/app/pkg/filesystem"
-	"go-chat/app/process"
-	"go-chat/app/process/handle"
 	"go-chat/app/service/note"
 	"go-chat/provider"
 
@@ -19,7 +17,6 @@ import (
 	"go-chat/app/http/handler"
 	"go-chat/app/http/handler/api/v1"
 	"go-chat/app/http/handler/open"
-	"go-chat/app/http/handler/ws"
 	"go-chat/app/http/router"
 	"go-chat/app/service"
 )
@@ -47,7 +44,7 @@ var providerSet = wire.NewSet(
 	cache.NewWsClientSession,
 	cache.NewLastMessage,
 	cache.NewTalkVote,
-	cache.NewGroupRoom,
+	cache.NewRoom,
 	cache.NewRelation,
 	wire.Struct(new(cache.SmsCodeCache), "*"),
 
@@ -110,18 +107,18 @@ var providerSet = wire.NewSet(
 	article.NewArticleHandler,
 	article.NewClassHandler,
 	article.NewTagHandler,
-	ws.NewDefaultWebSocket,
+	// ws.NewDefaultWebSocket,
 
 	wire.Struct(new(handler.Handler), "*"),
 	wire.Struct(new(Providers), "*"),
 
 	// 持久化协程相关
-	process.NewWsSubscribe,
-	process.NewServerRun,
-	process.NewProcessManage,
-	process.NewImHeartbeat,
-	process.NewClearGarbage,
-	handle.NewSubscribeConsume,
+	// process.NewWsSubscribe,
+	// process.NewServerRun,
+	// process.NewProcessManage,
+	// process.NewImHeartbeat,
+	// process.NewClearGarbage,
+	// handle.NewSubscribeConsume,
 )
 
 func Initialize(ctx context.Context) *Providers {

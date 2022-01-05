@@ -7,7 +7,7 @@ import (
 	"github.com/go-redis/redis/v8"
 	"go-chat/app/entity"
 	"go-chat/app/pkg/pool"
-	"go-chat/app/process/handle"
+	"go-chat/app/websocket/internal/process/handle"
 	"go-chat/config"
 	"time"
 )

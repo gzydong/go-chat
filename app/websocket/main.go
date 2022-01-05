@@ -26,12 +26,19 @@ func main() {
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, syscall.SIGTERM, syscall.SIGQUIT, syscall.SIGINT)
 
+	// 启动守护协程
+	providers.Process.Run(eg, groupCtx)
+
+	// 启动 Http
+	run(c, eg, groupCtx, cancel, providers.WsServer)
+}
+
+func run(c chan os.Signal, eg *errgroup.Group, ctx context.Context, cancel context.CancelFunc, server *http.Server) {
 	// 启动 http 服务
 	eg.Go(func() error {
-		log.Printf("Websocket listen %s", providers.WsServer.Addr)
-
-		if err := providers.WsServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			log.Fatalf("HTTP listen : %s", err)
+		log.Printf("Websocket listen : %s", server.Addr)
+		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			log.Fatalf("Websocket listen : %s", err)
 		}
 
 		return nil
@@ -43,14 +50,14 @@ func main() {
 			// 等待中断信号以优雅地关闭服务器（设置 5 秒的超时时间）
 			timeCtx, timeCancel := context.WithTimeout(context.Background(), 5*time.Second)
 			defer timeCancel()
-			if err := providers.WsServer.Shutdown(timeCtx); err != nil {
-				log.Printf("Http Shutdown error: %s\n", err)
+			if err := server.Shutdown(timeCtx); err != nil {
+				log.Printf("Websocket Shutdown error: %s\n", err)
 			}
 		}()
 
 		select {
-		case <-groupCtx.Done():
-			return groupCtx.Err()
+		case <-ctx.Done():
+			return ctx.Err()
 		case <-c:
 			return nil
 		}
@@ -60,6 +67,5 @@ func main() {
 		log.Fatalf("eg error: %s", err)
 	}
 
-	log.Println("providers Shutdown")
-
+	log.Fatal("Websocket Shutdown")
 }

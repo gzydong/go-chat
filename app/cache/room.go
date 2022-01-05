@@ -20,7 +20,7 @@ type RoomOption struct {
 	Cid      int64           // 客户端ID
 }
 
-func NewGroupRoom(rds *redis.Client) *Room {
+func NewRoom(rds *redis.Client) *Room {
 	return &Room{rds: rds}
 }
 

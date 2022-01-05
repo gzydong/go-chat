@@ -1,4 +1,4 @@
-package ws
+package handler
 
 import (
 	"context"
@@ -8,10 +8,10 @@ import (
 	"github.com/tidwall/gjson"
 	"go-chat/app/cache"
 	"go-chat/app/entity"
-	wst "go-chat/app/http/dto/ws"
 	"go-chat/app/pkg/auth"
 	"go-chat/app/pkg/im"
 	"go-chat/app/service"
+	"go-chat/app/websocket/internal/dto"
 	"go-chat/config"
 	"log"
 	"strconv"
@@ -89,7 +89,7 @@ func (c *DefaultWebSocket) Message(message *im.ReceiveContent) {
 
 	switch event {
 	case "event_keyboard":
-		var m *wst.KeyboardMessage
+		var m *dto.KeyboardMessage
 		if err := json.Unmarshal([]byte(message.Content), &m); err == nil {
 			c.rds.Publish(context.Background(), entity.IMGatewayAll, entity.JsonText{
 				"event": entity.EventKeyboard,

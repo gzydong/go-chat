@@ -17,14 +17,14 @@ type Process struct {
 	registers []InterfaceProcess
 }
 
-func NewProcessManage(serv *Server, subscribe *WsSubscribe, heart *Heartbeat, garbage *ClearGarbage) *Process {
+func NewProcess(garbage *ClearGarbage, heartbeat *Heartbeat, server *Server, ws *WsSubscribe) *Process {
 	pro := &Process{}
 
-	pro.Register(serv)
-	pro.Register(subscribe)
 	pro.Register(im.Sessions.Default)
-	pro.Register(heart)
 	pro.Register(garbage)
+	pro.Register(heartbeat)
+	pro.Register(server)
+	pro.Register(ws)
 
 	return pro
 }

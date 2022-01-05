@@ -3,9 +3,7 @@ package main
 import (
 	"context"
 	"errors"
-	"go-chat/app/pkg/im"
 	_ "go-chat/app/pkg/validation"
-	"go-chat/app/process"
 	"go-chat/config"
 	"log"
 	"net/http"
@@ -21,13 +19,9 @@ import (
 type Providers struct {
 	Config     *config.Config
 	HttpServer *http.Server
-	Process    *process.Process
 }
 
 func main() {
-	// 初始化 IM 渠道配置，后面将 IM 独立拆分部署，Http 服务下无需加载
-	im.Initialize()
-
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
@@ -36,9 +30,6 @@ func main() {
 	eg, groupCtx := errgroup.WithContext(ctx)
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, syscall.SIGTERM, syscall.SIGQUIT, syscall.SIGINT)
-
-	// 运行协程消费者
-	providers.Process.Run(eg, ctx)
 
 	// 启动 http 服务
 	eg.Go(func() error {
