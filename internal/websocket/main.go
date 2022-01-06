@@ -51,7 +51,7 @@ func run(c chan os.Signal, eg *errgroup.Group, ctx context.Context, cancel conte
 			timeCtx, timeCancel := context.WithTimeout(context.Background(), 5*time.Second)
 			defer timeCancel()
 			if err := server.Shutdown(timeCtx); err != nil {
-				log.Printf("Websocket Shutdown error: %s\n", err)
+				log.Printf("Websocket Server Shutdown err: %s\n", err)
 			}
 		}()
 
@@ -67,5 +67,5 @@ func run(c chan os.Signal, eg *errgroup.Group, ctx context.Context, cancel conte
 		log.Fatalf("eg error: %s", err)
 	}
 
-	log.Fatal("Websocket Shutdown")
+	log.Fatal("Websocket Server Shutdown")
 }

@@ -27,9 +27,9 @@ func main() {
 
 	// 启动 http 服务
 	eg.Go(func() error {
-		log.Printf("HTTP listen %s", providers.HttpServer.Addr)
+		log.Printf("HTTP Server listen %s", providers.HttpServer.Addr)
 		if err := providers.HttpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			log.Fatalf("HTTP listen : %s", err)
+			log.Fatalf("HTTP Server listen :%s", err)
 		}
 
 		return nil
@@ -42,7 +42,7 @@ func main() {
 			timeCtx, timeCancel := context.WithTimeout(context.Background(), 5*time.Second)
 			defer timeCancel()
 			if err := providers.HttpServer.Shutdown(timeCtx); err != nil {
-				log.Printf("Http Shutdown error: %s\n", err)
+				log.Printf("Http Server Shutdown err: %s\n", err)
 			}
 		}()
 
@@ -58,5 +58,5 @@ func main() {
 		log.Fatalf("eg error: %s", err)
 	}
 
-	log.Println("providers Shutdown")
+	log.Println("Http Server Shutdown")
 }

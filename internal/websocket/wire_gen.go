@@ -11,12 +11,12 @@ import (
 	"go-chat/internal/cache"
 	"go-chat/internal/dao"
 	"go-chat/internal/pkg/filesystem"
+	"go-chat/internal/provider"
 	"go-chat/internal/service"
 	"go-chat/internal/websocket/internal/handler"
 	"go-chat/internal/websocket/internal/process"
 	"go-chat/internal/websocket/internal/process/handle"
 	"go-chat/internal/websocket/internal/router"
-	"go-chat/provider"
 )
 
 // Injectors from wire.go:

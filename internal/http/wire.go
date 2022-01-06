@@ -9,8 +9,8 @@ import (
 	"go-chat/internal/http/internal/handler/api/v1/article"
 	"go-chat/internal/pkg/client"
 	"go-chat/internal/pkg/filesystem"
+	"go-chat/internal/provider"
 	"go-chat/internal/service/note"
-	"go-chat/provider"
 
 	"github.com/google/wire"
 	"go-chat/internal/cache"

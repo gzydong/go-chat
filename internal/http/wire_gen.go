@@ -18,9 +18,9 @@ import (
 	"go-chat/internal/http/internal/router"
 	"go-chat/internal/pkg/client"
 	"go-chat/internal/pkg/filesystem"
+	"go-chat/internal/provider"
 	"go-chat/internal/service"
 	"go-chat/internal/service/note"
-	"go-chat/provider"
 )
 
 import (
