@@ -7,7 +7,8 @@ run: generate
 
 .PHONY: build
 build:generate lint
-	go build -o ./bin/app
+	go build -o ./bin/http ./internal/http/
+	go build -o ./bin/websocket ./internal/websocket/
 
 .PHONY: generate
 generate:
