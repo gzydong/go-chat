@@ -2,9 +2,10 @@ package main
 
 import (
 	"go-chat/config"
+	"go-chat/internal/job/internal/cmd"
 )
 
-// nolint
 type Providers struct {
-	Config *config.Config
+	Config   *config.Config
+	Commands *cmd.Commands
 }

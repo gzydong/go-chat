@@ -6,6 +6,8 @@ http: generate
 
 websocket: generate
 	go run ./internal/websocket
+job: generate
+	go run ./internal/job
 
 .PHONY: build
 build:generate lint
