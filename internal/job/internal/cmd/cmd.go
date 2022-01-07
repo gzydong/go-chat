@@ -5,6 +5,7 @@ import (
 	"go-chat/internal/job/internal/cmd/crontab"
 	"go-chat/internal/job/internal/cmd/other"
 	"go-chat/internal/job/internal/cmd/queue"
+	"reflect"
 )
 
 type Commands struct {
@@ -14,11 +15,14 @@ type Commands struct {
 }
 
 func (cmd *Commands) ToCommands() []*cli.Command {
-	cmds := make([]*cli.Command, 0)
+	commands := make([]*cli.Command, 0)
 
-	cmds = append(cmds, cmd.CrontabCommand)
-	cmds = append(cmds, cmd.QueueCommand)
-	cmds = append(cmds, cmd.OtherCommand)
+	elem := reflect.ValueOf(cmd).Elem()
+	for i := 0; i < elem.NumField(); i++ {
+		if v, ok := elem.Field(i).Elem().Interface().(cli.Command); ok {
+			commands = append(commands, &v)
+		}
+	}
 
-	return cmds
+	return commands
 }
