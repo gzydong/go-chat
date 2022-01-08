@@ -1,54 +1,20 @@
-Lumen IM 后端
+# Lumen IM 后端
 
-## 目录结构说明
+## 1、简介
 
-```
-    app/                    应用目录
-       cache/               缓存处理
-       http/                http服务
-            handler/        handler 处理
-            middleware/     中间件
-            response/       响应
-            request/        请求
-            router/         路由
-       model/               model定义
-       dao/                 dao定义
-       service/             服务层 
-       pkg/                 包
-   config/                  配置文件
-   resource/                资源目录
-   runtime/                 运行目录，存放日志
-```
+- 地址： [http://im.gzydong.club](http://im.gzydong.club)
+- 账号： 18798272054 或 18798272055
+- 密码： admin123
 
-### 图片域名部署
+## 2、项目DEMO
 
-```nginx
-server {
-    listen 80;
-    server_name im-img.local-admin.com;
-    index  index.html;
+- 地址： [http://im.gzydong.club](http://im.gzydong.club)
+- 账号： 18798272054 或 18798272055
+- 密码： admin123
 
-    location / {
-        # 项目文件上传目录
-        root /path/to/../../uploads;
-    }
+## 3、环境部署
 
-    # 私有目录禁止访问
-    location /private {
-        deny all;
-    }
-
-    location ~ .*\.(gif|jpg|jpeg|png|bmp|swf|flv)$ {
-        # 设置缓存过期时间
-        expires 30d;
-        
-        # 关闭访问日志
-        access_log off;
-    }
-}
-```
-
-### Nginx 后端代理
+##### Nginx 后端代理
 
 ```nginx
 # http 代理
@@ -56,14 +22,14 @@ upstream imhttp {
     server 127.0.0.1:8080;
 }
 
-# ws 代理
+# websocket 代理
 upstream imwss {
     server 127.0.0.1:8080;
 }
 
 server {
     listen       443 ssl;
-    server_name  www.domain.com;
+    server_name  api.xxxx.com;
 
     ssl_certificate             /etc/nginx/cert/www.domain.com/server.crt;
     ssl_certificate_key         /etc/nginx/cert/www.domain.com/server.key;
@@ -106,6 +72,34 @@ server {
 
         # 执行代理访问真实服务器
         proxy_pass http://imwss;
+    }
+}
+```
+
+##### 图片域名部署
+
+```nginx
+server {
+    listen 80;
+    server_name im-img.local-admin.com;
+    index  index.html;
+
+    location / {
+        # 项目文件上传目录
+        root /path/to/../../uploads;
+    }
+
+    # 私有目录禁止访问
+    location /private {
+        deny all;
+    }
+
+    location ~ .*\.(gif|jpg|jpeg|png|bmp|swf|flv)$ {
+        # 设置缓存过期时间
+        expires 30d;
+        
+        # 关闭访问日志
+        access_log off;
     }
 }
 ```
