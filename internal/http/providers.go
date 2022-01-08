@@ -6,6 +6,6 @@ import (
 )
 
 type Providers struct {
-	Config     *config.Config
-	HttpServer *http.Server
+	Config *config.Config
+	Server *http.Server
 }

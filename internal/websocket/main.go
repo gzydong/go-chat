@@ -3,6 +3,8 @@ package main
 import (
 	"context"
 	"errors"
+	"fmt"
+	"github.com/urfave/cli/v2"
 	"go-chat/internal/pkg/im"
 	"golang.org/x/sync/errgroup"
 	"log"
@@ -14,25 +16,43 @@ import (
 )
 
 func main() {
-	// 初始化 IM 渠道配置，后面将 IM 独立拆分部署，Http 服务下无需加载
-	im.Initialize()
+	cmd := cli.NewApp()
+	cmd.Name = "Websocket Server"
+	cmd.Usage = "GoChat 即时聊天应用"
 
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
+	// 设置参数
+	cmd.Flags = []cli.Flag{
+		&cli.IntFlag{Name: "port", Aliases: []string{"p"}, Value: 9504, Usage: "设置端口号", DefaultText: "9504"},
+	}
 
-	providers := Initialize(ctx)
+	cmd.Action = func(tx *cli.Context) error {
+		// 初始化 IM 渠道配置，后面将 IM 独立拆分部署，Http 服务下无需加载
+		im.Initialize()
 
-	eg, groupCtx := errgroup.WithContext(ctx)
-	c := make(chan os.Signal, 1)
-	signal.Notify(c, syscall.SIGTERM, syscall.SIGQUIT, syscall.SIGINT)
+		ctx, cancel := context.WithCancel(tx.Context)
+		defer cancel()
 
-	// 启动守护协程
-	providers.Process.Run(eg, groupCtx)
+		providers := Initialize(ctx)
 
-	// 启动 Http
-	run(c, eg, groupCtx, cancel, providers.WsServer)
+		// 设置服务端口号
+		providers.WsServer.Addr = fmt.Sprintf("0.0.0.0:%d", tx.Int("port"))
+
+		eg, groupCtx := errgroup.WithContext(ctx)
+		c := make(chan os.Signal, 1)
+		signal.Notify(c, syscall.SIGTERM, syscall.SIGQUIT, syscall.SIGINT)
+
+		// 启动守护协程
+		providers.Process.Run(eg, groupCtx)
+
+		run(c, eg, groupCtx, cancel, providers.WsServer)
+
+		return nil
+	}
+
+	_ = cmd.Run(os.Args)
 }
 
+// nolint
 func run(c chan os.Signal, eg *errgroup.Group, ctx context.Context, cancel context.CancelFunc, server *http.Server) {
 	// 启动 http 服务
 	eg.Go(func() error {
@@ -50,6 +70,7 @@ func run(c chan os.Signal, eg *errgroup.Group, ctx context.Context, cancel conte
 			// 等待中断信号以优雅地关闭服务器（设置 5 秒的超时时间）
 			timeCtx, timeCancel := context.WithTimeout(context.Background(), 5*time.Second)
 			defer timeCancel()
+
 			if err := server.Shutdown(timeCtx); err != nil {
 				log.Printf("Websocket Server Shutdown err: %s\n", err)
 			}

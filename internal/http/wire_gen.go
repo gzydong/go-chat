@@ -124,8 +124,8 @@ func Initialize(ctx context.Context) *Providers {
 	engine := router.NewRouter(config, handlerHandler, session)
 	server := provider.NewHttpServer(config, engine)
 	providers := &Providers{
-		Config:     config,
-		HttpServer: server,
+		Config: config,
+		Server: server,
 	}
 	return providers
 }
