@@ -40,11 +40,11 @@ func Initialize(ctx context.Context) *Providers {
 	}
 	session := cache.NewSession(client)
 	engine := router.NewRouter(config, handlerHandler, session)
-	server := provider.NewWebsocketServer(config, engine)
+	websocketServer := provider.NewWebsocketServer(config, engine)
 	redisLock := cache.NewRedisLock(client)
 	clearGarbage := process.NewClearGarbage(client, redisLock, sidServer)
 	heartbeat := process.NewImHeartbeat()
-	processServer := process.NewServer(config, sidServer)
+	server := process.NewServer(config, sidServer)
 	talkVote := cache.NewTalkVote(client)
 	talkRecordsVoteDao := dao.NewTalkRecordsVoteDao(baseDao, talkVote)
 	filesystemFilesystem := filesystem.NewFilesystem(config)
@@ -54,10 +54,10 @@ func Initialize(ctx context.Context) *Providers {
 	contactService := service.NewContactService(baseService, usersFriendsDao)
 	subscribeConsume := handle.NewSubscribeConsume(config, wsClientSession, room, talkRecordsService, contactService)
 	wsSubscribe := process.NewWsSubscribe(client, config, subscribeConsume)
-	processProcess := process.NewProcess(clearGarbage, heartbeat, processServer, wsSubscribe)
+	processProcess := process.NewProcess(clearGarbage, heartbeat, server, wsSubscribe)
 	providers := &Providers{
 		Config:   config,
-		WsServer: server,
+		WsServer: websocketServer,
 		Process:  processProcess,
 	}
 	return providers
