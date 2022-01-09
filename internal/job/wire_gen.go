@@ -9,6 +9,7 @@ import (
 	"context"
 	"github.com/google/wire"
 	"go-chat/internal/dao"
+	"go-chat/internal/dao/note"
 	"go-chat/internal/job/internal/cmd"
 	crontab2 "go-chat/internal/job/internal/cmd/crontab"
 	"go-chat/internal/job/internal/cmd/other"
@@ -30,7 +31,8 @@ func Initialize(ctx context.Context) *Providers {
 	filesystemFilesystem := filesystem.NewFilesystem(config)
 	clearTmpFile := crontab.NewClearTmpFile(splitUploadDao, filesystemFilesystem)
 	clearTmpFileCommand := crontab2.NewClearTmpFileCommand(clearTmpFile)
-	clearArticle := crontab.NewClearArticle()
+	articleAnnexDao := note.NewArticleAnnexDao(baseDao)
+	clearArticle := crontab.NewClearArticle(articleAnnexDao, filesystemFilesystem)
 	clearArticleCommand := crontab2.NewClearArticleCommand(clearArticle)
 	crontabCommand := crontab2.NewCrontabCommand(clearTmpFileCommand, clearArticleCommand)
 	queueCommand := queue.NewQueueCommand()
@@ -49,4 +51,4 @@ func Initialize(ctx context.Context) *Providers {
 
 // wire.go:
 
-var providerSet = wire.NewSet(provider.NewConfig, provider.NewMySQLClient, provider.NewRedisClient, provider.NewHttpClient, client.NewHttpClient, filesystem.NewFilesystem, dao.NewBaseDao, dao.NewFileSplitUploadDao, crontab2.NewCrontabCommand, queue.NewQueueCommand, other.NewOtherCommand, crontab2.NewClearTmpFileCommand, crontab2.NewClearArticleCommand, crontab.NewClearTmpFile, crontab.NewClearArticle, wire.Struct(new(cmd.Commands), "*"), wire.Struct(new(Providers), "*"))
+var providerSet = wire.NewSet(provider.NewConfig, provider.NewMySQLClient, provider.NewRedisClient, provider.NewHttpClient, client.NewHttpClient, filesystem.NewFilesystem, dao.NewBaseDao, dao.NewFileSplitUploadDao, note.NewArticleAnnexDao, note.NewArticleDao, crontab2.NewCrontabCommand, queue.NewQueueCommand, other.NewOtherCommand, crontab2.NewClearTmpFileCommand, crontab2.NewClearArticleCommand, crontab.NewClearTmpFile, crontab.NewClearArticle, wire.Struct(new(cmd.Commands), "*"), wire.Struct(new(Providers), "*"))

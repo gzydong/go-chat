@@ -6,6 +6,7 @@ import (
 	"context"
 	"github.com/google/wire"
 	"go-chat/internal/dao"
+	"go-chat/internal/dao/note"
 	"go-chat/internal/job/internal/cmd"
 	"go-chat/internal/job/internal/cmd/crontab"
 	"go-chat/internal/job/internal/cmd/other"
@@ -29,6 +30,8 @@ var providerSet = wire.NewSet(
 	// Dao
 	dao.NewBaseDao,
 	dao.NewFileSplitUploadDao,
+	note.NewArticleAnnexDao,
+	note.NewArticleDao,
 
 	// 命令行
 	crontab.NewCrontabCommand,
