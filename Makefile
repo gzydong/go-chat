@@ -6,14 +6,15 @@ http: generate
 
 websocket: generate
 	go run ./internal/websocket
+
 job: generate
 	go run ./internal/job
 
 .PHONY: build
 build:generate lint
-	go build -o ./bin/http ./internal/http/
-	go build -o ./bin/websocket ./internal/websocket/
-	go build -o ./bin/job ./internal/job/
+	go build -o ./bin/http ./internal/http
+	go build -o ./bin/websocket ./internal/websocket
+	go build -o ./bin/job ./internal/job
 
 .PHONY: generate
 generate:

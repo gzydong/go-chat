@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"github.com/urfave/cli/v2"
-	"log"
 	"os"
 	"os/signal"
 	"sync"
@@ -42,6 +41,4 @@ func main() {
 	}()
 
 	sw.Wait()
-
-	log.Println("Command Shutdown")
 }

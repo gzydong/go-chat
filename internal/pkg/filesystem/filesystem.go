@@ -28,10 +28,13 @@ type AdapterInterface interface {
 	// Stat 文件信息
 	Stat(filePath string) (*FileStat, error)
 
+	// PublicUrl 获取公开文件的访问地址
 	PublicUrl(filePath string) string
 
+	// PrivateUrl 获取私有文件的访问地址
 	PrivateUrl(filePath string, timeout int) string
 
+	// ReadStream 读取文件内容
 	ReadStream(filePath string) ([]byte, error)
 
 	InitiateMultipartUpload(filePath string, fileName string) (string, error)

@@ -4,12 +4,13 @@ import "github.com/urfave/cli/v2"
 
 type CrontabCommand *cli.Command
 
-func NewCrontabCommand(clearTmpFileCommand ClearTmpFileCommand) CrontabCommand {
+func NewCrontabCommand(clearTmpFileCommand ClearTmpFileCommand, clearArticleCommand ClearArticleCommand) CrontabCommand {
 	return &cli.Command{
 		Name:  "crontab",
 		Usage: "定时任务",
 		Subcommands: []*cli.Command{
 			clearTmpFileCommand,
+			clearArticleCommand,
 		},
 	}
 }

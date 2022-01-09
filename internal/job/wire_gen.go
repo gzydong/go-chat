@@ -10,9 +10,10 @@ import (
 	"github.com/google/wire"
 	"go-chat/internal/dao"
 	"go-chat/internal/job/internal/cmd"
-	"go-chat/internal/job/internal/cmd/crontab"
+	crontab2 "go-chat/internal/job/internal/cmd/crontab"
 	"go-chat/internal/job/internal/cmd/other"
 	"go-chat/internal/job/internal/cmd/queue"
+	"go-chat/internal/job/internal/handle/crontab"
 	"go-chat/internal/pkg/client"
 	"go-chat/internal/pkg/filesystem"
 	"go-chat/internal/provider"
@@ -27,8 +28,11 @@ func Initialize(ctx context.Context) *Providers {
 	baseDao := dao.NewBaseDao(db, client)
 	splitUploadDao := dao.NewFileSplitUploadDao(baseDao)
 	filesystemFilesystem := filesystem.NewFilesystem(config)
-	clearTmpFileCommand := crontab.NewClearTmpFileCommand(splitUploadDao, filesystemFilesystem)
-	crontabCommand := crontab.NewCrontabCommand(clearTmpFileCommand)
+	clearTmpFile := crontab.NewClearTmpFile(splitUploadDao, filesystemFilesystem)
+	clearTmpFileCommand := crontab2.NewClearTmpFileCommand(clearTmpFile)
+	clearArticle := crontab.NewClearArticle()
+	clearArticleCommand := crontab2.NewClearArticleCommand(clearArticle)
+	crontabCommand := crontab2.NewCrontabCommand(clearTmpFileCommand, clearArticleCommand)
 	queueCommand := queue.NewQueueCommand()
 	otherCommand := other.NewOtherCommand()
 	commands := &cmd.Commands{
@@ -45,4 +49,4 @@ func Initialize(ctx context.Context) *Providers {
 
 // wire.go:
 
-var providerSet = wire.NewSet(provider.NewConfig, provider.NewMySQLClient, provider.NewRedisClient, provider.NewHttpClient, client.NewHttpClient, filesystem.NewFilesystem, dao.NewBaseDao, dao.NewFileSplitUploadDao, crontab.NewCrontabCommand, queue.NewQueueCommand, other.NewOtherCommand, crontab.NewClearTmpFileCommand, wire.Struct(new(cmd.Commands), "*"), wire.Struct(new(Providers), "*"))
+var providerSet = wire.NewSet(provider.NewConfig, provider.NewMySQLClient, provider.NewRedisClient, provider.NewHttpClient, client.NewHttpClient, filesystem.NewFilesystem, dao.NewBaseDao, dao.NewFileSplitUploadDao, crontab2.NewCrontabCommand, queue.NewQueueCommand, other.NewOtherCommand, crontab2.NewClearTmpFileCommand, crontab2.NewClearArticleCommand, crontab.NewClearTmpFile, crontab.NewClearArticle, wire.Struct(new(cmd.Commands), "*"), wire.Struct(new(Providers), "*"))
