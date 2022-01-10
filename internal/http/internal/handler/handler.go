@@ -3,7 +3,6 @@ package handler
 import (
 	"go-chat/internal/http/internal/handler/api/v1"
 	"go-chat/internal/http/internal/handler/api/v1/article"
-	"go-chat/internal/http/internal/handler/open"
 )
 
 type Handler struct {
@@ -15,7 +14,6 @@ type Handler struct {
 	TalkRecords   *v1.TalkRecords
 	Emoticon      *v1.Emoticon
 	Upload        *v1.Upload
-	Index         *open.Index
 	Group         *v1.Group
 	GroupNotice   *v1.GroupNotice
 	Contact       *v1.Contact

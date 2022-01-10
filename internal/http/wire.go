@@ -16,7 +16,6 @@ import (
 	"go-chat/internal/cache"
 	"go-chat/internal/http/internal/handler"
 	"go-chat/internal/http/internal/handler/api/v1"
-	"go-chat/internal/http/internal/handler/open"
 	"go-chat/internal/http/internal/router"
 	"go-chat/internal/service"
 )
@@ -102,7 +101,6 @@ var providerSet = wire.NewSet(
 	v1.NewUploadHandler,
 	v1.NewEmoticonHandler,
 	v1.NewTalkRecordsHandler,
-	open.NewIndexHandler,
 	article.NewAnnexHandler,
 	article.NewArticleHandler,
 	article.NewClassHandler,

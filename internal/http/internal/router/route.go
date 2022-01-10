@@ -34,8 +34,6 @@ func NewRouter(conf *config.Config, handler *handler.Handler, tokenCache *cache.
 		c.JSON(200, gin.H{"status": "ok"})
 	})
 
-	router.GET("/open", handler.Index.Index)
-
 	RegisterApiRoute(conf, router, handler, tokenCache)
 
 	router.NoRoute(func(c *gin.Context) {
