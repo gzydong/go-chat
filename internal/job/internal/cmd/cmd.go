@@ -18,9 +18,10 @@ func (cmd *Commands) ToCommands() []*cli.Command {
 	commands := make([]*cli.Command, 0)
 
 	elem := reflect.ValueOf(cmd).Elem()
+	tp := reflect.TypeOf(&cli.Command{})
 	for i := 0; i < elem.NumField(); i++ {
-		if v, ok := elem.Field(i).Elem().Interface().(cli.Command); ok {
-			commands = append(commands, &v)
+		if v, ok := elem.Field(i).Convert(tp).Interface().(*cli.Command); ok {
+			commands = append(commands, v)
 		}
 	}
 
