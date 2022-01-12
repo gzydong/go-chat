@@ -26,7 +26,7 @@ func (dao *GroupMemberDao) IsLeader(gid, uid int) bool {
 
 // IsMember 检测是属于群成员
 func (dao *GroupMemberDao) IsMember(gid, uid int, cache bool) bool {
-	if dao.relation.IsGroupRelation(context.Background(), uid, gid) == nil {
+	if cache && dao.relation.IsGroupRelation(context.Background(), uid, gid) == nil {
 		return true
 	}
 
