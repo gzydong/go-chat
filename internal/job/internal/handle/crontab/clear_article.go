@@ -1,20 +1,20 @@
 package crontab
 
 import (
-	"go-chat/internal/dao/note"
 	"go-chat/internal/entity"
 	"go-chat/internal/model"
 	"go-chat/internal/pkg/filesystem"
+	"gorm.io/gorm"
 	"time"
 )
 
 type ClearArticle struct {
-	articleAnnexDao *note.ArticleAnnexDao
-	fileSystem      *filesystem.Filesystem
+	db         *gorm.DB
+	fileSystem *filesystem.Filesystem
 }
 
-func NewClearArticle(articleAnnexDao *note.ArticleAnnexDao, fileSystem *filesystem.Filesystem) *ClearArticle {
-	return &ClearArticle{articleAnnexDao: articleAnnexDao, fileSystem: fileSystem}
+func NewClearArticle(db *gorm.DB, fileSystem *filesystem.Filesystem) *ClearArticle {
+	return &ClearArticle{db: db, fileSystem: fileSystem}
 }
 
 func (c *ClearArticle) Handle() error {
@@ -28,15 +28,13 @@ func (c *ClearArticle) Handle() error {
 
 // 删除回收站文章附件
 func (c *ClearArticle) clearArticleAnnex() {
-	Db := c.articleAnnexDao.Db()
-
 	lastId := 0
 	size := 100
 
 	for {
 		items := make([]*model.ArticleAnnex, 0)
 
-		err := Db.Model(&model.ArticleAnnex{}).Where("id > ? and status = 2 and deleted_at <= ?", lastId, time.Now().AddDate(0, 0, -30)).Order("id asc").Limit(size).Scan(&items).Error
+		err := c.db.Model(&model.ArticleAnnex{}).Where("id > ? and status = 2 and deleted_at <= ?", lastId, time.Now().AddDate(0, 0, -30)).Order("id asc").Limit(size).Scan(&items).Error
 		if err != nil {
 			break
 		}
@@ -48,7 +46,7 @@ func (c *ClearArticle) clearArticleAnnex() {
 				_ = c.fileSystem.Cos.Delete(item.Path)
 			}
 
-			Db.Delete(&model.ArticleAnnex{}, item.Id)
+			c.db.Delete(&model.ArticleAnnex{}, item.Id)
 		}
 
 		if len(items) < size {
@@ -61,15 +59,13 @@ func (c *ClearArticle) clearArticleAnnex() {
 
 // 删除回收站笔记
 func (c *ClearArticle) clear() {
-	Db := c.articleAnnexDao.Db()
-
 	lastId := 0
 	size := 100
 
 	for {
 		items := make([]*model.Article, 0)
 
-		err := Db.Model(&model.Article{}).Where("id > ? and status = 2 and deleted_at <= ?", lastId, time.Now().AddDate(0, 0, -30)).Order("id asc").Limit(size).Scan(&items).Error
+		err := c.db.Model(&model.Article{}).Where("id > ? and status = 2 and deleted_at <= ?", lastId, time.Now().AddDate(0, 0, -30)).Order("id asc").Limit(size).Scan(&items).Error
 		if err != nil {
 			break
 		}
@@ -77,7 +73,7 @@ func (c *ClearArticle) clear() {
 		for _, item := range items {
 			subItems := make([]*model.ArticleAnnex, 0)
 
-			if err := Db.Model(&model.ArticleAnnex{}).Select("drive", "path").Where("article_id = ?", item.Id).Scan(&subItems).Error; err != nil {
+			if err := c.db.Model(&model.ArticleAnnex{}).Select("drive", "path").Where("article_id = ?", item.Id).Scan(&subItems).Error; err != nil {
 				continue
 			}
 
@@ -88,11 +84,11 @@ func (c *ClearArticle) clear() {
 					_ = c.fileSystem.Cos.Delete(subItem.Path)
 				}
 
-				Db.Delete(&model.ArticleAnnex{}, subItem.Id)
+				c.db.Delete(&model.ArticleAnnex{}, subItem.Id)
 			}
 
-			Db.Delete(&model.Article{}, item.Id)
-			Db.Delete(&model.ArticleDetail{}, "article_id = ?", item.Id)
+			c.db.Delete(&model.Article{}, item.Id)
+			c.db.Delete(&model.ArticleDetail{}, "article_id = ?", item.Id)
 		}
 
 		if len(items) < size {
