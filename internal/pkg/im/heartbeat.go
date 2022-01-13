@@ -28,11 +28,16 @@ func (h *heartbeat) delClient(c *Client) {
 }
 
 func (h *heartbeat) Run(ctx context.Context) error {
+
+	ticker := time.NewTicker(heartbeatCheckInterval)
+
+	defer ticker.Stop()
+
 	for {
 		select {
 		case <-ctx.Done():
 			return nil
-		case <-time.After(heartbeatCheckInterval):
+		case <-ticker.C:
 			t := time.Now().Unix()
 
 			h.node.each(func(c *Client) {
