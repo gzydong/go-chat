@@ -14,6 +14,9 @@ import (
 	"go-chat/internal/http/internal/handler"
 	"go-chat/internal/http/internal/handler/api/v1"
 	"go-chat/internal/http/internal/handler/api/v1/article"
+	"go-chat/internal/http/internal/handler/api/v1/contact"
+	"go-chat/internal/http/internal/handler/api/v1/group"
+	"go-chat/internal/http/internal/handler/api/v1/talk"
 	"go-chat/internal/http/internal/router"
 	"go-chat/internal/pkg/client"
 	"go-chat/internal/pkg/filesystem"
@@ -66,30 +69,30 @@ func Initialize(ctx context.Context) *Providers {
 	usersFriendsDao := dao.NewUsersFriendsDao(baseDao, relation)
 	contactService := service.NewContactService(baseService, usersFriendsDao)
 	groupMemberService := service.NewGroupMemberService(baseService, groupMemberDao)
-	talkMessage := v1.NewTalkMessageHandler(talkMessageService, talkService, talkRecordsVoteDao, talkMessageForwardService, splitUploadService, contactService, groupMemberService)
+	message := talk.NewTalkMessageHandler(talkMessageService, talkService, talkRecordsVoteDao, talkMessageForwardService, splitUploadService, contactService, groupMemberService)
 	talkSessionDao := dao.NewTalkSessionDao(baseDao)
 	talkSessionService := service.NewTalkSessionService(baseService, talkSessionDao)
-	talk := v1.NewTalkHandler(talkService, talkSessionService, redisLock, userService, wsClientSession, lastMessage, unreadTalkCache, contactService)
+	talkTalk := talk.NewTalkHandler(talkService, talkSessionService, redisLock, userService, wsClientSession, lastMessage, unreadTalkCache, contactService)
 	talkRecordsDao := &dao.TalkRecordsDao{
 		BaseDao: baseDao,
 	}
 	talkRecordsService := service.NewTalkRecordsService(baseService, talkVote, talkRecordsVoteDao, filesystemFilesystem, groupMemberDao, talkRecordsDao)
-	talkRecords := v1.NewTalkRecordsHandler(talkRecordsService, groupMemberService, filesystemFilesystem)
+	records := talk.NewTalkRecordsHandler(talkRecordsService, groupMemberService, filesystemFilesystem)
 	emoticonDao := dao.NewEmoticonDao(baseDao)
 	emoticonService := service.NewEmoticonService(baseService, emoticonDao, filesystemFilesystem)
 	emoticon := v1.NewEmoticonHandler(emoticonService, filesystemFilesystem, redisLock)
 	upload := v1.NewUploadHandler(config, filesystemFilesystem, splitUploadService)
 	groupDao := dao.NewGroupDao(baseDao)
 	groupService := service.NewGroupService(baseService, groupDao, groupMemberDao, relation)
-	group := v1.NewGroupHandler(groupService, groupMemberService, talkSessionService, redisLock, contactService, userService)
+	groupGroup := group.NewGroupHandler(groupService, groupMemberService, talkSessionService, redisLock, contactService, userService)
 	groupNoticeDao := &dao.GroupNoticeDao{
 		BaseDao: baseDao,
 	}
 	groupNoticeService := service.NewGroupNoticeService(groupNoticeDao)
-	groupNotice := v1.NewGroupNoticeHandler(groupNoticeService, groupMemberService)
-	contact := v1.NewContactHandler(contactService, wsClientSession, userService)
+	groupNotice := group.NewGroupNoticeHandler(groupNoticeService, groupMemberService)
+	contactContact := contact.NewContactHandler(contactService, wsClientSession, userService)
 	contactApplyService := service.NewContactsApplyService(baseService)
-	contactApply := v1.NewContactsApplyHandler(contactApplyService, userService)
+	contactApply := contact.NewContactsApplyHandler(contactApplyService, userService)
 	articleService := note.NewArticleService(baseService)
 	articleAnnexDao := note2.NewArticleAnnexDao(baseDao)
 	articleAnnexService := note.NewArticleAnnexService(baseService, articleAnnexDao, filesystemFilesystem)
@@ -104,14 +107,14 @@ func Initialize(ctx context.Context) *Providers {
 		Common:        common,
 		Auth:          auth,
 		User:          user,
-		TalkMessage:   talkMessage,
-		Talk:          talk,
-		TalkRecords:   talkRecords,
+		TalkMessage:   message,
+		Talk:          talkTalk,
+		TalkRecords:   records,
 		Emoticon:      emoticon,
 		Upload:        upload,
-		Group:         group,
+		Group:         groupGroup,
 		GroupNotice:   groupNotice,
-		Contact:       contact,
+		Contact:       contactContact,
 		ContactsApply: contactApply,
 		Article:       articleArticle,
 		ArticleAnnex:  annex,
@@ -129,4 +132,4 @@ func Initialize(ctx context.Context) *Providers {
 
 // wire.go:
 
-var providerSet = wire.NewSet(provider.NewConfig, provider.NewMySQLClient, provider.NewRedisClient, provider.NewHttpClient, provider.NewHttpServer, client.NewHttpClient, router.NewRouter, filesystem.NewFilesystem, cache.NewSession, cache.NewSid, cache.NewUnreadTalkCache, cache.NewRedisLock, cache.NewWsClientSession, cache.NewLastMessage, cache.NewTalkVote, cache.NewRoom, cache.NewRelation, wire.Struct(new(cache.SmsCodeCache), "*"), dao.NewBaseDao, dao.NewUsersFriendsDao, dao.NewGroupMemberDao, dao.NewUserDao, dao.NewGroupDao, wire.Struct(new(dao.TalkRecordsDao), "*"), wire.Struct(new(dao.TalkRecordsCodeDao), "*"), wire.Struct(new(dao.TalkRecordsLoginDao), "*"), wire.Struct(new(dao.TalkRecordsFileDao), "*"), wire.Struct(new(dao.GroupNoticeDao), "*"), dao.NewTalkSessionDao, dao.NewEmoticonDao, dao.NewTalkRecordsVoteDao, dao.NewFileSplitUploadDao, note2.NewArticleClassDao, note2.NewArticleAnnexDao, service.NewBaseService, service.NewUserService, service.NewSmsService, service.NewTalkService, service.NewTalkMessageService, service.NewClientService, service.NewGroupService, service.NewGroupMemberService, service.NewGroupNoticeService, service.NewTalkSessionService, service.NewTalkMessageForwardService, service.NewEmoticonService, service.NewTalkRecordsService, service.NewContactService, service.NewContactsApplyService, service.NewSplitUploadService, service.NewIpAddressService, note.NewArticleService, note.NewArticleTagService, note.NewArticleClassService, note.NewArticleAnnexService, v1.NewAuthHandler, v1.NewCommonHandler, v1.NewUserHandler, v1.NewContactHandler, v1.NewContactsApplyHandler, v1.NewGroupHandler, v1.NewGroupNoticeHandler, v1.NewTalkHandler, v1.NewTalkMessageHandler, v1.NewUploadHandler, v1.NewEmoticonHandler, v1.NewTalkRecordsHandler, article.NewAnnexHandler, article.NewArticleHandler, article.NewClassHandler, article.NewTagHandler, wire.Struct(new(handler.Handler), "*"), wire.Struct(new(Providers), "*"))
+var providerSet = wire.NewSet(provider.NewConfig, provider.NewMySQLClient, provider.NewRedisClient, provider.NewHttpClient, provider.NewHttpServer, client.NewHttpClient, router.NewRouter, filesystem.NewFilesystem, cache.NewSession, cache.NewSid, cache.NewUnreadTalkCache, cache.NewRedisLock, cache.NewWsClientSession, cache.NewLastMessage, cache.NewTalkVote, cache.NewRoom, cache.NewRelation, wire.Struct(new(cache.SmsCodeCache), "*"), dao.NewBaseDao, dao.NewUsersFriendsDao, dao.NewGroupMemberDao, dao.NewUserDao, dao.NewGroupDao, wire.Struct(new(dao.TalkRecordsDao), "*"), wire.Struct(new(dao.TalkRecordsCodeDao), "*"), wire.Struct(new(dao.TalkRecordsLoginDao), "*"), wire.Struct(new(dao.TalkRecordsFileDao), "*"), wire.Struct(new(dao.GroupNoticeDao), "*"), dao.NewTalkSessionDao, dao.NewEmoticonDao, dao.NewTalkRecordsVoteDao, dao.NewFileSplitUploadDao, note2.NewArticleClassDao, note2.NewArticleAnnexDao, service.NewBaseService, service.NewUserService, service.NewSmsService, service.NewTalkService, service.NewTalkMessageService, service.NewClientService, service.NewGroupService, service.NewGroupMemberService, service.NewGroupNoticeService, service.NewTalkSessionService, service.NewTalkMessageForwardService, service.NewEmoticonService, service.NewTalkRecordsService, service.NewContactService, service.NewContactsApplyService, service.NewSplitUploadService, service.NewIpAddressService, note.NewArticleService, note.NewArticleTagService, note.NewArticleClassService, note.NewArticleAnnexService, v1.NewAuthHandler, v1.NewCommonHandler, v1.NewUserHandler, contact.NewContactHandler, contact.NewContactsApplyHandler, group.NewGroupHandler, group.NewGroupNoticeHandler, talk.NewTalkHandler, talk.NewTalkMessageHandler, v1.NewUploadHandler, v1.NewEmoticonHandler, talk.NewTalkRecordsHandler, article.NewAnnexHandler, article.NewArticleHandler, article.NewClassHandler, article.NewTagHandler, wire.Struct(new(handler.Handler), "*"), wire.Struct(new(Providers), "*"))

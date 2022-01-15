@@ -1,4 +1,4 @@
-package v1
+package talk
 
 import (
 	"context"
@@ -13,7 +13,7 @@ import (
 	"go-chat/internal/service"
 )
 
-type TalkMessage struct {
+type Message struct {
 	service            *service.TalkMessageService
 	talkService        *service.TalkService
 	talkRecordsVoteDao *dao.TalkRecordsVoteDao
@@ -23,8 +23,8 @@ type TalkMessage struct {
 	groupMemberService *service.GroupMemberService
 }
 
-func NewTalkMessageHandler(service *service.TalkMessageService, talkService *service.TalkService, talkRecordsVoteDao *dao.TalkRecordsVoteDao, forwardService *service.TalkMessageForwardService, splitUploadService *service.SplitUploadService, contactService *service.ContactService, groupMemberService *service.GroupMemberService) *TalkMessage {
-	return &TalkMessage{service: service, talkService: talkService, talkRecordsVoteDao: talkRecordsVoteDao, forwardService: forwardService, splitUploadService: splitUploadService, contactService: contactService, groupMemberService: groupMemberService}
+func NewTalkMessageHandler(service *service.TalkMessageService, talkService *service.TalkService, talkRecordsVoteDao *dao.TalkRecordsVoteDao, forwardService *service.TalkMessageForwardService, splitUploadService *service.SplitUploadService, contactService *service.ContactService, groupMemberService *service.GroupMemberService) *Message {
+	return &Message{service: service, talkService: talkService, talkRecordsVoteDao: talkRecordsVoteDao, forwardService: forwardService, splitUploadService: splitUploadService, contactService: contactService, groupMemberService: groupMemberService}
 }
 
 type AuthPermission struct {
@@ -35,7 +35,7 @@ type AuthPermission struct {
 }
 
 // 权限控制
-func (c *TalkMessage) permission(prem *AuthPermission) bool {
+func (c *Message) permission(prem *AuthPermission) bool {
 	if prem.TalkType == entity.PrivateChat {
 		return c.contactService.Dao().IsFriend(prem.ctx, prem.UserId, prem.ReceiverId, true)
 	} else {
@@ -44,7 +44,7 @@ func (c *TalkMessage) permission(prem *AuthPermission) bool {
 }
 
 // Text 发送文本消息
-func (c *TalkMessage) Text(ctx *gin.Context) {
+func (c *Message) Text(ctx *gin.Context) {
 	params := &request.TextMessageRequest{}
 	if err := ctx.ShouldBind(params); err != nil {
 		response.InvalidParams(ctx, err)
@@ -76,7 +76,7 @@ func (c *TalkMessage) Text(ctx *gin.Context) {
 }
 
 // Code 发送代码块消息
-func (c *TalkMessage) Code(ctx *gin.Context) {
+func (c *Message) Code(ctx *gin.Context) {
 	params := &request.CodeMessageRequest{}
 	if err := ctx.ShouldBind(params); err != nil {
 		response.InvalidParams(ctx, err)
@@ -109,7 +109,7 @@ func (c *TalkMessage) Code(ctx *gin.Context) {
 }
 
 // Image 发送图片消息
-func (c *TalkMessage) Image(ctx *gin.Context) {
+func (c *Message) Image(ctx *gin.Context) {
 	params := &request.ImageMessageRequest{}
 	if err := ctx.ShouldBind(params); err != nil {
 		response.InvalidParams(ctx, err)
@@ -158,7 +158,7 @@ func (c *TalkMessage) Image(ctx *gin.Context) {
 }
 
 // File 发送文件消息
-func (c *TalkMessage) File(ctx *gin.Context) {
+func (c *Message) File(ctx *gin.Context) {
 	params := &request.FileMessageRequest{}
 	if err := ctx.ShouldBind(params); err != nil {
 		response.InvalidParams(ctx, err)
@@ -190,7 +190,7 @@ func (c *TalkMessage) File(ctx *gin.Context) {
 }
 
 // Vote 发送投票消息
-func (c *TalkMessage) Vote(ctx *gin.Context) {
+func (c *Message) Vote(ctx *gin.Context) {
 	params := &request.VoteMessageRequest{}
 	if err := ctx.ShouldBind(params); err != nil {
 		response.InvalidParams(ctx, err)
@@ -233,7 +233,7 @@ func (c *TalkMessage) Vote(ctx *gin.Context) {
 }
 
 // Emoticon 发送表情包消息
-func (c *TalkMessage) Emoticon(ctx *gin.Context) {
+func (c *Message) Emoticon(ctx *gin.Context) {
 	params := &request.EmoticonMessageRequest{}
 	if err := ctx.ShouldBind(params); err != nil {
 		response.InvalidParams(ctx, err)
@@ -265,7 +265,7 @@ func (c *TalkMessage) Emoticon(ctx *gin.Context) {
 }
 
 // Forward 发送转发消息
-func (c *TalkMessage) Forward(ctx *gin.Context) {
+func (c *Message) Forward(ctx *gin.Context) {
 	params := &request.ForwardMessageRequest{}
 	if err := ctx.ShouldBind(params); err != nil {
 		response.InvalidParams(ctx, err)
@@ -307,7 +307,7 @@ func (c *TalkMessage) Forward(ctx *gin.Context) {
 }
 
 // Card 发送用户名片消息
-func (c *TalkMessage) Card(ctx *gin.Context) {
+func (c *Message) Card(ctx *gin.Context) {
 	params := &request.CardMessageRequest{}
 	if err := ctx.ShouldBind(params); err != nil {
 		response.InvalidParams(ctx, err)
@@ -340,7 +340,7 @@ func (c *TalkMessage) Card(ctx *gin.Context) {
 }
 
 // Collect 收藏聊天图片
-func (c *TalkMessage) Collect(ctx *gin.Context) {
+func (c *Message) Collect(ctx *gin.Context) {
 	params := &request.CollectMessageRequest{}
 	if err := ctx.ShouldBind(params); err != nil {
 		response.InvalidParams(ctx, err)
@@ -355,7 +355,7 @@ func (c *TalkMessage) Collect(ctx *gin.Context) {
 }
 
 // Revoke 撤销聊天记录
-func (c *TalkMessage) Revoke(ctx *gin.Context) {
+func (c *Message) Revoke(ctx *gin.Context) {
 	params := &request.RevokeMessageRequest{}
 	if err := ctx.ShouldBind(params); err != nil {
 		response.InvalidParams(ctx, err)
@@ -370,7 +370,7 @@ func (c *TalkMessage) Revoke(ctx *gin.Context) {
 }
 
 // Delete 删除聊天记录
-func (c *TalkMessage) Delete(ctx *gin.Context) {
+func (c *Message) Delete(ctx *gin.Context) {
 	params := &request.DeleteMessageRequest{}
 	if err := ctx.ShouldBind(params); err != nil {
 		response.InvalidParams(ctx, err)
@@ -390,7 +390,7 @@ func (c *TalkMessage) Delete(ctx *gin.Context) {
 }
 
 // HandleVote 投票处理
-func (c *TalkMessage) HandleVote(ctx *gin.Context) {
+func (c *Message) HandleVote(ctx *gin.Context) {
 	params := &request.VoteMessageHandleRequest{}
 	if err := ctx.ShouldBind(params); err != nil {
 		response.InvalidParams(ctx, err)
@@ -412,7 +412,7 @@ func (c *TalkMessage) HandleVote(ctx *gin.Context) {
 }
 
 // Location 发送位置消息
-func (c *TalkMessage) Location(ctx *gin.Context) {
+func (c *Message) Location(ctx *gin.Context) {
 	params := &request.LocationMessageRequest{}
 	if err := ctx.ShouldBind(params); err != nil {
 		response.InvalidParams(ctx, err)

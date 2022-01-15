@@ -93,8 +93,8 @@ func (c *Article) Detail(ctx *gin.Context) {
 		for _, item := range items {
 			files = append(files, map[string]interface{}{
 				"id":            item.Id,
-				"file_suffix":   item.Suffix,
-				"file_size":     item.Size,
+				"suffix":        item.Suffix,
+				"size":          item.Size,
 				"original_name": item.OriginalName,
 				"created_at":    timeutil.FormatDatetime(item.CreatedAt),
 			})
@@ -226,7 +226,6 @@ func (c *Article) Upload(ctx *gin.Context) {
 
 // Move 文章移动
 func (c *Article) Move(ctx *gin.Context) {
-
 	params := &request.ArticleMoveRequest{}
 	if err := ctx.ShouldBind(params); err != nil {
 		response.InvalidParams(ctx, err)

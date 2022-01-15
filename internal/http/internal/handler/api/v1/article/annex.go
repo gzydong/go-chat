@@ -79,10 +79,10 @@ func (c *Annex) Upload(ctx *gin.Context) {
 
 	response.Success(ctx, gin.H{
 		"id":            data.Id,
-		"file_size":     data.Size,
-		"save_dir":      data.Path,
+		"size":          data.Size,
+		"path":          data.Path,
 		"original_name": data.OriginalName,
-		"file_suffix":   data.Suffix,
+		"suffix":        data.Suffix,
 	})
 }
 

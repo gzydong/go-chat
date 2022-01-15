@@ -1,4 +1,4 @@
-package v1
+package talk
 
 import (
 	"github.com/gin-gonic/gin"
@@ -12,14 +12,14 @@ import (
 	"net/http"
 )
 
-type TalkRecords struct {
+type Records struct {
 	service            *service.TalkRecordsService
 	groupMemberService *service.GroupMemberService
 	fileSystem         *filesystem.Filesystem
 }
 
-func NewTalkRecordsHandler(service *service.TalkRecordsService, groupMemberService *service.GroupMemberService, fileSystem *filesystem.Filesystem) *TalkRecords {
-	return &TalkRecords{
+func NewTalkRecordsHandler(service *service.TalkRecordsService, groupMemberService *service.GroupMemberService, fileSystem *filesystem.Filesystem) *Records {
+	return &Records{
 		service:            service,
 		groupMemberService: groupMemberService,
 		fileSystem:         fileSystem,
@@ -27,7 +27,7 @@ func NewTalkRecordsHandler(service *service.TalkRecordsService, groupMemberServi
 }
 
 // GetRecords 获取会话记录
-func (c *TalkRecords) GetRecords(ctx *gin.Context) {
+func (c *Records) GetRecords(ctx *gin.Context) {
 	params := &request.TalkRecordsRequest{}
 	if err := ctx.ShouldBindQuery(params); err != nil {
 		response.InvalidParams(ctx, err)
@@ -60,7 +60,7 @@ func (c *TalkRecords) GetRecords(ctx *gin.Context) {
 }
 
 // SearchHistoryRecords 查询下会话记录
-func (c *TalkRecords) SearchHistoryRecords(ctx *gin.Context) {
+func (c *Records) SearchHistoryRecords(ctx *gin.Context) {
 	params := &request.TalkRecordsRequest{}
 	if err := ctx.ShouldBindQuery(params); err != nil {
 		response.InvalidParams(ctx, err)
@@ -106,7 +106,7 @@ func (c *TalkRecords) SearchHistoryRecords(ctx *gin.Context) {
 }
 
 // GetForwardRecords 获取转发记录
-func (c *TalkRecords) GetForwardRecords(ctx *gin.Context) {
+func (c *Records) GetForwardRecords(ctx *gin.Context) {
 	params := &request.TalkForwardRecordsRequest{}
 	if err := ctx.ShouldBind(params); err != nil {
 		response.InvalidParams(ctx, err)
@@ -125,7 +125,7 @@ func (c *TalkRecords) GetForwardRecords(ctx *gin.Context) {
 }
 
 // Download 聊天文件下载
-func (c *TalkRecords) Download(ctx *gin.Context) {
+func (c *Records) Download(ctx *gin.Context) {
 	params := &request.DownloadChatFileRequest{}
 	if err := ctx.ShouldBindQuery(params); err != nil {
 		response.InvalidParams(ctx, err)

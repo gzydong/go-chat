@@ -7,6 +7,9 @@ import (
 	"go-chat/internal/dao"
 	note2 "go-chat/internal/dao/note"
 	"go-chat/internal/http/internal/handler/api/v1/article"
+	"go-chat/internal/http/internal/handler/api/v1/contact"
+	"go-chat/internal/http/internal/handler/api/v1/group"
+	"go-chat/internal/http/internal/handler/api/v1/talk"
 	"go-chat/internal/pkg/client"
 	"go-chat/internal/pkg/filesystem"
 	"go-chat/internal/provider"
@@ -92,15 +95,15 @@ var providerSet = wire.NewSet(
 	v1.NewAuthHandler,
 	v1.NewCommonHandler,
 	v1.NewUserHandler,
-	v1.NewContactHandler,
-	v1.NewContactsApplyHandler,
-	v1.NewGroupHandler,
-	v1.NewGroupNoticeHandler,
-	v1.NewTalkHandler,
-	v1.NewTalkMessageHandler,
+	contact.NewContactHandler,
+	contact.NewContactsApplyHandler,
+	group.NewGroupHandler,
+	group.NewGroupNoticeHandler,
+	talk.NewTalkHandler,
+	talk.NewTalkMessageHandler,
 	v1.NewUploadHandler,
 	v1.NewEmoticonHandler,
-	v1.NewTalkRecordsHandler,
+	talk.NewTalkRecordsHandler,
 	article.NewAnnexHandler,
 	article.NewArticleHandler,
 	article.NewClassHandler,

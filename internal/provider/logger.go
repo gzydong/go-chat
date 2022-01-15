@@ -10,7 +10,7 @@ func init() {
 		TimestampFormat: "2006-01-02 15:04:05",
 	})
 
-	src, err := os.OpenFile("runtime/logs/logger.log", os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0666)
+	src, err := os.OpenFile("./runtime/logs/logger.log", os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0666)
 	if err != nil {
 		panic(err)
 	}
