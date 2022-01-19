@@ -211,7 +211,7 @@ func (c *Talk) Disturb(ctx *gin.Context) {
 	response.Success(ctx, nil)
 }
 
-func (c *Talk) ClearUnReadMsg(ctx *gin.Context) {
+func (c *Talk) ClearUnreadMessage(ctx *gin.Context) {
 	params := &request.TalkUnReadRequest{}
 	if err := ctx.ShouldBind(params); err != nil {
 		response.InvalidParams(ctx, err)

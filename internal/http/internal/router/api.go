@@ -71,10 +71,10 @@ func RegisterApiRoute(conf *config.Config, router *gin.Engine, handler *handler.
 			userGroup.POST("/setting", handler.Group.Setting) // 设置群组信息
 
 			// 群成员相关
-			userGroup.GET("/members", handler.Group.GetMembers)               // 群成员列表
-			userGroup.GET("/members/invites", handler.Group.GetInviteFriends) // 群成员列表
-			userGroup.POST("/members/remove", handler.Group.RemoveMembers)    // 移出指定群成员
-			userGroup.POST("/members/remark", handler.Group.EditRemark)       // 设置群名片
+			userGroup.GET("/member/list", handler.Group.GetMembers)          // 群成员列表
+			userGroup.GET("/member/invites", handler.Group.GetInviteFriends) // 群成员列表
+			userGroup.POST("/member/remove", handler.Group.RemoveMembers)    // 移出指定群成员
+			userGroup.POST("/member/remark", handler.Group.EditRemark)       // 设置群名片
 
 			// 群公告相关
 			userGroup.GET("/notice/list", handler.GroupNotice.List)             // 群公告列表
@@ -93,7 +93,7 @@ func RegisterApiRoute(conf *config.Config, router *gin.Engine, handler *handler.
 			talk.GET("/records/history", handler.TalkRecords.SearchHistoryRecords) // 历史会话记录
 			talk.GET("/records/forward", handler.TalkRecords.GetForwardRecords)    // 会话转发记录
 			talk.GET("/records/file/download", handler.TalkRecords.Download)       // 会话转发记录
-			talk.POST("/unread/clear", handler.Talk.ClearUnReadMsg)                // 清除会话未读数
+			talk.POST("/unread/clear", handler.Talk.ClearUnreadMessage)            // 清除会话未读数
 		}
 
 		talkMsg := group.Group("/talk/message").Use(authorize)

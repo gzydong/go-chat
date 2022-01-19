@@ -96,5 +96,7 @@ func (c *GroupNotice) List(ctx *gin.Context) {
 		return
 	}
 
-	response.Success(ctx, c.service.List(ctx, params.GroupId))
+	response.Success(ctx, gin.H{
+		"rows": c.service.List(ctx, params.GroupId),
+	})
 }

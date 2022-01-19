@@ -125,7 +125,7 @@ func (c *Channel) recv(ctx context.Context) {
 // 推送客户端数据
 func (c *Channel) send(ctx context.Context) {
 	var (
-		out     = 2 * time.Second
+		out     = 1 * time.Second
 		timeout = time.NewTimer(out)
 	)
 

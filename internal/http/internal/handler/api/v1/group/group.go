@@ -292,7 +292,9 @@ func (c *Group) GetGroups(ctx *gin.Context) {
 		return
 	}
 
-	response.Success(ctx, items)
+	response.Success(ctx, gin.H{
+		"rows": items,
+	})
 }
 
 // GetMembers 获取群成员列表
