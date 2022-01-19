@@ -90,6 +90,8 @@ func (s *SplitUploadService) MultipartUpload(ctx context.Context, opts *Multipar
 		return err
 	}
 
+	dirPath := fmt.Sprintf("private/tmp/%s/%s/%d-%s.tmp", timeutil.DateNumber(), encrypt.Md5(opts.UploadId), opts.SplitIndex, opts.UploadId)
+
 	data := &model.SplitUpload{
 		Type:         2,
 		Drive:        info.Drive,
@@ -98,7 +100,7 @@ func (s *SplitUploadService) MultipartUpload(ctx context.Context, opts *Multipar
 		OriginalName: info.OriginalName,
 		SplitIndex:   opts.SplitIndex,
 		SplitNum:     opts.SplitNum,
-		Path:         fmt.Sprintf("private/tmp/%s/%s/%d-%s.tmp", timeutil.DateNumber(), opts.UploadId, opts.SplitIndex, opts.UploadId),
+		Path:         dirPath,
 		FileExt:      info.FileExt,
 		FileSize:     opts.File.Size,
 		Attr:         "{}",
