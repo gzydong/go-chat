@@ -23,7 +23,7 @@ func (s *Server) Handle(ctx context.Context) error {
 		case <-ctx.Done():
 			return nil
 		case <-time.After(10 * time.Second):
-			if err := s.server.SetServer(ctx, s.conf.GetSid(), time.Now().Unix()); err != nil {
+			if err := s.server.SetServer(ctx, s.conf.ServerId(), time.Now().Unix()); err != nil {
 				log.Printf("SetServer Error: %s\n", err)
 				continue
 			}

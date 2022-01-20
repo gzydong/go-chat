@@ -66,7 +66,7 @@ func (c *DefaultWebSocket) Open(client *im.Client) {
 			Channel:  im.Sessions.Default.Name(),
 			RoomType: entity.RoomGroupChat,
 			Number:   strconv.Itoa(id),
-			Sid:      c.conf.GetSid(),
+			Sid:      c.conf.ServerId(),
 			Cid:      client.ClientId(),
 		})
 	}
@@ -115,7 +115,7 @@ func (c *DefaultWebSocket) Close(client *im.Client, code int, text string) {
 			Channel:  im.Sessions.Default.Name(),
 			RoomType: entity.RoomGroupChat,
 			Number:   strconv.Itoa(id),
-			Sid:      c.conf.GetSid(),
+			Sid:      c.conf.ServerId(),
 			Cid:      client.ClientId(),
 		})
 	}

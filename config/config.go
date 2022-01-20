@@ -11,14 +11,15 @@ import (
 
 // Config 配置信息
 type Config struct {
-	App        *App         `json:"app" yaml:"app"`
-	Redis      *RedisConfig `json:"redis" yaml:"redis"`
-	MySQL      *MySQL       `json:"mysql" yaml:"mysql"`
-	Jwt        *Jwt         `json:"jwt" yaml:"jwt"`
-	Cors       *Cors        `json:"cors" yaml:"cors"`
-	Server     *Server      `json:"server" yaml:"server"`
-	Filesystem *Filesystem  `json:"filesystem" yaml:"filesystem"`
-	Email      *Email       `json:"email" yaml:"email"`
+	sid        string
+	App        *App        `json:"app" yaml:"app"`
+	Redis      *Redis      `json:"redis" yaml:"redis"`
+	MySQL      *MySQL      `json:"mysql" yaml:"mysql"`
+	Jwt        *Jwt        `json:"jwt" yaml:"jwt"`
+	Cors       *Cors       `json:"cors" yaml:"cors"`
+	Server     *Log        `json:"server" yaml:"server"`
+	Filesystem *Filesystem `json:"filesystem" yaml:"filesystem"`
+	Email      *Email      `json:"email" yaml:"email"`
 }
 
 func Init(filename string) *Config {
@@ -33,15 +34,17 @@ func Init(filename string) *Config {
 	}
 
 	// 生成服务运行ID
-	conf.Server.ServerId = strings.Replace(uuid.NewV4().String(), "-", "", 4)
+	conf.sid = strings.Replace(uuid.NewV4().String(), "-", "", 4)
 
 	return conf
 }
 
-func (c *Config) GetSid() string {
-	return c.Server.ServerId
+// ServerId 服务运行ID
+func (c *Config) ServerId() string {
+	return c.sid
 }
 
-func (c *Config) IsDebug() bool {
-	return c.Server.Debug
+// 调试模式
+func (c *Config) Debug() bool {
+	return c.App.Debug
 }

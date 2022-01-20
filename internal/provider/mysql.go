@@ -20,8 +20,7 @@ func NewMySQLClient(conf *config.Config) *gorm.DB {
 		SkipInitializeWithVersion: false,               // 根据当前 MySQL 版本自动配置
 	}), &gorm.Config{
 		NamingStrategy: schema.NamingStrategy{
-			TablePrefix:   conf.MySQL.Prefix, // 表名前缀，`Article` 的表名应该是 `it_articles`
-			SingularTable: true,              // 使用单数表名，启用该选项，此时，`Article` 的表名应该是 `it_article`
+			SingularTable: true, // 使用单数表名，启用该选项，此时，`Article` 的表名应该是 `it_article`
 		},
 	})
 
@@ -38,7 +37,7 @@ func NewMySQLClient(conf *config.Config) *gorm.DB {
 	sqlDB.SetMaxOpenConns(100)
 	sqlDB.SetConnMaxLifetime(time.Hour)
 
-	if conf.IsDebug() {
+	if conf.Debug() {
 		db = db.Debug()
 	}
 

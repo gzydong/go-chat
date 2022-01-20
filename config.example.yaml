@@ -1,12 +1,12 @@
 # 项目配置信息
-server:
-  app_name: LumenIM
-  version: v0.0.1
-  debug: false
-
 app:
-  log: ""
-  juhe_key: "836xxxxxxxxd90"
+  app_name: LumenIM
+  debug: false
+  juhe_key: "836a9c3fxxxd902fbc5"
+
+# 日志配置
+log:
+  dir: "./runtime"
 
 # Redis 相关配置
 redis:
@@ -40,7 +40,7 @@ cors:
   credentials: false
   max_age: 600
 
-# 文件系统配置
+# 文件系统配置【oss,qiniu 暂不支持】
 filesystem:
   default: local
   local:

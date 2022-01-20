@@ -35,22 +35,22 @@ func (w *WsClientSession) getChannelUserKey(sid, channel, uid string) string {
 // @params fd       客户端连接ID
 // @params id       用户ID
 func (w *WsClientSession) Set(ctx context.Context, channel string, fd string, uid int) {
-	w.rds.HSet(ctx, w.getChannelClientKey(w.conf.GetSid(), channel), fd, uid)
+	w.rds.HSet(ctx, w.getChannelClientKey(w.conf.ServerId(), channel), fd, uid)
 
-	w.rds.SAdd(ctx, w.getChannelUserKey(w.conf.GetSid(), channel, strconv.Itoa(uid)), fd)
+	w.rds.SAdd(ctx, w.getChannelUserKey(w.conf.ServerId(), channel, strconv.Itoa(uid)), fd)
 }
 
 // Del 删除客户端与用户绑定关系
 // @params channel  渠道分组
 // @params fd     客户端连接ID
 func (w *WsClientSession) Del(ctx context.Context, channel, fd string) {
-	KeyName := w.getChannelClientKey(w.conf.GetSid(), channel)
+	KeyName := w.getChannelClientKey(w.conf.ServerId(), channel)
 
 	uid, _ := w.rds.HGet(ctx, KeyName, fd).Result()
 
 	w.rds.HDel(ctx, KeyName, fd)
 
-	w.rds.SRem(ctx, w.getChannelUserKey(w.conf.GetSid(), channel, uid), fd)
+	w.rds.SRem(ctx, w.getChannelUserKey(w.conf.ServerId(), channel, uid), fd)
 }
 
 // IsOnline 判断客户端是否在线[所有部署机器]

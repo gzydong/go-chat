@@ -28,7 +28,7 @@ func NewWsSubscribe(rds *redis.Client, conf *config.Config, consume *handle.Subs
 }
 
 func (w *WsSubscribe) Handle(ctx context.Context) error {
-	gateway := fmt.Sprintf(entity.IMGatewayPrivate, w.conf.GetSid())
+	gateway := fmt.Sprintf(entity.IMGatewayPrivate, w.conf.ServerId())
 
 	channels := []string{
 		entity.IMGatewayAll, // 全局通道
