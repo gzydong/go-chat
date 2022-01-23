@@ -115,6 +115,8 @@ func (c *Contact) Detail(ctx *gin.Context) {
 		return
 	}
 
+	uid := auth.GetAuthUserID(ctx)
+
 	user, err := c.userService.Dao().FindById(params.UserId)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -136,6 +138,15 @@ func (c *Contact) Detail(ctx *gin.Context) {
 		"motto":           user.Motto,
 		"nickname":        user.Nickname,
 		"nickname_remark": "",
+	}
+
+	if uid != params.UserId {
+		if c.service.Dao().IsFriend(ctx.Request.Context(), uid, params.UserId, false) {
+			resp["friend_status"] = 2
+			resp["nickname_remark"] = c.service.Dao().GetFriendRemark(ctx.Request.Context(), uid, params.UserId, true)
+		}
+	} else {
+		resp["friend_status"] = 0
 	}
 
 	response.Success(ctx, &resp)

@@ -72,15 +72,8 @@ func (u *Upload) InitiateMultipart(ctx *gin.Context) {
 	}
 
 	response.Success(ctx, &gin.H{
-		"file_type":     info.Type,
-		"user_id":       info.UserId,
-		"original_name": info.OriginalName,
-		"hash_name":     info.UploadId,
-		"file_ext":      info.FileExt,
-		"file_size":     info.FileSize,
-		"split_num":     info.SplitNum,
-		"split_index":   info.SplitIndex,
-		"split_size":    2 << 20,
+		"upload_id":  info.UploadId,
+		"split_size": 2 << 20,
 	})
 }
 
@@ -110,8 +103,8 @@ func (u *Upload) MultipartUpload(ctx *gin.Context) {
 	}
 
 	if params.SplitIndex != params.SplitNum-1 {
-		response.Success(ctx, gin.H{"is_file_merge": false})
+		response.Success(ctx, gin.H{"is_merge": false})
 	} else {
-		response.Success(ctx, gin.H{"is_file_merge": true, "hash": params.UploadId})
+		response.Success(ctx, gin.H{"is_merge": true, "upload_id": params.UploadId})
 	}
 }

@@ -62,3 +62,11 @@ filesystem:
     secret_key: ""
     bucket: "im-xxx"
     region: "ap-shanghai"
+
+# 邮件配置
+email:
+  host: smtp.163.com
+  port: 465
+  username: xxxxx
+  password: xxxxx
+  fromname: "Lumen IM 在线聊天"

@@ -40,7 +40,7 @@ func (c *Common) SmsCode(ctx *gin.Context) {
 	// 需要判断账号是否存在
 	case entity.SmsLoginChannel, entity.SmsForgetAccountChannel:
 		if !c.userService.Dao().IsMobileExist(params.Mobile) {
-			response.BusinessError(ctx, "账号不存在！")
+			response.BusinessError(ctx, "账号不存在或密码错误！")
 			return
 		}
 
@@ -50,6 +50,9 @@ func (c *Common) SmsCode(ctx *gin.Context) {
 			response.BusinessError(ctx, "手机号已被他人使用！")
 			return
 		}
+	default:
+		response.BusinessError(ctx, "发送异常！")
+		return
 	}
 
 	// 发送短信验证码

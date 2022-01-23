@@ -35,12 +35,12 @@ func RegisterApiRoute(conf *config.Config, router *gin.Engine, handler *handler.
 		// 用户相关分组
 		user := group.Group("/users").Use(authorize)
 		{
-			user.GET("/detail", handler.User.Detail)                 // 获取个人信息
-			user.GET("/setting", handler.User.Setting)               // 获取个人信息
-			user.POST("/edit/detail", handler.User.ChangeDetail)     // 修改用户信息
-			user.POST("/edit/password", handler.User.ChangePassword) // 修改用户密码
-			user.POST("/edit/mobile", handler.User.ChangeMobile)     // 修改用户手机号
-			user.POST("/edit/email", handler.User.ChangeEmail)       // 修改用户邮箱
+			user.GET("/detail", handler.User.Detail)                   // 获取个人信息
+			user.GET("/setting", handler.User.Setting)                 // 获取个人信息
+			user.POST("/change/detail", handler.User.ChangeDetail)     // 修改用户信息
+			user.POST("/change/password", handler.User.ChangePassword) // 修改用户密码
+			user.POST("/change/mobile", handler.User.ChangeMobile)     // 修改用户手机号
+			user.POST("/change/email", handler.User.ChangeEmail)       // 修改用户邮箱
 		}
 
 		contact := group.Group("/contact").Use(authorize)
