@@ -11,6 +11,7 @@ import (
 	"go-chat/internal/entity"
 	"go-chat/internal/pkg/auth"
 	"go-chat/internal/pkg/im"
+	"go-chat/internal/pkg/jsonutil"
 	"go-chat/internal/service"
 	"go-chat/internal/websocket/internal/dto"
 	"log"
@@ -48,11 +49,22 @@ func (c *DefaultWebSocket) Connect(ctx *gin.Context) {
 	}
 
 	// 创建客户端
-	im.NewClient(conn, &im.ClientOptions{
+	client := im.NewClient(conn, &im.ClientOptions{
 		Channel: im.Sessions.Default,
 		Uid:     auth.GetAuthUserID(ctx),
 		Storage: c.cache,
-	}).Init()
+	})
+
+	// 推送心跳检测信息
+	data, _ := jsonutil.JsonEncodeByte(im.Message{
+		Event: "connect",
+		Content: gin.H{
+			"ping_interval": 20,
+			"ping_timeout":  20 * 3,
+		},
+	})
+
+	_ = client.Write(data)
 }
 
 // Open 连接成功回调事件

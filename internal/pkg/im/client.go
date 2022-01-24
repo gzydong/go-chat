@@ -80,6 +80,8 @@ func NewClient(conn *websocket.Conn, options *ClientOptions) *Client {
 	// 触发自定义的 open 事件
 	options.Channel.handler.Open(client)
 
+	client.init()
+
 	return client
 }
 
@@ -125,7 +127,7 @@ func (c *Client) Write(data []byte) error {
 }
 
 // Init 初始化连接
-func (c *Client) Init() {
+func (c *Client) init() {
 	// 启动协程处理接收信息
 	go c.accept()
 	go c.write()

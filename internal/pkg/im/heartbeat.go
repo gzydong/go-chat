@@ -6,8 +6,8 @@ import (
 )
 
 const (
-	heartbeatCheckInterval = 30 * time.Second // 心跳检测间隔时间
-	heartbeatIdleTime      = 75               // 心跳检测超时时间（超时时间是隔间检测时间的2.5倍）
+	HeartbeatInterval = 30 // 心跳检测间隔时间
+	HeartbeatTimeout  = 75 // 心跳检测超时时间（超时时间是隔间检测时间的2.5倍）
 )
 
 var Heartbeat = &heartbeat{
@@ -29,7 +29,7 @@ func (h *heartbeat) delClient(c *Client) {
 
 func (h *heartbeat) Run(ctx context.Context) error {
 
-	ticker := time.NewTicker(heartbeatCheckInterval)
+	ticker := time.NewTicker(HeartbeatInterval * time.Second)
 
 	defer ticker.Stop()
 
@@ -41,7 +41,7 @@ func (h *heartbeat) Run(ctx context.Context) error {
 			t := time.Now().Unix()
 
 			h.node.each(func(c *Client) {
-				if int(t-c.lastTime) > heartbeatIdleTime {
+				if int(t-c.lastTime) > HeartbeatTimeout {
 					c.Close(2000, "心跳检测超时，连接自动关闭")
 				}
 			})
