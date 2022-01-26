@@ -10,12 +10,12 @@ import (
 )
 
 // NewRouter 初始化配置路由
-func NewRouter(conf *config.Config, handle *handler.Handler, tokenCache *cache.Session) *gin.Engine {
+func NewRouter(conf *config.Config, handle *handler.Handler, session *cache.Session) *gin.Engine {
 
 	router := gin.Default()
 
 	// 授权验证中间件
-	authorize := middleware.JwtAuth(conf, "api", tokenCache)
+	authorize := middleware.JwtAuth(conf.Jwt.Secret, "api", session)
 
 	router.GET("/wss/default.io", authorize, handle.DefaultWebSocket.Connect)
 

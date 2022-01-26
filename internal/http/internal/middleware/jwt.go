@@ -3,37 +3,40 @@ package middleware
 import (
 	"context"
 	"errors"
-	"go-chat/internal/cache"
+	"net/http"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"go-chat/config"
 	"go-chat/internal/entity"
-	"go-chat/internal/http/internal/response"
 	"go-chat/internal/pkg/auth"
 )
 
+type SessionInterface interface {
+	IsExistBlackList(ctx context.Context, token string) bool
+}
+
 // JwtAuth 授权中间件
-func JwtAuth(conf *config.Config, guard string, session *cache.Session) gin.HandlerFunc {
+func JwtAuth(secret string, guard string, session SessionInterface) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		token := auth.GetJwtToken(c)
 
-		claims, err := check(guard, conf.Jwt.Secret, token)
+		claims, err := check(guard, secret, token)
 		if err != nil {
-			response.NotLogin(c, err)
+			c.JSON(http.StatusUnauthorized, gin.H{"message": err.Error()})
 			c.Abort()
 			return
 		}
 
 		// 这里还需要验证 token 黑名单
 		if session.IsExistBlackList(context.Background(), token) {
-			response.NotLogin(c, "请登录再试！")
+			c.JSON(http.StatusUnauthorized, gin.H{"message": "请登录再试！"})
 			c.Abort()
 			return
 		}
 
 		// 设置登录用户ID
 		uid, _ := strconv.Atoi(claims.Id)
+
 		c.Set(entity.LoginUserID, uid)
 
 		// 记录 jwt 相关信息

@@ -3,22 +3,24 @@ package middleware
 import (
 	"context"
 	"errors"
-	"go-chat/internal/cache"
 	"net/http"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"go-chat/config"
 	"go-chat/internal/entity"
 	"go-chat/internal/pkg/auth"
 )
 
+type SessionInterface interface {
+	IsExistBlackList(ctx context.Context, token string) bool
+}
+
 // JwtAuth 授权中间件
-func JwtAuth(conf *config.Config, guard string, session *cache.Session) gin.HandlerFunc {
+func JwtAuth(secret, guard string, session SessionInterface) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		token := auth.GetJwtToken(c)
 
-		claims, err := check(guard, conf.Jwt.Secret, token)
+		claims, err := check(guard, secret, token)
 		if err != nil {
 			c.Abort()
 			c.JSON(http.StatusUnauthorized, gin.H{"message": "请登录再试！"})
