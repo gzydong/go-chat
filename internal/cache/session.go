@@ -33,8 +33,8 @@ func (a *Session) DelBlackList(ctx context.Context, token string) error {
 	return a.rds.Del(ctx, a.key(token)).Err()
 }
 
-// IsExistBlackList 判断 token 是否存在黑名单
-func (a *Session) IsExistBlackList(ctx context.Context, token string) bool {
+// IsBlackList 判断 token 是否存在黑名单
+func (a *Session) IsBlackList(ctx context.Context, token string) bool {
 	val := a.rds.Get(ctx, a.key(token)).Val()
 
 	if val == "" {

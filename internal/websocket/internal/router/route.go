@@ -4,8 +4,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"go-chat/config"
 	"go-chat/internal/cache"
+	"go-chat/internal/pkg/jwt"
 	"go-chat/internal/websocket/internal/handler"
-	"go-chat/internal/websocket/internal/middleware"
 	"net/http"
 )
 
@@ -15,7 +15,7 @@ func NewRouter(conf *config.Config, handle *handler.Handler, session *cache.Sess
 	router := gin.Default()
 
 	// 授权验证中间件
-	authorize := middleware.JwtAuth(conf.Jwt.Secret, "api", session)
+	authorize := jwt.Auth(conf.Jwt.Secret, "api", session)
 
 	router.GET("/wss/default.io", authorize, handle.DefaultWebSocket.Connect)
 

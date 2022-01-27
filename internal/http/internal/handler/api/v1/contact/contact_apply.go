@@ -4,7 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"go-chat/internal/http/internal/request"
 	"go-chat/internal/http/internal/response"
-	"go-chat/internal/pkg/auth"
+	"go-chat/internal/pkg/jwt"
 	"go-chat/internal/service"
 )
 
@@ -36,7 +36,7 @@ func (c *ContactApply) Create(ctx *gin.Context) {
 	}
 
 	if err := c.service.Create(ctx, &service.ContactApplyCreateOpts{
-		UserId:   auth.GetAuthUserID(ctx),
+		UserId:   jwt.GetUid(ctx),
 		Remarks:  params.Remarks,
 		FriendId: params.FriendId,
 	}); err != nil {
@@ -75,7 +75,7 @@ func (c *ContactApply) Decline(ctx *gin.Context) {
 	}
 
 	if err := c.service.Decline(ctx, &service.ContactApplyDeclineOpts{
-		UserId:  auth.GetAuthUserID(ctx),
+		UserId:  jwt.GetUid(ctx),
 		Remarks: params.Remarks,
 		ApplyId: params.ApplyId,
 	}); err != nil {
@@ -88,7 +88,7 @@ func (c *ContactApply) Decline(ctx *gin.Context) {
 
 // List 获取联系人申请列表
 func (c *ContactApply) List(ctx *gin.Context) {
-	items, err := c.service.List(ctx, auth.GetAuthUserID(ctx), 1, 1000)
+	items, err := c.service.List(ctx, jwt.GetUid(ctx), 1, 1000)
 	if err != nil {
 		response.SystemError(ctx, err)
 		return

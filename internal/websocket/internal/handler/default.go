@@ -9,9 +9,9 @@ import (
 	"go-chat/config"
 	"go-chat/internal/cache"
 	"go-chat/internal/entity"
-	"go-chat/internal/pkg/auth"
 	"go-chat/internal/pkg/im"
 	"go-chat/internal/pkg/jsonutil"
+	"go-chat/internal/pkg/jwt"
 	"go-chat/internal/service"
 	"go-chat/internal/websocket/internal/dto"
 	"log"
@@ -51,7 +51,7 @@ func (c *DefaultWebSocket) Connect(ctx *gin.Context) {
 	// 创建客户端
 	client := im.NewClient(conn, &im.ClientOptions{
 		Channel: im.Sessions.Default,
-		Uid:     auth.GetAuthUserID(ctx),
+		Uid:     jwt.GetUid(ctx),
 		Storage: c.cache,
 	})
 

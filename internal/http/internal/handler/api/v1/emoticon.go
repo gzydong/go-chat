@@ -6,7 +6,7 @@ import (
 	"go-chat/internal/http/internal/dto/api"
 	"go-chat/internal/http/internal/request"
 	"go-chat/internal/model"
-	"go-chat/internal/pkg/auth"
+	"go-chat/internal/pkg/jwt"
 
 	"github.com/gin-gonic/gin"
 	"go-chat/internal/http/internal/response"
@@ -37,7 +37,7 @@ func NewEmoticonHandler(
 // CollectList 收藏列表
 func (c *Emoticon) CollectList(ctx *gin.Context) {
 	var (
-		uid     = auth.GetAuthUserID(ctx)
+		uid     = jwt.GetUid(ctx)
 		sys     = make([]*api.SysEmoticonResponse, 0)
 		collect = make([]*api.EmoticonItem, 0)
 	)
@@ -91,7 +91,7 @@ func (c *Emoticon) DeleteCollect(ctx *gin.Context) {
 		return
 	}
 
-	if err := c.service.DeleteCollect(auth.GetAuthUserID(ctx), slice.ParseIds(params.Ids)); err != nil {
+	if err := c.service.DeleteCollect(jwt.GetUid(ctx), slice.ParseIds(params.Ids)); err != nil {
 		response.BusinessError(ctx, err)
 	} else {
 		response.Success(ctx, nil)
@@ -117,7 +117,7 @@ func (c *Emoticon) Upload(ctx *gin.Context) {
 		return
 	}
 
-	info, err := c.service.CustomizeUpload(ctx.Request.Context(), auth.GetAuthUserID(ctx), file)
+	info, err := c.service.CustomizeUpload(ctx.Request.Context(), jwt.GetUid(ctx), file)
 	if err != nil {
 		response.BusinessError(ctx, "文件上传失败！")
 		return
@@ -138,7 +138,7 @@ func (c *Emoticon) SystemList(ctx *gin.Context) {
 		return
 	}
 
-	ids := c.service.Dao().GetUserInstallIds(auth.GetAuthUserID(ctx))
+	ids := c.service.Dao().GetUserInstallIds(jwt.GetUid(ctx))
 
 	data := make([]*api.SysEmoticonList, 0, len(items))
 	for _, item := range items {
@@ -158,7 +158,7 @@ func (c *Emoticon) SetSystemEmoticon(ctx *gin.Context) {
 	var (
 		err    error
 		params = &request.SetSystemEmoticonRequest{}
-		uid    = auth.GetAuthUserID(ctx)
+		uid    = jwt.GetUid(ctx)
 		key    = fmt.Sprintf("sys-emoticon:%d", uid)
 	)
 

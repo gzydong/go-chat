@@ -4,7 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"go-chat/internal/http/internal/request"
 	"go-chat/internal/http/internal/response"
-	"go-chat/internal/pkg/auth"
+	"go-chat/internal/pkg/jwt"
 	"go-chat/internal/service/note"
 )
 
@@ -18,7 +18,7 @@ func NewTagHandler(service *note.ArticleTagService) *Tag {
 
 // 标签列表
 func (c *Tag) List(ctx *gin.Context) {
-	items, err := c.service.List(ctx.Request.Context(), auth.GetAuthUserID(ctx))
+	items, err := c.service.List(ctx.Request.Context(), jwt.GetUid(ctx))
 	if err != nil {
 		response.BusinessError(ctx, err)
 	} else {
@@ -31,7 +31,7 @@ func (c *Tag) Edit(ctx *gin.Context) {
 	var (
 		err    error
 		params = &request.ArticleTagEditRequest{}
-		uid    = auth.GetAuthUserID(ctx)
+		uid    = jwt.GetUid(ctx)
 	)
 
 	if err = ctx.ShouldBind(params); err != nil {
@@ -61,7 +61,7 @@ func (c *Tag) Delete(ctx *gin.Context) {
 		return
 	}
 
-	err := c.service.Delete(ctx.Request.Context(), auth.GetAuthUserID(ctx), params.TagId)
+	err := c.service.Delete(ctx.Request.Context(), jwt.GetUid(ctx), params.TagId)
 	if err != nil {
 		response.BusinessError(ctx, err)
 	} else {

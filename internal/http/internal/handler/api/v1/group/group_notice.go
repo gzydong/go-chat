@@ -4,7 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"go-chat/internal/http/internal/request"
 	"go-chat/internal/http/internal/response"
-	"go-chat/internal/pkg/auth"
+	"go-chat/internal/pkg/jwt"
 	"go-chat/internal/service"
 )
 
@@ -30,7 +30,7 @@ func (c *GroupNotice) CreateAndUpdate(ctx *gin.Context) {
 		err error
 	)
 
-	uid := auth.GetAuthUserID(ctx)
+	uid := jwt.GetUid(ctx)
 
 	if !c.member.Dao().IsLeader(params.GroupId, uid) {
 		response.BusinessError(ctx, "无权限操作")
@@ -91,7 +91,7 @@ func (c *GroupNotice) List(ctx *gin.Context) {
 	}
 
 	// 判断是否是群成员
-	if !c.member.Dao().IsMember(params.GroupId, auth.GetAuthUserID(ctx), true) {
+	if !c.member.Dao().IsMember(params.GroupId, jwt.GetUid(ctx), true) {
 		response.BusinessError(ctx, "无获取数据权限！")
 		return
 	}

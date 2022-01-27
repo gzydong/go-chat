@@ -7,7 +7,7 @@ import (
 	"go-chat/internal/entity"
 	"go-chat/internal/http/internal/request"
 	"go-chat/internal/http/internal/response"
-	"go-chat/internal/pkg/auth"
+	"go-chat/internal/pkg/jwt"
 	"go-chat/internal/pkg/strutil"
 	"go-chat/internal/service"
 	"gorm.io/gorm"
@@ -34,7 +34,7 @@ func NewContactHandler(
 
 // List 联系人列表
 func (c *Contact) List(ctx *gin.Context) {
-	items, err := c.service.List(ctx, auth.GetAuthUserID(ctx))
+	items, err := c.service.List(ctx, jwt.GetUid(ctx))
 
 	if err != nil {
 		response.BusinessError(ctx, err)
@@ -56,7 +56,7 @@ func (c *Contact) Delete(ctx *gin.Context) {
 		return
 	}
 
-	if err := c.service.Delete(ctx, auth.GetAuthUserID(ctx), params.FriendId); err != nil {
+	if err := c.service.Delete(ctx, jwt.GetUid(ctx), params.FriendId); err != nil {
 		response.BusinessError(ctx, err)
 	} else {
 		response.Success(ctx, nil)
@@ -100,7 +100,7 @@ func (c *Contact) EditRemark(ctx *gin.Context) {
 		return
 	}
 
-	if err := c.service.EditRemark(ctx, auth.GetAuthUserID(ctx), params.FriendId, params.Remarks); err != nil {
+	if err := c.service.EditRemark(ctx, jwt.GetUid(ctx), params.FriendId, params.Remarks); err != nil {
 		response.BusinessError(ctx, err)
 	} else {
 		response.Success(ctx, nil)
@@ -115,7 +115,7 @@ func (c *Contact) Detail(ctx *gin.Context) {
 		return
 	}
 
-	uid := auth.GetAuthUserID(ctx)
+	uid := jwt.GetUid(ctx)
 
 	user, err := c.userService.Dao().FindById(params.UserId)
 	if err != nil {

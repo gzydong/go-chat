@@ -6,8 +6,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"go-chat/internal/http/internal/request"
 	"go-chat/internal/http/internal/response"
-	"go-chat/internal/pkg/auth"
 	"go-chat/internal/pkg/filesystem"
+	"go-chat/internal/pkg/jwt"
 	"go-chat/internal/pkg/slice"
 	"go-chat/internal/pkg/strutil"
 	"go-chat/internal/pkg/timeutil"
@@ -35,7 +35,7 @@ func (c *Article) List(ctx *gin.Context) {
 	}
 
 	items, err := c.service.List(ctx.Request.Context(), &note.ArticleListOpts{
-		UserId:   auth.GetAuthUserID(ctx),
+		UserId:   jwt.GetUid(ctx),
 		Keyword:  params.Keyword,
 		FindType: params.FindType,
 		Cid:      params.Cid,
@@ -74,7 +74,7 @@ func (c *Article) Detail(ctx *gin.Context) {
 		return
 	}
 
-	uid := auth.GetAuthUserID(ctx)
+	uid := jwt.GetUid(ctx)
 
 	detail, err := c.service.Detail(ctx.Request.Context(), uid, params.ArticleId)
 	if err != nil {
@@ -121,7 +121,7 @@ func (c *Article) Edit(ctx *gin.Context) {
 	var (
 		err    error
 		params = &request.ArticleEditRequest{}
-		uid    = auth.GetAuthUserID(ctx)
+		uid    = jwt.GetUid(ctx)
 	)
 
 	if err = ctx.ShouldBind(params); err != nil {
@@ -162,7 +162,7 @@ func (c *Article) Delete(ctx *gin.Context) {
 		return
 	}
 
-	err := c.service.UpdateStatus(ctx.Request.Context(), auth.GetAuthUserID(ctx), params.ArticleId, 2)
+	err := c.service.UpdateStatus(ctx.Request.Context(), jwt.GetUid(ctx), params.ArticleId, 2)
 	if err != nil {
 		response.BusinessError(ctx, err)
 	} else {
@@ -178,7 +178,7 @@ func (c *Article) Recover(ctx *gin.Context) {
 		return
 	}
 
-	err := c.service.UpdateStatus(ctx.Request.Context(), auth.GetAuthUserID(ctx), params.ArticleId, 1)
+	err := c.service.UpdateStatus(ctx.Request.Context(), jwt.GetUid(ctx), params.ArticleId, 1)
 	if err != nil {
 		response.BusinessError(ctx, err)
 	} else {
@@ -232,7 +232,7 @@ func (c *Article) Move(ctx *gin.Context) {
 		return
 	}
 
-	if err := c.service.Move(ctx.Request.Context(), auth.GetAuthUserID(ctx), params.ArticleId, params.ClassId); err != nil {
+	if err := c.service.Move(ctx.Request.Context(), jwt.GetUid(ctx), params.ArticleId, params.ClassId); err != nil {
 		response.BusinessError(ctx, err)
 	} else {
 		response.Success(ctx, nil)
@@ -247,7 +247,7 @@ func (c Article) Asterisk(ctx *gin.Context) {
 		return
 	}
 
-	if err := c.service.Asterisk(ctx.Request.Context(), auth.GetAuthUserID(ctx), params.ArticleId, params.Type); err != nil {
+	if err := c.service.Asterisk(ctx.Request.Context(), jwt.GetUid(ctx), params.ArticleId, params.Type); err != nil {
 		response.BusinessError(ctx, err)
 	} else {
 		response.Success(ctx, nil)
@@ -262,7 +262,7 @@ func (c *Article) Tag(ctx *gin.Context) {
 		return
 	}
 
-	if err := c.service.Tag(ctx.Request.Context(), auth.GetAuthUserID(ctx), params.ArticleId, params.Tags); err != nil {
+	if err := c.service.Tag(ctx.Request.Context(), jwt.GetUid(ctx), params.ArticleId, params.Tags); err != nil {
 		response.BusinessError(ctx, err)
 	} else {
 		response.Success(ctx, nil)
@@ -277,7 +277,7 @@ func (c *Article) ForeverDelete(ctx *gin.Context) {
 		return
 	}
 
-	if err := c.service.ForeverDelete(ctx.Request.Context(), auth.GetAuthUserID(ctx), params.ArticleId); err != nil {
+	if err := c.service.ForeverDelete(ctx.Request.Context(), jwt.GetUid(ctx), params.ArticleId); err != nil {
 		response.BusinessError(ctx, err)
 	} else {
 		response.Success(ctx, nil)

@@ -6,8 +6,8 @@ import (
 	"go-chat/internal/http/internal/request"
 	"go-chat/internal/http/internal/response"
 	"go-chat/internal/model"
-	"go-chat/internal/pkg/auth"
 	"go-chat/internal/pkg/encrypt"
+	"go-chat/internal/pkg/jwt"
 	"go-chat/internal/service"
 )
 
@@ -28,14 +28,14 @@ func NewUserHandler(
 
 // Detail 个人用户信息
 func (u *User) Detail(ctx *gin.Context) {
-	user, _ := u.service.Dao().FindById(auth.GetAuthUserID(ctx))
+	user, _ := u.service.Dao().FindById(jwt.GetUid(ctx))
 
 	response.Success(ctx, user)
 }
 
 // Setting 用户设置
 func (u *User) Setting(ctx *gin.Context) {
-	user, _ := u.service.Dao().FindById(auth.GetAuthUserID(ctx))
+	user, _ := u.service.Dao().FindById(jwt.GetUid(ctx))
 
 	response.Success(ctx, gin.H{
 		"user_info": gin.H{
@@ -64,7 +64,7 @@ func (u *User) ChangeDetail(ctx *gin.Context) {
 	}
 
 	_, _ = u.service.Dao().BaseUpdate(&model.Users{}, entity.Map{
-		"id": auth.GetAuthUserID(ctx),
+		"id": jwt.GetUid(ctx),
 	}, entity.Map{
 		"nickname": params.Nickname,
 		"avatar":   params.Avatar,
@@ -83,7 +83,7 @@ func (u *User) ChangePassword(ctx *gin.Context) {
 		return
 	}
 
-	if err := u.service.UpdatePassword(auth.GetAuthUserID(ctx), params.OldPassword, params.NewPassword); err != nil {
+	if err := u.service.UpdatePassword(jwt.GetUid(ctx), params.OldPassword, params.NewPassword); err != nil {
 		response.BusinessError(ctx, "密码修改失败！")
 		return
 	}
@@ -104,7 +104,7 @@ func (u *User) ChangeMobile(ctx *gin.Context) {
 		return
 	}
 
-	user, _ := u.service.Dao().FindById(auth.GetAuthUserID(ctx))
+	user, _ := u.service.Dao().FindById(jwt.GetUid(ctx))
 
 	if user.Mobile != params.Mobile {
 		response.BusinessError(ctx, "手机号与原手机号一致无需修改！")

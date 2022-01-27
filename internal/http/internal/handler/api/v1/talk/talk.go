@@ -8,8 +8,8 @@ import (
 	"go-chat/internal/http/internal/dto"
 	"go-chat/internal/http/internal/request"
 	"go-chat/internal/http/internal/response"
-	"go-chat/internal/pkg/auth"
 	"go-chat/internal/pkg/encrypt"
+	"go-chat/internal/pkg/jwt"
 	"go-chat/internal/pkg/strutil"
 	"go-chat/internal/pkg/timeutil"
 	"go-chat/internal/service"
@@ -52,7 +52,7 @@ func NewTalkHandler(
 
 // List 会话列表
 func (c *Talk) List(ctx *gin.Context) {
-	uid := auth.GetAuthUserID(ctx)
+	uid := jwt.GetUid(ctx)
 
 	data, err := c.talkListService.List(ctx.Request.Context(), uid)
 	if err != nil {
@@ -102,7 +102,7 @@ func (c *Talk) List(ctx *gin.Context) {
 func (c *Talk) Create(ctx *gin.Context) {
 	var (
 		params = &request.TalkListCreateRequest{}
-		uid    = auth.GetAuthUserID(ctx)
+		uid    = jwt.GetUid(ctx)
 		agent  = strings.TrimSpace(ctx.GetHeader("user-agent"))
 	)
 
@@ -162,7 +162,7 @@ func (c *Talk) Delete(ctx *gin.Context) {
 		return
 	}
 
-	if err := c.talkListService.Delete(ctx, auth.GetAuthUserID(ctx), params.Id); err != nil {
+	if err := c.talkListService.Delete(ctx, jwt.GetUid(ctx), params.Id); err != nil {
 		response.BusinessError(ctx, err)
 		return
 	}
@@ -179,7 +179,7 @@ func (c *Talk) Top(ctx *gin.Context) {
 	}
 
 	if err := c.talkListService.Top(ctx, &service.TalkSessionTopOpts{
-		UserId: auth.GetAuthUserID(ctx),
+		UserId: jwt.GetUid(ctx),
 		Id:     params.Id,
 		Type:   params.Type,
 	}); err != nil {
@@ -199,7 +199,7 @@ func (c *Talk) Disturb(ctx *gin.Context) {
 	}
 
 	if err := c.talkListService.Disturb(ctx, &service.TalkSessionDisturbOpts{
-		UserId:     auth.GetAuthUserID(ctx),
+		UserId:     jwt.GetUid(ctx),
 		TalkType:   params.TalkType,
 		ReceiverId: params.ReceiverId,
 		IsDisturb:  params.IsDisturb,
@@ -219,7 +219,7 @@ func (c *Talk) ClearUnreadMessage(ctx *gin.Context) {
 	}
 
 	if params.TalkType == 1 {
-		c.unreadTalkCache.Reset(ctx.Request.Context(), params.ReceiverId, auth.GetAuthUserID(ctx))
+		c.unreadTalkCache.Reset(ctx.Request.Context(), params.ReceiverId, jwt.GetUid(ctx))
 	}
 
 	response.Success(ctx, nil)

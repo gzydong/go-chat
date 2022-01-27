@@ -2,6 +2,7 @@ package v1
 
 import (
 	"go-chat/internal/http/internal/dto"
+	"go-chat/internal/pkg/jwt"
 	"go-chat/internal/pkg/utils"
 	"strconv"
 	"time"
@@ -12,7 +13,6 @@ import (
 	"go-chat/internal/entity"
 	"go-chat/internal/http/internal/request"
 	"go-chat/internal/http/internal/response"
-	"go-chat/internal/pkg/auth"
 	"go-chat/internal/service"
 )
 
@@ -115,7 +115,7 @@ func (c *Auth) Logout(ctx *gin.Context) {
 
 // Refresh Token 刷新接口
 func (c *Auth) Refresh(ctx *gin.Context) {
-	tokenInfo := c.createToken(auth.GetAuthUserID(ctx))
+	tokenInfo := c.createToken(jwt.GetUid(ctx))
 
 	c.toBlackList(ctx)
 
@@ -155,7 +155,7 @@ func (c *Auth) createToken(uid int) *dto.Token {
 	expiresAt := time.Now().Add(time.Second * time.Duration(c.config.Jwt.ExpiresTime)).Unix()
 
 	// 生成登录凭证
-	token := auth.SignJwtToken("api", c.config.Jwt.Secret, &auth.JwtOptions{
+	token := jwt.SignJwtToken("api", c.config.Jwt.Secret, &jwt.Options{
 		ExpiresAt: expiresAt,
 		Id:        strconv.Itoa(uid),
 	})
