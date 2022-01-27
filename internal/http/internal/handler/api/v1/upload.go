@@ -53,7 +53,7 @@ func (u *Upload) Avatar(ctx *gin.Context) {
 	})
 }
 
-// 批量上传初始化
+// InitiateMultipart 批量上传初始化
 func (u *Upload) InitiateMultipart(ctx *gin.Context) {
 	params := &request.UploadInitiateMultipartRequest{}
 	if err := ctx.ShouldBind(params); err != nil {
@@ -77,7 +77,7 @@ func (u *Upload) InitiateMultipart(ctx *gin.Context) {
 	})
 }
 
-// 批量分片上传
+// MultipartUpload 批量分片上传
 func (u *Upload) MultipartUpload(ctx *gin.Context) {
 	params := &request.UploadMultipartRequest{}
 	if err := ctx.ShouldBind(params); err != nil {
