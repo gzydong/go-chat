@@ -36,7 +36,7 @@ type ClientOptions struct {
 func NewClient(conn *websocket.Conn, options *ClientOptions) *Client {
 	client := &Client{
 		conn:     conn,
-		cid:      GenClientID.GetID(),
+		cid:      Counter.GetID(),
 		lastTime: time.Now().Unix(),
 		uid:      options.Uid,
 		channel:  options.Channel,
