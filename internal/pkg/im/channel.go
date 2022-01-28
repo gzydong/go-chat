@@ -2,10 +2,9 @@ package im
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"time"
-
-	"go-chat/internal/pkg/jsonutil"
 )
 
 type HandleInterface interface {
@@ -138,7 +137,7 @@ func (c *Channel) send(ctx context.Context) {
 
 		case body, ok := <-c.outChan:
 			if ok {
-				content, _ := jsonutil.JsonEncodeByte(body.GetMessage())
+				content, _ := json.Marshal(body.GetMessage())
 
 				// 判断是否广播消息
 				if body.IsBroadcast() {

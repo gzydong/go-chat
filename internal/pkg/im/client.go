@@ -2,12 +2,11 @@ package im
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
-	"github.com/tidwall/gjson"
-	"go-chat/internal/pkg/jsonutil"
-	"time"
-
 	"github.com/gorilla/websocket"
+	"github.com/tidwall/gjson"
+	"time"
 )
 
 type StorageInterface interface {
@@ -157,8 +156,7 @@ func (c *Client) accept() {
 		// 心跳消息判断
 		if res.String() == "heartbeat" {
 			c.lastTime = time.Now().Unix()
-
-			data, _ := jsonutil.JsonEncodeByte(&Message{"heartbeat", "pong"})
+			data, _ := json.Marshal(&Message{"heartbeat", "pong"})
 
 			_ = c.Write(data)
 			continue
