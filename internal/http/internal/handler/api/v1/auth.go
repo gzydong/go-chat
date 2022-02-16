@@ -64,6 +64,8 @@ func (c *Auth) Login(ctx *gin.Context) {
 
 	address, _ := c.ipAddressService.FindAddress(ip)
 
+	// todo 手动更新会话状态
+
 	// 推送登录消息
 	_ = c.talkMessageService.SendLoginMessage(ctx.Request.Context(), &service.LoginMessageOpts{
 		UserId:   user.Id,
@@ -155,7 +157,7 @@ func (c *Auth) createToken(uid int) *dto.Token {
 	expiresAt := time.Now().Add(time.Second * time.Duration(c.config.Jwt.ExpiresTime)).Unix()
 
 	// 生成登录凭证
-	token := jwt.SignJwtToken("api", c.config.Jwt.Secret, &jwt.Options{
+	token := jwt.GenerateToken("api", c.config.Jwt.Secret, &jwt.Options{
 		ExpiresAt: expiresAt,
 		Id:        strconv.Itoa(uid),
 	})

@@ -16,8 +16,8 @@ type AuthClaims struct {
 	jwt.StandardClaims
 }
 
-// SignJwtToken 生成 JWT 令牌
-func SignJwtToken(guard string, secret string, ops *Options) string {
+// GenerateToken 生成 JWT 令牌
+func GenerateToken(guard string, secret string, ops *Options) string {
 	claims := AuthClaims{
 		Guard: guard,
 		StandardClaims: jwt.StandardClaims{
@@ -38,8 +38,8 @@ func SignJwtToken(guard string, secret string, ops *Options) string {
 	return tokenString
 }
 
-// VerifyJwtToken 验证 Token
-func VerifyJwtToken(token string, secret string) (*AuthClaims, error) {
+// ParseToken 解析 JWT Token
+func ParseToken(token string, secret string) (*AuthClaims, error) {
 	claims := &AuthClaims{}
 
 	_, err := jwt.ParseWithClaims(token, claims, func(token *jwt.Token) (interface{}, error) {

@@ -51,7 +51,7 @@ func check(guard string, secret string, token string) (*AuthClaims, error) {
 		return nil, errors.New("请登录后操作! ")
 	}
 
-	claims, err := VerifyJwtToken(token, secret)
+	claims, err := ParseToken(token, secret)
 	if err != nil {
 		return nil, err
 	}
