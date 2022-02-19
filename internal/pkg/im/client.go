@@ -4,9 +4,10 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"time"
+
 	"github.com/gorilla/websocket"
 	"github.com/tidwall/gjson"
-	"time"
 )
 
 type StorageInterface interface {
@@ -117,7 +118,7 @@ func (c *Client) Close(code int, message string) {
 func (c *Client) Write(data []byte) error {
 
 	if c.IsClosed() {
-		return fmt.Errorf("client closed")
+		return fmt.Errorf("websocket client closed")
 	}
 
 	// 消息写入缓冲通道
@@ -163,7 +164,7 @@ func (c *Client) accept() {
 		}
 
 		if len(msg) > 0 {
-			c.Channel().PushRecvChannel(&ReceiveContent{c, msg})
+			c.Channel().PushAcceptChannel(&ReceiveContent{c, msg})
 		}
 	}
 }

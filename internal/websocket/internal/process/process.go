@@ -2,9 +2,10 @@ package process
 
 import (
 	"context"
+	"sync"
+
 	"go-chat/internal/pkg/im"
 	"golang.org/x/sync/errgroup"
-	"sync"
 )
 
 var onceProcess sync.Once

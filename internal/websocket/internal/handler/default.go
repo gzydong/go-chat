@@ -3,6 +3,9 @@ package handler
 import (
 	"context"
 	"encoding/json"
+	"log"
+	"strconv"
+
 	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis/v8"
 	"github.com/tidwall/gjson"
@@ -14,8 +17,6 @@ import (
 	"go-chat/internal/pkg/jwt"
 	"go-chat/internal/service"
 	"go-chat/internal/websocket/internal/dto"
-	"log"
-	"strconv"
 )
 
 type DefaultWebSocket struct {

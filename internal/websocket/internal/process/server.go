@@ -2,10 +2,11 @@ package process
 
 import (
 	"context"
-	"go-chat/config"
-	"go-chat/internal/cache"
 	"log"
 	"time"
+
+	"go-chat/config"
+	"go-chat/internal/cache"
 )
 
 type Server struct {

@@ -3,9 +3,10 @@ package process
 import (
 	"context"
 	"fmt"
+	"time"
+
 	"github.com/go-redis/redis/v8"
 	"go-chat/internal/cache"
-	"time"
 )
 
 type ClearGarbage struct {
@@ -14,11 +15,12 @@ type ClearGarbage struct {
 	server *cache.SidServer
 }
 
-// 清除 Websocket 相关过期垃圾数据
+// NewClearGarbage 清除 Websocket 相关过期垃圾数据
 func NewClearGarbage(redis *redis.Client, lock *cache.RedisLock, server *cache.SidServer) *ClearGarbage {
 	return &ClearGarbage{redis: redis, lock: lock, server: server}
 }
 
+// Handle 执行入口
 func (s *ClearGarbage) Handle(ctx context.Context) error {
 	ticker := time.NewTicker(30 * time.Minute)
 

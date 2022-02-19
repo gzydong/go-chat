@@ -2,7 +2,13 @@ package service
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"math"
+	"mime/multipart"
+	"path"
+	"strings"
+
 	"github.com/tencentyun/cos-go-sdk-v5"
 	"go-chat/config"
 	"go-chat/internal/dao"
@@ -13,10 +19,6 @@ import (
 	"go-chat/internal/pkg/jsonutil"
 	"go-chat/internal/pkg/strutil"
 	"go-chat/internal/pkg/timeutil"
-	"math"
-	"mime/multipart"
-	"path"
-	"strings"
 )
 
 type MultipartInitiateOpts struct {
@@ -118,6 +120,9 @@ func (s *SplitUploadService) MultipartUpload(ctx context.Context, opts *Multipar
 		data.Attr = jsonutil.JsonEncode(map[string]string{
 			"etag": etag,
 		})
+
+	default:
+		return errors.New("未知文件驱动类型")
 	}
 
 	if err := s.Db().Create(data).Error; err != nil {
@@ -144,12 +149,10 @@ func (s *SplitUploadService) merge(info *model.SplitUpload) error {
 		for _, item := range items {
 			stream, err := s.fileSystem.Default.ReadStream(item.Path)
 			if err != nil {
-				fmt.Println("ReadContent err:", err.Error())
 				return err
 			}
 
 			if err := s.fileSystem.Local.AppendWrite(stream, info.Path); err != nil {
-				fmt.Println("AppendWrite err:", err)
 				return err
 			}
 		}
@@ -171,6 +174,8 @@ func (s *SplitUploadService) merge(info *model.SplitUpload) error {
 		if err := s.fileSystem.Cos.CompleteMultipartUpload(info.Path, info.UploadId, opt); err != nil {
 			return err
 		}
+	default:
+		return errors.New("未知文件驱动类型")
 	}
 
 	return nil

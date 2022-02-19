@@ -16,12 +16,13 @@ import (
 	"time"
 )
 
-// See: https://cloud.tencent.com/document/product/436/31215
 type CosFilesystem struct {
 	conf   *config.Config
 	client *cos.Client
 }
 
+// NewCosFilesystem ...
+// See: https://cloud.tencent.com/document/product/436/31215
 func NewCosFilesystem(conf *config.Config) *CosFilesystem {
 
 	bucketURL, _ := url.Parse(fmt.Sprintf("https://%s.cos.%s.myqcloud.com", conf.Filesystem.Cos.Bucket, conf.Filesystem.Cos.Region))

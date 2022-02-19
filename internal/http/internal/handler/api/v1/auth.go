@@ -1,11 +1,12 @@
 package v1
 
 import (
+	"strconv"
+	"time"
+
 	"go-chat/internal/http/internal/dto"
 	"go-chat/internal/pkg/jwt"
 	"go-chat/internal/pkg/utils"
-	"strconv"
-	"time"
 
 	"github.com/gin-gonic/gin"
 	"go-chat/config"

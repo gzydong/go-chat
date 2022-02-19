@@ -2,6 +2,10 @@ package article
 
 import (
 	"fmt"
+	"math"
+	"net/http"
+	"time"
+
 	"github.com/gin-gonic/gin"
 	"go-chat/internal/entity"
 	"go-chat/internal/http/internal/request"
@@ -12,9 +16,6 @@ import (
 	"go-chat/internal/pkg/strutil"
 	"go-chat/internal/pkg/timeutil"
 	"go-chat/internal/service/note"
-	"math"
-	"net/http"
-	"time"
 )
 
 type Annex struct {
@@ -186,5 +187,7 @@ func (c *Annex) Download(ctx *gin.Context) {
 		ctx.FileAttachment(c.fileSystem.Local.Path(info.Path), info.OriginalName)
 	case entity.FileDriveCos:
 		ctx.Redirect(http.StatusFound, c.fileSystem.Cos.PrivateUrl(info.Path, 60))
+	default:
+		response.BusinessError(ctx, "未知文件驱动类型")
 	}
 }
