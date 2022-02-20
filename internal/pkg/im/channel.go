@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"sync/atomic"
 	"time"
 )
 
@@ -16,7 +17,7 @@ type HandleInterface interface {
 // Channel 渠道管理（多渠道划分，实现不同业务之间隔离）
 type Channel struct {
 	name    string               // 渠道名称
-	count   int                  // 客户端连接数
+	count   int64                // 客户端连接数
 	node    *Node                // 客户端列表【客户端ID取余拆分，降低 map 长度，减少 map 加锁时间提高并发处理量】
 	inChan  chan *ReceiveContent // 消息接收通道
 	outChan chan *SenderContent  // 消息发送通道
@@ -33,7 +34,7 @@ func (c *Channel) Name() string {
 }
 
 // Count 获取客户端连接数
-func (c *Channel) Count() int {
+func (c *Channel) Count() int64 {
 	return c.count
 }
 
@@ -46,7 +47,7 @@ func (c *Channel) Client(cid int64) (*Client, bool) {
 func (c *Channel) addClient(client *Client) {
 	c.node.add(client)
 
-	c.count++
+	atomic.AddInt64(&c.count, 1)
 }
 
 // delClient 删除客户端
@@ -56,11 +57,12 @@ func (c *Channel) delClient(client *Client) {
 	}
 
 	c.node.del(client)
-	c.count--
+
+	atomic.AddInt64(&c.count, -1)
 }
 
-// PushRecvChannel 推送消息到接收通道
-func (c *Channel) PushRecvChannel(message *ReceiveContent) {
+// PushAcceptChannel 推送消息到接收通道
+func (c *Channel) PushAcceptChannel(message *ReceiveContent) {
 	select {
 	case c.inChan <- message:
 		break

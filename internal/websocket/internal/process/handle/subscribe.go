@@ -4,6 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"strconv"
+
 	"github.com/gin-gonic/gin"
 	"go-chat/config"
 	"go-chat/internal/cache"
@@ -12,7 +14,6 @@ import (
 	"go-chat/internal/pkg/im"
 	"go-chat/internal/pkg/jsonutil"
 	"go-chat/internal/service"
-	"strconv"
 )
 
 type onConsumeFunc func(data string)

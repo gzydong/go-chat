@@ -1,6 +1,8 @@
 package talk
 
 import (
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 	"go-chat/internal/entity"
 	"go-chat/internal/http/internal/request"
@@ -9,7 +11,6 @@ import (
 	"go-chat/internal/pkg/jwt"
 	"go-chat/internal/pkg/slice"
 	"go-chat/internal/service"
-	"net/http"
 )
 
 type Records struct {
@@ -157,5 +158,7 @@ func (c *Records) Download(ctx *gin.Context) {
 		ctx.FileAttachment(c.fileSystem.Local.Path(resp.FileInfo.Path), resp.FileInfo.OriginalName)
 	case entity.FileDriveCos:
 		ctx.Redirect(http.StatusFound, c.fileSystem.Cos.PrivateUrl(resp.FileInfo.Path, 60))
+	default:
+		response.BusinessError(ctx, "未知文件驱动类型")
 	}
 }

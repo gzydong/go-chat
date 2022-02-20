@@ -2,8 +2,9 @@ package response
 
 import (
 	"fmt"
-	"go-chat/internal/pkg/validation"
 	"net/http"
+
+	"go-chat/internal/pkg/validation"
 
 	"github.com/gin-gonic/gin"
 	"go-chat/internal/entity"

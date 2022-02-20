@@ -4,15 +4,16 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/urfave/cli/v2"
-	"go-chat/internal/pkg/im"
-	"golang.org/x/sync/errgroup"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
+
+	"github.com/urfave/cli/v2"
+	"go-chat/internal/pkg/im"
+	"golang.org/x/sync/errgroup"
 )
 
 func main() {
@@ -26,7 +27,7 @@ func main() {
 	}
 
 	cmd.Action = func(tx *cli.Context) error {
-		// 初始化 IM 渠道配置，后面将 IM 独立拆分部署，Http 服务下无需加载
+		// 初始化 IM 渠道配置
 		im.Initialize()
 
 		ctx, cancel := context.WithCancel(tx.Context)
