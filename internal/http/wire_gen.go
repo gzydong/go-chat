@@ -72,7 +72,9 @@ func Initialize(ctx context.Context) *Providers {
 	message := talk.NewTalkMessageHandler(talkMessageService, talkService, talkRecordsVoteDao, talkMessageForwardService, splitUploadService, contactService, groupMemberService)
 	talkSessionDao := dao.NewTalkSessionDao(baseDao)
 	talkSessionService := service.NewTalkSessionService(baseService, talkSessionDao)
-	talkTalk := talk.NewTalkHandler(talkService, talkSessionService, redisLock, userService, wsClientSession, lastMessage, unreadTalkCache, contactService)
+	groupDao := dao.NewGroupDao(baseDao)
+	groupService := service.NewGroupService(baseService, groupDao, groupMemberDao, relation)
+	talkTalk := talk.NewTalkHandler(talkService, talkSessionService, redisLock, userService, wsClientSession, lastMessage, unreadTalkCache, contactService, groupService)
 	talkRecordsDao := &dao.TalkRecordsDao{
 		BaseDao: baseDao,
 	}
@@ -82,8 +84,6 @@ func Initialize(ctx context.Context) *Providers {
 	emoticonService := service.NewEmoticonService(baseService, emoticonDao, filesystemFilesystem)
 	emoticon := v1.NewEmoticonHandler(emoticonService, filesystemFilesystem, redisLock)
 	upload := v1.NewUploadHandler(config, filesystemFilesystem, splitUploadService)
-	groupDao := dao.NewGroupDao(baseDao)
-	groupService := service.NewGroupService(baseService, groupDao, groupMemberDao, relation)
 	groupGroup := group.NewGroupHandler(groupService, groupMemberService, talkSessionService, redisLock, contactService, userService)
 	groupNoticeDao := &dao.GroupNoticeDao{
 		BaseDao: baseDao,

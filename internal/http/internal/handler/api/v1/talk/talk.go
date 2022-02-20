@@ -26,6 +26,7 @@ type Talk struct {
 	lastMessage     *cache.LastMessage
 	contactService  *service.ContactService
 	unreadTalkCache *cache.UnreadTalkCache
+	groupService    *service.GroupService
 }
 
 func NewTalkHandler(
@@ -37,6 +38,7 @@ func NewTalkHandler(
 	lastMessage *cache.LastMessage,
 	unreadTalkCache *cache.UnreadTalkCache,
 	contactService *service.ContactService,
+	groupService *service.GroupService,
 ) *Talk {
 	return &Talk{
 		service:         service,
@@ -47,6 +49,7 @@ func NewTalkHandler(
 		lastMessage:     lastMessage,
 		unreadTalkCache: unreadTalkCache,
 		contactService:  contactService,
+		groupService:    groupService,
 	}
 }
 
@@ -145,10 +148,23 @@ func (c *Talk) Create(ctx *gin.Context) {
 	}
 
 	if item.TalkType == entity.PrivateChat {
+		item.UnreadNum = c.unreadTalkCache.Get(ctx.Request.Context(), params.ReceiverId, uid)
+		item.RemarkName = c.contactService.Dao().GetFriendRemark(ctx.Request.Context(), uid, params.ReceiverId, true)
+
 		if user, err := c.userService.Dao().FindById(item.ReceiverId); err == nil {
 			item.Name = user.Nickname
 			item.Avatar = user.Avatar
 		}
+	} else if item.TalkType == entity.GroupChat {
+		if group, err := c.groupService.Dao().FindById(params.ReceiverId); err == nil {
+			item.Name = group.Name
+		}
+	}
+
+	// 查询缓存消息
+	if msg, err := c.lastMessage.Get(ctx.Request.Context(), item.TalkType, uid, item.ReceiverId); err == nil {
+		item.MsgText = msg.Content
+		item.UpdatedAt = msg.Datetime
 	}
 
 	response.Success(ctx, &item)
