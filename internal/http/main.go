@@ -4,14 +4,16 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/urfave/cli/v2"
-	_ "go-chat/internal/pkg/validation"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
+
+	"github.com/urfave/cli/v2"
+
+	_ "go-chat/internal/pkg/validation"
 
 	_ "github.com/urfave/cli/v2"
 	"golang.org/x/sync/errgroup"

@@ -12,8 +12,9 @@ import (
 	"time"
 
 	"github.com/urfave/cli/v2"
-	"go-chat/internal/pkg/im"
 	"golang.org/x/sync/errgroup"
+
+	"go-chat/internal/pkg/im"
 )
 
 func main() {

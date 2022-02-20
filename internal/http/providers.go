@@ -1,8 +1,9 @@
 package main
 
 import (
-	"go-chat/config"
 	"net/http"
+
+	"go-chat/config"
 )
 
 type Providers struct {

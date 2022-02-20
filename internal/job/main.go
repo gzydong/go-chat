@@ -3,11 +3,12 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/urfave/cli/v2"
 	"os"
 	"os/signal"
 	"sync"
 	"syscall"
+
+	"github.com/urfave/cli/v2"
 )
 
 func main() {
