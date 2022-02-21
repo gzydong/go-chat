@@ -604,7 +604,7 @@ func (s *TalkMessageService) SendLoginMessage(ctx context.Context, opts *LoginMe
 	})
 
 	if err == nil {
-		s.afterHandle(ctx, record, map[string]string{"text": "[系统通知] 账号登录通知！"})
+		s.afterHandle(ctx, record, map[string]string{"text": "[系统通知] 账号登录提醒！"})
 	}
 
 	return err

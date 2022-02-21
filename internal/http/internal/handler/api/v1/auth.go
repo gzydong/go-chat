@@ -69,7 +69,6 @@ func (c *Auth) Login(ctx *gin.Context) {
 
 	address, _ := c.ipAddressService.FindAddress(ip)
 
-	// todo 手动更新会话状态
 	_, _ = c.talkSessionService.Create(ctx.Request.Context(), &service.TalkSessionCreateOpts{
 		UserId:     user.Id,
 		TalkType:   entity.PrivateChat,
