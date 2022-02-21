@@ -3,16 +3,19 @@ package service
 import (
 	"context"
 	"errors"
+	"time"
+
+	"gorm.io/gorm"
+
 	"go-chat/internal/dao"
 	"go-chat/internal/model"
-	"gorm.io/gorm"
-	"time"
 )
 
 type TalkSessionCreateOpts struct {
 	UserId     int
 	TalkType   int
 	ReceiverId int
+	IsBoot     bool
 }
 
 type TalkSessionTopOpts struct {
@@ -91,11 +94,20 @@ func (s *TalkSessionService) Create(ctx context.Context, opts *TalkSessionCreate
 			ReceiverId: opts.ReceiverId,
 		}
 
+		if opts.IsBoot {
+			result.IsRobot = 1
+		}
+
 		s.db.Create(result)
 	} else {
 		result.IsTop = 0
 		result.IsDelete = 0
 		result.IsDisturb = 0
+
+		if opts.IsBoot {
+			result.IsRobot = 1
+		}
+
 		s.db.Save(result)
 	}
 

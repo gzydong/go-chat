@@ -2,9 +2,10 @@ package jwt
 
 import (
 	"fmt"
+	"strings"
+
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
-	"strings"
 )
 
 type Options jwt.StandardClaims

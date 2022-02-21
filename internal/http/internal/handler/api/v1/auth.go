@@ -9,6 +9,7 @@ import (
 	"go-chat/internal/pkg/utils"
 
 	"github.com/gin-gonic/gin"
+
 	"go-chat/config"
 	"go-chat/internal/cache"
 	"go-chat/internal/entity"
@@ -25,6 +26,7 @@ type Auth struct {
 	redisLock          *cache.RedisLock
 	talkMessageService *service.TalkMessageService
 	ipAddressService   *service.IpAddressService
+	talkSessionService *service.TalkSessionService
 }
 
 func NewAuthHandler(
@@ -35,6 +37,7 @@ func NewAuthHandler(
 	redisLock *cache.RedisLock,
 	talkMessageService *service.TalkMessageService,
 	ipAddressService *service.IpAddressService,
+	talkSessionService *service.TalkSessionService,
 ) *Auth {
 	return &Auth{
 		config:             config,
@@ -44,6 +47,7 @@ func NewAuthHandler(
 		redisLock:          redisLock,
 		talkMessageService: talkMessageService,
 		ipAddressService:   ipAddressService,
+		talkSessionService: talkSessionService,
 	}
 }
 
@@ -66,6 +70,12 @@ func (c *Auth) Login(ctx *gin.Context) {
 	address, _ := c.ipAddressService.FindAddress(ip)
 
 	// todo 手动更新会话状态
+	_, _ = c.talkSessionService.Create(ctx.Request.Context(), &service.TalkSessionCreateOpts{
+		UserId:     user.Id,
+		TalkType:   entity.PrivateChat,
+		ReceiverId: 4257,
+		IsBoot:     true,
+	})
 
 	// 推送登录消息
 	_ = c.talkMessageService.SendLoginMessage(ctx.Request.Context(), &service.LoginMessageOpts{
