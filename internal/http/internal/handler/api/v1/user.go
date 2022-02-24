@@ -2,6 +2,7 @@ package v1
 
 import (
 	"github.com/gin-gonic/gin"
+
 	"go-chat/internal/entity"
 	"go-chat/internal/http/internal/request"
 	"go-chat/internal/http/internal/response"
@@ -80,6 +81,13 @@ func (u *User) ChangePassword(ctx *gin.Context) {
 	params := &request.ChangePasswordRequest{}
 	if err := ctx.ShouldBind(params); err != nil {
 		response.InvalidParams(ctx, err)
+		return
+	}
+
+	uid := jwt.GetUid(ctx)
+
+	if uid == 2054 || uid == 2055 {
+		response.BusinessError(ctx, "预览账号不支持修改密码！")
 		return
 	}
 
