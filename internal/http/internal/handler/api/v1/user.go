@@ -107,6 +107,13 @@ func (u *User) ChangeMobile(ctx *gin.Context) {
 		return
 	}
 
+	uid := jwt.GetUid(ctx)
+
+	if uid == 2054 || uid == 2055 {
+		response.BusinessError(ctx, "预览账号不支持修改手机号！")
+		return
+	}
+
 	if !u.smsService.CheckSmsCode(ctx.Request.Context(), entity.SmsChangeAccountChannel, params.Mobile, params.SmsCode) {
 		response.BusinessError(ctx, "短信验证码填写错误！")
 		return
