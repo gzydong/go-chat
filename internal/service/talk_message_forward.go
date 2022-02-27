@@ -3,13 +3,15 @@ package service
 import (
 	"context"
 	"errors"
+	"strings"
+
+	"gorm.io/gorm"
+
 	"go-chat/internal/entity"
 	"go-chat/internal/model"
 	"go-chat/internal/pkg/jsonutil"
 	"go-chat/internal/pkg/slice"
 	"go-chat/internal/pkg/strutil"
-	"gorm.io/gorm"
-	"strings"
 )
 
 type TalkForwardOpts struct {
@@ -83,7 +85,14 @@ func (t *TalkMessageForwardService) aggregation(ctx context.Context, forward *Ta
 
 	query := t.db.Table("talk_records")
 	query.Joins("left join users on users.id = talk_records.user_id")
-	query.Where("talk_records.id in ?", forward.RecordsIds[:3])
+
+	ids := forward.RecordsIds
+
+	if len(forward.RecordsIds) > 3 {
+		ids = forward.RecordsIds[:3]
+	}
+
+	query.Where("talk_records.id in ?", ids)
 
 	if err := query.Limit(3).Scan(&rows).Error; err != nil {
 		return "", err
