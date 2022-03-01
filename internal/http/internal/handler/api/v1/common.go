@@ -2,6 +2,7 @@ package v1
 
 import (
 	"github.com/gin-gonic/gin"
+
 	"go-chat/config"
 	"go-chat/internal/entity"
 	"go-chat/internal/http/internal/request"

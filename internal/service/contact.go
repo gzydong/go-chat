@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+
 	"go-chat/internal/dao"
 	"go-chat/internal/model"
 )

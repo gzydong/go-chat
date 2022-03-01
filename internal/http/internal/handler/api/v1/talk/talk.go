@@ -2,7 +2,11 @@ package talk
 
 import (
 	"fmt"
+	"strconv"
+	"strings"
+
 	"github.com/gin-gonic/gin"
+
 	"go-chat/internal/cache"
 	"go-chat/internal/entity"
 	"go-chat/internal/http/internal/dto"
@@ -13,8 +17,6 @@ import (
 	"go-chat/internal/pkg/strutil"
 	"go-chat/internal/pkg/timeutil"
 	"go-chat/internal/service"
-	"strconv"
-	"strings"
 )
 
 type Talk struct {

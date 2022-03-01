@@ -4,11 +4,12 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"net/url"
+	"strings"
+
 	"go-chat/config"
 	"go-chat/internal/pkg/client"
 	"go-chat/internal/pkg/slice"
-	"net/url"
-	"strings"
 )
 
 type IpAddressService struct {

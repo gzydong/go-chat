@@ -3,10 +3,12 @@ package note
 import (
 	"context"
 	"errors"
+
+	"gorm.io/gorm"
+
 	"go-chat/internal/dao/note"
 	"go-chat/internal/model"
 	"go-chat/internal/service"
-	"gorm.io/gorm"
 )
 
 type ArticleClassService struct {

@@ -2,7 +2,11 @@ package contact
 
 import (
 	"errors"
+	"strconv"
+
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
+
 	"go-chat/internal/cache"
 	"go-chat/internal/entity"
 	"go-chat/internal/http/internal/request"
@@ -10,8 +14,6 @@ import (
 	"go-chat/internal/pkg/jwt"
 	"go-chat/internal/pkg/strutil"
 	"go-chat/internal/service"
-	"gorm.io/gorm"
-	"strconv"
 )
 
 type Contact struct {

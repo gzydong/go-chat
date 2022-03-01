@@ -2,6 +2,7 @@ package group
 
 import (
 	"github.com/gin-gonic/gin"
+
 	"go-chat/internal/http/internal/request"
 	"go-chat/internal/http/internal/response"
 	"go-chat/internal/pkg/jwt"

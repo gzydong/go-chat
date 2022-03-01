@@ -2,6 +2,7 @@ package v1
 
 import (
 	"fmt"
+
 	"go-chat/internal/cache"
 	"go-chat/internal/http/internal/dto/api"
 	"go-chat/internal/http/internal/request"
@@ -9,6 +10,7 @@ import (
 	"go-chat/internal/pkg/jwt"
 
 	"github.com/gin-gonic/gin"
+
 	"go-chat/internal/http/internal/response"
 	"go-chat/internal/pkg/filesystem"
 	"go-chat/internal/pkg/slice"

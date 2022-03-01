@@ -2,6 +2,8 @@ package service
 
 import (
 	"context"
+	"sort"
+
 	"go-chat/internal/cache"
 	"go-chat/internal/dao"
 	"go-chat/internal/entity"
@@ -10,7 +12,6 @@ import (
 	"go-chat/internal/pkg/jsonutil"
 	"go-chat/internal/pkg/slice"
 	"go-chat/internal/pkg/timeutil"
-	"sort"
 )
 
 type QueryTalkRecordsOpts struct {

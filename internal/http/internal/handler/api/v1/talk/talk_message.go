@@ -2,7 +2,9 @@ package talk
 
 import (
 	"context"
+
 	"github.com/gin-gonic/gin"
+
 	"go-chat/internal/dao"
 	"go-chat/internal/entity"
 	"go-chat/internal/http/internal/request"

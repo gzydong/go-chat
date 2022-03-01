@@ -2,7 +2,10 @@ package v1
 
 import (
 	"fmt"
+	"time"
+
 	"github.com/gin-gonic/gin"
+
 	"go-chat/config"
 	"go-chat/internal/http/internal/request"
 	"go-chat/internal/http/internal/response"
@@ -10,7 +13,6 @@ import (
 	"go-chat/internal/pkg/jwt"
 	"go-chat/internal/pkg/strutil"
 	"go-chat/internal/service"
-	"time"
 )
 
 type Upload struct {

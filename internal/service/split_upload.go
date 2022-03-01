@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/tencentyun/cos-go-sdk-v5"
+
 	"go-chat/config"
 	"go-chat/internal/dao"
 	"go-chat/internal/entity"

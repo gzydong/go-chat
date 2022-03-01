@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+
 	"go-chat/internal/dao"
 	"go-chat/internal/entity"
 	"go-chat/internal/model"

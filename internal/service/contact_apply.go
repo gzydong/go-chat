@@ -3,10 +3,12 @@ package service
 import (
 	"context"
 	"errors"
+
+	"gorm.io/gorm"
+
 	"go-chat/internal/entity"
 	"go-chat/internal/model"
 	"go-chat/internal/pkg/jsonutil"
-	"gorm.io/gorm"
 )
 
 type ContactApplyCreateOpts struct {
