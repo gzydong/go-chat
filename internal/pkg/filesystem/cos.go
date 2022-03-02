@@ -4,9 +4,6 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"github.com/tencentyun/cos-go-sdk-v5"
-	"go-chat/config"
-	"go-chat/internal/pkg/timeutil"
 	"mime/multipart"
 	"net/http"
 	"net/url"
@@ -14,6 +11,11 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/tencentyun/cos-go-sdk-v5"
+
+	"go-chat/config"
+	"go-chat/internal/pkg/timeutil"
 )
 
 type CosFilesystem struct {

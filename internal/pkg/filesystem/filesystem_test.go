@@ -2,9 +2,11 @@ package filesystem
 
 import (
 	"fmt"
-	"github.com/stretchr/testify/assert"
-	"go-chat/testutil"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+
+	"go-chat/testutil"
 )
 
 func testNewFilesystem() *Filesystem {

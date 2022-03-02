@@ -3,9 +3,10 @@ package jwt
 import (
 	"context"
 	"errors"
-	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
+
+	"github.com/gin-gonic/gin"
 )
 
 type SessionInterface interface {

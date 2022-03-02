@@ -1,8 +1,9 @@
 package provider
 
 import (
-	"github.com/sirupsen/logrus"
 	"os"
+
+	"github.com/sirupsen/logrus"
 )
 
 func init() {

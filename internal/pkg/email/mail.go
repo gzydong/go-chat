@@ -2,8 +2,10 @@ package email
 
 import (
 	"crypto/tls"
-	"go-chat/config"
+
 	"gopkg.in/gomail.v2"
+
+	"go-chat/config"
 )
 
 type Options struct {
