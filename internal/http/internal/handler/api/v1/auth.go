@@ -165,7 +165,7 @@ func (c *Auth) Forget(ctx *gin.Context) {
 
 func (c *Auth) createToken(uid int) *dto.Token {
 
-	expiresAt := time.Now().Unix() + c.config.Jwt.ExpiresTime
+	expiresAt := time.Now().Add(time.Second * time.Duration(c.config.Jwt.ExpiresTime)).Unix()
 
 	// 生成登录凭证
 	token := jwt.GenerateToken("api", c.config.Jwt.Secret, &jwt.Options{
@@ -176,7 +176,7 @@ func (c *Auth) createToken(uid int) *dto.Token {
 	return &dto.Token{
 		Type:      "Bearer",
 		Token:     token,
-		ExpiresIn: expiresAt,
+		ExpiresIn: c.config.Jwt.ExpiresTime,
 	}
 }
 
