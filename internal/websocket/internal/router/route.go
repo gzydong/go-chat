@@ -1,12 +1,14 @@
 package router
 
 import (
+	"net/http"
+
 	"github.com/gin-gonic/gin"
+
 	"go-chat/config"
 	"go-chat/internal/cache"
 	"go-chat/internal/pkg/jwt"
 	"go-chat/internal/websocket/internal/handler"
-	"net/http"
 )
 
 // NewRouter 初始化配置路由

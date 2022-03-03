@@ -20,14 +20,14 @@ func Auth(secret string, guard string, session SessionInterface) gin.HandlerFunc
 
 		claims, err := check(guard, secret, token)
 		if err != nil {
-			c.JSON(http.StatusUnauthorized, gin.H{"message": err.Error()})
+			c.JSON(http.StatusUnauthorized, gin.H{"code": 401, "message": err.Error()})
 			c.Abort()
 			return
 		}
 
 		// 这里还需要验证 token 黑名单
 		if session.IsBlackList(context.Background(), token) {
-			c.JSON(http.StatusUnauthorized, gin.H{"message": "请登录再试！"})
+			c.JSON(http.StatusUnauthorized, gin.H{"code": 401, "message": "请登录再试！"})
 			c.Abort()
 			return
 		}

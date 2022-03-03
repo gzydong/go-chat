@@ -4,8 +4,9 @@ import (
 	"context"
 	"sync"
 
-	"go-chat/internal/pkg/im"
 	"golang.org/x/sync/errgroup"
+
+	"go-chat/internal/pkg/im"
 )
 
 var onceProcess sync.Once
