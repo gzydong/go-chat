@@ -120,6 +120,12 @@ func (c *Talk) Create(ctx *gin.Context) {
 		agent = encrypt.Md5(agent)
 	}
 
+	// 判断对方是否是自己
+	if params.TalkType == entity.PrivateChat && params.ReceiverId == jwt.GetUid(ctx) {
+		response.BusinessError(ctx, "创建失败")
+		return
+	}
+
 	key := fmt.Sprintf("talk:list:%d-%d-%d-%s", uid, params.ReceiverId, params.TalkType, agent)
 	if !c.redisLock.Lock(ctx.Request.Context(), key, 10) {
 		response.BusinessError(ctx, "创建失败")
@@ -141,11 +147,6 @@ func (c *Talk) Create(ctx *gin.Context) {
 		TalkType:   result.TalkType,
 		ReceiverId: result.ReceiverId,
 		IsRobot:    result.IsRobot,
-		Avatar:     "",
-		Name:       "",
-		RemarkName: "",
-		UnreadNum:  0,
-		MsgText:    "",
 		UpdatedAt:  timeutil.DateTime(),
 	}
 

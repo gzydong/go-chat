@@ -8,7 +8,7 @@ type Users struct {
 	Nickname  string    `gorm:"column:nickname;NOT NULL" json:"nickname"`           // 用户昵称
 	Avatar    string    `gorm:"column:avatar;NOT NULL" json:"avatar"`               // 用户头像地址
 	Gender    int       `gorm:"column:gender;default:0;NOT NULL" json:"gender"`     // 用户性别  0:未知  1:男   2:女
-	Password  string    `gorm:"column:password;NOT NULL" json:"password"`           // 用户密码
+	Password  string    `gorm:"column:password;NOT NULL" json:"-"`                  // 用户密码
 	Motto     string    `gorm:"column:motto;NOT NULL" json:"motto"`                 // 用户座右铭
 	Email     string    `gorm:"column:email;NOT NULL" json:"email"`                 // 用户邮箱
 	IsRobot   int       `gorm:"column:is_robot;default:0;NOT NULL" json:"is_robot"` // 是否机器人[0:否;1:是;]
