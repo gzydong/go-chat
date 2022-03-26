@@ -29,18 +29,18 @@ func (s *SmsService) DeleteSmsCode(ctx context.Context, channel string, mobile s
 }
 
 // SendSmsCode 发送短信
-func (s *SmsService) SendSmsCode(ctx context.Context, channel string, mobile string) error {
+func (s *SmsService) SendSmsCode(ctx context.Context, channel string, mobile string) (string, error) {
 	// todo 需要做防止短信攻击处理
 
 	code := strutil.GenValidateCode(6)
 
 	// 添加发送记录
 	if err := s.smsCodeCache.Set(ctx, channel, mobile, code, 60*15); err != nil {
-		return err
+		return "", err
 	}
 
 	// ... 请求第三方短信接口
 	fmt.Println("正在发送短信验证码：", code)
 
-	return nil
+	return code, nil
 }

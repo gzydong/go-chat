@@ -57,12 +57,20 @@ func (c *Common) SmsCode(ctx *gin.Context) {
 	}
 
 	// 发送短信验证码
-	if err := c.smsService.SendSmsCode(ctx.Request.Context(), params.Channel, params.Mobile); err != nil {
+	code, err := c.smsService.SendSmsCode(ctx.Request.Context(), params.Channel, params.Mobile)
+	if err != nil {
 		response.BusinessError(ctx, err)
 		return
 	}
 
-	response.Success(ctx, nil, "发送成功！")
+	if params.Channel == entity.SmsRegisterChannel {
+		response.Success(ctx, entity.Map{
+			"is_debug": true,
+			"sms_code": code,
+		}, "发送成功！")
+	} else {
+		response.Success(ctx, nil, "发送成功！")
+	}
 }
 
 // EmailCode 发送邮件验证码
