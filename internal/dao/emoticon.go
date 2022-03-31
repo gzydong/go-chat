@@ -56,7 +56,7 @@ func (dao *EmoticonDao) GetDetailsAll(emoticonId, uid int) ([]*model.EmoticonIte
 		items = make([]*model.EmoticonItem, 0)
 	)
 
-	if err = dao.Db().Model(&model.EmoticonItem{}).Where("emoticon_id = ? and user_id = ?", emoticonId, uid).Scan(&items).Error; err != nil {
+	if err = dao.Db().Model(&model.EmoticonItem{}).Where("emoticon_id = ? and user_id = ? order by id desc", emoticonId, uid).Scan(&items).Error; err != nil {
 		return nil, err
 	}
 
