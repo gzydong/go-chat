@@ -14,7 +14,6 @@ redis:
   port: 6379
   auth: xxxxx
   database: 0
-  prefix: go_chat
 
 # Mysql 数据库配置
 mysql:

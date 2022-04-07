@@ -5,15 +5,16 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"go-chat/config"
 )
 
 type HttpServer *http.Server
 
 type WebsocketServer *http.Server
 
-func NewHttpServer(handler *gin.Engine) *http.Server {
+func NewHttpServer(conf *config.Config, handler *gin.Engine) *http.Server {
 	return &http.Server{
-		Addr:    fmt.Sprintf("0.0.0.0:%d", 9503),
+		Addr:    fmt.Sprintf("0.0.0.0:%d", conf.App.Port),
 		Handler: handler,
 	}
 }

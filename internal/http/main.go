@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"os"
@@ -11,7 +12,9 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/gin-gonic/gin"
 	"github.com/urfave/cli/v2"
+	"go-chat/internal/provider"
 
 	_ "go-chat/internal/pkg/validation"
 
@@ -21,22 +24,38 @@ import (
 
 func main() {
 	cmd := cli.NewApp()
-	cmd.Name = "Http Server"
+	cmd.Name = "Http Log"
 	cmd.Usage = "GoChat 即时聊天应用"
 
 	// 设置参数
 	cmd.Flags = []cli.Flag{
+		// 配置文件参数
+		&cli.StringFlag{Name: "config", Aliases: []string{"c"}, Value: "./config.yaml", Usage: "配置文件路径", DefaultText: "./config.yaml"},
+
+		// 端口号参数
 		&cli.IntFlag{Name: "port", Aliases: []string{"p"}, Value: 9503, Usage: "设置端口号", DefaultText: "9503"},
 	}
 
 	cmd.Action = func(tx *cli.Context) error {
 		ctx, cancel := context.WithCancel(tx.Context)
+
 		defer cancel()
 
-		providers := Initialize(ctx)
+		// 读取配置文件
+		config := provider.ReadConfig(tx.String("config"))
 
 		// 设置服务端口号
-		providers.Server.Addr = fmt.Sprintf("0.0.0.0:%d", tx.Int("port"))
+		config.SetPort(tx.Int("port"))
+
+		if !config.Debug() {
+			gin.SetMode(gin.ReleaseMode)
+
+			// 配置访问日志
+			f, _ := os.Create(fmt.Sprintf("%s/logs/access.log", config.Log.Dir))
+			gin.DefaultWriter = io.MultiWriter(f)
+		}
+
+		providers := Initialize(ctx, config)
 
 		eg, groupCtx := errgroup.WithContext(ctx)
 		c := make(chan os.Signal, 1)
@@ -69,7 +88,7 @@ func run(c chan os.Signal, eg *errgroup.Group, ctx context.Context, cancel conte
 			timeCtx, timeCancel := context.WithTimeout(context.Background(), 5*time.Second)
 			defer timeCancel()
 			if err := server.Shutdown(timeCtx); err != nil {
-				log.Printf("HTTP Server Shutdown err: %s\n", err)
+				log.Printf("HTTP Log Shutdown err: %s\n", err)
 			}
 		}()
 
@@ -85,5 +104,5 @@ func run(c chan os.Signal, eg *errgroup.Group, ctx context.Context, cancel conte
 		log.Fatalf("eg error: %s", err)
 	}
 
-	log.Fatal("HTTP Server Shutdown")
+	log.Fatal("HTTP Log Shutdown")
 }

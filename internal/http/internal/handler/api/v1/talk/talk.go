@@ -132,6 +132,8 @@ func (c *Talk) Create(ctx *gin.Context) {
 		return
 	}
 
+	// 需要判断权限
+
 	result, err := c.talkListService.Create(ctx.Request.Context(), &service.TalkSessionCreateOpts{
 		UserId:     uid,
 		TalkType:   params.TalkType,

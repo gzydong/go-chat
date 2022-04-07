@@ -5,6 +5,8 @@ package main
 
 import (
 	"context"
+
+	"go-chat/config"
 	"go-chat/internal/dao"
 	note2 "go-chat/internal/dao/note"
 	"go-chat/internal/http/internal/handler/api/v1/article"
@@ -26,7 +28,7 @@ import (
 
 var providerSet = wire.NewSet(
 	// 基础服务
-	provider.NewConfig,
+	// provider.NewConfig,
 	provider.NewMySQLClient,
 	provider.NewRedisClient,
 	provider.NewHttpClient,
@@ -114,6 +116,6 @@ var providerSet = wire.NewSet(
 	wire.Struct(new(Providers), "*"),
 )
 
-func Initialize(ctx context.Context) *Providers {
+func Initialize(ctx context.Context, conf *config.Config) *Providers {
 	panic(wire.Build(providerSet))
 }

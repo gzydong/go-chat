@@ -17,7 +17,7 @@ type Config struct {
 	MySQL      *MySQL      `json:"mysql" yaml:"mysql"`
 	Jwt        *Jwt        `json:"jwt" yaml:"jwt"`
 	Cors       *Cors       `json:"cors" yaml:"cors"`
-	Server     *Log        `json:"server" yaml:"server"`
+	Log        *Log        `json:"log" yaml:"log"`
 	Filesystem *Filesystem `json:"filesystem" yaml:"filesystem"`
 	Email      *Email      `json:"email" yaml:"email"`
 }
@@ -44,7 +44,11 @@ func (c *Config) ServerId() string {
 	return c.sid
 }
 
-// 调试模式
+// Debug 调试模式
 func (c *Config) Debug() bool {
 	return c.App.Debug
+}
+
+func (c *Config) SetPort(port int) {
+	c.App.Port = port
 }

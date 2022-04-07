@@ -19,7 +19,7 @@ import (
 
 func main() {
 	cmd := cli.NewApp()
-	cmd.Name = "Websocket Server"
+	cmd.Name = "Websocket Log"
 	cmd.Usage = "GoChat 即时聊天应用"
 
 	// 设置参数
@@ -74,7 +74,7 @@ func run(c chan os.Signal, eg *errgroup.Group, ctx context.Context, cancel conte
 			defer timeCancel()
 
 			if err := server.Shutdown(timeCtx); err != nil {
-				log.Printf("Websocket Server Shutdown err: %s\n", err)
+				log.Printf("Websocket Log Shutdown err: %s\n", err)
 			}
 		}()
 
@@ -90,5 +90,5 @@ func run(c chan os.Signal, eg *errgroup.Group, ctx context.Context, cancel conte
 		log.Fatalf("eg error: %s", err)
 	}
 
-	log.Fatal("Websocket Server Shutdown")
+	log.Fatal("Websocket Log Shutdown")
 }

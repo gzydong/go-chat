@@ -2,6 +2,7 @@ package dao
 
 import (
 	"errors"
+
 	"github.com/go-redis/redis/v8"
 	"go-chat/internal/entity"
 	"gorm.io/gorm"
