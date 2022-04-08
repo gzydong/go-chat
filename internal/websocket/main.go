@@ -50,7 +50,7 @@ func main() {
 			gin.SetMode(gin.ReleaseMode)
 
 			// 配置访问日志
-			f, _ := os.Create(fmt.Sprintf("%s/logs/http-access.log", config.Log.Dir))
+			f, _ := os.Create(fmt.Sprintf("%s/logs/ws-access.log", config.Log.Dir))
 			gin.DefaultWriter = io.MultiWriter(f)
 		}
 
