@@ -47,11 +47,10 @@ func main() {
 		config.SetPort(tx.Int("port"))
 
 		if !config.Debug() {
-			gin.SetMode(gin.ReleaseMode)
+			writer, _ := os.OpenFile(fmt.Sprintf("%s/logs/http-access.log", config.Log.Dir), os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0666)
 
-			// 配置访问日志
-			f, _ := os.Create(fmt.Sprintf("%s/logs/http-access.log", config.Log.Dir))
-			gin.DefaultWriter = f
+			gin.DefaultWriter = writer
+			gin.SetMode(gin.ReleaseMode)
 		}
 
 		providers := Initialize(ctx, config)
