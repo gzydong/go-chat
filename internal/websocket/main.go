@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"os"
@@ -11,7 +12,9 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/gin-gonic/gin"
 	"github.com/urfave/cli/v2"
+	"go-chat/internal/provider"
 	"golang.org/x/sync/errgroup"
 
 	"go-chat/internal/pkg/im"
@@ -24,6 +27,9 @@ func main() {
 
 	// 设置参数
 	cmd.Flags = []cli.Flag{
+		// 配置文件参数
+		&cli.StringFlag{Name: "config", Aliases: []string{"c"}, Value: "./config.yaml", Usage: "配置文件路径", DefaultText: "./config.yaml"},
+
 		&cli.IntFlag{Name: "port", Aliases: []string{"p"}, Value: 9504, Usage: "设置端口号", DefaultText: "9504"},
 	}
 
@@ -34,10 +40,21 @@ func main() {
 		ctx, cancel := context.WithCancel(tx.Context)
 		defer cancel()
 
-		providers := Initialize(ctx)
+		// 读取配置文件
+		config := provider.ReadConfig(tx.String("config"))
 
 		// 设置服务端口号
-		providers.WsServer.Addr = fmt.Sprintf("0.0.0.0:%d", tx.Int("port"))
+		config.SetPort(tx.Int("port"))
+
+		if !config.Debug() {
+			gin.SetMode(gin.ReleaseMode)
+
+			// 配置访问日志
+			f, _ := os.Create(fmt.Sprintf("%s/logs/http-access.log", config.Log.Dir))
+			gin.DefaultWriter = io.MultiWriter(f)
+		}
+
+		providers := Initialize(ctx, config)
 
 		eg, groupCtx := errgroup.WithContext(ctx)
 		c := make(chan os.Signal, 1)
@@ -58,9 +75,9 @@ func main() {
 func run(c chan os.Signal, eg *errgroup.Group, ctx context.Context, cancel context.CancelFunc, server *http.Server) {
 	// 启动 http 服务
 	eg.Go(func() error {
-		log.Printf("Websocket listen : %s", server.Addr)
+		log.Printf("Websocket Listen : %s", server.Addr)
 		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			log.Fatalf("Websocket listen : %s", err)
+			log.Fatalf("Websocket Listen : %s", err)
 		}
 
 		return nil
@@ -74,7 +91,7 @@ func run(c chan os.Signal, eg *errgroup.Group, ctx context.Context, cancel conte
 			defer timeCancel()
 
 			if err := server.Shutdown(timeCtx); err != nil {
-				log.Printf("Websocket Log Shutdown err: %s\n", err)
+				log.Printf("Websocket Shutdown err: %s\n", err)
 			}
 		}()
 
@@ -90,5 +107,5 @@ func run(c chan os.Signal, eg *errgroup.Group, ctx context.Context, cancel conte
 		log.Fatalf("eg error: %s", err)
 	}
 
-	log.Fatal("Websocket Log Shutdown")
+	log.Fatal("Websocket Shutdown")
 }

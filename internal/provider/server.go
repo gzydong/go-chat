@@ -19,9 +19,9 @@ func NewHttpServer(conf *config.Config, handler *gin.Engine) *http.Server {
 	}
 }
 
-func NewWebsocketServer(handler *gin.Engine) WebsocketServer {
+func NewWebsocketServer(conf *config.Config, handler *gin.Engine) WebsocketServer {
 	return &http.Server{
-		Addr:    fmt.Sprintf("0.0.0.0:%d", 9504),
+		Addr:    fmt.Sprintf("0.0.0.0:%d", conf.App.Port),
 		Handler: handler,
 	}
 }

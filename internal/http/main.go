@@ -51,7 +51,7 @@ func main() {
 			gin.SetMode(gin.ReleaseMode)
 
 			// 配置访问日志
-			f, _ := os.Create(fmt.Sprintf("%s/logs/access.log", config.Log.Dir))
+			f, _ := os.Create(fmt.Sprintf("%s/logs/http-access.log", config.Log.Dir))
 			gin.DefaultWriter = io.MultiWriter(f)
 		}
 
@@ -73,9 +73,10 @@ func main() {
 func run(c chan os.Signal, eg *errgroup.Group, ctx context.Context, cancel context.CancelFunc, server *http.Server) {
 	// 启动 http 服务
 	eg.Go(func() error {
-		log.Printf("HTTP listen : %s", server.Addr)
+		log.Printf("HTTP Listen %s", server.Addr)
+
 		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			log.Fatalf("HTTP listen : %s", err)
+			log.Fatalf("HTTP Listen err: %s", err)
 		}
 
 		return nil
@@ -88,7 +89,7 @@ func run(c chan os.Signal, eg *errgroup.Group, ctx context.Context, cancel conte
 			timeCtx, timeCancel := context.WithTimeout(context.Background(), 5*time.Second)
 			defer timeCancel()
 			if err := server.Shutdown(timeCtx); err != nil {
-				log.Printf("HTTP Log Shutdown err: %s\n", err)
+				log.Fatalf("HTTP Shutdown err: %s", err)
 			}
 		}()
 
@@ -104,5 +105,5 @@ func run(c chan os.Signal, eg *errgroup.Group, ctx context.Context, cancel conte
 		log.Fatalf("eg error: %s", err)
 	}
 
-	log.Fatal("HTTP Log Shutdown")
+	log.Fatal("HTTP Shutdown")
 }
