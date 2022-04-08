@@ -2,41 +2,16 @@ package provider
 
 import (
 	"fmt"
-	"io"
-	"log"
-	"os"
 	"time"
 
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
-	"gorm.io/gorm/logger"
 	"gorm.io/gorm/schema"
 
 	"go-chat/config"
 )
 
-type Writer interface {
-	Write(p []byte) (n int, err error)
-}
-
 func NewMySQLClient(conf *config.Config) *gorm.DB {
-
-	var out io.Writer
-
-	if conf.Debug() {
-		out = os.Stdout
-	} else {
-		out, _ = os.OpenFile(fmt.Sprintf("%s/logs/sql.log", conf.Log.Dir), os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0666)
-	}
-
-	newLogger := logger.New(
-		log.New(out, "\r\n", log.LstdFlags), // io writer
-		logger.Config{
-			SlowThreshold: time.Second,   // 慢 SQL 阈值
-			LogLevel:      logger.Silent, // Log level
-		},
-	)
-
 	db, err := gorm.Open(mysql.New(mysql.Config{
 		DSN:                       conf.MySQL.GetDsn(), // DSN data source name
 		DisableDatetimePrecision:  true,                // 禁用 datetime 精度，MySQL 5.6 之前的数据库不支持
@@ -47,7 +22,6 @@ func NewMySQLClient(conf *config.Config) *gorm.DB {
 		NamingStrategy: schema.NamingStrategy{
 			SingularTable: true, // 使用单数表名，启用该选项，此时，`Article` 的表名应该是 `it_article`
 		},
-		Logger: newLogger,
 	})
 
 	if err != nil {
@@ -59,6 +33,7 @@ func NewMySQLClient(conf *config.Config) *gorm.DB {
 	}
 
 	sqlDB, _ := db.DB()
+
 	sqlDB.SetMaxIdleConns(10)
 	sqlDB.SetMaxOpenConns(100)
 	sqlDB.SetConnMaxLifetime(time.Hour)

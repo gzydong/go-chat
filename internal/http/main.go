@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"io"
 	"log"
 	"net/http"
 	"os"
@@ -52,7 +51,7 @@ func main() {
 
 			// 配置访问日志
 			f, _ := os.Create(fmt.Sprintf("%s/logs/http-access.log", config.Log.Dir))
-			gin.DefaultWriter = io.MultiWriter(f)
+			gin.DefaultWriter = f
 		}
 
 		providers := Initialize(ctx, config)
