@@ -13,9 +13,10 @@ func RegisterApiRoute(conf *config.Config, router *gin.Engine, handler *handler.
 	// 授权验证中间件
 	authorize := jwt.Auth(conf.Jwt.Secret, "api", session)
 
-	group := router.Group("/api/v1")
+	// v1 接口
+	v1 := router.Group("/api/v1")
 	{
-		common := group.Group("/common")
+		common := v1.Group("/common")
 		{
 			common.POST("/sms-code", handler.Common.SmsCode)
 			common.POST("/email-code", authorize, handler.Common.EmailCode)
@@ -23,7 +24,7 @@ func RegisterApiRoute(conf *config.Config, router *gin.Engine, handler *handler.
 		}
 
 		// 授权相关分组
-		auth := group.Group("/auth")
+		auth := v1.Group("/auth")
 		{
 			auth.POST("/login", handler.Auth.Login)                // 登录
 			auth.POST("/register", handler.Auth.Register)          // 注册
@@ -33,7 +34,7 @@ func RegisterApiRoute(conf *config.Config, router *gin.Engine, handler *handler.
 		}
 
 		// 用户相关分组
-		user := group.Group("/users").Use(authorize)
+		user := v1.Group("/users").Use(authorize)
 		{
 			user.GET("/detail", handler.User.Detail)                   // 获取个人信息
 			user.GET("/setting", handler.User.Setting)                 // 获取个人信息
@@ -43,7 +44,7 @@ func RegisterApiRoute(conf *config.Config, router *gin.Engine, handler *handler.
 			user.POST("/change/email", handler.User.ChangeEmail)       // 修改用户邮箱
 		}
 
-		contact := group.Group("/contact").Use(authorize)
+		contact := v1.Group("/contact").Use(authorize)
 		{
 			contact.GET("/list", handler.Contact.List)               // 联系人列表
 			contact.GET("/search", handler.Contact.Search)           // 搜索联系人
@@ -60,7 +61,7 @@ func RegisterApiRoute(conf *config.Config, router *gin.Engine, handler *handler.
 		}
 
 		// 聊天群相关分组
-		userGroup := group.Group("/group").Use(authorize)
+		userGroup := v1.Group("/group").Use(authorize)
 		{
 			userGroup.GET("/list", handler.Group.GetGroups)   // 群组列表
 			userGroup.GET("/detail", handler.Group.Detail)    // 群组详情
@@ -82,7 +83,7 @@ func RegisterApiRoute(conf *config.Config, router *gin.Engine, handler *handler.
 			userGroup.POST("/notice/delete", handler.GroupNotice.Delete)        // 删除群公告
 		}
 
-		talk := group.Group("/talk").Use(authorize)
+		talk := v1.Group("/talk").Use(authorize)
 		{
 			talk.GET("/list", handler.Talk.List)                                   // 会话列表
 			talk.POST("/create", handler.Talk.Create)                              // 创建会话
@@ -96,7 +97,7 @@ func RegisterApiRoute(conf *config.Config, router *gin.Engine, handler *handler.
 			talk.POST("/unread/clear", handler.Talk.ClearUnreadMessage)            // 清除会话未读数
 		}
 
-		talkMsg := group.Group("/talk/message").Use(authorize)
+		talkMsg := v1.Group("/talk/message").Use(authorize)
 		{
 			talkMsg.POST("/text", handler.TalkMessage.Text)              // 发送文本消息
 			talkMsg.POST("/code", handler.TalkMessage.Code)              // 发送代码消息
@@ -113,7 +114,7 @@ func RegisterApiRoute(conf *config.Config, router *gin.Engine, handler *handler.
 			talkMsg.POST("/vote/handle", handler.TalkMessage.HandleVote) // 投票消息处理
 		}
 
-		emoticon := group.Group("/emoticon").Use(authorize)
+		emoticon := v1.Group("/emoticon").Use(authorize)
 		{
 			emoticon.GET("/list", handler.Emoticon.CollectList)                // 表情包列表
 			emoticon.POST("/customize/create", handler.Emoticon.Upload)        // 添加自定义表情
@@ -124,14 +125,14 @@ func RegisterApiRoute(conf *config.Config, router *gin.Engine, handler *handler.
 			emoticon.POST("/system/install", handler.Emoticon.SetSystemEmoticon) // 添加或移除系统表情包
 		}
 
-		upload := group.Group("/upload").Use(authorize)
+		upload := v1.Group("/upload").Use(authorize)
 		{
 			upload.POST("/avatar", handler.Upload.Avatar)
 			upload.POST("/multipart/initiate", handler.Upload.InitiateMultipart)
 			upload.POST("/multipart", handler.Upload.MultipartUpload)
 		}
 
-		note := group.Group("/note").Use(authorize)
+		note := v1.Group("/note").Use(authorize)
 		{
 			// 文章相关
 			note.GET("/article/list", handler.Article.List)
@@ -164,5 +165,13 @@ func RegisterApiRoute(conf *config.Config, router *gin.Engine, handler *handler.
 			note.GET("/annex/recover/list", handler.ArticleAnnex.RecoverList)
 			note.GET("/annex/download", handler.ArticleAnnex.Download)
 		}
+	}
+
+	// v2 接口
+	v2 := router.Group("/api/v2")
+	{
+		v2.GET("/test", func(context *gin.Context) {
+			context.JSON(200, gin.H{"message": "success"})
+		})
 	}
 }

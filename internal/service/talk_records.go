@@ -147,10 +147,7 @@ func (s *TalkRecordsService) GetTalkRecord(ctx context.Context, recordId int64) 
 		return nil, err
 	}
 
-	items := make([]*model.QueryTalkRecordsItem, 0)
-	items = append(items, item)
-
-	list, err := s.HandleTalkRecords(ctx, items)
+	list, err := s.HandleTalkRecords(ctx, []*model.QueryTalkRecordsItem{item})
 	if err != nil {
 		return nil, err
 	}

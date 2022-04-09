@@ -18,7 +18,7 @@ build:generate lint
 
 ## mac 下打包 windows 执行文件
 .PHONY: build-windows
-build-windows::generate lint
+build-windows:generate lint
 	CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o ./windows/bin/http-server.exe ./internal/http
 	CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o ./windows/bin/ws-server.exe ./internal/websocket
 	CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o ./windows/bin/job.exe ./internal/job

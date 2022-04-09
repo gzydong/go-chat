@@ -1,6 +1,8 @@
 package router
 
 import (
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 	"go-chat/config"
 	"go-chat/internal/cache"
@@ -11,7 +13,16 @@ import (
 
 // NewRouter 初始化配置路由
 func NewRouter(conf *config.Config, handler *handler.Handler, tokenCache *cache.Session) *gin.Engine {
-	router := gin.Default()
+	router := gin.New()
+	router.Use(gin.Logger())
+	router.Use(gin.RecoveryWithWriter(gin.DefaultWriter, func(c *gin.Context, err interface{}) {
+
+		// errorStr := fmt.Sprintf("[Recovery] %s panic recovered: %s\n%s", timeutil.FormatDatetime(time.Now()), err, string(debug.Stack(4)))
+		//
+		// fmt.Println(errorStr)
+
+		c.AbortWithStatusJSON(http.StatusInternalServerError, map[string]interface{}{"code": 500, "msg": "系统错误，请重试!!!"})
+	}))
 
 	// 注册跨域中间件
 	router.Use(middleware.Cors(conf))
