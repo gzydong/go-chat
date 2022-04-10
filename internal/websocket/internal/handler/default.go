@@ -56,6 +56,7 @@ func (c *DefaultWebSocket) Connect(ctx *gin.Context) {
 		c.message(message)
 	}), im.WithClientCallBackClose(func(client im.ClientInterface, code int, text string) {
 		c.close(client, code, text)
+		// fmt.Printf("客户端[%d] 已关闭连接，关闭提示【%d】%s \n", client.ClientId(), code, text)
 	})))
 }
 

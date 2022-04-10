@@ -143,15 +143,15 @@ func (t *TalkMessageForwardService) SendForwardMessage(ctx context.Context, forw
 	}
 
 	for _, item := range items {
-		t.rds.Publish(ctx, entity.IMGatewayAll, entity.JsonText{
+		t.rds.Publish(ctx, entity.IMGatewayAll, jsonutil.Encode(entity.Map{
 			"event": entity.EventTalk,
-			"data": entity.JsonText{
+			"data": jsonutil.Encode(entity.Map{
 				"sender_id":   forward.UserId,
 				"receiver_id": item.ReceiverId,
 				"talk_type":   item.TalkType,
 				"record_id":   item.RecordId,
-			}.Json(),
-		}.Json())
+			}),
+		}))
 	}
 
 	return nil
