@@ -38,7 +38,7 @@ type AuthPermission struct {
 
 // 权限控制
 func (c *Message) permission(prem *AuthPermission) bool {
-	if prem.TalkType == entity.PrivateChat {
+	if prem.TalkType == entity.ChatPrivateMode {
 		return c.contactService.Dao().IsFriend(prem.ctx, prem.UserId, prem.ReceiverId, true)
 	} else {
 		return c.groupMemberService.Dao().IsMember(prem.ReceiverId, prem.UserId, true)
@@ -213,7 +213,7 @@ func (c *Message) Vote(ctx *gin.Context) {
 
 	if !c.permission(&AuthPermission{
 		ctx:        ctx.Request.Context(),
-		TalkType:   entity.GroupChat,
+		TalkType:   entity.ChatGroupMode,
 		UserId:     uid,
 		ReceiverId: params.ReceiverId,
 	}) {

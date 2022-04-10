@@ -36,16 +36,16 @@ func (s *TalkService) RemoveRecords(ctx context.Context, opts *TalkMessageDelete
 	// 查询的ids
 	findIds := make([]int64, 0)
 
-	if opts.TalkType == entity.PrivateChat {
+	if opts.TalkType == entity.ChatPrivateMode {
 		subQuery := s.db.Where("user_id = ? and receiver_id = ?", opts.UserId, opts.ReceiverId).Or("user_id = ? and receiver_id = ?", opts.ReceiverId, opts.UserId)
 
-		s.db.Model(&model.TalkRecords{}).Where("id in ?", ids).Where("talk_type = ?", entity.PrivateChat).Where(subQuery).Pluck("id", &findIds)
+		s.db.Model(&model.TalkRecords{}).Where("id in ?", ids).Where("talk_type = ?", entity.ChatPrivateMode).Where(subQuery).Pluck("id", &findIds)
 	} else {
 		if !s.groupMemberDao.IsMember(opts.ReceiverId, opts.UserId, false) {
 			return entity.ErrPermissionDenied
 		}
 
-		s.db.Model(&model.TalkRecords{}).Where("id in ? and talk_type = ?", ids, entity.GroupChat).Pluck("id", &findIds)
+		s.db.Model(&model.TalkRecords{}).Where("id in ? and talk_type = ?", ids, entity.ChatGroupMode).Pluck("id", &findIds)
 	}
 
 	if len(ids) != len(findIds) {
@@ -84,11 +84,11 @@ func (s *TalkService) CollectRecord(ctx context.Context, uid int, recordId int) 
 		return errors.New("当前消息不支持收藏！")
 	}
 
-	if record.TalkType == entity.PrivateChat {
+	if record.TalkType == entity.ChatPrivateMode {
 		if record.UserId != uid && record.ReceiverId != uid {
 			return entity.ErrPermissionDenied
 		}
-	} else if record.TalkType == entity.GroupChat {
+	} else if record.TalkType == entity.ChatGroupMode {
 		if !s.groupMemberDao.IsMember(record.ReceiverId, uid, true) {
 			return entity.ErrPermissionDenied
 		}

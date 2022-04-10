@@ -121,7 +121,7 @@ func (c *Talk) Create(ctx *gin.Context) {
 	}
 
 	// 判断对方是否是自己
-	if params.TalkType == entity.PrivateChat && params.ReceiverId == jwt.GetUid(ctx) {
+	if params.TalkType == entity.ChatPrivateMode && params.ReceiverId == jwt.GetUid(ctx) {
 		response.BusinessError(ctx, "创建失败")
 		return
 	}
@@ -152,7 +152,7 @@ func (c *Talk) Create(ctx *gin.Context) {
 		UpdatedAt:  timeutil.DateTime(),
 	}
 
-	if item.TalkType == entity.PrivateChat {
+	if item.TalkType == entity.ChatPrivateMode {
 		item.UnreadNum = c.unreadTalkCache.Get(ctx.Request.Context(), params.ReceiverId, uid)
 		item.RemarkName = c.contactService.Dao().GetFriendRemark(ctx.Request.Context(), uid, params.ReceiverId, true)
 
@@ -160,7 +160,7 @@ func (c *Talk) Create(ctx *gin.Context) {
 			item.Name = user.Nickname
 			item.Avatar = user.Avatar
 		}
-	} else if item.TalkType == entity.GroupChat {
+	} else if item.TalkType == entity.ChatGroupMode {
 		if group, err := c.groupService.Dao().FindById(params.ReceiverId); err == nil {
 			item.Name = group.Name
 		}

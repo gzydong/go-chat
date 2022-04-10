@@ -194,7 +194,7 @@ func (s *SubscribeConsume) onConsumeRevokeTalk(body string) {
 	}
 
 	cids := make([]int64, 0)
-	if record.TalkType == entity.PrivateChat {
+	if record.TalkType == entity.ChatPrivateMode {
 		for _, uid := range [2]int{record.UserId, record.ReceiverId} {
 			ids := s.ws.GetUidFromClientIds(ctx, s.conf.ServerId(), im.Sessions.Default.Name(), strconv.Itoa(uid))
 			cids = append(cids, ids...)

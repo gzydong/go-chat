@@ -49,10 +49,10 @@ func (s *GroupNoticeService) Create(ctx context.Context, opts *GroupNoticeEditOp
 
 // Update 更新群公告
 func (s *GroupNoticeService) Update(ctx context.Context, opts *GroupNoticeEditOpts) error {
-	_, err := s.dao.BaseUpdate(&model.GroupNotice{}, entity.Map{
+	_, err := s.dao.BaseUpdate(&model.GroupNotice{}, entity.MapStrAny{
 		"id":       opts.NoticeId,
 		"group_id": opts.GroupId,
-	}, entity.Map{
+	}, entity.MapStrAny{
 		"title":      opts.Title,
 		"content":    opts.Content,
 		"is_top":     opts.IsTop,
@@ -64,10 +64,10 @@ func (s *GroupNoticeService) Update(ctx context.Context, opts *GroupNoticeEditOp
 }
 
 func (s *GroupNoticeService) Delete(ctx context.Context, groupId, noticeId int) error {
-	_, err := s.dao.BaseUpdate(&model.GroupNotice{}, entity.Map{
+	_, err := s.dao.BaseUpdate(&model.GroupNotice{}, entity.MapStrAny{
 		"id":       noticeId,
 		"group_id": groupId,
-	}, entity.Map{
+	}, entity.MapStrAny{
 		"is_delete":  1,
 		"deleted_at": timeutil.DateTime(),
 	})

@@ -141,7 +141,7 @@ func (c *Records) Download(ctx *gin.Context) {
 
 	uid := jwt.GetUid(ctx)
 	if uid != resp.Record.UserId {
-		if resp.Record.TalkType == entity.PrivateChat {
+		if resp.Record.TalkType == entity.ChatPrivateMode {
 			if resp.Record.ReceiverId != uid {
 				response.Unauthorized(ctx, "无访问权限！")
 				return

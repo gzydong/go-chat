@@ -117,7 +117,7 @@ func (s *GroupService) Create(ctx context.Context, opts *CreateGroupOpts) (int, 
 		}
 
 		record := &model.TalkRecords{
-			TalkType:   entity.GroupChat,
+			TalkType:   entity.ChatGroupMode,
 			ReceiverId: group.Id,
 			MsgType:    entity.MsgTypeGroupInvite,
 		}
@@ -153,7 +153,7 @@ func (s *GroupService) Create(ctx context.Context, opts *CreateGroupOpts) (int, 
 
 // Update 更新群信息
 func (s *GroupService) Update(ctx context.Context, opts *UpdateGroupOpts) error {
-	_, err := s.Dao().BaseUpdate(&model.Group{Id: opts.GroupId}, nil, entity.Map{
+	_, err := s.Dao().BaseUpdate(&model.Group{Id: opts.GroupId}, nil, entity.MapStrAny{
 		"group_name": opts.Name,
 		"avatar":     opts.Avatar,
 		"profile":    opts.Profile,
@@ -198,7 +198,7 @@ func (s *GroupService) Secede(ctx context.Context, groupId int, uid int) error {
 	}
 
 	record := &model.TalkRecords{
-		TalkType:   entity.GroupChat,
+		TalkType:   entity.ChatGroupMode,
 		ReceiverId: groupId,
 		MsgType:    entity.MsgTypeGroupInvite,
 	}
@@ -287,7 +287,7 @@ func (s *GroupService) InviteMembers(ctx context.Context, opts *InviteGroupMembe
 
 		if item, ok := listHash[value]; !ok {
 			addTalkList = append(addTalkList, &model.TalkSession{
-				TalkType:   entity.GroupChat,
+				TalkType:   entity.ChatGroupMode,
 				UserId:     value,
 				ReceiverId: opts.GroupId,
 			})
@@ -301,7 +301,7 @@ func (s *GroupService) InviteMembers(ctx context.Context, opts *InviteGroupMembe
 	}
 
 	record := &model.TalkRecords{
-		TalkType:   entity.GroupChat,
+		TalkType:   entity.ChatGroupMode,
 		ReceiverId: opts.GroupId,
 		MsgType:    entity.MsgTypeGroupInvite,
 	}
@@ -386,7 +386,7 @@ func (s *GroupService) RemoveMembers(ctx context.Context, opts *RemoveMembersOpt
 	}
 
 	record := &model.TalkRecords{
-		TalkType:   entity.GroupChat,
+		TalkType:   entity.ChatGroupMode,
 		ReceiverId: opts.GroupId,
 		MsgType:    entity.MsgTypeGroupInvite,
 	}

@@ -88,7 +88,7 @@ func (s *TalkRecordsService) GetTalkRecords(ctx context.Context, opts *QueryTalk
 		query.Where("talk_records.id < ?", opts.RecordId)
 	}
 
-	if opts.TalkType == entity.PrivateChat {
+	if opts.TalkType == entity.ChatPrivateMode {
 		subQuery := s.db.Where("talk_records.user_id = ? and talk_records.receiver_id = ?", opts.UserId, opts.ReceiverId)
 		subQuery.Or("talk_records.user_id = ? and talk_records.receiver_id = ?", opts.ReceiverId, opts.UserId)
 
@@ -162,11 +162,11 @@ func (s *TalkRecordsService) GetForwardRecords(ctx context.Context, uid int, rec
 		return nil, err
 	}
 
-	if record.TalkType == entity.PrivateChat {
+	if record.TalkType == entity.ChatPrivateMode {
 		if record.UserId != uid && record.ReceiverId != uid {
 			return nil, entity.ErrPermissionDenied
 		}
-	} else if record.TalkType == entity.GroupChat {
+	} else if record.TalkType == entity.ChatGroupMode {
 		if !s.groupMemberDao.IsMember(record.ReceiverId, uid, true) {
 			return nil, entity.ErrPermissionDenied
 		}

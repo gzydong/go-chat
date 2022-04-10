@@ -64,7 +64,7 @@ func (c *Common) SmsCode(ctx *gin.Context) {
 	}
 
 	if params.Channel == entity.SmsRegisterChannel {
-		response.Success(ctx, entity.Map{
+		response.Success(ctx, entity.MapStrAny{
 			"is_debug": true,
 			"sms_code": code,
 		}, "发送成功！")

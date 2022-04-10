@@ -308,7 +308,7 @@ func (s *TalkMessageService) SendVoteMessage(ctx context.Context, opts *VoteMess
 	var (
 		err    error
 		record = &model.TalkRecords{
-			TalkType:   entity.GroupChat,
+			TalkType:   entity.ChatGroupMode,
 			MsgType:    entity.MsgTypeVote,
 			UserId:     opts.UserId,
 			ReceiverId: opts.ReceiverId,
@@ -576,7 +576,7 @@ func (s *TalkMessageService) SendLoginMessage(ctx context.Context, opts *LoginMe
 	var (
 		err    error
 		record = &model.TalkRecords{
-			TalkType:   entity.PrivateChat,
+			TalkType:   entity.ChatPrivateMode,
 			MsgType:    entity.MsgTypeLogin,
 			UserId:     4257,
 			ReceiverId: opts.UserId,
@@ -612,7 +612,7 @@ func (s *TalkMessageService) SendLoginMessage(ctx context.Context, opts *LoginMe
 
 // 发送消息后置处理
 func (s *TalkMessageService) afterHandle(ctx context.Context, record *model.TalkRecords, opts map[string]string) {
-	if record.TalkType == entity.PrivateChat {
+	if record.TalkType == entity.ChatPrivateMode {
 		s.unreadTalkCache.Increment(ctx, record.UserId, record.ReceiverId)
 	}
 
@@ -632,7 +632,7 @@ func (s *TalkMessageService) afterHandle(ctx context.Context, record *model.Talk
 	})
 
 	// 点对点消息采用精确投递
-	if record.TalkType == entity.PrivateChat {
+	if record.TalkType == entity.ChatPrivateMode {
 		sids := s.sidServer.GetServerAll(ctx, 1)
 
 		// 小于两台服务器则采用全局广播

@@ -71,7 +71,7 @@ func (c *Auth) Login(ctx *gin.Context) {
 
 	_, _ = c.talkSessionService.Create(ctx.Request.Context(), &service.TalkSessionCreateOpts{
 		UserId:     user.Id,
-		TalkType:   entity.PrivateChat,
+		TalkType:   entity.ChatPrivateMode,
 		ReceiverId: 4257,
 		IsBoot:     true,
 	})

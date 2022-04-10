@@ -22,7 +22,7 @@ func (dao *BaseDao) Db() *gorm.DB {
 }
 
 // BaseUpdate 批量更新
-func (dao *BaseDao) BaseUpdate(model interface{}, where entity.Map, data entity.Map) (int, error) {
+func (dao *BaseDao) BaseUpdate(model interface{}, where entity.MapStrAny, data entity.MapStrAny) (int, error) {
 	fields := make([]string, 0, len(data))
 	values := make(map[string]interface{})
 

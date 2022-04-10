@@ -7,7 +7,7 @@ const (
 	MediaFileOther = 4 // 其它文件
 )
 
-var mediaMaps = map[string]int{
+var fileMediaMap = map[string]int{
 	"gif":  MediaFileImage,
 	"jpg":  MediaFileImage,
 	"jpeg": MediaFileImage,
@@ -21,9 +21,28 @@ var mediaMaps = map[string]int{
 }
 
 func GetMediaType(ext string) int {
-	if val, ok := mediaMaps[ext]; ok {
+	if val, ok := fileMediaMap[ext]; ok {
 		return val
 	}
 
 	return MediaFileOther
+}
+
+// 文件系统相关
+const (
+	FileDriveLocal = 1
+	FileDriveCos   = 2
+)
+
+var fileSystemDriveMap = map[string]int{
+	"local": FileDriveLocal,
+	"cos":   FileDriveCos,
+}
+
+func FileDriveMode(drive string) int {
+	if val, ok := fileSystemDriveMap[drive]; ok {
+		return val
+	}
+
+	return 0
 }

@@ -64,9 +64,9 @@ func (u *User) ChangeDetail(ctx *gin.Context) {
 		return
 	}
 
-	_, _ = u.service.Dao().BaseUpdate(&model.Users{}, entity.Map{
+	_, _ = u.service.Dao().BaseUpdate(&model.Users{}, entity.MapStrAny{
 		"id": jwt.GetUid(ctx),
-	}, entity.Map{
+	}, entity.MapStrAny{
 		"nickname": params.Nickname,
 		"avatar":   params.Avatar,
 		"gender":   params.Gender,
@@ -131,7 +131,7 @@ func (u *User) ChangeMobile(ctx *gin.Context) {
 		return
 	}
 
-	_, err := u.service.Dao().BaseUpdate(&model.Users{}, entity.Map{"id": user.Id}, entity.Map{"mobile": params.Mobile})
+	_, err := u.service.Dao().BaseUpdate(&model.Users{}, entity.MapStrAny{"id": user.Id}, entity.MapStrAny{"mobile": params.Mobile})
 	if err != nil {
 		response.BusinessError(ctx, "手机号修改失败！")
 		return

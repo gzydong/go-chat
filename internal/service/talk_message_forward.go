@@ -56,7 +56,7 @@ func (t *TalkMessageForwardService) verify(forward *TalkForwardOpts) error {
 
 	query.Where("id in ?", forward.RecordsIds)
 
-	if forward.TalkType == entity.PrivateChat {
+	if forward.TalkType == entity.ChatPrivateMode {
 		subWhere := t.db.Where("user_id = ? and receiver_id = ?", forward.UserId, forward.ReceiverId)
 		subWhere.Or("user_id = ? and receiver_id = ?", forward.ReceiverId, forward.UserId)
 		query.Where(subWhere)
@@ -143,9 +143,9 @@ func (t *TalkMessageForwardService) SendForwardMessage(ctx context.Context, forw
 	}
 
 	for _, item := range items {
-		t.rds.Publish(ctx, entity.IMGatewayAll, jsonutil.Encode(entity.Map{
+		t.rds.Publish(ctx, entity.IMGatewayAll, jsonutil.Encode(entity.MapStrAny{
 			"event": entity.EventTalk,
-			"data": jsonutil.Encode(entity.Map{
+			"data": jsonutil.Encode(entity.MapStrAny{
 				"sender_id":   forward.UserId,
 				"receiver_id": item.ReceiverId,
 				"talk_type":   item.TalkType,

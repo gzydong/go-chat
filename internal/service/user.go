@@ -81,7 +81,7 @@ func (s *UserService) Forget(opts *UserForgetOpts) (bool, error) {
 	// 生成 hash 密码
 	hash, _ := encrypt.HashPassword(opts.Password)
 
-	_, err = s.Dao().BaseUpdate(&model.Users{}, entity.Map{"id": user.Id}, entity.Map{"password": hash})
+	_, err = s.Dao().BaseUpdate(&model.Users{}, entity.MapStrAny{"id": user.Id}, entity.MapStrAny{"password": hash})
 	if err != nil {
 		return false, errors.New("密码修改失败！")
 	}
@@ -103,7 +103,7 @@ func (s *UserService) UpdatePassword(uid int, oldPassword string, password strin
 
 	hash, _ := encrypt.HashPassword(password)
 
-	_, err := s.dao.BaseUpdate(&model.Users{}, entity.Map{"id": user.Id}, entity.Map{"password": hash})
+	_, err := s.dao.BaseUpdate(&model.Users{}, entity.MapStrAny{"id": user.Id}, entity.MapStrAny{"password": hash})
 	if err != nil {
 		return err
 	}
