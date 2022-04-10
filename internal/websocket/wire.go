@@ -61,6 +61,7 @@ var providerSet = wire.NewSet(
 
 	// handle
 	handle2.NewDefaultWebSocket,
+	handle2.NewExampleWebsocket,
 
 	wire.Struct(new(handle2.Handler), "*"),
 	wire.Struct(new(Providers), "*"),

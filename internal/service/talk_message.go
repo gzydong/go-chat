@@ -332,7 +332,7 @@ func (s *TalkMessageService) SendVoteMessage(ctx context.Context, opts *VoteMess
 			UserId:       opts.UserId,
 			Title:        opts.Title,
 			AnswerMode:   opts.Mode,
-			AnswerOption: jsonutil.JsonEncode(options),
+			AnswerOption: jsonutil.Encode(options),
 			AnswerNum:    int(num),
 		}).Error; err != nil {
 			return err
@@ -470,12 +470,12 @@ func (s *TalkMessageService) SendRevokeRecordMessage(ctx context.Context, uid in
 
 	body := map[string]interface{}{
 		"event": entity.EventRevokeTalk,
-		"data": jsonutil.JsonEncode(map[string]interface{}{
+		"data": jsonutil.Encode(map[string]interface{}{
 			"record_id": record.Id,
 		}),
 	}
 
-	s.rds.Publish(ctx, entity.IMGatewayAll, jsonutil.JsonEncode(body))
+	s.rds.Publish(ctx, entity.IMGatewayAll, jsonutil.Encode(body))
 
 	return nil
 }
@@ -521,7 +521,7 @@ func (s *TalkMessageService) VoteHandle(ctx context.Context, opts *VoteMessageHa
 	sort.Strings(options)
 
 	var answerOptions map[string]interface{}
-	if err = jsonutil.JsonDecode(vote.AnswerOption, &answerOptions); err != nil {
+	if err = jsonutil.Decode(vote.AnswerOption, &answerOptions); err != nil {
 		return 0, err
 	}
 
@@ -621,9 +621,9 @@ func (s *TalkMessageService) afterHandle(ctx context.Context, record *model.Talk
 		Datetime: timeutil.DateTime(),
 	})
 
-	content := jsonutil.JsonEncode(map[string]interface{}{
+	content := jsonutil.Encode(map[string]interface{}{
 		"event": entity.EventTalk,
-		"data": jsonutil.JsonEncode(map[string]interface{}{
+		"data": jsonutil.Encode(map[string]interface{}{
 			"sender_id":   record.UserId,
 			"receiver_id": record.ReceiverId,
 			"talk_type":   record.TalkType,

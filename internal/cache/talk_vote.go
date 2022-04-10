@@ -3,9 +3,10 @@ package cache
 import (
 	"context"
 	"fmt"
+	"time"
+
 	"github.com/go-redis/redis/v8"
 	"go-chat/internal/pkg/jsonutil"
-	"time"
 )
 
 const (
@@ -29,7 +30,7 @@ func (cache *TalkVote) GetVoteAnswerUser(ctx context.Context, voteId int) ([]int
 	}
 
 	var uids []int
-	if err := jsonutil.JsonDecode(val, &uids); err != nil {
+	if err := jsonutil.Decode(val, &uids); err != nil {
 		return nil, err
 	}
 
@@ -37,7 +38,7 @@ func (cache *TalkVote) GetVoteAnswerUser(ctx context.Context, voteId int) ([]int
 }
 
 func (cache *TalkVote) SetVoteAnswerUser(ctx context.Context, vid int, uids []int) error {
-	return cache.rds.Set(ctx, fmt.Sprintf(VoteUsersCache, vid), jsonutil.JsonEncode(uids), time.Hour*24).Err()
+	return cache.rds.Set(ctx, fmt.Sprintf(VoteUsersCache, vid), jsonutil.Encode(uids), time.Hour*24).Err()
 }
 
 func (cache *TalkVote) GetVoteStatistics(ctx context.Context, vid int) (string, error) {

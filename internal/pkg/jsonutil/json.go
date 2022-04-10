@@ -2,15 +2,16 @@ package jsonutil
 
 import jsoniter "github.com/json-iterator/go"
 
-func JsonDecode(str string, value interface{}) error {
+func Decode(str string, value interface{}) error {
 	return jsoniter.UnmarshalFromString(str, value)
 }
 
-func JsonEncode(value interface{}) string {
+func Encode(value interface{}) string {
 	content, _ := jsoniter.MarshalToString(value)
 	return content
 }
 
-func JsonEncodeByte(value interface{}) ([]byte, error) {
-	return jsoniter.Marshal(value)
+func EncodeByte(value interface{}) (content []byte) {
+	content, _ = jsoniter.Marshal(value)
+	return
 }

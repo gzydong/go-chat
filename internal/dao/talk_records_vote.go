@@ -2,6 +2,7 @@ package dao
 
 import (
 	"context"
+
 	"go-chat/internal/cache"
 	"go-chat/internal/model"
 	"go-chat/internal/pkg/jsonutil"
@@ -58,7 +59,7 @@ func (dao *TalkRecordsVoteDao) GetVoteStatistics(ctx context.Context, vid int) (
 
 	statistic := &VoteStatistics{}
 
-	_ = jsonutil.JsonDecode(value, statistic)
+	_ = jsonutil.Decode(value, statistic)
 
 	return statistic, nil
 }
@@ -75,7 +76,7 @@ func (dao *TalkRecordsVoteDao) SetVoteStatistics(ctx context.Context, vid int) (
 		return nil, err
 	}
 
-	_ = jsonutil.JsonDecode(vote.AnswerOption, &answerOption)
+	_ = jsonutil.Decode(vote.AnswerOption, &answerOption)
 
 	err = dao.Db().Table("talk_records_vote_answer").Where("vote_id = ?", vid).Pluck("option", &options).Error
 	if err != nil {
@@ -97,7 +98,7 @@ func (dao *TalkRecordsVoteDao) SetVoteStatistics(ctx context.Context, vid int) (
 		Count:   len(options),
 	}
 
-	_ = dao.cache.SetVoteStatistics(ctx, vid, jsonutil.JsonEncode(statistic))
+	_ = dao.cache.SetVoteStatistics(ctx, vid, jsonutil.Encode(statistic))
 
 	return statistic, nil
 }

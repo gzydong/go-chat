@@ -9,11 +9,11 @@ import (
 	"github.com/go-redis/redis/v8"
 	"github.com/sirupsen/logrus"
 	"github.com/tidwall/gjson"
-
 	"go-chat/config"
 	"go-chat/internal/cache"
 	"go-chat/internal/entity"
 	"go-chat/internal/pkg/im"
+	"go-chat/internal/pkg/jsonutil"
 	"go-chat/internal/pkg/jwt"
 	"go-chat/internal/service"
 	"go-chat/internal/websocket/internal/dto"
@@ -50,16 +50,13 @@ func (c *DefaultWebSocket) Connect(ctx *gin.Context) {
 		Channel: im.Sessions.Default,
 		Uid:     jwt.GetUid(ctx),
 		Storage: c.cache,
-
-		// 设置回调方法
-		CallBack: im.NewClientCallBack(im.WithClientCallBackOpen(func(client im.ClientInterface) {
-			c.open(client)
-		}), im.WithClientCallBackMessage(func(message *im.ReceiveContent) {
-			c.message(message)
-		}), im.WithClientCallBackClose(func(client im.ClientInterface, code int, text string) {
-			c.close(client, code, text)
-		})),
-	})
+	}, im.NewClientCallBack(im.WithClientCallBackOpen(func(client im.ClientInterface) {
+		c.open(client)
+	}), im.WithClientCallBackMessage(func(message *im.ReceiveContent) {
+		c.message(message)
+	}), im.WithClientCallBackClose(func(client im.ClientInterface, code int, text string) {
+		c.close(client, code, text)
+	})))
 }
 
 // 连接成功回调事件
@@ -79,32 +76,30 @@ func (c *DefaultWebSocket) open(client im.ClientInterface) {
 	}
 
 	// 推送上线消息
-	c.rds.Publish(context.Background(), entity.IMGatewayAll, entity.JsonText{
+	c.rds.Publish(context.Background(), entity.IMGatewayAll, jsonutil.Encode(entity.Map{
 		"event": entity.EventOnlineStatus,
-		"data": entity.JsonText{
+		"data": jsonutil.Encode(entity.Map{
 			"user_id": client.ClientUid(),
 			"status":  1,
-		}.Json(),
-	}.Json())
+		}),
+	}))
 }
 
 // 消息接收回调事件
 func (c *DefaultWebSocket) message(message *im.ReceiveContent) {
-	// fmt.Printf("[%s]消息通知 Client:%d，Content: %s \n", message.Client.Channel().Name(), message.Client.ClientId(), message.Content)
-
 	event := gjson.Get(message.Content, "event").String()
 
 	switch event {
 	case "event_keyboard":
 		var m *dto.KeyboardMessage
 		if err := json.Unmarshal([]byte(message.Content), &m); err == nil {
-			c.rds.Publish(context.Background(), entity.IMGatewayAll, entity.JsonText{
+			c.rds.Publish(context.Background(), entity.IMGatewayAll, jsonutil.Encode(entity.Map{
 				"event": entity.EventKeyboard,
-				"data": entity.JsonText{
+				"data": jsonutil.Encode(entity.Map{
 					"sender_id":   m.Data.SenderID,
 					"receiver_id": m.Data.ReceiverID,
-				}.Json(),
-			}.Json())
+				}),
+			}))
 		}
 	}
 }
@@ -128,11 +123,11 @@ func (c *DefaultWebSocket) close(client im.ClientInterface, code int, text strin
 	}
 
 	// 推送下线消息
-	c.rds.Publish(context.Background(), entity.IMGatewayAll, entity.JsonText{
+	c.rds.Publish(context.Background(), entity.IMGatewayAll, jsonutil.Encode(entity.Map{
 		"event": entity.EventOnlineStatus,
-		"data": entity.JsonText{
+		"data": jsonutil.Encode(entity.Map{
 			"user_id": client.ClientUid(),
 			"status":  0,
-		}.Json(),
-	}.Json())
+		}),
+	}))
 }

@@ -3,6 +3,7 @@ package cache
 import (
 	"context"
 	"fmt"
+
 	"github.com/go-redis/redis/v8"
 	"go-chat/internal/pkg/jsonutil"
 )
@@ -35,7 +36,7 @@ func (cache *LastMessage) key(talkType int, sender int, receive int) string {
 }
 
 func (cache *LastMessage) Set(ctx context.Context, talkType int, sender int, receive int, message *LastCacheMessage) error {
-	text := jsonutil.JsonEncode(message)
+	text := jsonutil.Encode(message)
 
 	return cache.rds.HSet(ctx, lastMessageCacheKey, cache.key(talkType, sender, receive), text).Err()
 }
@@ -48,7 +49,7 @@ func (cache *LastMessage) Get(ctx context.Context, talkType int, sender int, rec
 	}
 
 	msg := &LastCacheMessage{}
-	if err = jsonutil.JsonDecode(res, msg); err != nil {
+	if err = jsonutil.Decode(res, msg); err != nil {
 		return nil, err
 	}
 

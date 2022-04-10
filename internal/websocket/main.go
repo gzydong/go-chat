@@ -61,6 +61,9 @@ func main() {
 		// 启动守护协程
 		providers.Process.Run(eg, groupCtx)
 
+		log.Printf("Websocket ServerID: %s", config.ServerId())
+		log.Printf("Websocket Listen  : %d", config.App.Port)
+
 		run(c, eg, groupCtx, cancel, providers.WsServer)
 
 		return nil
@@ -73,9 +76,8 @@ func main() {
 func run(c chan os.Signal, eg *errgroup.Group, ctx context.Context, cancel context.CancelFunc, server *http.Server) {
 	// 启动 http 服务
 	eg.Go(func() error {
-		log.Printf("Websocket Listen : %s", server.Addr)
 		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			log.Fatalf("Websocket Listen : %s", err)
+			log.Fatalf("Websocket Listen Err: %s", err)
 		}
 
 		return nil
@@ -89,7 +91,7 @@ func run(c chan os.Signal, eg *errgroup.Group, ctx context.Context, cancel conte
 			defer timeCancel()
 
 			if err := server.Shutdown(timeCtx); err != nil {
-				log.Printf("Websocket Shutdown err: %s\n", err)
+				log.Printf("Websocket Shutdown Err: %s \n", err)
 			}
 		}()
 

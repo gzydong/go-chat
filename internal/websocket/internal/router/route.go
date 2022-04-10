@@ -20,6 +20,7 @@ func NewRouter(conf *config.Config, handle *handler.Handler, session *cache.Sess
 	authorize := jwt.Auth(conf.Jwt.Secret, "api", session)
 
 	router.GET("/wss/default.io", authorize, handle.DefaultWebSocket.Connect)
+	router.GET("/wss/example.io", authorize, handle.ExampleWebsocket.Connect)
 
 	router.GET("/", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"ok": "success"})

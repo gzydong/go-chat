@@ -51,13 +51,13 @@ func (s *ContactApplyService) Create(ctx context.Context, opts *ContactApplyCrea
 
 	body := map[string]interface{}{
 		"event": entity.EventFriendApply,
-		"data": jsonutil.JsonEncode(map[string]interface{}{
+		"data": jsonutil.Encode(map[string]interface{}{
 			"apply_id": int64(apply.Id),
 			"type":     1,
 		}),
 	}
 
-	s.rds.Publish(ctx, entity.IMGatewayAll, jsonutil.JsonEncode(body))
+	s.rds.Publish(ctx, entity.IMGatewayAll, jsonutil.Encode(body))
 
 	return nil
 }
@@ -118,13 +118,13 @@ func (s *ContactApplyService) Accept(ctx context.Context, opts *ContactApplyAcce
 	if err == nil {
 		body := map[string]interface{}{
 			"event": entity.EventFriendApply,
-			"data": jsonutil.JsonEncode(map[string]interface{}{
+			"data": jsonutil.Encode(map[string]interface{}{
 				"apply_id": int64(applyInfo.Id),
 				"type":     2,
 			}),
 		}
 
-		s.rds.Publish(ctx, entity.IMGatewayAll, jsonutil.JsonEncode(body))
+		s.rds.Publish(ctx, entity.IMGatewayAll, jsonutil.Encode(body))
 	}
 
 	return err
@@ -137,13 +137,13 @@ func (s *ContactApplyService) Decline(ctx context.Context, opts *ContactApplyDec
 	if err == nil {
 		body := map[string]interface{}{
 			"event": entity.EventFriendApply,
-			"data": jsonutil.JsonEncode(map[string]interface{}{
+			"data": jsonutil.Encode(map[string]interface{}{
 				"apply_id": int64(opts.ApplyId),
 				"type":     2,
 			}),
 		}
 
-		s.rds.Publish(ctx, entity.IMGatewayAll, jsonutil.JsonEncode(body))
+		s.rds.Publish(ctx, entity.IMGatewayAll, jsonutil.Encode(body))
 	}
 
 	return err

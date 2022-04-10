@@ -2,12 +2,12 @@ package im
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"time"
 
 	"github.com/gorilla/websocket"
 	"github.com/tidwall/gjson"
+	"go-chat/internal/pkg/jsonutil"
 )
 
 type ClientInterface interface {
@@ -58,27 +58,25 @@ type ClientOptions struct {
 }
 
 // NewClient 初始化客户端信息
-func NewClient(conn *websocket.Conn, options *ClientOptions) ClientInterface {
+func NewClient(conn *websocket.Conn, opt *ClientOptions, callBack ClientCallBackInterface) ClientInterface {
 	client := &Client{
 		conn:     conn,
 		cid:      Counter.GetID(),
 		lastTime: time.Now().Unix(),
-		uid:      options.Uid,
-		channel:  options.Channel,
-		storage:  options.Storage,
+		uid:      opt.Uid,
+		channel:  opt.Channel,
+		storage:  opt.Storage,
 		outChan:  make(chan []byte, 5), // 缓冲区大小根据业务，自行调整
-		callBack: options.CallBack,
-	}
-
-	if options.CallBack == nil {
-		panic("Client CallBack 未设置")
+		callBack: callBack,
 	}
 
 	// 设置客户端连接关闭回调事件
 	conn.SetCloseHandler(client.setCloseHandler)
 
-	// 绑定客户端映射关系
-	client.storage.Bind(context.Background(), options.Channel.name, fmt.Sprintf("%d", client.cid), client.uid)
+	if client.storage != nil {
+		// 绑定客户端映射关系
+		client.storage.Bind(context.Background(), opt.Channel.name, fmt.Sprintf("%d", client.cid), client.uid)
+	}
 
 	// 注册客户端
 	client.channel.addClient(client)
@@ -89,16 +87,14 @@ func NewClient(conn *websocket.Conn, options *ClientOptions) ClientInterface {
 	// 注册心跳管理
 	Heartbeat.addClient(client)
 
-	msg, _ := json.Marshal(Message{
+	// 推送心跳检测配置
+	_ = client.Write(jsonutil.EncodeByte(&Message{
 		Event: "connect",
 		Content: map[string]interface{}{
 			"ping_interval": HeartbeatInterval,
 			"ping_timeout":  HeartbeatTimeout,
 		},
-	})
-
-	// 推送心跳检测配置
-	_ = client.Write(msg)
+	}))
 
 	return client.init()
 }
@@ -151,7 +147,9 @@ func (c *Client) setCloseHandler(code int, text string) error {
 	c.callBack.Close(c, code, text)
 
 	// 解绑关联
-	c.storage.UnBind(context.Background(), c.channel.name, fmt.Sprintf("%d", c.cid))
+	if c.storage != nil {
+		c.storage.UnBind(context.Background(), c.channel.name, fmt.Sprintf("%d", c.cid))
+	}
 
 	// 渠道分组移除客户端
 	c.channel.delClient(c)
@@ -182,29 +180,20 @@ func (c *Client) loopAccept() {
 			continue
 		}
 
-		event := res.String()
-
-		// 心跳消息判断
-		if event == "heartbeat" {
+		switch res.String() {
+		case "heartbeat": // 心跳消息判断
 			c.lastTime = time.Now().Unix()
-			data, _ := json.Marshal(&Message{"heartbeat", "pong"})
 
-			_ = c.Write(data)
-			continue
-		} else if event == "ack" {
+			_ = c.Write(jsonutil.EncodeByte(&Message{"heartbeat", "pong"}))
+		case "ack":
 			ackManage.Del(&AckBufferOption{
 				Client: c,
 				MsgID:  "",
 			})
-
-			// 需要同步 ack 管理
-			continue
+		default:
+			// 触发消息回调
+			c.callBack.Message(&ReceiveContent{c, msg})
 		}
-
-		// 判断是否属于ack消息
-
-		// 触发消息回调
-		c.callBack.Message(&ReceiveContent{c, msg})
 	}
 }
 

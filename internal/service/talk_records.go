@@ -330,7 +330,7 @@ func (s *TalkRecordsService) HandleTalkRecords(ctx context.Context, items []*mod
 			if value, ok := hashForwards[item.Id]; ok {
 				list := make([]map[string]interface{}, 0)
 
-				_ = jsonutil.JsonDecode(value.Text, &list)
+				_ = jsonutil.Decode(value.Text, &list)
 
 				data.Forward = map[string]interface{}{
 					"num":  len(slice.ParseIds(value.RecordsId)),
@@ -346,7 +346,7 @@ func (s *TalkRecordsService) HandleTalkRecords(ctx context.Context, items []*mod
 				options := make(map[string]interface{})
 				opts := make([]interface{}, 0)
 
-				if err := jsonutil.JsonDecode(value.AnswerOption, &options); err == nil {
+				if err := jsonutil.Decode(value.AnswerOption, &options); err == nil {
 					arr := make([]string, 0, len(options))
 					for k := range options {
 						arr = append(arr, k)

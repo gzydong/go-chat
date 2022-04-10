@@ -118,7 +118,7 @@ func (t *TalkMessageForwardService) aggregation(ctx context.Context, forward *Ta
 		data = append(data, item)
 	}
 
-	return jsonutil.JsonEncode(data), nil
+	return jsonutil.Encode(data), nil
 }
 
 // SendForwardMessage 推送转发消息

@@ -3,9 +3,10 @@ package config
 import (
 	"fmt"
 	"io/ioutil"
-	"strings"
+	"time"
 
-	uuid "github.com/satori/go.uuid"
+	"go-chat/internal/pkg/encrypt"
+	"go-chat/internal/pkg/strutil"
 	"gopkg.in/yaml.v2"
 )
 
@@ -34,7 +35,7 @@ func Init(filename string) *Config {
 	}
 
 	// 生成服务运行ID
-	conf.sid = strings.Replace(uuid.NewV4().String(), "-", "", 4)
+	conf.sid = encrypt.Md5(fmt.Sprintf("%d%s", time.Now().UnixNano(), strutil.Random(6)))
 
 	return conf
 }

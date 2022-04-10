@@ -36,8 +36,10 @@ func Initialize(ctx context.Context, conf *config.Config) *Providers {
 	groupMemberDao := dao.NewGroupMemberDao(baseDao, relation)
 	groupMemberService := service.NewGroupMemberService(baseService, groupMemberDao)
 	defaultWebSocket := handler.NewDefaultWebSocket(client, conf, clientService, room, groupMemberService)
+	exampleWebsocket := handler.NewExampleWebsocket()
 	handlerHandler := &handler.Handler{
 		DefaultWebSocket: defaultWebSocket,
+		ExampleWebsocket: exampleWebsocket,
 	}
 	session := cache.NewSession(client)
 	engine := router.NewRouter(conf, handlerHandler, session)
@@ -66,4 +68,4 @@ func Initialize(ctx context.Context, conf *config.Config) *Providers {
 
 // wire.go:
 
-var providerSet = wire.NewSet(provider.NewMySQLClient, provider.NewRedisClient, provider.NewWebsocketServer, router.NewRouter, process.NewProcess, process.NewClearGarbage, process.NewImHeartbeat, process.NewServer, process.NewWsSubscribe, handle.NewSubscribeConsume, cache.NewSession, cache.NewSid, cache.NewRedisLock, cache.NewWsClientSession, cache.NewRoom, cache.NewTalkVote, cache.NewRelation, dao.NewBaseDao, dao.NewTalkRecordsDao, dao.NewTalkRecordsVoteDao, dao.NewGroupMemberDao, dao.NewUsersFriendsDao, filesystem.NewFilesystem, service.NewBaseService, service.NewTalkRecordsService, service.NewClientService, service.NewGroupMemberService, service.NewContactService, handler.NewDefaultWebSocket, wire.Struct(new(handler.Handler), "*"), wire.Struct(new(Providers), "*"))
+var providerSet = wire.NewSet(provider.NewMySQLClient, provider.NewRedisClient, provider.NewWebsocketServer, router.NewRouter, process.NewProcess, process.NewClearGarbage, process.NewImHeartbeat, process.NewServer, process.NewWsSubscribe, handle.NewSubscribeConsume, cache.NewSession, cache.NewSid, cache.NewRedisLock, cache.NewWsClientSession, cache.NewRoom, cache.NewTalkVote, cache.NewRelation, dao.NewBaseDao, dao.NewTalkRecordsDao, dao.NewTalkRecordsVoteDao, dao.NewGroupMemberDao, dao.NewUsersFriendsDao, filesystem.NewFilesystem, service.NewBaseService, service.NewTalkRecordsService, service.NewClientService, service.NewGroupMemberService, service.NewContactService, handler.NewDefaultWebSocket, handler.NewExampleWebsocket, wire.Struct(new(handler.Handler), "*"), wire.Struct(new(Providers), "*"))

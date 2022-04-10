@@ -185,7 +185,7 @@ func (s *SubscribeConsume) onConsumeRevokeTalk(body string) {
 		ctx    = context.Background()
 	)
 
-	if err := jsonutil.JsonDecode(body, &msg); err != nil {
+	if err := jsonutil.Decode(body, &msg); err != nil {
 		return
 	}
 
@@ -238,7 +238,7 @@ func (s *SubscribeConsume) onConsumeContactApply(body string) {
 		apply *model.ContactApply
 	)
 
-	if err := jsonutil.JsonDecode(body, &msg); err != nil {
+	if err := jsonutil.Decode(body, &msg); err != nil {
 		return
 	}
 

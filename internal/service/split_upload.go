@@ -118,7 +118,7 @@ func (s *SplitUploadService) MultipartUpload(ctx context.Context, opts *Multipar
 			return err
 		}
 
-		data.Attr = jsonutil.JsonEncode(map[string]string{
+		data.Attr = jsonutil.Encode(map[string]string{
 			"etag": etag,
 		})
 
@@ -162,7 +162,7 @@ func (s *SplitUploadService) merge(info *model.SplitUpload) error {
 		for _, item := range items {
 			attr := make(map[string]string)
 
-			if err := jsonutil.JsonDecode(item.Attr, &attr); err != nil {
+			if err := jsonutil.Decode(item.Attr, &attr); err != nil {
 				return err
 			}
 
