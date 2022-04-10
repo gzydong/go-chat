@@ -50,7 +50,7 @@ func (s *ContactApplyService) Create(ctx context.Context, opts *ContactApplyCrea
 	}
 
 	body := map[string]interface{}{
-		"event": entity.EventFriendApply,
+		"event": entity.EventContactApply,
 		"data": jsonutil.Encode(map[string]interface{}{
 			"apply_id": int64(apply.Id),
 			"type":     1,
@@ -117,7 +117,7 @@ func (s *ContactApplyService) Accept(ctx context.Context, opts *ContactApplyAcce
 
 	if err == nil {
 		body := map[string]interface{}{
-			"event": entity.EventFriendApply,
+			"event": entity.EventContactApply,
 			"data": jsonutil.Encode(map[string]interface{}{
 				"apply_id": int64(applyInfo.Id),
 				"type":     2,
@@ -136,7 +136,7 @@ func (s *ContactApplyService) Decline(ctx context.Context, opts *ContactApplyDec
 
 	if err == nil {
 		body := map[string]interface{}{
-			"event": entity.EventFriendApply,
+			"event": entity.EventContactApply,
 			"data": jsonutil.Encode(map[string]interface{}{
 				"apply_id": int64(opts.ApplyId),
 				"type":     2,

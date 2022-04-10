@@ -35,6 +35,17 @@ func (c *Channel) Client(cid int64) (*Client, bool) {
 	return c.node.get(cid)
 }
 
+// Write 推送消息到消费通道
+func (c *Channel) Write(msg *SenderContent) {
+	select {
+	case c.outChan <- msg:
+		break
+	case <-time.After(2 * time.Second):
+		fmt.Printf("[%s] Channel OutChan 写入消息超时,管道长度：%d \n", c.name, len(c.outChan))
+		break
+	}
+}
+
 // addClient 添加客户端
 func (c *Channel) addClient(client *Client) {
 	c.node.add(client)
@@ -51,17 +62,6 @@ func (c *Channel) delClient(client *Client) {
 	c.node.del(client)
 
 	atomic.AddInt64(&c.count, -1)
-}
-
-// PushSendChannel 推送消息到消费通道
-func (c *Channel) PushSendChannel(msg *SenderContent) {
-	select {
-	case c.outChan <- msg:
-		break
-	case <-time.After(1000 * time.Millisecond):
-		fmt.Printf("[%s] SendChan 写入消息超时,管道长度：%d \n", c.name, len(c.outChan))
-		break
-	}
 }
 
 // 推送客户端数据
@@ -85,12 +85,18 @@ func (c *Channel) loopSend(ctx context.Context) {
 				// 判断是否广播消息
 				if body.IsBroadcast() {
 					c.node.each(func(c *Client) {
-						_ = c.Write(content)
+						// todo 待完善
+						_ = c.Write(&ClientOutContent{
+							Content: content,
+						})
 					})
 				} else {
 					for _, cid := range body.receives {
 						if client, ok := c.Client(cid); ok {
-							_ = client.Write(content)
+							// todo 待完善
+							_ = client.Write(&ClientOutContent{
+								Content: content,
+							})
 						}
 					}
 				}

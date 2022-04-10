@@ -46,8 +46,6 @@ func (w *WsSubscribe) Handle(ctx context.Context) error {
 		work := pool.NewWorkerPool(5) // 设置协程并发处理数
 
 		for msg := range sub.Channel(redis.WithChannelHealthCheckInterval(30 * time.Second)) {
-			// fmt.Printf("消息订阅 : channel=%s message=%s\n", msg.channel, msg.Payload)
-
 			consume := func(value *redis.Message) {
 				switch value.Channel {
 

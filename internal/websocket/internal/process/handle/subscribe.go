@@ -37,11 +37,11 @@ func (s *SubscribeConsume) Handle(event string, data string) {
 
 	// 注册消息回调事件
 	handler[entity.EventTalk] = s.onConsumeTalk
-	handler[entity.EventKeyboard] = s.onConsumeKeyboard
-	handler[entity.EventOnlineStatus] = s.onConsumeOnline
-	handler[entity.EventRevokeTalk] = s.onConsumeRevokeTalk
-	handler[entity.EventJoinGroupRoom] = s.onConsumeAddGroupRoom
-	handler[entity.EventFriendApply] = s.onConsumeContactApply
+	handler[entity.EventTalkKeyboard] = s.onConsumeKeyboard
+	handler[entity.EventLogin] = s.onConsumeOnline
+	handler[entity.EventTalkRevoke] = s.onConsumeRevokeTalk
+	handler[entity.EventTalkJoinGroup] = s.onConsumeAddGroupRoom
+	handler[entity.EventContactApply] = s.onConsumeContactApply
 
 	if f, ok := handler[event]; ok {
 		f(data)
@@ -106,7 +106,7 @@ func (s *SubscribeConsume) onConsumeTalk(body string) {
 		},
 	})
 
-	im.Sessions.Default.PushSendChannel(c)
+	im.Sessions.Default.Write(c)
 }
 
 // onConsumeKeyboard 键盘输入事件消息
@@ -129,14 +129,14 @@ func (s *SubscribeConsume) onConsumeKeyboard(body string) {
 	c := im.NewSenderContent()
 	c.SetReceive(cids...)
 	c.SetMessage(&im.Message{
-		Event: entity.EventKeyboard,
+		Event: entity.EventTalkKeyboard,
 		Content: gin.H{
 			"sender_id":   msg.SenderID,
 			"receiver_id": msg.ReceiverID,
 		},
 	})
 
-	im.Sessions.Default.PushSendChannel(c)
+	im.Sessions.Default.Write(c)
 }
 
 // onConsumeOnline 用户上线或下线消息
@@ -168,11 +168,11 @@ func (s *SubscribeConsume) onConsumeOnline(body string) {
 	c := im.NewSenderContent()
 	c.SetReceive(cids...)
 	c.SetMessage(&im.Message{
-		Event:   entity.EventOnlineStatus,
+		Event:   entity.EventLogin,
 		Content: msg,
 	})
 
-	im.Sessions.Default.PushSendChannel(c)
+	im.Sessions.Default.Write(c)
 }
 
 // onConsumeRevokeTalk 撤销聊天消息
@@ -215,7 +215,7 @@ func (s *SubscribeConsume) onConsumeRevokeTalk(body string) {
 	c := im.NewSenderContent()
 	c.SetReceive(cids...)
 	c.SetMessage(&im.Message{
-		Event: entity.EventRevokeTalk,
+		Event: entity.EventTalkRevoke,
 		Content: gin.H{
 			"talk_type":   record.TalkType,
 			"sender_id":   record.UserId,
@@ -224,7 +224,7 @@ func (s *SubscribeConsume) onConsumeRevokeTalk(body string) {
 		},
 	})
 
-	im.Sessions.Default.PushSendChannel(c)
+	im.Sessions.Default.Write(c)
 }
 
 // nolint onConsumeContactApply 好友申请消息
@@ -281,11 +281,11 @@ func (s *SubscribeConsume) onConsumeContactApply(body string) {
 	c := im.NewSenderContent()
 	c.SetReceive(cids...)
 	c.SetMessage(&im.Message{
-		Event:   entity.EventFriendApply,
+		Event:   entity.EventContactApply,
 		Content: data,
 	})
 
-	im.Sessions.Default.PushSendChannel(c)
+	im.Sessions.Default.Write(c)
 }
 
 // onConsumeAddGroupRoom 加入群房间

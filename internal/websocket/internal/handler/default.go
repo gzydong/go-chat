@@ -78,7 +78,7 @@ func (c *DefaultWebSocket) open(client im.ClientInterface) {
 
 	// 推送上线消息
 	c.rds.Publish(context.Background(), entity.IMGatewayAll, jsonutil.Encode(entity.MapStrAny{
-		"event": entity.EventOnlineStatus,
+		"event": entity.EventLogin,
 		"data": jsonutil.Encode(entity.MapStrAny{
 			"user_id": client.ClientUid(),
 			"status":  1,
@@ -95,7 +95,7 @@ func (c *DefaultWebSocket) message(message *im.ReceiveContent) {
 		var m *dto.KeyboardMessage
 		if err := json.Unmarshal([]byte(message.Content), &m); err == nil {
 			c.rds.Publish(context.Background(), entity.IMGatewayAll, jsonutil.Encode(entity.MapStrAny{
-				"event": entity.EventKeyboard,
+				"event": entity.EventTalkKeyboard,
 				"data": jsonutil.Encode(entity.MapStrAny{
 					"sender_id":   m.Data.SenderID,
 					"receiver_id": m.Data.ReceiverID,
@@ -125,7 +125,7 @@ func (c *DefaultWebSocket) close(client im.ClientInterface, code int, text strin
 
 	// 推送下线消息
 	c.rds.Publish(context.Background(), entity.IMGatewayAll, jsonutil.Encode(entity.MapStrAny{
-		"event": entity.EventOnlineStatus,
+		"event": entity.EventLogin,
 		"data": jsonutil.Encode(entity.MapStrAny{
 			"user_id": client.ClientUid(),
 			"status":  0,

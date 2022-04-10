@@ -469,7 +469,7 @@ func (s *TalkMessageService) SendRevokeRecordMessage(ctx context.Context, uid in
 	}
 
 	body := map[string]interface{}{
-		"event": entity.EventRevokeTalk,
+		"event": entity.EventTalkRevoke,
 		"data": jsonutil.Encode(map[string]interface{}{
 			"record_id": record.Id,
 		}),

@@ -139,7 +139,7 @@ func (s *GroupService) Create(ctx context.Context, opts *CreateGroupOpts) (int, 
 
 	// 广播网关将在线的用户加入房间
 	body := map[string]interface{}{
-		"event": entity.EventJoinGroupRoom,
+		"event": entity.EventTalkJoinGroup,
 		"data": jsonutil.Encode(map[string]interface{}{
 			"group_id": group.Id,
 			"uids":     mids,
@@ -235,7 +235,7 @@ func (s *GroupService) Secede(ctx context.Context, groupId int, uid int) error {
 	s.relation.DelGroupRelation(ctx, uid, groupId)
 
 	s.rds.Publish(ctx, entity.IMGatewayAll, jsonutil.Encode(map[string]interface{}{
-		"event": entity.EventJoinGroupRoom,
+		"event": entity.EventTalkJoinGroup,
 		"data": jsonutil.Encode(map[string]interface{}{
 			"type":     2,
 			"group_id": groupId,
@@ -352,7 +352,7 @@ func (s *GroupService) InviteMembers(ctx context.Context, opts *InviteGroupMembe
 
 	// 广播网关将在线的用户加入房间
 	s.rds.Publish(ctx, entity.IMGatewayAll, jsonutil.Encode(map[string]interface{}{
-		"event": entity.EventJoinGroupRoom,
+		"event": entity.EventTalkJoinGroup,
 		"data": jsonutil.Encode(map[string]interface{}{
 			"type":     1,
 			"group_id": opts.GroupId,
@@ -424,7 +424,7 @@ func (s *GroupService) RemoveMembers(ctx context.Context, opts *RemoveMembersOpt
 	s.relation.BatchDelGroupRelation(ctx, opts.MemberIds, opts.GroupId)
 
 	s.rds.Publish(ctx, entity.IMGatewayAll, jsonutil.Encode(map[string]interface{}{
-		"event": entity.EventJoinGroupRoom,
+		"event": entity.EventTalkJoinGroup,
 		"data": jsonutil.Encode(map[string]interface{}{
 			"type":     2,
 			"group_id": opts.GroupId,

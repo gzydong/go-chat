@@ -30,7 +30,10 @@ func (c *ExampleWebsocket) Connect(ctx *gin.Context) {
 	}, im.NewClientCallBack(im.WithClientCallBackOpen(func(client im.ClientInterface) {
 		fmt.Printf("客户端[%d] 已连接\n", client.ClientId())
 	}), im.WithClientCallBackMessage(func(message *im.ReceiveContent) {
-		_ = message.Client.Write([]byte(message.Content)) // 推送消息
+		_ = message.Client.Write(&im.ClientOutContent{
+			IsAck:   true,
+			Content: []byte(message.Content),
+		}) // 推送消息
 	}), im.WithClientCallBackClose(func(client im.ClientInterface, code int, text string) {
 		fmt.Printf("客户端[%d] 已关闭连接，关闭提示【%d】%s \n", client.ClientId(), code, text)
 	})))

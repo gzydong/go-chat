@@ -23,6 +23,10 @@ func NewProcess(garbage *ClearGarbage, heartbeat *Heartbeat, server *Server, ws 
 	pro := &Process{}
 
 	pro.Register(im.Sessions.Default)
+
+	ack := im.AckManage()
+
+	pro.Register(ack)
 	pro.Register(garbage)
 	pro.Register(heartbeat)
 	pro.Register(server)

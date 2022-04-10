@@ -3,6 +3,7 @@ package im
 import (
 	"context"
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/gorilla/websocket"
@@ -11,11 +12,11 @@ import (
 )
 
 type ClientInterface interface {
-	ClientId() int64                // 获取客户端ID
-	ClientUid() int                 // 获取客户端关联用户ID
-	IsClosed() bool                 // 判断客户端是否关闭
-	Close(code int, message string) // 关闭客户端
-	Write(data []byte) error        // 客户端写入数据
+	ClientId() int64                    // 获取客户端ID
+	ClientUid() int                     // 获取客户端关联用户ID
+	IsClosed() bool                     // 判断客户端是否关闭
+	Close(code int, message string)     // 关闭客户端
+	Write(data *ClientOutContent) error // 客户端写入数据
 }
 
 type StorageInterface interface {
@@ -46,7 +47,7 @@ type Client struct {
 	channel  *Channel                // 渠道分组
 	storage  StorageInterface        // 缓存服务
 	isClosed bool                    // 客户端是否关闭连接
-	outChan  chan []byte             // 发送通道
+	outChan  chan *ClientOutContent  // 发送通道
 	callBack ClientCallBackInterface // 回调方法
 }
 
@@ -66,7 +67,7 @@ func NewClient(conn *websocket.Conn, opt *ClientOptions, callBack ClientCallBack
 		uid:      opt.Uid,
 		channel:  opt.Channel,
 		storage:  opt.Storage,
-		outChan:  make(chan []byte, 5), // 缓冲区大小根据业务，自行调整
+		outChan:  make(chan *ClientOutContent, 5), // 缓冲区大小根据业务，自行调整
 		callBack: callBack,
 	}
 
@@ -88,13 +89,15 @@ func NewClient(conn *websocket.Conn, opt *ClientOptions, callBack ClientCallBack
 	Heartbeat.addClient(client)
 
 	// 推送心跳检测配置
-	_ = client.Write(jsonutil.EncodeByte(&Message{
-		Event: "connect",
-		Content: map[string]interface{}{
-			"ping_interval": HeartbeatInterval,
-			"ping_timeout":  HeartbeatTimeout,
-		},
-	}))
+	_ = client.Write(&ClientOutContent{
+		Content: jsonutil.EncodeByte(&Message{
+			Event: "connect",
+			Content: map[string]interface{}{
+				"ping_interval": HeartbeatInterval,
+				"ping_timeout":  HeartbeatTimeout,
+			},
+		}),
+	})
 
 	return client.init()
 }
@@ -123,7 +126,7 @@ func (c *Client) Close(code int, message string) {
 }
 
 // Write 客户端写入数据
-func (c *Client) Write(data []byte) error {
+func (c *Client) Write(data *ClientOutContent) error {
 
 	if c.IsClosed() {
 		return fmt.Errorf("websocket client closed")
@@ -184,7 +187,9 @@ func (c *Client) loopAccept() {
 		case "heartbeat": // 心跳消息判断
 			c.lastTime = time.Now().Unix()
 
-			_ = c.Write(jsonutil.EncodeByte(&Message{"heartbeat", "pong"}))
+			_ = c.Write(&ClientOutContent{
+				Content: jsonutil.EncodeByte(&Message{"heartbeat", "pong"}),
+			})
 		case "ack":
 			ackManage.Del(&AckBufferOption{
 				Client: c,
@@ -199,15 +204,28 @@ func (c *Client) loopAccept() {
 
 // 循环推送客户端信息
 func (c *Client) loopWrite() {
-	for msg := range c.outChan {
+	for data := range c.outChan {
 
 		if c.isClosed {
 			break
 		}
 
-		_ = c.conn.WriteMessage(websocket.TextMessage, msg)
+		err := c.conn.WriteMessage(websocket.TextMessage, data.Content)
+		if err != nil {
+			break
+		}
 
-		// 这里需要消息推送 ack 通道
+		// 判断是否开启 ack 确认机制，且重重试机制在3次以内
+		if data.IsAck && data.Retry < 3 {
+			// 这里需要消息推送 ack 通道
+			log.Println("Ack 入库 ", data.Retry)
+			ackManage.Add(&AckBufferOption{
+				Client:  c,
+				MsgID:   "111111", // 预留
+				Retry:   data.Retry + 1,
+				Content: data.Content,
+			})
+		}
 	}
 }
 
