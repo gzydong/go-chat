@@ -3,18 +3,17 @@ package handler
 import (
 	"context"
 	"encoding/json"
-	"log"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis/v8"
+	"github.com/sirupsen/logrus"
 	"github.com/tidwall/gjson"
 
 	"go-chat/config"
 	"go-chat/internal/cache"
 	"go-chat/internal/entity"
 	"go-chat/internal/pkg/im"
-	"go-chat/internal/pkg/jsonutil"
 	"go-chat/internal/pkg/jwt"
 	"go-chat/internal/service"
 	"go-chat/internal/websocket/internal/dto"
@@ -35,42 +34,36 @@ func NewDefaultWebSocket(
 	room *cache.Room,
 	groupMemberService *service.GroupMemberService,
 ) *DefaultWebSocket {
-	handler := &DefaultWebSocket{rds: rds, conf: conf, cache: client, room: room, groupMemberService: groupMemberService}
-
-	im.Sessions.Default.SetHandler(handler)
-
-	return handler
+	return &DefaultWebSocket{rds: rds, conf: conf, cache: client, room: room, groupMemberService: groupMemberService}
 }
 
 // Connect 初始化连接
 func (c *DefaultWebSocket) Connect(ctx *gin.Context) {
 	conn, err := im.NewWebsocket(ctx)
 	if err != nil {
-		log.Printf("websocket connect error: %s", err)
+		logrus.Errorf("websocket connect error: %s", err.Error())
 		return
 	}
 
 	// 创建客户端
-	client := im.NewClient(conn, &im.ClientOptions{
+	im.NewClient(conn, &im.ClientOptions{
 		Channel: im.Sessions.Default,
 		Uid:     jwt.GetUid(ctx),
 		Storage: c.cache,
-	})
 
-	// 推送心跳检测信息
-	data, _ := jsonutil.JsonEncodeByte(im.Message{
-		Event: "connect",
-		Content: gin.H{
-			"ping_interval": 20,
-			"ping_timeout":  20 * 3,
-		},
+		// 设置回调方法
+		CallBack: im.NewClientCallBack(im.WithClientCallBackOpen(func(client im.ClientInterface) {
+			c.open(client)
+		}), im.WithClientCallBackMessage(func(message *im.ReceiveContent) {
+			c.message(message)
+		}), im.WithClientCallBackClose(func(client im.ClientInterface, code int, text string) {
+			c.close(client, code, text)
+		})),
 	})
-
-	_ = client.Write(data)
 }
 
-// Open 连接成功回调事件
-func (c *DefaultWebSocket) Open(client *im.Client) {
+// 连接成功回调事件
+func (c *DefaultWebSocket) open(client im.ClientInterface) {
 	// 1.查询用户群列表
 	ids := c.groupMemberService.Dao().GetUserGroupIds(client.ClientUid())
 
@@ -95,8 +88,8 @@ func (c *DefaultWebSocket) Open(client *im.Client) {
 	}.Json())
 }
 
-// Message 消息接收回调事件
-func (c *DefaultWebSocket) Message(message *im.ReceiveContent) {
+// 消息接收回调事件
+func (c *DefaultWebSocket) message(message *im.ReceiveContent) {
 	// fmt.Printf("[%s]消息通知 Client:%d，Content: %s \n", message.Client.Channel().Name(), message.Client.ClientId(), message.Content)
 
 	event := gjson.Get(message.Content, "event").String()
@@ -116,8 +109,8 @@ func (c *DefaultWebSocket) Message(message *im.ReceiveContent) {
 	}
 }
 
-// Close 客户端关闭回调事件
-func (c *DefaultWebSocket) Close(client *im.Client, code int, text string) {
+// 客户端关闭回调事件
+func (c *DefaultWebSocket) close(client im.ClientInterface, code int, text string) {
 	// 1.判断用户是否是多点登录
 
 	// 2.查询用户群列表

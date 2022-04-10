@@ -10,7 +10,15 @@ import (
 	"github.com/tidwall/gjson"
 )
 
-type Storage interface {
+type ClientInterface interface {
+	ClientId() int64                // 获取客户端ID
+	ClientUid() int                 // 获取客户端关联用户ID
+	IsClosed() bool                 // 判断客户端是否关闭
+	Close(code int, message string) // 关闭客户端
+	Write(data []byte) error        // 客户端写入数据
+}
+
+type StorageInterface interface {
 	Bind(ctx context.Context, channel string, clientId string, id int)
 	UnBind(ctx context.Context, channel string, clientId string)
 }
@@ -31,24 +39,26 @@ type ClientOutContent struct {
 
 // Client WebSocket 客户端连接信息
 type Client struct {
-	conn     *websocket.Conn // 客户端连接
-	cid      int64           // 客户端ID/客户端唯一标识
-	uid      int             // 用户ID
-	lastTime int64           // 客户端最后心跳时间/心跳检测
-	channel  *Channel        // 渠道分组
-	storage  Storage         // 缓存服务
-	isClosed bool            // 客户端是否关闭连接
-	outChan  chan []byte     // 发送通道
+	conn     *websocket.Conn         // 客户端连接
+	cid      int64                   // 客户端ID/客户端唯一标识
+	uid      int                     // 用户ID
+	lastTime int64                   // 客户端最后心跳时间/心跳检测
+	channel  *Channel                // 渠道分组
+	storage  StorageInterface        // 缓存服务
+	isClosed bool                    // 客户端是否关闭连接
+	outChan  chan []byte             // 发送通道
+	callBack ClientCallBackInterface // 回调方法
 }
 
 type ClientOptions struct {
-	Uid     int
-	Channel *Channel
-	Storage Storage
+	Uid      int
+	Channel  *Channel
+	Storage  StorageInterface
+	CallBack ClientCallBackInterface // 回调方法设置
 }
 
 // NewClient 初始化客户端信息
-func NewClient(conn *websocket.Conn, options *ClientOptions) *Client {
+func NewClient(conn *websocket.Conn, options *ClientOptions) ClientInterface {
 	client := &Client{
 		conn:     conn,
 		cid:      Counter.GetID(),
@@ -57,6 +67,11 @@ func NewClient(conn *websocket.Conn, options *ClientOptions) *Client {
 		channel:  options.Channel,
 		storage:  options.Storage,
 		outChan:  make(chan []byte, 5), // 缓冲区大小根据业务，自行调整
+		callBack: options.CallBack,
+	}
+
+	if options.CallBack == nil {
+		panic("Client CallBack 未设置")
 	}
 
 	// 设置客户端连接关闭回调事件
@@ -69,10 +84,21 @@ func NewClient(conn *websocket.Conn, options *ClientOptions) *Client {
 	client.channel.addClient(client)
 
 	// 触发自定义的 open 事件
-	client.channel.handler.Open(client)
+	client.callBack.Open(client)
 
 	// 注册心跳管理
 	Heartbeat.addClient(client)
+
+	msg, _ := json.Marshal(Message{
+		Event: "connect",
+		Content: map[string]interface{}{
+			"ping_interval": HeartbeatInterval,
+			"ping_timeout":  HeartbeatTimeout,
+		},
+	})
+
+	// 推送心跳检测配置
+	_ = client.Write(msg)
 
 	return client.init()
 }
@@ -122,7 +148,7 @@ func (c *Client) setCloseHandler(code int, text string) error {
 	c.isClosed = true
 
 	// 触发连接关闭回调
-	c.channel.handler.Close(c, code, text)
+	c.callBack.Close(c, code, text)
 
 	// 解绑关联
 	c.storage.UnBind(context.Background(), c.channel.name, fmt.Sprintf("%d", c.cid))
@@ -156,18 +182,29 @@ func (c *Client) loopAccept() {
 			continue
 		}
 
+		event := res.String()
+
 		// 心跳消息判断
-		if res.String() == "heartbeat" {
+		if event == "heartbeat" {
 			c.lastTime = time.Now().Unix()
 			data, _ := json.Marshal(&Message{"heartbeat", "pong"})
 
 			_ = c.Write(data)
 			continue
+		} else if event == "ack" {
+			ackManage.Del(&AckBufferOption{
+				Client: c,
+				MsgID:  "",
+			})
+
+			// 需要同步 ack 管理
+			continue
 		}
 
-		if len(msg) > 0 {
-			c.channel.PushAcceptChannel(&ReceiveContent{c, msg})
-		}
+		// 判断是否属于ack消息
+
+		// 触发消息回调
+		c.callBack.Message(&ReceiveContent{c, msg})
 	}
 }
 

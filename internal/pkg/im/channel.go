@@ -8,27 +8,16 @@ import (
 	"time"
 )
 
-type HandleInterface interface {
-	Open(client *Client)
-	Message(message *ReceiveContent)
-	Close(client *Client, code int, text string)
-}
-
-type ChannelInterface interface {
-}
-
 // Channel 渠道管理（多渠道划分，实现不同业务之间隔离）
 type Channel struct {
-	name    string               // 渠道名称
-	count   int64                // 客户端连接数
-	node    *Node                // 客户端列表【客户端ID取余拆分，降低 map 长度，减少 map 加锁时间提高并发处理量】
-	inChan  chan *ReceiveContent // 消息接收通道
-	outChan chan *SenderContent  // 消息发送通道
-	handler HandleInterface      // 回调处理
+	name    string              // 渠道名称
+	count   int64               // 客户端连接数
+	node    *Node               // 客户端列表【客户端ID取余拆分，降低 map 长度，减少 map 加锁时间提高并发处理量】
+	outChan chan *SenderContent // 消息发送通道
 }
 
-func NewChannel(name string, node *Node, inChan chan *ReceiveContent, outChan chan *SenderContent) *Channel {
-	return &Channel{name: name, node: node, inChan: inChan, outChan: outChan}
+func NewChannel(name string, node *Node, outChan chan *SenderContent) *Channel {
+	return &Channel{name: name, node: node, outChan: outChan}
 }
 
 // Name 获取渠道名称
@@ -64,70 +53,19 @@ func (c *Channel) delClient(client *Client) {
 	atomic.AddInt64(&c.count, -1)
 }
 
-// PushAcceptChannel 推送消息到接收通道
-func (c *Channel) PushAcceptChannel(message *ReceiveContent) {
-	select {
-	case c.inChan <- message:
-		break
-	case <-time.After(1000 * time.Millisecond):
-		fmt.Printf("[%s] RecvChan 写入消息超时,管道长度：%d \n", c.name, len(c.inChan))
-		break
-	}
-}
-
 // PushSendChannel 推送消息到消费通道
 func (c *Channel) PushSendChannel(msg *SenderContent) {
 	select {
 	case c.outChan <- msg:
 		break
 	case <-time.After(1000 * time.Millisecond):
-		fmt.Printf("[%s] SendChan 写入消息超时,管道长度：%d \n", c.name, len(c.inChan))
+		fmt.Printf("[%s] SendChan 写入消息超时,管道长度：%d \n", c.name, len(c.outChan))
 		break
 	}
 }
 
-// SetHandler 设置 WebSocket 处理事件
-func (c *Channel) SetHandler(handle HandleInterface) *Channel {
-	c.handler = handle
-
-	return c
-}
-
-// Handle 渠道消费协程
-func (c *Channel) Handle(ctx context.Context) error {
-	go c.recv(ctx)
-	go c.send(ctx)
-
-	return nil
-}
-
-// 接收客户端消息
-func (c *Channel) recv(ctx context.Context) {
-	var (
-		out     = 2 * time.Second
-		timeout = time.NewTimer(out)
-	)
-
-	for {
-		timeout.Reset(out)
-
-		select {
-		case <-ctx.Done():
-			break
-
-		// 处理接收消息
-		case msg, ok := <-c.inChan:
-			if ok {
-				c.handler.Message(msg)
-			}
-
-		case <-timeout.C:
-		}
-	}
-}
-
 // 推送客户端数据
-func (c *Channel) send(ctx context.Context) {
+func (c *Channel) loopSend(ctx context.Context) {
 	var (
 		out     = 1 * time.Second
 		timeout = time.NewTimer(out)
@@ -161,4 +99,12 @@ func (c *Channel) send(ctx context.Context) {
 		case <-timeout.C:
 		}
 	}
+}
+
+// Handle 渠道消费协程
+func (c *Channel) Handle(ctx context.Context) error {
+
+	go c.loopSend(ctx)
+
+	return nil
 }

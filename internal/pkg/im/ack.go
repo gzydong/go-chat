@@ -7,6 +7,8 @@ import (
 	"time"
 )
 
+var ackManage = &AckBuffer{}
+
 type AckBufferOption struct {
 	Client  *Client // 客户端连接
 	MsgID   string  // 消息ID
