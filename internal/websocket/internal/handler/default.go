@@ -72,7 +72,7 @@ func (c *DefaultWebSocket) Connect(ctx *gin.Context) {
 // Open 连接成功回调事件
 func (c *DefaultWebSocket) Open(client *im.Client) {
 	// 1.查询用户群列表
-	ids := c.groupMemberService.Dao().GetUserGroupIds(client.Uid())
+	ids := c.groupMemberService.Dao().GetUserGroupIds(client.ClientUid())
 
 	// 2.客户端加入群房间
 	for _, id := range ids {
@@ -89,7 +89,7 @@ func (c *DefaultWebSocket) Open(client *im.Client) {
 	c.rds.Publish(context.Background(), entity.IMGatewayAll, entity.JsonText{
 		"event": entity.EventOnlineStatus,
 		"data": entity.JsonText{
-			"user_id": client.Uid(),
+			"user_id": client.ClientUid(),
 			"status":  1,
 		}.Json(),
 	}.Json())
@@ -121,7 +121,7 @@ func (c *DefaultWebSocket) Close(client *im.Client, code int, text string) {
 	// 1.判断用户是否是多点登录
 
 	// 2.查询用户群列表
-	ids := c.groupMemberService.Dao().GetUserGroupIds(client.Uid())
+	ids := c.groupMemberService.Dao().GetUserGroupIds(client.ClientUid())
 
 	// 3.客户端退出群房间
 	for _, id := range ids {
@@ -138,7 +138,7 @@ func (c *DefaultWebSocket) Close(client *im.Client, code int, text string) {
 	c.rds.Publish(context.Background(), entity.IMGatewayAll, entity.JsonText{
 		"event": entity.EventOnlineStatus,
 		"data": entity.JsonText{
-			"user_id": client.Uid(),
+			"user_id": client.ClientUid(),
 			"status":  0,
 		}.Json(),
 	}.Json())

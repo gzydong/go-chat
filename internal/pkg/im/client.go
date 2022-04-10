@@ -10,27 +10,41 @@ import (
 	"github.com/tidwall/gjson"
 )
 
-type StorageInterface interface {
+type Storage interface {
 	Bind(ctx context.Context, channel string, clientId string, id int)
 	UnBind(ctx context.Context, channel string, clientId string)
 }
 
+// ClientInContent 客户端接收消息体
+type ClientInContent struct {
+	IsAck   bool   // 是否需要 ack 回调
+	Event   string // 消息事件
+	Content []byte // 消息内容
+}
+
+// ClientOutContent 客户端输出的消息体
+type ClientOutContent struct {
+	IsAck   bool   // 是否需要 ack 回调
+	Retry   int    // 重试次数
+	Content []byte // 消息内容
+}
+
 // Client WebSocket 客户端连接信息
 type Client struct {
-	conn     *websocket.Conn  // 客户端连接
-	cid      int64            // 客户端ID/客户端唯一标识
-	uid      int              // 用户ID
-	lastTime int64            // 客户端最后心跳时间/心跳检测
-	channel  *Channel         // 渠道分组
-	storage  StorageInterface // 缓存服务
-	isClosed bool             // 客户端是否关闭连接
-	outChan  chan []byte      // 发送通道
+	conn     *websocket.Conn // 客户端连接
+	cid      int64           // 客户端ID/客户端唯一标识
+	uid      int             // 用户ID
+	lastTime int64           // 客户端最后心跳时间/心跳检测
+	channel  *Channel        // 渠道分组
+	storage  Storage         // 缓存服务
+	isClosed bool            // 客户端是否关闭连接
+	outChan  chan []byte     // 发送通道
 }
 
 type ClientOptions struct {
 	Uid     int
 	Channel *Channel
-	Storage StorageInterface
+	Storage Storage
 }
 
 // NewClient 初始化客户端信息
@@ -42,48 +56,25 @@ func NewClient(conn *websocket.Conn, options *ClientOptions) *Client {
 		uid:      options.Uid,
 		channel:  options.Channel,
 		storage:  options.Storage,
-		outChan:  make(chan []byte, 5),
+		outChan:  make(chan []byte, 5), // 缓冲区大小根据业务，自行调整
 	}
 
-	ctx := context.Background()
-
 	// 设置客户端连接关闭回调事件
-	conn.SetCloseHandler(func(code int, text string) error {
-
-		if !client.isClosed {
-			close(client.outChan) // 关闭通道
-		}
-
-		client.isClosed = true
-
-		options.Channel.handler.Close(client, code, text)
-
-		options.Channel.delClient(client)
-
-		client.storage.UnBind(ctx, client.Channel().name, fmt.Sprintf("%d", client.cid))
-
-		// 通知心跳管理
-		Heartbeat.delClient(client)
-
-		return nil
-	})
+	conn.SetCloseHandler(client.setCloseHandler)
 
 	// 绑定客户端映射关系
-	client.storage.Bind(ctx, client.Channel().name, fmt.Sprintf("%d", client.cid), client.uid)
+	client.storage.Bind(context.Background(), options.Channel.name, fmt.Sprintf("%d", client.cid), client.uid)
 
 	// 注册客户端
-	options.Channel.addClient(client)
+	client.channel.addClient(client)
+
+	// 触发自定义的 open 事件
+	client.channel.handler.Open(client)
 
 	// 注册心跳管理
 	Heartbeat.addClient(client)
 
-	// 触发自定义的 open 事件
-	options.Channel.handler.Open(client)
-
-	// 初始化协程
-	client.init()
-
-	return client
+	return client.init()
 }
 
 // ClientId 获取客户端ID
@@ -91,14 +82,9 @@ func (c *Client) ClientId() int64 {
 	return c.cid
 }
 
-// Uid 获取客户端关联的用户ID
-func (c *Client) Uid() int {
+// ClientUid 获取客户端关联的用户ID
+func (c *Client) ClientUid() int {
 	return c.uid
-}
-
-// Channel 获取客户端通道信息
-func (c *Client) Channel() *Channel {
-	return c.channel
 }
 
 // IsClosed 判断客户端是否关闭连接
@@ -127,15 +113,31 @@ func (c *Client) Write(data []byte) error {
 	return nil
 }
 
-// Init 初始化连接
-func (c *Client) init() {
-	// 启动协程处理接收信息
-	go c.accept()
-	go c.write()
+// 关闭回调
+func (c *Client) setCloseHandler(code int, text string) error {
+	if !c.isClosed {
+		close(c.outChan) // 关闭通道
+	}
+
+	c.isClosed = true
+
+	// 触发连接关闭回调
+	c.channel.handler.Close(c, code, text)
+
+	// 解绑关联
+	c.storage.UnBind(context.Background(), c.channel.name, fmt.Sprintf("%d", c.cid))
+
+	// 渠道分组移除客户端
+	c.channel.delClient(c)
+
+	// 心跳管理移除客户端
+	Heartbeat.delClient(c)
+
+	return nil
 }
 
 // 循环接收客户端推送信息
-func (c *Client) accept() {
+func (c *Client) loopAccept() {
 	defer c.conn.Close()
 
 	for {
@@ -164,14 +166,32 @@ func (c *Client) accept() {
 		}
 
 		if len(msg) > 0 {
-			c.Channel().PushAcceptChannel(&ReceiveContent{c, msg})
+			c.channel.PushAcceptChannel(&ReceiveContent{c, msg})
 		}
 	}
 }
 
 // 循环推送客户端信息
-func (c *Client) write() {
+func (c *Client) loopWrite() {
 	for msg := range c.outChan {
+
+		if c.isClosed {
+			break
+		}
+
 		_ = c.conn.WriteMessage(websocket.TextMessage, msg)
+
+		// 这里需要消息推送 ack 通道
 	}
+}
+
+// Init 初始化连接
+func (c *Client) init() *Client {
+	// 启动协程处理接收信息
+	go c.loopAccept()
+
+	// 启动协程处理推送信息
+	go c.loopWrite()
+
+	return c
 }
