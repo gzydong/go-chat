@@ -66,12 +66,10 @@ func (c *Channel) delClient(client *Client) {
 
 // 推送客户端数据
 func (c *Channel) loopSend(ctx context.Context) {
-	var (
-		out     = 1 * time.Second
-		timeout = time.NewTimer(out)
-	)
+	out := 2 * time.Second
+	timer := time.NewTimer(out)
 
-	defer timeout.Stop()
+	defer timer.Stop()
 
 	for {
 		select {
@@ -100,8 +98,8 @@ func (c *Channel) loopSend(ctx context.Context) {
 					}
 				}
 			}
-		case <-timeout.C:
-			timeout.Reset(out)
+		case <-timer.C:
+			timer.Reset(out)
 		}
 	}
 }
@@ -109,7 +107,7 @@ func (c *Channel) loopSend(ctx context.Context) {
 // Start 渠道消费协程
 func (c *Channel) Start(ctx context.Context) error {
 
-	go c.loopSend(ctx)
+	c.loopSend(ctx)
 
 	return nil
 }
