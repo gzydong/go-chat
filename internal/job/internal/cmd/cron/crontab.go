@@ -35,20 +35,21 @@ func NewCrontabCommand(handles *Handles) CrontabCommand {
 				fmt.Println("ClearWsCacheHandle end")
 			})
 
-			// 每隔30分钟处理 websocket 缓存
+			// 每天凌晨1点执行
 			_, _ = c.AddFunc("0 1 * * *", func() {
 				fmt.Println("ClearArticleHandle start")
 				_ = handles.ClearArticleHandle.Handle()
 				fmt.Println("ClearArticleHandle end")
 			})
 
+			// 每天凌晨1点10分执行
 			_, _ = c.AddFunc("20 1 * * *", func() {
 				fmt.Println("ClearTmpFileHandle start")
 				_ = handles.ClearTmpFileHandle.Handle()
 				fmt.Println("ClearTmpFileHandle end")
 			})
 
-			log.Println("Crontab 定时任务启动成功...")
+			log.Println("Crontab 定时任务已启动...")
 
 			return run(c, ctx.Context)
 		},
@@ -68,6 +69,9 @@ func run(cron *cron.Cron, ctx context.Context) error {
 	case <-ctx.Done():
 		cron.Stop()
 	}
+
+	fmt.Println()
+	log.Println("Crontab 定时任务已关闭")
 
 	return nil
 }

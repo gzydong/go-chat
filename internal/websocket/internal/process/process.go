@@ -17,20 +17,20 @@ type Process struct {
 	registers []InterfaceProcess
 }
 
-func NewProcess(server *Health, ws *WsSubscribe) *Process {
-	pro := &Process{}
+func NewProcess(health *Health, subscribe *WsSubscribe) *Process {
+	process := &Process{}
 
-	pro.Register(server)
-	pro.Register(ws)
+	process.register(health)
+	process.register(subscribe)
 
-	return pro
+	return process
 }
 
-func (p *Process) Register(process InterfaceProcess) {
+func (p *Process) register(process InterfaceProcess) {
 	p.registers = append(p.registers, process)
 }
 
-func (p *Process) Run(eg *errgroup.Group, ctx context.Context) {
+func (p *Process) Start(eg *errgroup.Group, ctx context.Context) {
 	onceProcess.Do(func() {
 		for _, process := range p.registers {
 			func(obj InterfaceProcess) {

@@ -25,6 +25,7 @@ func main() {
 
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, syscall.SIGTERM, syscall.SIGQUIT, syscall.SIGINT)
+	fmt.Println()
 
 	if err := cmd.RunContext(ctx, os.Args); err != nil {
 		fmt.Printf("Command Error : %s", err.Error())

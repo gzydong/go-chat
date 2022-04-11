@@ -65,7 +65,7 @@ func main() {
 		log.Printf("Websocket Pid     : %d", os.Getpid())
 
 		// 启动守护协程
-		providers.Process.Run(eg, groupCtx)
+		providers.Process.Start(eg, groupCtx)
 
 		return start(c, eg, groupCtx, cancel, providers.WsServer)
 	}
@@ -100,7 +100,6 @@ func start(c chan os.Signal, eg *errgroup.Group, ctx context.Context, cancel con
 		case <-ctx.Done():
 			return ctx.Err()
 		case <-c:
-			fmt.Println("关闭了")
 			return nil
 		}
 	})
@@ -110,6 +109,7 @@ func start(c chan os.Signal, eg *errgroup.Group, ctx context.Context, cancel con
 		return err
 	}
 
+	fmt.Println()
 	log.Fatal("Websocket Shutdown")
 
 	return nil

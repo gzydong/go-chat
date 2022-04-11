@@ -74,7 +74,7 @@ func (c *Channel) loopSend(ctx context.Context) {
 	for {
 		select {
 		case <-ctx.Done():
-			break
+			return
 		case body, ok := <-c.outChan:
 			if ok {
 				content, _ := json.Marshal(body.GetMessage())
