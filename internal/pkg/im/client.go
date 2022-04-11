@@ -86,7 +86,7 @@ func NewClient(conn *websocket.Conn, opt *ClientOptions, callBack ClientCallBack
 	client.callBack.Open(client)
 
 	// 注册心跳管理
-	Heartbeat.addClient(client)
+	heartbeatManage.addClient(client)
 
 	// 推送心跳检测配置
 	_ = client.Write(&ClientOutContent{
@@ -158,7 +158,7 @@ func (c *Client) setCloseHandler(code int, text string) error {
 	c.channel.delClient(c)
 
 	// 心跳管理移除客户端
-	Heartbeat.delClient(c)
+	heartbeatManage.delClient(c)
 
 	return nil
 }

@@ -74,12 +74,9 @@ func (c *Channel) loopSend(ctx context.Context) {
 	defer timeout.Stop()
 
 	for {
-		timeout.Reset(out)
-
 		select {
 		case <-ctx.Done():
 			break
-
 		case body, ok := <-c.outChan:
 			if ok {
 				content, _ := json.Marshal(body.GetMessage())
@@ -103,14 +100,14 @@ func (c *Channel) loopSend(ctx context.Context) {
 					}
 				}
 			}
-
 		case <-timeout.C:
+			timeout.Reset(out)
 		}
 	}
 }
 
-// Handle 渠道消费协程
-func (c *Channel) Handle(ctx context.Context) error {
+// Start 渠道消费协程
+func (c *Channel) Start(ctx context.Context) error {
 
 	go c.loopSend(ctx)
 

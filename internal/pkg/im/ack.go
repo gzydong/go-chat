@@ -33,14 +33,17 @@ func (a *AckBuffer) Del(opt *AckBufferOption) {
 	a.list.Delete(fmt.Sprintf("%s-%d", opt.MsgID, opt.Client.ClientId()))
 }
 
-func (a *AckBuffer) Handle(ctx context.Context) error {
+func (a *AckBuffer) Start(ctx context.Context) error {
+
+	timer := time.NewTimer(30 * time.Second)
+
+	defer timer.Stop()
+
 	for {
 		select {
 		case <-ctx.Done():
 			return nil
-
-		default:
-
+		case <-timer.C:
 			a.list.Range(func(key, value interface{}) bool {
 				if option, ok := value.(*AckBufferOption); ok {
 					_ = option.Client.Write(&ClientOutContent{
@@ -55,7 +58,7 @@ func (a *AckBuffer) Handle(ctx context.Context) error {
 				return true
 			})
 
-			time.Sleep(30 * time.Second)
+			timer.Reset(30 * time.Second)
 		}
 	}
 }

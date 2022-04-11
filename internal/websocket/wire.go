@@ -30,7 +30,6 @@ var providerSet = wire.NewSet(
 	// process
 	process.NewProcess,
 	process.NewClearGarbage,
-	process.NewImHeartbeat,
 	process.NewServer,
 	process.NewWsSubscribe,
 	handle.NewSubscribeConsume,

@@ -10,7 +10,7 @@ const (
 	HeartbeatTimeout  = 75 // 心跳检测超时时间（超时时间是隔间检测时间的2.5倍）
 )
 
-var Heartbeat = &heartbeat{
+var heartbeatManage = &heartbeat{
 	node: NewNode(100),
 }
 
@@ -27,17 +27,17 @@ func (h *heartbeat) delClient(c *Client) {
 	h.node.del(c)
 }
 
-func (h *heartbeat) Run(ctx context.Context) error {
+func (h *heartbeat) Start(ctx context.Context) error {
 
-	ticker := time.NewTicker(HeartbeatInterval * time.Second)
+	timer := time.NewTimer(HeartbeatInterval * time.Second)
 
-	defer ticker.Stop()
+	defer timer.Stop()
 
 	for {
 		select {
 		case <-ctx.Done():
 			return nil
-		case <-ticker.C:
+		case <-timer.C:
 			t := time.Now().Unix()
 
 			h.node.each(func(c *Client) {
@@ -45,6 +45,8 @@ func (h *heartbeat) Run(ctx context.Context) error {
 					c.Close(2000, "心跳检测超时，连接自动关闭")
 				}
 			})
+
+			timer.Reset(HeartbeatInterval * time.Second)
 		}
 	}
 }

@@ -5,8 +5,6 @@ import (
 	"sync"
 
 	"golang.org/x/sync/errgroup"
-
-	"go-chat/internal/pkg/im"
 )
 
 var onceProcess sync.Once
@@ -19,16 +17,10 @@ type Process struct {
 	registers []InterfaceProcess
 }
 
-func NewProcess(garbage *ClearGarbage, heartbeat *Heartbeat, server *Server, ws *WsSubscribe) *Process {
+func NewProcess(garbage *ClearGarbage, server *Server, ws *WsSubscribe) *Process {
 	pro := &Process{}
 
-	pro.Register(im.Sessions.Default)
-
-	ack := im.AckManage()
-
-	pro.Register(ack)
 	pro.Register(garbage)
-	pro.Register(heartbeat)
 	pro.Register(server)
 	pro.Register(ws)
 
