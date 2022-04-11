@@ -60,12 +60,14 @@ func main() {
 
 		signal.Notify(c, syscall.SIGTERM, syscall.SIGQUIT, syscall.SIGINT)
 
-		log.Printf("Websocket ServerID: %s", config.ServerId())
-		log.Printf("Websocket Listen  : %d", config.App.Port)
-		log.Printf("Websocket Pid     : %d", os.Getpid())
+		// 延时启动守护协程
+		time.AfterFunc(3*time.Second, func() {
+			providers.Process.Start(eg, groupCtx)
+		})
 
-		// 启动守护协程
-		providers.Process.Start(eg, groupCtx)
+		log.Printf("Websocket Server ID   :%s", config.ServerId())
+		log.Printf("Websocket Listen Port :%d", config.App.Port)
+		log.Printf("Websocket Server Pid  :%d", os.Getpid())
 
 		return start(c, eg, groupCtx, cancel, providers.WsServer)
 	}

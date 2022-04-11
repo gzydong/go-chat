@@ -3,6 +3,7 @@ package im
 import (
 	"context"
 	"sync"
+	"time"
 
 	"golang.org/x/sync/errgroup"
 )
@@ -32,19 +33,22 @@ func initialize(ctx context.Context, eg *errgroup.Group) {
 		Example: NewChannel("example", NewNode(1), make(chan *SenderContent, 100)),
 	}
 
-	eg.Go(func() error {
-		return heartbeatManage.Start(ctx)
-	})
+	// 延时启动守护协程
+	time.AfterFunc(5*time.Second, func() {
+		eg.Go(func() error {
+			return heartbeatManage.Start(ctx)
+		})
 
-	eg.Go(func() error {
-		return ackManage.Start(ctx)
-	})
+		eg.Go(func() error {
+			return ackManage.Start(ctx)
+		})
 
-	eg.Go(func() error {
-		return Sessions.Default.Start(ctx)
-	})
+		eg.Go(func() error {
+			return Sessions.Default.Start(ctx)
+		})
 
-	eg.Go(func() error {
-		return Sessions.Example.Start(ctx)
+		eg.Go(func() error {
+			return Sessions.Example.Start(ctx)
+		})
 	})
 }

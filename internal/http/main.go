@@ -59,22 +59,20 @@ func main() {
 		c := make(chan os.Signal, 1)
 		signal.Notify(c, syscall.SIGTERM, syscall.SIGQUIT, syscall.SIGINT)
 
-		// 启动 Http
-		run(c, eg, groupCtx, cancel, providers.Server)
+		log.Printf("HTTP Listen Port :%d", config.App.Port)
+		log.Printf("HTTP Server Pid  :%d", os.Getpid())
 
-		return nil
+		return run(c, eg, groupCtx, cancel, providers.Server)
 	}
 
 	_ = cmd.Run(os.Args)
 }
 
-func run(c chan os.Signal, eg *errgroup.Group, ctx context.Context, cancel context.CancelFunc, server *http.Server) {
+func run(c chan os.Signal, eg *errgroup.Group, ctx context.Context, cancel context.CancelFunc, server *http.Server) error {
 	// 启动 http 服务
 	eg.Go(func() error {
-		log.Printf("HTTP Listen %s", server.Addr)
-
 		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			log.Fatalf("HTTP Listen err: %s", err)
+			log.Fatalf("HTTP Server Listen Err: %s", err)
 		}
 
 		return nil
@@ -87,7 +85,7 @@ func run(c chan os.Signal, eg *errgroup.Group, ctx context.Context, cancel conte
 			timeCtx, timeCancel := context.WithTimeout(context.Background(), 5*time.Second)
 			defer timeCancel()
 			if err := server.Shutdown(timeCtx); err != nil {
-				log.Fatalf("HTTP Shutdown err: %s", err)
+				log.Fatalf("HTTP Server Shutdown Err: %s", err)
 			}
 		}()
 
@@ -100,8 +98,10 @@ func run(c chan os.Signal, eg *errgroup.Group, ctx context.Context, cancel conte
 	})
 
 	if err := eg.Wait(); err != nil && !errors.Is(err, context.Canceled) {
-		log.Fatalf("eg error: %s", err)
+		log.Fatalf("Error: %s", err)
 	}
 
-	log.Fatal("HTTP Shutdown")
+	log.Fatal("HTTP Server Shutdown")
+
+	return nil
 }
