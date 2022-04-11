@@ -9,9 +9,10 @@ package main
 import (
 	"context"
 	"github.com/google/wire"
+	"go-chat/internal/cache"
 	"go-chat/internal/dao"
 	"go-chat/internal/job/internal/cmd"
-	crontab2 "go-chat/internal/job/internal/cmd/crontab"
+	"go-chat/internal/job/internal/cmd/cron"
 	"go-chat/internal/job/internal/cmd/other"
 	"go-chat/internal/job/internal/cmd/queue"
 	"go-chat/internal/job/internal/handle/crontab"
@@ -24,13 +25,19 @@ import (
 
 func Initialize(ctx context.Context) *Providers {
 	config := provider.NewConfig()
+	client := provider.NewRedisClient(ctx, config)
+	sidServer := cache.NewSid(client)
+	clearWsCacheHandle := crontab.NewClearWsCacheHandle(sidServer)
 	db := provider.NewMySQLClient(config)
 	filesystemFilesystem := filesystem.NewFilesystem(config)
-	clearTmpFile := crontab.NewClearTmpFile(db, filesystemFilesystem)
-	clearTmpFileCommand := crontab2.NewClearTmpFileCommand(clearTmpFile)
-	clearArticle := crontab.NewClearArticle(db, filesystemFilesystem)
-	clearArticleCommand := crontab2.NewClearArticleCommand(clearArticle)
-	crontabCommand := crontab2.NewCrontabCommand(clearTmpFileCommand, clearArticleCommand)
+	clearArticleHandle := crontab.NewClearArticle(db, filesystemFilesystem)
+	clearTmpFileHandle := crontab.NewClearTmpFile(db, filesystemFilesystem)
+	handles := &cron.Handles{
+		ClearWsCacheHandle: clearWsCacheHandle,
+		ClearArticleHandle: clearArticleHandle,
+		ClearTmpFileHandle: clearTmpFileHandle,
+	}
+	crontabCommand := cron.NewCrontabCommand(handles)
 	queueCommand := queue.NewQueueCommand()
 	otherCommand := other.NewOtherCommand()
 	commands := &cmd.Commands{
@@ -47,4 +54,4 @@ func Initialize(ctx context.Context) *Providers {
 
 // wire.go:
 
-var providerSet = wire.NewSet(provider.NewConfig, provider.NewMySQLClient, provider.NewRedisClient, provider.NewHttpClient, client.NewHttpClient, filesystem.NewFilesystem, dao.NewBaseDao, crontab2.NewCrontabCommand, queue.NewQueueCommand, other.NewOtherCommand, crontab2.NewClearTmpFileCommand, crontab2.NewClearArticleCommand, crontab.NewClearTmpFile, crontab.NewClearArticle, wire.Struct(new(cmd.Commands), "*"), wire.Struct(new(Providers), "*"))
+var providerSet = wire.NewSet(provider.NewConfig, provider.NewMySQLClient, provider.NewRedisClient, provider.NewHttpClient, client.NewHttpClient, filesystem.NewFilesystem, cache.NewSid, dao.NewBaseDao, cron.NewCrontabCommand, queue.NewQueueCommand, other.NewOtherCommand, crontab.NewClearTmpFile, crontab.NewClearArticle, crontab.NewClearWsCacheHandle, wire.Struct(new(cron.Handles), "*"), wire.Struct(new(cmd.Commands), "*"), wire.Struct(new(Providers), "*"))

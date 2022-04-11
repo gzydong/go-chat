@@ -5,13 +5,15 @@ package main
 
 import (
 	"context"
+
 	"github.com/google/wire"
+	"go-chat/internal/cache"
 	"go-chat/internal/dao"
 	"go-chat/internal/job/internal/cmd"
-	"go-chat/internal/job/internal/cmd/crontab"
+	"go-chat/internal/job/internal/cmd/cron"
 	"go-chat/internal/job/internal/cmd/other"
 	"go-chat/internal/job/internal/cmd/queue"
-	crontab2 "go-chat/internal/job/internal/handle/crontab"
+	crontab "go-chat/internal/job/internal/handle/crontab"
 	"go-chat/internal/pkg/client"
 	"go-chat/internal/pkg/filesystem"
 	"go-chat/internal/provider"
@@ -27,21 +29,23 @@ var providerSet = wire.NewSet(
 
 	filesystem.NewFilesystem,
 
+	// cache
+	cache.NewSid,
+
 	// Dao
 	dao.NewBaseDao,
 
 	// 命令行
-	crontab.NewCrontabCommand,
+	cron.NewCrontabCommand,
 	queue.NewQueueCommand,
 	other.NewOtherCommand,
 
-	// 子命令
-	crontab.NewClearTmpFileCommand,
-	crontab.NewClearArticleCommand,
-
 	// Handle
-	crontab2.NewClearTmpFile,
-	crontab2.NewClearArticle,
+	crontab.NewClearTmpFile,
+	crontab.NewClearArticle,
+	crontab.NewClearWsCacheHandle,
+
+	wire.Struct(new(cron.Handles), "*"),
 
 	// 服务
 	wire.Struct(new(cmd.Commands), "*"),

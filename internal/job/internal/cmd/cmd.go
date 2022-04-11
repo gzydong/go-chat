@@ -1,15 +1,16 @@
 package cmd
 
 import (
+	"reflect"
+
 	"github.com/urfave/cli/v2"
-	"go-chat/internal/job/internal/cmd/crontab"
+	"go-chat/internal/job/internal/cmd/cron"
 	"go-chat/internal/job/internal/cmd/other"
 	"go-chat/internal/job/internal/cmd/queue"
-	"reflect"
 )
 
 type Commands struct {
-	CrontabCommand crontab.CrontabCommand
+	CrontabCommand cron.CrontabCommand
 	QueueCommand   queue.QueueCommand
 	OtherCommand   other.OtherCommand
 }

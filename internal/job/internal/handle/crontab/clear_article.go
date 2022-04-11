@@ -1,23 +1,24 @@
 package crontab
 
 import (
+	"time"
+
 	"go-chat/internal/entity"
 	"go-chat/internal/model"
 	"go-chat/internal/pkg/filesystem"
 	"gorm.io/gorm"
-	"time"
 )
 
-type ClearArticle struct {
+type ClearArticleHandle struct {
 	db         *gorm.DB
 	fileSystem *filesystem.Filesystem
 }
 
-func NewClearArticle(db *gorm.DB, fileSystem *filesystem.Filesystem) *ClearArticle {
-	return &ClearArticle{db: db, fileSystem: fileSystem}
+func NewClearArticle(db *gorm.DB, fileSystem *filesystem.Filesystem) *ClearArticleHandle {
+	return &ClearArticleHandle{db: db, fileSystem: fileSystem}
 }
 
-func (c *ClearArticle) Handle() error {
+func (c *ClearArticleHandle) Handle() error {
 
 	c.clearArticleAnnex()
 
@@ -27,7 +28,7 @@ func (c *ClearArticle) Handle() error {
 }
 
 // 删除回收站文章附件
-func (c *ClearArticle) clearArticleAnnex() {
+func (c *ClearArticleHandle) clearArticleAnnex() {
 	lastId := 0
 	size := 100
 
@@ -58,7 +59,7 @@ func (c *ClearArticle) clearArticleAnnex() {
 }
 
 // 删除回收站笔记
-func (c *ClearArticle) clear() {
+func (c *ClearArticleHandle) clear() {
 	lastId := 0
 	size := 100
 

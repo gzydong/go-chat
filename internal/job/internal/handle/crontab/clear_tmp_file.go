@@ -1,23 +1,24 @@
 package crontab
 
 import (
+	"path"
+	"time"
+
 	"go-chat/internal/model"
 	"go-chat/internal/pkg/filesystem"
 	"gorm.io/gorm"
-	"path"
-	"time"
 )
 
-type ClearTmpFile struct {
+type ClearTmpFileHandle struct {
 	db         *gorm.DB
 	fileSystem *filesystem.Filesystem
 }
 
-func NewClearTmpFile(db *gorm.DB, fileSystem *filesystem.Filesystem) *ClearTmpFile {
-	return &ClearTmpFile{db: db, fileSystem: fileSystem}
+func NewClearTmpFile(db *gorm.DB, fileSystem *filesystem.Filesystem) *ClearTmpFileHandle {
+	return &ClearTmpFileHandle{db: db, fileSystem: fileSystem}
 }
 
-func (c *ClearTmpFile) Handle() error {
+func (c *ClearTmpFileHandle) Handle() error {
 
 	lastId, size := 0, 100
 

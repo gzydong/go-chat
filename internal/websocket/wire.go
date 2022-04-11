@@ -29,8 +29,7 @@ var providerSet = wire.NewSet(
 
 	// process
 	process.NewProcess,
-	process.NewClearGarbage,
-	process.NewServer,
+	process.NewHealthCheck,
 	process.NewWsSubscribe,
 	handle.NewSubscribeConsume,
 

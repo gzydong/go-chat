@@ -17,10 +17,9 @@ type Process struct {
 	registers []InterfaceProcess
 }
 
-func NewProcess(garbage *ClearGarbage, server *Server, ws *WsSubscribe) *Process {
+func NewProcess(server *Health, ws *WsSubscribe) *Process {
 	pro := &Process{}
 
-	pro.Register(garbage)
 	pro.Register(server)
 	pro.Register(ws)
 

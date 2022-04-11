@@ -9,16 +9,16 @@ import (
 	"go-chat/internal/cache"
 )
 
-type Server struct {
+type Health struct {
 	conf   *config.Config
 	server *cache.SidServer
 }
 
-func NewServer(conf *config.Config, server *cache.SidServer) *Server {
-	return &Server{conf: conf, server: server}
+func NewHealthCheck(conf *config.Config, server *cache.SidServer) *Health {
+	return &Health{conf: conf, server: server}
 }
 
-func (s *Server) Handle(ctx context.Context) error {
+func (s *Health) Handle(ctx context.Context) error {
 	for {
 		select {
 		case <-ctx.Done():
