@@ -71,6 +71,8 @@ func (c *Channel) loopSend(ctx context.Context) {
 		timeout = time.NewTimer(out)
 	)
 
+	defer timeout.Stop()
+
 	for {
 		timeout.Reset(out)
 
