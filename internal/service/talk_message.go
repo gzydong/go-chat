@@ -633,14 +633,14 @@ func (s *TalkMessageService) afterHandle(ctx context.Context, record *model.Talk
 
 	// 点对点消息采用精确投递
 	if record.TalkType == entity.ChatPrivateMode {
-		sids := s.sidServer.GetServerAll(ctx, 1)
+		sids := s.sidServer.All(ctx, 1)
 
 		// 小于两台服务器则采用全局广播
 		if len(sids) <= 3 {
 			s.rds.Publish(ctx, entity.IMGatewayAll, content)
 		} else {
 			to := []int{record.UserId, record.ReceiverId}
-			for _, sid := range s.sidServer.GetServerAll(ctx, 1) {
+			for _, sid := range s.sidServer.All(ctx, 1) {
 				for _, uid := range to {
 					if s.client.IsCurrentServerOnline(ctx, sid, entity.ImChannelDefault, strconv.Itoa(uid)) {
 						s.rds.Publish(ctx, entity.GetIMGatewayPrivate(sid), content)

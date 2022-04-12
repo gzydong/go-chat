@@ -9,10 +9,10 @@ import (
 )
 
 const (
-	// 正在的运行服务
+	// ServerKey 正在的运行服务
 	ServerKey = "server_ids"
 
-	// 过期的运行服务
+	// ServerKeyExpire 过期的运行服务
 	ServerKeyExpire = "server_ids_expire"
 
 	// ServerOverTime 运行检测超时时间（单位秒）
@@ -27,22 +27,22 @@ func NewSid(rds *redis.Client) *SidServer {
 	return &SidServer{rds: rds}
 }
 
-// SetServer 更新服务心跳时间
-func (s *SidServer) SetServer(ctx context.Context, server string, time int64) error {
+// Set 更新服务心跳时间
+func (s *SidServer) Set(ctx context.Context, server string, time int64) error {
 
 	_ = s.DelExpireServer(ctx, server)
 
 	return s.rds.HSet(ctx, ServerKey, server, time).Err()
 }
 
-// DelServer 删除指定 SidServer
-func (s *SidServer) DelServer(ctx context.Context, server string) error {
+// Del 删除指定 SidServer
+func (s *SidServer) Del(ctx context.Context, server string) error {
 	return s.rds.HDel(ctx, ServerKey, server).Err()
 }
 
-// GetServerAll 获取指定状态的运行 SidServer
+// All 获取指定状态的运行 SidServer
 // status 状态[1:运行中;2:已超时;3:全部]
-func (s *SidServer) GetServerAll(ctx context.Context, status int) []string {
+func (s *SidServer) All(ctx context.Context, status int) []string {
 	result, err := s.rds.HGetAll(ctx, ServerKey).Result()
 
 	slice := make([]string, 0)
@@ -74,12 +74,10 @@ func (s *SidServer) GetServerAll(ctx context.Context, status int) []string {
 	return slice
 }
 
-// SetExpireServer
 func (s *SidServer) SetExpireServer(ctx context.Context, server string) error {
 	return s.rds.SAdd(ctx, ServerKeyExpire, server).Err()
 }
 
-// DelExpireServer
 func (s *SidServer) DelExpireServer(ctx context.Context, server string) error {
 	return s.rds.SRem(ctx, ServerKeyExpire, server).Err()
 }

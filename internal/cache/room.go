@@ -3,9 +3,10 @@ package cache
 import (
 	"context"
 	"fmt"
+	"strconv"
+
 	"github.com/go-redis/redis/v8"
 	"go-chat/internal/entity"
-	"strconv"
 )
 
 type Room struct {
@@ -24,14 +25,22 @@ func NewRoom(rds *redis.Client) *Room {
 	return &Room{rds: rds}
 }
 
-// 获取房间名 [ws:网关ID:room:房间类型:房间号]
+// 获取房间名 [ws:sid:room:房间类型:房间号]
 func (room *Room) key(opts *RoomOption) string {
 	return fmt.Sprintf("ws:%s:room:%s:%s", opts.Sid, opts.RoomType, opts.Number)
 }
 
 // Add 添加房间成员
 func (room *Room) Add(ctx context.Context, opts *RoomOption) error {
-	return room.rds.SAdd(ctx, room.key(opts), opts.Cid).Err()
+
+	key := room.key(opts)
+
+	err := room.rds.SAdd(ctx, key, opts.Cid).Err()
+	if err == nil {
+		room.rds.Expire(ctx, key, 60*60*24*7)
+	}
+
+	return err
 }
 
 // Del 删除房间成员

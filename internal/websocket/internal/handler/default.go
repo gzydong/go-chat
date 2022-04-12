@@ -91,6 +91,8 @@ func (c *DefaultWebSocket) message(message *im.ReceiveContent) {
 	event := gjson.Get(message.Content, "event").String()
 
 	switch event {
+
+	// 对话键盘事件
 	case entity.EventTalkKeyboard:
 		var m *dto.KeyboardMessage
 		if err := json.Unmarshal([]byte(message.Content), &m); err == nil {

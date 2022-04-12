@@ -32,10 +32,12 @@ func Initialize(ctx context.Context) *Providers {
 	filesystemFilesystem := filesystem.NewFilesystem(config)
 	clearArticleHandle := crontab.NewClearArticle(db, filesystemFilesystem)
 	clearTmpFileHandle := crontab.NewClearTmpFile(db, filesystemFilesystem)
+	clearExpireServerHandle := crontab.NewClearExpireServer(sidServer)
 	handles := &cron.Handles{
-		ClearWsCacheHandle: clearWsCacheHandle,
-		ClearArticleHandle: clearArticleHandle,
-		ClearTmpFileHandle: clearTmpFileHandle,
+		ClearWsCacheHandle:      clearWsCacheHandle,
+		ClearArticleHandle:      clearArticleHandle,
+		ClearTmpFileHandle:      clearTmpFileHandle,
+		ClearExpireServerHandle: clearExpireServerHandle,
 	}
 	crontabCommand := cron.NewCrontabCommand(handles)
 	queueCommand := queue.NewQueueCommand()
@@ -54,4 +56,4 @@ func Initialize(ctx context.Context) *Providers {
 
 // wire.go:
 
-var providerSet = wire.NewSet(provider.NewConfig, provider.NewMySQLClient, provider.NewRedisClient, provider.NewHttpClient, client.NewHttpClient, filesystem.NewFilesystem, cache.NewSid, dao.NewBaseDao, cron.NewCrontabCommand, queue.NewQueueCommand, other.NewOtherCommand, crontab.NewClearTmpFile, crontab.NewClearArticle, crontab.NewClearWsCacheHandle, wire.Struct(new(cron.Handles), "*"), wire.Struct(new(cmd.Commands), "*"), wire.Struct(new(Providers), "*"))
+var providerSet = wire.NewSet(provider.NewConfig, provider.NewMySQLClient, provider.NewRedisClient, provider.NewHttpClient, client.NewHttpClient, filesystem.NewFilesystem, cache.NewSid, dao.NewBaseDao, cron.NewCrontabCommand, queue.NewQueueCommand, other.NewOtherCommand, crontab.NewClearTmpFile, crontab.NewClearArticle, crontab.NewClearWsCacheHandle, crontab.NewClearExpireServer, wire.Struct(new(cron.Handles), "*"), wire.Struct(new(cmd.Commands), "*"), wire.Struct(new(Providers), "*"))

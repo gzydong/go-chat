@@ -16,9 +16,10 @@ import (
 type CrontabCommand *cli.Command
 
 type Handles struct {
-	ClearWsCacheHandle *crontab.ClearWsCacheHandle
-	ClearArticleHandle *crontab.ClearArticleHandle
-	ClearTmpFileHandle *crontab.ClearTmpFileHandle
+	ClearWsCacheHandle      *crontab.ClearWsCacheHandle
+	ClearArticleHandle      *crontab.ClearArticleHandle
+	ClearTmpFileHandle      *crontab.ClearTmpFileHandle
+	ClearExpireServerHandle *crontab.ClearExpireServerHandle
 }
 
 func NewCrontabCommand(handles *Handles) CrontabCommand {
@@ -29,24 +30,31 @@ func NewCrontabCommand(handles *Handles) CrontabCommand {
 			c := cron.New()
 
 			// 每隔30分钟处理 websocket 缓存
+			_, _ = c.AddFunc("* * * * *", func() {
+				log.Println("ClearExpireServerHandle start")
+				_ = handles.ClearExpireServerHandle.Handle(ctx.Context)
+				log.Println("ClearExpireServerHandle end")
+			})
+
+			// 每隔30分钟处理 websocket 缓存
 			_, _ = c.AddFunc("*/30 * * * *", func() {
-				fmt.Println("ClearWsCacheHandle start")
+				log.Println("ClearWsCacheHandle start")
 				_ = handles.ClearWsCacheHandle.Handle(ctx.Context)
-				fmt.Println("ClearWsCacheHandle end")
+				log.Println("ClearWsCacheHandle end")
 			})
 
 			// 每天凌晨1点执行
 			_, _ = c.AddFunc("0 1 * * *", func() {
-				fmt.Println("ClearArticleHandle start")
+				log.Println("ClearArticleHandle start")
 				_ = handles.ClearArticleHandle.Handle()
-				fmt.Println("ClearArticleHandle end")
+				log.Println("ClearArticleHandle end")
 			})
 
 			// 每天凌晨1点10分执行
 			_, _ = c.AddFunc("20 1 * * *", func() {
-				fmt.Println("ClearTmpFileHandle start")
+				log.Println("ClearTmpFileHandle start")
 				_ = handles.ClearTmpFileHandle.Handle()
-				fmt.Println("ClearTmpFileHandle end")
+				log.Println("ClearTmpFileHandle end")
 			})
 
 			log.Println("Crontab 定时任务已启动...")

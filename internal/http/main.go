@@ -23,8 +23,9 @@ import (
 
 func main() {
 	cmd := cli.NewApp()
-	cmd.Name = "Http Log"
-	cmd.Usage = "GoChat 即时聊天应用"
+
+	cmd.Name = "LumenIM 在线聊天"
+	cmd.Usage = "Http Server"
 
 	// 设置参数
 	cmd.Flags = []cli.Flag{

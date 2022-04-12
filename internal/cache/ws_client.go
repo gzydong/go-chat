@@ -3,9 +3,10 @@ package cache
 import (
 	"context"
 	"fmt"
+	"strconv"
+
 	"github.com/go-redis/redis/v8"
 	"go-chat/config"
-	"strconv"
 )
 
 type WsClientSession struct {
@@ -57,7 +58,7 @@ func (w *WsClientSession) Del(ctx context.Context, channel, fd string) {
 // @params channel  渠道分组
 // @params uid      用户ID
 func (w *WsClientSession) IsOnline(ctx context.Context, channel, uid string) bool {
-	for _, sid := range w.server.GetServerAll(ctx, 1) {
+	for _, sid := range w.server.All(ctx, 1) {
 		if w.IsCurrentServerOnline(ctx, sid, channel, uid) {
 			return true
 		}

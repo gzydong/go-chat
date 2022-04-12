@@ -44,6 +44,7 @@ var providerSet = wire.NewSet(
 	crontab.NewClearTmpFile,
 	crontab.NewClearArticle,
 	crontab.NewClearWsCacheHandle,
+	crontab.NewClearExpireServer,
 
 	wire.Struct(new(cron.Handles), "*"),
 

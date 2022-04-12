@@ -19,8 +19,9 @@ func main() {
 
 	cmd := cli.NewApp()
 
-	cmd.Name = "GoChat 脚本任务"
+	cmd.Name = "LumenIM 在线聊天"
 	cmd.Usage = "命令行管理工具"
+
 	cmd.Commands = providers.Commands.ToCommands()
 
 	c := make(chan os.Signal, 1)
