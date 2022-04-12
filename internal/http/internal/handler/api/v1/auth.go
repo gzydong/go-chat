@@ -61,7 +61,7 @@ func (c *Auth) Login(ctx *gin.Context) {
 
 	user, err := c.userService.Login(params.Mobile, params.Password)
 	if err != nil {
-		response.InvalidParams(ctx, err)
+		response.BusinessError(ctx, err)
 		return
 	}
 

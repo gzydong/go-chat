@@ -1,6 +1,7 @@
 package service
 
 import (
+	"database/sql"
 	"errors"
 
 	"go-chat/internal/dao"
@@ -17,7 +18,7 @@ type UserRegisterOpts struct {
 	Platform string
 }
 
-// ForgetRequest 账号找回接口验证
+// UserForgetOpts ForgetRequest 账号找回接口验证
 type UserForgetOpts struct {
 	Mobile   string
 	Password string
@@ -60,7 +61,11 @@ func (s *UserService) Register(opts *UserRegisterOpts) (*model.Users, error) {
 func (s *UserService) Login(mobile string, password string) (*model.Users, error) {
 	user, err := s.dao.FindByMobile(mobile)
 	if err != nil {
-		return nil, errors.New("登录账号不存在! ")
+		if err == sql.ErrNoRows {
+			return nil, errors.New("登录账号不存在! ")
+		}
+
+		return nil, err
 	}
 
 	if !encrypt.VerifyPassword(user.Password, password) {
