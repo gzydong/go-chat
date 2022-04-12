@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"strconv"
+	"time"
 
 	"github.com/go-redis/redis/v8"
 	"go-chat/internal/entity"
@@ -37,7 +38,7 @@ func (room *Room) Add(ctx context.Context, opts *RoomOption) error {
 
 	err := room.rds.SAdd(ctx, key, opts.Cid).Err()
 	if err == nil {
-		room.rds.Expire(ctx, key, 60*60*24*7)
+		room.rds.Expire(ctx, key, time.Hour*24*7)
 	}
 
 	return err
