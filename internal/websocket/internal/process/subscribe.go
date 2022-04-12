@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/go-redis/redis/v8"
@@ -40,24 +41,28 @@ func (w *WsSubscribe) Handle(ctx context.Context) error {
 	// 订阅通道
 	sub := w.rds.Subscribe(ctx, channels...)
 
+	// 关闭订阅
 	defer sub.Close()
 
+	consume := func(value *redis.Message) {
+
+		switch value.Channel {
+
+		// 私有通道及全局广播通道
+		case gateway, entity.IMGatewayAll:
+			var message *SubscribeContent
+			if err := json.Unmarshal([]byte(value.Payload), &message); err == nil {
+				w.consume.Handle(message.Event, message.Data)
+			} else {
+				log.Printf("订阅消息格式错误 Err: %s \n", err.Error())
+			}
+		}
+	}
+
 	go func() {
-		work := pool.NewWorkerPool(5) // 设置协程并发处理数
+		work := pool.NewWorkerPool(10) // 设置协程并发处理数
 
 		for msg := range sub.Channel(redis.WithChannelHealthCheckInterval(30 * time.Second)) {
-			consume := func(value *redis.Message) {
-				switch value.Channel {
-
-				// 私有通道及全局广播通道
-				case gateway, entity.IMGatewayAll:
-					var message *SubscribeContent
-					if err := json.Unmarshal([]byte(value.Payload), &message); err == nil {
-						w.consume.Handle(message.Event, message.Data)
-					}
-				}
-			}
-
 			work.Add(func() { consume(msg) })
 		}
 

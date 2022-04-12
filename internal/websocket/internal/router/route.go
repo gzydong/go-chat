@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"go-chat/internal/pkg/im"
 
 	"go-chat/config"
 	"go-chat/internal/cache"
@@ -18,6 +19,14 @@ func NewRouter(conf *config.Config, handle *handler.Handler, session *cache.Sess
 
 	// 授权验证中间件
 	authorize := jwt.Auth(conf.Jwt.Secret, "api", session)
+
+	router.GET("/wss/connect/detail", func(ctx *gin.Context) {
+		ctx.JSON(200, gin.H{
+			"max_client_id": im.Counter.GetMaxID(),
+			"default":       gin.H{"online_total": im.Sessions.Default.Count()},
+			"example":       gin.H{"online_total": im.Sessions.Example.Count()},
+		})
+	})
 
 	router.GET("/wss/default.io", authorize, handle.DefaultWebSocket.Connect)
 	router.GET("/wss/example.io", authorize, handle.ExampleWebsocket.Connect)
