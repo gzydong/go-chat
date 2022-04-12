@@ -20,8 +20,10 @@ func NewRouter(conf *config.Config, handle *handler.Handler, session *cache.Sess
 	// 授权验证中间件
 	authorize := jwt.Auth(conf.Jwt.Secret, "api", session)
 
+	// 查看客户端连接状态
 	router.GET("/wss/connect/detail", func(ctx *gin.Context) {
 		ctx.JSON(200, gin.H{
+			"server_port":   conf.App.Port,
 			"max_client_id": im.Counter.GetMaxID(),
 			"default":       gin.H{"online_total": im.Sessions.Default.Count()},
 			"example":       gin.H{"online_total": im.Sessions.Example.Count()},
