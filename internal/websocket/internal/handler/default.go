@@ -91,7 +91,7 @@ func (c *DefaultWebSocket) message(message *im.ReceiveContent) {
 	event := gjson.Get(message.Content, "event").String()
 
 	switch event {
-	case "event_keyboard":
+	case entity.EventTalkKeyboard:
 		var m *dto.KeyboardMessage
 		if err := json.Unmarshal([]byte(message.Content), &m); err == nil {
 			c.rds.Publish(context.Background(), entity.IMGatewayAll, jsonutil.Encode(entity.MapStrAny{
