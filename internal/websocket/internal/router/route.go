@@ -25,8 +25,8 @@ func NewRouter(conf *config.Config, handle *handler.Handler, session *cache.Sess
 		ctx.JSON(200, gin.H{
 			"server_port":   conf.App.Port,
 			"max_client_id": im.Counter.GetMaxID(),
-			"default":       gin.H{"online_total": im.Sessions.Default.Count()},
-			"example":       gin.H{"online_total": im.Sessions.Example.Count()},
+			"default":       gin.H{"online_total": im.Session.Default.Count()},
+			"example":       gin.H{"online_total": im.Session.Example.Count()},
 		})
 	})
 

@@ -47,17 +47,24 @@ func (c *DefaultWebSocket) Connect(ctx *gin.Context) {
 
 	// 创建客户端
 	im.NewClient(conn, &im.ClientOptions{
-		Channel: im.Sessions.Default,
+		Channel: im.Session.Default,
 		Uid:     jwt.GetUid(ctx),
 		Storage: c.cache,
-	}, im.NewClientCallBack(im.WithClientCallBackOpen(func(client im.ClientInterface) {
-		c.open(client)
-	}), im.WithClientCallBackMessage(func(message *im.ReceiveContent) {
-		c.message(message)
-	}), im.WithClientCallBackClose(func(client im.ClientInterface, code int, text string) {
-		c.close(client, code, text)
-		// fmt.Printf("客户端[%d] 已关闭连接，关闭提示【%d】%s \n", client.ClientId(), code, text)
-	})))
+	}, im.NewClientCallback(
+		// 连接成功回调
+		im.WithOpenCallback(func(client im.ClientInterface) {
+			c.open(client)
+		}),
+		// 接收消息回调
+		im.WithMessageCallback(func(message *im.ReceiveContent) {
+			c.message(message)
+		}),
+		// 关闭连接回调
+		im.WithCloseCallback(func(client im.ClientInterface, code int, text string) {
+			c.close(client, code, text)
+			// fmt.Printf("客户端[%d] 已关闭连接，关闭提示【%d】%s \n", client.ClientId(), code, text)
+		}),
+	))
 }
 
 // 连接成功回调事件
@@ -68,7 +75,7 @@ func (c *DefaultWebSocket) open(client im.ClientInterface) {
 	// 2.客户端加入群房间
 	for _, id := range ids {
 		_ = c.room.Add(context.Background(), &cache.RoomOption{
-			Channel:  im.Sessions.Default.Name(),
+			Channel:  im.Session.Default.Name(),
 			RoomType: entity.RoomGroupChat,
 			Number:   strconv.Itoa(id),
 			Sid:      c.conf.ServerId(),
@@ -117,7 +124,7 @@ func (c *DefaultWebSocket) close(client im.ClientInterface, code int, text strin
 	// 3.客户端退出群房间
 	for _, id := range ids {
 		_ = c.room.Del(context.Background(), &cache.RoomOption{
-			Channel:  im.Sessions.Default.Name(),
+			Channel:  im.Session.Default.Name(),
 			RoomType: entity.RoomGroupChat,
 			Number:   strconv.Itoa(id),
 			Sid:      c.conf.ServerId(),

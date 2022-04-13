@@ -48,18 +48,18 @@ type Client struct {
 	storage  StorageInterface        // 缓存服务
 	isClosed bool                    // 客户端是否关闭连接
 	outChan  chan *ClientOutContent  // 发送通道
-	callBack ClientCallBackInterface // 回调方法
+	callBack ClientCallbackInterface // 回调方法
 }
 
 type ClientOptions struct {
 	Uid      int
 	Channel  *Channel
 	Storage  StorageInterface
-	CallBack ClientCallBackInterface // 回调方法设置
+	CallBack ClientCallbackInterface // 回调方法设置
 }
 
 // NewClient 初始化客户端信息
-func NewClient(conn *websocket.Conn, opt *ClientOptions, callBack ClientCallBackInterface) ClientInterface {
+func NewClient(conn *websocket.Conn, opt *ClientOptions, callBack ClientCallbackInterface) ClientInterface {
 	client := &Client{
 		conn:     conn,
 		cid:      Counter.GetID(),
@@ -86,15 +86,15 @@ func NewClient(conn *websocket.Conn, opt *ClientOptions, callBack ClientCallBack
 	client.callBack.Open(client)
 
 	// 注册心跳管理
-	heartbeatManage.addClient(client)
+	health.addClient(client)
 
 	// 推送心跳检测配置
 	_ = client.Write(&ClientOutContent{
 		Content: jsonutil.EncodeByte(&Message{
 			Event: "connect",
 			Content: map[string]interface{}{
-				"ping_interval": HeartbeatInterval,
-				"ping_timeout":  HeartbeatTimeout,
+				"ping_interval": heartbeatInterval,
+				"ping_timeout":  heartbeatTimeout,
 			},
 		}),
 	})
@@ -158,7 +158,7 @@ func (c *Client) setCloseHandler(code int, text string) error {
 	c.channel.delClient(c)
 
 	// 心跳管理移除客户端
-	heartbeatManage.delClient(c)
+	health.delClient(c)
 
 	return nil
 }
@@ -191,7 +191,7 @@ func (c *Client) loopAccept() {
 				Content: jsonutil.EncodeByte(&Message{"heartbeat", "pong"}),
 			})
 		case "ack":
-			ackManage.Del(&AckBufferOption{
+			ack.del(&AckBufferOption{
 				Client: c,
 				MsgID:  "",
 			})
@@ -219,7 +219,7 @@ func (c *Client) loopWrite() {
 		if data.IsAck && data.Retry < 3 {
 			// 这里需要消息推送 ack 通道
 			log.Println("Ack 入库 ", data.Retry)
-			ackManage.Add(&AckBufferOption{
+			ack.add(&AckBufferOption{
 				Client:  c,
 				MsgID:   "111111", // 预留
 				Retry:   data.Retry + 1,

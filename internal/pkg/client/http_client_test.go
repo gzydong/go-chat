@@ -29,10 +29,10 @@ func TestHttpClient_GET(t *testing.T) {
 // 	for i := 0; i < 1000; i++ {
 // 		go func() {
 // 			params := &url.Values{}
-// 			params.Add("talk_type", "1")
-// 			params.Add("receiver_id", "2055")
-// 			params.Add("text", " 那几款撒那看你哪款手机那")
-// 			params.Add("token", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJndWFyZCI6ImFwaSIsImV4cCI6NTIzODI4MzQ4MywianRpIjoiMjA1NCJ9.td6MPf_G64XTUWz-wSIb78fBiarKKJA0P3jFjGgde8o")
+// 			params.add("talk_type", "1")
+// 			params.add("receiver_id", "2055")
+// 			params.add("text", " 那几款撒那看你哪款手机那")
+// 			params.add("token", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJndWFyZCI6ImFwaSIsImV4cCI6NTIzODI4MzQ4MywianRpIjoiMjA1NCJ9.td6MPf_G64XTUWz-wSIb78fBiarKKJA0P3jFjGgde8o")
 //
 // 			client.SetDebug()
 //

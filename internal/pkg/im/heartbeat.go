@@ -6,17 +6,19 @@ import (
 )
 
 const (
-	HeartbeatInterval = 30 // 心跳检测间隔时间
-	HeartbeatTimeout  = 75 // 心跳检测超时时间（超时时间是隔间检测时间的2.5倍）
+	heartbeatInterval = 30 // 心跳检测间隔时间
+	heartbeatTimeout  = 75 // 心跳检测超时时间（超时时间是隔间检测时间的2.5倍以上）
 )
 
-var heartbeatManage = &heartbeat{
-	node: NewNode(100),
-}
+var health *heartbeat
 
 // 客户端心跳管理
 type heartbeat struct {
 	node *Node
+}
+
+func init() {
+	health = &heartbeat{node: NewNode(10)}
 }
 
 func (h *heartbeat) addClient(c *Client) {
@@ -29,7 +31,7 @@ func (h *heartbeat) delClient(c *Client) {
 
 func (h *heartbeat) Start(ctx context.Context) error {
 
-	timer := time.NewTimer(HeartbeatInterval * time.Second)
+	timer := time.NewTimer(heartbeatInterval * time.Second)
 
 	defer timer.Stop()
 
@@ -41,12 +43,12 @@ func (h *heartbeat) Start(ctx context.Context) error {
 			t := time.Now().Unix()
 
 			h.node.each(func(c *Client) {
-				if int(t-c.lastTime) > HeartbeatTimeout {
+				if int(t-c.lastTime) > heartbeatTimeout {
 					c.Close(2000, "心跳检测超时，连接自动关闭")
 				}
 			})
 
-			timer.Reset(HeartbeatInterval * time.Second)
+			timer.Reset(heartbeatInterval * time.Second)
 		}
 	}
 }

@@ -80,6 +80,7 @@ func (c *Talk) List(ctx *gin.Context) {
 			UpdatedAt:  timeutil.FormatDatetime(item.UpdatedAt),
 		}
 
+		// TODO 需要优化加缓存
 		if item.TalkType == 1 {
 			value.Name = item.Nickname
 			value.Avatar = item.UserAvatar
@@ -132,7 +133,7 @@ func (c *Talk) Create(ctx *gin.Context) {
 		return
 	}
 
-	// 需要判断权限
+	// TODO 需要判断权限
 
 	result, err := c.talkListService.Create(ctx.Request.Context(), &service.TalkSessionCreateOpts{
 		UserId:     uid,

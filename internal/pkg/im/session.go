@@ -8,10 +8,10 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-var once sync.Once
+// Session 客户端管理实例
+var Session *session
 
-// Sessions 客户端管理实例
-var Sessions *session
+var once sync.Once
 
 // session 渠道客户端
 type session struct {
@@ -28,7 +28,7 @@ func Initialize(ctx context.Context, eg *errgroup.Group) {
 }
 
 func initialize(ctx context.Context, eg *errgroup.Group) {
-	Sessions = &session{
+	Session = &session{
 		Default: NewChannel("default", NewNode(10), make(chan *SenderContent, 5<<20)),
 		Example: NewChannel("example", NewNode(1), make(chan *SenderContent, 100)),
 	}
@@ -36,19 +36,19 @@ func initialize(ctx context.Context, eg *errgroup.Group) {
 	// 延时启动守护协程
 	time.AfterFunc(5*time.Second, func() {
 		eg.Go(func() error {
-			return heartbeatManage.Start(ctx)
+			return health.Start(ctx)
 		})
 
 		eg.Go(func() error {
-			return ackManage.Start(ctx)
+			return ack.Start(ctx)
 		})
 
 		eg.Go(func() error {
-			return Sessions.Default.Start(ctx)
+			return Session.Default.Start(ctx)
 		})
 
 		eg.Go(func() error {
-			return Sessions.Example.Start(ctx)
+			return Session.Example.Start(ctx)
 		})
 	})
 }

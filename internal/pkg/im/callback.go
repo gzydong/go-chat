@@ -1,28 +1,28 @@
 package im
 
-type ClientCallBackInterface interface {
+type ClientCallbackInterface interface {
 	Open(client ClientInterface)
 	Message(message *ReceiveContent)
 	Close(client ClientInterface, code int, text string)
 }
 
-type OpenCallBack func(client ClientInterface)
+type OpenCallback func(client ClientInterface)
 
-type MessageCallBack func(message *ReceiveContent)
+type MessageCallback func(message *ReceiveContent)
 
-type CloseCallBack func(client ClientInterface, code int, text string)
+type CloseCallback func(client ClientInterface, code int, text string)
 
-type ClientCallBackOption func(callBack *ClientCallBack)
+type ClientCallbackOption func(callBack *ClientCallback)
 
-type ClientCallBack struct {
-	openCallBack    OpenCallBack
-	messageCallBack MessageCallBack
-	closeCallBack   CloseCallBack
+type ClientCallback struct {
+	openCallBack    OpenCallback
+	messageCallBack MessageCallback
+	closeCallBack   CloseCallback
 }
 
-func NewClientCallBack(opts ...ClientCallBackOption) *ClientCallBack {
+func NewClientCallback(opts ...ClientCallbackOption) *ClientCallback {
 
-	o := &ClientCallBack{}
+	o := &ClientCallback{}
 
 	for _, opt := range opts {
 		opt(o)
@@ -31,38 +31,38 @@ func NewClientCallBack(opts ...ClientCallBackOption) *ClientCallBack {
 	return o
 }
 
-func (c *ClientCallBack) Open(client ClientInterface) {
+func (c *ClientCallback) Open(client ClientInterface) {
 	if c.openCallBack != nil {
 		c.openCallBack(client)
 	}
 }
 
-func (c *ClientCallBack) Message(message *ReceiveContent) {
+func (c *ClientCallback) Message(message *ReceiveContent) {
 	if c.messageCallBack != nil {
 		c.messageCallBack(message)
 	}
 }
 
-func (c *ClientCallBack) Close(client ClientInterface, code int, text string) {
+func (c *ClientCallback) Close(client ClientInterface, code int, text string) {
 	if c.closeCallBack != nil {
 		c.closeCallBack(client, code, text)
 	}
 }
 
-func WithClientCallBackOpen(call OpenCallBack) ClientCallBackOption {
-	return func(callBack *ClientCallBack) {
+func WithOpenCallback(call OpenCallback) ClientCallbackOption {
+	return func(callBack *ClientCallback) {
 		callBack.openCallBack = call
 	}
 }
 
-func WithClientCallBackMessage(call MessageCallBack) ClientCallBackOption {
-	return func(callBack *ClientCallBack) {
+func WithMessageCallback(call MessageCallback) ClientCallbackOption {
+	return func(callBack *ClientCallback) {
 		callBack.messageCallBack = call
 	}
 }
 
-func WithClientCallBackClose(call CloseCallBack) ClientCallBackOption {
-	return func(callBack *ClientCallBack) {
+func WithCloseCallback(call CloseCallback) ClientCallbackOption {
+	return func(callBack *ClientCallback) {
 		callBack.closeCallBack = call
 	}
 }

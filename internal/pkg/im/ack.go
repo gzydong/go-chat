@@ -7,7 +7,16 @@ import (
 	"time"
 )
 
-var ackManage = &AckBuffer{list: &sync.Map{}}
+var ack *AckBuffer
+
+// AckBuffer Ack 确认缓冲区
+type AckBuffer struct {
+	list *sync.Map
+}
+
+func init() {
+	ack = &AckBuffer{list: &sync.Map{}}
+}
 
 type AckBufferOption struct {
 	Client  *Client // 客户端连接
@@ -16,20 +25,11 @@ type AckBufferOption struct {
 	Content []byte  // 内容
 }
 
-func AckManage() *AckBuffer {
-	return ackManage
-}
-
-// AckBuffer Ack 确认缓冲区
-type AckBuffer struct {
-	list *sync.Map
-}
-
-func (a *AckBuffer) Add(opt *AckBufferOption) {
+func (a *AckBuffer) add(opt *AckBufferOption) {
 	a.list.Store(fmt.Sprintf("%s-%d", opt.MsgID, opt.Client.ClientId()), opt)
 }
 
-func (a *AckBuffer) Del(opt *AckBufferOption) {
+func (a *AckBuffer) del(opt *AckBufferOption) {
 	a.list.Delete(fmt.Sprintf("%s-%d", opt.MsgID, opt.Client.ClientId()))
 }
 
@@ -52,7 +52,7 @@ func (a *AckBuffer) Start(ctx context.Context) error {
 						Content: option.Content,
 					})
 
-					a.Del(option)
+					a.del(option)
 				}
 
 				return true
