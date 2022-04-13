@@ -9,8 +9,8 @@ type counter struct {
 	number uint64 // 当前号码牌
 }
 
-// GetID 获取自增ID
-func (gen *counter) GetID() int64 {
+// GenID 获取自增ID
+func (gen *counter) GenID() int64 {
 	return int64(atomic.AddUint64(&gen.number, 1))
 }
 

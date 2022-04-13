@@ -65,7 +65,7 @@ func (c *Channel) delClient(client *Client) {
 }
 
 // 推送客户端数据
-func (c *Channel) loopSend(ctx context.Context) {
+func (c *Channel) loopPush(ctx context.Context) {
 	out := 2 * time.Second
 	timer := time.NewTimer(out)
 
@@ -81,19 +81,13 @@ func (c *Channel) loopSend(ctx context.Context) {
 
 				// 判断是否广播消息
 				if body.IsBroadcast() {
-					c.node.each(func(c *Client) {
-						// todo 待完善
-						_ = c.Write(&ClientOutContent{
-							Content: content,
-						})
+					c.node.each(func(client *Client) {
+						_ = client.Write(&ClientOutContent{Content: content})
 					})
 				} else {
 					for _, cid := range body.receives {
 						if client, ok := c.Client(cid); ok {
-							// todo 待完善
-							_ = client.Write(&ClientOutContent{
-								Content: content,
-							})
+							_ = client.Write(&ClientOutContent{Content: content})
 						}
 					}
 				}
@@ -106,8 +100,7 @@ func (c *Channel) loopSend(ctx context.Context) {
 
 // Start 渠道消费协程
 func (c *Channel) Start(ctx context.Context) error {
-
-	c.loopSend(ctx)
+	go c.loopPush(ctx)
 
 	return nil
 }

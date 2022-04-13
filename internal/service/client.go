@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"fmt"
 
 	"go-chat/internal/cache"
 )
@@ -16,12 +17,10 @@ func NewClientService(cache *cache.WsClientSession) *ClientService {
 	}
 }
 
-// Bind ...
-func (c *ClientService) Bind(ctx context.Context, channel string, clientId string, id int) {
-	c.cache.Set(ctx, channel, clientId, id)
+func (c *ClientService) Bind(ctx context.Context, channel string, clientId int64, uid int) {
+	c.cache.Set(ctx, channel, fmt.Sprintf("%d", clientId), uid)
 }
 
-// UnBind ...
-func (c *ClientService) UnBind(ctx context.Context, channel string, clientId string) {
-	c.cache.Del(ctx, channel, clientId)
+func (c *ClientService) UnBind(ctx context.Context, channel string, clientId int64) {
+	c.cache.Del(ctx, channel, fmt.Sprintf("%d", clientId))
 }

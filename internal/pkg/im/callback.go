@@ -1,6 +1,6 @@
 package im
 
-type ClientCallbackInterface interface {
+type CallbackInterface interface {
 	Open(client ClientInterface)
 	Message(message *ReceiveContent)
 	Close(client ClientInterface, code int, text string)

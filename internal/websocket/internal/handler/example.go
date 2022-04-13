@@ -24,7 +24,7 @@ func (c *ExampleWebsocket) Connect(ctx *gin.Context) {
 	}
 
 	// 创建客户端
-	im.NewClient(conn, &im.ClientOptions{
+	im.NewClient(ctx.Request.Context(), conn, &im.ClientOptions{
 		Channel: im.Session.Example,
 		Uid:     0, // 自行提供用户ID
 	}, im.NewClientCallback(
