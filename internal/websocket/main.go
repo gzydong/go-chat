@@ -62,7 +62,7 @@ func main() {
 
 		// 延时启动守护协程
 		time.AfterFunc(3*time.Second, func() {
-			providers.Process.Start(eg, groupCtx)
+			providers.Coroutine.Start(eg, groupCtx)
 		})
 
 		log.Printf("Websocket Server ID   :%s", config.ServerId())

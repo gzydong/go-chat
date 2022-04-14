@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 
 	"go-chat/config"
 	"go-chat/internal/cache"
@@ -37,16 +38,16 @@ func (s *SubscribeConsume) Handle(event string, data string) {
 
 	// 注册消息回调事件
 	handler[entity.EventTalk] = s.onConsumeTalk
-	handler[entity.EventTalkKeyboard] = s.onConsumeKeyboard
-	handler[entity.EventLogin] = s.onConsumeOnline
-	handler[entity.EventTalkRevoke] = s.onConsumeRevokeTalk
-	handler[entity.EventTalkJoinGroup] = s.onConsumeAddGroupRoom
+	handler[entity.EventTalkKeyboard] = s.onConsumeTalkKeyboard
+	handler[entity.EventLogin] = s.onConsumeLogin
+	handler[entity.EventTalkRevoke] = s.onConsumeTalkRevoke
+	handler[entity.EventTalkJoinGroup] = s.onConsumeTalkJoinGroup
 	handler[entity.EventContactApply] = s.onConsumeContactApply
 
 	if f, ok := handler[event]; ok {
 		f(data)
 	} else {
-		fmt.Printf("Event: [%s]未注册回调方法\n", event)
+		logrus.Warnf("Event: [%s]未注册回调方法\n", event)
 	}
 }
 
@@ -109,8 +110,8 @@ func (s *SubscribeConsume) onConsumeTalk(body string) {
 	im.Session.Default.Write(c)
 }
 
-// onConsumeKeyboard 键盘输入事件消息
-func (s *SubscribeConsume) onConsumeKeyboard(body string) {
+// onConsumeTalkKeyboard 键盘输入事件消息
+func (s *SubscribeConsume) onConsumeTalkKeyboard(body string) {
 	var msg struct {
 		SenderID   int `json:"sender_id"`
 		ReceiverID int `json:"receiver_id"`
@@ -139,8 +140,8 @@ func (s *SubscribeConsume) onConsumeKeyboard(body string) {
 	im.Session.Default.Write(c)
 }
 
-// onConsumeOnline 用户上线或下线消息
-func (s *SubscribeConsume) onConsumeOnline(body string) {
+// onConsumeLogin 用户上线或下线消息
+func (s *SubscribeConsume) onConsumeLogin(body string) {
 	var msg struct {
 		Status int `json:"status"`
 		UserID int `json:"user_id"`
@@ -175,8 +176,8 @@ func (s *SubscribeConsume) onConsumeOnline(body string) {
 	im.Session.Default.Write(c)
 }
 
-// onConsumeRevokeTalk 撤销聊天消息
-func (s *SubscribeConsume) onConsumeRevokeTalk(body string) {
+// onConsumeTalkRevoke 撤销聊天消息
+func (s *SubscribeConsume) onConsumeTalkRevoke(body string) {
 	var (
 		msg struct {
 			RecordId int `json:"record_id"`
@@ -288,8 +289,8 @@ func (s *SubscribeConsume) onConsumeContactApply(body string) {
 	im.Session.Default.Write(c)
 }
 
-// onConsumeAddGroupRoom 加入群房间
-func (s *SubscribeConsume) onConsumeAddGroupRoom(body string) {
+// onConsumeTalkJoinGroup 加入群房间
+func (s *SubscribeConsume) onConsumeTalkJoinGroup(body string) {
 	var (
 		ctx  = context.Background()
 		sid  = s.conf.ServerId()
@@ -301,7 +302,7 @@ func (s *SubscribeConsume) onConsumeAddGroupRoom(body string) {
 	)
 
 	if err := json.Unmarshal([]byte(body), &data); err != nil {
-		fmt.Println("onConsumeAddGroupRoom Unmarshal err: ", err.Error())
+		fmt.Println("onConsumeTalkJoinGroup Unmarshal err: ", err.Error())
 		return
 	}
 

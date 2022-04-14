@@ -40,7 +40,7 @@ func (c *Channel) Write(msg *SenderContent) {
 	select {
 	case c.outChan <- msg:
 		break
-	case <-time.After(2 * time.Second):
+	case <-time.After(3 * time.Second):
 		fmt.Printf("[%s] Channel OutChan 写入消息超时,管道长度：%d \n", c.name, len(c.outChan))
 		break
 	}

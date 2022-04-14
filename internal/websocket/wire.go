@@ -28,7 +28,7 @@ var providerSet = wire.NewSet(
 	router.NewRouter,
 
 	// process
-	process.NewProcess,
+	process.NewCoroutine,
 	process.NewHealth,
 	process.NewWsSubscribe,
 	handle.NewSubscribeConsume,

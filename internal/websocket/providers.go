@@ -7,7 +7,7 @@ import (
 )
 
 type Providers struct {
-	Config   *config.Config
-	WsServer provider.WebsocketServer
-	Process  *process.Process
+	Config    *config.Config
+	WsServer  provider.WebsocketServer
+	Coroutine *process.Coroutine
 }

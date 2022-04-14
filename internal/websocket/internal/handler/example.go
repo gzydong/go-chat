@@ -17,7 +17,7 @@ func NewExampleWebsocket() *ExampleWebsocket {
 }
 
 func (c *ExampleWebsocket) Connect(ctx *gin.Context) {
-	conn, err := im.NewWebsocket(ctx)
+	conn, err := im.NewConnect(ctx)
 	if err != nil {
 		log.Printf("websocket connect error: %s", err)
 		return

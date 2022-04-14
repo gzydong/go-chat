@@ -4,10 +4,10 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"time"
 
 	"github.com/go-redis/redis/v8"
+	"github.com/sirupsen/logrus"
 
 	"go-chat/config"
 	"go-chat/internal/entity"
@@ -54,7 +54,7 @@ func (w *WsSubscribe) Handle(ctx context.Context) error {
 			if err := json.Unmarshal([]byte(value.Payload), &message); err == nil {
 				w.consume.Handle(message.Event, message.Data)
 			} else {
-				log.Printf("订阅消息格式错误 Err: %s \n", err.Error())
+				logrus.Warnf("订阅消息格式错误 Err: %s \n", err.Error())
 			}
 		}
 	}

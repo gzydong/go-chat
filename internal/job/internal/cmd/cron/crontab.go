@@ -31,16 +31,12 @@ func NewCrontabCommand(handles *Handles) CrontabCommand {
 
 			// 每隔30分钟处理 websocket 缓存
 			_, _ = c.AddFunc("* * * * *", func() {
-				log.Println("ClearExpireServerHandle start")
 				_ = handles.ClearExpireServerHandle.Handle(ctx.Context)
-				log.Println("ClearExpireServerHandle end")
 			})
 
 			// 每隔30分钟处理 websocket 缓存
 			_, _ = c.AddFunc("*/30 * * * *", func() {
-				log.Println("ClearWsCacheHandle start")
 				_ = handles.ClearWsCacheHandle.Handle(ctx.Context)
-				log.Println("ClearWsCacheHandle end")
 			})
 
 			// 每天凌晨1点执行

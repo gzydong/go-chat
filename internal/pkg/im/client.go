@@ -3,7 +3,6 @@ package im
 import (
 	"context"
 	"fmt"
-	"log"
 	"time"
 
 	"github.com/gorilla/websocket"
@@ -14,11 +13,11 @@ import (
 type ClientInterface interface {
 	ClientId() int64                    // 获取客户端ID
 	ClientUid() int                     // 获取客户端关联用户ID
-	Close(code int, message string)     // 关闭客户端
+	Close(code int, text string)        // 关闭客户端
 	Write(data *ClientOutContent) error // 客户端写入数据
 }
 
-type Storage interface {
+type StorageInterface interface {
 	Bind(ctx context.Context, channel string, clientId int64, uid int)
 	UnBind(ctx context.Context, channel string, clientId int64)
 }
@@ -44,16 +43,16 @@ type Client struct {
 	uid      int                    // 用户ID
 	lastTime int64                  // 客户端最后心跳时间/心跳检测
 	channel  *Channel               // 渠道分组
-	storage  Storage                // 缓存服务
+	storage  StorageInterface       // 缓存服务
 	isClosed bool                   // 客户端是否关闭连接
 	outChan  chan *ClientOutContent // 发送通道
 	callBack CallbackInterface      // 回调方法
 }
 
 type ClientOptions struct {
-	Uid     int      // 用户识别ID
-	Channel *Channel // 渠道信息
-	Storage Storage  // 自定义缓存组件，用于绑定用户与客户端的关系
+	Uid     int              // 用户识别ID
+	Channel *Channel         // 渠道信息
+	Storage StorageInterface // 自定义缓存组件，用于绑定用户与客户端的关系
 }
 
 // NewClient 初始化客户端信息
@@ -212,8 +211,6 @@ func (c *Client) loopWrite() {
 
 		// 判断是否开启 ack 确认机制，且重重试机制在3次以内
 		if data.IsAck && data.Retry < 3 {
-			// 这里需要消息推送 ack 通道
-			log.Println("Ack 入库 ", data.Retry)
 			ack.add(&AckBufferOption{
 				Client:  c,
 				MsgID:   "111111", // 预留

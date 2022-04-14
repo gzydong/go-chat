@@ -39,7 +39,7 @@ func NewDefaultWebSocket(
 
 // Connect 初始化连接
 func (c *DefaultWebSocket) Connect(ctx *gin.Context) {
-	conn, err := im.NewWebsocket(ctx)
+	conn, err := im.NewConnect(ctx)
 	if err != nil {
 		logrus.Errorf("websocket connect error: %s", err.Error())
 		return
