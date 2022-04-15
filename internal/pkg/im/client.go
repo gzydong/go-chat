@@ -135,10 +135,9 @@ func (c *Client) writeHeartbeat() {
 // 关闭回调
 func (c *Client) setCloseHandler(code int, text string) error {
 	if !c.isClosed {
+		c.isClosed = true
 		close(c.outChan) // 关闭通道
 	}
-
-	c.isClosed = true
 
 	// 触发连接关闭回调
 	c.callBack.Close(c, code, text)
