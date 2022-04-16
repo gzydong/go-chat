@@ -113,6 +113,12 @@ func (c *Client) Write(data *ClientOutContent) error {
 		return fmt.Errorf("connection closed")
 	}
 
+	defer func() {
+		if err := recover(); err != nil {
+			fmt.Printf("Client write err :%v", err)
+		}
+	}()
+
 	// 消息写入缓冲通道
 	c.outChan <- data
 
@@ -136,7 +142,7 @@ func (c *Client) writeHeartbeat() {
 func (c *Client) setCloseHandler(code int, text string) error {
 	if !c.isClosed {
 		c.isClosed = true
-		defer close(c.outChan) // 关闭通道
+		close(c.outChan) // 关闭通道
 	}
 
 	// 触发连接关闭回调
