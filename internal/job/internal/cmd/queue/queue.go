@@ -4,6 +4,10 @@ import "github.com/urfave/cli/v2"
 
 type QueueCommand *cli.Command
 
+// Subcommands 子命令
+type Subcommands struct {
+}
+
 func NewQueueCommand() QueueCommand {
 	return &cli.Command{
 		Name:        "queue",

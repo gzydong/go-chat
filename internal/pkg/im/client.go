@@ -115,7 +115,7 @@ func (c *Client) Write(data *ClientOutContent) error {
 
 	defer func() {
 		if err := recover(); err != nil {
-			fmt.Printf("Client write err :%v", err)
+			fmt.Printf("Client write err :%v \n", err)
 		}
 	}()
 

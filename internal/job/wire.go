@@ -39,6 +39,9 @@ var providerSet = wire.NewSet(
 	cron.NewCrontabCommand,
 	queue.NewQueueCommand,
 	other.NewOtherCommand,
+	// 子命令行
+	wire.Struct(new(other.Subcommands), "*"),
+	wire.Struct(new(queue.Subcommands), "*"),
 
 	// Handle
 	crontab.NewClearTmpFile,
