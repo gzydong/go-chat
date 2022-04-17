@@ -2,10 +2,10 @@ package main
 
 import (
 	"go-chat/config"
-	"go-chat/internal/job/internal/cmd"
+	"go-chat/internal/job/internal/command"
 )
 
 type Providers struct {
 	Config   *config.Config
-	Commands *cmd.Commands
+	Commands *command.Commands
 }

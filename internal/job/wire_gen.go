@@ -11,10 +11,10 @@ import (
 	"github.com/google/wire"
 	"go-chat/internal/cache"
 	"go-chat/internal/dao"
-	"go-chat/internal/job/internal/cmd"
-	"go-chat/internal/job/internal/cmd/cron"
-	"go-chat/internal/job/internal/cmd/other"
-	"go-chat/internal/job/internal/cmd/queue"
+	"go-chat/internal/job/internal/command"
+	"go-chat/internal/job/internal/command/cron"
+	"go-chat/internal/job/internal/command/other"
+	"go-chat/internal/job/internal/command/queue"
 	"go-chat/internal/job/internal/handle/crontab"
 	"go-chat/internal/pkg/client"
 	"go-chat/internal/pkg/filesystem"
@@ -47,7 +47,7 @@ func Initialize(ctx context.Context) *Providers {
 		TestCommand: testCommand,
 	}
 	otherCommand := other.NewOtherCommand(otherSubcommands)
-	commands := &cmd.Commands{
+	commands := &command.Commands{
 		CrontabCommand: command,
 		QueueCommand:   queueCommand,
 		OtherCommand:   otherCommand,
@@ -61,4 +61,4 @@ func Initialize(ctx context.Context) *Providers {
 
 // wire.go:
 
-var providerSet = wire.NewSet(provider.NewConfig, provider.NewMySQLClient, provider.NewRedisClient, provider.NewHttpClient, client.NewHttpClient, filesystem.NewFilesystem, cache.NewSid, dao.NewBaseDao, cron.NewCrontabCommand, queue.NewQueueCommand, wire.Struct(new(queue.Subcommands), "*"), other.NewOtherCommand, other.NewTestCommand, wire.Struct(new(other.Subcommands), "*"), crontab.NewClearTmpFile, crontab.NewClearArticle, crontab.NewClearWsCacheHandle, crontab.NewClearExpireServer, wire.Struct(new(cron.Handles), "*"), wire.Struct(new(cmd.Commands), "*"), wire.Struct(new(Providers), "*"))
+var providerSet = wire.NewSet(provider.NewConfig, provider.NewMySQLClient, provider.NewRedisClient, provider.NewHttpClient, client.NewHttpClient, filesystem.NewFilesystem, cache.NewSid, dao.NewBaseDao, cron.NewCrontabCommand, queue.NewQueueCommand, wire.Struct(new(queue.Subcommands), "*"), other.NewOtherCommand, other.NewTestCommand, wire.Struct(new(other.Subcommands), "*"), crontab.NewClearTmpFile, crontab.NewClearArticle, crontab.NewClearWsCacheHandle, crontab.NewClearExpireServer, wire.Struct(new(cron.Handles), "*"), wire.Struct(new(command.Commands), "*"), wire.Struct(new(Providers), "*"))

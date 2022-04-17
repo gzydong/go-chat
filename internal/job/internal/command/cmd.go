@@ -1,10 +1,10 @@
-package cmd
+package command
 
 import (
 	"github.com/urfave/cli/v2"
-	"go-chat/internal/job/internal/cmd/cron"
-	"go-chat/internal/job/internal/cmd/other"
-	"go-chat/internal/job/internal/cmd/queue"
+	"go-chat/internal/job/internal/command/cron"
+	"go-chat/internal/job/internal/command/other"
+	"go-chat/internal/job/internal/command/queue"
 	"go-chat/internal/pkg/cmdutil"
 )
 

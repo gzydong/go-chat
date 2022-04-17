@@ -9,10 +9,10 @@ import (
 	"github.com/google/wire"
 	"go-chat/internal/cache"
 	"go-chat/internal/dao"
-	"go-chat/internal/job/internal/cmd"
-	"go-chat/internal/job/internal/cmd/cron"
-	"go-chat/internal/job/internal/cmd/other"
-	"go-chat/internal/job/internal/cmd/queue"
+	"go-chat/internal/job/internal/command"
+	"go-chat/internal/job/internal/command/cron"
+	"go-chat/internal/job/internal/command/other"
+	"go-chat/internal/job/internal/command/queue"
 	crontab "go-chat/internal/job/internal/handle/crontab"
 	"go-chat/internal/pkg/client"
 	"go-chat/internal/pkg/filesystem"
@@ -55,7 +55,7 @@ var providerSet = wire.NewSet(
 	wire.Struct(new(cron.Handles), "*"),
 
 	// 服务
-	wire.Struct(new(cmd.Commands), "*"),
+	wire.Struct(new(command.Commands), "*"),
 	wire.Struct(new(Providers), "*"),
 )
 
