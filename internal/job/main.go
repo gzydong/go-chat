@@ -6,7 +6,6 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-	"time"
 
 	"github.com/urfave/cli/v2"
 )
@@ -30,6 +29,4 @@ func main() {
 	if err := cmd.RunContext(ctx, os.Args); err != nil {
 		fmt.Printf("Command Error : %s", err.Error())
 	}
-
-	time.Sleep(3 * time.Second)
 }

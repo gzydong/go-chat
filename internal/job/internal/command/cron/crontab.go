@@ -11,7 +11,7 @@ import (
 
 	"github.com/robfig/cron/v3"
 	"github.com/urfave/cli/v2"
-	"go-chat/internal/job/internal/handle/crontab"
+	cron2 "go-chat/internal/job/internal/handle/cron"
 )
 
 type Command *cli.Command
@@ -26,10 +26,10 @@ type CrontabHandle interface {
 
 // Handles 注册的任务请务必实现 CrontabHandle 接口
 type Handles struct {
-	ClearWsCacheHandle      *crontab.ClearWsCacheHandle
-	ClearArticleHandle      *crontab.ClearArticleHandle
-	ClearTmpFileHandle      *crontab.ClearTmpFileHandle
-	ClearExpireServerHandle *crontab.ClearExpireServerHandle
+	ClearWsCacheHandle      *cron2.ClearWsCacheHandle
+	ClearArticleHandle      *cron2.ClearArticleHandle
+	ClearTmpFileHandle      *cron2.ClearTmpFileHandle
+	ClearExpireServerHandle *cron2.ClearExpireServerHandle
 }
 
 func NewCrontabCommand(handles *Handles) Command {

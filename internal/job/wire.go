@@ -13,7 +13,7 @@ import (
 	"go-chat/internal/job/internal/command/cron"
 	"go-chat/internal/job/internal/command/other"
 	"go-chat/internal/job/internal/command/queue"
-	crontab "go-chat/internal/job/internal/handle/crontab"
+	cron2 "go-chat/internal/job/internal/handle/cron"
 	other2 "go-chat/internal/job/internal/handle/other"
 	"go-chat/internal/pkg/client"
 	"go-chat/internal/pkg/filesystem"
@@ -38,10 +38,10 @@ var providerSet = wire.NewSet(
 
 	// Crontab 命令行
 	cron.NewCrontabCommand,
-	crontab.NewClearTmpFile,
-	crontab.NewClearArticle,
-	crontab.NewClearWsCacheHandle,
-	crontab.NewClearExpireServer,
+	cron2.NewClearTmpFile,
+	cron2.NewClearArticle,
+	cron2.NewClearWsCacheHandle,
+	cron2.NewClearExpireServer,
 	wire.Struct(new(cron.Handles), "*"),
 
 	// Queue Command
