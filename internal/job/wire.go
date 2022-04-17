@@ -37,18 +37,21 @@ var providerSet = wire.NewSet(
 
 	// 命令行
 	cron.NewCrontabCommand,
+
+	// Queue Command
 	queue.NewQueueCommand,
-	other.NewOtherCommand,
-	// 子命令行
-	wire.Struct(new(other.Subcommands), "*"),
 	wire.Struct(new(queue.Subcommands), "*"),
+
+	// Other Command
+	other.NewOtherCommand,
+	other.NewTestCommand,
+	wire.Struct(new(other.Subcommands), "*"),
 
 	// Handle
 	crontab.NewClearTmpFile,
 	crontab.NewClearArticle,
 	crontab.NewClearWsCacheHandle,
 	crontab.NewClearExpireServer,
-
 	wire.Struct(new(cron.Handles), "*"),
 
 	// 服务

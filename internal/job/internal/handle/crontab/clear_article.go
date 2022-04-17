@@ -1,6 +1,7 @@
 package crontab
 
 import (
+	"context"
 	"time"
 
 	"go-chat/internal/entity"
@@ -18,7 +19,13 @@ func NewClearArticle(db *gorm.DB, fileSystem *filesystem.Filesystem) *ClearArtic
 	return &ClearArticleHandle{db: db, fileSystem: fileSystem}
 }
 
-func (c *ClearArticleHandle) Handle() error {
+// Spec 配置定时任务规则
+// 每天凌晨1点执行
+func (c *ClearArticleHandle) Spec() string {
+	return "0 1 * * *"
+}
+
+func (c *ClearArticleHandle) Handle(ctx context.Context) error {
 
 	c.clearArticleAnnex()
 

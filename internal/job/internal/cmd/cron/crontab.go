@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"reflect"
 	"syscall"
 
 	"github.com/robfig/cron/v3"
@@ -13,8 +14,17 @@ import (
 	"go-chat/internal/job/internal/handle/crontab"
 )
 
-type CrontabCommand *cli.Command
+type Command *cli.Command
 
+type CrontabHandle interface {
+	// Spec 配置定时任务规则
+	Spec() string
+
+	// Handle 任务执行入口
+	Handle(ctx context.Context) error
+}
+
+// Handles 注册的任务请务必实现 CrontabHandle 接口
 type Handles struct {
 	ClearWsCacheHandle      *crontab.ClearWsCacheHandle
 	ClearArticleHandle      *crontab.ClearArticleHandle
@@ -22,38 +32,22 @@ type Handles struct {
 	ClearExpireServerHandle *crontab.ClearExpireServerHandle
 }
 
-func NewCrontabCommand(handles *Handles) CrontabCommand {
+func NewCrontabCommand(handles *Handles) Command {
 	return &cli.Command{
 		Name:  "crontab",
 		Usage: "定时任务",
 		Action: func(ctx *cli.Context) error {
 			c := cron.New()
 
-			// 每隔30分钟处理 websocket 缓存
-			_, _ = c.AddFunc("* * * * *", func() {
-				_ = handles.ClearExpireServerHandle.Handle(ctx.Context)
-			})
+			jobs := toCrontabHandle(handles)
+			for _, job := range jobs {
+				_, _ = c.AddFunc(job.Spec(), func() {
+					_ = job.Handle(ctx.Context)
+				})
+			}
 
-			// 每隔30分钟处理 websocket 缓存
-			_, _ = c.AddFunc("*/30 * * * *", func() {
-				_ = handles.ClearWsCacheHandle.Handle(ctx.Context)
-			})
-
-			// 每天凌晨1点执行
-			_, _ = c.AddFunc("0 1 * * *", func() {
-				log.Println("ClearArticleHandle start")
-				_ = handles.ClearArticleHandle.Handle()
-				log.Println("ClearArticleHandle end")
-			})
-
-			// 每天凌晨1点10分执行
-			_, _ = c.AddFunc("20 1 * * *", func() {
-				log.Println("ClearTmpFileHandle start")
-				_ = handles.ClearTmpFileHandle.Handle()
-				log.Println("ClearTmpFileHandle end")
-			})
-
-			log.Println("Crontab 定时任务已启动...")
+			fmt.Println("Crontab 定时任务已启动...")
+			fmt.Println("当选任务数：", len(jobs))
 
 			return run(c, ctx.Context)
 		},
@@ -78,4 +72,16 @@ func run(cron *cron.Cron, ctx context.Context) error {
 	log.Println("Crontab 定时任务已关闭")
 
 	return nil
+}
+
+func toCrontabHandle(value interface{}) []CrontabHandle {
+	jobs := make([]CrontabHandle, 0)
+	elem := reflect.ValueOf(value).Elem()
+	for i := 0; i < elem.NumField(); i++ {
+		if v, ok := elem.Field(i).Interface().(CrontabHandle); ok {
+			jobs = append(jobs, v)
+		}
+	}
+
+	return jobs
 }

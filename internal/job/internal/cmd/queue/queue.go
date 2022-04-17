@@ -1,17 +1,20 @@
 package queue
 
-import "github.com/urfave/cli/v2"
+import (
+	"github.com/urfave/cli/v2"
+	"go-chat/internal/pkg/cmdutil"
+)
 
-type QueueCommand *cli.Command
+type Command *cli.Command
 
-// Subcommands 子命令
+// Subcommands 注册子命令
 type Subcommands struct {
 }
 
-func NewQueueCommand() QueueCommand {
+func NewQueueCommand(subcommands *Subcommands) Command {
 	return &cli.Command{
 		Name:        "queue",
 		Usage:       "队列任务",
-		Subcommands: []*cli.Command{},
+		Subcommands: cmdutil.ToSubCommand(subcommands),
 	}
 }

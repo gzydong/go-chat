@@ -15,6 +15,12 @@ func NewClearWsCacheHandle(server *cache.SidServer) *ClearWsCacheHandle {
 	return &ClearWsCacheHandle{server: server}
 }
 
+// Spec 配置定时任务规则
+// 每隔30分钟处理 websocket 缓存
+func (c *ClearWsCacheHandle) Spec() string {
+	return "*/30 * * * *"
+}
+
 func (c *ClearWsCacheHandle) Handle(ctx context.Context) error {
 
 	for _, sid := range c.server.GetExpireServerAll(ctx) {

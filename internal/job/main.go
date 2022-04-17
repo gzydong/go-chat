@@ -21,8 +21,7 @@ func main() {
 
 	cmd.Name = "LumenIM 在线聊天"
 	cmd.Usage = "命令行管理工具"
-
-	cmd.Commands = providers.Commands.ToCommands()
+	cmd.Commands = providers.Commands.Init()
 
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, syscall.SIGTERM, syscall.SIGQUIT, syscall.SIGINT)

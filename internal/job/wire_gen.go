@@ -39,12 +39,16 @@ func Initialize(ctx context.Context) *Providers {
 		ClearTmpFileHandle:      clearTmpFileHandle,
 		ClearExpireServerHandle: clearExpireServerHandle,
 	}
-	crontabCommand := cron.NewCrontabCommand(handles)
-	queueCommand := queue.NewQueueCommand()
-	subcommands := &other.Subcommands{}
-	otherCommand := other.NewOtherCommand(subcommands)
+	command := cron.NewCrontabCommand(handles)
+	subcommands := &queue.Subcommands{}
+	queueCommand := queue.NewQueueCommand(subcommands)
+	testCommand := other.NewTestCommand()
+	otherSubcommands := &other.Subcommands{
+		TestCommand: testCommand,
+	}
+	otherCommand := other.NewOtherCommand(otherSubcommands)
 	commands := &cmd.Commands{
-		CrontabCommand: crontabCommand,
+		CrontabCommand: command,
 		QueueCommand:   queueCommand,
 		OtherCommand:   otherCommand,
 	}
@@ -57,4 +61,4 @@ func Initialize(ctx context.Context) *Providers {
 
 // wire.go:
 
-var providerSet = wire.NewSet(provider.NewConfig, provider.NewMySQLClient, provider.NewRedisClient, provider.NewHttpClient, client.NewHttpClient, filesystem.NewFilesystem, cache.NewSid, dao.NewBaseDao, cron.NewCrontabCommand, queue.NewQueueCommand, other.NewOtherCommand, wire.Struct(new(other.Subcommands), "*"), wire.Struct(new(queue.Subcommands), "*"), crontab.NewClearTmpFile, crontab.NewClearArticle, crontab.NewClearWsCacheHandle, crontab.NewClearExpireServer, wire.Struct(new(cron.Handles), "*"), wire.Struct(new(cmd.Commands), "*"), wire.Struct(new(Providers), "*"))
+var providerSet = wire.NewSet(provider.NewConfig, provider.NewMySQLClient, provider.NewRedisClient, provider.NewHttpClient, client.NewHttpClient, filesystem.NewFilesystem, cache.NewSid, dao.NewBaseDao, cron.NewCrontabCommand, queue.NewQueueCommand, wire.Struct(new(queue.Subcommands), "*"), other.NewOtherCommand, other.NewTestCommand, wire.Struct(new(other.Subcommands), "*"), crontab.NewClearTmpFile, crontab.NewClearArticle, crontab.NewClearWsCacheHandle, crontab.NewClearExpireServer, wire.Struct(new(cron.Handles), "*"), wire.Struct(new(cmd.Commands), "*"), wire.Struct(new(Providers), "*"))

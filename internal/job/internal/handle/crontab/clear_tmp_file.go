@@ -1,6 +1,7 @@
 package crontab
 
 import (
+	"context"
 	"path"
 	"time"
 
@@ -18,7 +19,13 @@ func NewClearTmpFile(db *gorm.DB, fileSystem *filesystem.Filesystem) *ClearTmpFi
 	return &ClearTmpFileHandle{db: db, fileSystem: fileSystem}
 }
 
-func (c *ClearTmpFileHandle) Handle() error {
+// Spec 配置定时任务规则
+// 每天凌晨1点10分执行
+func (c *ClearTmpFileHandle) Spec() string {
+	return "20 1 * * *"
+}
+
+func (c *ClearTmpFileHandle) Handle(ctx context.Context) error {
 
 	lastId, size := 0, 100
 
