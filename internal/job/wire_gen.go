@@ -9,6 +9,7 @@ package main
 import (
 	"context"
 	"github.com/google/wire"
+	"go-chat/config"
 	"go-chat/internal/cache"
 	"go-chat/internal/dao"
 	"go-chat/internal/job/internal/command"
@@ -24,13 +25,12 @@ import (
 
 // Injectors from wire.go:
 
-func Initialize(ctx context.Context) *Providers {
-	config := provider.NewConfig()
-	client := provider.NewRedisClient(ctx, config)
+func Initialize(ctx context.Context, conf *config.Config) *Providers {
+	client := provider.NewRedisClient(ctx, conf)
 	sidServer := cache.NewSid(client)
 	clearWsCacheHandle := cron.NewClearWsCacheHandle(sidServer)
-	db := provider.NewMySQLClient(config)
-	filesystemFilesystem := filesystem.NewFilesystem(config)
+	db := provider.NewMySQLClient(conf)
+	filesystemFilesystem := filesystem.NewFilesystem(conf)
 	clearArticleHandle := cron.NewClearArticle(db, filesystemFilesystem)
 	clearTmpFileHandle := cron.NewClearTmpFile(db, filesystemFilesystem)
 	clearExpireServerHandle := cron.NewClearExpireServer(sidServer)
@@ -55,7 +55,7 @@ func Initialize(ctx context.Context) *Providers {
 		OtherCommand:   otherCommand,
 	}
 	providers := &Providers{
-		Config:   config,
+		Config:   conf,
 		Commands: commands,
 	}
 	return providers
@@ -63,4 +63,4 @@ func Initialize(ctx context.Context) *Providers {
 
 // wire.go:
 
-var providerSet = wire.NewSet(provider.NewConfig, provider.NewMySQLClient, provider.NewRedisClient, provider.NewHttpClient, client.NewHttpClient, filesystem.NewFilesystem, cache.NewSid, dao.NewBaseDao, cron2.NewCrontabCommand, cron.NewClearTmpFile, cron.NewClearArticle, cron.NewClearWsCacheHandle, cron.NewClearExpireServer, wire.Struct(new(cron2.Handles), "*"), queue.NewQueueCommand, wire.Struct(new(queue.Subcommands), "*"), other2.NewOtherCommand, other2.NewExampleCommand, wire.Struct(new(other2.Subcommands), "*"), other.NewExampleHandle, wire.Struct(new(command.Commands), "*"), wire.Struct(new(Providers), "*"))
+var providerSet = wire.NewSet(provider.NewMySQLClient, provider.NewRedisClient, provider.NewHttpClient, client.NewHttpClient, filesystem.NewFilesystem, cache.NewSid, dao.NewBaseDao, cron2.NewCrontabCommand, cron.NewClearTmpFile, cron.NewClearArticle, cron.NewClearWsCacheHandle, cron.NewClearExpireServer, wire.Struct(new(cron2.Handles), "*"), queue.NewQueueCommand, wire.Struct(new(queue.Subcommands), "*"), other2.NewOtherCommand, other2.NewExampleCommand, wire.Struct(new(other2.Subcommands), "*"), other.NewExampleHandle, wire.Struct(new(command.Commands), "*"), wire.Struct(new(Providers), "*"))

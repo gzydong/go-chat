@@ -7,6 +7,7 @@ import (
 	"context"
 
 	"github.com/google/wire"
+	"go-chat/config"
 	"go-chat/internal/cache"
 	"go-chat/internal/dao"
 	"go-chat/internal/job/internal/command"
@@ -22,7 +23,6 @@ import (
 
 var providerSet = wire.NewSet(
 	// 基础服务
-	provider.NewConfig,
 	provider.NewMySQLClient,
 	provider.NewRedisClient,
 	provider.NewHttpClient,
@@ -59,6 +59,6 @@ var providerSet = wire.NewSet(
 	wire.Struct(new(Providers), "*"),
 )
 
-func Initialize(ctx context.Context) *Providers {
+func Initialize(ctx context.Context, conf *config.Config) *Providers {
 	panic(wire.Build(providerSet))
 }
