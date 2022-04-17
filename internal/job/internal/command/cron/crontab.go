@@ -35,19 +35,24 @@ type Handles struct {
 func NewCrontabCommand(handles *Handles) Command {
 	return &cli.Command{
 		Name:  "crontab",
-		Usage: "定时任务",
+		Usage: "Crontab Command | 常驻定时任务",
 		Action: func(ctx *cli.Context) error {
 			c := cron.New()
 
 			jobs := toCrontabHandle(handles)
 			for _, job := range jobs {
 				_, _ = c.AddFunc(job.Spec(), func() {
+					defer func() {
+						if err := recover(); err != nil {
+							fmt.Printf("CrontabHandle err: %v \n", err)
+						}
+					}()
+
 					_ = job.Handle(ctx.Context)
 				})
 			}
 
 			fmt.Println("Crontab 定时任务已启动...")
-			fmt.Println("当选任务数：", len(jobs))
 
 			return run(c, ctx.Context)
 		},

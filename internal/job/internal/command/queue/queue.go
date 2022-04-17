@@ -14,7 +14,7 @@ type Subcommands struct {
 func NewQueueCommand(subcommands *Subcommands) Command {
 	return &cli.Command{
 		Name:        "queue",
-		Usage:       "队列任务",
+		Usage:       "Queue Commands",
 		Subcommands: cmdutil.ToSubCommand(subcommands),
 	}
 }

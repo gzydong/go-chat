@@ -14,6 +14,7 @@ import (
 	"go-chat/internal/job/internal/command/other"
 	"go-chat/internal/job/internal/command/queue"
 	crontab "go-chat/internal/job/internal/handle/crontab"
+	other2 "go-chat/internal/job/internal/handle/other"
 	"go-chat/internal/pkg/client"
 	"go-chat/internal/pkg/filesystem"
 	"go-chat/internal/provider"
@@ -35,8 +36,13 @@ var providerSet = wire.NewSet(
 	// Dao
 	dao.NewBaseDao,
 
-	// 命令行
+	// Crontab 命令行
 	cron.NewCrontabCommand,
+	crontab.NewClearTmpFile,
+	crontab.NewClearArticle,
+	crontab.NewClearWsCacheHandle,
+	crontab.NewClearExpireServer,
+	wire.Struct(new(cron.Handles), "*"),
 
 	// Queue Command
 	queue.NewQueueCommand,
@@ -44,15 +50,9 @@ var providerSet = wire.NewSet(
 
 	// Other Command
 	other.NewOtherCommand,
-	other.NewTestCommand,
+	other.NewExampleCommand,
 	wire.Struct(new(other.Subcommands), "*"),
-
-	// Handle
-	crontab.NewClearTmpFile,
-	crontab.NewClearArticle,
-	crontab.NewClearWsCacheHandle,
-	crontab.NewClearExpireServer,
-	wire.Struct(new(cron.Handles), "*"),
+	other2.NewExampleHandle,
 
 	// 服务
 	wire.Struct(new(command.Commands), "*"),

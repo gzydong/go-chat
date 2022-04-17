@@ -9,13 +9,13 @@ type Command *cli.Command
 
 // Subcommands 注册子命令
 type Subcommands struct {
-	TestCommand TestCommand
+	ExampleCommand ExampleCommand
 }
 
 func NewOtherCommand(subcommands *Subcommands) Command {
 	return &cli.Command{
 		Name:        "other",
-		Usage:       "临时任务",
+		Usage:       "Other Commands",
 		Subcommands: cmdutil.ToSubCommand(subcommands),
 	}
 }

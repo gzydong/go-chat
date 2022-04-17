@@ -13,9 +13,10 @@ import (
 	"go-chat/internal/dao"
 	"go-chat/internal/job/internal/command"
 	"go-chat/internal/job/internal/command/cron"
-	"go-chat/internal/job/internal/command/other"
+	other2 "go-chat/internal/job/internal/command/other"
 	"go-chat/internal/job/internal/command/queue"
 	"go-chat/internal/job/internal/handle/crontab"
+	"go-chat/internal/job/internal/handle/other"
 	"go-chat/internal/pkg/client"
 	"go-chat/internal/pkg/filesystem"
 	"go-chat/internal/provider"
@@ -39,16 +40,17 @@ func Initialize(ctx context.Context) *Providers {
 		ClearTmpFileHandle:      clearTmpFileHandle,
 		ClearExpireServerHandle: clearExpireServerHandle,
 	}
-	command := cron.NewCrontabCommand(handles)
+	cronCommand := cron.NewCrontabCommand(handles)
 	subcommands := &queue.Subcommands{}
 	queueCommand := queue.NewQueueCommand(subcommands)
-	testCommand := other.NewTestCommand()
-	otherSubcommands := &other.Subcommands{
-		TestCommand: testCommand,
+	exampleHandle := other.NewExampleHandle()
+	exampleCommand := other2.NewExampleCommand(exampleHandle)
+	otherSubcommands := &other2.Subcommands{
+		ExampleCommand: exampleCommand,
 	}
-	otherCommand := other.NewOtherCommand(otherSubcommands)
+	otherCommand := other2.NewOtherCommand(otherSubcommands)
 	commands := &command.Commands{
-		CrontabCommand: command,
+		CrontabCommand: cronCommand,
 		QueueCommand:   queueCommand,
 		OtherCommand:   otherCommand,
 	}
@@ -61,4 +63,4 @@ func Initialize(ctx context.Context) *Providers {
 
 // wire.go:
 
-var providerSet = wire.NewSet(provider.NewConfig, provider.NewMySQLClient, provider.NewRedisClient, provider.NewHttpClient, client.NewHttpClient, filesystem.NewFilesystem, cache.NewSid, dao.NewBaseDao, cron.NewCrontabCommand, queue.NewQueueCommand, wire.Struct(new(queue.Subcommands), "*"), other.NewOtherCommand, other.NewTestCommand, wire.Struct(new(other.Subcommands), "*"), crontab.NewClearTmpFile, crontab.NewClearArticle, crontab.NewClearWsCacheHandle, crontab.NewClearExpireServer, wire.Struct(new(cron.Handles), "*"), wire.Struct(new(command.Commands), "*"), wire.Struct(new(Providers), "*"))
+var providerSet = wire.NewSet(provider.NewConfig, provider.NewMySQLClient, provider.NewRedisClient, provider.NewHttpClient, client.NewHttpClient, filesystem.NewFilesystem, cache.NewSid, dao.NewBaseDao, cron.NewCrontabCommand, crontab.NewClearTmpFile, crontab.NewClearArticle, crontab.NewClearWsCacheHandle, crontab.NewClearExpireServer, wire.Struct(new(cron.Handles), "*"), queue.NewQueueCommand, wire.Struct(new(queue.Subcommands), "*"), other2.NewOtherCommand, other2.NewExampleCommand, wire.Struct(new(other2.Subcommands), "*"), other.NewExampleHandle, wire.Struct(new(command.Commands), "*"), wire.Struct(new(Providers), "*"))
