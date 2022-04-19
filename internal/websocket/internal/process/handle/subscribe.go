@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 
 	"go-chat/config"
@@ -61,20 +60,20 @@ func (s *SubscribeConsume) onConsumeTalk(body string) {
 	}
 
 	if err := json.Unmarshal([]byte(body), &msg); err != nil {
-		fmt.Println("onConsumeTalk json", err)
+		logrus.Error("[SubscribeConsume] onConsumeTalk Unmarshal err: ", err.Error())
 		return
 	}
 
 	ctx := context.Background()
 
 	cids := make([]int64, 0)
-	if msg.TalkType == 1 {
+	if msg.TalkType == entity.ChatPrivateMode {
 		for _, val := range [2]int64{msg.SenderID, msg.ReceiverID} {
 			ids := s.ws.GetUidFromClientIds(ctx, s.conf.ServerId(), im.Session.Default.Name(), strconv.Itoa(int(val)))
 
 			cids = append(cids, ids...)
 		}
-	} else {
+	} else if msg.TalkType == entity.ChatGroupMode {
 		ids := s.room.All(ctx, &cache.RoomOption{
 			Channel:  im.Session.Default.Name(),
 			RoomType: entity.RoomGroupChat,
@@ -87,7 +86,7 @@ func (s *SubscribeConsume) onConsumeTalk(body string) {
 
 	data, err := s.recordsService.GetTalkRecord(ctx, msg.RecordID)
 	if err != nil {
-		fmt.Println("GetTalkRecord err", err)
+		logrus.Error("[SubscribeConsume] 读取对话记录失败 err: ", err.Error())
 		return
 	}
 
@@ -99,7 +98,7 @@ func (s *SubscribeConsume) onConsumeTalk(body string) {
 	c.SetReceive(cids...)
 	c.SetMessage(&im.Message{
 		Event: entity.EventTalk,
-		Content: gin.H{
+		Content: entity.MapStrAny{
 			"sender_id":   msg.SenderID,
 			"receiver_id": msg.ReceiverID,
 			"talk_type":   msg.TalkType,
@@ -118,6 +117,7 @@ func (s *SubscribeConsume) onConsumeTalkKeyboard(body string) {
 	}
 
 	if err := json.Unmarshal([]byte(body), &msg); err != nil {
+		logrus.Error("[SubscribeConsume] onConsumeTalkKeyboard Unmarshal err: ", err.Error())
 		return
 	}
 
@@ -131,7 +131,7 @@ func (s *SubscribeConsume) onConsumeTalkKeyboard(body string) {
 	c.SetReceive(cids...)
 	c.SetMessage(&im.Message{
 		Event: entity.EventTalkKeyboard,
-		Content: gin.H{
+		Content: entity.MapStrAny{
 			"sender_id":   msg.SenderID,
 			"receiver_id": msg.ReceiverID,
 		},
@@ -148,6 +148,7 @@ func (s *SubscribeConsume) onConsumeLogin(body string) {
 	}
 
 	if err := json.Unmarshal([]byte(body), &msg); err != nil {
+		logrus.Error("[SubscribeConsume] onConsumeLogin Unmarshal err: ", err.Error())
 		return
 	}
 
@@ -187,6 +188,7 @@ func (s *SubscribeConsume) onConsumeTalkRevoke(body string) {
 	)
 
 	if err := jsonutil.Decode(body, &msg); err != nil {
+		logrus.Error("[SubscribeConsume] onConsumeTalkRevoke Unmarshal err: ", err.Error())
 		return
 	}
 
@@ -200,7 +202,7 @@ func (s *SubscribeConsume) onConsumeTalkRevoke(body string) {
 			ids := s.ws.GetUidFromClientIds(ctx, s.conf.ServerId(), im.Session.Default.Name(), strconv.Itoa(uid))
 			cids = append(cids, ids...)
 		}
-	} else {
+	} else if record.TalkType == entity.ChatGroupMode {
 		cids = s.room.All(ctx, &cache.RoomOption{
 			Channel:  im.Session.Default.Name(),
 			RoomType: entity.RoomGroupChat,
@@ -217,7 +219,7 @@ func (s *SubscribeConsume) onConsumeTalkRevoke(body string) {
 	c.SetReceive(cids...)
 	c.SetMessage(&im.Message{
 		Event: entity.EventTalkRevoke,
-		Content: gin.H{
+		Content: entity.MapStrAny{
 			"talk_type":   record.TalkType,
 			"sender_id":   record.UserId,
 			"receiver_id": record.ReceiverId,
@@ -235,16 +237,16 @@ func (s *SubscribeConsume) onConsumeContactApply(body string) {
 			ApplId int `json:"apply_id"`
 			Type   int `json:"type"`
 		}
-		ctx   = context.Background()
-		apply *model.ContactApply
+		ctx = context.Background()
 	)
 
 	if err := jsonutil.Decode(body, &msg); err != nil {
+		logrus.Error("[SubscribeConsume] onConsumeContactApply Unmarshal err: ", err.Error())
 		return
 	}
 
-	err := s.contactService.Db().Model(model.ContactApply{}).First(&apply, msg.ApplId).Error
-	if err != nil {
+	apply := &model.ContactApply{}
+	if err := s.contactService.Db().First(&apply, msg.ApplId).Error; err != nil {
 		return
 	}
 
@@ -260,7 +262,7 @@ func (s *SubscribeConsume) onConsumeContactApply(body string) {
 		return
 	}
 
-	data := gin.H{}
+	data := entity.MapStrAny{}
 	if msg.Type == 1 {
 		data["sender_id"] = apply.UserId
 		data["receiver_id"] = apply.FriendId
@@ -272,7 +274,7 @@ func (s *SubscribeConsume) onConsumeContactApply(body string) {
 		data["status"] = 1
 	}
 
-	data["friend"] = gin.H{
+	data["friend"] = entity.MapStrAny{
 		"user_id":  1,
 		"avatar":   "$friendInfo->avatar",
 		"nickname": "$friendInfo->nickname",
@@ -302,7 +304,7 @@ func (s *SubscribeConsume) onConsumeTalkJoinGroup(body string) {
 	)
 
 	if err := json.Unmarshal([]byte(body), &data); err != nil {
-		fmt.Println("onConsumeTalkJoinGroup Unmarshal err: ", err.Error())
+		logrus.Error("[SubscribeConsume] onConsumeTalkJoinGroup Unmarshal err: ", err.Error())
 		return
 	}
 

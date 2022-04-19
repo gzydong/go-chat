@@ -24,7 +24,7 @@ mysql:
   username: root
   password: xxxx
   database: go_chat
-  collation: utf8_unicode_ci
+  collation: utf8mb4_general_ci
 
 # Jwt 配置
 jwt:

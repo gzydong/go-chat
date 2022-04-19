@@ -2,9 +2,9 @@ package handler
 
 import (
 	"fmt"
-	"log"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 	"go-chat/internal/pkg/im"
 )
 
@@ -19,7 +19,7 @@ func NewExampleWebsocket() *ExampleWebsocket {
 func (c *ExampleWebsocket) Connect(ctx *gin.Context) {
 	conn, err := im.NewConnect(ctx)
 	if err != nil {
-		log.Printf("websocket connect error: %s", err)
+		logrus.Error("websocket connect error: %s", err.Error())
 		return
 	}
 

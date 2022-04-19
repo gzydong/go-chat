@@ -89,9 +89,6 @@ func (c *Auth) Login(ctx *gin.Context) {
 		Agent:    ctx.GetHeader("user-agent"),
 	})
 
-	// 创建默认笔记分类
-	c.noteClassService.SetDefaultClass(ctx.Request.Context(), user.Id)
-
 	response.Success(ctx, c.createToken(user.Id))
 }
 
