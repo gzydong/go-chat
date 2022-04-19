@@ -7,6 +7,7 @@ import (
 	"go-chat/internal/http/internal/dto"
 	"go-chat/internal/pkg/jwt"
 	"go-chat/internal/pkg/utils"
+	"go-chat/internal/service/note"
 
 	"github.com/gin-gonic/gin"
 
@@ -27,6 +28,7 @@ type Auth struct {
 	talkMessageService *service.TalkMessageService
 	ipAddressService   *service.IpAddressService
 	talkSessionService *service.TalkSessionService
+	noteClassService   *note.ArticleClassService
 }
 
 func NewAuthHandler(
@@ -38,6 +40,7 @@ func NewAuthHandler(
 	talkMessageService *service.TalkMessageService,
 	ipAddressService *service.IpAddressService,
 	talkSessionService *service.TalkSessionService,
+	noteClassService *note.ArticleClassService,
 ) *Auth {
 	return &Auth{
 		config:             config,
@@ -48,6 +51,7 @@ func NewAuthHandler(
 		talkMessageService: talkMessageService,
 		ipAddressService:   ipAddressService,
 		talkSessionService: talkSessionService,
+		noteClassService:   noteClassService,
 	}
 }
 
@@ -85,6 +89,9 @@ func (c *Auth) Login(ctx *gin.Context) {
 		Agent:    ctx.GetHeader("user-agent"),
 	})
 
+	// 创建默认笔记分类
+	c.noteClassService.SetDefaultClass(ctx.Request.Context(), user.Id)
+
 	response.Success(ctx, c.createToken(user.Id))
 }
 
@@ -102,16 +109,21 @@ func (c *Auth) Register(ctx *gin.Context) {
 		return
 	}
 
-	if _, err := c.userService.Register(&service.UserRegisterOpts{
+	user, err := c.userService.Register(&service.UserRegisterOpts{
 		Nickname: params.Nickname,
 		Mobile:   params.Mobile,
 		Password: params.Password,
 		SmsCode:  params.SmsCode,
 		Platform: params.Platform,
-	}); err != nil {
+	})
+
+	if err != nil {
 		response.BusinessError(ctx, err)
 		return
 	}
+
+	// 创建默认笔记分类
+	c.noteClassService.SetDefaultClass(ctx.Request.Context(), user.Id)
 
 	c.smsService.DeleteSmsCode(ctx.Request.Context(), entity.SmsRegisterChannel, params.Mobile)
 

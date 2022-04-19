@@ -143,3 +143,22 @@ func (s *ArticleClassService) Sort(ctx context.Context, uid, cid, mode int) erro
 		})
 	}
 }
+
+// SetDefaultClass 设置默认分类
+func (s *ArticleClassService) SetDefaultClass(ctx context.Context, uid int) {
+
+	defaultClass := &model.ArticleClass{}
+
+	err := s.Db().First(defaultClass, "id = ? and is_default = ?", uid, 1).Error
+
+	if !errors.Is(err, gorm.ErrRecordNotFound) {
+		return
+	}
+
+	s.Db().Create(&model.ArticleClass{
+		UserId:    uid,
+		ClassName: "默认分类",
+		Sort:      1,
+		IsDefault: 1,
+	})
+}
