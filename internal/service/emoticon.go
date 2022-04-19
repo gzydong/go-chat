@@ -12,7 +12,7 @@ import (
 	"go-chat/internal/dao"
 	"go-chat/internal/model"
 	"go-chat/internal/pkg/filesystem"
-	"go-chat/internal/pkg/slice"
+	"go-chat/internal/pkg/sliceutil"
 	"go-chat/internal/pkg/strutil"
 	"go-chat/internal/pkg/utils"
 )
@@ -34,7 +34,7 @@ func (s *EmoticonService) Dao() *dao.EmoticonDao {
 func (s *EmoticonService) RemoveUserSysEmoticon(uid int, emoticonId int) error {
 	ids := s.dao.GetUserInstallIds(uid)
 
-	if !slice.InInt(emoticonId, ids) {
+	if !sliceutil.InInt(emoticonId, ids) {
 		return fmt.Errorf("数据不存在！")
 	}
 
@@ -52,13 +52,13 @@ func (s *EmoticonService) RemoveUserSysEmoticon(uid int, emoticonId int) error {
 func (s *EmoticonService) AddUserSysEmoticon(uid int, emoticonId int) error {
 	ids := s.dao.GetUserInstallIds(uid)
 
-	if slice.InInt(emoticonId, ids) {
+	if sliceutil.InInt(emoticonId, ids) {
 		return nil
 	}
 
 	ids = append(ids, emoticonId)
 
-	return s.db.Model(&model.UsersEmoticon{}).Where("user_id = ?", uid).Update("emoticon_ids", slice.IntToIds(ids)).Error
+	return s.db.Model(&model.UsersEmoticon{}).Where("user_id = ?", uid).Update("emoticon_ids", sliceutil.IntToIds(ids)).Error
 }
 
 // DeleteCollect 删除自定义表情包

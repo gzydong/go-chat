@@ -5,13 +5,13 @@ import (
 	"go-chat/config"
 	"go-chat/internal/cache"
 	"go-chat/internal/http/internal/handler"
-	"go-chat/internal/pkg/jwt"
+	"go-chat/internal/pkg/jwtutil"
 )
 
 // RegisterApiRoute 注册 API 路由
 func RegisterApiRoute(conf *config.Config, router *gin.Engine, handler *handler.Handler, session *cache.Session) {
 	// 授权验证中间件
-	authorize := jwt.Auth(conf.Jwt.Secret, "api", session)
+	authorize := jwtutil.Auth(conf.Jwt.Secret, "api", session)
 
 	// v1 接口
 	v1 := router.Group("/api/v1")

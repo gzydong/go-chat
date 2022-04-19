@@ -14,7 +14,7 @@ import (
 	"go-chat/internal/entity"
 	"go-chat/internal/model"
 	"go-chat/internal/pkg/jsonutil"
-	"go-chat/internal/pkg/slice"
+	"go-chat/internal/pkg/sliceutil"
 	"go-chat/internal/pkg/timeutil"
 )
 
@@ -74,7 +74,7 @@ func (s *GroupService) Create(ctx context.Context, opts *CreateGroupOpts) (int, 
 	)
 
 	// 群成员用户ID
-	mids := slice.UniqueInt(append(opts.MemberIds, opts.UserId))
+	mids := sliceutil.UniqueInt(append(opts.MemberIds, opts.UserId))
 
 	group := &model.Group{
 		CreatorId: opts.UserId,
@@ -129,7 +129,7 @@ func (s *GroupService) Create(ctx context.Context, opts *CreateGroupOpts) (int, 
 			RecordId:      record.Id,
 			Type:          1,
 			OperateUserId: opts.UserId,
-			UserIds:       slice.IntToIds(mids[0 : len(mids)-1]),
+			UserIds:       sliceutil.IntToIds(mids[0 : len(mids)-1]),
 		}).Error; err != nil {
 			return err
 		}
@@ -338,7 +338,7 @@ func (s *GroupService) InviteMembers(ctx context.Context, opts *InviteGroupMembe
 			RecordId:      record.Id,
 			Type:          1,
 			OperateUserId: opts.UserId,
-			UserIds:       slice.IntToIds(opts.MemberIds),
+			UserIds:       sliceutil.IntToIds(opts.MemberIds),
 		}).Error; err != nil {
 			return err
 		}
@@ -408,7 +408,7 @@ func (s *GroupService) RemoveMembers(ctx context.Context, opts *RemoveMembersOpt
 			RecordId:      record.Id,
 			Type:          3,
 			OperateUserId: opts.UserId,
-			UserIds:       slice.IntToIds(opts.MemberIds),
+			UserIds:       sliceutil.IntToIds(opts.MemberIds),
 		}).Error; err != nil {
 			return err
 		}

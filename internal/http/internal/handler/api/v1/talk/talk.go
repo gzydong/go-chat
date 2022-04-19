@@ -13,7 +13,7 @@ import (
 	"go-chat/internal/http/internal/request"
 	"go-chat/internal/http/internal/response"
 	"go-chat/internal/pkg/encrypt"
-	"go-chat/internal/pkg/jwt"
+	"go-chat/internal/pkg/jwtutil"
 	"go-chat/internal/pkg/strutil"
 	"go-chat/internal/pkg/timeutil"
 	"go-chat/internal/service"
@@ -57,7 +57,7 @@ func NewTalkHandler(
 
 // List 会话列表
 func (c *Talk) List(ctx *gin.Context) {
-	uid := jwt.GetUid(ctx)
+	uid := jwtutil.GetUid(ctx)
 
 	data, err := c.talkListService.List(ctx.Request.Context(), uid)
 	if err != nil {
@@ -108,7 +108,7 @@ func (c *Talk) List(ctx *gin.Context) {
 func (c *Talk) Create(ctx *gin.Context) {
 	var (
 		params = &request.TalkListCreateRequest{}
-		uid    = jwt.GetUid(ctx)
+		uid    = jwtutil.GetUid(ctx)
 		agent  = strings.TrimSpace(ctx.GetHeader("user-agent"))
 	)
 
@@ -122,7 +122,7 @@ func (c *Talk) Create(ctx *gin.Context) {
 	}
 
 	// 判断对方是否是自己
-	if params.TalkType == entity.ChatPrivateMode && params.ReceiverId == jwt.GetUid(ctx) {
+	if params.TalkType == entity.ChatPrivateMode && params.ReceiverId == jwtutil.GetUid(ctx) {
 		response.BusinessError(ctx, "创建失败")
 		return
 	}
@@ -184,7 +184,7 @@ func (c *Talk) Delete(ctx *gin.Context) {
 		return
 	}
 
-	if err := c.talkListService.Delete(ctx, jwt.GetUid(ctx), params.Id); err != nil {
+	if err := c.talkListService.Delete(ctx, jwtutil.GetUid(ctx), params.Id); err != nil {
 		response.BusinessError(ctx, err)
 		return
 	}
@@ -201,7 +201,7 @@ func (c *Talk) Top(ctx *gin.Context) {
 	}
 
 	if err := c.talkListService.Top(ctx, &service.TalkSessionTopOpts{
-		UserId: jwt.GetUid(ctx),
+		UserId: jwtutil.GetUid(ctx),
 		Id:     params.Id,
 		Type:   params.Type,
 	}); err != nil {
@@ -221,7 +221,7 @@ func (c *Talk) Disturb(ctx *gin.Context) {
 	}
 
 	if err := c.talkListService.Disturb(ctx, &service.TalkSessionDisturbOpts{
-		UserId:     jwt.GetUid(ctx),
+		UserId:     jwtutil.GetUid(ctx),
 		TalkType:   params.TalkType,
 		ReceiverId: params.ReceiverId,
 		IsDisturb:  params.IsDisturb,
@@ -241,7 +241,7 @@ func (c *Talk) ClearUnreadMessage(ctx *gin.Context) {
 	}
 
 	if params.TalkType == 1 {
-		c.unreadTalkCache.Reset(ctx.Request.Context(), params.ReceiverId, jwt.GetUid(ctx))
+		c.unreadTalkCache.Reset(ctx.Request.Context(), params.ReceiverId, jwtutil.GetUid(ctx))
 	}
 
 	response.Success(ctx, nil)

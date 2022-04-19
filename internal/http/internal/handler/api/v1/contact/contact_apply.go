@@ -5,7 +5,7 @@ import (
 
 	"go-chat/internal/http/internal/request"
 	"go-chat/internal/http/internal/response"
-	"go-chat/internal/pkg/jwt"
+	"go-chat/internal/pkg/jwtutil"
 	"go-chat/internal/service"
 )
 
@@ -37,7 +37,7 @@ func (c *ContactApply) Create(ctx *gin.Context) {
 	}
 
 	if err := c.service.Create(ctx, &service.ContactApplyCreateOpts{
-		UserId:   jwt.GetUid(ctx),
+		UserId:   jwtutil.GetUid(ctx),
 		Remarks:  params.Remarks,
 		FriendId: params.FriendId,
 	}); err != nil {
@@ -59,7 +59,7 @@ func (c *ContactApply) Accept(ctx *gin.Context) {
 	if err := c.service.Accept(ctx, &service.ContactApplyAcceptOpts{
 		Remarks: params.Remarks,
 		ApplyId: params.ApplyId,
-		UserId:  jwt.GetUid(ctx),
+		UserId:  jwtutil.GetUid(ctx),
 	}); err != nil {
 		response.BusinessError(ctx, err)
 		return
@@ -77,7 +77,7 @@ func (c *ContactApply) Decline(ctx *gin.Context) {
 	}
 
 	if err := c.service.Decline(ctx, &service.ContactApplyDeclineOpts{
-		UserId:  jwt.GetUid(ctx),
+		UserId:  jwtutil.GetUid(ctx),
 		Remarks: params.Remarks,
 		ApplyId: params.ApplyId,
 	}); err != nil {
@@ -90,7 +90,7 @@ func (c *ContactApply) Decline(ctx *gin.Context) {
 
 // List 获取联系人申请列表
 func (c *ContactApply) List(ctx *gin.Context) {
-	items, err := c.service.List(ctx, jwt.GetUid(ctx), 1, 1000)
+	items, err := c.service.List(ctx, jwtutil.GetUid(ctx), 1, 1000)
 	if err != nil {
 		response.SystemError(ctx, err)
 		return

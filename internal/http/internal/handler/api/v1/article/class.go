@@ -5,7 +5,7 @@ import (
 
 	"go-chat/internal/http/internal/request"
 	"go-chat/internal/http/internal/response"
-	"go-chat/internal/pkg/jwt"
+	"go-chat/internal/pkg/jwtutil"
 	"go-chat/internal/service/note"
 )
 
@@ -19,7 +19,7 @@ func NewClassHandler(service *note.ArticleClassService) *Class {
 
 // List 分类列表
 func (c *Class) List(ctx *gin.Context) {
-	items, err := c.service.List(ctx.Request.Context(), jwt.GetUid(ctx))
+	items, err := c.service.List(ctx.Request.Context(), jwtutil.GetUid(ctx))
 
 	if err != nil {
 		response.BusinessError(ctx, err)
@@ -33,7 +33,7 @@ func (c *Class) Edit(ctx *gin.Context) {
 	var (
 		err    error
 		params = &request.ArticleClassEditRequest{}
-		uid    = jwt.GetUid(ctx)
+		uid    = jwtutil.GetUid(ctx)
 	)
 
 	if err = ctx.ShouldBind(params); err != nil {
@@ -63,7 +63,7 @@ func (c *Class) Delete(ctx *gin.Context) {
 		return
 	}
 
-	err := c.service.Delete(ctx.Request.Context(), jwt.GetUid(ctx), params.ClassId)
+	err := c.service.Delete(ctx.Request.Context(), jwtutil.GetUid(ctx), params.ClassId)
 	if err != nil {
 		response.BusinessError(ctx, err)
 	} else {
@@ -80,7 +80,7 @@ func (c *Class) Sort(ctx *gin.Context) {
 		return
 	}
 
-	err := c.service.Sort(ctx.Request.Context(), jwt.GetUid(ctx), params.ClassId, params.SortType)
+	err := c.service.Sort(ctx.Request.Context(), jwtutil.GetUid(ctx), params.ClassId, params.SortType)
 	if err != nil {
 		response.BusinessError(ctx, err)
 	} else {

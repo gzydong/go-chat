@@ -10,7 +10,7 @@ import (
 	"go-chat/internal/entity"
 	"go-chat/internal/model"
 	"go-chat/internal/pkg/jsonutil"
-	"go-chat/internal/pkg/slice"
+	"go-chat/internal/pkg/sliceutil"
 	"go-chat/internal/pkg/strutil"
 )
 
@@ -177,7 +177,7 @@ func (t *TalkMessageForwardService) MultiMergeForward(ctx context.Context, forwa
 		return nil, err
 	}
 
-	str := slice.IntToIds(forward.RecordsIds)
+	str := sliceutil.IntToIds(forward.RecordsIds)
 	err = t.db.Transaction(func(tx *gorm.DB) error {
 		forwards := make([]*model.TalkRecordsForward, 0, len(receives))
 		records := make([]*model.TalkRecords, 0, len(receives))

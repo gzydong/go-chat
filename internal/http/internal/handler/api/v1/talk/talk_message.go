@@ -9,8 +9,8 @@ import (
 	"go-chat/internal/entity"
 	"go-chat/internal/http/internal/request"
 	"go-chat/internal/http/internal/response"
-	"go-chat/internal/pkg/jwt"
-	"go-chat/internal/pkg/slice"
+	"go-chat/internal/pkg/jwtutil"
+	"go-chat/internal/pkg/sliceutil"
 	"go-chat/internal/pkg/strutil"
 	"go-chat/internal/service"
 )
@@ -53,12 +53,12 @@ func (c *Message) Text(ctx *gin.Context) {
 		return
 	}
 
-	uid := jwt.GetUid(ctx)
+	uid := jwtutil.GetUid(ctx)
 
 	if !c.permission(&AuthPermission{
 		ctx:        ctx.Request.Context(),
 		TalkType:   params.TalkType,
-		UserId:     jwt.GetUid(ctx),
+		UserId:     jwtutil.GetUid(ctx),
 		ReceiverId: params.ReceiverId,
 	}) {
 		response.Unauthorized(ctx, "无权限访问！")
@@ -85,7 +85,7 @@ func (c *Message) Code(ctx *gin.Context) {
 		return
 	}
 
-	uid := jwt.GetUid(ctx)
+	uid := jwtutil.GetUid(ctx)
 
 	if !c.permission(&AuthPermission{
 		ctx:        ctx.Request.Context(),
@@ -124,7 +124,7 @@ func (c *Message) Image(ctx *gin.Context) {
 		return
 	}
 
-	if !slice.InStr(strutil.FileSuffix(file.Filename), []string{"png", "jpg", "jpeg", "gif"}) {
+	if !sliceutil.InStr(strutil.FileSuffix(file.Filename), []string{"png", "jpg", "jpeg", "gif"}) {
 		response.InvalidParams(ctx, "上传文件格式不正确,仅支持 png、jpg、jpeg 和 gif")
 		return
 	}
@@ -135,7 +135,7 @@ func (c *Message) Image(ctx *gin.Context) {
 		return
 	}
 
-	uid := jwt.GetUid(ctx)
+	uid := jwtutil.GetUid(ctx)
 
 	if !c.permission(&AuthPermission{
 		ctx:        ctx.Request.Context(),
@@ -167,7 +167,7 @@ func (c *Message) File(ctx *gin.Context) {
 		return
 	}
 
-	uid := jwt.GetUid(ctx)
+	uid := jwtutil.GetUid(ctx)
 
 	if !c.permission(&AuthPermission{
 		ctx:        ctx.Request.Context(),
@@ -209,7 +209,7 @@ func (c *Message) Vote(ctx *gin.Context) {
 		return
 	}
 
-	uid := jwt.GetUid(ctx)
+	uid := jwtutil.GetUid(ctx)
 
 	if !c.permission(&AuthPermission{
 		ctx:        ctx.Request.Context(),
@@ -242,7 +242,7 @@ func (c *Message) Emoticon(ctx *gin.Context) {
 		return
 	}
 
-	uid := jwt.GetUid(ctx)
+	uid := jwtutil.GetUid(ctx)
 
 	if !c.permission(&AuthPermission{
 		ctx:        ctx.Request.Context(),
@@ -279,7 +279,7 @@ func (c *Message) Forward(ctx *gin.Context) {
 		return
 	}
 
-	uid := jwt.GetUid(ctx)
+	uid := jwtutil.GetUid(ctx)
 
 	if !c.permission(&AuthPermission{
 		ctx:        ctx.Request.Context(),
@@ -296,9 +296,9 @@ func (c *Message) Forward(ctx *gin.Context) {
 		UserId:     uid,
 		ReceiverId: params.ReceiverId,
 		TalkType:   params.TalkType,
-		RecordsIds: slice.ParseIds(params.RecordsIds),
-		UserIds:    slice.ParseIds(params.ReceiveUserIds),
-		GroupIds:   slice.ParseIds(params.ReceiveGroupIds),
+		RecordsIds: sliceutil.ParseIds(params.RecordsIds),
+		UserIds:    sliceutil.ParseIds(params.ReceiveUserIds),
+		GroupIds:   sliceutil.ParseIds(params.ReceiveGroupIds),
 	}
 
 	if err := c.forwardService.SendForwardMessage(ctx.Request.Context(), forward); err != nil {
@@ -316,7 +316,7 @@ func (c *Message) Card(ctx *gin.Context) {
 		return
 	}
 
-	uid := jwt.GetUid(ctx)
+	uid := jwtutil.GetUid(ctx)
 
 	if !c.permission(&AuthPermission{
 		ctx:        ctx.Request.Context(),
@@ -349,7 +349,7 @@ func (c *Message) Collect(ctx *gin.Context) {
 		return
 	}
 
-	if err := c.talkService.CollectRecord(ctx.Request.Context(), jwt.GetUid(ctx), params.RecordId); err != nil {
+	if err := c.talkService.CollectRecord(ctx.Request.Context(), jwtutil.GetUid(ctx), params.RecordId); err != nil {
 		response.BusinessError(ctx, err)
 	} else {
 		response.Success(ctx, nil)
@@ -364,7 +364,7 @@ func (c *Message) Revoke(ctx *gin.Context) {
 		return
 	}
 
-	if err := c.service.SendRevokeRecordMessage(ctx.Request.Context(), jwt.GetUid(ctx), params.RecordId); err != nil {
+	if err := c.service.SendRevokeRecordMessage(ctx.Request.Context(), jwtutil.GetUid(ctx), params.RecordId); err != nil {
 		response.BusinessError(ctx, err)
 	} else {
 		response.Success(ctx, nil)
@@ -380,7 +380,7 @@ func (c *Message) Delete(ctx *gin.Context) {
 	}
 
 	if err := c.talkService.RemoveRecords(ctx.Request.Context(), &service.TalkMessageDeleteOpts{
-		UserId:     jwt.GetUid(ctx),
+		UserId:     jwtutil.GetUid(ctx),
 		TalkType:   params.TalkType,
 		ReceiverId: params.ReceiverId,
 		RecordIds:  params.RecordIds,
@@ -400,7 +400,7 @@ func (c *Message) HandleVote(ctx *gin.Context) {
 	}
 
 	vid, err := c.service.VoteHandle(ctx.Request.Context(), &service.VoteMessageHandleOpts{
-		UserId:   jwt.GetUid(ctx),
+		UserId:   jwtutil.GetUid(ctx),
 		RecordId: params.RecordId,
 		Options:  params.Options,
 	})
@@ -421,7 +421,7 @@ func (c *Message) Location(ctx *gin.Context) {
 		return
 	}
 
-	uid := jwt.GetUid(ctx)
+	uid := jwtutil.GetUid(ctx)
 
 	if !c.permission(&AuthPermission{
 		ctx:        ctx.Request.Context(),

@@ -7,13 +7,13 @@ import (
 	"go-chat/internal/http/internal/dto/api"
 	"go-chat/internal/http/internal/request"
 	"go-chat/internal/model"
-	"go-chat/internal/pkg/jwt"
+	"go-chat/internal/pkg/jwtutil"
 
 	"github.com/gin-gonic/gin"
 
 	"go-chat/internal/http/internal/response"
 	"go-chat/internal/pkg/filesystem"
-	"go-chat/internal/pkg/slice"
+	"go-chat/internal/pkg/sliceutil"
 	"go-chat/internal/pkg/strutil"
 	"go-chat/internal/service"
 )
@@ -39,7 +39,7 @@ func NewEmoticonHandler(
 // CollectList 收藏列表
 func (c *Emoticon) CollectList(ctx *gin.Context) {
 	var (
-		uid     = jwt.GetUid(ctx)
+		uid     = jwtutil.GetUid(ctx)
 		sys     = make([]*api.SysEmoticonResponse, 0)
 		collect = make([]*api.EmoticonItem, 0)
 	)
@@ -93,7 +93,7 @@ func (c *Emoticon) DeleteCollect(ctx *gin.Context) {
 		return
 	}
 
-	if err := c.service.DeleteCollect(jwt.GetUid(ctx), slice.ParseIds(params.Ids)); err != nil {
+	if err := c.service.DeleteCollect(jwtutil.GetUid(ctx), sliceutil.ParseIds(params.Ids)); err != nil {
 		response.BusinessError(ctx, err)
 	} else {
 		response.Success(ctx, nil)
@@ -108,7 +108,7 @@ func (c *Emoticon) Upload(ctx *gin.Context) {
 		return
 	}
 
-	if !slice.InStr(strutil.FileSuffix(file.Filename), []string{"png", "jpg", "jpeg", "gif"}) {
+	if !sliceutil.InStr(strutil.FileSuffix(file.Filename), []string{"png", "jpg", "jpeg", "gif"}) {
 		response.InvalidParams(ctx, "上传文件格式不正确,仅支持 png、jpg、jpeg 和 gif")
 		return
 	}
@@ -119,7 +119,7 @@ func (c *Emoticon) Upload(ctx *gin.Context) {
 		return
 	}
 
-	info, err := c.service.CustomizeUpload(ctx.Request.Context(), jwt.GetUid(ctx), file)
+	info, err := c.service.CustomizeUpload(ctx.Request.Context(), jwtutil.GetUid(ctx), file)
 	if err != nil {
 		response.BusinessError(ctx, "文件上传失败！")
 		return
@@ -140,7 +140,7 @@ func (c *Emoticon) SystemList(ctx *gin.Context) {
 		return
 	}
 
-	ids := c.service.Dao().GetUserInstallIds(jwt.GetUid(ctx))
+	ids := c.service.Dao().GetUserInstallIds(jwtutil.GetUid(ctx))
 
 	data := make([]*api.SysEmoticonList, 0, len(items))
 	for _, item := range items {
@@ -148,7 +148,7 @@ func (c *Emoticon) SystemList(ctx *gin.Context) {
 			ID:     item.Id,
 			Name:   item.Name,
 			Icon:   item.Icon,
-			Status: strutil.BoolToInt(slice.InInt(item.Id, ids)), // 查询用户是否使用
+			Status: strutil.BoolToInt(sliceutil.InInt(item.Id, ids)), // 查询用户是否使用
 		})
 	}
 
@@ -160,7 +160,7 @@ func (c *Emoticon) SetSystemEmoticon(ctx *gin.Context) {
 	var (
 		err    error
 		params = &request.SetSystemEmoticonRequest{}
-		uid    = jwt.GetUid(ctx)
+		uid    = jwtutil.GetUid(ctx)
 		key    = fmt.Sprintf("sys-emoticon:%d", uid)
 	)
 

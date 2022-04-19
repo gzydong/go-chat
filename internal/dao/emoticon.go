@@ -2,7 +2,7 @@ package dao
 
 import (
 	"go-chat/internal/model"
-	"go-chat/internal/pkg/slice"
+	"go-chat/internal/pkg/sliceutil"
 )
 
 type EmoticonDao struct {
@@ -31,7 +31,7 @@ func (dao *EmoticonDao) GetUserInstallIds(uid int) []int {
 		return []int{}
 	}
 
-	return slice.ParseIds(data.EmoticonIds)
+	return sliceutil.ParseIds(data.EmoticonIds)
 }
 
 // GetSystemEmoticonList 获取系统表情包分组列表

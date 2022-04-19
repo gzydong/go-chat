@@ -1,4 +1,4 @@
-package slice
+package sliceutil
 
 import (
 	"fmt"
@@ -66,7 +66,6 @@ func ParseIds(str string) []int {
 	return ids
 }
 
-// ToMap
 func ToMap(arr []map[string]interface{}, field string) (map[int64]map[string]interface{}, error) {
 	hashMap := make(map[int64]map[string]interface{}, len(arr))
 

@@ -9,8 +9,8 @@ import (
 	"go-chat/internal/http/internal/request"
 	"go-chat/internal/http/internal/response"
 	"go-chat/internal/model"
-	"go-chat/internal/pkg/jwt"
-	"go-chat/internal/pkg/slice"
+	"go-chat/internal/pkg/jwtutil"
+	"go-chat/internal/pkg/sliceutil"
 	"go-chat/internal/pkg/timeutil"
 	"go-chat/internal/service"
 )
@@ -52,11 +52,11 @@ func (c *Group) Create(ctx *gin.Context) {
 
 	// 创建群组
 	gid, err := c.service.Create(ctx.Request.Context(), &service.CreateGroupOpts{
-		UserId:    jwt.GetUid(ctx),
+		UserId:    jwtutil.GetUid(ctx),
 		Name:      params.Name,
 		Avatar:    params.Avatar,
 		Profile:   params.Profile,
-		MemberIds: slice.ParseIds(params.MembersIds),
+		MemberIds: sliceutil.ParseIds(params.MembersIds),
 	})
 	if err != nil {
 		response.BusinessError(ctx, "创建群聊失败，请稍后再试！")
@@ -76,7 +76,7 @@ func (c *Group) Dismiss(ctx *gin.Context) {
 		return
 	}
 
-	if err := c.service.Dismiss(ctx.Request.Context(), params.GroupId, jwt.GetUid(ctx)); err != nil {
+	if err := c.service.Dismiss(ctx.Request.Context(), params.GroupId, jwtutil.GetUid(ctx)); err != nil {
 		response.BusinessError(ctx, "群组解散失败！")
 	} else {
 		response.Success(ctx, nil)
@@ -99,8 +99,8 @@ func (c *Group) Invite(ctx *gin.Context) {
 
 	defer c.redisLock.Release(ctx, key)
 
-	uid := jwt.GetUid(ctx)
-	uids := slice.UniqueInt(slice.ParseIds(params.Ids))
+	uid := jwtutil.GetUid(ctx)
+	uids := sliceutil.UniqueInt(sliceutil.ParseIds(params.Ids))
 
 	if len(uids) == 0 {
 		response.BusinessError(ctx, "邀请好友列表不能为空！")
@@ -131,7 +131,7 @@ func (c *Group) SignOut(ctx *gin.Context) {
 		return
 	}
 
-	if err := c.service.Secede(ctx.Request.Context(), params.GroupId, jwt.GetUid(ctx)); err != nil {
+	if err := c.service.Secede(ctx.Request.Context(), params.GroupId, jwtutil.GetUid(ctx)); err != nil {
 		response.BusinessError(ctx, "退出群组失败！")
 	} else {
 		response.Success(ctx, nil)
@@ -146,7 +146,7 @@ func (c *Group) Setting(ctx *gin.Context) {
 		return
 	}
 
-	uid := jwt.GetUid(ctx)
+	uid := jwtutil.GetUid(ctx)
 
 	if !c.memberService.Dao().IsLeader(params.GroupId, uid) {
 		response.BusinessError(ctx, "无权限操作")
@@ -173,7 +173,7 @@ func (c *Group) RemoveMembers(ctx *gin.Context) {
 		return
 	}
 
-	uid := jwt.GetUid(ctx)
+	uid := jwtutil.GetUid(ctx)
 
 	if !c.memberService.Dao().IsLeader(params.GroupId, uid) {
 		response.BusinessError(ctx, "无权限操作")
@@ -183,7 +183,7 @@ func (c *Group) RemoveMembers(ctx *gin.Context) {
 	err := c.service.RemoveMembers(ctx.Request.Context(), &service.RemoveMembersOpts{
 		UserId:    uid,
 		GroupId:   params.GroupId,
-		MemberIds: slice.ParseIds(params.MembersIds),
+		MemberIds: sliceutil.ParseIds(params.MembersIds),
 	})
 
 	if err != nil {
@@ -201,7 +201,7 @@ func (c *Group) Detail(ctx *gin.Context) {
 		return
 	}
 
-	uid := jwt.GetUid(ctx)
+	uid := jwtutil.GetUid(ctx)
 
 	groupInfo, err := c.service.Dao().FindById(params.GroupId)
 	if err != nil {
@@ -245,7 +245,7 @@ func (c *Group) EditRemark(ctx *gin.Context) {
 		return
 	}
 
-	if err := c.memberService.EditMemberCard(params.GroupId, jwt.GetUid(ctx), params.VisitCard); err != nil {
+	if err := c.memberService.EditMemberCard(params.GroupId, jwtutil.GetUid(ctx), params.VisitCard); err != nil {
 		response.BusinessError(ctx, "修改群备注失败！")
 		return
 	}
@@ -260,7 +260,7 @@ func (c *Group) GetInviteFriends(ctx *gin.Context) {
 		return
 	}
 
-	items, err := c.contactService.List(ctx, jwt.GetUid(ctx))
+	items, err := c.contactService.List(ctx, jwtutil.GetUid(ctx))
 	if err != nil {
 		response.BusinessError(ctx, err)
 		return
@@ -279,7 +279,7 @@ func (c *Group) GetInviteFriends(ctx *gin.Context) {
 
 	data := make([]*model.ContactListItem, 0)
 	for i := 0; i < len(items); i++ {
-		if !slice.InInt(items[i].Id, mids) {
+		if !sliceutil.InInt(items[i].Id, mids) {
 			data = append(data, items[i])
 		}
 	}
@@ -288,7 +288,7 @@ func (c *Group) GetInviteFriends(ctx *gin.Context) {
 }
 
 func (c *Group) GetGroups(ctx *gin.Context) {
-	items, err := c.service.List(jwt.GetUid(ctx))
+	items, err := c.service.List(jwtutil.GetUid(ctx))
 	if err != nil {
 		response.BusinessError(ctx, items)
 		return
@@ -307,7 +307,7 @@ func (c *Group) GetMembers(ctx *gin.Context) {
 		return
 	}
 
-	if !c.memberService.Dao().IsMember(params.GroupId, jwt.GetUid(ctx), false) {
+	if !c.memberService.Dao().IsMember(params.GroupId, jwtutil.GetUid(ctx), false) {
 		response.BusinessError(ctx, "非群成员无权查看成员列表！")
 	} else {
 		response.Success(ctx, c.memberService.Dao().GetMembers(params.GroupId))

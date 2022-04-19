@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"go-chat/internal/http/internal/dto"
-	"go-chat/internal/pkg/jwt"
+	"go-chat/internal/pkg/jwtutil"
 	"go-chat/internal/pkg/utils"
 	"go-chat/internal/service/note"
 
@@ -136,7 +136,7 @@ func (c *Auth) Logout(ctx *gin.Context) {
 
 // Refresh Token 刷新接口
 func (c *Auth) Refresh(ctx *gin.Context) {
-	tokenInfo := c.createToken(jwt.GetUid(ctx))
+	tokenInfo := c.createToken(jwtutil.GetUid(ctx))
 
 	c.toBlackList(ctx)
 
@@ -177,7 +177,7 @@ func (c *Auth) createToken(uid int) *dto.Token {
 	expiresAt := time.Now().Add(time.Second * time.Duration(c.config.Jwt.ExpiresTime)).Unix()
 
 	// 生成登录凭证
-	token := jwt.GenerateToken("api", c.config.Jwt.Secret, &jwt.Options{
+	token := jwtutil.GenerateToken("api", c.config.Jwt.Secret, &jwtutil.Options{
 		ExpiresAt: expiresAt,
 		Id:        strconv.Itoa(uid),
 	})

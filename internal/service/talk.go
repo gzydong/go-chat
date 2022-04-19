@@ -8,7 +8,7 @@ import (
 	"go-chat/internal/dao"
 	"go-chat/internal/entity"
 	"go-chat/internal/model"
-	"go-chat/internal/pkg/slice"
+	"go-chat/internal/pkg/sliceutil"
 )
 
 type TalkMessageDeleteOpts struct {
@@ -31,7 +31,7 @@ func NewTalkService(baseService *BaseService, groupMemberDao *dao.GroupMemberDao
 func (s *TalkService) RemoveRecords(ctx context.Context, opts *TalkMessageDeleteOpts) error {
 
 	// 需要删除的消息记录ID
-	ids := slice.UniqueInt(slice.ParseIds(opts.RecordIds))
+	ids := sliceutil.UniqueInt(sliceutil.ParseIds(opts.RecordIds))
 
 	// 查询的ids
 	findIds := make([]int64, 0)

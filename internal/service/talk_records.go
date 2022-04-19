@@ -10,7 +10,7 @@ import (
 	"go-chat/internal/model"
 	"go-chat/internal/pkg/filesystem"
 	"go-chat/internal/pkg/jsonutil"
-	"go-chat/internal/pkg/slice"
+	"go-chat/internal/pkg/sliceutil"
 	"go-chat/internal/pkg/timeutil"
 )
 
@@ -198,7 +198,7 @@ func (s *TalkRecordsService) GetForwardRecords(ctx context.Context, uid int, rec
 	query := s.db.Table("talk_records")
 	query.Select(fields)
 	query.Joins("left join users on talk_records.user_id = users.id")
-	query.Where("talk_records.id in ?", slice.ParseIds(forward.RecordsId))
+	query.Where("talk_records.id in ?", sliceutil.ParseIds(forward.RecordsId))
 
 	if err := query.Scan(&items).Error; err != nil {
 		return nil, err
@@ -333,7 +333,7 @@ func (s *TalkRecordsService) HandleTalkRecords(ctx context.Context, items []*mod
 				_ = jsonutil.Decode(value.Text, &list)
 
 				data.Forward = map[string]interface{}{
-					"num":  len(slice.ParseIds(value.RecordsId)),
+					"num":  len(sliceutil.ParseIds(value.RecordsId)),
 					"list": list,
 				}
 			}
@@ -426,7 +426,7 @@ func (s *TalkRecordsService) HandleTalkRecords(ctx context.Context, items []*mod
 
 				if value.Type == 1 || value.Type == 3 {
 					var results []map[string]interface{}
-					s.db.Model(&model.Users{}).Select("id", "nickname").Where("id in ?", slice.ParseIds(value.UserIds)).Scan(&results)
+					s.db.Model(&model.Users{}).Select("id", "nickname").Where("id in ?", sliceutil.ParseIds(value.UserIds)).Scan(&results)
 					m["users"] = results
 				} else {
 					m["users"] = operateUser

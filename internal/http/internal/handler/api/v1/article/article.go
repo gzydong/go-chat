@@ -9,8 +9,8 @@ import (
 	"go-chat/internal/http/internal/request"
 	"go-chat/internal/http/internal/response"
 	"go-chat/internal/pkg/filesystem"
-	"go-chat/internal/pkg/jwt"
-	"go-chat/internal/pkg/slice"
+	"go-chat/internal/pkg/jwtutil"
+	"go-chat/internal/pkg/sliceutil"
 	"go-chat/internal/pkg/strutil"
 	"go-chat/internal/pkg/timeutil"
 	"go-chat/internal/pkg/utils"
@@ -37,7 +37,7 @@ func (c *Article) List(ctx *gin.Context) {
 	}
 
 	items, err := c.service.List(ctx.Request.Context(), &note.ArticleListOpts{
-		UserId:   jwt.GetUid(ctx),
+		UserId:   jwtutil.GetUid(ctx),
 		Keyword:  params.Keyword,
 		FindType: params.FindType,
 		Cid:      params.Cid,
@@ -76,7 +76,7 @@ func (c *Article) Detail(ctx *gin.Context) {
 		return
 	}
 
-	uid := jwt.GetUid(ctx)
+	uid := jwtutil.GetUid(ctx)
 
 	detail, err := c.service.Detail(ctx.Request.Context(), uid, params.ArticleId)
 	if err != nil {
@@ -85,7 +85,7 @@ func (c *Article) Detail(ctx *gin.Context) {
 	}
 
 	tags := make([]map[string]interface{}, 0)
-	for _, tagId := range slice.ParseIds(detail.TagsId) {
+	for _, tagId := range sliceutil.ParseIds(detail.TagsId) {
 		tags = append(tags, map[string]interface{}{"id": tagId})
 	}
 
@@ -123,7 +123,7 @@ func (c *Article) Edit(ctx *gin.Context) {
 	var (
 		err    error
 		params = &request.ArticleEditRequest{}
-		uid    = jwt.GetUid(ctx)
+		uid    = jwtutil.GetUid(ctx)
 	)
 
 	if err = ctx.ShouldBind(params); err != nil {
@@ -164,7 +164,7 @@ func (c *Article) Delete(ctx *gin.Context) {
 		return
 	}
 
-	err := c.service.UpdateStatus(ctx.Request.Context(), jwt.GetUid(ctx), params.ArticleId, 2)
+	err := c.service.UpdateStatus(ctx.Request.Context(), jwtutil.GetUid(ctx), params.ArticleId, 2)
 	if err != nil {
 		response.BusinessError(ctx, err)
 	} else {
@@ -180,7 +180,7 @@ func (c *Article) Recover(ctx *gin.Context) {
 		return
 	}
 
-	err := c.service.UpdateStatus(ctx.Request.Context(), jwt.GetUid(ctx), params.ArticleId, 1)
+	err := c.service.UpdateStatus(ctx.Request.Context(), jwtutil.GetUid(ctx), params.ArticleId, 1)
 	if err != nil {
 		response.BusinessError(ctx, err)
 	} else {
@@ -196,7 +196,7 @@ func (c *Article) Upload(ctx *gin.Context) {
 		return
 	}
 
-	if !slice.InStr(strutil.FileSuffix(file.Filename), []string{"png", "jpg", "jpeg", "gif", "webp"}) {
+	if !sliceutil.InStr(strutil.FileSuffix(file.Filename), []string{"png", "jpg", "jpeg", "gif", "webp"}) {
 		response.InvalidParams(ctx, "上传文件格式不正确,仅支持 png、jpg、jpeg、gif 和 webp")
 		return
 	}
@@ -234,7 +234,7 @@ func (c *Article) Move(ctx *gin.Context) {
 		return
 	}
 
-	if err := c.service.Move(ctx.Request.Context(), jwt.GetUid(ctx), params.ArticleId, params.ClassId); err != nil {
+	if err := c.service.Move(ctx.Request.Context(), jwtutil.GetUid(ctx), params.ArticleId, params.ClassId); err != nil {
 		response.BusinessError(ctx, err)
 	} else {
 		response.Success(ctx, nil)
@@ -249,7 +249,7 @@ func (c Article) Asterisk(ctx *gin.Context) {
 		return
 	}
 
-	if err := c.service.Asterisk(ctx.Request.Context(), jwt.GetUid(ctx), params.ArticleId, params.Type); err != nil {
+	if err := c.service.Asterisk(ctx.Request.Context(), jwtutil.GetUid(ctx), params.ArticleId, params.Type); err != nil {
 		response.BusinessError(ctx, err)
 	} else {
 		response.Success(ctx, nil)
@@ -264,7 +264,7 @@ func (c *Article) Tag(ctx *gin.Context) {
 		return
 	}
 
-	if err := c.service.Tag(ctx.Request.Context(), jwt.GetUid(ctx), params.ArticleId, params.Tags); err != nil {
+	if err := c.service.Tag(ctx.Request.Context(), jwtutil.GetUid(ctx), params.ArticleId, params.Tags); err != nil {
 		response.BusinessError(ctx, err)
 	} else {
 		response.Success(ctx, nil)
@@ -279,7 +279,7 @@ func (c *Article) ForeverDelete(ctx *gin.Context) {
 		return
 	}
 
-	if err := c.service.ForeverDelete(ctx.Request.Context(), jwt.GetUid(ctx), params.ArticleId); err != nil {
+	if err := c.service.ForeverDelete(ctx.Request.Context(), jwtutil.GetUid(ctx), params.ArticleId); err != nil {
 		response.BusinessError(ctx, err)
 	} else {
 		response.Success(ctx, nil)

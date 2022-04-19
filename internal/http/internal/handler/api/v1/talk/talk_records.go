@@ -9,8 +9,8 @@ import (
 	"go-chat/internal/http/internal/request"
 	"go-chat/internal/http/internal/response"
 	"go-chat/internal/pkg/filesystem"
-	"go-chat/internal/pkg/jwt"
-	"go-chat/internal/pkg/slice"
+	"go-chat/internal/pkg/jwtutil"
+	"go-chat/internal/pkg/sliceutil"
 	"go-chat/internal/service"
 )
 
@@ -38,7 +38,7 @@ func (c *Records) GetRecords(ctx *gin.Context) {
 
 	records, err := c.service.GetTalkRecords(ctx, &service.QueryTalkRecordsOpts{
 		TalkType:   params.TalkType,
-		UserId:     jwt.GetUid(ctx),
+		UserId:     jwtutil.GetUid(ctx),
 		ReceiverId: params.ReceiverId,
 		RecordId:   params.RecordId,
 		Limit:      params.Limit,
@@ -77,14 +77,14 @@ func (c *Records) SearchHistoryRecords(ctx *gin.Context) {
 		entity.MsgTypeVote,
 	}
 
-	if slice.InInt(params.MsgType, m) {
+	if sliceutil.InInt(params.MsgType, m) {
 		m = []int{params.MsgType}
 	}
 
 	records, err := c.service.GetTalkRecords(ctx, &service.QueryTalkRecordsOpts{
 		TalkType:   params.TalkType,
 		MsgType:    m,
-		UserId:     jwt.GetUid(ctx),
+		UserId:     jwtutil.GetUid(ctx),
 		ReceiverId: params.ReceiverId,
 		RecordId:   params.RecordId,
 		Limit:      params.Limit,
@@ -115,7 +115,7 @@ func (c *Records) GetForwardRecords(ctx *gin.Context) {
 		return
 	}
 
-	records, err := c.service.GetForwardRecords(ctx.Request.Context(), jwt.GetUid(ctx), int64(params.RecordId))
+	records, err := c.service.GetForwardRecords(ctx.Request.Context(), jwtutil.GetUid(ctx), int64(params.RecordId))
 	if err != nil {
 		response.BusinessError(ctx, err)
 		return
@@ -139,7 +139,7 @@ func (c *Records) Download(ctx *gin.Context) {
 		return
 	}
 
-	uid := jwt.GetUid(ctx)
+	uid := jwtutil.GetUid(ctx)
 	if uid != resp.Record.UserId {
 		if resp.Record.TalkType == entity.ChatPrivateMode {
 			if resp.Record.ReceiverId != uid {

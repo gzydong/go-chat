@@ -9,7 +9,7 @@ import (
 
 	"go-chat/config"
 	"go-chat/internal/pkg/client"
-	"go-chat/internal/pkg/slice"
+	"go-chat/internal/pkg/sliceutil"
 )
 
 type IpAddressService struct {
@@ -66,7 +66,7 @@ func (s *IpAddressService) FindAddress(ip string) (string, error) {
 	}
 
 	arr := []string{data.Result.Country, data.Result.Province, data.Result.City, data.Result.Isp}
-	val := strings.Join(slice.UniqueString(arr), " ")
+	val := strings.Join(sliceutil.UniqueString(arr), " ")
 	val = strings.TrimSpace(val)
 
 	_ = s.setCache(ip, val)

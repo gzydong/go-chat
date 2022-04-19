@@ -13,7 +13,7 @@ import (
 	"go-chat/internal/http/internal/response"
 	"go-chat/internal/model"
 	"go-chat/internal/pkg/filesystem"
-	"go-chat/internal/pkg/jwt"
+	"go-chat/internal/pkg/jwtutil"
 	"go-chat/internal/pkg/strutil"
 	"go-chat/internal/pkg/timeutil"
 	"go-chat/internal/service/note"
@@ -64,7 +64,7 @@ func (c *Annex) Upload(ctx *gin.Context) {
 	}
 
 	data := &model.ArticleAnnex{
-		UserId:       jwt.GetUid(ctx),
+		UserId:       jwtutil.GetUid(ctx),
 		ArticleId:    params.ArticleId,
 		Drive:        entity.FileDriveMode(c.fileSystem.Driver()),
 		Suffix:       ext,
@@ -96,7 +96,7 @@ func (c *Annex) Delete(ctx *gin.Context) {
 		return
 	}
 
-	err := c.service.UpdateStatus(ctx.Request.Context(), jwt.GetUid(ctx), params.AnnexId, 2)
+	err := c.service.UpdateStatus(ctx.Request.Context(), jwtutil.GetUid(ctx), params.AnnexId, 2)
 	if err != nil {
 		response.BusinessError(ctx, err)
 		return
@@ -113,7 +113,7 @@ func (c *Annex) Recover(ctx *gin.Context) {
 		return
 	}
 
-	err := c.service.UpdateStatus(ctx.Request.Context(), jwt.GetUid(ctx), params.AnnexId, 1)
+	err := c.service.UpdateStatus(ctx.Request.Context(), jwtutil.GetUid(ctx), params.AnnexId, 1)
 	if err != nil {
 		response.BusinessError(ctx, err)
 		return
@@ -124,7 +124,7 @@ func (c *Annex) Recover(ctx *gin.Context) {
 
 // nolint RecoverList 附件回收站列表
 func (c *Annex) RecoverList(ctx *gin.Context) {
-	items, err := c.service.Dao().RecoverList(ctx.Request.Context(), jwt.GetUid(ctx))
+	items, err := c.service.Dao().RecoverList(ctx.Request.Context(), jwtutil.GetUid(ctx))
 
 	if err != nil {
 		response.BusinessError(ctx, err)
@@ -156,7 +156,7 @@ func (c *Annex) ForeverDelete(ctx *gin.Context) {
 		return
 	}
 
-	if err := c.service.ForeverDelete(ctx.Request.Context(), jwt.GetUid(ctx), params.AnnexId); err != nil {
+	if err := c.service.ForeverDelete(ctx.Request.Context(), jwtutil.GetUid(ctx), params.AnnexId); err != nil {
 		response.BusinessError(ctx, err)
 		return
 	}
@@ -178,7 +178,7 @@ func (c *Annex) Download(ctx *gin.Context) {
 		return
 	}
 
-	if info.UserId != jwt.GetUid(ctx) {
+	if info.UserId != jwtutil.GetUid(ctx) {
 		response.Unauthorized(ctx, "无权限下载")
 		return
 	}

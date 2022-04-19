@@ -1,4 +1,4 @@
-package slice
+package sliceutil
 
 func InStr(find string, arr []string) bool {
 	for _, value := range arr {
