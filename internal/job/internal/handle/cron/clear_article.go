@@ -27,15 +27,15 @@ func (c *ClearArticleHandle) Spec() string {
 
 func (c *ClearArticleHandle) Handle(ctx context.Context) error {
 
-	c.clearArticleAnnex()
+	c.clearAnnex()
 
-	c.clear()
+	c.clearNote()
 
 	return nil
 }
 
 // 删除回收站文章附件
-func (c *ClearArticleHandle) clearArticleAnnex() {
+func (c *ClearArticleHandle) clearAnnex() {
 	lastId := 0
 	size := 100
 
@@ -66,7 +66,7 @@ func (c *ClearArticleHandle) clearArticleAnnex() {
 }
 
 // 删除回收站笔记
-func (c *ClearArticleHandle) clear() {
+func (c *ClearArticleHandle) clearNote() {
 	lastId := 0
 	size := 100
 

@@ -31,12 +31,14 @@ func (c *ClearTmpFileHandle) Handle(ctx context.Context) error {
 
 	for {
 		items := make([]*model.SplitUpload, 0)
+
 		err := c.db.Model(&model.SplitUpload{}).Where("id > ? and type = 1 and drive = 1 and created_at <= ?", lastId, time.Now().Add(-24*time.Hour)).Order("id asc").Limit(size).Scan(&items).Error
 		if err != nil {
 			return err
 		}
 
 		for _, item := range items {
+
 			list := make([]*model.SplitUpload, 0)
 			c.db.Table("split_upload").Where("user_id = ? and upload_id = ? and type = 2", item.UserId, item.UploadId).Scan(&list)
 

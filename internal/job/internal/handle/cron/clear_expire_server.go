@@ -20,9 +20,10 @@ func (c *ClearExpireServerHandle) Spec() string {
 }
 
 func (c *ClearExpireServerHandle) Handle(ctx context.Context) error {
+
 	for _, sid := range c.server.All(ctx, 2) {
-		_ = c.server.Del(context.Background(), sid)
-		_ = c.server.SetExpireServer(context.Background(), sid)
+		_ = c.server.Del(ctx, sid)
+		_ = c.server.SetExpireServer(ctx, sid)
 	}
 
 	return nil
