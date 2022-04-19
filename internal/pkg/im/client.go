@@ -20,6 +20,7 @@ type ClientInterface interface {
 type StorageInterface interface {
 	Bind(ctx context.Context, channel string, clientId int64, uid int)
 	UnBind(ctx context.Context, channel string, clientId int64)
+	// HeartbeatCallback(ctx context.Context, channel string, clientId int64)
 }
 
 // ClientInContent 客户端接收消息体

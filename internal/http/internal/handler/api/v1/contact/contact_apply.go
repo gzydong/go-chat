@@ -59,6 +59,7 @@ func (c *ContactApply) Accept(ctx *gin.Context) {
 	if err := c.service.Accept(ctx, &service.ContactApplyAcceptOpts{
 		Remarks: params.Remarks,
 		ApplyId: params.ApplyId,
+		UserId:  jwt.GetUid(ctx),
 	}); err != nil {
 		response.BusinessError(ctx, err)
 		return
