@@ -9,14 +9,14 @@ import (
 
 type ContactService struct {
 	*BaseService
-	dao *dao.UsersFriendsDao
+	dao *dao.ContactDao
 }
 
-func NewContactService(baseService *BaseService, dao *dao.UsersFriendsDao) *ContactService {
+func NewContactService(baseService *BaseService, dao *dao.ContactDao) *ContactService {
 	return &ContactService{BaseService: baseService, dao: dao}
 }
 
-func (s *ContactService) Dao() *dao.UsersFriendsDao {
+func (s *ContactService) Dao() dao.ContactDaoInterface {
 	return s.dao
 }
 

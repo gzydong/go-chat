@@ -65,8 +65,20 @@ func (c *Talk) List(ctx *gin.Context) {
 		return
 	}
 
-	items := make([]*dto.TalkListItem, 0)
+	friends := make([]int, 0)
+	for _, item := range data {
+		if item.TalkType == 1 {
+			friends = append(friends, item.ReceiverId)
+		}
+	}
 
+	remarks, err := c.contactService.Dao().GetFriendRemarks(ctx, uid, friends)
+	if err != nil {
+		response.BusinessError(ctx, err)
+		return
+	}
+
+	items := make([]*dto.TalkListItem, 0)
 	for _, item := range data {
 		value := &dto.TalkListItem{
 			Id:         item.Id,
@@ -84,7 +96,7 @@ func (c *Talk) List(ctx *gin.Context) {
 		if item.TalkType == 1 {
 			value.Name = item.Nickname
 			value.Avatar = item.UserAvatar
-			value.RemarkName = c.contactService.Dao().GetFriendRemark(ctx.Request.Context(), uid, item.ReceiverId, true)
+			value.RemarkName = remarks[item.ReceiverId]
 			value.UnreadNum = c.unreadTalkCache.Get(ctx.Request.Context(), item.ReceiverId, uid)
 			value.IsOnline = strutil.BoolToInt(c.wsClient.IsOnline(ctx, entity.ImChannelDefault, strconv.Itoa(value.ReceiverId)))
 		} else {

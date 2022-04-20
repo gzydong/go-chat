@@ -55,7 +55,7 @@ var providerSet = wire.NewSet(
 
 	// dao 数据层
 	dao.NewBaseDao,
-	dao.NewUsersFriendsDao,
+	dao.NewContactDao,
 	dao.NewGroupMemberDao,
 	dao.NewUserDao,
 	dao.NewGroupDao,

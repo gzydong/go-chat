@@ -17,12 +17,29 @@ build:generate lint
 	go build -o ./bin/job-cli ./internal/job
 
 ## mac 下打包 windows 执行文件
+.PHONY: build-all
+build-all:generate lint build-windows build-linux build-mac
+
 .PHONY: build-windows
-build-windows:generate lint
-	CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o ./windows/bin/http-server.exe ./internal/http
-	CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o ./windows/bin/ws-server.exe ./internal/websocket
-	CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o ./windows/bin/job-cli.exe ./internal/job
-	cp ./config.example.yaml ./windows/config.yaml
+build-windows:
+	CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o ./build/windows/bin/http-server.exe ./internal/http
+	CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o ./build/windows/bin/ws-server.exe ./internal/websocket
+	CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o ./build/windows/bin/job-cli.exe ./internal/job
+	cp ./config.example.yaml ./build/windows/config.yaml
+
+.PHONY: build-linux
+build-linux:
+	CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o ./build/linux/bin/http-server ./internal/http
+	CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o ./build/linux/bin/ws-server ./internal/websocket
+	CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o ./build/linux/bin/job-cli ./internal/job
+	cp ./config.example.yaml ./build/linux/config.yaml
+
+.PHONY: build-mac
+build-mac:
+	CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o ./build/mac/bin/http-server ./internal/http
+	CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o ./build/mac/bin/ws-server ./internal/websocket
+	CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o ./build/mac/bin/job-cli ./internal/job
+	cp ./config.example.yaml ./build/mac/config.yaml
 
 .PHONY: generate
 generate:

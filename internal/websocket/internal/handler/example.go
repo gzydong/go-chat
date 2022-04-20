@@ -19,7 +19,7 @@ func NewExampleWebsocket() *ExampleWebsocket {
 func (c *ExampleWebsocket) Connect(ctx *gin.Context) {
 	conn, err := im.NewConnect(ctx)
 	if err != nil {
-		logrus.Error("websocket connect error: %s", err.Error())
+		logrus.Error("websocket connect error: ", err.Error())
 		return
 	}
 

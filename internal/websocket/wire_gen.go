@@ -50,8 +50,8 @@ func Initialize(ctx context.Context, conf *config.Config) *Providers {
 	filesystemFilesystem := filesystem.NewFilesystem(conf)
 	talkRecordsDao := dao.NewTalkRecordsDao(baseDao)
 	talkRecordsService := service.NewTalkRecordsService(baseService, talkVote, talkRecordsVoteDao, filesystemFilesystem, groupMemberDao, talkRecordsDao)
-	usersFriendsDao := dao.NewUsersFriendsDao(baseDao, relation)
-	contactService := service.NewContactService(baseService, usersFriendsDao)
+	contactDao := dao.NewContactDao(baseDao, relation)
+	contactService := service.NewContactService(baseService, contactDao)
 	subscribeConsume := handle.NewSubscribeConsume(conf, wsClientSession, room, talkRecordsService, contactService)
 	wsSubscribe := process.NewWsSubscribe(client, conf, subscribeConsume)
 	coroutine := process.NewCoroutine(health, wsSubscribe)
@@ -65,4 +65,4 @@ func Initialize(ctx context.Context, conf *config.Config) *Providers {
 
 // wire.go:
 
-var providerSet = wire.NewSet(provider.NewMySQLClient, provider.NewRedisClient, provider.NewWebsocketServer, router.NewRouter, process.NewCoroutine, process.NewHealth, process.NewWsSubscribe, handle.NewSubscribeConsume, cache.NewSession, cache.NewSid, cache.NewRedisLock, cache.NewWsClientSession, cache.NewRoom, cache.NewTalkVote, cache.NewRelation, dao.NewBaseDao, dao.NewTalkRecordsDao, dao.NewTalkRecordsVoteDao, dao.NewGroupMemberDao, dao.NewUsersFriendsDao, filesystem.NewFilesystem, service.NewBaseService, service.NewTalkRecordsService, service.NewClientService, service.NewGroupMemberService, service.NewContactService, handler.NewDefaultWebSocket, handler.NewExampleWebsocket, wire.Struct(new(handler.Handler), "*"), wire.Struct(new(Providers), "*"))
+var providerSet = wire.NewSet(provider.NewMySQLClient, provider.NewRedisClient, provider.NewWebsocketServer, router.NewRouter, process.NewCoroutine, process.NewHealth, process.NewWsSubscribe, handle.NewSubscribeConsume, cache.NewSession, cache.NewSid, cache.NewRedisLock, cache.NewWsClientSession, cache.NewRoom, cache.NewTalkVote, cache.NewRelation, dao.NewBaseDao, dao.NewTalkRecordsDao, dao.NewTalkRecordsVoteDao, dao.NewGroupMemberDao, dao.NewContactDao, filesystem.NewFilesystem, service.NewBaseService, service.NewTalkRecordsService, service.NewClientService, service.NewGroupMemberService, service.NewContactService, handler.NewDefaultWebSocket, handler.NewExampleWebsocket, wire.Struct(new(handler.Handler), "*"), wire.Struct(new(Providers), "*"))

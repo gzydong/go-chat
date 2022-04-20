@@ -2,23 +2,32 @@ package dao
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"time"
+
 	"go-chat/internal/cache"
 	"go-chat/internal/model"
-	"time"
 )
 
-type UsersFriendsDao struct {
+type ContactDaoInterface interface {
+	IsFriend(ctx context.Context, uid int, friendId int, cache bool) bool
+	GetFriendRemarks(ctx context.Context, uid int, fids []int) (map[int]string, error)
+	GetFriendRemark(ctx context.Context, uid int, friendId int, isCache bool) string
+	SetFriendRemark(ctx context.Context, uid int, friendId int, remark string) error
+}
+
+type ContactDao struct {
 	*BaseDao
 	relation *cache.Relation
 }
 
-func NewUsersFriendsDao(baseDao *BaseDao, relation *cache.Relation) *UsersFriendsDao {
-	return &UsersFriendsDao{BaseDao: baseDao, relation: relation}
+func NewContactDao(baseDao *BaseDao, relation *cache.Relation) *ContactDao {
+	return &ContactDao{BaseDao: baseDao, relation: relation}
 }
 
 // IsFriend 判断是否为好友关系
-func (dao *UsersFriendsDao) IsFriend(ctx context.Context, uid int, friendId int, cache bool) bool {
+func (dao *ContactDao) IsFriend(ctx context.Context, uid int, friendId int, cache bool) bool {
 	if cache && dao.relation.IsContactRelation(ctx, uid, friendId) == nil {
 		return true
 	}
@@ -39,7 +48,27 @@ func (dao *UsersFriendsDao) IsFriend(ctx context.Context, uid int, friendId int,
 	return count == 2
 }
 
-func (dao *UsersFriendsDao) GetFriendRemark(ctx context.Context, uid int, friendId int, isCache bool) string {
+func (dao *ContactDao) GetFriendRemarks(ctx context.Context, uid int, fids []int) (map[int]string, error) {
+	if len(fids) == 0 {
+		return nil, errors.New("fids empty")
+	}
+
+	sql := `SELECT user_id, friend_id, remark FROM contact WHERE user_id = ? and friend_id in (?) and status = 1`
+
+	var contacts []*model.Contact
+	if err := dao.Db().Raw(sql, uid, fids).Scan(&contacts).Error; err != nil {
+		return nil, err
+	}
+
+	items := make(map[int]string)
+	for _, contact := range contacts {
+		items[contact.FriendId] = contact.Remark
+	}
+
+	return items, nil
+}
+
+func (dao *ContactDao) GetFriendRemark(ctx context.Context, uid int, friendId int, isCache bool) string {
 
 	if isCache {
 		remark := dao.rds.HGet(ctx, fmt.Sprintf("rds:hash:friend-remark:%d", uid), fmt.Sprintf("%d_%d", uid, friendId)).Val()
@@ -57,7 +86,7 @@ func (dao *UsersFriendsDao) GetFriendRemark(ctx context.Context, uid int, friend
 	return remark
 }
 
-func (dao *UsersFriendsDao) SetFriendRemark(ctx context.Context, uid int, friendId int, remark string) error {
+func (dao *ContactDao) SetFriendRemark(ctx context.Context, uid int, friendId int, remark string) error {
 	err := dao.rds.HSet(ctx, fmt.Sprintf("rds:hash:friend-remark:%d", uid), fmt.Sprintf("%d_%d", uid, friendId), remark).Err()
 	if err == nil {
 		dao.rds.Expire(ctx, fmt.Sprintf("rds:hash:friend-remark:%d", uid), 72*time.Hour)
