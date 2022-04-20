@@ -53,3 +53,7 @@ func (c *Config) Debug() bool {
 func (c *Config) SetPort(port int) {
 	c.App.Port = port
 }
+
+func (c *Config) GetLogPath() string {
+	return c.Log.Path
+}

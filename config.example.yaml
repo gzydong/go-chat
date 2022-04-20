@@ -7,7 +7,7 @@ app:
 # 日志配置
 log:
   # 日志文件路径 *请使用绝对路径*
-  dir: "/path/to/.../runtime"
+  path: "/path/to/.../runtime"
 
 # Redis 相关配置
 redis:

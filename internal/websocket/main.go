@@ -14,6 +14,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/urfave/cli/v2"
 	"go-chat/internal/pkg/im"
+	"go-chat/internal/pkg/logger"
 	"go-chat/internal/provider"
 	"golang.org/x/sync/errgroup"
 )
@@ -47,10 +48,10 @@ func main() {
 		// 设置服务端口号
 		config.SetPort(tx.Int("port"))
 
-		if !config.Debug() {
-			writer, _ := os.OpenFile(fmt.Sprintf("%s/logs/ws-access.log", config.Log.Dir), os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0666)
+		// 设置日志输出
+		logger.SetOutput(config.GetLogPath(), "logger-ws")
 
-			gin.DefaultWriter = writer
+		if !config.Debug() {
 			gin.SetMode(gin.ReleaseMode)
 		}
 

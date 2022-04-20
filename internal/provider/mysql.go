@@ -23,7 +23,7 @@ func NewMySQLClient(conf *config.Config) *gorm.DB {
 	}
 
 	if !conf.Debug() {
-		writer, _ := os.OpenFile(fmt.Sprintf("%s/logs/sql.log", conf.Log.Dir), os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0666)
+		writer, _ := os.OpenFile(fmt.Sprintf("%s/logs/sql.log", conf.Log.Path), os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0666)
 
 		gormConfig.Logger = logger.New(
 			log.New(writer, "", log.LstdFlags), // io writer（日志输出的目标，前缀和日志包含的内容——译者注）

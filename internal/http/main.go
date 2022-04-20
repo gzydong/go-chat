@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"errors"
-	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -13,6 +12,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/urfave/cli/v2"
+	"go-chat/internal/pkg/logger"
 	"go-chat/internal/provider"
 
 	_ "go-chat/internal/pkg/validation"
@@ -47,10 +47,10 @@ func main() {
 		// 设置服务端口号
 		config.SetPort(tx.Int("port"))
 
-		if !config.Debug() {
-			writer, _ := os.OpenFile(fmt.Sprintf("%s/logs/http-access.log", config.Log.Dir), os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0666)
+		// 设置日志输出
+		logger.SetOutput(config.GetLogPath(), "logger-http")
 
-			gin.DefaultWriter = writer
+		if !config.Debug() {
 			gin.SetMode(gin.ReleaseMode)
 		}
 
