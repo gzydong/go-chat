@@ -30,7 +30,7 @@ func NewMySQLClient(conf *config.Config) *gorm.DB {
 		gormConfig.Logger = logger.New(
 			log.New(writer, "", log.LstdFlags), // io writer（日志输出的目标，前缀和日志包含的内容——译者注）
 			logger.Config{
-				SlowThreshold:             1 * time.Second,
+				SlowThreshold:             2 * time.Millisecond,
 				LogLevel:                  logger.Warn,
 				IgnoreRecordNotFoundError: true,
 			},
@@ -59,5 +59,5 @@ func NewMySQLClient(conf *config.Config) *gorm.DB {
 	sqlDB.SetMaxOpenConns(100)
 	sqlDB.SetConnMaxLifetime(time.Hour)
 
-	return db.Debug()
+	return db
 }
