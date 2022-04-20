@@ -25,10 +25,12 @@ func NewMySQLClient(conf *config.Config) *gorm.DB {
 	if !conf.Debug() {
 		writer, _ := os.OpenFile(fmt.Sprintf("%s/logs/sql.log", conf.Log.Dir), os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0666)
 
+		fmt.Println("logs/sql.log")
+
 		gormConfig.Logger = logger.New(
 			log.New(writer, "", log.LstdFlags), // io writer（日志输出的目标，前缀和日志包含的内容——译者注）
 			logger.Config{
-				SlowThreshold:             200 * time.Millisecond,
+				SlowThreshold:             1 * time.Second,
 				LogLevel:                  logger.Warn,
 				IgnoreRecordNotFoundError: true,
 			},
