@@ -76,7 +76,7 @@ func (s *SubscribeConsume) onConsumeTalk(body string) {
 	} else if msg.TalkType == entity.ChatGroupMode {
 		ids := s.room.All(ctx, &cache.RoomOption{
 			Channel:  im.Session.Default.Name(),
-			RoomType: entity.RoomGroupChat,
+			RoomType: entity.RoomImGroup,
 			Number:   strconv.Itoa(int(msg.ReceiverID)),
 			Sid:      s.conf.ServerId(),
 		})
@@ -205,7 +205,7 @@ func (s *SubscribeConsume) onConsumeTalkRevoke(body string) {
 	} else if record.TalkType == entity.ChatGroupMode {
 		cids = s.room.All(ctx, &cache.RoomOption{
 			Channel:  im.Session.Default.Name(),
-			RoomType: entity.RoomGroupChat,
+			RoomType: entity.RoomImGroup,
 			Number:   strconv.Itoa(record.ReceiverId),
 			Sid:      s.conf.ServerId(),
 		})
@@ -274,6 +274,7 @@ func (s *SubscribeConsume) onConsumeContactApply(body string) {
 		data["status"] = 1
 	}
 
+	// TODO 待修改
 	data["friend"] = entity.MapStrAny{
 		"user_id":  1,
 		"avatar":   "$friendInfo->avatar",
@@ -314,7 +315,7 @@ func (s *SubscribeConsume) onConsumeTalkJoinGroup(body string) {
 		for _, cid := range cids {
 			opts := &cache.RoomOption{
 				Channel:  im.Session.Default.Name(),
-				RoomType: entity.RoomGroupChat,
+				RoomType: entity.RoomImGroup,
 				Number:   strconv.Itoa(data.Gid),
 				Sid:      s.conf.ServerId(),
 				Cid:      cid,

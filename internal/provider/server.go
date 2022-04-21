@@ -12,7 +12,7 @@ type HttpServer *http.Server
 
 type WebsocketServer *http.Server
 
-func NewHttpServer(conf *config.Config, handler *gin.Engine) *http.Server {
+func NewHttpServer(conf *config.Config, handler *gin.Engine) HttpServer {
 	return &http.Server{
 		Addr:    fmt.Sprintf(":%d", conf.App.Port),
 		Handler: handler,

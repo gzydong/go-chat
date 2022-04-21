@@ -123,10 +123,10 @@ func Initialize(ctx context.Context, conf *config.Config) *Providers {
 		ArticleTag:    tag,
 	}
 	engine := router.NewRouter(conf, handlerHandler, session)
-	server := provider.NewHttpServer(conf, engine)
+	httpServer := provider.NewHttpServer(conf, engine)
 	providers := &Providers{
 		Config: conf,
-		Server: server,
+		Server: httpServer,
 	}
 	return providers
 }

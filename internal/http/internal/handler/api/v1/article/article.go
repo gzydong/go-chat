@@ -118,7 +118,7 @@ func (c *Article) Detail(ctx *gin.Context) {
 	})
 }
 
-// Class 添加或编辑文章
+// Edit 添加或编辑文章
 func (c *Article) Edit(ctx *gin.Context) {
 	var (
 		err    error

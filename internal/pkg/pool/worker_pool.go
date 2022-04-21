@@ -28,8 +28,8 @@ func (w *WorkerPool) Add(fn func()) {
 	w.ch <- struct{}{}
 	w.wg.Add(1)
 	go func() {
-		defer w.wg.Done()
 		defer func() {
+			w.wg.Done()
 			<-w.ch
 		}()
 

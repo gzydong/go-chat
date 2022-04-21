@@ -76,7 +76,7 @@ func (c *DefaultWebSocket) open(client im.ClientInterface) {
 	for _, id := range ids {
 		_ = c.room.Add(context.Background(), &cache.RoomOption{
 			Channel:  im.Session.Default.Name(),
-			RoomType: entity.RoomGroupChat,
+			RoomType: entity.RoomImGroup,
 			Number:   strconv.Itoa(id),
 			Sid:      c.conf.ServerId(),
 			Cid:      client.ClientId(),
@@ -125,7 +125,7 @@ func (c *DefaultWebSocket) close(client im.ClientInterface, code int, text strin
 	for _, id := range ids {
 		_ = c.room.Del(context.Background(), &cache.RoomOption{
 			Channel:  im.Session.Default.Name(),
-			RoomType: entity.RoomGroupChat,
+			RoomType: entity.RoomImGroup,
 			Number:   strconv.Itoa(id),
 			Sid:      c.conf.ServerId(),
 			Cid:      client.ClientId(),

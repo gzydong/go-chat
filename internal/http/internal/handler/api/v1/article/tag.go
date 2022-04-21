@@ -17,7 +17,7 @@ func NewTagHandler(service *note.ArticleTagService) *Tag {
 	return &Tag{service}
 }
 
-// 标签列表
+// List 标签列表
 func (c *Tag) List(ctx *gin.Context) {
 	items, err := c.service.List(ctx.Request.Context(), jwtutil.GetUid(ctx))
 	if err != nil {
@@ -53,7 +53,7 @@ func (c *Tag) Edit(ctx *gin.Context) {
 	}
 }
 
-// 删除标签
+// Delete 删除标签
 func (c *Tag) Delete(ctx *gin.Context) {
 	params := &request.ArticleTagDeleteRequest{}
 
