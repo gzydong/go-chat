@@ -89,6 +89,7 @@ var providerSet = wire.NewSet(
 	service.NewContactsApplyService,
 	service.NewSplitUploadService,
 	service.NewIpAddressService,
+	service.NewAuthPermissionService,
 	note.NewArticleService,
 	note.NewArticleTagService,
 	note.NewArticleClassService,

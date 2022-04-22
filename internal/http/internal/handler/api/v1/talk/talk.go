@@ -29,6 +29,7 @@ type Talk struct {
 	contactService  *service.ContactService
 	unreadTalkCache *cache.UnreadTalkCache
 	groupService    *service.GroupService
+	authPermission  *service.AuthPermissionService
 }
 
 func NewTalkHandler(
@@ -41,6 +42,7 @@ func NewTalkHandler(
 	unreadTalkCache *cache.UnreadTalkCache,
 	contactService *service.ContactService,
 	groupService *service.GroupService,
+	authPermission *service.AuthPermissionService,
 ) *Talk {
 	return &Talk{
 		service:         service,
@@ -52,6 +54,7 @@ func NewTalkHandler(
 		unreadTalkCache: unreadTalkCache,
 		contactService:  contactService,
 		groupService:    groupService,
+		authPermission:  authPermission,
 	}
 }
 
@@ -145,7 +148,15 @@ func (c *Talk) Create(ctx *gin.Context) {
 		return
 	}
 
-	// TODO 需要判断权限
+	// 暂无权限
+	if !c.authPermission.IsAuth(ctx.Request.Context(), &service.AuthPermission{
+		TalkType:   params.TalkType,
+		UserId:     uid,
+		ReceiverId: params.ReceiverId,
+	}) {
+		response.BusinessError(ctx, "暂无权限！")
+		return
+	}
 
 	result, err := c.talkListService.Create(ctx.Request.Context(), &service.TalkSessionCreateOpts{
 		UserId:     uid,

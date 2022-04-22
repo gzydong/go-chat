@@ -1,8 +1,6 @@
 package talk
 
 import (
-	"context"
-
 	"github.com/gin-gonic/gin"
 
 	"go-chat/internal/dao"
@@ -23,26 +21,11 @@ type Message struct {
 	splitUploadService *service.SplitUploadService
 	contactService     *service.ContactService
 	groupMemberService *service.GroupMemberService
+	authPermission     *service.AuthPermissionService
 }
 
-func NewTalkMessageHandler(service *service.TalkMessageService, talkService *service.TalkService, talkRecordsVoteDao *dao.TalkRecordsVoteDao, forwardService *service.TalkMessageForwardService, splitUploadService *service.SplitUploadService, contactService *service.ContactService, groupMemberService *service.GroupMemberService) *Message {
-	return &Message{service: service, talkService: talkService, talkRecordsVoteDao: talkRecordsVoteDao, forwardService: forwardService, splitUploadService: splitUploadService, contactService: contactService, groupMemberService: groupMemberService}
-}
-
-type AuthPermission struct {
-	ctx        context.Context
-	TalkType   int
-	UserId     int
-	ReceiverId int
-}
-
-// 权限控制
-func (c *Message) permission(prem *AuthPermission) bool {
-	if prem.TalkType == entity.ChatPrivateMode {
-		return c.contactService.Dao().IsFriend(prem.ctx, prem.UserId, prem.ReceiverId, true)
-	} else {
-		return c.groupMemberService.Dao().IsMember(prem.ReceiverId, prem.UserId, true)
-	}
+func NewTalkMessageHandler(service *service.TalkMessageService, talkService *service.TalkService, talkRecordsVoteDao *dao.TalkRecordsVoteDao, forwardService *service.TalkMessageForwardService, splitUploadService *service.SplitUploadService, contactService *service.ContactService, groupMemberService *service.GroupMemberService, authPermission *service.AuthPermissionService) *Message {
+	return &Message{service: service, talkService: talkService, talkRecordsVoteDao: talkRecordsVoteDao, forwardService: forwardService, splitUploadService: splitUploadService, contactService: contactService, groupMemberService: groupMemberService, authPermission: authPermission}
 }
 
 // Text 发送文本消息
@@ -55,8 +38,7 @@ func (c *Message) Text(ctx *gin.Context) {
 
 	uid := jwtutil.GetUid(ctx)
 
-	if !c.permission(&AuthPermission{
-		ctx:        ctx.Request.Context(),
+	if !c.authPermission.IsAuth(ctx.Request.Context(), &service.AuthPermission{
 		TalkType:   params.TalkType,
 		UserId:     jwtutil.GetUid(ctx),
 		ReceiverId: params.ReceiverId,
@@ -87,8 +69,7 @@ func (c *Message) Code(ctx *gin.Context) {
 
 	uid := jwtutil.GetUid(ctx)
 
-	if !c.permission(&AuthPermission{
-		ctx:        ctx.Request.Context(),
+	if !c.authPermission.IsAuth(ctx.Request.Context(), &service.AuthPermission{
 		TalkType:   params.TalkType,
 		UserId:     uid,
 		ReceiverId: params.ReceiverId,
@@ -137,8 +118,7 @@ func (c *Message) Image(ctx *gin.Context) {
 
 	uid := jwtutil.GetUid(ctx)
 
-	if !c.permission(&AuthPermission{
-		ctx:        ctx.Request.Context(),
+	if !c.authPermission.IsAuth(ctx.Request.Context(), &service.AuthPermission{
 		TalkType:   params.TalkType,
 		UserId:     uid,
 		ReceiverId: params.ReceiverId,
@@ -169,8 +149,7 @@ func (c *Message) File(ctx *gin.Context) {
 
 	uid := jwtutil.GetUid(ctx)
 
-	if !c.permission(&AuthPermission{
-		ctx:        ctx.Request.Context(),
+	if !c.authPermission.IsAuth(ctx.Request.Context(), &service.AuthPermission{
 		TalkType:   params.TalkType,
 		UserId:     uid,
 		ReceiverId: params.ReceiverId,
@@ -211,8 +190,7 @@ func (c *Message) Vote(ctx *gin.Context) {
 
 	uid := jwtutil.GetUid(ctx)
 
-	if !c.permission(&AuthPermission{
-		ctx:        ctx.Request.Context(),
+	if !c.authPermission.IsAuth(ctx.Request.Context(), &service.AuthPermission{
 		TalkType:   entity.ChatGroupMode,
 		UserId:     uid,
 		ReceiverId: params.ReceiverId,
@@ -244,8 +222,7 @@ func (c *Message) Emoticon(ctx *gin.Context) {
 
 	uid := jwtutil.GetUid(ctx)
 
-	if !c.permission(&AuthPermission{
-		ctx:        ctx.Request.Context(),
+	if !c.authPermission.IsAuth(ctx.Request.Context(), &service.AuthPermission{
 		TalkType:   params.TalkType,
 		UserId:     uid,
 		ReceiverId: params.ReceiverId,
@@ -281,8 +258,7 @@ func (c *Message) Forward(ctx *gin.Context) {
 
 	uid := jwtutil.GetUid(ctx)
 
-	if !c.permission(&AuthPermission{
-		ctx:        ctx.Request.Context(),
+	if !c.authPermission.IsAuth(ctx.Request.Context(), &service.AuthPermission{
 		TalkType:   params.TalkType,
 		UserId:     uid,
 		ReceiverId: params.ReceiverId,
@@ -318,8 +294,7 @@ func (c *Message) Card(ctx *gin.Context) {
 
 	uid := jwtutil.GetUid(ctx)
 
-	if !c.permission(&AuthPermission{
-		ctx:        ctx.Request.Context(),
+	if !c.authPermission.IsAuth(ctx.Request.Context(), &service.AuthPermission{
 		TalkType:   params.TalkType,
 		UserId:     uid,
 		ReceiverId: params.ReceiverId,
@@ -423,8 +398,7 @@ func (c *Message) Location(ctx *gin.Context) {
 
 	uid := jwtutil.GetUid(ctx)
 
-	if !c.permission(&AuthPermission{
-		ctx:        ctx.Request.Context(),
+	if !c.authPermission.IsAuth(ctx.Request.Context(), &service.AuthPermission{
 		TalkType:   params.TalkType,
 		UserId:     uid,
 		ReceiverId: params.ReceiverId,
