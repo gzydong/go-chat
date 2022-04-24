@@ -61,6 +61,7 @@ func (c *Article) List(ctx *gin.Context) {
 			"tags_id":     item.TagsId,
 			"title":       item.Title,
 			"updated_at":  timeutil.FormatDatetime(item.UpdatedAt),
+			"class_name":  item.ClassName,
 		})
 	}
 

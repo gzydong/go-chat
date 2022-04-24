@@ -42,7 +42,7 @@ type ClassCount struct {
 
 func (dao *ArticleClassDao) GroupCount(uid int) (map[int]int, error) {
 	items := make([]*ClassCount, 0)
-	if err := dao.Db().Model(&model.Article{}).Select("class_id", "count(*) as count").Where("user_id = ?", uid).Group("class_id").Scan(&items).Error; err != nil {
+	if err := dao.Db().Model(&model.Article{}).Select("class_id", "count(*) as count").Where("user_id = ? and status = 1", uid).Group("class_id").Scan(&items).Error; err != nil {
 		return nil, err
 	}
 

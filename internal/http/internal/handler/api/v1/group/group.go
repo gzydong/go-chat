@@ -313,3 +313,9 @@ func (c *Group) GetMembers(ctx *gin.Context) {
 		response.Success(ctx, c.memberService.Dao().GetMembers(params.GroupId))
 	}
 }
+
+// GetOnlineMembers 获取在线的群成员列表
+// TODO 待实现
+func (c *Group) GetOnlineMembers() {
+
+}

@@ -57,7 +57,7 @@ func (s *ArticleTagService) List(ctx context.Context, uid int) ([]*model.TagItem
 
 	for _, item := range items {
 		var num int64
-		if err := s.Db().Model(&model.Article{}).Where("user_id = ? and FIND_IN_SET(?,tags_id)", uid, item.Id).Count(&num).Error; err == nil {
+		if err := s.Db().Model(&model.Article{}).Where("user_id = ? and status = 1 and FIND_IN_SET(?,tags_id)", uid, item.Id).Count(&num).Error; err == nil {
 			item.Count = int(num)
 		}
 	}

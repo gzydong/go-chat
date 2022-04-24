@@ -137,9 +137,9 @@ func (s *ArticleService) Update(ctx context.Context, opts *ArticleEditOpts) erro
 }
 
 // List 笔记列表
-func (s *ArticleService) List(ctx context.Context, opts *ArticleListOpts) ([]*model.Article, error) {
+func (s *ArticleService) List(ctx context.Context, opts *ArticleListOpts) ([]*model.ArticleItem, error) {
 
-	query := s.Db().Model(&model.Article{})
+	query := s.Db().Table("article").Select("article.*,article_class.class_name")
 	query.Joins("left join article_class on article_class.id = article.class_id")
 	query.Where("article.user_id = ?", opts.UserId)
 
@@ -167,7 +167,7 @@ func (s *ArticleService) List(ctx context.Context, opts *ArticleListOpts) ([]*mo
 		query.Order("article.id desc")
 	}
 
-	items := make([]*model.Article, 0)
+	items := make([]*model.ArticleItem, 0)
 	if err := query.Scan(&items).Error; err != nil {
 		return nil, err
 	}
