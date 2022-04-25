@@ -34,6 +34,10 @@ func (s *ArticleClassService) List(ctx context.Context, uid int) ([]*model.Artic
 		return nil, err
 	}
 
+	items = append(items, &model.ArticleClassItem{
+		ClassName: "默认分类",
+	})
+
 	for i := range items {
 		if num, ok := data[items[i].Id]; ok {
 			items[i].Count = num

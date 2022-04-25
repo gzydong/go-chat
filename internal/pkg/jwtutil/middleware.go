@@ -13,7 +13,7 @@ type SessionInterface interface {
 	IsBlackList(ctx context.Context, token string) bool
 }
 
-// JwtAuth 授权中间件
+// Auth 授权中间件
 func Auth(secret string, guard string, session SessionInterface) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		token := GetJwtToken(c)
