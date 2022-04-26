@@ -22,7 +22,7 @@ func GetIP(r *http.Request) (string, error) {
 		return ip, nil
 	}
 
-	ip = r.Header.Get("X-Forward-For")
+	ip = r.Header.Get("X-Forwarded-For")
 	for _, i := range strings.Split(ip, ",") {
 		if net.ParseIP(i) != nil {
 			return i, nil
