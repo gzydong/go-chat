@@ -79,7 +79,7 @@ func (c *Annex) Upload(ctx *gin.Context) {
 		return
 	}
 
-	response.Success(ctx, gin.H{
+	response.Success(ctx, entity.H{
 		"id":            data.Id,
 		"size":          data.Size,
 		"path":          data.Path,
@@ -119,10 +119,10 @@ func (c *Annex) Recover(ctx *gin.Context) {
 		return
 	}
 
-	response.Success(ctx, gin.H{})
+	response.Success(ctx, entity.H{})
 }
 
-// nolint RecoverList 附件回收站列表
+// nolint 附件回收站列表
 func (c *Annex) RecoverList(ctx *gin.Context) {
 	items, err := c.service.Dao().RecoverList(ctx.Request.Context(), jwtutil.GetUid(ctx))
 
@@ -134,18 +134,19 @@ func (c *Annex) RecoverList(ctx *gin.Context) {
 	data := make([]map[string]interface{}, 0)
 
 	for _, item := range items {
-		second := item.DeletedAt.AddDate(0, 0, 30).Sub(time.Now()).Seconds()
+
+		at := item.DeletedAt.AddDate(0, 0, 30).Sub(time.Now())
 
 		data = append(data, map[string]interface{}{
 			"id":            item.Id,
 			"article_id":    item.ArticleId,
 			"title":         item.Title,
 			"original_name": item.OriginalName,
-			"day":           math.Ceil(second / 86400),
+			"day":           math.Ceil(at.Seconds() / 86400),
 		})
 	}
 
-	response.Success(ctx, gin.H{"rows": data})
+	response.Success(ctx, entity.H{"rows": data})
 }
 
 // ForeverDelete 永久删除附件

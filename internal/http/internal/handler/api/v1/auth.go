@@ -6,6 +6,7 @@ import (
 
 	"go-chat/internal/http/internal/dto"
 	"go-chat/internal/pkg/jwtutil"
+	"go-chat/internal/pkg/logger"
 	"go-chat/internal/pkg/utils"
 	"go-chat/internal/service/note"
 
@@ -70,6 +71,8 @@ func (c *Auth) Login(ctx *gin.Context) {
 	}
 
 	ip, _ := utils.GetIP(ctx.Request)
+
+	logger.Debug("IP 地址==>", ctx.ClientIP(), "===", ip)
 
 	address, _ := c.ipAddressService.FindAddress(ip)
 

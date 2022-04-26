@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"go-chat/config"
 	"go-chat/internal/cache"
+	"go-chat/internal/entity"
 	"go-chat/internal/http/internal/handler"
 	"go-chat/internal/http/internal/middleware"
 	"go-chat/internal/http/internal/response"
@@ -32,7 +33,7 @@ func NewRouter(conf *config.Config, handler *handler.Handler, tokenCache *cache.
 	})
 
 	router.GET("/health/check", func(c *gin.Context) {
-		c.JSON(200, gin.H{"status": "ok"})
+		c.JSON(200, entity.H{"status": "ok"})
 	})
 
 	RegisterApiRoute(conf, router, handler, tokenCache)

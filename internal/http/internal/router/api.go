@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"go-chat/config"
 	"go-chat/internal/cache"
+	"go-chat/internal/entity"
 	"go-chat/internal/http/internal/handler"
 	"go-chat/internal/pkg/jwtutil"
 )
@@ -171,7 +172,7 @@ func RegisterApiRoute(conf *config.Config, router *gin.Engine, handler *handler.
 	v2 := router.Group("/api/v2")
 	{
 		v2.GET("/test", func(context *gin.Context) {
-			context.JSON(200, gin.H{"message": "success"})
+			context.JSON(200, entity.H{"message": "success"})
 		})
 	}
 }

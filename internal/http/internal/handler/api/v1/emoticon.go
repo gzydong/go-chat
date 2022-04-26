@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"go-chat/internal/cache"
+	"go-chat/internal/entity"
 	"go-chat/internal/http/internal/dto/api"
 	"go-chat/internal/http/internal/request"
 	"go-chat/internal/model"
@@ -79,7 +80,7 @@ func (c *Emoticon) CollectList(ctx *gin.Context) {
 		}
 	}
 
-	response.Success(ctx, gin.H{
+	response.Success(ctx, entity.H{
 		"sys_emoticon":     sys,
 		"collect_emoticon": collect,
 	})
@@ -125,7 +126,7 @@ func (c *Emoticon) Upload(ctx *gin.Context) {
 		return
 	}
 
-	response.Success(ctx, gin.H{
+	response.Success(ctx, entity.H{
 		"media_id": info.Id,
 		"src":      info.Url,
 	}, "文件上传成功")

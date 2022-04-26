@@ -37,15 +37,15 @@ func (u *User) Detail(ctx *gin.Context) {
 func (u *User) Setting(ctx *gin.Context) {
 	user, _ := u.service.Dao().FindById(jwtutil.GetUid(ctx))
 
-	response.Success(ctx, gin.H{
-		"user_info": gin.H{
+	response.Success(ctx, entity.H{
+		"user_info": entity.H{
 			"uid":      user.Id,
 			"nickname": user.Nickname,
 			"avatar":   user.Avatar,
 			"motto":    user.Motto,
 			"gender":   user.Gender,
 		},
-		"setting": gin.H{
+		"setting": entity.H{
 			"theme_mode":            "",
 			"theme_bag_img":         "",
 			"theme_color":           "",

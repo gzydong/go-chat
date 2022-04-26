@@ -54,7 +54,7 @@ func (c *Records) GetRecords(ctx *gin.Context) {
 		rid = records[length-1].Id
 	}
 
-	response.Success(ctx, gin.H{
+	response.Success(ctx, entity.H{
 		"limit":     params.Limit,
 		"record_id": rid,
 		"rows":      records,
@@ -100,7 +100,7 @@ func (c *Records) SearchHistoryRecords(ctx *gin.Context) {
 		rid = records[length-1].Id
 	}
 
-	response.Success(ctx, gin.H{
+	response.Success(ctx, entity.H{
 		"limit":     params.Limit,
 		"record_id": rid,
 		"rows":      records,
@@ -121,7 +121,7 @@ func (c *Records) GetForwardRecords(ctx *gin.Context) {
 		return
 	}
 
-	response.Success(ctx, gin.H{
+	response.Success(ctx, entity.H{
 		"rows": records,
 	})
 }

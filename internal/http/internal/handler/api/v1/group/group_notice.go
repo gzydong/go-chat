@@ -2,6 +2,7 @@ package group
 
 import (
 	"github.com/gin-gonic/gin"
+	"go-chat/internal/entity"
 
 	"go-chat/internal/http/internal/request"
 	"go-chat/internal/http/internal/response"
@@ -97,7 +98,7 @@ func (c *GroupNotice) List(ctx *gin.Context) {
 		return
 	}
 
-	response.Success(ctx, gin.H{
+	response.Success(ctx, entity.H{
 		"rows": c.service.List(ctx, params.GroupId),
 	})
 }

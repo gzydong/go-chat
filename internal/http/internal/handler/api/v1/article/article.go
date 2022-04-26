@@ -5,6 +5,8 @@ import (
 	"fmt"
 
 	"github.com/gin-gonic/gin"
+	"go-chat/internal/entity"
+	"go-chat/internal/model"
 
 	"go-chat/internal/http/internal/request"
 	"go-chat/internal/http/internal/response"
@@ -104,7 +106,7 @@ func (c *Article) Detail(ctx *gin.Context) {
 		}
 	}
 
-	response.Success(ctx, gin.H{
+	response.Success(ctx, entity.H{
 		"id":          detail.Id,
 		"class_id":    detail.ClassId,
 		"title":       detail.Title,
@@ -152,8 +154,14 @@ func (c *Article) Edit(ctx *gin.Context) {
 		return
 	}
 
-	response.Success(ctx, gin.H{
-		"id": params.ArticleId,
+	var info *model.Article
+	_ = c.service.Db().First(&info, params.ArticleId)
+
+	response.Success(ctx, entity.H{
+		"id":       info.Id,
+		"image":    info.Image,
+		"abstract": info.Abstract,
+		"title":    info.Title,
 	})
 }
 
@@ -224,7 +232,7 @@ func (c *Article) Upload(ctx *gin.Context) {
 		return
 	}
 
-	response.Success(ctx, gin.H{"url": c.fileSystem.Default.PublicUrl(filePath)})
+	response.Success(ctx, entity.H{"url": c.fileSystem.Default.PublicUrl(filePath)})
 }
 
 // Move 文章移动

@@ -2,6 +2,7 @@ package contact
 
 import (
 	"github.com/gin-gonic/gin"
+	"go-chat/internal/entity"
 
 	"go-chat/internal/http/internal/request"
 	"go-chat/internal/http/internal/response"
@@ -23,7 +24,7 @@ func NewContactsApplyHandler(
 
 // ApplyUnreadNum 获取好友申请未读数
 func (c *ContactApply) ApplyUnreadNum(ctx *gin.Context) {
-	response.Success(ctx, gin.H{
+	response.Success(ctx, entity.H{
 		"unread_num": 0,
 	})
 }

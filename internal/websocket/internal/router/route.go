@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"go-chat/internal/entity"
 	"go-chat/internal/pkg/im"
 
 	"go-chat/config"
@@ -22,11 +23,11 @@ func NewRouter(conf *config.Config, handle *handler.Handler, session *cache.Sess
 
 	// 查看客户端连接状态
 	router.GET("/wss/connect/detail", func(ctx *gin.Context) {
-		ctx.JSON(200, gin.H{
+		ctx.JSON(200, entity.H{
 			"server_port":   conf.App.Port,
 			"max_client_id": im.Counter.GetMaxID(),
-			"default":       gin.H{"online_total": im.Session.Default.Count()},
-			"example":       gin.H{"online_total": im.Session.Example.Count()},
+			"default":       entity.H{"online_total": im.Session.Default.Count()},
+			"example":       entity.H{"online_total": im.Session.Example.Count()},
 		})
 	})
 
@@ -34,11 +35,11 @@ func NewRouter(conf *config.Config, handle *handler.Handler, session *cache.Sess
 	router.GET("/wss/example.io", authorize, handle.ExampleWebsocket.Connect)
 
 	router.GET("/", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{"ok": "success"})
+		c.JSON(http.StatusOK, entity.H{"ok": "success"})
 	})
 
 	router.NoRoute(func(c *gin.Context) {
-		c.JSON(http.StatusNotFound, gin.H{"msg": "请求地址不存在"})
+		c.JSON(http.StatusNotFound, entity.H{"msg": "请求地址不存在"})
 	})
 
 	return router

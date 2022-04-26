@@ -84,7 +84,7 @@ func (c *Contact) Search(ctx *gin.Context) {
 		return
 	}
 
-	response.Success(ctx, &gin.H{
+	response.Success(ctx, entity.H{
 		"id":       user.Id,
 		"mobile":   user.Mobile,
 		"nickname": user.Nickname,
@@ -130,7 +130,7 @@ func (c *Contact) Detail(ctx *gin.Context) {
 		return
 	}
 
-	resp := gin.H{
+	resp := entity.H{
 		"avatar":          user.Avatar,
 		"friend_apply":    0,
 		"friend_status":   1, // 朋友关系[0:本人;1:陌生人;2:朋友;]

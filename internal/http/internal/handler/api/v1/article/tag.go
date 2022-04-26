@@ -2,6 +2,7 @@ package article
 
 import (
 	"github.com/gin-gonic/gin"
+	"go-chat/internal/entity"
 
 	"go-chat/internal/http/internal/request"
 	"go-chat/internal/http/internal/response"
@@ -23,7 +24,7 @@ func (c *Tag) List(ctx *gin.Context) {
 	if err != nil {
 		response.BusinessError(ctx, err)
 	} else {
-		response.Success(ctx, gin.H{"tags": items})
+		response.Success(ctx, entity.H{"tags": items})
 	}
 }
 
@@ -49,7 +50,7 @@ func (c *Tag) Edit(ctx *gin.Context) {
 	if err != nil {
 		response.BusinessError(ctx, "笔记标签编辑失败")
 	} else {
-		response.Success(ctx, gin.H{"id": params.TagId})
+		response.Success(ctx, entity.H{"id": params.TagId})
 	}
 }
 

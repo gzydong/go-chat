@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/gin-gonic/gin"
+	"go-chat/internal/entity"
 
 	"go-chat/internal/cache"
 	"go-chat/internal/http/internal/request"
@@ -63,7 +64,7 @@ func (c *Group) Create(ctx *gin.Context) {
 		return
 	}
 
-	response.Success(ctx, gin.H{
+	response.Success(ctx, entity.H{
 		"group_id": gid,
 	})
 }
@@ -214,7 +215,7 @@ func (c *Group) Detail(ctx *gin.Context) {
 		return
 	}
 
-	info := gin.H{}
+	info := entity.H{}
 	info["group_id"] = groupInfo.Id
 	info["group_name"] = groupInfo.Name
 	info["profile"] = groupInfo.Profile
@@ -224,7 +225,7 @@ func (c *Group) Detail(ctx *gin.Context) {
 	info["manager_nickname"] = ""
 	info["visit_card"] = c.memberService.Dao().GetMemberRemark(params.GroupId, uid)
 	info["is_disturb"] = 0
-	info["notice"] = []gin.H{}
+	info["notice"] = []entity.H{}
 
 	if c.talkListService.Dao().IsDisturb(uid, groupInfo.Id, 2) {
 		info["is_disturb"] = 1
@@ -294,7 +295,7 @@ func (c *Group) GetGroups(ctx *gin.Context) {
 		return
 	}
 
-	response.Success(ctx, gin.H{
+	response.Success(ctx, entity.H{
 		"rows": items,
 	})
 }

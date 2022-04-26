@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"go-chat/internal/entity"
 
 	"go-chat/config"
 	"go-chat/internal/http/internal/request"
@@ -50,7 +51,7 @@ func (u *Upload) Avatar(ctx *gin.Context) {
 		return
 	}
 
-	response.Success(ctx, gin.H{
+	response.Success(ctx, entity.H{
 		"avatar": u.filesystem.Default.PublicUrl(object),
 	})
 }
@@ -73,7 +74,7 @@ func (u *Upload) InitiateMultipart(ctx *gin.Context) {
 		return
 	}
 
-	response.Success(ctx, &gin.H{
+	response.Success(ctx, entity.H{
 		"upload_id":  info.UploadId,
 		"split_size": 2 << 20,
 	})
@@ -105,8 +106,8 @@ func (u *Upload) MultipartUpload(ctx *gin.Context) {
 	}
 
 	if params.SplitIndex != params.SplitNum-1 {
-		response.Success(ctx, gin.H{"is_merge": false})
+		response.Success(ctx, entity.H{"is_merge": false})
 	} else {
-		response.Success(ctx, gin.H{"is_merge": true, "upload_id": params.UploadId})
+		response.Success(ctx, entity.H{"is_merge": true, "upload_id": params.UploadId})
 	}
 }
