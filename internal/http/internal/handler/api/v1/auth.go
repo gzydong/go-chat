@@ -6,8 +6,6 @@ import (
 
 	"go-chat/internal/http/internal/dto"
 	"go-chat/internal/pkg/jwtutil"
-	"go-chat/internal/pkg/logger"
-	"go-chat/internal/pkg/utils"
 	"go-chat/internal/service/note"
 
 	"github.com/gin-gonic/gin"
@@ -70,9 +68,7 @@ func (c *Auth) Login(ctx *gin.Context) {
 		return
 	}
 
-	ip, _ := utils.GetIP(ctx.Request)
-
-	logger.Info("IP 地址==>", ctx.ClientIP(), "===", ip)
+	ip := ctx.ClientIP()
 
 	address, _ := c.ipAddressService.FindAddress(ip)
 
