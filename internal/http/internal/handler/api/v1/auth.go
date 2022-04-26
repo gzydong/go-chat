@@ -72,7 +72,7 @@ func (c *Auth) Login(ctx *gin.Context) {
 
 	ip, _ := utils.GetIP(ctx.Request)
 
-	logger.Debug("IP 地址==>", ctx.ClientIP(), "===", ip)
+	logger.Info("IP 地址==>", ctx.ClientIP(), "===", ip)
 
 	address, _ := c.ipAddressService.FindAddress(ip)
 
