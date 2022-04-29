@@ -10,7 +10,7 @@ import (
 var once sync.Once
 
 type CoroutineInterface interface {
-	Handle(ctx context.Context) error
+	Setup(ctx context.Context) error
 }
 
 type Coroutine struct {
@@ -38,7 +38,7 @@ func (c *Coroutine) Start(eg *errgroup.Group, ctx context.Context) {
 		for _, process := range c.items {
 			func(obj CoroutineInterface) {
 				eg.Go(func() error {
-					return obj.Handle(ctx)
+					return obj.Setup(ctx)
 				})
 			}(process)
 		}

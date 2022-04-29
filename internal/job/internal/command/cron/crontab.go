@@ -39,8 +39,7 @@ func NewCrontabCommand(handles *Handles) Command {
 		Action: func(ctx *cli.Context) error {
 			c := cron.New()
 
-			jobs := toCrontabHandle(handles)
-			for _, job := range jobs {
+			for _, job := range toCrontabHandle(handles) {
 				_, _ = c.AddFunc(job.Spec(), func() {
 					defer func() {
 						if err := recover(); err != nil {
@@ -52,7 +51,7 @@ func NewCrontabCommand(handles *Handles) Command {
 				})
 			}
 
-			fmt.Println("Crontab 定时任务已启动...")
+			log.Println("Crontab 定时任务已启动...")
 
 			return run(c, ctx.Context)
 		},

@@ -5,7 +5,7 @@ import (
 	"go-chat/internal/job/internal/command"
 )
 
-type Providers struct {
+type Provider struct {
 	Config   *config.Config
 	Commands *command.Commands
 }

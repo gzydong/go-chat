@@ -114,9 +114,9 @@ var providerSet = wire.NewSet(
 	article.NewTagHandler,
 
 	wire.Struct(new(handler.Handler), "*"),
-	wire.Struct(new(Providers), "*"),
+	wire.Struct(new(Provider), "*"),
 )
 
-func Initialize(ctx context.Context, conf *config.Config) *Providers {
+func Initialize(ctx context.Context, conf *config.Config) *Provider {
 	panic(wire.Build(providerSet))
 }

@@ -20,7 +20,7 @@ func main() {
 	// 设置日志输出
 	logger.SetOutput(providers.Config.GetLogPath(), "logger-cli")
 
-	newApp(ctx, providers.Commands.Init())
+	newApp(ctx, providers.Commands.SubCommands())
 }
 
 func newApp(ctx context.Context, commands []*cli.Command) {

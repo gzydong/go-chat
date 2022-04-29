@@ -11,7 +11,7 @@ import (
 
 	"go-chat/config"
 	"go-chat/internal/entity"
-	"go-chat/internal/pkg/pool"
+	"go-chat/internal/pkg/worker"
 	"go-chat/internal/websocket/internal/process/handle"
 )
 
@@ -30,7 +30,7 @@ func NewWsSubscribe(rds *redis.Client, conf *config.Config, consume *handle.Subs
 	return &WsSubscribe{rds: rds, conf: conf, consume: consume}
 }
 
-func (w *WsSubscribe) Handle(ctx context.Context) error {
+func (w *WsSubscribe) Setup(ctx context.Context) error {
 	gateway := fmt.Sprintf(entity.IMGatewayPrivate, w.conf.ServerId())
 
 	channels := []string{
@@ -60,7 +60,7 @@ func (w *WsSubscribe) Handle(ctx context.Context) error {
 	}
 
 	go func() {
-		work := pool.NewWorkerPool(10) // 设置协程并发处理数
+		work := worker.NewConcurrent(10) // 设置协程并发处理数
 
 		// 订阅 redis 消息
 		for msg := range sub.Channel(redis.WithChannelHealthCheckInterval(30 * time.Second)) {

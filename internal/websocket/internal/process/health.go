@@ -18,7 +18,7 @@ func NewHealth(conf *config.Config, server *cache.SidServer) *Health {
 	return &Health{conf: conf, server: server}
 }
 
-func (s *Health) Handle(ctx context.Context) error {
+func (s *Health) Setup(ctx context.Context) error {
 	for {
 		select {
 

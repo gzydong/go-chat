@@ -14,6 +14,6 @@ type Commands struct {
 	OtherCommand   other.Command
 }
 
-func (c *Commands) Init() []*cli.Command {
+func (c *Commands) SubCommands() []*cli.Command {
 	return cmdutil.ToSubCommand(c)
 }

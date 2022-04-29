@@ -23,7 +23,7 @@ import (
 
 // Injectors from wire.go:
 
-func Initialize(ctx context.Context, conf *config.Config) *Providers {
+func Initialize(ctx context.Context, conf *config.Config) *Provider {
 	client := provider.NewRedisClient(ctx, conf)
 	sidServer := cache.NewSid(client)
 	wsClientSession := cache.NewWsClientSession(client, conf, sidServer)
@@ -55,14 +55,14 @@ func Initialize(ctx context.Context, conf *config.Config) *Providers {
 	subscribeConsume := handle.NewSubscribeConsume(conf, wsClientSession, room, talkRecordsService, contactService)
 	wsSubscribe := process.NewWsSubscribe(client, conf, subscribeConsume)
 	coroutine := process.NewCoroutine(health, wsSubscribe)
-	providers := &Providers{
+	mainProvider := &Provider{
 		Config:    conf,
 		WsServer:  websocketServer,
 		Coroutine: coroutine,
 	}
-	return providers
+	return mainProvider
 }
 
 // wire.go:
 
-var providerSet = wire.NewSet(provider.NewMySQLClient, provider.NewRedisClient, provider.NewWebsocketServer, router.NewRouter, process.NewCoroutine, process.NewHealth, process.NewWsSubscribe, handle.NewSubscribeConsume, cache.NewSession, cache.NewSid, cache.NewRedisLock, cache.NewWsClientSession, cache.NewRoom, cache.NewTalkVote, cache.NewRelation, dao.NewBaseDao, dao.NewTalkRecordsDao, dao.NewTalkRecordsVoteDao, dao.NewGroupMemberDao, dao.NewContactDao, filesystem.NewFilesystem, service.NewBaseService, service.NewTalkRecordsService, service.NewClientService, service.NewGroupMemberService, service.NewContactService, handler.NewDefaultWebSocket, handler.NewExampleWebsocket, wire.Struct(new(handler.Handler), "*"), wire.Struct(new(Providers), "*"))
+var providerSet = wire.NewSet(provider.NewMySQLClient, provider.NewRedisClient, provider.NewWebsocketServer, router.NewRouter, process.NewCoroutine, process.NewHealth, process.NewWsSubscribe, handle.NewSubscribeConsume, cache.NewSession, cache.NewSid, cache.NewRedisLock, cache.NewWsClientSession, cache.NewRoom, cache.NewTalkVote, cache.NewRelation, dao.NewBaseDao, dao.NewTalkRecordsDao, dao.NewTalkRecordsVoteDao, dao.NewGroupMemberDao, dao.NewContactDao, filesystem.NewFilesystem, service.NewBaseService, service.NewTalkRecordsService, service.NewClientService, service.NewGroupMemberService, service.NewContactService, handler.NewDefaultWebSocket, handler.NewExampleWebsocket, wire.Struct(new(handler.Handler), "*"), wire.Struct(new(Provider), "*"))

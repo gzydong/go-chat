@@ -6,7 +6,7 @@ import (
 	"go-chat/internal/websocket/internal/process"
 )
 
-type Providers struct {
+type Provider struct {
 	Config    *config.Config
 	WsServer  provider.WebsocketServer
 	Coroutine *process.Coroutine

@@ -5,7 +5,7 @@ import (
 	"go-chat/internal/provider"
 )
 
-type Providers struct {
+type Provider struct {
 	Config *config.Config
 	Server provider.HttpServer
 }
