@@ -3,6 +3,7 @@ package logger
 import (
 	"fmt"
 	"os"
+	"path"
 	"strings"
 
 	"github.com/sirupsen/logrus"
@@ -19,13 +20,17 @@ func init() {
 }
 
 func SetOutput(dir string, name string) {
-	_ = os.MkdirAll(dir, os.ModePerm)
-
 	if !strings.HasSuffix(name, ".log") {
 		name = fmt.Sprintf("%s.log", name)
 	}
 
-	src, err := os.OpenFile(fmt.Sprintf("%s/logs/%s", dir, name), os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0666)
+	filePath := fmt.Sprintf("%s/logs/%s", strings.TrimSuffix(dir, "/"), name)
+
+	if err := os.MkdirAll(path.Dir(filePath), os.ModePerm); err != nil {
+		panic(err)
+	}
+
+	src, err := os.OpenFile(filePath, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0666)
 
 	if err != nil {
 		panic(err)
@@ -56,10 +61,6 @@ func Warn(args ...interface{}) {
 
 func Warnf(format string, args ...interface{}) {
 	out.Warnf(format, args...)
-}
-
-func Debug(args ...interface{}) {
-	out.Debug(args...)
 }
 
 func Error(args ...interface{}) {

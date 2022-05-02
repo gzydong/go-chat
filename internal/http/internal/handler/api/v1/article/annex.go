@@ -1,6 +1,7 @@
 package article
 
 import (
+	"database/sql"
 	"fmt"
 	"math"
 	"net/http"
@@ -50,6 +51,7 @@ func (c *Annex) Upload(ctx *gin.Context) {
 
 	stream, err := filesystem.ReadMultipartStream(file)
 	if err != nil {
+		fmt.Println(err.Error())
 		response.BusinessError(ctx, "附件上传失败")
 		return
 	}
@@ -72,6 +74,9 @@ func (c *Annex) Upload(ctx *gin.Context) {
 		Path:         filePath,
 		OriginalName: file.Filename,
 		Status:       1,
+		DeletedAt: sql.NullTime{
+			Valid: false,
+		},
 	}
 
 	if err := c.service.Create(ctx.Request.Context(), data); err != nil {

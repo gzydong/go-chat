@@ -10,6 +10,7 @@ import (
 	"go-chat/internal/model"
 	"go-chat/internal/pkg/filesystem"
 	"go-chat/internal/pkg/jsonutil"
+	"go-chat/internal/pkg/logger"
 	"go-chat/internal/pkg/sliceutil"
 	"go-chat/internal/pkg/timeutil"
 )
@@ -325,6 +326,8 @@ func (s *TalkRecordsService) HandleTalkRecords(ctx context.Context, items []*mod
 		case entity.MsgTypeFile:
 			if value, ok := hashFiles[item.Id]; ok {
 				data.File = value
+			} else {
+				logger.Warnf("文件消息信息不存在[%d]", item.Id)
 			}
 		case entity.MsgTypeForward:
 			if value, ok := hashForwards[item.Id]; ok {
