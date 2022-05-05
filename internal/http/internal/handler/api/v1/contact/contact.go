@@ -17,20 +17,23 @@ import (
 )
 
 type Contact struct {
-	service     *service.ContactService
-	wsClient    *cache.WsClientSession
-	userService *service.UserService
+	service         *service.ContactService
+	wsClient        *cache.WsClientSession
+	userService     *service.UserService
+	talkListService *service.TalkSessionService
 }
 
 func NewContactHandler(
 	service *service.ContactService,
 	wsClient *cache.WsClientSession,
 	userService *service.UserService,
+	talkListService *service.TalkSessionService,
 ) *Contact {
 	return &Contact{
-		service:     service,
-		wsClient:    wsClient,
-		userService: userService,
+		service:         service,
+		wsClient:        wsClient,
+		userService:     userService,
+		talkListService: talkListService,
 	}
 }
 
@@ -58,7 +61,15 @@ func (c *Contact) Delete(ctx *gin.Context) {
 		return
 	}
 
-	if err := c.service.Delete(ctx, jwtutil.GetUid(ctx), params.FriendId); err != nil {
+	uid := jwtutil.GetUid(ctx)
+	if err := c.service.Delete(ctx, uid, params.FriendId); err != nil {
+		response.BusinessError(ctx, err)
+		return
+	}
+
+	// 删除聊天会话
+	sid := c.talkListService.Dao().FindBySessionId(uid, params.FriendId, entity.ChatPrivateMode)
+	if err := c.talkListService.Delete(ctx, jwtutil.GetUid(ctx), sid); err != nil {
 		response.BusinessError(ctx, err)
 	} else {
 		response.Success(ctx, nil)

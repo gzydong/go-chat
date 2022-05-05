@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"go-chat/internal/pkg/timeutil"
 
 	"go-chat/internal/entity"
 	"go-chat/internal/http/internal/request"
@@ -18,13 +19,15 @@ type Records struct {
 	service            *service.TalkRecordsService
 	groupMemberService *service.GroupMemberService
 	fileSystem         *filesystem.Filesystem
+	authPermission     *service.AuthPermissionService
 }
 
-func NewTalkRecordsHandler(service *service.TalkRecordsService, groupMemberService *service.GroupMemberService, fileSystem *filesystem.Filesystem) *Records {
+func NewTalkRecordsHandler(service *service.TalkRecordsService, groupMemberService *service.GroupMemberService, fileSystem *filesystem.Filesystem, authPermission *service.AuthPermissionService) *Records {
 	return &Records{
 		service:            service,
 		groupMemberService: groupMemberService,
 		fileSystem:         fileSystem,
+		authPermission:     authPermission,
 	}
 }
 
@@ -34,6 +37,33 @@ func (c *Records) GetRecords(ctx *gin.Context) {
 	if err := ctx.ShouldBindQuery(params); err != nil {
 		response.InvalidParams(ctx, err)
 		return
+	}
+
+	uid := jwtutil.GetUid(ctx)
+	if params.TalkType == entity.ChatGroupMode {
+		if !c.authPermission.IsAuth(ctx.Request.Context(), &service.AuthPermission{
+			TalkType:   params.TalkType,
+			UserId:     uid,
+			ReceiverId: params.ReceiverId,
+		}) {
+			rows := make([]entity.H, 0)
+			rows = append(rows, entity.H{
+				"content":     "暂无权限查看群消息",
+				"created_at":  timeutil.DateTime(),
+				"id":          1,
+				"msg_type":    0,
+				"receiver_id": params.ReceiverId,
+				"talk_type":   params.TalkType,
+				"user_id":     0,
+			})
+
+			response.Success(ctx, entity.H{
+				"limit":     params.Limit,
+				"record_id": 0,
+				"rows":      rows,
+			})
+			return
+		}
 	}
 
 	records, err := c.service.GetTalkRecords(ctx, &service.QueryTalkRecordsOpts{
@@ -54,6 +84,28 @@ func (c *Records) GetRecords(ctx *gin.Context) {
 		rid = records[length-1].Id
 	}
 
+	if params.TalkType == entity.ChatPrivateMode && params.RecordId == 0 {
+		if !c.authPermission.IsAuth(ctx.Request.Context(), &service.AuthPermission{
+			TalkType:   params.TalkType,
+			UserId:     uid,
+			ReceiverId: params.ReceiverId,
+		}) {
+			items := make([]*service.TalkRecordsItem, 0, len(records)+1)
+			items = append(items, &service.TalkRecordsItem{
+				Id:         rid + 100000000,
+				TalkType:   params.TalkType,
+				MsgType:    0,
+				UserId:     0,
+				Content:    "你与对方已解除好友关系！！！",
+				ReceiverId: params.ReceiverId,
+				CreatedAt:  timeutil.DateTime(),
+			})
+			items = append(items, records...)
+
+			records = items
+		}
+	}
+
 	response.Success(ctx, entity.H{
 		"limit":     params.Limit,
 		"record_id": rid,
@@ -67,6 +119,23 @@ func (c *Records) SearchHistoryRecords(ctx *gin.Context) {
 	if err := ctx.ShouldBindQuery(params); err != nil {
 		response.InvalidParams(ctx, err)
 		return
+	}
+
+	uid := jwtutil.GetUid(ctx)
+
+	if params.TalkType == entity.ChatGroupMode {
+		if !c.authPermission.IsAuth(ctx.Request.Context(), &service.AuthPermission{
+			TalkType:   params.TalkType,
+			UserId:     uid,
+			ReceiverId: params.ReceiverId,
+		}) {
+			response.Success(ctx, entity.H{
+				"limit":     params.Limit,
+				"record_id": 0,
+				"rows":      make([]entity.H, 0),
+			})
+			return
+		}
 	}
 
 	m := []int{

@@ -4,9 +4,8 @@ import (
 	"fmt"
 
 	"github.com/gin-gonic/gin"
-	"go-chat/internal/entity"
-
 	"go-chat/internal/cache"
+	"go-chat/internal/entity"
 	"go-chat/internal/http/internal/request"
 	"go-chat/internal/http/internal/response"
 	"go-chat/internal/model"
@@ -132,11 +131,17 @@ func (c *Group) SignOut(ctx *gin.Context) {
 		return
 	}
 
-	if err := c.service.Secede(ctx.Request.Context(), params.GroupId, jwtutil.GetUid(ctx)); err != nil {
+	uid := jwtutil.GetUid(ctx)
+	if err := c.service.Secede(ctx.Request.Context(), params.GroupId, uid); err != nil {
 		response.BusinessError(ctx, "退出群组失败！")
-	} else {
-		response.Success(ctx, nil)
+		return
 	}
+
+	// 删除聊天会话
+	sid := c.talkListService.Dao().FindBySessionId(uid, params.GroupId, entity.ChatGroupMode)
+	_ = c.talkListService.Delete(ctx, jwtutil.GetUid(ctx), sid)
+
+	response.Success(ctx, nil)
 }
 
 // Setting 群设置接口（预留）
@@ -148,7 +153,6 @@ func (c *Group) Setting(ctx *gin.Context) {
 	}
 
 	uid := jwtutil.GetUid(ctx)
-
 	if !c.memberService.Dao().IsLeader(params.GroupId, uid) {
 		response.BusinessError(ctx, "无权限操作")
 		return

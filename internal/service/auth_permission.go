@@ -24,7 +24,7 @@ type AuthPermission struct {
 
 func (a *AuthPermissionService) IsAuth(ctx context.Context, prem *AuthPermission) bool {
 	if prem.TalkType == entity.ChatPrivateMode {
-		return a.contactDao.IsFriend(ctx, prem.UserId, prem.ReceiverId, true)
+		return a.contactDao.IsFriend(ctx, prem.UserId, prem.ReceiverId, false)
 	} else if prem.TalkType == entity.ChatGroupMode {
 		return a.groupMemberDao.IsMember(prem.ReceiverId, prem.UserId, true)
 	}

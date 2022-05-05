@@ -37,7 +37,6 @@ func (c *Message) Text(ctx *gin.Context) {
 	}
 
 	uid := jwtutil.GetUid(ctx)
-
 	if !c.authPermission.IsAuth(ctx.Request.Context(), &service.AuthPermission{
 		TalkType:   params.TalkType,
 		UserId:     jwtutil.GetUid(ctx),
@@ -68,7 +67,6 @@ func (c *Message) Code(ctx *gin.Context) {
 	}
 
 	uid := jwtutil.GetUid(ctx)
-
 	if !c.authPermission.IsAuth(ctx.Request.Context(), &service.AuthPermission{
 		TalkType:   params.TalkType,
 		UserId:     uid,
@@ -117,7 +115,6 @@ func (c *Message) Image(ctx *gin.Context) {
 	}
 
 	uid := jwtutil.GetUid(ctx)
-
 	if !c.authPermission.IsAuth(ctx.Request.Context(), &service.AuthPermission{
 		TalkType:   params.TalkType,
 		UserId:     uid,
@@ -148,7 +145,6 @@ func (c *Message) File(ctx *gin.Context) {
 	}
 
 	uid := jwtutil.GetUid(ctx)
-
 	if !c.authPermission.IsAuth(ctx.Request.Context(), &service.AuthPermission{
 		TalkType:   params.TalkType,
 		UserId:     uid,
@@ -257,7 +253,6 @@ func (c *Message) Forward(ctx *gin.Context) {
 	}
 
 	uid := jwtutil.GetUid(ctx)
-
 	if !c.authPermission.IsAuth(ctx.Request.Context(), &service.AuthPermission{
 		TalkType:   params.TalkType,
 		UserId:     uid,
@@ -293,7 +288,6 @@ func (c *Message) Card(ctx *gin.Context) {
 	}
 
 	uid := jwtutil.GetUid(ctx)
-
 	if !c.authPermission.IsAuth(ctx.Request.Context(), &service.AuthPermission{
 		TalkType:   params.TalkType,
 		UserId:     uid,
@@ -383,7 +377,6 @@ func (c *Message) HandleVote(ctx *gin.Context) {
 		response.BusinessError(ctx, err)
 	} else {
 		res, _ := c.talkRecordsVoteDao.GetVoteStatistics(ctx.Request.Context(), vid)
-
 		response.Success(ctx, res)
 	}
 }
@@ -397,7 +390,6 @@ func (c *Message) Location(ctx *gin.Context) {
 	}
 
 	uid := jwtutil.GetUid(ctx)
-
 	if !c.authPermission.IsAuth(ctx.Request.Context(), &service.AuthPermission{
 		TalkType:   params.TalkType,
 		UserId:     uid,

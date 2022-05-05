@@ -83,7 +83,7 @@ func Initialize(ctx context.Context, conf *config.Config) *Provider {
 		BaseDao: baseDao,
 	}
 	talkRecordsService := service.NewTalkRecordsService(baseService, talkVote, talkRecordsVoteDao, filesystemFilesystem, groupMemberDao, talkRecordsDao)
-	records := talk.NewTalkRecordsHandler(talkRecordsService, groupMemberService, filesystemFilesystem)
+	records := talk.NewTalkRecordsHandler(talkRecordsService, groupMemberService, filesystemFilesystem, authPermissionService)
 	emoticonDao := dao.NewEmoticonDao(baseDao)
 	emoticonService := service.NewEmoticonService(baseService, emoticonDao, filesystemFilesystem)
 	emoticon := v1.NewEmoticonHandler(emoticonService, filesystemFilesystem, redisLock)
@@ -94,7 +94,7 @@ func Initialize(ctx context.Context, conf *config.Config) *Provider {
 	}
 	groupNoticeService := service.NewGroupNoticeService(groupNoticeDao)
 	groupNotice := group.NewGroupNoticeHandler(groupNoticeService, groupMemberService)
-	contactContact := contact.NewContactHandler(contactService, wsClientSession, userService)
+	contactContact := contact.NewContactHandler(contactService, wsClientSession, userService, talkSessionService)
 	contactApplyService := service.NewContactsApplyService(baseService)
 	contactApply := contact.NewContactsApplyHandler(contactApplyService, userService)
 	articleService := note2.NewArticleService(baseService)

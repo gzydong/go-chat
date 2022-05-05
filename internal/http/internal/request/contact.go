@@ -1,7 +1,7 @@
 package request
 
 type ContactEditRemarkRequest struct {
-	Remarks  string `form:"remarks" json:"remarks" binding:"required" label:"remarks"`
+	Remarks  string `form:"remarks" json:"remarks" label:"remarks"`
 	FriendId int    `form:"friend_id" json:"friend_id" binding:"required" label:"friend_id"`
 }
 
