@@ -2,6 +2,7 @@ package dao
 
 import (
 	"context"
+
 	"go-chat/internal/cache"
 	"go-chat/internal/model"
 )
@@ -19,7 +20,7 @@ func NewGroupMemberDao(baseDao *BaseDao, relation *cache.Relation) *GroupMemberD
 func (dao *GroupMemberDao) IsLeader(gid, uid int) bool {
 	result := &model.GroupMember{}
 
-	count := dao.Db().Select("id").Where("group_id = ? and user_id = ? and leader in (1,2) and is_quit = 0", gid, uid, 0).Unscoped().First(result).RowsAffected
+	count := dao.Db().Select("id").Where("group_id = ? and user_id = ? and leader in (1,2) and is_quit = 0", gid, uid).Unscoped().First(result).RowsAffected
 
 	return count == 1
 }
