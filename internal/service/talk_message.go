@@ -27,6 +27,13 @@ import (
 	"go-chat/internal/pkg/utils"
 )
 
+type SysTextMessageOpts struct {
+	UserId     int
+	TalkType   int
+	ReceiverId int
+	Text       string
+}
+
 type TextMessageOpts struct {
 	UserId     int
 	TalkType   int
@@ -115,6 +122,27 @@ type TalkMessageService struct {
 
 func NewTalkMessageService(baseService *BaseService, config *config.Config, unreadTalkCache *cache.UnreadTalkCache, lastMessage *cache.LastMessage, talkRecordsVoteDao *dao.TalkRecordsVoteDao, groupMemberDao *dao.GroupMemberDao, sidServer *cache.SidServer, client *cache.WsClientSession, fileSystem *filesystem.Filesystem, splitUploadDao *dao.SplitUploadDao) *TalkMessageService {
 	return &TalkMessageService{BaseService: baseService, config: config, unreadTalkCache: unreadTalkCache, lastMessage: lastMessage, talkRecordsVoteDao: talkRecordsVoteDao, groupMemberDao: groupMemberDao, sidServer: sidServer, client: client, fileSystem: fileSystem, splitUploadDao: splitUploadDao}
+}
+
+// SendSysMessage 发送文本消息
+func (s *TalkMessageService) SendSysMessage(ctx context.Context, opts *SysTextMessageOpts) error {
+	record := &model.TalkRecords{
+		TalkType:   opts.TalkType,
+		MsgType:    entity.MsgTypeSystemText,
+		UserId:     opts.UserId,
+		ReceiverId: opts.ReceiverId,
+		Content:    opts.Text,
+	}
+
+	if err := s.db.Debug().Create(record).Error; err != nil {
+		return err
+	}
+
+	s.afterHandle(ctx, record, map[string]string{
+		"text": strutil.MtSubstr(record.Content, 0, 30),
+	})
+
+	return nil
 }
 
 // SendTextMessage 发送文本消息

@@ -17,10 +17,11 @@ import (
 )
 
 type Contact struct {
-	service         *service.ContactService
-	wsClient        *cache.WsClientSession
-	userService     *service.UserService
-	talkListService *service.TalkSessionService
+	service            *service.ContactService
+	wsClient           *cache.WsClientSession
+	userService        *service.UserService
+	talkListService    *service.TalkSessionService
+	talkMessageService *service.TalkMessageService
 }
 
 func NewContactHandler(
@@ -28,12 +29,14 @@ func NewContactHandler(
 	wsClient *cache.WsClientSession,
 	userService *service.UserService,
 	talkListService *service.TalkSessionService,
+	talkMessageService *service.TalkMessageService,
 ) *Contact {
 	return &Contact{
-		service:         service,
-		wsClient:        wsClient,
-		userService:     userService,
-		talkListService: talkListService,
+		service:            service,
+		wsClient:           wsClient,
+		userService:        userService,
+		talkListService:    talkListService,
+		talkMessageService: talkMessageService,
 	}
 }
 
@@ -66,6 +69,14 @@ func (c *Contact) Delete(ctx *gin.Context) {
 		response.BusinessError(ctx, err)
 		return
 	}
+
+	// 解除好友关系后需添加一条聊天记录
+	_ = c.talkMessageService.SendSysMessage(ctx, &service.SysTextMessageOpts{
+		UserId:     uid,
+		TalkType:   entity.ChatPrivateMode,
+		ReceiverId: params.FriendId,
+		Text:       "你与对方已经解除了好友关系！！！",
+	})
 
 	// 删除聊天会话
 	sid := c.talkListService.Dao().FindBySessionId(uid, params.FriendId, entity.ChatPrivateMode)

@@ -63,14 +63,14 @@ func (s *ContactApplyService) Create(ctx context.Context, opts *ContactApplyCrea
 }
 
 // Accept 同意好友申请
-func (s *ContactApplyService) Accept(ctx context.Context, opts *ContactApplyAcceptOpts) error {
+func (s *ContactApplyService) Accept(ctx context.Context, opts *ContactApplyAcceptOpts) (*model.ContactApply, error) {
 	var (
 		err       error
 		applyInfo *model.ContactApply
 	)
 
 	if err := s.db.First(&applyInfo, "id = ? and friend_id = ?", opts.ApplyId, opts.UserId).Error; err != nil {
-		return err
+		return nil, err
 	}
 
 	err = s.db.Transaction(func(tx *gorm.DB) error {
@@ -127,7 +127,7 @@ func (s *ContactApplyService) Accept(ctx context.Context, opts *ContactApplyAcce
 		s.rds.Publish(ctx, entity.IMGatewayAll, jsonutil.Encode(body))
 	}
 
-	return err
+	return applyInfo, err
 }
 
 // Decline 拒绝好友申请

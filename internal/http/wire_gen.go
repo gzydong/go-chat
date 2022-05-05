@@ -94,9 +94,9 @@ func Initialize(ctx context.Context, conf *config.Config) *Provider {
 	}
 	groupNoticeService := service.NewGroupNoticeService(groupNoticeDao)
 	groupNotice := group.NewGroupNoticeHandler(groupNoticeService, groupMemberService)
-	contactContact := contact.NewContactHandler(contactService, wsClientSession, userService, talkSessionService)
+	contactContact := contact.NewContactHandler(contactService, wsClientSession, userService, talkSessionService, talkMessageService)
 	contactApplyService := service.NewContactsApplyService(baseService)
-	contactApply := contact.NewContactsApplyHandler(contactApplyService, userService)
+	contactApply := contact.NewContactsApplyHandler(contactApplyService, userService, talkMessageService)
 	articleService := note2.NewArticleService(baseService)
 	articleAnnexDao := note.NewArticleAnnexDao(baseDao)
 	articleAnnexService := note2.NewArticleAnnexService(baseService, articleAnnexDao, filesystemFilesystem)

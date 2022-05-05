@@ -84,27 +84,26 @@ func (c *Records) GetRecords(ctx *gin.Context) {
 		rid = records[length-1].Id
 	}
 
-	if params.TalkType == entity.ChatPrivateMode && params.RecordId == 0 {
-		if !c.authPermission.IsAuth(ctx.Request.Context(), &service.AuthPermission{
-			TalkType:   params.TalkType,
-			UserId:     uid,
-			ReceiverId: params.ReceiverId,
-		}) {
-			items := make([]*service.TalkRecordsItem, 0, len(records)+1)
-			items = append(items, &service.TalkRecordsItem{
-				Id:         rid + 100000000,
-				TalkType:   params.TalkType,
-				MsgType:    0,
-				UserId:     0,
-				Content:    "你与对方已解除好友关系！！！",
-				ReceiverId: params.ReceiverId,
-				CreatedAt:  timeutil.DateTime(),
-			})
-			items = append(items, records...)
-
-			records = items
-		}
-	}
+	// if params.TalkType == entity.ChatPrivateMode && params.RecordId == 0 {
+	// 	if !c.authPermission.IsAuth(ctx.Request.Context(), &service.AuthPermission{
+	// 		TalkType:   params.TalkType,
+	// 		UserId:     uid,
+	// 		ReceiverId: params.ReceiverId,
+	// 	}) {
+	// 		items := make([]*service.TalkRecordsItem, 0, len(records)+1)
+	// 		items = append(items, &service.TalkRecordsItem{
+	// 			Id:         rid + 100000000,
+	// 			TalkType:   params.TalkType,
+	// 			MsgType:    0,
+	// 			Content:    "你与对方已解除好友关系！！！",
+	// 			ReceiverId: params.ReceiverId,
+	// 			CreatedAt:  timeutil.DateTime(),
+	// 		})
+	// 		items = append(items, records...)
+	//
+	// 		records = items
+	// 	}
+	// }
 
 	response.Success(ctx, entity.H{
 		"limit":     params.Limit,

@@ -11,15 +11,17 @@ import (
 )
 
 type ContactApply struct {
-	service     *service.ContactApplyService
-	userService *service.UserService
+	service            *service.ContactApplyService
+	userService        *service.UserService
+	talkMessageService *service.TalkMessageService
 }
 
 func NewContactsApplyHandler(
 	service *service.ContactApplyService,
 	userService *service.UserService,
+	talkMessageService *service.TalkMessageService,
 ) *ContactApply {
-	return &ContactApply{service: service, userService: userService}
+	return &ContactApply{service: service, userService: userService, talkMessageService: talkMessageService}
 }
 
 // ApplyUnreadNum 获取好友申请未读数
@@ -57,14 +59,24 @@ func (c *ContactApply) Accept(ctx *gin.Context) {
 		return
 	}
 
-	if err := c.service.Accept(ctx, &service.ContactApplyAcceptOpts{
+	uid := jwtutil.GetUid(ctx)
+	applyInfo, err := c.service.Accept(ctx, &service.ContactApplyAcceptOpts{
 		Remarks: params.Remarks,
 		ApplyId: params.ApplyId,
-		UserId:  jwtutil.GetUid(ctx),
-	}); err != nil {
+		UserId:  uid,
+	})
+
+	if err != nil {
 		response.BusinessError(ctx, err)
 		return
 	}
+
+	_ = c.talkMessageService.SendSysMessage(ctx, &service.SysTextMessageOpts{
+		UserId:     applyInfo.UserId,
+		TalkType:   entity.ChatPrivateMode,
+		ReceiverId: applyInfo.FriendId,
+		Text:       "你们已成为好友，可以开始聊天咯！",
+	})
 
 	response.Success(ctx, nil)
 }
