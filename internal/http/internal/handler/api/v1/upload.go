@@ -103,6 +103,7 @@ func (u *Upload) MultipartUpload(ctx *gin.Context) {
 	})
 	if err != nil {
 		response.BusinessError(ctx, err)
+		return
 	}
 
 	if params.SplitIndex != params.SplitNum-1 {
