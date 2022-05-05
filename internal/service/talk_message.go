@@ -642,6 +642,10 @@ func (s *TalkMessageService) SendLoginMessage(ctx context.Context, opts *LoginMe
 func (s *TalkMessageService) afterHandle(ctx context.Context, record *model.TalkRecords, opts map[string]string) {
 	if record.TalkType == entity.ChatPrivateMode {
 		s.unreadTalkCache.Increment(ctx, record.UserId, record.ReceiverId)
+
+		if record.MsgType == entity.MsgTypeSystemText {
+			s.unreadTalkCache.Increment(ctx, record.ReceiverId, record.UserId)
+		}
 	}
 
 	_ = s.lastMessage.Set(ctx, record.TalkType, record.UserId, record.ReceiverId, &cache.LastCacheMessage{
