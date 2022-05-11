@@ -166,6 +166,12 @@ func RegisterApiRoute(conf *config.Config, router *gin.Engine, handler *handler.
 			note.GET("/annex/recover/list", handler.ArticleAnnex.RecoverList)
 			note.GET("/annex/download", handler.ArticleAnnex.Download)
 		}
+
+		organize := v1.Group("/organize").Use(authorize)
+		{
+			organize.GET("/department/all", handler.Organize.DepartmentList)
+			organize.GET("/personnel/all", handler.Organize.PersonnelList)
+		}
 	}
 
 	// v2 接口

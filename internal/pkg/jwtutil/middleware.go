@@ -36,7 +36,7 @@ func Auth(secret string, guard string, session SessionInterface) gin.HandlerFunc
 		// 设置登录用户ID
 		uid, _ := strconv.Atoi(claims.Id)
 
-		c.Set(Uid, uid)
+		c.Set(uuid, uid)
 
 		// 记录 jwt 相关信息
 		c.Set("jwt", map[string]string{

@@ -105,11 +105,10 @@ func (c *Auth) Register(ctx *gin.Context) {
 		return
 	}
 
-	user, err := c.userService.Register(&service.UserRegisterOpts{
+	_, err := c.userService.Register(&service.UserRegisterOpts{
 		Nickname: params.Nickname,
 		Mobile:   params.Mobile,
 		Password: params.Password,
-		SmsCode:  params.SmsCode,
 		Platform: params.Platform,
 	})
 
@@ -117,9 +116,6 @@ func (c *Auth) Register(ctx *gin.Context) {
 		response.BusinessError(ctx, err)
 		return
 	}
-
-	// 创建默认笔记分类
-	c.noteClassService.SetDefaultClass(ctx.Request.Context(), user.Id)
 
 	c.smsService.DeleteSmsCode(ctx.Request.Context(), entity.SmsRegisterChannel, params.Mobile)
 

@@ -9,33 +9,40 @@ import (
 	"go-chat/internal/pkg/encrypt"
 	"go-chat/internal/pkg/jwtutil"
 	"go-chat/internal/service"
+	"go-chat/internal/service/organize"
 )
 
 type User struct {
-	service    *service.UserService
-	smsService *service.SmsService
+	service      *service.UserService
+	smsService   *service.SmsService
+	organizeServ *organize.OrganizeService
 }
 
 func NewUserHandler(
 	userService *service.UserService,
 	smsService *service.SmsService,
+	organizeServ *organize.OrganizeService,
 ) *User {
 	return &User{
-		service:    userService,
-		smsService: smsService,
+		service:      userService,
+		smsService:   smsService,
+		organizeServ: organizeServ,
 	}
 }
 
 // Detail 个人用户信息
 func (u *User) Detail(ctx *gin.Context) {
 	user, _ := u.service.Dao().FindById(jwtutil.GetUid(ctx))
-
 	response.Success(ctx, user)
 }
 
 // Setting 用户设置
 func (u *User) Setting(ctx *gin.Context) {
-	user, _ := u.service.Dao().FindById(jwtutil.GetUid(ctx))
+	uid := jwtutil.GetUid(ctx)
+
+	user, _ := u.service.Dao().FindById(uid)
+
+	isOk, _ := u.organizeServ.Dao().IsQiyeMember(uid)
 
 	response.Success(ctx, entity.H{
 		"user_info": entity.H{
@@ -44,6 +51,7 @@ func (u *User) Setting(ctx *gin.Context) {
 			"avatar":   user.Avatar,
 			"motto":    user.Motto,
 			"gender":   user.Gender,
+			"is_qiye":  isOk,
 		},
 		"setting": entity.H{
 			"theme_mode":            "",

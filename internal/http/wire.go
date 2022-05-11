@@ -9,6 +9,7 @@ import (
 	"go-chat/config"
 	"go-chat/internal/dao"
 	note2 "go-chat/internal/dao/note"
+	organize2 "go-chat/internal/dao/organize"
 	"go-chat/internal/http/internal/handler/api/v1/article"
 	"go-chat/internal/http/internal/handler/api/v1/contact"
 	"go-chat/internal/http/internal/handler/api/v1/group"
@@ -17,6 +18,7 @@ import (
 	"go-chat/internal/pkg/filesystem"
 	"go-chat/internal/provider"
 	"go-chat/internal/service/note"
+	"go-chat/internal/service/organize"
 
 	"github.com/google/wire"
 	"go-chat/internal/cache"
@@ -70,6 +72,9 @@ var providerSet = wire.NewSet(
 	dao.NewFileSplitUploadDao,
 	note2.NewArticleClassDao,
 	note2.NewArticleAnnexDao,
+	organize2.NewDepartmentDao,
+	organize2.NewOrganizeDao,
+	organize2.NewPositionDao,
 
 	// 服务
 	service.NewBaseService,
@@ -94,11 +99,15 @@ var providerSet = wire.NewSet(
 	note.NewArticleTagService,
 	note.NewArticleClassService,
 	note.NewArticleAnnexService,
+	organize.NewOrganizeDeptService,
+	organize.NewOrganizeService,
+	organize.NewPositionService,
 
 	// handler 处理
 	v1.NewAuthHandler,
 	v1.NewCommonHandler,
 	v1.NewUserHandler,
+	v1.NewOrganize,
 	contact.NewContactHandler,
 	contact.NewContactsApplyHandler,
 	group.NewGroupHandler,

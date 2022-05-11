@@ -13,6 +13,7 @@ import (
 	"go-chat/internal/cache"
 	"go-chat/internal/dao"
 	"go-chat/internal/dao/note"
+	"go-chat/internal/dao/organize"
 	"go-chat/internal/http/internal/handler"
 	"go-chat/internal/http/internal/handler/api/v1"
 	"go-chat/internal/http/internal/handler/api/v1/article"
@@ -25,6 +26,7 @@ import (
 	"go-chat/internal/provider"
 	"go-chat/internal/service"
 	note2 "go-chat/internal/service/note"
+	organize2 "go-chat/internal/service/organize"
 )
 
 import (
@@ -67,14 +69,21 @@ func Initialize(ctx context.Context, conf *config.Config) *Provider {
 	articleClassDao := note.NewArticleClassDao(baseDao)
 	articleClassService := note2.NewArticleClassService(baseService, articleClassDao)
 	auth := v1.NewAuthHandler(conf, userService, smsService, session, redisLock, talkMessageService, ipAddressService, talkSessionService, articleClassService)
-	user := v1.NewUserHandler(userService, smsService)
+	organizeDao := organize.NewOrganizeDao(baseDao)
+	organizeService := organize2.NewOrganizeService(baseService, organizeDao)
+	user := v1.NewUserHandler(userService, smsService, organizeService)
+	departmentDao := organize.NewDepartmentDao(baseDao)
+	organizeDeptService := organize2.NewOrganizeDeptService(baseService, departmentDao)
+	positionDao := organize.NewPositionDao(baseDao)
+	positionService := organize2.NewPositionService(baseService, positionDao)
+	v1Organize := v1.NewOrganize(organizeDeptService, organizeService, positionService)
 	talkService := service.NewTalkService(baseService, groupMemberDao)
 	talkMessageForwardService := service.NewTalkMessageForwardService(baseService)
 	splitUploadService := service.NewSplitUploadService(baseService, splitUploadDao, conf, filesystemFilesystem)
 	contactDao := dao.NewContactDao(baseDao, relation)
 	contactService := service.NewContactService(baseService, contactDao)
 	groupMemberService := service.NewGroupMemberService(baseService, groupMemberDao)
-	authPermissionService := service.NewAuthPermissionService(contactDao, groupMemberDao)
+	authPermissionService := service.NewAuthPermissionService(contactDao, groupMemberDao, organizeDao)
 	message := talk.NewTalkMessageHandler(talkMessageService, talkService, talkRecordsVoteDao, talkMessageForwardService, splitUploadService, contactService, groupMemberService, authPermissionService)
 	groupDao := dao.NewGroupDao(baseDao)
 	groupService := service.NewGroupService(baseService, groupDao, groupMemberDao, relation)
@@ -88,11 +97,11 @@ func Initialize(ctx context.Context, conf *config.Config) *Provider {
 	emoticonService := service.NewEmoticonService(baseService, emoticonDao, filesystemFilesystem)
 	emoticon := v1.NewEmoticonHandler(emoticonService, filesystemFilesystem, redisLock)
 	upload := v1.NewUploadHandler(conf, filesystemFilesystem, splitUploadService)
-	groupGroup := group.NewGroupHandler(groupService, groupMemberService, talkSessionService, redisLock, contactService, userService)
 	groupNoticeDao := &dao.GroupNoticeDao{
 		BaseDao: baseDao,
 	}
 	groupNoticeService := service.NewGroupNoticeService(groupNoticeDao)
+	groupGroup := group.NewGroupHandler(groupService, groupMemberService, talkSessionService, redisLock, contactService, userService, groupNoticeService)
 	groupNotice := group.NewGroupNoticeHandler(groupNoticeService, groupMemberService)
 	contactContact := contact.NewContactHandler(contactService, wsClientSession, userService, talkSessionService, talkMessageService)
 	contactApplyService := service.NewContactsApplyService(baseService)
@@ -109,6 +118,7 @@ func Initialize(ctx context.Context, conf *config.Config) *Provider {
 		Common:        common,
 		Auth:          auth,
 		User:          user,
+		Organize:      v1Organize,
 		TalkMessage:   message,
 		Talk:          talkTalk,
 		TalkRecords:   records,
@@ -134,4 +144,4 @@ func Initialize(ctx context.Context, conf *config.Config) *Provider {
 
 // wire.go:
 
-var providerSet = wire.NewSet(provider.NewMySQLClient, provider.NewRedisClient, provider.NewHttpClient, provider.NewHttpServer, client.NewHttpClient, router.NewRouter, filesystem.NewFilesystem, cache.NewSession, cache.NewSid, cache.NewUnreadTalkCache, cache.NewRedisLock, cache.NewWsClientSession, cache.NewLastMessage, cache.NewTalkVote, cache.NewRoom, cache.NewRelation, wire.Struct(new(cache.SmsCodeCache), "*"), dao.NewBaseDao, dao.NewContactDao, dao.NewGroupMemberDao, dao.NewUserDao, dao.NewGroupDao, wire.Struct(new(dao.TalkRecordsDao), "*"), wire.Struct(new(dao.TalkRecordsCodeDao), "*"), wire.Struct(new(dao.TalkRecordsLoginDao), "*"), wire.Struct(new(dao.TalkRecordsFileDao), "*"), wire.Struct(new(dao.GroupNoticeDao), "*"), dao.NewTalkSessionDao, dao.NewEmoticonDao, dao.NewTalkRecordsVoteDao, dao.NewFileSplitUploadDao, note.NewArticleClassDao, note.NewArticleAnnexDao, service.NewBaseService, service.NewUserService, service.NewSmsService, service.NewTalkService, service.NewTalkMessageService, service.NewClientService, service.NewGroupService, service.NewGroupMemberService, service.NewGroupNoticeService, service.NewTalkSessionService, service.NewTalkMessageForwardService, service.NewEmoticonService, service.NewTalkRecordsService, service.NewContactService, service.NewContactsApplyService, service.NewSplitUploadService, service.NewIpAddressService, service.NewAuthPermissionService, note2.NewArticleService, note2.NewArticleTagService, note2.NewArticleClassService, note2.NewArticleAnnexService, v1.NewAuthHandler, v1.NewCommonHandler, v1.NewUserHandler, contact.NewContactHandler, contact.NewContactsApplyHandler, group.NewGroupHandler, group.NewGroupNoticeHandler, talk.NewTalkHandler, talk.NewTalkMessageHandler, v1.NewUploadHandler, v1.NewEmoticonHandler, talk.NewTalkRecordsHandler, article.NewAnnexHandler, article.NewArticleHandler, article.NewClassHandler, article.NewTagHandler, wire.Struct(new(handler.Handler), "*"), wire.Struct(new(Provider), "*"))
+var providerSet = wire.NewSet(provider.NewMySQLClient, provider.NewRedisClient, provider.NewHttpClient, provider.NewHttpServer, client.NewHttpClient, router.NewRouter, filesystem.NewFilesystem, cache.NewSession, cache.NewSid, cache.NewUnreadTalkCache, cache.NewRedisLock, cache.NewWsClientSession, cache.NewLastMessage, cache.NewTalkVote, cache.NewRoom, cache.NewRelation, wire.Struct(new(cache.SmsCodeCache), "*"), dao.NewBaseDao, dao.NewContactDao, dao.NewGroupMemberDao, dao.NewUserDao, dao.NewGroupDao, wire.Struct(new(dao.TalkRecordsDao), "*"), wire.Struct(new(dao.TalkRecordsCodeDao), "*"), wire.Struct(new(dao.TalkRecordsLoginDao), "*"), wire.Struct(new(dao.TalkRecordsFileDao), "*"), wire.Struct(new(dao.GroupNoticeDao), "*"), dao.NewTalkSessionDao, dao.NewEmoticonDao, dao.NewTalkRecordsVoteDao, dao.NewFileSplitUploadDao, note.NewArticleClassDao, note.NewArticleAnnexDao, organize.NewDepartmentDao, organize.NewOrganizeDao, organize.NewPositionDao, service.NewBaseService, service.NewUserService, service.NewSmsService, service.NewTalkService, service.NewTalkMessageService, service.NewClientService, service.NewGroupService, service.NewGroupMemberService, service.NewGroupNoticeService, service.NewTalkSessionService, service.NewTalkMessageForwardService, service.NewEmoticonService, service.NewTalkRecordsService, service.NewContactService, service.NewContactsApplyService, service.NewSplitUploadService, service.NewIpAddressService, service.NewAuthPermissionService, note2.NewArticleService, note2.NewArticleTagService, note2.NewArticleClassService, note2.NewArticleAnnexService, organize2.NewOrganizeDeptService, organize2.NewOrganizeService, organize2.NewPositionService, v1.NewAuthHandler, v1.NewCommonHandler, v1.NewUserHandler, v1.NewOrganize, contact.NewContactHandler, contact.NewContactsApplyHandler, group.NewGroupHandler, group.NewGroupNoticeHandler, talk.NewTalkHandler, talk.NewTalkMessageHandler, v1.NewUploadHandler, v1.NewEmoticonHandler, talk.NewTalkRecordsHandler, article.NewAnnexHandler, article.NewArticleHandler, article.NewClassHandler, article.NewTagHandler, wire.Struct(new(handler.Handler), "*"), wire.Struct(new(Provider), "*"))

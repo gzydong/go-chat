@@ -2,6 +2,7 @@ package dao
 
 import (
 	"context"
+
 	"go-chat/internal/model"
 )
 
@@ -37,4 +38,16 @@ func (dao *GroupNoticeDao) GetListAll(ctx context.Context, groupId int) ([]*mode
 	}
 
 	return items, nil
+}
+
+// GetLatestNotice 获取最新公告
+func (dao *GroupNoticeDao) GetLatestNotice(ctx context.Context, groupId int) (*model.GroupNotice, error) {
+	info := &model.GroupNotice{}
+
+	err := dao.Db().Last(info, "group_id = ? and is_delete = ?", groupId, 0).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return info, nil
 }

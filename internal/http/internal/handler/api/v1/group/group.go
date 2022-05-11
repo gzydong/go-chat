@@ -16,12 +16,13 @@ import (
 )
 
 type Group struct {
-	service         *service.GroupService
-	memberService   *service.GroupMemberService
-	talkListService *service.TalkSessionService
-	userService     *service.UserService
-	redisLock       *cache.RedisLock
-	contactService  *service.ContactService
+	service            *service.GroupService
+	memberService      *service.GroupMemberService
+	talkListService    *service.TalkSessionService
+	userService        *service.UserService
+	redisLock          *cache.RedisLock
+	contactService     *service.ContactService
+	groupNoticeService *service.GroupNoticeService
 }
 
 func NewGroupHandler(
@@ -31,14 +32,16 @@ func NewGroupHandler(
 	redisLock *cache.RedisLock,
 	contactService *service.ContactService,
 	userService *service.UserService,
+	groupNoticeService *service.GroupNoticeService,
 ) *Group {
 	return &Group{
-		service:         service,
-		memberService:   memberService,
-		talkListService: talkListService,
-		redisLock:       redisLock,
-		contactService:  contactService,
-		userService:     userService,
+		service:            service,
+		memberService:      memberService,
+		talkListService:    talkListService,
+		redisLock:          redisLock,
+		contactService:     contactService,
+		userService:        userService,
+		groupNoticeService: groupNoticeService,
 	}
 }
 
@@ -229,7 +232,11 @@ func (c *Group) Detail(ctx *gin.Context) {
 	info["manager_nickname"] = ""
 	info["visit_card"] = c.memberService.Dao().GetMemberRemark(params.GroupId, uid)
 	info["is_disturb"] = 0
-	info["notice"] = []entity.H{}
+	info["notice"] = entity.H{}
+
+	if notice, _ := c.groupNoticeService.Dao().GetLatestNotice(ctx, params.GroupId); err == nil {
+		info["notice"] = notice
+	}
 
 	if c.talkListService.Dao().IsDisturb(uid, groupInfo.Id, 2) {
 		info["is_disturb"] = 1

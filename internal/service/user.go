@@ -1,20 +1,19 @@
 package service
 
 import (
-	"database/sql"
 	"errors"
 
 	"go-chat/internal/dao"
 	"go-chat/internal/entity"
 	"go-chat/internal/model"
 	"go-chat/internal/pkg/encrypt"
+	"gorm.io/gorm"
 )
 
 type UserRegisterOpts struct {
 	Nickname string
 	Mobile   string
 	Password string
-	SmsCode  string
 	Platform string
 }
 
@@ -61,7 +60,7 @@ func (s *UserService) Register(opts *UserRegisterOpts) (*model.Users, error) {
 func (s *UserService) Login(mobile string, password string) (*model.Users, error) {
 	user, err := s.dao.FindByMobile(mobile)
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if err == gorm.ErrRecordNotFound {
 			return nil, errors.New("登录账号不存在! ")
 		}
 

@@ -12,6 +12,7 @@ type Handler struct {
 	Common        *v1.Common
 	Auth          *v1.Auth
 	User          *v1.User
+	Organize      *v1.Organize
 	TalkMessage   *talk.Message
 	Talk          *talk.Talk
 	TalkRecords   *talk.Records

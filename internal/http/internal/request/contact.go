@@ -14,7 +14,7 @@ type ContactDetailRequest struct {
 }
 
 type ContactSearchRequest struct {
-	Mobile string `form:"mobile" json:"mobile" binding:"required,len=11" label:"mobile"`
+	Mobile string `form:"mobile" json:"mobile" binding:"required" label:"mobile"`
 }
 
 type ContactApplyCreateRequest struct {
