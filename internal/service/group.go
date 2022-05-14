@@ -173,8 +173,7 @@ func (s *GroupService) Dismiss(ctx context.Context, groupId int, uid int) error 
 		}
 
 		if err := s.db.Model(&model.GroupMember{}).Where("group_id = ?", groupId).Updates(&model.GroupMember{
-			IsQuit:    1,
-			DeletedAt: sql.NullTime{Time: time.Now(), Valid: true},
+			IsQuit: 1,
 		}).Error; err != nil {
 			return err
 		}
@@ -205,8 +204,7 @@ func (s *GroupService) Secede(ctx context.Context, groupId int, uid int) error {
 
 	err := s.db.Transaction(func(tx *gorm.DB) error {
 		err := tx.Model(&model.GroupMember{}).Where("group_id = ? AND user_id = ?", groupId, uid).Updates(&model.GroupMember{
-			IsQuit:    1,
-			DeletedAt: sql.NullTime{Time: time.Now(), Valid: true},
+			IsQuit: 1,
 		}).Error
 		if err != nil {
 			return err

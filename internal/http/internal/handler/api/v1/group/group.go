@@ -53,7 +53,6 @@ func (c *Group) Create(ctx *gin.Context) {
 		return
 	}
 
-	// 创建群组
 	gid, err := c.service.Create(ctx.Request.Context(), &service.CreateGroupOpts{
 		UserId:    jwtutil.GetUid(ctx),
 		Name:      params.Name,
@@ -346,21 +345,58 @@ func (c *Group) OvertList(ctx *gin.Context) {
 		return
 	}
 
-	data := entity.H{
-		"next": false,
+	if len(list) == 0 {
+		response.Success(ctx, entity.H{
+			"items": make([]interface{}, 0),
+			"next":  false,
+		})
+		return
 	}
 
-	if len(list) > 20 {
-		data["next"] = true
+	ids := make([]int, 0)
+	for _, val := range list {
+		ids = append(ids, val.Id)
 	}
 
-	items := make([]interface{}, 0)
+	count, err := c.memberService.Dao().CountGroupMemberNum(ids)
+	if err != nil {
+		response.BusinessError(ctx, "查询异常！")
+		return
+	}
+
+	countMap := make(map[int]int)
+	for _, member := range count {
+		countMap[member.GroupId] = member.Count
+	}
+
+	checks, err := c.memberService.Dao().CheckUserGroup(ids, jwtutil.GetUid(ctx))
+	if err != nil {
+		response.BusinessError(ctx, "查询异常！")
+		return
+	}
+
+	items := make([]*entity.H, 0)
 	for i, value := range list {
-		if i < 20 {
-			items = append(items, value)
+		if i >= 20 {
+			break
 		}
+
+		item := &entity.H{
+			"id":         value.Id,
+			"name":       value.Name,
+			"avatar":     value.Avatar,
+			"profile":    value.Profile,
+			"count":      countMap[value.Id],
+			"max_num":    value.MaxNum,
+			"is_member":  sliceutil.InInt(value.Id, checks),
+			"created_at": timeutil.FormatDatetime(value.CreatedAt),
+		}
+
+		items = append(items, item)
 	}
 
-	data["items"] = items
-	response.Success(ctx, data)
+	response.Success(ctx, entity.H{
+		"items": items,
+		"next":  len(list) > 20,
+	})
 }

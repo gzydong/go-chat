@@ -60,17 +60,19 @@ func (c *Apply) Agree(ctx *gin.Context) {
 		return
 	}
 
-	err := c.groupServ.InviteMembers(ctx, &service.InviteGroupMembersOpts{
-		UserId:    uid,
-		GroupId:   apply.GroupId,
-		MemberIds: []int{apply.UserId},
-	})
-	if err != nil {
-		response.BusinessError(ctx, "处理失败！")
-		return
+	if !c.memberServ.Dao().IsMember(apply.GroupId, apply.UserId, false) {
+		err := c.groupServ.InviteMembers(ctx, &service.InviteGroupMembersOpts{
+			UserId:    uid,
+			GroupId:   apply.GroupId,
+			MemberIds: []int{apply.UserId},
+		})
+		if err != nil {
+			response.BusinessError(ctx, "处理失败！")
+			return
+		}
 	}
 
-	err = c.applyServ.Db().Delete(model.GroupApply{}, "id = ?", apply.Id).Error
+	err := c.applyServ.Db().Delete(model.GroupApply{}, "id = ?", apply.Id).Error
 	if err != nil {
 		logger.Error("数据删除失败 err", err.Error())
 	}
