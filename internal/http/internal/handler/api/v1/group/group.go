@@ -82,6 +82,12 @@ func (c *Group) Dismiss(ctx *gin.Context) {
 	}
 
 	uid := jwtutil.GetUid(ctx)
+
+	if !c.memberService.Dao().IsLeader(params.GroupId, uid) {
+		response.BusinessError(ctx, "暂无权限解散群组！")
+		return
+	}
+
 	if err := c.service.Dismiss(ctx.Request.Context(), params.GroupId, jwtutil.GetUid(ctx)); err != nil {
 		response.BusinessError(ctx, "群组解散失败！")
 	} else {
