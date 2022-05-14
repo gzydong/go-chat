@@ -30,7 +30,7 @@ func (dao *GroupNoticeDao) GetListAll(ctx context.Context, groupId int) ([]*mode
 	query.Joins("left join users on users.id = group_notice.creator_id")
 	query.Where("group_notice.group_id = ? and group_notice.is_delete = ?", groupId, 0)
 	query.Order("group_notice.is_top desc")
-	query.Order("group_notice.updated_at desc")
+	query.Order("group_notice.created_at desc")
 
 	items := make([]*model.SearchNoticeItem, 0)
 	if err := query.Select(fields).Scan(&items).Error; err != nil {

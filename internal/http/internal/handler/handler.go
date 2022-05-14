@@ -19,7 +19,8 @@ type Handler struct {
 	Emoticon      *v1.Emoticon
 	Upload        *v1.Upload
 	Group         *group.Group
-	GroupNotice   *group.GroupNotice
+	GroupNotice   *group.Notice
+	GroupApply    *group.Apply
 	Contact       *contact.Contact
 	ContactsApply *contact.ContactApply
 	Article       *article.Article

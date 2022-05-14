@@ -62,3 +62,8 @@ type GroupDeleteNoticeRequest struct {
 type GetInviteFriendsRequest struct {
 	GroupId int `form:"group_id" json:"group_id" binding:"min=0"`
 }
+
+type GroupOvertListRequest struct {
+	Page int    `form:"page" json:"page" binding:"required"`
+	Name string `form:"name" json:"name" binding:"max=50"`
+}

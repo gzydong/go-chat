@@ -21,15 +21,15 @@ type GroupNotice struct {
 }
 
 type SearchNoticeItem struct {
-	Id           int    `json:"id" grom:"column:id"`
-	CreatorId    int    `json:"creator_id"`
-	Title        string `json:"title"`
-	Content      string `json:"content"`
-	IsTop        int    `json:"is_top"`
-	IsConfirm    int    `json:"is_confirm"`
-	ConfirmUsers string `json:"confirm_users"`
-	CreatedAt    string `json:"created_at"`
-	UpdatedAt    string `json:"updated_at"`
-	Avatar       string `json:"avatar"`
-	Nickname     string `json:"nickname"`
+	Id           int       `json:"id" grom:"column:id"`
+	CreatorId    int       `json:"creator_id"`
+	Title        string    `json:"title"`
+	Content      string    `json:"content"`
+	IsTop        int       `json:"is_top"`
+	IsConfirm    int       `json:"is_confirm"`
+	ConfirmUsers string    `json:"confirm_users"`
+	CreatedAt    time.Time `json:"created_at"`
+	UpdatedAt    time.Time `json:"updated_at"`
+	Avatar       string    `json:"avatar"`
+	Nickname     string    `json:"nickname"`
 }

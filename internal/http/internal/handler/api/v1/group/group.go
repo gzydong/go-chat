@@ -331,3 +331,36 @@ func (c *Group) GetMembers(ctx *gin.Context) {
 func (c *Group) GetOnlineMembers() {
 
 }
+
+// OvertList 公开群列表
+func (c *Group) OvertList(ctx *gin.Context) {
+	params := &request.GroupOvertListRequest{}
+	if err := ctx.ShouldBind(params); err != nil {
+		response.InvalidParams(ctx, err)
+		return
+	}
+
+	list, err := c.service.Dao().SearchOvertList(ctx, params.Name, params.Page, 21)
+	if err != nil {
+		response.BusinessError(ctx, "查询异常！")
+		return
+	}
+
+	data := entity.H{
+		"next": false,
+	}
+
+	if len(list) > 20 {
+		data["next"] = true
+	}
+
+	items := make([]interface{}, 0)
+	for i, value := range list {
+		if i < 20 {
+			items = append(items, value)
+		}
+	}
+
+	data["items"] = items
+	response.Success(ctx, data)
+}

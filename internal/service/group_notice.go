@@ -74,10 +74,3 @@ func (s *GroupNoticeService) Delete(ctx context.Context, groupId, noticeId int) 
 
 	return err
 }
-
-func (s *GroupNoticeService) List(ctx context.Context, groupId int) []*model.SearchNoticeItem {
-
-	items, _ := s.dao.GetListAll(ctx, groupId)
-
-	return items
-}

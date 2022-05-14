@@ -64,13 +64,14 @@ func RegisterApiRoute(conf *config.Config, router *gin.Engine, handler *handler.
 		// 聊天群相关分组
 		userGroup := v1.Group("/group").Use(authorize)
 		{
-			userGroup.GET("/list", handler.Group.GetGroups)   // 群组列表
-			userGroup.GET("/detail", handler.Group.Detail)    // 群组详情
-			userGroup.POST("/create", handler.Group.Create)   // 创建群组
-			userGroup.POST("/dismiss", handler.Group.Dismiss) // 解散群组
-			userGroup.POST("/invite", handler.Group.Invite)   // 邀请加入群组
-			userGroup.POST("/secede", handler.Group.SignOut)  // 退出群组
-			userGroup.POST("/setting", handler.Group.Setting) // 设置群组信息
+			userGroup.GET("/list", handler.Group.GetGroups)       // 群组列表
+			userGroup.GET("/overt/list", handler.Group.OvertList) // 公开群组列表
+			userGroup.GET("/detail", handler.Group.Detail)        // 群组详情
+			userGroup.POST("/create", handler.Group.Create)       // 创建群组
+			userGroup.POST("/dismiss", handler.Group.Dismiss)     // 解散群组
+			userGroup.POST("/invite", handler.Group.Invite)       // 邀请加入群组
+			userGroup.POST("/secede", handler.Group.SignOut)      // 退出群组
+			userGroup.POST("/setting", handler.Group.Setting)     // 设置群组信息
 
 			// 群成员相关
 			userGroup.GET("/member/list", handler.Group.GetMembers)          // 群成员列表
@@ -82,6 +83,12 @@ func RegisterApiRoute(conf *config.Config, router *gin.Engine, handler *handler.
 			userGroup.GET("/notice/list", handler.GroupNotice.List)             // 群公告列表
 			userGroup.POST("/notice/edit", handler.GroupNotice.CreateAndUpdate) // 添加或编辑群公告
 			userGroup.POST("/notice/delete", handler.GroupNotice.Delete)        // 删除群公告
+
+			// 群申请
+			userGroup.POST("/apply/create", handler.GroupApply.Create) // 提交入群申请
+			userGroup.POST("/apply/delete", handler.GroupApply.Delete) // 申请入群申请
+			userGroup.POST("/apply/agree", handler.GroupApply.Agree)   // 同意入群申请
+			userGroup.GET("/apply/list", handler.GroupApply.List)      // 入群申请列表
 		}
 
 		talk := v1.Group("/talk").Use(authorize)
