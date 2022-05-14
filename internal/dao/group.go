@@ -26,16 +26,16 @@ func (dao *GroupDao) FindById(id int) (*model.Group, error) {
 
 func (dao *GroupDao) SearchOvertList(ctx context.Context, name string, page, size int) ([]*model.Group, error) {
 
-	tx := dao.Db()
+	tx := dao.Db().Table("group")
 
 	if name != "" {
-		tx = tx.Where("group_name LIKE ?", "%"+name+"%")
+		tx.Where("group_name LIKE ?", "%"+name+"%")
 	} else {
-		tx = tx.Where("is_overt = ?", 1)
+		tx.Where("is_overt = ?", 1)
 	}
 
 	items := make([]*model.Group, 0)
-	err := tx.Order("created_at desc").Offset((page - 1) * size).Limit(size).Find(&items).Error
+	err := tx.Where("is_dismiss = 0").Order("created_at desc").Offset((page - 1) * size).Limit(size).Find(&items).Error
 	if err != nil {
 		return nil, err
 	}
