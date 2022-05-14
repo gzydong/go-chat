@@ -23,6 +23,7 @@ type Group struct {
 	redisLock          *cache.RedisLock
 	contactService     *service.ContactService
 	groupNoticeService *service.GroupNoticeService
+	messageService     *service.TalkMessageService
 }
 
 func NewGroupHandler(
@@ -33,6 +34,7 @@ func NewGroupHandler(
 	contactService *service.ContactService,
 	userService *service.UserService,
 	groupNoticeService *service.GroupNoticeService,
+	messageService *service.TalkMessageService,
 ) *Group {
 	return &Group{
 		service:            service,
@@ -42,6 +44,7 @@ func NewGroupHandler(
 		contactService:     contactService,
 		userService:        userService,
 		groupNoticeService: groupNoticeService,
+		messageService:     messageService,
 	}
 }
 
@@ -78,9 +81,17 @@ func (c *Group) Dismiss(ctx *gin.Context) {
 		return
 	}
 
+	uid := jwtutil.GetUid(ctx)
 	if err := c.service.Dismiss(ctx.Request.Context(), params.GroupId, jwtutil.GetUid(ctx)); err != nil {
 		response.BusinessError(ctx, "群组解散失败！")
 	} else {
+		_ = c.messageService.SendSysMessage(ctx, &service.SysTextMessageOpts{
+			UserId:     uid,
+			TalkType:   entity.ChatGroupMode,
+			ReceiverId: params.GroupId,
+			Text:       "群组已被群主或管理员解散！",
+		})
+
 		response.Success(ctx, nil)
 	}
 }
@@ -168,6 +179,13 @@ func (c *Group) Setting(ctx *gin.Context) {
 	}); err != nil {
 		response.BusinessError(ctx, err)
 	} else {
+		_ = c.messageService.SendSysMessage(ctx, &service.SysTextMessageOpts{
+			UserId:     uid,
+			TalkType:   entity.ChatGroupMode,
+			ReceiverId: params.GroupId,
+			Text:       "群主或管理员修改了群信息！",
+		})
+
 		response.Success(ctx, nil)
 	}
 }
@@ -323,12 +341,6 @@ func (c *Group) GetMembers(ctx *gin.Context) {
 	} else {
 		response.Success(ctx, c.memberService.Dao().GetMembers(params.GroupId))
 	}
-}
-
-// GetOnlineMembers 获取在线的群成员列表
-// TODO 待实现
-func (c *Group) GetOnlineMembers() {
-
 }
 
 // OvertList 公开群列表

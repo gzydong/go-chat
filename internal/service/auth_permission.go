@@ -6,6 +6,7 @@ import (
 	"go-chat/internal/dao"
 	"go-chat/internal/dao/organize"
 	"go-chat/internal/entity"
+	"go-chat/internal/model"
 	"go-chat/internal/pkg/logger"
 )
 
@@ -37,6 +38,14 @@ func (a *AuthPermissionService) IsAuth(ctx context.Context, prem *AuthPermission
 
 		return a.contactDao.IsFriend(ctx, prem.UserId, prem.ReceiverId, false)
 	} else if prem.TalkType == entity.ChatGroupMode {
+		// 判断群是否解散
+		group := &model.Group{}
+
+		err := a.groupMemberDao.Db().First(group, "id = ?", prem.ReceiverId).Error
+		if err != nil || group.Id == 0 || group.IsDismiss == 1 {
+			return false
+		}
+
 		return a.groupMemberDao.IsMember(prem.ReceiverId, prem.UserId, true)
 	}
 

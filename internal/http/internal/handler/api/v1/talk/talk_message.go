@@ -39,10 +39,10 @@ func (c *Message) Text(ctx *gin.Context) {
 	uid := jwtutil.GetUid(ctx)
 	if !c.authPermission.IsAuth(ctx.Request.Context(), &service.AuthPermission{
 		TalkType:   params.TalkType,
-		UserId:     jwtutil.GetUid(ctx),
+		UserId:     uid,
 		ReceiverId: params.ReceiverId,
 	}) {
-		response.Unauthorized(ctx, "无权限访问！")
+		response.BusinessError(ctx, "暂无无权限发送消息！")
 		return
 	}
 
@@ -72,7 +72,7 @@ func (c *Message) Code(ctx *gin.Context) {
 		UserId:     uid,
 		ReceiverId: params.ReceiverId,
 	}) {
-		response.BusinessError(ctx, "无权限访问！")
+		response.BusinessError(ctx, "暂无无权限发送消息！")
 		return
 	}
 
@@ -120,7 +120,7 @@ func (c *Message) Image(ctx *gin.Context) {
 		UserId:     uid,
 		ReceiverId: params.ReceiverId,
 	}) {
-		response.BusinessError(ctx, "无权限访问！")
+		response.BusinessError(ctx, "暂无无权限发送消息！")
 		return
 	}
 
@@ -150,7 +150,7 @@ func (c *Message) File(ctx *gin.Context) {
 		UserId:     uid,
 		ReceiverId: params.ReceiverId,
 	}) {
-		response.BusinessError(ctx, "无权限访问！")
+		response.BusinessError(ctx, "暂无无权限发送消息！")
 		return
 	}
 
@@ -185,13 +185,12 @@ func (c *Message) Vote(ctx *gin.Context) {
 	}
 
 	uid := jwtutil.GetUid(ctx)
-
 	if !c.authPermission.IsAuth(ctx.Request.Context(), &service.AuthPermission{
 		TalkType:   entity.ChatGroupMode,
 		UserId:     uid,
 		ReceiverId: params.ReceiverId,
 	}) {
-		response.BusinessError(ctx, "无权限访问！")
+		response.BusinessError(ctx, "暂无无权限发送消息！")
 		return
 	}
 
@@ -223,7 +222,7 @@ func (c *Message) Emoticon(ctx *gin.Context) {
 		UserId:     uid,
 		ReceiverId: params.ReceiverId,
 	}) {
-		response.BusinessError(ctx, "无权限访问！")
+		response.BusinessError(ctx, "暂无无权限发送消息！")
 		return
 	}
 
@@ -258,7 +257,7 @@ func (c *Message) Forward(ctx *gin.Context) {
 		UserId:     uid,
 		ReceiverId: params.ReceiverId,
 	}) {
-		response.BusinessError(ctx, "无权限访问！")
+		response.BusinessError(ctx, "暂无无权限发送消息！")
 		return
 	}
 
@@ -293,7 +292,7 @@ func (c *Message) Card(ctx *gin.Context) {
 		UserId:     uid,
 		ReceiverId: params.ReceiverId,
 	}) {
-		response.BusinessError(ctx, "无权限访问！")
+		response.BusinessError(ctx, "暂无无权限发送消息！")
 		return
 	}
 
@@ -395,7 +394,7 @@ func (c *Message) Location(ctx *gin.Context) {
 		UserId:     uid,
 		ReceiverId: params.ReceiverId,
 	}) {
-		response.BusinessError(ctx, "无权限访问！")
+		response.BusinessError(ctx, "暂无无权限发送消息！")
 		return
 	}
 

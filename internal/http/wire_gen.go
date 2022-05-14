@@ -101,7 +101,7 @@ func Initialize(ctx context.Context, conf *config.Config) *Provider {
 		BaseDao: baseDao,
 	}
 	groupNoticeService := service.NewGroupNoticeService(groupNoticeDao)
-	groupGroup := group.NewGroupHandler(groupService, groupMemberService, talkSessionService, redisLock, contactService, userService, groupNoticeService)
+	groupGroup := group.NewGroupHandler(groupService, groupMemberService, talkSessionService, redisLock, contactService, userService, groupNoticeService, talkMessageService)
 	notice := group.NewGroupNoticeHandler(groupNoticeService, groupMemberService)
 	groupApplyDao := dao.NewGroupApply(baseDao)
 	groupApplyService := service.NewGroupApplyService(baseService, groupApplyDao)

@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"database/sql"
 	"errors"
 	"fmt"
 	"time"
@@ -166,8 +165,7 @@ func (s *GroupService) Update(ctx context.Context, opts *UpdateGroupOpts) error 
 func (s *GroupService) Dismiss(ctx context.Context, groupId int, uid int) error {
 	err := s.db.Transaction(func(tx *gorm.DB) error {
 		if err := tx.Model(&model.Group{Id: groupId, CreatorId: uid}).Updates(&model.Group{
-			IsDismiss:   1,
-			DismissedAt: sql.NullTime{Time: time.Now(), Valid: true},
+			IsDismiss: 1,
 		}).Error; err != nil {
 			return err
 		}
