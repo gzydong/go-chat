@@ -383,6 +383,7 @@ func (c *Group) OvertList(ctx *gin.Context) {
 
 		item := &entity.H{
 			"id":         value.Id,
+			"type":       value.Type,
 			"name":       value.Name,
 			"avatar":     value.Avatar,
 			"profile":    value.Profile,

@@ -35,7 +35,7 @@ func (dao *GroupDao) SearchOvertList(ctx context.Context, name string, page, siz
 	}
 
 	items := make([]*model.Group, 0)
-	err := tx.Offset((page - 1) * size).Limit(size).Find(&items).Error
+	err := tx.Order("created_at desc").Offset((page - 1) * size).Limit(size).Find(&items).Error
 	if err != nil {
 		return nil, err
 	}
