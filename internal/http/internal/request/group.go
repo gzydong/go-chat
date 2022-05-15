@@ -42,7 +42,7 @@ type GroupDetailRequest struct {
 
 type GroupEditRemarkRequest struct {
 	GroupCommonRequest
-	VisitCard string `form:"visit_card" json:"visit_card" binding:"required,max=20" label:"visit_card"`
+	VisitCard string `form:"visit_card" json:"visit_card" binding:"max=20" label:"visit_card"`
 }
 
 type GroupEditNoticeRequest struct {

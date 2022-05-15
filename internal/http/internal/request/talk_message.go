@@ -27,6 +27,7 @@ type FileMessageRequest struct {
 type VoteMessageRequest struct {
 	ReceiverId int      `form:"receiver_id" json:"receiver_id" binding:"required,numeric,gt=0" label:"receiver_id"`
 	Mode       int      `form:"mode" json:"mode" binding:"oneof=0 1"`
+	Anonymous  int      `form:"anonymous" json:"anonymous" binding:"oneof=0 1"`
 	Title      string   `form:"title" json:"title" binding:"required"`
 	Options    []string `form:"options" json:"options"`
 }

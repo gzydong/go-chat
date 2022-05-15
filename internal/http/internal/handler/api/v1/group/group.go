@@ -152,7 +152,7 @@ func (c *Group) SignOut(ctx *gin.Context) {
 
 	uid := jwtutil.GetUid(ctx)
 	if err := c.service.Secede(ctx.Request.Context(), params.GroupId, uid); err != nil {
-		response.BusinessError(ctx, "退出群组失败！")
+		response.BusinessError(ctx, err.Error())
 		return
 	}
 

@@ -90,6 +90,7 @@ type VoteMessageOpts struct {
 	UserId     int
 	ReceiverId int
 	Mode       int
+	Anonymous  int
 	Title      string
 	Options    []string
 }
@@ -362,6 +363,7 @@ func (s *TalkMessageService) SendVoteMessage(ctx context.Context, opts *VoteMess
 			AnswerMode:   opts.Mode,
 			AnswerOption: jsonutil.Encode(options),
 			AnswerNum:    int(num),
+			IsAnonymous:  opts.Anonymous,
 		}).Error; err != nil {
 			return err
 		}

@@ -198,6 +198,7 @@ func (c *Message) Vote(ctx *gin.Context) {
 		UserId:     uid,
 		ReceiverId: params.ReceiverId,
 		Mode:       params.Mode,
+		Anonymous:  params.Anonymous,
 		Title:      params.Title,
 		Options:    params.Options,
 	}); err != nil {

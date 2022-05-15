@@ -187,6 +187,10 @@ func (s *GroupService) Secede(ctx context.Context, groupId int, uid int) error {
 
 	info := &model.GroupMember{}
 	if err := s.db.Where("group_id = ? AND user_id = ? and is_quit = 0", groupId, uid).First(info).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return errors.New("数据不存在！")
+		}
+
 		return err
 	}
 
