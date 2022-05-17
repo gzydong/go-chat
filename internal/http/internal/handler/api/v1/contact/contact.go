@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"go-chat/internal/service/organize"
 	"gorm.io/gorm"
 
 	"go-chat/internal/cache"
@@ -22,6 +23,7 @@ type Contact struct {
 	userService        *service.UserService
 	talkListService    *service.TalkSessionService
 	talkMessageService *service.TalkMessageService
+	organizeService    *organize.OrganizeService
 }
 
 func NewContactHandler(
@@ -30,6 +32,7 @@ func NewContactHandler(
 	userService *service.UserService,
 	talkListService *service.TalkSessionService,
 	talkMessageService *service.TalkMessageService,
+	organizeService *organize.OrganizeService,
 ) *Contact {
 	return &Contact{
 		service:            service,
@@ -37,6 +40,7 @@ func NewContactHandler(
 		userService:        userService,
 		talkListService:    talkListService,
 		talkMessageService: talkMessageService,
+		organizeService:    organizeService,
 	}
 }
 
@@ -168,6 +172,11 @@ func (c *Contact) Detail(ctx *gin.Context) {
 		if c.service.Dao().IsFriend(ctx.Request.Context(), uid, params.UserId, false) {
 			resp["friend_status"] = 2
 			resp["nickname_remark"] = c.service.Dao().GetFriendRemark(ctx.Request.Context(), uid, params.UserId, true)
+		} else {
+			isOk, _ := c.organizeService.Dao().IsQiyeMember(uid, params.UserId)
+			if isOk {
+				resp["friend_status"] = 2
+			}
 		}
 	} else {
 		resp["friend_status"] = 0

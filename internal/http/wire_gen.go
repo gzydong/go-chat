@@ -106,7 +106,7 @@ func Initialize(ctx context.Context, conf *config.Config) *Provider {
 	groupApplyDao := dao.NewGroupApply(baseDao)
 	groupApplyService := service.NewGroupApplyService(baseService, groupApplyDao)
 	apply := group.NewApply(groupApplyService, groupMemberService, groupService)
-	contactContact := contact.NewContactHandler(contactService, wsClientSession, userService, talkSessionService, talkMessageService)
+	contactContact := contact.NewContactHandler(contactService, wsClientSession, userService, talkSessionService, talkMessageService, organizeService)
 	contactApplyService := service.NewContactsApplyService(baseService)
 	contactApply := contact.NewContactsApplyHandler(contactApplyService, userService, talkMessageService)
 	articleService := note2.NewArticleService(baseService)
