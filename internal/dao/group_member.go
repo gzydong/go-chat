@@ -16,6 +16,15 @@ func NewGroupMemberDao(baseDao *BaseDao, relation *cache.Relation) *GroupMemberD
 	return &GroupMemberDao{BaseDao: baseDao, relation: relation}
 }
 
+// IsMaster 判断是否是群主
+func (dao *GroupMemberDao) IsMaster(gid, uid int) bool {
+	result := &model.GroupMember{}
+
+	count := dao.Db().Select("id").Where("group_id = ? and user_id = ? and leader = 2 and is_quit = 0", gid, uid).First(result).RowsAffected
+
+	return count == 1
+}
+
 // IsLeader 判断是否是群主或管理员
 func (dao *GroupMemberDao) IsLeader(gid, uid int) bool {
 	result := &model.GroupMember{}

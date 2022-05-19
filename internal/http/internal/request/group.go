@@ -67,3 +67,14 @@ type GroupOvertListRequest struct {
 	Page int    `form:"page" json:"page" binding:"required"`
 	Name string `form:"name" json:"name" binding:"max=50"`
 }
+
+type GroupHandoverRequest struct {
+	GroupId int `form:"group_id" json:"group_id" binding:"min=1"`
+	UserId  int `form:"user_id" json:"user_id" binding:"min=1"`
+}
+
+type GroupAssignAdminRequest struct {
+	Mode    int `form:"mode" json:"mode" binding:"required,oneof=1 2"`
+	GroupId int `form:"group_id" json:"group_id" binding:"min=1"`
+	UserId  int `form:"user_id" json:"user_id" binding:"min=1"`
+}

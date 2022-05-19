@@ -4,6 +4,7 @@ import (
 	"go-chat/internal/dao"
 	"go-chat/internal/entity"
 	"go-chat/internal/model"
+	"gorm.io/gorm"
 )
 
 type GroupMemberService struct {
@@ -19,10 +20,32 @@ func (s *GroupMemberService) Dao() *dao.GroupMemberDao {
 	return s.dao
 }
 
-// EditMemberCard 修改群名片
-func (s *GroupMemberService) EditMemberCard(groupId int, userId int, remark string) error {
+// CardEdit 修改群名片
+func (s *GroupMemberService) CardEdit(groupId int, userId int, remark string) error {
 
 	_, err := s.dao.BaseUpdate(&model.GroupMember{}, entity.MapStrAny{"group_id": groupId, "user_id": userId}, entity.MapStrAny{"user_card": remark})
 
 	return err
+}
+
+// Handover 交接群主权限
+func (s *GroupMemberService) Handover(groupId int, userId int, memberId int) error {
+	return s.Db().Transaction(func(tx *gorm.DB) error {
+
+		err := tx.Model(&model.GroupMember{}).Where("group_id = ? and user_id = ? and leader = 2", groupId, userId).Update("leader", 0).Error
+		if err != nil {
+			return err
+		}
+
+		err = tx.Model(&model.GroupMember{}).Where("group_id = ? and user_id = ?", groupId, memberId).Update("leader", 2).Error
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
+}
+
+func (s *GroupMemberService) UpdateLeaderStatus(groupId int, userId int, leader int) error {
+	return s.Db().Model(model.GroupMember{}).Where("group_id = ? and user_id = ?", groupId, userId).UpdateColumn("leader", leader).Error
 }

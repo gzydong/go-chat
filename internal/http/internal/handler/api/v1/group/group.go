@@ -10,6 +10,7 @@ import (
 	"go-chat/internal/http/internal/response"
 	"go-chat/internal/model"
 	"go-chat/internal/pkg/jwtutil"
+	"go-chat/internal/pkg/logger"
 	"go-chat/internal/pkg/sliceutil"
 	"go-chat/internal/pkg/timeutil"
 	"go-chat/internal/service"
@@ -82,8 +83,7 @@ func (c *Group) Dismiss(ctx *gin.Context) {
 	}
 
 	uid := jwtutil.GetUid(ctx)
-
-	if !c.memberService.Dao().IsLeader(params.GroupId, uid) {
+	if !c.memberService.Dao().IsMaster(params.GroupId, uid) {
 		response.BusinessError(ctx, "暂无权限解散群组！")
 		return
 	}
@@ -280,7 +280,7 @@ func (c *Group) EditRemark(ctx *gin.Context) {
 		return
 	}
 
-	if err := c.memberService.EditMemberCard(params.GroupId, jwtutil.GetUid(ctx), params.VisitCard); err != nil {
+	if err := c.memberService.CardEdit(params.GroupId, jwtutil.GetUid(ctx), params.VisitCard); err != nil {
 		response.BusinessError(ctx, "修改群备注失败！")
 		return
 	}
@@ -418,4 +418,62 @@ func (c *Group) OvertList(ctx *gin.Context) {
 		"items": items,
 		"next":  len(list) > 20,
 	})
+}
+
+// Handover 群主交接
+func (c *Group) Handover(ctx *gin.Context) {
+	params := &request.GroupHandoverRequest{}
+	if err := ctx.ShouldBind(params); err != nil {
+		response.InvalidParams(ctx, err)
+		return
+	}
+
+	uid := jwtutil.GetUid(ctx)
+	if !c.memberService.Dao().IsMaster(params.GroupId, uid) {
+		response.BusinessError(ctx, "暂无权限！")
+		return
+	}
+
+	if uid == params.UserId {
+		response.BusinessError(ctx, "暂无权限！")
+		return
+	}
+
+	err := c.memberService.Handover(params.GroupId, uid, params.UserId)
+	if err != nil {
+		logger.Error("[Group Handover] 转让群主失败 err :", err.Error())
+		response.BusinessError(ctx, "转让群主失败！")
+		return
+	}
+
+	response.Success(ctx, entity.H{})
+}
+
+// AssignAdmin 分配管理员
+func (c *Group) AssignAdmin(ctx *gin.Context) {
+	params := &request.GroupAssignAdminRequest{}
+	if err := ctx.ShouldBind(params); err != nil {
+		response.InvalidParams(ctx, err)
+		return
+	}
+
+	uid := jwtutil.GetUid(ctx)
+	if !c.memberService.Dao().IsMaster(params.GroupId, uid) {
+		response.BusinessError(ctx, "暂无权限！")
+		return
+	}
+
+	leader := 0
+	if params.Mode == 1 {
+		leader = 1
+	}
+
+	err := c.memberService.UpdateLeaderStatus(params.GroupId, params.UserId, leader)
+	if err != nil {
+		logger.Error("[Group AssignAdmin] 设置管理员信息失败 err :", err.Error())
+		response.BusinessError(ctx, "设置管理员信息失败！")
+		return
+	}
+
+	response.Success(ctx, entity.H{})
 }
