@@ -49,3 +49,7 @@ func (s *GroupMemberService) Handover(groupId int, userId int, memberId int) err
 func (s *GroupMemberService) UpdateLeaderStatus(groupId int, userId int, leader int) error {
 	return s.Db().Model(model.GroupMember{}).Where("group_id = ? and user_id = ?", groupId, userId).UpdateColumn("leader", leader).Error
 }
+
+func (s *GroupMemberService) UpdateMuteStatus(groupId int, userId int, status int) error {
+	return s.Db().Model(model.GroupMember{}).Where("group_id = ? and user_id = ?", groupId, userId).UpdateColumn("is_mute", status).Error
+}

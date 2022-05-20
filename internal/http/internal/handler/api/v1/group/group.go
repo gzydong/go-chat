@@ -477,3 +477,32 @@ func (c *Group) AssignAdmin(ctx *gin.Context) {
 
 	response.Success(ctx, entity.H{})
 }
+
+// NoSpeak 禁止发言
+func (c *Group) NoSpeak(ctx *gin.Context) {
+	params := &request.GroupNoSpeakRequest{}
+	if err := ctx.ShouldBind(params); err != nil {
+		response.InvalidParams(ctx, err)
+		return
+	}
+
+	uid := jwtutil.GetUid(ctx)
+	if !c.memberService.Dao().IsLeader(params.GroupId, uid) {
+		response.BusinessError(ctx, "暂无权限！")
+		return
+	}
+
+	status := 1
+	if params.Mode == 2 {
+		status = 0
+	}
+
+	err := c.memberService.UpdateMuteStatus(params.GroupId, params.UserId, status)
+	if err != nil {
+		logger.Error("[Group NoSpeak] 设置群成员禁言状态失败 err :", err.Error())
+		response.BusinessError(ctx, "操作失败！")
+		return
+	}
+
+	response.Success(ctx, entity.H{})
+}

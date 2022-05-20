@@ -1,7 +1,12 @@
 package talk
 
 import (
+	"errors"
+
 	"github.com/gin-gonic/gin"
+	"go-chat/internal/model"
+	"go-chat/internal/service/organize"
+	"gorm.io/gorm"
 
 	"go-chat/internal/dao"
 	"go-chat/internal/entity"
@@ -21,11 +26,57 @@ type Message struct {
 	splitUploadService *service.SplitUploadService
 	contactService     *service.ContactService
 	groupMemberService *service.GroupMemberService
-	authPermission     *service.AuthPermissionService
+	organizeService    *organize.OrganizeService
 }
 
-func NewTalkMessageHandler(service *service.TalkMessageService, talkService *service.TalkService, talkRecordsVoteDao *dao.TalkRecordsVoteDao, forwardService *service.TalkMessageForwardService, splitUploadService *service.SplitUploadService, contactService *service.ContactService, groupMemberService *service.GroupMemberService, authPermission *service.AuthPermissionService) *Message {
-	return &Message{service: service, talkService: talkService, talkRecordsVoteDao: talkRecordsVoteDao, forwardService: forwardService, splitUploadService: splitUploadService, contactService: contactService, groupMemberService: groupMemberService, authPermission: authPermission}
+func NewTalkMessageHandler(service *service.TalkMessageService, talkService *service.TalkService, talkRecordsVoteDao *dao.TalkRecordsVoteDao, forwardService *service.TalkMessageForwardService, splitUploadService *service.SplitUploadService, contactService *service.ContactService, groupMemberService *service.GroupMemberService, organizeService *organize.OrganizeService) *Message {
+	return &Message{service: service, talkService: talkService, talkRecordsVoteDao: talkRecordsVoteDao, forwardService: forwardService, splitUploadService: splitUploadService, contactService: contactService, groupMemberService: groupMemberService, organizeService: organizeService}
+}
+
+type AuthorityOpts struct {
+	TalkType   int // 对话类型
+	UserId     int // 发送者ID
+	ReceiverId int // 接收者ID
+}
+
+// 权限验证
+func (c *Message) authority(ctx *gin.Context, opt *AuthorityOpts) error {
+
+	if opt.TalkType == entity.ChatPrivateMode {
+		// 这里需要判断双方是否都是企业成员，如果是则无需添加好友即可聊天
+		if isOk, err := c.organizeService.Dao().IsQiyeMember(opt.UserId, opt.ReceiverId); err != nil {
+			return errors.New("系统繁忙，请稍后再试！！！")
+		} else if isOk {
+			return nil
+		}
+
+		isOk := c.contactService.Dao().IsFriend(ctx.Request.Context(), opt.UserId, opt.ReceiverId, false)
+		if isOk {
+			return nil
+		}
+
+		return errors.New("暂无权限发送消息！")
+	} else {
+		groupMemberInfo := &model.GroupMember{}
+		err := c.groupMemberService.Db().First(groupMemberInfo, "group_id = ? and user_id = ?", opt.ReceiverId, opt.UserId).Error
+		if err != nil {
+			if err == gorm.ErrRecordNotFound {
+				return errors.New("暂无权限发送消息！")
+			}
+
+			return errors.New("系统繁忙，请稍后再试！！！")
+		}
+
+		if groupMemberInfo.IsQuit == 1 {
+			return errors.New("暂无权限发送消息！")
+		}
+
+		if groupMemberInfo.IsMute == 1 {
+			return errors.New("已被群主或管理员禁言！")
+		}
+
+		return nil
+	}
 }
 
 // Text 发送文本消息
@@ -37,12 +88,12 @@ func (c *Message) Text(ctx *gin.Context) {
 	}
 
 	uid := jwtutil.GetUid(ctx)
-	if !c.authPermission.IsAuth(ctx.Request.Context(), &service.AuthPermission{
+	if err := c.authority(ctx, &AuthorityOpts{
 		TalkType:   params.TalkType,
 		UserId:     uid,
 		ReceiverId: params.ReceiverId,
-	}) {
-		response.BusinessError(ctx, "暂无无权限发送消息！")
+	}); err != nil {
+		response.BusinessError(ctx, err.Error())
 		return
 	}
 
@@ -67,12 +118,12 @@ func (c *Message) Code(ctx *gin.Context) {
 	}
 
 	uid := jwtutil.GetUid(ctx)
-	if !c.authPermission.IsAuth(ctx.Request.Context(), &service.AuthPermission{
+	if err := c.authority(ctx, &AuthorityOpts{
 		TalkType:   params.TalkType,
 		UserId:     uid,
 		ReceiverId: params.ReceiverId,
-	}) {
-		response.BusinessError(ctx, "暂无无权限发送消息！")
+	}); err != nil {
+		response.BusinessError(ctx, err.Error())
 		return
 	}
 
@@ -115,12 +166,12 @@ func (c *Message) Image(ctx *gin.Context) {
 	}
 
 	uid := jwtutil.GetUid(ctx)
-	if !c.authPermission.IsAuth(ctx.Request.Context(), &service.AuthPermission{
+	if err := c.authority(ctx, &AuthorityOpts{
 		TalkType:   params.TalkType,
 		UserId:     uid,
 		ReceiverId: params.ReceiverId,
-	}) {
-		response.BusinessError(ctx, "暂无无权限发送消息！")
+	}); err != nil {
+		response.BusinessError(ctx, err.Error())
 		return
 	}
 
@@ -145,12 +196,12 @@ func (c *Message) File(ctx *gin.Context) {
 	}
 
 	uid := jwtutil.GetUid(ctx)
-	if !c.authPermission.IsAuth(ctx.Request.Context(), &service.AuthPermission{
+	if err := c.authority(ctx, &AuthorityOpts{
 		TalkType:   params.TalkType,
 		UserId:     uid,
 		ReceiverId: params.ReceiverId,
-	}) {
-		response.BusinessError(ctx, "暂无无权限发送消息！")
+	}); err != nil {
+		response.BusinessError(ctx, err.Error())
 		return
 	}
 
@@ -185,12 +236,12 @@ func (c *Message) Vote(ctx *gin.Context) {
 	}
 
 	uid := jwtutil.GetUid(ctx)
-	if !c.authPermission.IsAuth(ctx.Request.Context(), &service.AuthPermission{
+	if err := c.authority(ctx, &AuthorityOpts{
 		TalkType:   entity.ChatGroupMode,
 		UserId:     uid,
 		ReceiverId: params.ReceiverId,
-	}) {
-		response.BusinessError(ctx, "暂无无权限发送消息！")
+	}); err != nil {
+		response.BusinessError(ctx, err.Error())
 		return
 	}
 
@@ -217,13 +268,12 @@ func (c *Message) Emoticon(ctx *gin.Context) {
 	}
 
 	uid := jwtutil.GetUid(ctx)
-
-	if !c.authPermission.IsAuth(ctx.Request.Context(), &service.AuthPermission{
+	if err := c.authority(ctx, &AuthorityOpts{
 		TalkType:   params.TalkType,
 		UserId:     uid,
 		ReceiverId: params.ReceiverId,
-	}) {
-		response.BusinessError(ctx, "暂无无权限发送消息！")
+	}); err != nil {
+		response.BusinessError(ctx, err.Error())
 		return
 	}
 
@@ -253,12 +303,12 @@ func (c *Message) Forward(ctx *gin.Context) {
 	}
 
 	uid := jwtutil.GetUid(ctx)
-	if !c.authPermission.IsAuth(ctx.Request.Context(), &service.AuthPermission{
+	if err := c.authority(ctx, &AuthorityOpts{
 		TalkType:   params.TalkType,
 		UserId:     uid,
 		ReceiverId: params.ReceiverId,
-	}) {
-		response.BusinessError(ctx, "暂无无权限发送消息！")
+	}); err != nil {
+		response.BusinessError(ctx, err.Error())
 		return
 	}
 
@@ -288,12 +338,12 @@ func (c *Message) Card(ctx *gin.Context) {
 	}
 
 	uid := jwtutil.GetUid(ctx)
-	if !c.authPermission.IsAuth(ctx.Request.Context(), &service.AuthPermission{
+	if err := c.authority(ctx, &AuthorityOpts{
 		TalkType:   params.TalkType,
 		UserId:     uid,
 		ReceiverId: params.ReceiverId,
-	}) {
-		response.BusinessError(ctx, "暂无无权限发送消息！")
+	}); err != nil {
+		response.BusinessError(ctx, err.Error())
 		return
 	}
 
@@ -390,12 +440,12 @@ func (c *Message) Location(ctx *gin.Context) {
 	}
 
 	uid := jwtutil.GetUid(ctx)
-	if !c.authPermission.IsAuth(ctx.Request.Context(), &service.AuthPermission{
+	if err := c.authority(ctx, &AuthorityOpts{
 		TalkType:   params.TalkType,
 		UserId:     uid,
 		ReceiverId: params.ReceiverId,
-	}) {
-		response.BusinessError(ctx, "暂无无权限发送消息！")
+	}); err != nil {
+		response.BusinessError(ctx, err.Error())
 		return
 	}
 

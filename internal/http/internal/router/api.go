@@ -74,6 +74,7 @@ func RegisterApiRoute(conf *config.Config, router *gin.Engine, handler *handler.
 			userGroup.POST("/setting", handler.Group.Setting)          // 设置群组信息
 			userGroup.POST("/handover", handler.Group.Handover)        // 群主转让
 			userGroup.POST("/assign-admin", handler.Group.AssignAdmin) // 分配管理员
+			userGroup.POST("/no-speak", handler.Group.NoSpeak)         // 修改禁言状态
 
 			// 群成员相关
 			userGroup.GET("/member/list", handler.Group.GetMembers)          // 群成员列表

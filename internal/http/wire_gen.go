@@ -83,10 +83,10 @@ func Initialize(ctx context.Context, conf *config.Config) *Provider {
 	contactDao := dao.NewContactDao(baseDao, relation)
 	contactService := service.NewContactService(baseService, contactDao)
 	groupMemberService := service.NewGroupMemberService(baseService, groupMemberDao)
-	authPermissionService := service.NewAuthPermissionService(contactDao, groupMemberDao, organizeDao)
-	message := talk.NewTalkMessageHandler(talkMessageService, talkService, talkRecordsVoteDao, talkMessageForwardService, splitUploadService, contactService, groupMemberService, authPermissionService)
+	message := talk.NewTalkMessageHandler(talkMessageService, talkService, talkRecordsVoteDao, talkMessageForwardService, splitUploadService, contactService, groupMemberService, organizeService)
 	groupDao := dao.NewGroupDao(baseDao)
 	groupService := service.NewGroupService(baseService, groupDao, groupMemberDao, relation)
+	authPermissionService := service.NewAuthPermissionService(contactDao, groupMemberDao, organizeDao)
 	talkTalk := talk.NewTalkHandler(talkService, talkSessionService, redisLock, userService, wsClientSession, lastMessage, unreadTalkCache, contactService, groupService, authPermissionService)
 	talkRecordsDao := &dao.TalkRecordsDao{
 		BaseDao: baseDao,

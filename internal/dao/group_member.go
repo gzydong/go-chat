@@ -94,6 +94,7 @@ func (dao *GroupMemberDao) GetMembers(groupId int) []*model.MemberItem {
 		"group_member.leader",
 		"group_member.user_card",
 		"group_member.user_id",
+		"group_member.is_mute",
 		"users.avatar",
 		"users.nickname",
 		"users.gender",

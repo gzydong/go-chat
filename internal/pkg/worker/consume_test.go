@@ -7,7 +7,7 @@ import (
 )
 
 func TestConsume_Start(t *testing.T) {
-	c := NewConsume(5, 2)
+	c := NewConsume(1, 2)
 
 	c.Start()
 
