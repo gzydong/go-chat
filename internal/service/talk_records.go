@@ -75,6 +75,7 @@ func (s *TalkRecordsService) GetTalkRecords(ctx context.Context, opts *QueryTalk
 			"talk_records.user_id",
 			"talk_records.receiver_id",
 			"talk_records.is_revoke",
+			"talk_records.is_read",
 			"talk_records.content",
 			"talk_records.created_at",
 			"users.nickname",
