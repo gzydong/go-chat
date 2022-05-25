@@ -3,6 +3,7 @@ package contact
 import (
 	"github.com/gin-gonic/gin"
 	"go-chat/internal/entity"
+	"go-chat/internal/pkg/timeutil"
 
 	"go-chat/internal/http/internal/request"
 	"go-chat/internal/http/internal/response"
@@ -27,7 +28,7 @@ func NewContactsApplyHandler(
 // ApplyUnreadNum 获取好友申请未读数
 func (c *ContactApply) ApplyUnreadNum(ctx *gin.Context) {
 	response.Success(ctx, entity.H{
-		"unread_num": 0,
+		"unread_num": c.service.GetApplyUnreadNum(ctx.Request.Context(), jwtutil.GetUid(ctx)),
 	})
 }
 
@@ -103,11 +104,26 @@ func (c *ContactApply) Decline(ctx *gin.Context) {
 
 // List 获取联系人申请列表
 func (c *ContactApply) List(ctx *gin.Context) {
-	items, err := c.service.List(ctx, jwtutil.GetUid(ctx), 1, 1000)
+	list, err := c.service.List(ctx, jwtutil.GetUid(ctx), 1, 1000)
 	if err != nil {
 		response.SystemError(ctx, err)
 		return
 	}
+
+	items := make([]*entity.H, 0)
+	for _, item := range list {
+		items = append(items, &entity.H{
+			"id":         item.Id,
+			"user_id":    item.UserId,
+			"friend_id":  item.FriendId,
+			"remark":     item.Remark,
+			"nickname":   item.Nickname,
+			"avatar":     item.Avatar,
+			"created_at": timeutil.FormatDatetime(item.CreatedAt),
+		})
+	}
+
+	c.service.ClearApplyUnreadNum(ctx, jwtutil.GetUid(ctx))
 
 	response.SuccessPaginate(ctx, items, 1, 1000, len(items))
 }

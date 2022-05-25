@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"gorm.io/gorm"
 
@@ -56,6 +57,8 @@ func (s *ContactApplyService) Create(ctx context.Context, opts *ContactApplyCrea
 			"type":     1,
 		}),
 	}
+
+	s.rds.Incr(ctx, fmt.Sprintf("friend-apply:user_%d", opts.FriendId))
 
 	s.rds.Publish(ctx, entity.IMGatewayAll, jsonutil.Encode(body))
 
@@ -174,4 +177,18 @@ func (s *ContactApplyService) List(ctx context.Context, uid, page, size int) ([]
 	}
 
 	return items, nil
+}
+
+func (s *ContactApplyService) GetApplyUnreadNum(ctx context.Context, uid int) int {
+
+	num, err := s.rds.Get(ctx, fmt.Sprintf("friend-apply:user_%d", uid)).Int()
+	if err != nil {
+		return 0
+	}
+
+	return num
+}
+
+func (s *ContactApplyService) ClearApplyUnreadNum(ctx context.Context, uid int) {
+	s.rds.Del(ctx, fmt.Sprintf("friend-apply:user_%d", uid))
 }
