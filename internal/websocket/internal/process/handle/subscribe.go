@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	"github.com/sirupsen/logrus"
+	"go-chat/internal/pkg/timeutil"
 
 	"go-chat/config"
 	"go-chat/internal/cache"
@@ -250,36 +251,24 @@ func (s *SubscribeConsume) onConsumeContactApply(body string) {
 		return
 	}
 
-	cids := make([]int64, 0)
-
-	if msg.Type == 1 {
-		cids = s.ws.GetUidFromClientIds(ctx, s.conf.ServerId(), im.Session.Default.Name(), strconv.Itoa(apply.FriendId))
-	} else {
-		cids = s.ws.GetUidFromClientIds(ctx, s.conf.ServerId(), im.Session.Default.Name(), strconv.Itoa(apply.UserId))
-	}
-
+	cids := s.ws.GetUidFromClientIds(ctx, s.conf.ServerId(), im.Session.Default.Name(), strconv.Itoa(apply.FriendId))
 	if len(cids) == 0 {
 		return
 	}
 
-	data := entity.MapStrAny{}
-	if msg.Type == 1 {
-		data["sender_id"] = apply.UserId
-		data["receiver_id"] = apply.FriendId
-		data["remark"] = apply.Remark
-	} else {
-		data["sender_id"] = apply.FriendId
-		data["receiver_id"] = apply.UserId
-		data["remark"] = apply.Remark
-		data["status"] = 1
+	user := &model.Users{}
+	if err := s.contactService.Db().First(&user, apply.FriendId).Error; err != nil {
+		return
 	}
 
-	// TODO 待修改
+	data := entity.MapStrAny{}
+	data["sender_id"] = apply.UserId
+	data["receiver_id"] = apply.FriendId
+	data["remark"] = apply.Remark
 	data["friend"] = entity.MapStrAny{
-		"user_id":  1,
-		"avatar":   "$friendInfo->avatar",
-		"nickname": "$friendInfo->nickname",
-		"mobile":   "$friendInfo->mobile",
+		"nickname":   user.Nickname,
+		"remark":     apply.Remark,
+		"created_at": timeutil.FormatDatetime(apply.CreatedAt),
 	}
 
 	c := im.NewSenderContent()

@@ -118,18 +118,6 @@ func (s *ContactApplyService) Accept(ctx context.Context, opts *ContactApplyAcce
 		return tx.Delete(&model.ContactApply{}, applyInfo.Id).Error
 	})
 
-	if err == nil {
-		body := map[string]interface{}{
-			"event": entity.EventContactApply,
-			"data": jsonutil.Encode(map[string]interface{}{
-				"apply_id": int64(applyInfo.Id),
-				"type":     2,
-			}),
-		}
-
-		s.rds.Publish(ctx, entity.IMGatewayAll, jsonutil.Encode(body))
-	}
-
 	return applyInfo, err
 }
 
