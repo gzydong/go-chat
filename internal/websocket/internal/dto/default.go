@@ -31,7 +31,7 @@ type KeyboardMessage struct {
 type TalkReadMessage struct {
 	Event string `json:"event"`
 	Data  struct {
-		MsgId      int `json:"msg_id"`
-		ReceiverId int `json:"receiver_id"`
+		MsgIds     []int `json:"msg_id"`
+		ReceiverId int   `json:"receiver_id"`
 	} `json:"data"`
 }

@@ -118,14 +118,14 @@ func (c *DefaultWebSocket) message(client im.ClientInterface, message *im.Receiv
 	case entity.EventTalkRead:
 		var m *dto.TalkReadMessage
 		if err := json.Unmarshal([]byte(message.Content), &m); err == nil {
-			c.groupMemberService.Db().Model(&model.TalkRecords{}).Where("id = ? and receiver_id = ? and is_read = 0", m.Data.MsgId, client.ClientUid()).Update("is_read", 1)
+			c.groupMemberService.Db().Model(&model.TalkRecords{}).Where("id in ? and receiver_id = ? and is_read = 0", m.Data.MsgIds, client.ClientUid()).Update("is_read", 1)
 
 			c.rds.Publish(context.Background(), entity.IMGatewayAll, jsonutil.Encode(entity.MapStrAny{
 				"event": entity.EventTalkRead,
 				"data": jsonutil.Encode(entity.MapStrAny{
 					"sender_id":   client.ClientUid(),
 					"receiver_id": m.Data.ReceiverId,
-					"ids":         []int{m.Data.MsgId},
+					"ids":         m.Data.MsgIds,
 				}),
 			}))
 		}
