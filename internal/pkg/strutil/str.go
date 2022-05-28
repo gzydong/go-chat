@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"math/rand"
 	"path"
-	"regexp"
 	"strings"
 	"time"
 )
@@ -77,27 +76,4 @@ func BoolToInt(value bool) int {
 // FileSuffix 获取文件后缀名
 func FileSuffix(filename string) string {
 	return strings.TrimPrefix(path.Ext(filename), ".")
-}
-
-func ParseImage(text string) string {
-	reg, _ := regexp.Compile(`<img src=[\'|\"](.*?)[\'|\"].*?[\/]?>`)
-
-	items := reg.FindAllStringSubmatch(text, 1)
-	for _, item := range items {
-		return item[1]
-	}
-
-	return ""
-}
-
-func ParseAllImage(text string) []string {
-	reg, _ := regexp.Compile(`<img src=[\'|\"](.*?)[\'|\"].*?[\/]?>`)
-
-	list := make([]string, 0)
-
-	for _, item := range reg.FindAllStringSubmatch(text, -1) {
-		list = append(list, item[1])
-	}
-
-	return list
 }

@@ -2,7 +2,6 @@ package sliceutil
 
 import (
 	"fmt"
-	"reflect"
 	"strconv"
 	"strings"
 )
@@ -75,8 +74,8 @@ func ToMap(arr []map[string]interface{}, field string) (map[int64]map[string]int
 			return nil, fmt.Errorf("%s 字段不存在", field)
 		}
 
-		if _, ok := value.(int64); ok {
-			hashMap[reflect.ValueOf(value).Int()] = data
+		if val, ok := value.(int64); ok {
+			hashMap[val] = data
 		} else {
 			return nil, fmt.Errorf("%s 字段非 int64 类型", field)
 		}

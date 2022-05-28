@@ -5,13 +5,13 @@ import (
 	"go-chat/internal/model"
 )
 
-type OrganizeDao struct {
-	*dao.BaseDao
-}
-
-type OrganizeDaoInterface interface {
+type IOrganizeDao interface {
 	FindAll() ([]*UserInfo, error)
 	IsQiyeMember(uid ...int) (bool, error)
+}
+
+type OrganizeDao struct {
+	*dao.BaseDao
 }
 
 func NewOrganizeDao(baseDao *dao.BaseDao) *OrganizeDao {

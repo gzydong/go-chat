@@ -36,9 +36,9 @@ func (n *Node) get(cid int64) (*Client, bool) {
 
 	if client, ok := value.(*Client); ok {
 		return client, true
-	} else {
-		return nil, false
 	}
+
+	return nil, false
 }
 
 // 判断客户端是否存在

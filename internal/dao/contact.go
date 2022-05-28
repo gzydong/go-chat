@@ -10,7 +10,7 @@ import (
 	"go-chat/internal/model"
 )
 
-type ContactDaoInterface interface {
+type IContactDao interface {
 	IsFriend(ctx context.Context, uid int, friendId int, cache bool) bool
 	GetFriendRemarks(ctx context.Context, uid int, fids []int) (map[int]string, error)
 	GetFriendRemark(ctx context.Context, uid int, friendId int, isCache bool) string

@@ -1,18 +1,17 @@
 package im
 
-type CallbackInterface interface {
-	Open(client ClientInterface)
-	Message(client ClientInterface, message *ReceiveContent)
-	Close(client ClientInterface, code int, text string)
+type ICallback interface {
+	Open(client IClient)
+	Message(client IClient, message *ReceiveContent)
+	Close(client IClient, code int, text string)
 }
 
-type OpenCallback func(client ClientInterface)
-
-type MessageCallback func(client ClientInterface, message *ReceiveContent)
-
-type CloseCallback func(client ClientInterface, code int, text string)
-
-type ClientCallbackOption func(callBack *ClientCallback)
+type (
+	OpenCallback         func(client IClient)
+	MessageCallback      func(client IClient, message *ReceiveContent)
+	CloseCallback        func(client IClient, code int, text string)
+	ClientCallbackOption func(callBack *ClientCallback)
+)
 
 type ClientCallback struct {
 	openCallBack    OpenCallback
@@ -31,19 +30,19 @@ func NewClientCallback(opts ...ClientCallbackOption) *ClientCallback {
 	return o
 }
 
-func (c *ClientCallback) Open(client ClientInterface) {
+func (c *ClientCallback) Open(client IClient) {
 	if c.openCallBack != nil {
 		c.openCallBack(client)
 	}
 }
 
-func (c *ClientCallback) Message(client ClientInterface, message *ReceiveContent) {
+func (c *ClientCallback) Message(client IClient, message *ReceiveContent) {
 	if c.messageCallBack != nil {
 		c.messageCallBack(client, message)
 	}
 }
 
-func (c *ClientCallback) Close(client ClientInterface, code int, text string) {
+func (c *ClientCallback) Close(client IClient, code int, text string) {
 	if c.closeCallBack != nil {
 		c.closeCallBack(client, code, text)
 	}

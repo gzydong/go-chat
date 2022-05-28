@@ -116,7 +116,7 @@ func (c *Group) Invite(ctx *gin.Context) {
 		return
 	}
 
-	defer c.redisLock.Release(ctx, key)
+	defer c.redisLock.UnLock(ctx, key)
 
 	uid := jwtutil.GetUid(ctx)
 	uids := sliceutil.UniqueInt(sliceutil.ParseIds(params.Ids))

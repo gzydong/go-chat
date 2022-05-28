@@ -3,8 +3,9 @@ package cache
 import (
 	"context"
 	"fmt"
-	"github.com/go-redis/redis/v8"
 	"time"
+
+	"github.com/go-redis/redis/v8"
 )
 
 type RedisLock struct {
@@ -16,17 +17,17 @@ func NewRedisLock(rds *redis.Client) *RedisLock {
 }
 
 // key 获取锁名
-func (l *RedisLock) key(name string) string {
+func (lock *RedisLock) key(name string) string {
 	return fmt.Sprintf("rds-lock:%s", name)
 }
 
-// Lock 获取 redis 分布式锁
-func (l *RedisLock) Lock(ctx context.Context, name string, expire int) bool {
-	return l.rds.SetNX(ctx, l.key(name), 1, time.Duration(expire)*time.Second).Val()
+// Lock 获取 rds 锁
+func (lock *RedisLock) Lock(ctx context.Context, name string, expire int) bool {
+	return lock.rds.SetNX(ctx, lock.key(name), 1, time.Duration(expire)*time.Second).Val()
 }
 
-// Release 释放 redis 分布式锁
-func (l *RedisLock) Release(ctx context.Context, name string) bool {
+// UnLock 释放 rds 锁
+func (lock *RedisLock) UnLock(ctx context.Context, name string) bool {
 	script := `
 	if redis.call("GET", KEYS[1]) == ARGV[1] then
 		return redis.call("DEL", KEYS[1])
@@ -34,5 +35,5 @@ func (l *RedisLock) Release(ctx context.Context, name string) bool {
 		return false
 	end`
 
-	return l.rds.Eval(ctx, script, []string{l.key(name)}, 1).Err() == nil
+	return lock.rds.Eval(ctx, script, []string{lock.key(name)}, 1).Err() == nil
 }

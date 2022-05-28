@@ -3,12 +3,17 @@ package cache
 import (
 	"context"
 	"fmt"
-	"github.com/go-redis/redis/v8"
 	"time"
+
+	"github.com/go-redis/redis/v8"
 )
 
 type SmsCodeCache struct {
-	Redis *redis.Client
+	rds *redis.Client
+}
+
+func NewSmsCodeCache(rds *redis.Client) *SmsCodeCache {
+	return &SmsCodeCache{rds: rds}
 }
 
 func (c *SmsCodeCache) key(channel string, mobile string) string {
@@ -16,13 +21,13 @@ func (c *SmsCodeCache) key(channel string, mobile string) string {
 }
 
 func (c *SmsCodeCache) Set(ctx context.Context, channel string, mobile string, code string, expire int) error {
-	return c.Redis.Set(ctx, c.key(channel, mobile), code, time.Duration(expire)*time.Second).Err()
+	return c.rds.Set(ctx, c.key(channel, mobile), code, time.Duration(expire)*time.Second).Err()
 }
 
 func (c *SmsCodeCache) Get(ctx context.Context, channel string, mobile string) (string, error) {
-	return c.Redis.Get(ctx, c.key(channel, mobile)).Result()
+	return c.rds.Get(ctx, c.key(channel, mobile)).Result()
 }
 
 func (c *SmsCodeCache) Del(ctx context.Context, channel string, mobile string) error {
-	return c.Redis.Del(ctx, c.key(channel, mobile)).Err()
+	return c.rds.Del(ctx, c.key(channel, mobile)).Err()
 }

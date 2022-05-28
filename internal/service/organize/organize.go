@@ -14,6 +14,6 @@ func NewOrganizeService(baseService *service.BaseService, dao *organize.Organize
 	return &OrganizeService{BaseService: baseService, dao: dao}
 }
 
-func (o *OrganizeService) Dao() organize.OrganizeDaoInterface {
+func (o *OrganizeService) Dao() organize.IOrganizeDao {
 	return o.dao
 }

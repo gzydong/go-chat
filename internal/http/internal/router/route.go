@@ -37,6 +37,8 @@ func NewRouter(conf *config.Config, handler *handler.Handler, tokenCache *cache.
 	})
 
 	RegisterApiRoute(conf, router, handler, tokenCache)
+	RegisterAdminRoute(conf, router, handler, tokenCache)
+	RegisterOpenRoute(conf, router, handler, tokenCache)
 
 	router.NoRoute(func(c *gin.Context) {
 		response.NewError(c, 404, "请求地址不存在")

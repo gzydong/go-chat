@@ -5,12 +5,12 @@ import (
 	"go-chat/internal/model"
 )
 
-type PositionDao struct {
-	*dao.BaseDao
+type IPositionDao interface {
+	FindAll() ([]*model.OrganizePost, error)
 }
 
-type PositionDaoInterface interface {
-	FindAll() ([]*model.OrganizePost, error)
+type PositionDao struct {
+	*dao.BaseDao
 }
 
 func NewPositionDao(baseDao *dao.BaseDao) *PositionDao {

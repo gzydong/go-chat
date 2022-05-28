@@ -10,17 +10,16 @@ import (
 	"go-chat/internal/pkg/jsonutil"
 )
 
-type ClientInterface interface {
+type IClient interface {
 	ClientId() int64                    // 获取客户端ID
 	ClientUid() int                     // 获取客户端关联用户ID
 	Close(code int, text string)        // 关闭客户端
 	Write(data *ClientOutContent) error // 客户端写入数据
 }
 
-type StorageInterface interface {
+type IStorage interface {
 	Bind(ctx context.Context, channel string, clientId int64, uid int)
 	UnBind(ctx context.Context, channel string, clientId int64)
-	// HeartbeatCallback(ctx context.Context, channel string, clientId int64)
 }
 
 // ClientInContent 客户端接收消息体
@@ -44,20 +43,20 @@ type Client struct {
 	uid      int                    // 用户ID
 	lastTime int64                  // 客户端最后心跳时间/心跳检测
 	channel  *Channel               // 渠道分组
-	storage  StorageInterface       // 缓存服务
 	isClosed bool                   // 客户端是否关闭连接
 	outChan  chan *ClientOutContent // 发送通道
-	callBack CallbackInterface      // 回调方法
+	storage  IStorage               // 缓存服务
+	callBack ICallback              // 回调方法
 }
 
 type ClientOptions struct {
-	Uid     int              // 用户识别ID
-	Channel *Channel         // 渠道信息
-	Storage StorageInterface // 自定义缓存组件，用于绑定用户与客户端的关系
+	Uid     int      // 用户识别ID
+	Channel *Channel // 渠道信息
+	Storage IStorage // 自定义缓存组件，用于绑定用户与客户端的关系
 }
 
 // NewClient 初始化客户端信息
-func NewClient(ctx context.Context, conn *websocket.Conn, opt *ClientOptions, callBack CallbackInterface) ClientInterface {
+func NewClient(ctx context.Context, conn *websocket.Conn, opt *ClientOptions, callBack ICallback) IClient {
 	client := &Client{
 		conn:     conn,
 		cid:      Counter.GenID(),
@@ -65,7 +64,7 @@ func NewClient(ctx context.Context, conn *websocket.Conn, opt *ClientOptions, ca
 		uid:      opt.Uid,
 		channel:  opt.Channel,
 		storage:  opt.Storage,
-		outChan:  make(chan *ClientOutContent, 5), // 缓冲区大小根据业务，自行调整
+		outChan:  make(chan *ClientOutContent, 10), // 缓冲区大小根据业务，自行调整
 		callBack: callBack,
 	}
 
@@ -129,7 +128,7 @@ func (c *Client) Write(data *ClientOutContent) error {
 // 推送心跳检测配置
 func (c *Client) writeHeartbeat() {
 	_ = c.Write(&ClientOutContent{
-		Content: jsonutil.EncodeByte(&Message{
+		Content: jsonutil.EncodeToByte(&Message{
 			Event: "connect",
 			Content: map[string]interface{}{
 				"ping_interval": heartbeatInterval,
@@ -188,7 +187,7 @@ func (c *Client) loopAccept() {
 			c.lastTime = time.Now().Unix()
 
 			_ = c.Write(&ClientOutContent{
-				Content: jsonutil.EncodeByte(&Message{"heartbeat", "pong"}),
+				Content: jsonutil.EncodeToByte(&Message{"heartbeat", "pong"}),
 			})
 		case "ack":
 			ack.del(&AckBufferOption{

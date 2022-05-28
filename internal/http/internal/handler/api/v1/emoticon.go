@@ -175,7 +175,7 @@ func (c *Emoticon) SetSystemEmoticon(ctx *gin.Context) {
 		return
 	}
 
-	defer c.redisLock.Release(ctx, key)
+	defer c.redisLock.UnLock(ctx, key)
 
 	if params.Type == 2 {
 		if err = c.service.RemoveUserSysEmoticon(uid, params.EmoticonId); err != nil {

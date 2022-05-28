@@ -13,7 +13,7 @@ func NewDepartmentDao(baseDao *dao.BaseDao) *DepartmentDao {
 	return &DepartmentDao{BaseDao: baseDao}
 }
 
-type DeptDaoInterface interface {
+type IDeptDao interface {
 	FindAll() ([]*model.OrganizeDept, error)
 }
 

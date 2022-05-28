@@ -54,15 +54,15 @@ func (c *DefaultWebSocket) Connect(ctx *gin.Context) {
 		Storage: c.cache,
 	}, im.NewClientCallback(
 		// 连接成功回调
-		im.WithOpenCallback(func(client im.ClientInterface) {
+		im.WithOpenCallback(func(client im.IClient) {
 			c.open(client)
 		}),
 		// 接收消息回调
-		im.WithMessageCallback(func(client im.ClientInterface, message *im.ReceiveContent) {
+		im.WithMessageCallback(func(client im.IClient, message *im.ReceiveContent) {
 			c.message(client, message)
 		}),
 		// 关闭连接回调
-		im.WithCloseCallback(func(client im.ClientInterface, code int, text string) {
+		im.WithCloseCallback(func(client im.IClient, code int, text string) {
 			c.close(client, code, text)
 			// fmt.Printf("客户端[%d] 已关闭连接，关闭提示【%d】%s \n", client.ClientId(), code, text)
 		}),
@@ -70,7 +70,7 @@ func (c *DefaultWebSocket) Connect(ctx *gin.Context) {
 }
 
 // 连接成功回调事件
-func (c *DefaultWebSocket) open(client im.ClientInterface) {
+func (c *DefaultWebSocket) open(client im.IClient) {
 	// 1.查询用户群列表
 	ids := c.groupMemberService.Dao().GetUserGroupIds(client.ClientUid())
 
@@ -96,7 +96,7 @@ func (c *DefaultWebSocket) open(client im.ClientInterface) {
 }
 
 // 消息接收回调事件
-func (c *DefaultWebSocket) message(client im.ClientInterface, message *im.ReceiveContent) {
+func (c *DefaultWebSocket) message(client im.IClient, message *im.ReceiveContent) {
 	event := gjson.Get(message.Content, "event").String()
 
 	switch event {
@@ -135,7 +135,7 @@ func (c *DefaultWebSocket) message(client im.ClientInterface, message *im.Receiv
 }
 
 // 客户端关闭回调事件
-func (c *DefaultWebSocket) close(client im.ClientInterface, code int, text string) {
+func (c *DefaultWebSocket) close(client im.IClient, code int, text string) {
 	// 1.判断用户是否是多点登录
 
 	// 2.查询用户群列表

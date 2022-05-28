@@ -10,6 +10,10 @@ type GroupNoticeDao struct {
 	*BaseDao
 }
 
+func NewGroupNoticeDao(baseDao *BaseDao) *GroupNoticeDao {
+	return &GroupNoticeDao{BaseDao: baseDao}
+}
+
 func (dao *GroupNoticeDao) GetListAll(ctx context.Context, groupId int) ([]*model.SearchNoticeItem, error) {
 
 	fields := []string{

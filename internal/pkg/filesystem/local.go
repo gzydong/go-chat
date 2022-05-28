@@ -93,7 +93,6 @@ func (s *LocalFilesystem) WriteLocal(localFile string, filePath string) error {
 	return err
 }
 
-// AppendWrite
 func (s *LocalFilesystem) AppendWrite(data []byte, filePath string) error {
 	filePath = s.Path(filePath)
 
@@ -164,13 +163,12 @@ func (s *LocalFilesystem) PrivateUrl(filePath string, timeout int) string {
 	return ""
 }
 
-// ReadContent
+// ReadStream 读取文件流
 func (s *LocalFilesystem) ReadStream(filePath string) ([]byte, error) {
 	return ioutil.ReadFile(s.Path(filePath))
 }
 
-// InitiateMultipartUpload
-func (s *LocalFilesystem) InitiateMultipartUpload(filePath string, fileName string) (string, error) {
+func (s *LocalFilesystem) InitiateMultipartUpload(_ string, _ string) (string, error) {
 	str := fmt.Sprintf("%d%s", time.Now().Unix(), encrypt.Md5(strutil.Random(20)))
 
 	return str, nil

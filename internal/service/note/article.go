@@ -80,7 +80,7 @@ func (s *ArticleService) Create(ctx context.Context, opts *ArticleEditOpts) (int
 		UserId:   opts.UserId,
 		ClassId:  opts.ClassId,
 		Title:    opts.Title,
-		Image:    strutil.ParseImage(opts.Content),
+		Image:    strutil.ParseHtmlImage(opts.Content),
 		Abstract: abstract,
 		Status:   1,
 	}
@@ -119,7 +119,7 @@ func (s *ArticleService) Update(ctx context.Context, opts *ArticleEditOpts) erro
 
 		if err := tx.Model(&model.Article{}).Where("id = ? and user_id = ?", opts.ArticleId, opts.UserId).Updates(&model.Article{
 			Title:    opts.Title,
-			Image:    strutil.ParseImage(opts.Content),
+			Image:    strutil.ParseHtmlImage(opts.Content),
 			Abstract: abstract,
 		}).Error; err != nil {
 			return err

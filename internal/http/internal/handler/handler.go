@@ -9,6 +9,12 @@ import (
 )
 
 type Handler struct {
+	Api   *ApiHandler   // 前端接口
+	Admin *AdminHandler // 后台接口
+	Open  *OpenHandler  // 对外接口
+}
+
+type ApiHandler struct {
 	Common        *v1.Common
 	Auth          *v1.Auth
 	User          *v1.User
@@ -27,4 +33,10 @@ type Handler struct {
 	ArticleAnnex  *article.Annex
 	ArticleClass  *article.Class
 	ArticleTag    *article.Tag
+}
+
+type AdminHandler struct {
+}
+
+type OpenHandler struct {
 }

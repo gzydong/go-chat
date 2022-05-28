@@ -14,13 +14,11 @@ func dialTimeout(ctx context.Context, network, addr string) (net.Conn, error) {
 }
 
 func NewHttpClient() *http.Client {
-	tr := &http.Transport{
-		DialTLSContext:        dialTimeout,
-		ResponseHeaderTimeout: time.Second * 2,
-	}
-
 	return &http.Client{
-		Transport: tr,
-		Timeout:   timeout,
+		Transport: &http.Transport{
+			DialTLSContext:        dialTimeout,
+			ResponseHeaderTimeout: time.Second * 2,
+		},
+		Timeout: timeout,
 	}
 }
