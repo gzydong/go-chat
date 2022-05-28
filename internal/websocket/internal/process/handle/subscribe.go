@@ -43,6 +43,7 @@ func (s *SubscribeConsume) Handle(event string, data string) {
 	handler[entity.EventTalkRevoke] = s.onConsumeTalkRevoke
 	handler[entity.EventTalkJoinGroup] = s.onConsumeTalkJoinGroup
 	handler[entity.EventContactApply] = s.onConsumeContactApply
+	handler[entity.EventTalkRead] = s.onConsumeTalkRead
 
 	if f, ok := handler[event]; ok {
 		f(data)
@@ -317,4 +318,37 @@ func (s *SubscribeConsume) onConsumeTalkJoinGroup(body string) {
 			}
 		}
 	}
+}
+
+// onConsumeTalkRead 消息已读事件
+func (s *SubscribeConsume) onConsumeTalkRead(body string) {
+	var (
+		ctx  = context.Background()
+		sid  = s.conf.ServerId()
+		data struct {
+			SenderId   int   `json:"sender_id"`
+			ReceiverId int   `json:"receiver_id"`
+			Ids        []int `json:"ids"`
+		}
+	)
+
+	if err := jsonutil.Decode(body, &data); err != nil {
+		logrus.Error("[SubscribeConsume] onConsumeContactApply Unmarshal err: ", err.Error())
+		return
+	}
+
+	cids := s.ws.GetUidFromClientIds(ctx, sid, im.Session.Default.Name(), fmt.Sprintf("%d", data.ReceiverId))
+
+	c := im.NewSenderContent()
+	c.SetReceive(cids...)
+	c.SetMessage(&im.Message{
+		Event: entity.EventTalkRead,
+		Content: entity.MapStrAny{
+			"sender_id":   data.SenderId,
+			"receiver_id": data.ReceiverId,
+			"ids":         data.Ids,
+		},
+	})
+
+	im.Session.Default.Write(c)
 }

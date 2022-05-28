@@ -2,13 +2,13 @@ package im
 
 type CallbackInterface interface {
 	Open(client ClientInterface)
-	Message(message *ReceiveContent)
+	Message(client ClientInterface, message *ReceiveContent)
 	Close(client ClientInterface, code int, text string)
 }
 
 type OpenCallback func(client ClientInterface)
 
-type MessageCallback func(message *ReceiveContent)
+type MessageCallback func(client ClientInterface, message *ReceiveContent)
 
 type CloseCallback func(client ClientInterface, code int, text string)
 
@@ -37,9 +37,9 @@ func (c *ClientCallback) Open(client ClientInterface) {
 	}
 }
 
-func (c *ClientCallback) Message(message *ReceiveContent) {
+func (c *ClientCallback) Message(client ClientInterface, message *ReceiveContent) {
 	if c.messageCallBack != nil {
-		c.messageCallBack(message)
+		c.messageCallBack(client, message)
 	}
 }
 

@@ -197,7 +197,7 @@ func (c *Client) loopAccept() {
 			})
 		default:
 			// 触发消息回调
-			c.callBack.Message(&ReceiveContent{c, msg})
+			c.callBack.Message(c, &ReceiveContent{c, msg})
 		}
 	}
 }

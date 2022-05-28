@@ -12,6 +12,7 @@ const (
 	EventTalkKeyboard  = "event_talk_keyboard"   // 键盘输入事件通知
 	EventTalkRevoke    = "event_talk_revoke"     // 聊天消息撤销通知
 	EventTalkJoinGroup = "event_talk_join_group" // 邀请加入群聊通知
+	EventTalkRead      = "event_talk_read"       // 对话消息读事件
 	EventLogin         = "event_login"           // 用户在线状态通知
 	EventContactApply  = "event_contact_apply"   // 好友申请消息通知
 )

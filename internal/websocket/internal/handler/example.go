@@ -33,7 +33,7 @@ func (c *ExampleWebsocket) Connect(ctx *gin.Context) {
 			fmt.Printf("客户端[%d] 已连接\n", client.ClientId())
 		}),
 		// 接收消息回调
-		im.WithMessageCallback(func(message *im.ReceiveContent) {
+		im.WithMessageCallback(func(client im.ClientInterface, message *im.ReceiveContent) {
 			_ = message.Client.Write(&im.ClientOutContent{
 				IsAck:   true,
 				Content: []byte(message.Content),

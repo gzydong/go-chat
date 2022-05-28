@@ -27,3 +27,11 @@ type KeyboardMessage struct {
 	Event string                 `json:"event"`
 	Data  KeyboardMessageContent `json:"data"`
 }
+
+type TalkReadMessage struct {
+	Event string `json:"event"`
+	Data  struct {
+		MsgId      int `json:"msg_id"`
+		ReceiverId int `json:"receiver_id"`
+	} `json:"data"`
+}

@@ -3,6 +3,7 @@ package handler
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -12,6 +13,7 @@ import (
 	"go-chat/config"
 	"go-chat/internal/cache"
 	"go-chat/internal/entity"
+	"go-chat/internal/model"
 	"go-chat/internal/pkg/im"
 	"go-chat/internal/pkg/jsonutil"
 	"go-chat/internal/pkg/jwtutil"
@@ -56,8 +58,8 @@ func (c *DefaultWebSocket) Connect(ctx *gin.Context) {
 			c.open(client)
 		}),
 		// 接收消息回调
-		im.WithMessageCallback(func(message *im.ReceiveContent) {
-			c.message(message)
+		im.WithMessageCallback(func(client im.ClientInterface, message *im.ReceiveContent) {
+			c.message(client, message)
 		}),
 		// 关闭连接回调
 		im.WithCloseCallback(func(client im.ClientInterface, code int, text string) {
@@ -94,7 +96,7 @@ func (c *DefaultWebSocket) open(client im.ClientInterface) {
 }
 
 // 消息接收回调事件
-func (c *DefaultWebSocket) message(message *im.ReceiveContent) {
+func (c *DefaultWebSocket) message(client im.ClientInterface, message *im.ReceiveContent) {
 	event := gjson.Get(message.Content, "event").String()
 
 	switch event {
@@ -111,6 +113,24 @@ func (c *DefaultWebSocket) message(message *im.ReceiveContent) {
 				}),
 			}))
 		}
+
+	// 对话消息读事件
+	case entity.EventTalkRead:
+		var m *dto.TalkReadMessage
+		if err := json.Unmarshal([]byte(message.Content), &m); err == nil {
+			c.groupMemberService.Db().Model(&model.TalkRecords{}).Where("id = ? and receiver_id = ? and is_read = 0", m.Data.MsgId, client.ClientUid()).Update("is_read", 1)
+
+			c.rds.Publish(context.Background(), entity.IMGatewayAll, jsonutil.Encode(entity.MapStrAny{
+				"event": entity.EventTalkRead,
+				"data": jsonutil.Encode(entity.MapStrAny{
+					"sender_id":   client.ClientUid(),
+					"receiver_id": m.Data.ReceiverId,
+					"ids":         []int{m.Data.MsgId},
+				}),
+			}))
+		}
+	default:
+		fmt.Printf("消息事件未定义%s", event)
 	}
 }
 

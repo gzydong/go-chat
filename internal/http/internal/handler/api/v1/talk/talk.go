@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"go-chat/internal/model"
 
 	"go-chat/internal/cache"
 	"go-chat/internal/entity"
@@ -263,8 +264,12 @@ func (c *Talk) ClearUnreadMessage(ctx *gin.Context) {
 		return
 	}
 
+	uid := jwtutil.GetUid(ctx)
 	if params.TalkType == 1 {
-		c.unreadTalkCache.Reset(ctx.Request.Context(), params.ReceiverId, jwtutil.GetUid(ctx))
+		c.service.Db().Debug().Model(&model.TalkRecords{}).Where("user_id = ? and receiver_id = ? and is_read = 0", params.ReceiverId, uid).Update("is_read", 1)
+		c.unreadTalkCache.Reset(ctx.Request.Context(), params.ReceiverId, uid)
+
+		// 判断对方是否在线，在线则推送已读消息
 	}
 
 	response.Success(ctx, nil)
