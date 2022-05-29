@@ -1,6 +1,8 @@
 package utils
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestMtRand(t *testing.T) {
 	type args struct {

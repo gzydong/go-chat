@@ -6,12 +6,6 @@ type Message struct {
 	Content interface{} `json:"content"` // 消息内容
 }
 
-// ReceiveContent 接收的消息
-type ReceiveContent struct {
-	Client  *Client // 接收的客户端
-	Content string  // 接收的文本消息
-}
-
 // SenderContent 推送的消息
 type SenderContent struct {
 	broadcast bool     // 是否广播消息

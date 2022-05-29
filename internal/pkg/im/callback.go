@@ -2,13 +2,13 @@ package im
 
 type ICallback interface {
 	Open(client IClient)
-	Message(client IClient, message *ReceiveContent)
+	Message(client IClient, message []byte)
 	Close(client IClient, code int, text string)
 }
 
 type (
 	OpenCallback         func(client IClient)
-	MessageCallback      func(client IClient, message *ReceiveContent)
+	MessageCallback      func(client IClient, message []byte)
 	CloseCallback        func(client IClient, code int, text string)
 	ClientCallbackOption func(callBack *ClientCallback)
 )
@@ -36,7 +36,7 @@ func (c *ClientCallback) Open(client IClient) {
 	}
 }
 
-func (c *ClientCallback) Message(client IClient, message *ReceiveContent) {
+func (c *ClientCallback) Message(client IClient, message []byte) {
 	if c.messageCallBack != nil {
 		c.messageCallBack(client, message)
 	}

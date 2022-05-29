@@ -58,7 +58,7 @@ func (c *DefaultWebSocket) Connect(ctx *gin.Context) {
 			c.open(client)
 		}),
 		// 接收消息回调
-		im.WithMessageCallback(func(client im.IClient, message *im.ReceiveContent) {
+		im.WithMessageCallback(func(client im.IClient, message []byte) {
 			c.message(client, message)
 		}),
 		// 关闭连接回调
@@ -96,15 +96,17 @@ func (c *DefaultWebSocket) open(client im.IClient) {
 }
 
 // 消息接收回调事件
-func (c *DefaultWebSocket) message(client im.IClient, message *im.ReceiveContent) {
-	event := gjson.Get(message.Content, "event").String()
+func (c *DefaultWebSocket) message(client im.IClient, message []byte) {
+	content := string(message)
+
+	event := gjson.Get(content, "event").String()
 
 	switch event {
 
 	// 对话键盘事件
 	case entity.EventTalkKeyboard:
 		var m *dto.KeyboardMessage
-		if err := json.Unmarshal([]byte(message.Content), &m); err == nil {
+		if err := json.Unmarshal(message, &m); err == nil {
 			c.rds.Publish(context.Background(), entity.IMGatewayAll, jsonutil.Encode(entity.MapStrAny{
 				"event": entity.EventTalkKeyboard,
 				"data": jsonutil.Encode(entity.MapStrAny{
@@ -117,7 +119,7 @@ func (c *DefaultWebSocket) message(client im.IClient, message *im.ReceiveContent
 	// 对话消息读事件
 	case entity.EventTalkRead:
 		var m *dto.TalkReadMessage
-		if err := json.Unmarshal([]byte(message.Content), &m); err == nil {
+		if err := json.Unmarshal(message, &m); err == nil {
 			c.groupMemberService.Db().Model(&model.TalkRecords{}).Where("id in ? and receiver_id = ? and is_read = 0", m.Data.MsgIds, client.ClientUid()).Update("is_read", 1)
 
 			c.rds.Publish(context.Background(), entity.IMGatewayAll, jsonutil.Encode(entity.MapStrAny{
