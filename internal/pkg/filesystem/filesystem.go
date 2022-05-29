@@ -77,3 +77,7 @@ func NewFilesystem(conf *config.Config) *Filesystem {
 func (f *Filesystem) Driver() string {
 	return f.driver
 }
+
+func (f *Filesystem) SetDriver(value string) {
+	f.driver = value
+}

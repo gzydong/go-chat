@@ -6,6 +6,7 @@ import (
 )
 
 type IEmoticonDao interface {
+	IBaseDao
 	FindById(emoticonId int) (*model.Emoticon, error)
 	GetUserInstallIds(uid int) []int
 	GetSystemEmoticonList() ([]*model.Emoticon, error)
@@ -20,14 +21,24 @@ func NewEmoticonDao(base *BaseDao) *EmoticonDao {
 	return &EmoticonDao{BaseDao: base}
 }
 
-func (dao *EmoticonDao) FindById(emoticonId int) (*model.Emoticon, error) {
+func (dao *EmoticonDao) FindById(id int) (*model.Emoticon, error) {
 	var data *model.Emoticon
 
-	if err := dao.Db().First(&data, emoticonId).Error; err != nil {
+	if err := dao.Db().First(&data, id).Error; err != nil {
 		return nil, err
 	}
 
 	return data, nil
+}
+
+func (dao *EmoticonDao) FindByIds(ids []int) ([]*model.Emoticon, error) {
+
+	items := make([]*model.Emoticon, 0)
+	if err := dao.db.Find(&items, ids).Error; err != nil {
+		return nil, err
+	}
+
+	return items, nil
 }
 
 // GetUserInstallIds 获取用户激活的表情包

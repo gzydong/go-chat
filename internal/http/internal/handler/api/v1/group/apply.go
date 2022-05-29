@@ -50,8 +50,8 @@ func (c *Apply) Agree(ctx *gin.Context) {
 	uid := jwtutil.GetUid(ctx)
 
 	apply := &model.GroupApply{}
-	if ok, _ := c.applyServ.Dao().FindByIds(apply, []int{params.ApplyId}, "*"); !ok {
-		response.BusinessError(ctx, "申请不存在！")
+	if err := c.applyServ.Db().First(apply, params.ApplyId).Error; err != nil {
+		response.BusinessError(ctx, "数据不存在！")
 		return
 	}
 

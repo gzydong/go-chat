@@ -4,7 +4,6 @@ import (
 	"errors"
 
 	"go-chat/internal/dao"
-	"go-chat/internal/entity"
 	"go-chat/internal/model"
 	"go-chat/internal/pkg/encrypt"
 	"gorm.io/gorm"
@@ -85,9 +84,9 @@ func (s *UserService) Forget(opts *UserForgetOpts) (bool, error) {
 	// 生成 hash 密码
 	hash, _ := encrypt.HashPassword(opts.Password)
 
-	_, err = s.Dao().BaseUpdate(&model.Users{}, entity.MapStrAny{"id": user.Id}, entity.MapStrAny{"password": hash})
+	err = s.Dao().Db().Model(&model.Users{}).Where("id = ?", user.Id).Update("password", hash).Error
 	if err != nil {
-		return false, errors.New("密码修改失败！")
+		return false, err
 	}
 
 	return true, nil
@@ -95,9 +94,9 @@ func (s *UserService) Forget(opts *UserForgetOpts) (bool, error) {
 
 // UpdatePassword 修改用户密码
 func (s *UserService) UpdatePassword(uid int, oldPassword string, password string) error {
-	user := &model.Users{}
 
-	if ok, _ := s.dao.FindByIds(user, []int{uid}, "id,password"); !ok {
+	user, err := s.Dao().FindById(uid)
+	if err != nil {
 		return errors.New("用户不存在！")
 	}
 
@@ -105,9 +104,12 @@ func (s *UserService) UpdatePassword(uid int, oldPassword string, password strin
 		return errors.New("密码验证不正确！")
 	}
 
-	hash, _ := encrypt.HashPassword(password)
+	hash, err := encrypt.HashPassword(password)
+	if err != nil {
+		return err
+	}
 
-	_, err := s.dao.BaseUpdate(&model.Users{}, entity.MapStrAny{"id": user.Id}, entity.MapStrAny{"password": hash})
+	err = s.Dao().Db().Model(&model.Users{}).Where("id = ?", user.Id).Update("password", hash).Error
 	if err != nil {
 		return err
 	}

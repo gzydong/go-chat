@@ -7,17 +7,16 @@ import (
 	"context"
 
 	"go-chat/config"
+	"go-chat/internal/cache"
 	"go-chat/internal/dao"
 	note2 "go-chat/internal/dao/note"
 	organize2 "go-chat/internal/dao/organize"
 	"go-chat/internal/pkg/client"
-	"go-chat/internal/pkg/filesystem"
 	"go-chat/internal/provider"
 	"go-chat/internal/service/note"
 	"go-chat/internal/service/organize"
 
 	"github.com/google/wire"
-	"go-chat/internal/cache"
 	"go-chat/internal/http/internal/handler"
 	"go-chat/internal/http/internal/router"
 	"go-chat/internal/service"
@@ -29,15 +28,21 @@ var providerSet = wire.NewSet(
 	provider.NewRedisClient,
 	provider.NewHttpClient,
 	provider.NewHttpServer,
+	provider.NewFilesystem,
 	client.NewHttpClient,
 
 	// 注册路由
 	router.NewRouter,
+	wire.Struct(new(handler.ApiHandler), "*"),
+	wire.Struct(new(handler.AdminHandler), "*"),
+	wire.Struct(new(handler.OpenHandler), "*"),
+	wire.Struct(new(handler.Handler), "*"),
 
-	// other
-	filesystem.NewFilesystem,
+	// AppProvider
+	wire.Struct(new(AppProvider), "*"),
+)
 
-	// 缓存
+var cacheProviderSet = wire.NewSet(
 	cache.NewSession,
 	cache.NewSid,
 	cache.NewUnreadTalkCache,
@@ -48,8 +53,9 @@ var providerSet = wire.NewSet(
 	cache.NewRoom,
 	cache.NewRelation,
 	cache.NewSmsCodeCache,
+)
 
-	// dao 数据层
+var daoProviderSet = wire.NewSet(
 	dao.NewBaseDao,
 	dao.NewContactDao,
 	dao.NewGroupMemberDao,
@@ -67,8 +73,9 @@ var providerSet = wire.NewSet(
 	organize2.NewDepartmentDao,
 	organize2.NewOrganizeDao,
 	organize2.NewPositionDao,
+)
 
-	// 服务
+var serviceProviderSet = wire.NewSet(
 	service.NewBaseService,
 	service.NewUserService,
 	service.NewSmsService,
@@ -95,17 +102,16 @@ var providerSet = wire.NewSet(
 	organize.NewOrganizeDeptService,
 	organize.NewOrganizeService,
 	organize.NewPositionService,
-
-	// Handler
-	wire.Struct(new(handler.ApiHandler), "*"),
-	wire.Struct(new(handler.AdminHandler), "*"),
-	wire.Struct(new(handler.OpenHandler), "*"),
-	wire.Struct(new(handler.Handler), "*"),
-
-	// AppProvider
-	wire.Struct(new(AppProvider), "*"),
 )
 
 func Initialize(ctx context.Context, conf *config.Config) *AppProvider {
-	panic(wire.Build(providerSet, handler.ProviderSet))
+	panic(
+		wire.Build(
+			providerSet,
+			cacheProviderSet,   // 注入 Cache 依赖
+			daoProviderSet,     // 注入 Dao 依赖
+			serviceProviderSet, // 注入 Service 依赖
+			handler.ProviderSet,
+		),
+	)
 }

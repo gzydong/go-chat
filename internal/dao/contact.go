@@ -11,6 +11,7 @@ import (
 )
 
 type IContactDao interface {
+	IBaseDao
 	IsFriend(ctx context.Context, uid int, friendId int, cache bool) bool
 	GetFriendRemarks(ctx context.Context, uid int, fids []int) (map[int]string, error)
 	GetFriendRemark(ctx context.Context, uid int, friendId int, isCache bool) string

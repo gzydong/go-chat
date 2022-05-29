@@ -1,12 +1,14 @@
 package dao
 
 import (
-	"errors"
-
 	"github.com/go-redis/redis/v8"
 	"go-chat/internal/entity"
 	"gorm.io/gorm"
 )
+
+type IBaseDao interface {
+	BaseUpdate(model interface{}, where entity.MapStrAny, data entity.MapStrAny) (int, error)
+}
 
 type BaseDao struct {
 	db  *gorm.DB
@@ -41,21 +43,4 @@ func (dao *BaseDao) BaseUpdate(model interface{}, where entity.MapStrAny, data e
 	result := tx.Unscoped().Updates(values)
 
 	return int(result.RowsAffected), result.Error
-}
-
-// FindByIds 根据主键查询一条或多条数据
-func (dao *BaseDao) FindByIds(model interface{}, ids []int, fields interface{}) (bool, error) {
-	var err error
-
-	if len(ids) == 1 {
-		err = dao.db.First(model, ids[0]).Error
-	} else {
-		err = dao.db.Select(fields).Find(model, ids).Error
-	}
-
-	if errors.Is(err, gorm.ErrRecordNotFound) {
-		return false, nil
-	}
-
-	return err == nil, err
 }

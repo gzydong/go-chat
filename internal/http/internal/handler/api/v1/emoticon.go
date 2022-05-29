@@ -49,9 +49,7 @@ func (c *Emoticon) CollectList(ctx *gin.Context) {
 	)
 
 	if ids := c.service.Dao().GetUserInstallIds(uid); len(ids) > 0 {
-		items := make([]*model.Emoticon, 0)
-
-		if _, err := c.service.Dao().FindByIds(&items, ids, "*"); err == nil {
+		if items, err := c.service.Dao().FindByIds(ids); err == nil {
 			for _, item := range items {
 				data := &api.SysEmoticonResponse{
 					EmoticonId: item.Id,
