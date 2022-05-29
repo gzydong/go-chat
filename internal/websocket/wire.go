@@ -9,7 +9,6 @@ import (
 	"go-chat/config"
 	"go-chat/internal/cache"
 	"go-chat/internal/dao"
-	"go-chat/internal/pkg/filesystem"
 	"go-chat/internal/provider"
 	"go-chat/internal/service"
 	handle2 "go-chat/internal/websocket/internal/handler"
@@ -48,7 +47,6 @@ var providerSet = wire.NewSet(
 	dao.NewTalkRecordsVoteDao,
 	dao.NewGroupMemberDao,
 	dao.NewContactDao,
-	filesystem.NewFilesystem,
 
 	// 服务
 	service.NewBaseService,

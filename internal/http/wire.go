@@ -102,10 +102,10 @@ var providerSet = wire.NewSet(
 	wire.Struct(new(handler.OpenHandler), "*"),
 	wire.Struct(new(handler.Handler), "*"),
 
-	// Provider
-	wire.Struct(new(Provider), "*"),
+	// AppProvider
+	wire.Struct(new(AppProvider), "*"),
 )
 
-func Initialize(ctx context.Context, conf *config.Config) *Provider {
-	panic(wire.Build(providerSet, handler.Provider))
+func Initialize(ctx context.Context, conf *config.Config) *AppProvider {
+	panic(wire.Build(providerSet, handler.ProviderSet))
 }

@@ -9,15 +9,15 @@ import (
 	"go-chat/internal/http/internal/handler/api/v1/talk"
 )
 
-var Provider = wire.NewSet(
+var ProviderSet = wire.NewSet(
 	v1.NewAuthHandler,
 	v1.NewCommonHandler,
 	v1.NewUserHandler,
-	v1.NewOrganize,
+	v1.NewOrganizeHandler,
 	contact.NewContactHandler,
 	contact.NewContactsApplyHandler,
 	group.NewGroupHandler,
-	group.NewApply,
+	group.NewApplyHandler,
 	group.NewGroupNoticeHandler,
 	talk.NewTalkHandler,
 	talk.NewTalkMessageHandler,

@@ -1,7 +1,9 @@
 package v1
 
 import (
+	"bytes"
 	"fmt"
+	"time"
 
 	"go-chat/internal/cache"
 	"go-chat/internal/entity"
@@ -9,6 +11,7 @@ import (
 	"go-chat/internal/http/internal/request"
 	"go-chat/internal/model"
 	"go-chat/internal/pkg/jwtutil"
+	"go-chat/internal/pkg/utils"
 
 	"github.com/gin-gonic/gin"
 
@@ -20,19 +23,19 @@ import (
 )
 
 type Emoticon struct {
-	filesystem *filesystem.Filesystem
+	fileSystem *filesystem.Filesystem
 	service    *service.EmoticonService
 	redisLock  *cache.RedisLock
 }
 
 func NewEmoticonHandler(
 	service *service.EmoticonService,
-	filesystem *filesystem.Filesystem,
+	fileSystem *filesystem.Filesystem,
 	redisLock *cache.RedisLock,
 ) *Emoticon {
 	return &Emoticon{
 		service:    service,
-		filesystem: filesystem,
+		fileSystem: fileSystem,
 		redisLock:  redisLock,
 	}
 }
@@ -120,15 +123,36 @@ func (c *Emoticon) Upload(ctx *gin.Context) {
 		return
 	}
 
-	info, err := c.service.CustomizeUpload(ctx.Request.Context(), jwtutil.GetUid(ctx), file)
+	stream, err := filesystem.ReadMultipartStream(file)
 	if err != nil {
-		response.BusinessError(ctx, "文件上传失败！")
+		response.BusinessError(ctx, "上传失败！")
+		return
+	}
+
+	size := utils.ReadFileImage(bytes.NewReader(stream))
+	ext := strutil.FileSuffix(file.Filename)
+	src := fmt.Sprintf("public/media/image/emoticon/%s/%s", time.Now().Format("20060102"), strutil.GenImageName(ext, size.Width, size.Height))
+	if err = c.fileSystem.Default.Write(stream, src); err != nil {
+		response.BusinessError(ctx, "上传失败！")
+		return
+	}
+
+	m := &model.EmoticonItem{
+		UserId:     jwtutil.GetUid(ctx),
+		Describe:   "自定义表情包",
+		Url:        c.fileSystem.Default.PublicUrl(src),
+		FileSuffix: ext,
+		FileSize:   int(file.Size),
+	}
+
+	if err := c.service.Db().Create(m).Error; err != nil {
+		response.BusinessError(ctx, "上传失败！")
 		return
 	}
 
 	response.Success(ctx, entity.H{
-		"media_id": info.Id,
-		"src":      info.Url,
+		"media_id": m.Id,
+		"src":      m.Url,
 	}, "文件上传成功")
 }
 

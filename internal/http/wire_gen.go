@@ -36,11 +36,9 @@ import (
 
 // Injectors from wire.go:
 
-func Initialize(ctx context.Context, conf *config.Config) *Provider {
+func Initialize(ctx context.Context, conf *config.Config) *AppProvider {
 	redisClient := provider.NewRedisClient(ctx, conf)
-	smsCodeCache := &cache.SmsCodeCache{
-		Redis: redisClient,
-	}
+	smsCodeCache := cache.NewSmsCodeCache(redisClient)
 	smsService := service.NewSmsService(smsCodeCache)
 	db := provider.NewMySQLClient(conf)
 	baseDao := dao.NewBaseDao(db, redisClient)
@@ -76,7 +74,7 @@ func Initialize(ctx context.Context, conf *config.Config) *Provider {
 	organizeDeptService := organize2.NewOrganizeDeptService(baseService, departmentDao)
 	positionDao := organize.NewPositionDao(baseDao)
 	positionService := organize2.NewPositionService(baseService, positionDao)
-	v1Organize := v1.NewOrganize(organizeDeptService, organizeService, positionService)
+	v1Organize := v1.NewOrganizeHandler(organizeDeptService, organizeService, positionService)
 	talkService := service.NewTalkService(baseService, groupMemberDao)
 	talkMessageForwardService := service.NewTalkMessageForwardService(baseService)
 	splitUploadService := service.NewSplitUploadService(baseService, splitUploadDao, conf, filesystemFilesystem)
@@ -88,24 +86,20 @@ func Initialize(ctx context.Context, conf *config.Config) *Provider {
 	groupService := service.NewGroupService(baseService, groupDao, groupMemberDao, relation)
 	authPermissionService := service.NewAuthPermissionService(contactDao, groupMemberDao, organizeDao)
 	talkTalk := talk.NewTalkHandler(talkService, talkSessionService, redisLock, userService, wsClientSession, lastMessage, unreadTalkCache, contactService, groupService, authPermissionService)
-	talkRecordsDao := &dao.TalkRecordsDao{
-		BaseDao: baseDao,
-	}
-	talkRecordsService := service.NewTalkRecordsService(baseService, talkVote, talkRecordsVoteDao, filesystemFilesystem, groupMemberDao, talkRecordsDao)
+	talkRecordsDao := dao.NewTalkRecordsDao(baseDao)
+	talkRecordsService := service.NewTalkRecordsService(baseService, talkVote, talkRecordsVoteDao, groupMemberDao, talkRecordsDao)
 	records := talk.NewTalkRecordsHandler(talkRecordsService, groupMemberService, filesystemFilesystem, authPermissionService)
 	emoticonDao := dao.NewEmoticonDao(baseDao)
 	emoticonService := service.NewEmoticonService(baseService, emoticonDao, filesystemFilesystem)
 	emoticon := v1.NewEmoticonHandler(emoticonService, filesystemFilesystem, redisLock)
 	upload := v1.NewUploadHandler(conf, filesystemFilesystem, splitUploadService)
-	groupNoticeDao := &dao.GroupNoticeDao{
-		BaseDao: baseDao,
-	}
+	groupNoticeDao := dao.NewGroupNoticeDao(baseDao)
 	groupNoticeService := service.NewGroupNoticeService(groupNoticeDao)
 	groupGroup := group.NewGroupHandler(groupService, groupMemberService, talkSessionService, redisLock, contactService, userService, groupNoticeService, talkMessageService)
 	notice := group.NewGroupNoticeHandler(groupNoticeService, groupMemberService)
 	groupApplyDao := dao.NewGroupApply(baseDao)
 	groupApplyService := service.NewGroupApplyService(baseService, groupApplyDao)
-	apply := group.NewApply(groupApplyService, groupMemberService, groupService)
+	apply := group.NewApplyHandler(groupApplyService, groupMemberService, groupService)
 	contactContact := contact.NewContactHandler(contactService, wsClientSession, userService, talkSessionService, talkMessageService, organizeService)
 	contactApplyService := service.NewContactsApplyService(baseService)
 	contactApply := contact.NewContactsApplyHandler(contactApplyService, userService, talkMessageService)
@@ -117,7 +111,7 @@ func Initialize(ctx context.Context, conf *config.Config) *Provider {
 	class := article.NewClassHandler(articleClassService)
 	articleTagService := note2.NewArticleTagService(baseService)
 	tag := article.NewTagHandler(articleTagService)
-	handlerHandler := &handler.Handler{
+	apiHandler := &handler.ApiHandler{
 		Common:        common,
 		Auth:          auth,
 		User:          user,
@@ -137,15 +131,22 @@ func Initialize(ctx context.Context, conf *config.Config) *Provider {
 		ArticleClass:  class,
 		ArticleTag:    tag,
 	}
+	adminHandler := &handler.AdminHandler{}
+	openHandler := &handler.OpenHandler{}
+	handlerHandler := &handler.Handler{
+		Api:   apiHandler,
+		Admin: adminHandler,
+		Open:  openHandler,
+	}
 	engine := router.NewRouter(conf, handlerHandler, session)
 	httpServer := provider.NewHttpServer(conf, engine)
-	mainProvider := &Provider{
+	appProvider := &AppProvider{
 		Config: conf,
 		Server: httpServer,
 	}
-	return mainProvider
+	return appProvider
 }
 
 // wire.go:
 
-var providerSet = wire.NewSet(provider.NewMySQLClient, provider.NewRedisClient, provider.NewHttpClient, provider.NewHttpServer, client.NewHttpClient, router.NewRouter, filesystem.NewFilesystem, cache.NewSession, cache.NewSid, cache.NewUnreadTalkCache, cache.NewRedisLock, cache.NewWsClientSession, cache.NewLastMessage, cache.NewTalkVote, cache.NewRoom, cache.NewRelation, wire.Struct(new(cache.SmsCodeCache), "*"), dao.NewBaseDao, dao.NewContactDao, dao.NewGroupMemberDao, dao.NewUserDao, dao.NewGroupDao, dao.NewGroupApply, wire.Struct(new(dao.TalkRecordsDao), "*"), wire.Struct(new(dao.TalkRecordsCodeDao), "*"), wire.Struct(new(dao.TalkRecordsLoginDao), "*"), wire.Struct(new(dao.TalkRecordsFileDao), "*"), wire.Struct(new(dao.GroupNoticeDao), "*"), dao.NewTalkSessionDao, dao.NewEmoticonDao, dao.NewTalkRecordsVoteDao, dao.NewFileSplitUploadDao, note.NewArticleClassDao, note.NewArticleAnnexDao, organize.NewDepartmentDao, organize.NewOrganizeDao, organize.NewPositionDao, service.NewBaseService, service.NewUserService, service.NewSmsService, service.NewTalkService, service.NewTalkMessageService, service.NewClientService, service.NewGroupService, service.NewGroupMemberService, service.NewGroupNoticeService, service.NewGroupApplyService, service.NewTalkSessionService, service.NewTalkMessageForwardService, service.NewEmoticonService, service.NewTalkRecordsService, service.NewContactService, service.NewContactsApplyService, service.NewSplitUploadService, service.NewIpAddressService, service.NewAuthPermissionService, note2.NewArticleService, note2.NewArticleTagService, note2.NewArticleClassService, note2.NewArticleAnnexService, organize2.NewOrganizeDeptService, organize2.NewOrganizeService, organize2.NewPositionService, v1.NewAuthHandler, v1.NewCommonHandler, v1.NewUserHandler, v1.NewOrganize, contact.NewContactHandler, contact.NewContactsApplyHandler, group.NewGroupHandler, group.NewApply, group.NewGroupNoticeHandler, talk.NewTalkHandler, talk.NewTalkMessageHandler, v1.NewUploadHandler, v1.NewEmoticonHandler, talk.NewTalkRecordsHandler, article.NewAnnexHandler, article.NewArticleHandler, article.NewClassHandler, article.NewTagHandler, wire.Struct(new(handler.Handler), "*"), wire.Struct(new(Provider), "*"))
+var providerSet = wire.NewSet(provider.NewMySQLClient, provider.NewRedisClient, provider.NewHttpClient, provider.NewHttpServer, client.NewHttpClient, router.NewRouter, filesystem.NewFilesystem, cache.NewSession, cache.NewSid, cache.NewUnreadTalkCache, cache.NewRedisLock, cache.NewWsClientSession, cache.NewLastMessage, cache.NewTalkVote, cache.NewRoom, cache.NewRelation, cache.NewSmsCodeCache, dao.NewBaseDao, dao.NewContactDao, dao.NewGroupMemberDao, dao.NewUserDao, dao.NewGroupDao, dao.NewGroupApply, dao.NewTalkRecordsDao, dao.NewGroupNoticeDao, dao.NewTalkSessionDao, dao.NewEmoticonDao, dao.NewTalkRecordsVoteDao, dao.NewFileSplitUploadDao, note.NewArticleClassDao, note.NewArticleAnnexDao, organize.NewDepartmentDao, organize.NewOrganizeDao, organize.NewPositionDao, service.NewBaseService, service.NewUserService, service.NewSmsService, service.NewTalkService, service.NewTalkMessageService, service.NewClientService, service.NewGroupService, service.NewGroupMemberService, service.NewGroupNoticeService, service.NewGroupApplyService, service.NewTalkSessionService, service.NewTalkMessageForwardService, service.NewEmoticonService, service.NewTalkRecordsService, service.NewContactService, service.NewContactsApplyService, service.NewSplitUploadService, service.NewIpAddressService, service.NewAuthPermissionService, note2.NewArticleService, note2.NewArticleTagService, note2.NewArticleClassService, note2.NewArticleAnnexService, organize2.NewOrganizeDeptService, organize2.NewOrganizeService, organize2.NewPositionService, wire.Struct(new(handler.ApiHandler), "*"), wire.Struct(new(handler.AdminHandler), "*"), wire.Struct(new(handler.OpenHandler), "*"), wire.Struct(new(handler.Handler), "*"), wire.Struct(new(AppProvider), "*"))

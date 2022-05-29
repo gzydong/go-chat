@@ -5,6 +5,13 @@ import (
 	"go-chat/internal/pkg/sliceutil"
 )
 
+type IEmoticonDao interface {
+	FindById(emoticonId int) (*model.Emoticon, error)
+	GetUserInstallIds(uid int) []int
+	GetSystemEmoticonList() ([]*model.Emoticon, error)
+	GetDetailsAll(emoticonId int, uid int) ([]*model.EmoticonItem, error)
+}
+
 type EmoticonDao struct {
 	*BaseDao
 }

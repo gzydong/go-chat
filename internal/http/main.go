@@ -54,7 +54,7 @@ func main() {
 			gin.SetMode(gin.ReleaseMode)
 		}
 
-		providers := Initialize(ctx, config)
+		app := Initialize(ctx, config)
 
 		eg, groupCtx := errgroup.WithContext(ctx)
 		c := make(chan os.Signal, 1)
@@ -64,7 +64,7 @@ func main() {
 		log.Printf("HTTP Listen Port :%d", config.App.Port)
 		log.Printf("HTTP Server Pid  :%d", os.Getpid())
 
-		return run(c, eg, groupCtx, cancel, providers.Server)
+		return run(c, eg, groupCtx, cancel, app.Server)
 	}
 
 	_ = cmd.Run(os.Args)

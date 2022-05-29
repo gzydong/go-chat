@@ -9,7 +9,7 @@ import (
 )
 
 // RegisterOpenRoute 注册 Open 路由
-func RegisterOpenRoute(conf *config.Config, router *gin.Engine, handler *handler.Handler, session *cache.Session) {
+func RegisterOpenRoute(conf *config.Config, router *gin.Engine, handler *handler.OpenHandler, session *cache.Session) {
 	// 授权验证中间件
 	authorize := jwtutil.Auth(conf.Jwt.Secret, "open", session)
 
