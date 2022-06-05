@@ -154,13 +154,12 @@ func (s *ContactApplyService) List(ctx context.Context, uid, page, size int) ([]
 	}
 
 	tx := s.db.Table("contact_apply")
-	tx.Select(fields)
 	tx.Joins("left join `users` ON `users`.id = contact_apply.user_id")
 	tx.Where("contact_apply.friend_id = ?", uid)
 	tx.Order("contact_apply.id desc")
 
 	items := make([]*model.ApplyItem, 0)
-	if err := tx.Scan(&items).Error; err != nil {
+	if err := tx.Select(fields).Scan(&items).Error; err != nil {
 		return nil, err
 	}
 
