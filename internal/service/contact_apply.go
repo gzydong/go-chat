@@ -115,7 +115,7 @@ func (s *ContactApplyService) Accept(ctx context.Context, opts *ContactApplyAcce
 			return err
 		}
 
-		return tx.Delete(&model.ContactApply{}, applyInfo.Id).Error
+		return tx.Delete(&model.ContactApply{}, "user_id = ? and friend_id = ?", applyInfo.UserId, applyInfo.FriendId).Error
 	})
 
 	return applyInfo, err

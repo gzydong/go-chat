@@ -15,14 +15,16 @@ type ContactApply struct {
 	service            *service.ContactApplyService
 	userService        *service.UserService
 	talkMessageService *service.TalkMessageService
+	contactService     *service.ContactService
 }
 
 func NewContactsApplyHandler(
 	service *service.ContactApplyService,
 	userService *service.UserService,
 	talkMessageService *service.TalkMessageService,
+	contactService *service.ContactService,
 ) *ContactApply {
-	return &ContactApply{service: service, userService: userService, talkMessageService: talkMessageService}
+	return &ContactApply{service: service, userService: userService, talkMessageService: talkMessageService, contactService: contactService}
 }
 
 // ApplyUnreadNum 获取好友申请未读数
@@ -38,6 +40,11 @@ func (c *ContactApply) Create(ctx *gin.Context) {
 	if err := ctx.ShouldBind(params); err != nil {
 		response.InvalidParams(ctx, err)
 		return
+	}
+
+	uid := jwtutil.GetUid(ctx)
+	if !c.contactService.Dao().IsFriend(ctx, uid, params.FriendId, false) {
+		response.Success(ctx, nil)
 	}
 
 	if err := c.service.Create(ctx, &service.ContactApplyCreateOpts{

@@ -2,7 +2,7 @@ package model
 
 import "time"
 
-// 用户添加好友申请表
+// ContactApply 用户添加好友申请表
 type ContactApply struct {
 	Id        int       `gorm:"column:id;primary_key;AUTO_INCREMENT" json:"id"`       // 申请ID
 	UserId    int       `gorm:"column:user_id;default:0;NOT NULL" json:"user_id"`     // 申请人ID
@@ -11,7 +11,7 @@ type ContactApply struct {
 	CreatedAt time.Time `gorm:"column:created_at;NOT NULL" json:"created_at"`         // 申请时间
 }
 
-// 用户添加好友申请表
+// ApplyItem 用户添加好友申请表
 type ApplyItem struct {
 	Id        int       `gorm:"column:id" json:"id"`                 // 申请ID
 	UserId    int       `gorm:"column:user_id" json:"user_id"`       // 申请人ID
