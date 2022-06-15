@@ -5,6 +5,7 @@ go 1.16
 require (
 	github.com/alicebob/miniredis/v2 v2.15.1
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
+	github.com/gin-contrib/pprof v1.3.0 // indirect
 	github.com/gin-gonic/gin v1.7.7
 	github.com/go-playground/locales v0.14.0
 	github.com/go-playground/universal-translator v0.18.0

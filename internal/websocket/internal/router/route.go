@@ -3,6 +3,7 @@ package router
 import (
 	"net/http"
 
+	"github.com/gin-contrib/pprof"
 	"github.com/gin-gonic/gin"
 	"go-chat/internal/entity"
 	"go-chat/internal/pkg/im"
@@ -41,6 +42,8 @@ func NewRouter(conf *config.Config, handle *handler.Handler, session *cache.Sess
 	router.NoRoute(func(c *gin.Context) {
 		c.JSON(http.StatusNotFound, entity.H{"msg": "请求地址不存在"})
 	})
+
+	pprof.Register(router)
 
 	return router
 }
