@@ -87,7 +87,7 @@ func (c *DefaultWebSocket) open(client im.IClient) {
 
 	// 推送上线消息
 	c.rds.Publish(context.Background(), entity.IMGatewayAll, jsonutil.Encode(entity.MapStrAny{
-		"event": entity.EventLogin,
+		"event": entity.EventOnlineStatus,
 		"data": jsonutil.Encode(entity.MapStrAny{
 			"user_id": client.ClientUid(),
 			"status":  1,
@@ -156,7 +156,7 @@ func (c *DefaultWebSocket) close(client im.IClient, code int, text string) {
 
 	// 推送下线消息
 	c.rds.Publish(context.Background(), entity.IMGatewayAll, jsonutil.Encode(entity.MapStrAny{
-		"event": entity.EventLogin,
+		"event": entity.EventOnlineStatus,
 		"data": jsonutil.Encode(entity.MapStrAny{
 			"user_id": client.ClientUid(),
 			"status":  0,

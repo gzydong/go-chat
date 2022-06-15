@@ -39,7 +39,7 @@ func (s *SubscribeConsume) Handle(event string, data string) {
 	// 注册消息回调事件
 	handler[entity.EventTalk] = s.onConsumeTalk
 	handler[entity.EventTalkKeyboard] = s.onConsumeTalkKeyboard
-	handler[entity.EventLogin] = s.onConsumeLogin
+	handler[entity.EventOnlineStatus] = s.onConsumeLogin
 	handler[entity.EventTalkRevoke] = s.onConsumeTalkRevoke
 	handler[entity.EventTalkJoinGroup] = s.onConsumeTalkJoinGroup
 	handler[entity.EventContactApply] = s.onConsumeContactApply
@@ -172,7 +172,7 @@ func (s *SubscribeConsume) onConsumeLogin(body string) {
 	c := im.NewSenderContent()
 	c.SetReceive(cids...)
 	c.SetMessage(&im.Message{
-		Event:   entity.EventLogin,
+		Event:   entity.EventOnlineStatus,
 		Content: msg,
 	})
 

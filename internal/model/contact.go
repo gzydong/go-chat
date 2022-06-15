@@ -2,7 +2,7 @@ package model
 
 import "time"
 
-// 用户好友关系表
+// Contact 用户好友关系表
 type Contact struct {
 	Id        int       `gorm:"column:id;primary_key;AUTO_INCREMENT" json:"id"`                         // 关系ID
 	UserId    int       `gorm:"column:user_id;default:0;NOT NULL" json:"user_id"`                       // 用户id

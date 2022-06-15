@@ -5,41 +5,54 @@ import (
 )
 
 type ITask interface {
-	Do(i int)
+	Do(workerId int)
 }
 
 type Task struct {
-	fun func(i int)
+	do func(workerId int)
 }
 
-func (t *Task) Do(i int) {
-	t.fun(i)
+func (t *Task) Do(workerId int) {
+	t.do(workerId)
 }
 
 type Consume struct {
-	size     int
+	worker   int
 	len      int
 	channels map[int]chan ITask
 	isStop   bool
 	wg       *sync.WaitGroup
 }
 
-func NewConsume(size, len int) *Consume {
-	return &Consume{size, len, make(map[int]chan ITask), false, &sync.WaitGroup{}}
+func NewConsume(worker, len int) *Consume {
+
+	consume := &Consume{
+		worker:   worker,
+		len:      len,
+		channels: make(map[int]chan ITask),
+		wg:       &sync.WaitGroup{},
+	}
+
+	consume.Start()
+
+	return consume
 }
 
 func (c *Consume) Start() {
-	for i := 0; i < c.size; i++ {
+	for i := 0; i < c.worker; i++ {
 		index := i
 
-		c.channels[index] = make(chan ITask, c.len)
+		task := make(chan ITask, c.len)
+
+		c.channels[index] = task
 
 		c.wg.Add(1)
 
 		go func() {
 			defer c.wg.Done()
-			for task := range c.channels[index] {
-				task.Do(index)
+
+			for iTask := range task {
+				iTask.Do(index)
 			}
 		}()
 	}
@@ -58,17 +71,19 @@ func (c *Consume) AddTask(key int, task ITask) {
 		return
 	}
 
-	c.channels[c.findKey(key)] <- task
+	index := c.index(key)
+
+	c.channels[index] <- task
 }
 
-func (c *Consume) findKey(key int) int {
-	return key % c.size
+func (c *Consume) index(key int) int {
+	return key % c.worker
 }
 
 func (c *Consume) Wait() {
 	c.wg.Wait()
 }
 
-func TaskFun(fun func(i int)) ITask {
-	return &Task{fun}
+func TaskFunc(do func(i int)) ITask {
+	return &Task{do}
 }
