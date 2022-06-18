@@ -12,12 +12,10 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/urfave/cli/v2"
-	"go-chat/internal/pkg/logger"
-	"go-chat/internal/provider"
-
-	_ "go-chat/internal/pkg/validation"
-
 	_ "github.com/urfave/cli/v2"
+	"go-chat/config"
+	"go-chat/internal/pkg/logger"
+	_ "go-chat/internal/pkg/validation"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -42,26 +40,26 @@ func main() {
 		defer cancel()
 
 		// 读取配置文件
-		config := provider.ReadConfig(tx.String("config"))
+		conf := config.ReadConfig(tx.String("config"))
 
 		// 设置服务端口号
-		config.SetPort(tx.Int("port"))
+		conf.SetPort(tx.Int("port"))
 
 		// 设置日志输出
-		logger.SetOutput(config.GetLogPath(), "logger-http")
+		logger.SetOutput(conf.GetLogPath(), "logger-http")
 
-		if !config.Debug() {
+		if !conf.Debug() {
 			gin.SetMode(gin.ReleaseMode)
 		}
 
-		app := Initialize(ctx, config)
+		app := Initialize(ctx, conf)
 
 		eg, groupCtx := errgroup.WithContext(ctx)
 		c := make(chan os.Signal, 1)
 		signal.Notify(c, syscall.SIGTERM, syscall.SIGQUIT, syscall.SIGINT)
 
-		log.Printf("HTTP Listen Port :%d", config.App.Port)
-		log.Printf("HTTP Listen Port :%d", config.App.Port)
+		log.Printf("HTTP Listen Port :%d", conf.App.Port)
+		log.Printf("HTTP Listen Port :%d", conf.App.Port)
 		log.Printf("HTTP Server Pid  :%d", os.Getpid())
 
 		return run(c, eg, groupCtx, cancel, app.Server)

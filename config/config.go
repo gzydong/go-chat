@@ -23,7 +23,7 @@ type Config struct {
 	Email      *Email      `json:"email" yaml:"email"`
 }
 
-func Init(filename string) *Config {
+func ReadConfig(filename string) *Config {
 	conf := &Config{}
 	content, err := ioutil.ReadFile(filename)
 	if err != nil {

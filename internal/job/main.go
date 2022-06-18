@@ -7,15 +7,15 @@ import (
 	"os"
 
 	"github.com/urfave/cli/v2"
+	"go-chat/config"
 	"go-chat/internal/pkg/logger"
-	"go-chat/internal/provider"
 )
 
 func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	providers := Initialize(ctx, provider.ReadConfig(parseConfigArg()))
+	providers := Initialize(ctx, config.ReadConfig(parseConfigArg()))
 
 	// 设置日志输出
 	logger.SetOutput(providers.Config.GetLogPath(), "logger-cli")
