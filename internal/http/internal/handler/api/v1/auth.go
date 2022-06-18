@@ -59,57 +59,39 @@ func NewAuthHandler(
 // Login 登录接口
 func (c *Auth) Login(ctx *gin.Context) {
 
-	// params := &request.LoginRequest{}
-	params := &web.AuthLoginRequest{}
+	params := &request.LoginRequest{}
 	if err := ctx.ShouldBindJSON(params); err != nil {
 		response.InvalidParams(ctx, err)
 		return
 	}
 
-	fmt.Println(params)
-
-	err := params.Validate()
+	user, err := c.userService.Login(params.Mobile, params.Password)
 	if err != nil {
-		fmt.Println(err.Error())
+		response.BusinessError(ctx, err)
 		return
 	}
 
-	// if params.Mobile == "18798272054" {
-	// 	response.Success(ctx, &web.AuthLoginResponse{
-	// 		Type:      "你加快速度那",
-	// 		Token:     "文件看",
-	// 		ExpiresIn: "啊赛诺菲卡紧恩",
-	// 	})
-	// 	return
-	// }
-	//
-	// user, err := c.userService.Login(params.Mobile, params.Password)
-	// if err != nil {
-	// 	response.BusinessError(ctx, err)
-	// 	return
-	// }
-	//
-	// ip := ctx.ClientIP()
-	//
-	// address, _ := c.ipAddressService.FindAddress(ip)
-	//
-	// _, _ = c.talkSessionService.Create(ctx.Request.Context(), &service.TalkSessionCreateOpts{
-	// 	UserId:     user.Id,
-	// 	TalkType:   entity.ChatPrivateMode,
-	// 	ReceiverId: 4257,
-	// 	IsBoot:     true,
-	// })
-	//
-	// // 推送登录消息
-	// _ = c.talkMessageService.SendLoginMessage(ctx.Request.Context(), &service.LoginMessageOpts{
-	// 	UserId:   user.Id,
-	// 	Ip:       ip,
-	// 	Address:  address,
-	// 	Platform: params.Platform,
-	// 	Agent:    ctx.GetHeader("user-agent"),
-	// })
-	//
-	// response.Success(ctx, c.createToken(user.Id))
+	ip := ctx.ClientIP()
+
+	address, _ := c.ipAddressService.FindAddress(ip)
+
+	_, _ = c.talkSessionService.Create(ctx.Request.Context(), &service.TalkSessionCreateOpts{
+		UserId:     user.Id,
+		TalkType:   entity.ChatPrivateMode,
+		ReceiverId: 4257,
+		IsBoot:     true,
+	})
+
+	// 推送登录消息
+	_ = c.talkMessageService.SendLoginMessage(ctx.Request.Context(), &service.LoginMessageOpts{
+		UserId:   user.Id,
+		Ip:       ip,
+		Address:  address,
+		Platform: params.Platform,
+		Agent:    ctx.GetHeader("user-agent"),
+	})
+
+	response.Success(ctx, c.createToken(user.Id))
 }
 
 // Register 注册接口
