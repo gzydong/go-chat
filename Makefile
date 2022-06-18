@@ -5,6 +5,7 @@ install:
 	go install github.com/google/wire/cmd/wire \
 	&& go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.46.0 \
 	&& go install github.com/envoyproxy/protoc-gen-validate@latest \
+	&& go install github.com/srikrsna/protoc-gen-gotag \
 
 .PHONY: conf
 conf:
