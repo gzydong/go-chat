@@ -1,0 +1,23 @@
+syntax = "proto3";
+package web;
+
+option go_package = "web/v1;web";
+
+import "validate/validate.proto";
+
+import "tagger/tagger.proto";
+
+message AuthLoginRequest{
+  // 登录手机号
+  string mobile = 1 [(validate.rules).string.max_len = 10];
+  // 登录密码
+  string password = 2 [(tagger.tags) = "form:\"password\""];
+  // 登录平台
+  string platform = 3;
+}
+
+message AuthLoginResponse{
+  string type = 1;
+  string token = 2;
+  string expires_in = 3;
+}

@@ -1,0 +1,21 @@
+syntax = "proto3";
+package admin;
+
+
+option go_package = "./admin/v1;admin";
+
+// 活动
+service Activity {
+  rpc Get(ActivityDetailRequest) returns (ActivityDetailResponse) {}
+}
+
+
+message ActivityDetailRequest{
+  int32 code = 1;
+  string message = 2;
+}
+
+message ActivityDetailResponse{
+  int32 code = 1;
+  string message = 2;
+}

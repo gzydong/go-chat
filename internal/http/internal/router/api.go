@@ -32,6 +32,7 @@ func RegisterApiRoute(conf *config.Config, router *gin.Engine, handler *handler.
 			auth.POST("/refresh", authorize, handler.Auth.Refresh) // 刷新 Token
 			auth.POST("/logout", authorize, handler.Auth.Logout)   // 退出登录
 			auth.POST("/forget", handler.Auth.Forget)              // 找回密码
+			auth.GET("/test", handler.Auth.Test)                   // 找回密码
 		}
 
 		// 用户相关分组

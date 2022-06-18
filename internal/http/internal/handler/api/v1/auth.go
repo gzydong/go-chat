@@ -1,9 +1,11 @@
 package v1
 
 import (
+	"fmt"
 	"strconv"
 	"time"
 
+	"go-chat/api/web"
 	"go-chat/internal/http/internal/dto"
 	"go-chat/internal/pkg/jwtutil"
 	"go-chat/internal/service/note"
@@ -56,39 +58,58 @@ func NewAuthHandler(
 
 // Login 登录接口
 func (c *Auth) Login(ctx *gin.Context) {
-	params := &request.LoginRequest{}
-	if err := ctx.ShouldBind(params); err != nil {
+
+	// params := &request.LoginRequest{}
+	params := &web.AuthLoginRequest{}
+	if err := ctx.ShouldBindJSON(params); err != nil {
 		response.InvalidParams(ctx, err)
 		return
 	}
 
-	user, err := c.userService.Login(params.Mobile, params.Password)
+	fmt.Println(params)
+
+	err := params.Validate()
 	if err != nil {
-		response.BusinessError(ctx, err)
+		fmt.Println(err.Error())
 		return
 	}
 
-	ip := ctx.ClientIP()
-
-	address, _ := c.ipAddressService.FindAddress(ip)
-
-	_, _ = c.talkSessionService.Create(ctx.Request.Context(), &service.TalkSessionCreateOpts{
-		UserId:     user.Id,
-		TalkType:   entity.ChatPrivateMode,
-		ReceiverId: 4257,
-		IsBoot:     true,
-	})
-
-	// 推送登录消息
-	_ = c.talkMessageService.SendLoginMessage(ctx.Request.Context(), &service.LoginMessageOpts{
-		UserId:   user.Id,
-		Ip:       ip,
-		Address:  address,
-		Platform: params.Platform,
-		Agent:    ctx.GetHeader("user-agent"),
-	})
-
-	response.Success(ctx, c.createToken(user.Id))
+	// if params.Mobile == "18798272054" {
+	// 	response.Success(ctx, &web.AuthLoginResponse{
+	// 		Type:      "你加快速度那",
+	// 		Token:     "文件看",
+	// 		ExpiresIn: "啊赛诺菲卡紧恩",
+	// 	})
+	// 	return
+	// }
+	//
+	// user, err := c.userService.Login(params.Mobile, params.Password)
+	// if err != nil {
+	// 	response.BusinessError(ctx, err)
+	// 	return
+	// }
+	//
+	// ip := ctx.ClientIP()
+	//
+	// address, _ := c.ipAddressService.FindAddress(ip)
+	//
+	// _, _ = c.talkSessionService.Create(ctx.Request.Context(), &service.TalkSessionCreateOpts{
+	// 	UserId:     user.Id,
+	// 	TalkType:   entity.ChatPrivateMode,
+	// 	ReceiverId: 4257,
+	// 	IsBoot:     true,
+	// })
+	//
+	// // 推送登录消息
+	// _ = c.talkMessageService.SendLoginMessage(ctx.Request.Context(), &service.LoginMessageOpts{
+	// 	UserId:   user.Id,
+	// 	Ip:       ip,
+	// 	Address:  address,
+	// 	Platform: params.Platform,
+	// 	Agent:    ctx.GetHeader("user-agent"),
+	// })
+	//
+	// response.Success(ctx, c.createToken(user.Id))
 }
 
 // Register 注册接口
@@ -194,4 +215,14 @@ func (c *Auth) toBlackList(ctx *gin.Context) {
 
 	// 将 session 加入黑名单
 	_ = c.session.SetBlackList(ctx.Request.Context(), info["session"], ex)
+}
+
+func (c *Auth) Test(ctx *gin.Context) {
+	params := &web.AuthLoginRequest{}
+	if err := ctx.ShouldBindQuery(params); err != nil {
+		response.InvalidParams(ctx, err)
+		return
+	}
+
+	fmt.Println("ansjkanskja", params)
 }

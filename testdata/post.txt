@@ -1,1 +1,0 @@
-talk_type=1&receiver_id=2055&text=12那可就散拿卡安萨克111&token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJndWFyZCI6ImFwaSIsImV4cCI6NTIzNjg5OTk5MSwianRpIjoiMjA1NCJ9.kSBvnrvV3uf0PssMLcmWf0hGyFhXdqwegnrCWpLVxq8

@@ -140,7 +140,7 @@ func (c *CosFilesystem) PrivateUrl(filePath string, timeout int) string {
 	return result.String()
 }
 
-// 读取文件流信息
+// ReadStream 读取文件流信息
 func (c *CosFilesystem) ReadStream(filePath string) ([]byte, error) {
 	return nil, nil
 }

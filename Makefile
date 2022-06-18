@@ -1,3 +1,12 @@
+PROTO_FILES := $(shell find api -name *.proto)
+
+.PHONY: install
+install:
+	go install github.com/google/wire/cmd/wire \
+	&& go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.46.0 \
+	&& go install github.com/envoyproxy/protoc-gen-validate@latest \
+
+.PHONY: conf
 conf:
 	cp config.example.yaml config.yaml
 
@@ -16,7 +25,6 @@ build:generate lint
 	go build -o ./bin/websocket ./internal/websocket
 	go build -o ./bin/job-cli ./internal/job
 
-## mac 下打包 windows 执行文件
 .PHONY: build-all
 build-all:generate lint build-windows build-linux build-mac
 
@@ -58,8 +66,14 @@ lint:
 test:
 	go test -v ./...
 
-
 tool:
 	go build -o ./script/mac-ws-tool ./script
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o ./script/linux-ws-tool ./script
 	CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o ./script/windows-ws-tool.exe ./script
+
+.PHONY: protoc
+protoc:
+	@if [ -n "$(PROTO_FILES)" ]; then \
+		protoc --proto_path=./third_party --proto_path=./api/proto --go_out=paths=source_relative:./api --validate_out=paths=source_relative,lang=go:./api $(PROTO_FILES) \
+	 && echo "protoc generate success"; \
+	fi

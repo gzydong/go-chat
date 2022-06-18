@@ -6,7 +6,7 @@ import (
 	"go-chat/config"
 )
 
-type AdapterInterface interface {
+type IAdapter interface {
 	// Write 文件写入
 	Write(data []byte, filePath string) error
 
@@ -51,7 +51,7 @@ type FileStat struct {
 
 type Filesystem struct {
 	driver  string
-	Default AdapterInterface
+	Default IAdapter
 	Local   *LocalFilesystem
 	Cos     *CosFilesystem
 }
