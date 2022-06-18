@@ -74,6 +74,10 @@ tool:
 .PHONY: protoc
 protoc:
 	@if [ -n "$(PROTO_FILES)" ]; then \
-		protoc --proto_path=./third_party --proto_path=./api/proto --go_out=paths=source_relative:./api --validate_out=paths=source_relative,lang=go:./api $(PROTO_FILES) \
+		protoc --proto_path=./third_party \
+		--proto_path=./api/proto \
+		--gotag_out=outdir="./api":./ \
+		--go_out=paths=source_relative:./api \
+		--validate_out=paths=source_relative,lang=go:./api $(PROTO_FILES) \
 	 && echo "protoc generate success"; \
 	fi
