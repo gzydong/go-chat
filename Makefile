@@ -5,6 +5,7 @@ install:
 	go install github.com/google/wire/cmd/wire \
 	&& go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.46.0 \
 	&& go install github.com/envoyproxy/protoc-gen-validate@latest \
+	&& go install github.com/srikrsna/protoc-gen-gotag \
 
 .PHONY: conf
 conf:
@@ -74,6 +75,10 @@ tool:
 .PHONY: protoc
 protoc:
 	@if [ -n "$(PROTO_FILES)" ]; then \
-		protoc --proto_path=./third_party --proto_path=./api/proto --go_out=paths=source_relative:./api --validate_out=paths=source_relative,lang=go:./api $(PROTO_FILES) \
+		protoc --proto_path=./third_party \
+		--proto_path=./api/proto \
+		--gotag_out=outdir="./api":./ \
+		--go_out=paths=source_relative:./api \
+		--validate_out=paths=source_relative,lang=go:./api $(PROTO_FILES) \
 	 && echo "protoc generate success"; \
 	fi

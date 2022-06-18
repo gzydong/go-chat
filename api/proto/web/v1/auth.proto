@@ -9,7 +9,7 @@ import "tagger/tagger.proto";
 
 message AuthLoginRequest{
   // 登录手机号
-  string mobile = 1 [(validate.rules).string.max_len = 10];
+  string mobile = 1 [(validate.rules).string = {min_len: 11, max_len: 11}];
   // 登录密码
   string password = 2 [(tagger.tags) = "form:\"password\""];
   // 登录平台
