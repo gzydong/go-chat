@@ -59,7 +59,6 @@ func main() {
 		signal.Notify(c, syscall.SIGTERM, syscall.SIGQUIT, syscall.SIGINT)
 
 		log.Printf("HTTP Listen Port :%d", conf.App.Port)
-		log.Printf("HTTP Listen Port :%d", conf.App.Port)
 		log.Printf("HTTP Server Pid  :%d", os.Getpid())
 
 		return run(c, eg, groupCtx, cancel, app.Server)
