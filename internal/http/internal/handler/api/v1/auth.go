@@ -1,16 +1,15 @@
 package v1
 
 import (
-	"fmt"
 	"strconv"
 	"time"
 
+	"github.com/gin-gonic/gin"
 	"go-chat/api/web/v1"
 	"go-chat/internal/http/internal/dto"
 	"go-chat/internal/pkg/jwtutil"
+	"go-chat/internal/pkg/strutil"
 	"go-chat/internal/service/note"
-
-	"github.com/gin-gonic/gin"
 
 	"go-chat/config"
 	"go-chat/internal/cache"
@@ -206,5 +205,16 @@ func (c *Auth) Test(ctx *gin.Context) {
 		return
 	}
 
-	fmt.Println("ansjkanskja", params)
+	response.Success(ctx, &web.AuthLoginResponse{
+		Type:      "TOKEN",
+		Token:     strutil.Random(10),
+		ExpiresIn: time.Now().Unix(),
+		Items: []*web.AuthLoginResponseList{
+			{
+				// Type:      "",
+				Token:     "222",
+				ExpiresIn: 333,
+			},
+		},
+	})
 }

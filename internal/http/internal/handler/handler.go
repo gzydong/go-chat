@@ -28,7 +28,7 @@ type ApiHandler struct {
 	GroupNotice   *group.Notice
 	GroupApply    *group.Apply
 	Contact       *contact.Contact
-	ContactsApply *contact.ContactApply
+	ContactsApply *contact.Apply
 	Article       *article.Article
 	ArticleAnnex  *article.Annex
 	ArticleClass  *article.Class

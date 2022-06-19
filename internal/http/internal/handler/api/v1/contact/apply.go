@@ -11,7 +11,7 @@ import (
 	"go-chat/internal/service"
 )
 
-type ContactApply struct {
+type Apply struct {
 	service            *service.ContactApplyService
 	userService        *service.UserService
 	talkMessageService *service.TalkMessageService
@@ -23,19 +23,19 @@ func NewContactsApplyHandler(
 	userService *service.UserService,
 	talkMessageService *service.TalkMessageService,
 	contactService *service.ContactService,
-) *ContactApply {
-	return &ContactApply{service: service, userService: userService, talkMessageService: talkMessageService, contactService: contactService}
+) *Apply {
+	return &Apply{service: service, userService: userService, talkMessageService: talkMessageService, contactService: contactService}
 }
 
 // ApplyUnreadNum 获取好友申请未读数
-func (c *ContactApply) ApplyUnreadNum(ctx *gin.Context) {
+func (c *Apply) ApplyUnreadNum(ctx *gin.Context) {
 	response.Success(ctx, entity.H{
 		"unread_num": c.service.GetApplyUnreadNum(ctx.Request.Context(), jwtutil.GetUid(ctx)),
 	})
 }
 
 // Create 创建联系人申请
-func (c *ContactApply) Create(ctx *gin.Context) {
+func (c *Apply) Create(ctx *gin.Context) {
 	params := &request.ContactApplyCreateRequest{}
 	if err := ctx.ShouldBind(params); err != nil {
 		response.InvalidParams(ctx, err)
@@ -60,7 +60,7 @@ func (c *ContactApply) Create(ctx *gin.Context) {
 }
 
 // Accept 同意联系人添加申请
-func (c *ContactApply) Accept(ctx *gin.Context) {
+func (c *Apply) Accept(ctx *gin.Context) {
 	params := &request.ContactApplyAcceptRequest{}
 	if err := ctx.ShouldBind(params); err != nil {
 		response.InvalidParams(ctx, err)
@@ -90,7 +90,7 @@ func (c *ContactApply) Accept(ctx *gin.Context) {
 }
 
 // Decline 拒绝联系人添加申请
-func (c *ContactApply) Decline(ctx *gin.Context) {
+func (c *Apply) Decline(ctx *gin.Context) {
 	params := &request.ContactApplyDeclineRequest{}
 	if err := ctx.ShouldBind(params); err != nil {
 		response.InvalidParams(ctx, err)
@@ -110,7 +110,7 @@ func (c *ContactApply) Decline(ctx *gin.Context) {
 }
 
 // List 获取联系人申请列表
-func (c *ContactApply) List(ctx *gin.Context) {
+func (c *Apply) List(ctx *gin.Context) {
 	list, err := c.service.List(ctx, jwtutil.GetUid(ctx), 1, 1000)
 	if err != nil {
 		response.SystemError(ctx, err)

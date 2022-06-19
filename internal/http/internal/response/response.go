@@ -4,11 +4,20 @@ import (
 	"fmt"
 	"net/http"
 
+	"go-chat/internal/pkg/jsonutil"
 	"go-chat/internal/pkg/validation"
+	"google.golang.org/protobuf/encoding/protojson"
+	"google.golang.org/protobuf/proto"
 
 	"github.com/gin-gonic/gin"
 	"go-chat/internal/entity"
 )
+
+// MarshalOptions is a configurable JSON format marshaller.
+var MarshalOptions = protojson.MarshalOptions{
+	UseProtoNames:   true,
+	EmitUnpopulated: true,
+}
 
 // Response 返回数据结构
 type Response struct {
@@ -87,8 +96,21 @@ func Success(c *gin.Context, data interface{}, message ...string) {
 		msg = message[0]
 	}
 
-	c.JSON(http.StatusOK, &Response{Code: entity.CodeSuccess, Data: data, Message: msg})
 	c.Abort()
+
+	if value, ok := data.(proto.Message); ok {
+		var val interface{}
+
+		bt, _ := MarshalOptions.Marshal(value)
+		if err := jsonutil.Decode(string(bt), &val); err != nil {
+			SystemError(c, err.Error())
+			return
+		}
+
+		c.JSON(http.StatusOK, &Response{Code: entity.CodeSuccess, Data: val, Message: msg})
+	} else {
+		c.JSON(http.StatusOK, &Response{Code: entity.CodeSuccess, Data: data, Message: msg})
+	}
 }
 
 // SuccessPaginate 响应分页数据

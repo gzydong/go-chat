@@ -40,6 +40,11 @@ func NewRouter(conf *config.Config, handler *handler.Handler, tokenCache *cache.
 	RegisterAdminRoute(conf, router, handler.Admin, tokenCache)
 	RegisterOpenRoute(conf, router, handler.Open, tokenCache)
 
+	// 注册 debug 路由
+	if conf.Debug() {
+		RegisterDebugRoute(router)
+	}
+
 	router.NoRoute(func(c *gin.Context) {
 		response.NewError(c, 404, "请求地址不存在")
 	})
