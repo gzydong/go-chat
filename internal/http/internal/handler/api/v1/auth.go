@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"time"
 
-	"go-chat/api/web"
+	"go-chat/api/web/v1"
 	"go-chat/internal/http/internal/dto"
 	"go-chat/internal/pkg/jwtutil"
 	"go-chat/internal/service/note"

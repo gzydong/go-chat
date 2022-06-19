@@ -2,7 +2,7 @@ syntax = "proto3";
 package admin;
 
 
-option go_package = "./admin/v1;admin";
+option go_package = "admin/v1;admin";
 
 // 活动
 service Activity {
