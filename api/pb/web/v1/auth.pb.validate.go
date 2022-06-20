@@ -174,43 +174,9 @@ func (m *AuthLoginResponse) validate(all bool) error {
 
 	// no validation rules for Type
 
-	// no validation rules for Token
+	// no validation rules for AccessToken
 
 	// no validation rules for ExpiresIn
-
-	for idx, item := range m.GetItems() {
-		_, _ = idx, item
-
-		if all {
-			switch v := interface{}(item).(type) {
-			case interface{ ValidateAll() error }:
-				if err := v.ValidateAll(); err != nil {
-					errors = append(errors, AuthLoginResponseValidationError{
-						field:  fmt.Sprintf("Items[%v]", idx),
-						reason: "embedded message failed validation",
-						cause:  err,
-					})
-				}
-			case interface{ Validate() error }:
-				if err := v.Validate(); err != nil {
-					errors = append(errors, AuthLoginResponseValidationError{
-						field:  fmt.Sprintf("Items[%v]", idx),
-						reason: "embedded message failed validation",
-						cause:  err,
-					})
-				}
-			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
-			if err := v.Validate(); err != nil {
-				return AuthLoginResponseValidationError{
-					field:  fmt.Sprintf("Items[%v]", idx),
-					reason: "embedded message failed validation",
-					cause:  err,
-				}
-			}
-		}
-
-	}
 
 	if len(errors) > 0 {
 		return AuthLoginResponseMultiError(errors)
@@ -292,22 +258,22 @@ var _ interface {
 	ErrorName() string
 } = AuthLoginResponseValidationError{}
 
-// Validate checks the field values on AuthLoginResponseList with the rules
+// Validate checks the field values on AuthRefreshResponse with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
-func (m *AuthLoginResponseList) Validate() error {
+func (m *AuthRefreshResponse) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on AuthLoginResponseList with the rules
+// ValidateAll checks the field values on AuthRefreshResponse with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the result is a list of violation errors wrapped in
-// AuthLoginResponseListMultiError, or nil if none found.
-func (m *AuthLoginResponseList) ValidateAll() error {
+// AuthRefreshResponseMultiError, or nil if none found.
+func (m *AuthRefreshResponse) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *AuthLoginResponseList) validate(all bool) error {
+func (m *AuthRefreshResponse) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -316,24 +282,24 @@ func (m *AuthLoginResponseList) validate(all bool) error {
 
 	// no validation rules for Type
 
-	// no validation rules for Token
+	// no validation rules for AccessToken
 
 	// no validation rules for ExpiresIn
 
 	if len(errors) > 0 {
-		return AuthLoginResponseListMultiError(errors)
+		return AuthRefreshResponseMultiError(errors)
 	}
 
 	return nil
 }
 
-// AuthLoginResponseListMultiError is an error wrapping multiple validation
-// errors returned by AuthLoginResponseList.ValidateAll() if the designated
+// AuthRefreshResponseMultiError is an error wrapping multiple validation
+// errors returned by AuthRefreshResponse.ValidateAll() if the designated
 // constraints aren't met.
-type AuthLoginResponseListMultiError []error
+type AuthRefreshResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m AuthLoginResponseListMultiError) Error() string {
+func (m AuthRefreshResponseMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -342,11 +308,11 @@ func (m AuthLoginResponseListMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m AuthLoginResponseListMultiError) AllErrors() []error { return m }
+func (m AuthRefreshResponseMultiError) AllErrors() []error { return m }
 
-// AuthLoginResponseListValidationError is the validation error returned by
-// AuthLoginResponseList.Validate if the designated constraints aren't met.
-type AuthLoginResponseListValidationError struct {
+// AuthRefreshResponseValidationError is the validation error returned by
+// AuthRefreshResponse.Validate if the designated constraints aren't met.
+type AuthRefreshResponseValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -354,24 +320,24 @@ type AuthLoginResponseListValidationError struct {
 }
 
 // Field function returns field value.
-func (e AuthLoginResponseListValidationError) Field() string { return e.field }
+func (e AuthRefreshResponseValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e AuthLoginResponseListValidationError) Reason() string { return e.reason }
+func (e AuthRefreshResponseValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e AuthLoginResponseListValidationError) Cause() error { return e.cause }
+func (e AuthRefreshResponseValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e AuthLoginResponseListValidationError) Key() bool { return e.key }
+func (e AuthRefreshResponseValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e AuthLoginResponseListValidationError) ErrorName() string {
-	return "AuthLoginResponseListValidationError"
+func (e AuthRefreshResponseValidationError) ErrorName() string {
+	return "AuthRefreshResponseValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e AuthLoginResponseListValidationError) Error() string {
+func (e AuthRefreshResponseValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -383,14 +349,14 @@ func (e AuthLoginResponseListValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sAuthLoginResponseList.%s: %s%s",
+		"invalid %sAuthRefreshResponse.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = AuthLoginResponseListValidationError{}
+var _ error = AuthRefreshResponseValidationError{}
 
 var _ interface {
 	Field() string
@@ -398,4 +364,4 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = AuthLoginResponseListValidationError{}
+} = AuthRefreshResponseValidationError{}

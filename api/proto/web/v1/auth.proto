@@ -4,7 +4,6 @@ package web;
 option go_package = "web/v1;web";
 
 import "validate/validate.proto";
-
 import "tagger/tagger.proto";
 
 message AuthLoginRequest{
@@ -17,14 +16,13 @@ message AuthLoginRequest{
 }
 
 message AuthLoginResponse{
-  message list {
-    string type = 1;
-    string token = 2;
-    int64 expires_in = 3;
-  }
-
   string type = 1;
-  string token = 2;
+  string access_token = 2;
   int64 expires_in = 3;
-  repeated list items = 4;
+}
+
+message AuthRefreshResponse{
+  string type = 1;
+  string access_token = 2;
+  int64 expires_in = 3;
 }

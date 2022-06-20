@@ -5,10 +5,8 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"go-chat/api/web/v1"
-	"go-chat/internal/http/internal/dto"
+	"go-chat/api/pb/web/v1"
 	"go-chat/internal/pkg/jwtutil"
-	"go-chat/internal/pkg/strutil"
 	"go-chat/internal/service/note"
 
 	"go-chat/config"
@@ -90,7 +88,11 @@ func (c *Auth) Login(ctx *gin.Context) {
 		Agent:    ctx.GetHeader("user-agent"),
 	})
 
-	response.Success(ctx, c.createToken(user.Id))
+	response.Success(ctx, &web.AuthLoginResponse{
+		Type:        "Bearer",
+		AccessToken: c.token(user.Id),
+		ExpiresIn:   c.config.Jwt.ExpiresTime,
+	})
 }
 
 // Register 注册接口
@@ -133,11 +135,14 @@ func (c *Auth) Logout(ctx *gin.Context) {
 
 // Refresh Token 刷新接口
 func (c *Auth) Refresh(ctx *gin.Context) {
-	tokenInfo := c.createToken(jwtutil.GetUid(ctx))
 
 	c.toBlackList(ctx)
 
-	response.Success(ctx, tokenInfo)
+	response.Success(ctx, &web.AuthRefreshResponse{
+		Type:        "Bearer",
+		AccessToken: c.token(jwtutil.GetUid(ctx)),
+		ExpiresIn:   c.config.Jwt.ExpiresTime,
+	})
 }
 
 // Forget 账号找回接口
@@ -169,7 +174,7 @@ func (c *Auth) Forget(ctx *gin.Context) {
 	response.Success(ctx, nil, "账号成功找回")
 }
 
-func (c *Auth) createToken(uid int) *dto.Token {
+func (c *Auth) token(uid int) string {
 
 	expiresAt := time.Now().Add(time.Second * time.Duration(c.config.Jwt.ExpiresTime)).Unix()
 
@@ -179,11 +184,7 @@ func (c *Auth) createToken(uid int) *dto.Token {
 		Id:        strconv.Itoa(uid),
 	})
 
-	return &dto.Token{
-		Type:      "Bearer",
-		Token:     token,
-		ExpiresIn: c.config.Jwt.ExpiresTime,
-	}
+	return token
 }
 
 // 设置黑名单
@@ -196,25 +197,4 @@ func (c *Auth) toBlackList(ctx *gin.Context) {
 
 	// 将 session 加入黑名单
 	_ = c.session.SetBlackList(ctx.Request.Context(), info["session"], ex)
-}
-
-func (c *Auth) Test(ctx *gin.Context) {
-	params := &web.AuthLoginRequest{}
-	if err := ctx.ShouldBindQuery(params); err != nil {
-		response.InvalidParams(ctx, err)
-		return
-	}
-
-	response.Success(ctx, &web.AuthLoginResponse{
-		Type:      "TOKEN",
-		Token:     strutil.Random(10),
-		ExpiresIn: time.Now().Unix(),
-		Items: []*web.AuthLoginResponseList{
-			{
-				// Type:      "",
-				Token:     "222",
-				ExpiresIn: 333,
-			},
-		},
-	})
 }

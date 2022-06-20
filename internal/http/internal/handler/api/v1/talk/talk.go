@@ -6,9 +6,9 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"go-chat/api/pb/web/v1"
 	"go-chat/internal/cache"
 	"go-chat/internal/entity"
-	"go-chat/internal/http/internal/dto"
 	"go-chat/internal/http/internal/request"
 	"go-chat/internal/http/internal/response"
 	"go-chat/internal/pkg/encrypt"
@@ -80,15 +80,15 @@ func (c *Talk) List(ctx *gin.Context) {
 		return
 	}
 
-	items := make([]*dto.TalkListItem, 0)
+	items := make([]*web.TalkListResponse_Item, 0)
 	for _, item := range data {
-		value := &dto.TalkListItem{
-			Id:         item.Id,
-			TalkType:   item.TalkType,
-			ReceiverId: item.ReceiverId,
-			IsTop:      item.IsTop,
-			IsDisturb:  item.IsDisturb,
-			IsRobot:    item.IsRobot,
+		value := &web.TalkListResponse_Item{
+			Id:         int32(item.Id),
+			TalkType:   int32(item.TalkType),
+			ReceiverId: int32(item.ReceiverId),
+			IsTop:      int32(item.IsTop),
+			IsDisturb:  int32(item.IsDisturb),
+			IsRobot:    int32(item.IsRobot),
 			Avatar:     item.UserAvatar,
 			MsgText:    "...",
 			UpdatedAt:  timeutil.FormatDatetime(item.UpdatedAt),
@@ -99,8 +99,8 @@ func (c *Talk) List(ctx *gin.Context) {
 			value.Name = item.Nickname
 			value.Avatar = item.UserAvatar
 			value.RemarkName = remarks[item.ReceiverId]
-			value.UnreadNum = c.unreadTalkCache.Get(ctx.Request.Context(), item.ReceiverId, uid)
-			value.IsOnline = strutil.BoolToInt(c.wsClient.IsOnline(ctx, entity.ImChannelDefault, strconv.Itoa(value.ReceiverId)))
+			value.UnreadNum = int32(c.unreadTalkCache.Get(ctx.Request.Context(), item.ReceiverId, uid))
+			value.IsOnline = int32(strutil.BoolToInt(c.wsClient.IsOnline(ctx, entity.ImChannelDefault, strconv.Itoa(int(value.ReceiverId)))))
 		} else {
 			value.Name = item.GroupName
 			value.Avatar = item.GroupAvatar
@@ -115,7 +115,9 @@ func (c *Talk) List(ctx *gin.Context) {
 		items = append(items, value)
 	}
 
-	response.Success(ctx, items)
+	response.Success(ctx, &web.TalkListResponse{
+		Items: items,
+	})
 }
 
 // Create 创建会话列表
@@ -167,35 +169,35 @@ func (c *Talk) Create(ctx *gin.Context) {
 		return
 	}
 
-	item := dto.TalkListItem{
-		Id:         result.Id,
-		TalkType:   result.TalkType,
-		ReceiverId: result.ReceiverId,
-		IsRobot:    result.IsRobot,
+	resp := &web.TalkCreateResponse{
+		Id:         int32(result.Id),
+		TalkType:   int32(result.TalkType),
+		ReceiverId: int32(result.ReceiverId),
+		IsRobot:    int32(result.IsRobot),
 		UpdatedAt:  timeutil.DateTime(),
 	}
 
-	if item.TalkType == entity.ChatPrivateMode {
-		item.UnreadNum = c.unreadTalkCache.Get(ctx.Request.Context(), params.ReceiverId, uid)
-		item.RemarkName = c.contactService.Dao().GetFriendRemark(ctx.Request.Context(), uid, params.ReceiverId, true)
+	if resp.TalkType == entity.ChatPrivateMode {
+		resp.UnreadNum = int32(c.unreadTalkCache.Get(ctx.Request.Context(), params.ReceiverId, uid))
+		resp.RemarkName = c.contactService.Dao().GetFriendRemark(ctx.Request.Context(), uid, params.ReceiverId, true)
 
-		if user, err := c.userService.Dao().FindById(item.ReceiverId); err == nil {
-			item.Name = user.Nickname
-			item.Avatar = user.Avatar
+		if user, err := c.userService.Dao().FindById(result.ReceiverId); err == nil {
+			resp.Name = user.Nickname
+			resp.Avatar = user.Avatar
 		}
-	} else if item.TalkType == entity.ChatGroupMode {
+	} else if result.TalkType == entity.ChatGroupMode {
 		if group, err := c.groupService.Dao().FindById(params.ReceiverId); err == nil {
-			item.Name = group.Name
+			resp.Name = group.Name
 		}
 	}
 
 	// 查询缓存消息
-	if msg, err := c.lastMessage.Get(ctx.Request.Context(), item.TalkType, uid, item.ReceiverId); err == nil {
-		item.MsgText = msg.Content
-		item.UpdatedAt = msg.Datetime
+	if msg, err := c.lastMessage.Get(ctx.Request.Context(), result.TalkType, uid, result.ReceiverId); err == nil {
+		resp.MsgText = msg.Content
+		resp.UpdatedAt = msg.Datetime
 	}
 
-	response.Success(ctx, &item)
+	response.Success(ctx, resp)
 }
 
 // Delete 删除列表
