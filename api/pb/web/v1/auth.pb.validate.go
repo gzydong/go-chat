@@ -57,10 +57,10 @@ func (m *AuthLoginRequest) validate(all bool) error {
 
 	var errors []error
 
-	if utf8.RuneCountInString(m.GetMobile()) > 11 {
+	if utf8.RuneCountInString(m.GetMobile()) < 21 {
 		err := AuthLoginRequestValidationError{
 			field:  "Mobile",
-			reason: "value length must be at most 11 runes",
+			reason: "value length must be at least 21 runes",
 		}
 		if !all {
 			return err
