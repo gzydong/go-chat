@@ -26,3 +26,9 @@ func ShouldBindJSON(ctx *gin.Context, in interface{}) error {
 
 	return nil
 }
+
+func HandlerFunc(handler func(c *gin.Context) error) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		_ = handler(c)
+	}
+}

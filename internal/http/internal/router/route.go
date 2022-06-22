@@ -9,7 +9,6 @@ import (
 	"go-chat/internal/entity"
 	"go-chat/internal/http/internal/handler"
 	"go-chat/internal/http/internal/middleware"
-	"go-chat/internal/http/internal/response"
 )
 
 // NewRouter 初始化配置路由
@@ -29,7 +28,7 @@ func NewRouter(conf *config.Config, handler *handler.Handler, tokenCache *cache.
 	router.Use(middleware.Cors(conf))
 
 	router.GET("/", func(c *gin.Context) {
-		response.Success(c, "")
+		c.JSON(200, entity.H{"code": 200, "message": "hello world"})
 	})
 
 	router.GET("/health/check", func(c *gin.Context) {
@@ -46,7 +45,7 @@ func NewRouter(conf *config.Config, handler *handler.Handler, tokenCache *cache.
 	}
 
 	router.NoRoute(func(c *gin.Context) {
-		response.NewError(c, 404, "请求地址不存在")
+		c.JSON(404, entity.H{"code": 404, "message": "请求地址不存在"})
 	})
 
 	return router

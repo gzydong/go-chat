@@ -1,6 +1,8 @@
 package dao
 
 import (
+	"fmt"
+
 	"go-chat/internal/model"
 )
 
@@ -22,10 +24,15 @@ func (dao *UsersDao) Create(user *model.Users) (*model.Users, error) {
 }
 
 // FindById ID查询
-func (dao *UsersDao) FindById(userId int) (*model.Users, error) {
+func (dao *UsersDao) FindById(uid int) (*model.Users, error) {
+
+	if uid == 0 {
+		return nil, fmt.Errorf("uid is empty")
+	}
+
 	user := &model.Users{}
 
-	if err := dao.Db().Where(&model.Users{Id: userId}).First(user).Error; err != nil {
+	if err := dao.Db().Where(&model.Users{Id: uid}).First(user).Error; err != nil {
 		return nil, err
 	}
 
@@ -34,6 +41,11 @@ func (dao *UsersDao) FindById(userId int) (*model.Users, error) {
 
 // FindByMobile 手机号查询
 func (dao *UsersDao) FindByMobile(mobile string) (*model.Users, error) {
+
+	if len(mobile) == 0 {
+		return nil, fmt.Errorf("mobile is empty")
+	}
+
 	user := &model.Users{}
 
 	if err := dao.Db().Where(&model.Users{Mobile: mobile}).First(user).Error; err != nil {
@@ -45,6 +57,11 @@ func (dao *UsersDao) FindByMobile(mobile string) (*model.Users, error) {
 
 // IsMobileExist 判断手机号是否存在
 func (dao *UsersDao) IsMobileExist(mobile string) bool {
+
+	if len(mobile) == 0 {
+		return false
+	}
+
 	user := &model.Users{}
 
 	rowsAffects := dao.Db().Select("id").Where(&model.Users{Mobile: mobile}).First(user).RowsAffected

@@ -70,8 +70,8 @@ build-all-app:generate lint
 	CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 go build -o ./build/macm1/bin/job-cmd ./internal/job
 	cp ./config.example.yaml ./build/macm1/config.yaml
 
-.PHONY: protoc
-protoc:
+.PHONY: proto
+proto:
 	@if [ -n "$(PROTO_FILES)" ]; then \
 		protoc --proto_path=./third_party \
 		--proto_path=./api/proto \
