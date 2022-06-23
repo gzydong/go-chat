@@ -4,9 +4,9 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/gin-gonic/gin"
+	"go-chat/internal/entity"
 	"go-chat/internal/model"
-	"go-chat/internal/pkg/ginutil"
+	"go-chat/internal/pkg/ichat"
 	"go-chat/internal/pkg/jwtutil"
 	"go-chat/internal/service/organize"
 )
@@ -21,18 +21,23 @@ func NewOrganizeHandler(deptServ *organize.OrganizeDeptService, organizeServ *or
 	return &Organize{deptServ: deptServ, organizeServ: organizeServ, positionServ: positionServ}
 }
 
-func (o *Organize) DepartmentList(ctx *gin.Context) error {
-	uid := jwtutil.GetUid(ctx)
+func (o *Organize) DepartmentList(ctx *ichat.Context) error {
+
+	uid := jwtutil.GetUid(ctx.Context)
 	if isOk, _ := o.organizeServ.Dao().IsQiyeMember(uid); !isOk {
-		return ginutil.Success(ctx, []string{})
+		return ctx.Success(entity.H{
+			"items": []string{},
+		})
 	}
 
 	all, err := o.deptServ.Dao().FindAll()
 	if err != nil {
-		return ginutil.BusinessError(ctx, err)
+		return ctx.BusinessError(err.Error())
 	}
 
-	return ginutil.Success(ctx, all)
+	return ctx.Success(entity.H{
+		"items": all,
+	})
 }
 
 type UserInfo struct {
@@ -55,21 +60,23 @@ type PositionItems struct {
 	Sort int    `json:"sort"`
 }
 
-func (o *Organize) PersonnelList(ctx *gin.Context) error {
+func (o *Organize) PersonnelList(ctx *ichat.Context) error {
 
-	uid := jwtutil.GetUid(ctx)
+	uid := jwtutil.GetUid(ctx.Context)
 	if isOk, _ := o.organizeServ.Dao().IsQiyeMember(uid); !isOk {
-		return ginutil.Success(ctx, []string{})
+		return ctx.Success(entity.H{
+			"items": []string{},
+		})
 	}
 
 	list, err := o.organizeServ.Dao().FindAll()
 	if err != nil {
-		return ginutil.BusinessError(ctx, err)
+		return ctx.BusinessError(err.Error())
 	}
 
 	departments, err := o.deptServ.Dao().FindAll()
 	if err != nil {
-		return ginutil.BusinessError(ctx, err)
+		return ctx.BusinessError(err.Error())
 	}
 
 	deptHash := make(map[int]*model.OrganizeDept)
@@ -79,7 +86,7 @@ func (o *Organize) PersonnelList(ctx *gin.Context) error {
 
 	positions, err := o.positionServ.Dao().FindAll()
 	if err != nil {
-		return ginutil.BusinessError(ctx, err)
+		return ctx.BusinessError(err.Error())
 	}
 
 	positionHash := make(map[int]*model.OrganizePost)
@@ -122,5 +129,7 @@ func (o *Organize) PersonnelList(ctx *gin.Context) error {
 		items = append(items, data)
 	}
 
-	return ginutil.Success(ctx, items)
+	return ctx.Success(entity.H{
+		"items": items,
+	})
 }

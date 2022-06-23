@@ -1,4 +1,4 @@
-package ginutil
+package ichat
 
 import (
 	"fmt"

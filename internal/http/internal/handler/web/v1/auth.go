@@ -4,9 +4,8 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/gin-gonic/gin"
 	"go-chat/internal/http/internal/dto/web"
-	"go-chat/internal/pkg/ginutil"
+	"go-chat/internal/pkg/ichat"
 	"go-chat/internal/pkg/jwtutil"
 	"go-chat/internal/service/note"
 
@@ -53,23 +52,23 @@ func NewAuthHandler(
 }
 
 // Login 登录接口
-func (c *Auth) Login(ctx *gin.Context) error {
+func (c *Auth) Login(ctx *ichat.Context) error {
 
 	params := &web.AuthLoginRequest{}
-	if err := ctx.ShouldBindJSON(params); err != nil {
-		return ginutil.InvalidParams(ctx, err)
+	if err := ctx.Context.ShouldBindJSON(params); err != nil {
+		return ctx.InvalidParams(err)
 	}
 
 	user, err := c.userService.Login(params.Mobile, params.Password)
 	if err != nil {
-		return ginutil.BusinessError(ctx, err)
+		return ctx.BusinessError(err.Error())
 	}
 
-	ip := ctx.ClientIP()
+	ip := ctx.Context.ClientIP()
 
 	address, _ := c.ipAddressService.FindAddress(ip)
 
-	_, _ = c.talkSessionService.Create(ctx.Request.Context(), &service.TalkSessionCreateOpts{
+	_, _ = c.talkSessionService.Create(ctx.Context.Request.Context(), &service.TalkSessionCreateOpts{
 		UserId:     user.Id,
 		TalkType:   entity.ChatPrivateMode,
 		ReceiverId: 4257,
@@ -77,15 +76,15 @@ func (c *Auth) Login(ctx *gin.Context) error {
 	})
 
 	// 推送登录消息
-	_ = c.talkMessageService.SendLoginMessage(ctx.Request.Context(), &service.LoginMessageOpts{
+	_ = c.talkMessageService.SendLoginMessage(ctx.Context.Request.Context(), &service.LoginMessageOpts{
 		UserId:   user.Id,
 		Ip:       ip,
 		Address:  address,
 		Platform: params.Platform,
-		Agent:    ctx.GetHeader("user-agent"),
+		Agent:    ctx.Context.GetHeader("user-agent"),
 	})
 
-	return ginutil.Success(ctx, &web.AuthLoginResponse{
+	return ctx.Success(&web.AuthLoginResponse{
 		Type:        "Bearer",
 		AccessToken: c.token(user.Id),
 		ExpiresIn:   int(c.config.Jwt.ExpiresTime),
@@ -93,16 +92,16 @@ func (c *Auth) Login(ctx *gin.Context) error {
 }
 
 // Register 注册接口
-func (c *Auth) Register(ctx *gin.Context) error {
+func (c *Auth) Register(ctx *ichat.Context) error {
 
 	params := &web.RegisterRequest{}
-	if err := ctx.ShouldBind(params); err != nil {
-		return ginutil.InvalidParams(ctx, err)
+	if err := ctx.Context.ShouldBind(params); err != nil {
+		return ctx.InvalidParams(err)
 	}
 
 	// 验证短信验证码是否正确
-	if !c.smsService.CheckSmsCode(ctx.Request.Context(), entity.SmsRegisterChannel, params.Mobile, params.SmsCode) {
-		return ginutil.InvalidParams(ctx, "短信验证码填写错误！")
+	if !c.smsService.CheckSmsCode(ctx.Context.Request.Context(), entity.SmsRegisterChannel, params.Mobile, params.SmsCode) {
+		return ctx.InvalidParams("短信验证码填写错误！")
 	}
 
 	_, err := c.userService.Register(&service.UserRegisterOpts{
@@ -111,46 +110,46 @@ func (c *Auth) Register(ctx *gin.Context) error {
 		Password: params.Password,
 		Platform: params.Platform,
 	})
-
 	if err != nil {
-		return ginutil.BusinessError(ctx, err)
+		return ctx.BusinessError(err.Error())
 	}
 
-	c.smsService.DeleteSmsCode(ctx.Request.Context(), entity.SmsRegisterChannel, params.Mobile)
+	c.smsService.DeleteSmsCode(ctx.Context.Request.Context(), entity.SmsRegisterChannel, params.Mobile)
 
-	return ginutil.Success(ctx, nil, "注册成功！")
+	return ctx.Success(nil)
 }
 
 // Logout 退出登录接口
-func (c *Auth) Logout(ctx *gin.Context) error {
+func (c *Auth) Logout(ctx *ichat.Context) error {
+
 	c.toBlackList(ctx)
 
-	return ginutil.Success(ctx, nil, "已退出登录！")
+	return ctx.Success(nil)
 }
 
 // Refresh Token 刷新接口
-func (c *Auth) Refresh(ctx *gin.Context) error {
+func (c *Auth) Refresh(ctx *ichat.Context) error {
 
 	c.toBlackList(ctx)
 
-	return ginutil.Success(ctx, &web.AuthRefreshResponse{
+	return ctx.Success(&web.AuthRefreshResponse{
 		Type:        "Bearer",
-		AccessToken: c.token(jwtutil.GetUid(ctx)),
+		AccessToken: c.token(jwtutil.GetUid(ctx.Context)),
 		ExpiresIn:   int(c.config.Jwt.ExpiresTime),
 	})
 }
 
 // Forget 账号找回接口
-func (c *Auth) Forget(ctx *gin.Context) error {
-	params := &web.ForgetRequest{}
+func (c *Auth) Forget(ctx *ichat.Context) error {
 
-	if err := ctx.ShouldBind(params); err != nil {
-		return ginutil.InvalidParams(ctx, err)
+	params := &web.ForgetRequest{}
+	if err := ctx.Context.ShouldBind(params); err != nil {
+		return ctx.InvalidParams(err)
 	}
 
 	// 验证短信验证码是否正确
-	if !c.smsService.CheckSmsCode(ctx.Request.Context(), entity.SmsForgetAccountChannel, params.Mobile, params.SmsCode) {
-		return ginutil.InvalidParams(ctx, "短信验证码填写错误！")
+	if !c.smsService.CheckSmsCode(ctx.Context.Request.Context(), entity.SmsForgetAccountChannel, params.Mobile, params.SmsCode) {
+		return ctx.InvalidParams("短信验证码填写错误！")
 	}
 
 	if _, err := c.userService.Forget(&service.UserForgetOpts{
@@ -158,12 +157,12 @@ func (c *Auth) Forget(ctx *gin.Context) error {
 		Password: params.Password,
 		SmsCode:  params.SmsCode,
 	}); err != nil {
-		return ginutil.BusinessError(ctx, err)
+		return ctx.BusinessError(err.Error())
 	}
 
-	c.smsService.DeleteSmsCode(ctx.Request.Context(), entity.SmsForgetAccountChannel, params.Mobile)
+	c.smsService.DeleteSmsCode(ctx.Context.Request.Context(), entity.SmsForgetAccountChannel, params.Mobile)
 
-	return ginutil.Success(ctx, nil, "账号成功找回")
+	return ctx.Success(nil)
 }
 
 func (c *Auth) token(uid int) string {
@@ -180,13 +179,13 @@ func (c *Auth) token(uid int) string {
 }
 
 // 设置黑名单
-func (c *Auth) toBlackList(ctx *gin.Context) {
-	info := ctx.GetStringMapString("jwt")
+func (c *Auth) toBlackList(ctx *ichat.Context) {
+	info := ctx.Context.GetStringMapString("jwt")
 
 	expiresAt, _ := strconv.Atoi(info["expires_at"])
 
 	ex := expiresAt - int(time.Now().Unix())
 
 	// 将 session 加入黑名单
-	_ = c.session.SetBlackList(ctx.Request.Context(), info["session"], ex)
+	_ = c.session.SetBlackList(ctx.Context.Request.Context(), info["session"], ex)
 }

@@ -5,7 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	api2 "go-chat/internal/http/internal/dto/web"
-	"go-chat/internal/pkg/ginutil"
+	"go-chat/internal/pkg/ichat"
 	"go-chat/internal/pkg/timeutil"
 
 	"go-chat/internal/entity"
@@ -35,7 +35,7 @@ func NewTalkRecordsHandler(service *service.TalkRecordsService, groupMemberServi
 func (c *Records) GetRecords(ctx *gin.Context) error {
 	params := &api2.GetTalkRecordsRequest{}
 	if err := ctx.ShouldBindQuery(params); err != nil {
-		return ginutil.InvalidParams(ctx, err)
+		return ichat.InvalidParams(ctx, err)
 	}
 
 	uid := jwtutil.GetUid(ctx)
@@ -56,7 +56,7 @@ func (c *Records) GetRecords(ctx *gin.Context) error {
 				"user_id":     0,
 			})
 
-			return ginutil.Success(ctx, entity.H{
+			return ichat.Success(ctx, entity.H{
 				"limit":     params.Limit,
 				"record_id": 0,
 				"rows":      rows,
@@ -73,7 +73,7 @@ func (c *Records) GetRecords(ctx *gin.Context) error {
 	})
 
 	if err != nil {
-		return ginutil.BusinessError(ctx, err)
+		return ichat.BusinessError(ctx, err)
 	}
 
 	rid := 0
@@ -81,7 +81,7 @@ func (c *Records) GetRecords(ctx *gin.Context) error {
 		rid = records[length-1].Id
 	}
 
-	return ginutil.Success(ctx, entity.H{
+	return ichat.Success(ctx, entity.H{
 		"limit":     params.Limit,
 		"record_id": rid,
 		"rows":      records,
@@ -92,7 +92,7 @@ func (c *Records) GetRecords(ctx *gin.Context) error {
 func (c *Records) SearchHistoryRecords(ctx *gin.Context) error {
 	params := &api2.GetTalkRecordsRequest{}
 	if err := ctx.ShouldBindQuery(params); err != nil {
-		return ginutil.InvalidParams(ctx, err)
+		return ichat.InvalidParams(ctx, err)
 	}
 
 	uid := jwtutil.GetUid(ctx)
@@ -103,7 +103,7 @@ func (c *Records) SearchHistoryRecords(ctx *gin.Context) error {
 			UserId:     uid,
 			ReceiverId: params.ReceiverId,
 		}) {
-			return ginutil.Success(ctx, entity.H{
+			return ichat.Success(ctx, entity.H{
 				"limit":     params.Limit,
 				"record_id": 0,
 				"rows":      make([]entity.H, 0),
@@ -133,7 +133,7 @@ func (c *Records) SearchHistoryRecords(ctx *gin.Context) error {
 	})
 
 	if err != nil {
-		return ginutil.BusinessError(ctx, err)
+		return ichat.BusinessError(ctx, err)
 	}
 
 	rid := 0
@@ -141,7 +141,7 @@ func (c *Records) SearchHistoryRecords(ctx *gin.Context) error {
 		rid = records[length-1].Id
 	}
 
-	return ginutil.Success(ctx, entity.H{
+	return ichat.Success(ctx, entity.H{
 		"limit":     params.Limit,
 		"record_id": rid,
 		"rows":      records,
@@ -152,15 +152,15 @@ func (c *Records) SearchHistoryRecords(ctx *gin.Context) error {
 func (c *Records) GetForwardRecords(ctx *gin.Context) error {
 	params := &api2.GetForwardTalkRecordRequest{}
 	if err := ctx.ShouldBind(params); err != nil {
-		return ginutil.InvalidParams(ctx, err)
+		return ichat.InvalidParams(ctx, err)
 	}
 
 	records, err := c.service.GetForwardRecords(ctx.Request.Context(), jwtutil.GetUid(ctx), int64(params.RecordId))
 	if err != nil {
-		return ginutil.BusinessError(ctx, err)
+		return ichat.BusinessError(ctx, err)
 	}
 
-	return ginutil.Success(ctx, entity.H{
+	return ichat.Success(ctx, entity.H{
 		"rows": records,
 	})
 }
@@ -169,23 +169,23 @@ func (c *Records) GetForwardRecords(ctx *gin.Context) error {
 func (c *Records) Download(ctx *gin.Context) error {
 	params := &api2.DownloadChatFileRequest{}
 	if err := ctx.ShouldBindQuery(params); err != nil {
-		return ginutil.InvalidParams(ctx, err)
+		return ichat.InvalidParams(ctx, err)
 	}
 
 	resp, err := c.service.Dao().FindFileRecord(ctx.Request.Context(), params.RecordId)
 	if err != nil {
-		return ginutil.BusinessError(ctx, err)
+		return ichat.BusinessError(ctx, err)
 	}
 
 	uid := jwtutil.GetUid(ctx)
 	if uid != resp.Record.UserId {
 		if resp.Record.TalkType == entity.ChatPrivateMode {
 			if resp.Record.ReceiverId != uid {
-				return ginutil.Unauthorized(ctx, "无访问权限！")
+				return ichat.Unauthorized(ctx, "无访问权限！")
 			}
 		} else {
 			if !c.groupMemberService.Dao().IsMember(resp.Record.ReceiverId, uid, false) {
-				return ginutil.Unauthorized(ctx, "无访问权限！")
+				return ichat.Unauthorized(ctx, "无访问权限！")
 			}
 		}
 	}
@@ -196,7 +196,7 @@ func (c *Records) Download(ctx *gin.Context) error {
 	case entity.FileDriveCos:
 		ctx.Redirect(http.StatusFound, c.fileSystem.Cos.PrivateUrl(resp.FileInfo.Path, 60))
 	default:
-		return ginutil.BusinessError(ctx, "未知文件驱动类型")
+		return ichat.BusinessError(ctx, "未知文件驱动类型")
 	}
 
 	return nil

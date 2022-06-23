@@ -28,4 +28,5 @@ var ProviderSet = wire.NewSet(
 	article.NewArticleHandler,
 	article.NewClassHandler,
 	article.NewTagHandler,
+	v1.NewTest,
 )

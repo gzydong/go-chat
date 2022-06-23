@@ -110,6 +110,7 @@ func Initialize(ctx context.Context, conf *config.Config) *AppProvider {
 	class := article.NewClassHandler(articleClassService)
 	articleTagService := note2.NewArticleTagService(baseService)
 	tag := article.NewTagHandler(articleTagService)
+	test := v1.NewTest()
 	apiHandler := &handler.ApiHandler{
 		Common:        common,
 		Auth:          auth,
@@ -129,6 +130,7 @@ func Initialize(ctx context.Context, conf *config.Config) *AppProvider {
 		ArticleAnnex:  annex,
 		ArticleClass:  class,
 		ArticleTag:    tag,
+		Test:          test,
 	}
 	adminHandler := &handler.AdminHandler{}
 	openHandler := &handler.OpenHandler{}

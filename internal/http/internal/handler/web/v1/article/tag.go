@@ -4,7 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"go-chat/internal/entity"
 	"go-chat/internal/http/internal/dto/web"
-	"go-chat/internal/pkg/ginutil"
+	"go-chat/internal/pkg/ichat"
 	"go-chat/internal/pkg/jwtutil"
 	"go-chat/internal/service/note"
 )
@@ -21,10 +21,10 @@ func NewTagHandler(service *note.ArticleTagService) *Tag {
 func (c *Tag) List(ctx *gin.Context) error {
 	items, err := c.service.List(ctx.Request.Context(), jwtutil.GetUid(ctx))
 	if err != nil {
-		return ginutil.BusinessError(ctx, err)
+		return ichat.BusinessError(ctx, err)
 	}
 
-	return ginutil.Success(ctx, entity.H{"tags": items})
+	return ichat.Success(ctx, entity.H{"tags": items})
 }
 
 // Edit 添加或修改标签
@@ -36,7 +36,7 @@ func (c *Tag) Edit(ctx *gin.Context) error {
 	)
 
 	if err = ctx.ShouldBind(params); err != nil {
-		return ginutil.InvalidParams(ctx, err)
+		return ichat.InvalidParams(ctx, err)
 	}
 
 	if params.TagId == 0 {
@@ -46,10 +46,10 @@ func (c *Tag) Edit(ctx *gin.Context) error {
 	}
 
 	if err != nil {
-		return ginutil.BusinessError(ctx, "笔记标签编辑失败")
+		return ichat.BusinessError(ctx, "笔记标签编辑失败")
 	}
 
-	return ginutil.Success(ctx, entity.H{"id": params.TagId})
+	return ichat.Success(ctx, entity.H{"id": params.TagId})
 }
 
 // Delete 删除标签
@@ -57,13 +57,13 @@ func (c *Tag) Delete(ctx *gin.Context) error {
 	params := &web.ArticleTagDeleteRequest{}
 
 	if err := ctx.ShouldBind(params); err != nil {
-		return ginutil.InvalidParams(ctx, err)
+		return ichat.InvalidParams(ctx, err)
 	}
 
 	err := c.service.Delete(ctx.Request.Context(), jwtutil.GetUid(ctx), params.TagId)
 	if err != nil {
-		return ginutil.BusinessError(ctx, err)
+		return ichat.BusinessError(ctx, err)
 	}
 
-	return ginutil.Success(ctx, nil, "删除成功")
+	return ichat.Success(ctx, nil, "删除成功")
 }

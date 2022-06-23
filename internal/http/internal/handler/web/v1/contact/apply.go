@@ -4,7 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"go-chat/internal/entity"
 	"go-chat/internal/http/internal/dto/web"
-	"go-chat/internal/pkg/ginutil"
+	"go-chat/internal/pkg/ichat"
 	"go-chat/internal/pkg/timeutil"
 
 	"go-chat/internal/pkg/jwtutil"
@@ -29,7 +29,7 @@ func NewContactsApplyHandler(
 
 // ApplyUnreadNum 获取好友申请未读数
 func (c *Apply) ApplyUnreadNum(ctx *gin.Context) error {
-	return ginutil.Success(ctx, entity.H{
+	return ichat.Success(ctx, entity.H{
 		"unread_num": c.service.GetApplyUnreadNum(ctx.Request.Context(), jwtutil.GetUid(ctx)),
 	})
 }
@@ -38,12 +38,12 @@ func (c *Apply) ApplyUnreadNum(ctx *gin.Context) error {
 func (c *Apply) Create(ctx *gin.Context) error {
 	params := &web.ContactApplyCreateRequest{}
 	if err := ctx.ShouldBind(params); err != nil {
-		return ginutil.InvalidParams(ctx, err)
+		return ichat.InvalidParams(ctx, err)
 	}
 
 	uid := jwtutil.GetUid(ctx)
 	if !c.contactService.Dao().IsFriend(ctx, uid, params.FriendId, false) {
-		return ginutil.Success(ctx, nil)
+		return ichat.Success(ctx, nil)
 	}
 
 	if err := c.service.Create(ctx, &service.ContactApplyCreateOpts{
@@ -51,17 +51,17 @@ func (c *Apply) Create(ctx *gin.Context) error {
 		Remarks:  params.Remarks,
 		FriendId: params.FriendId,
 	}); err != nil {
-		return ginutil.BusinessError(ctx, err)
+		return ichat.BusinessError(ctx, err)
 	}
 
-	return ginutil.Success(ctx, nil)
+	return ichat.Success(ctx, nil)
 }
 
 // Accept 同意联系人添加申请
 func (c *Apply) Accept(ctx *gin.Context) error {
 	params := &web.ContactApplyAcceptRequest{}
 	if err := ctx.ShouldBind(params); err != nil {
-		return ginutil.InvalidParams(ctx, err)
+		return ichat.InvalidParams(ctx, err)
 	}
 
 	uid := jwtutil.GetUid(ctx)
@@ -72,7 +72,7 @@ func (c *Apply) Accept(ctx *gin.Context) error {
 	})
 
 	if err != nil {
-		return ginutil.BusinessError(ctx, err)
+		return ichat.BusinessError(ctx, err)
 	}
 
 	_ = c.talkMessageService.SendSysMessage(ctx, &service.SysTextMessageOpts{
@@ -82,14 +82,14 @@ func (c *Apply) Accept(ctx *gin.Context) error {
 		Text:       "你们已成为好友，可以开始聊天咯！",
 	})
 
-	return ginutil.Success(ctx, nil)
+	return ichat.Success(ctx, nil)
 }
 
 // Decline 拒绝联系人添加申请
 func (c *Apply) Decline(ctx *gin.Context) error {
 	params := &web.ContactApplyDeclineRequest{}
 	if err := ctx.ShouldBind(params); err != nil {
-		return ginutil.InvalidParams(ctx, err)
+		return ichat.InvalidParams(ctx, err)
 	}
 
 	if err := c.service.Decline(ctx, &service.ContactApplyDeclineOpts{
@@ -97,17 +97,17 @@ func (c *Apply) Decline(ctx *gin.Context) error {
 		Remarks: params.Remarks,
 		ApplyId: params.ApplyId,
 	}); err != nil {
-		return ginutil.BusinessError(ctx, err)
+		return ichat.BusinessError(ctx, err)
 	}
 
-	return ginutil.Success(ctx, nil)
+	return ichat.Success(ctx, nil)
 }
 
 // List 获取联系人申请列表
 func (c *Apply) List(ctx *gin.Context) error {
 	list, err := c.service.List(ctx, jwtutil.GetUid(ctx), 1, 1000)
 	if err != nil {
-		return ginutil.SystemError(ctx, err)
+		return ichat.SystemError(ctx, err)
 	}
 
 	items := make([]*entity.H, 0)
@@ -125,5 +125,5 @@ func (c *Apply) List(ctx *gin.Context) error {
 
 	c.service.ClearApplyUnreadNum(ctx, jwtutil.GetUid(ctx))
 
-	return ginutil.SuccessPaginate(ctx, items, 1, 1000, len(items))
+	return ichat.SuccessPaginate(ctx, items, 1, 1000, len(items))
 }

@@ -9,7 +9,7 @@ import (
 	"go-chat/internal/entity"
 	"go-chat/internal/http/internal/dto/web"
 	"go-chat/internal/pkg/filesystem"
-	"go-chat/internal/pkg/ginutil"
+	"go-chat/internal/pkg/ichat"
 	"go-chat/internal/pkg/jwtutil"
 	"go-chat/internal/pkg/strutil"
 	"go-chat/internal/service"
@@ -38,17 +38,17 @@ func (u *Upload) Avatar(ctx *gin.Context) error {
 
 	file, err := ctx.FormFile("file")
 	if err != nil {
-		return ginutil.InvalidParams(ctx, "文件上传失败！")
+		return ichat.InvalidParams(ctx, "文件上传失败！")
 	}
 
 	stream, _ := filesystem.ReadMultipartStream(file)
 	object := fmt.Sprintf("public/media/image/avatar/%s/%s", time.Now().Format("20060102"), strutil.GenImageName("png", 200, 200))
 
 	if err := u.filesystem.Default.Write(stream, object); err != nil {
-		return ginutil.BusinessError(ctx, "文件上传失败")
+		return ichat.BusinessError(ctx, "文件上传失败")
 	}
 
-	return ginutil.Success(ctx, entity.H{
+	return ichat.Success(ctx, entity.H{
 		"avatar": u.filesystem.Default.PublicUrl(object),
 	})
 }
@@ -57,7 +57,7 @@ func (u *Upload) Avatar(ctx *gin.Context) error {
 func (u *Upload) InitiateMultipart(ctx *gin.Context) error {
 	params := &web.UploadInitiateMultipartRequest{}
 	if err := ctx.ShouldBind(params); err != nil {
-		return ginutil.InvalidParams(ctx, err)
+		return ichat.InvalidParams(ctx, err)
 	}
 
 	info, err := u.service.InitiateMultipartUpload(ctx.Request.Context(), &service.MultipartInitiateOpts{
@@ -66,10 +66,10 @@ func (u *Upload) InitiateMultipart(ctx *gin.Context) error {
 		UserId: jwtutil.GetUid(ctx),
 	})
 	if err != nil {
-		return ginutil.BusinessError(ctx, err)
+		return ichat.BusinessError(ctx, err)
 	}
 
-	return ginutil.Success(ctx, entity.H{
+	return ichat.Success(ctx, entity.H{
 		"upload_id":  info.UploadId,
 		"split_size": 2 << 20,
 	})
@@ -79,12 +79,12 @@ func (u *Upload) InitiateMultipart(ctx *gin.Context) error {
 func (u *Upload) MultipartUpload(ctx *gin.Context) error {
 	params := &web.UploadMultipartRequest{}
 	if err := ctx.ShouldBind(params); err != nil {
-		return ginutil.InvalidParams(ctx, err)
+		return ichat.InvalidParams(ctx, err)
 	}
 
 	file, err := ctx.FormFile("file")
 	if err != nil {
-		return ginutil.InvalidParams(ctx, "文件上传失败！")
+		return ichat.InvalidParams(ctx, "文件上传失败！")
 	}
 
 	err = u.service.MultipartUpload(ctx.Request.Context(), &service.MultipartUploadOpts{
@@ -95,12 +95,12 @@ func (u *Upload) MultipartUpload(ctx *gin.Context) error {
 		File:       file,
 	})
 	if err != nil {
-		return ginutil.BusinessError(ctx, err)
+		return ichat.BusinessError(ctx, err)
 	}
 
 	if params.SplitIndex != params.SplitNum-1 {
-		return ginutil.Success(ctx, entity.H{"is_merge": false})
+		return ichat.Success(ctx, entity.H{"is_merge": false})
 	}
 
-	return ginutil.Success(ctx, entity.H{"is_merge": true, "upload_id": params.UploadId})
+	return ichat.Success(ctx, entity.H{"is_merge": true, "upload_id": params.UploadId})
 }

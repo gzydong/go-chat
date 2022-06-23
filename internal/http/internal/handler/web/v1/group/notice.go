@@ -4,7 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"go-chat/internal/entity"
 	"go-chat/internal/http/internal/dto/web"
-	"go-chat/internal/pkg/ginutil"
+	"go-chat/internal/pkg/ichat"
 	"go-chat/internal/pkg/timeutil"
 
 	"go-chat/internal/pkg/jwtutil"
@@ -24,7 +24,7 @@ func NewGroupNoticeHandler(service *service.GroupNoticeService, member *service.
 func (c *Notice) CreateAndUpdate(ctx *gin.Context) error {
 	params := &web.GroupNoticeEditRequest{}
 	if err := ctx.ShouldBind(params); err != nil {
-		return ginutil.InvalidParams(ctx, err)
+		return ichat.InvalidParams(ctx, err)
 	}
 
 	var (
@@ -35,7 +35,7 @@ func (c *Notice) CreateAndUpdate(ctx *gin.Context) error {
 	uid := jwtutil.GetUid(ctx)
 
 	if !c.member.Dao().IsLeader(params.GroupId, uid) {
-		return ginutil.BusinessError(ctx, "无权限操作")
+		return ichat.BusinessError(ctx, "无权限操作")
 	}
 
 	if params.NoticeId == 0 {
@@ -62,36 +62,36 @@ func (c *Notice) CreateAndUpdate(ctx *gin.Context) error {
 	}
 
 	if err != nil {
-		return ginutil.BusinessError(ctx, err)
+		return ichat.BusinessError(ctx, err)
 	}
 
-	return ginutil.Success(ctx, nil, msg)
+	return ichat.Success(ctx, nil, msg)
 }
 
 // Delete 删除群公告
 func (c *Notice) Delete(ctx *gin.Context) error {
 	params := &web.GroupNoticeCommonRequest{}
 	if err := ctx.ShouldBind(params); err != nil {
-		return ginutil.InvalidParams(ctx, err)
+		return ichat.InvalidParams(ctx, err)
 	}
 
 	if err := c.service.Delete(ctx, params.GroupId, params.NoticeId); err != nil {
-		return ginutil.BusinessError(ctx, err)
+		return ichat.BusinessError(ctx, err)
 	}
 
-	return ginutil.Success(ctx, nil, "群公告删除成功！")
+	return ichat.Success(ctx, nil, "群公告删除成功！")
 }
 
 // List 获取群公告列表(所有)
 func (c *Notice) List(ctx *gin.Context) error {
 	params := &web.GroupNoticeListRequest{}
 	if err := ctx.ShouldBindQuery(params); err != nil {
-		return ginutil.InvalidParams(ctx, err)
+		return ichat.InvalidParams(ctx, err)
 	}
 
 	// 判断是否是群成员
 	if !c.member.Dao().IsMember(params.GroupId, jwtutil.GetUid(ctx), true) {
-		return ginutil.BusinessError(ctx, "无获取数据权限！")
+		return ichat.BusinessError(ctx, "无获取数据权限！")
 	}
 
 	items, _ := c.service.Dao().GetListAll(ctx, params.GroupId)
@@ -113,7 +113,7 @@ func (c *Notice) List(ctx *gin.Context) error {
 		rows = append(rows, &row)
 	}
 
-	return ginutil.Success(ctx, entity.H{
+	return ichat.Success(ctx, entity.H{
 		"rows": rows,
 	})
 }

@@ -10,7 +10,7 @@ import (
 	"go-chat/internal/entity"
 	"go-chat/internal/http/internal/dto/web"
 	"go-chat/internal/pkg/encrypt"
-	"go-chat/internal/pkg/ginutil"
+	"go-chat/internal/pkg/ichat"
 	"go-chat/internal/pkg/jwtutil"
 	"go-chat/internal/pkg/strutil"
 	"go-chat/internal/pkg/timeutil"
@@ -62,7 +62,7 @@ func (c *Talk) List(ctx *gin.Context) error {
 
 	data, err := c.talkListService.List(ctx.Request.Context(), uid)
 	if err != nil {
-		return ginutil.BusinessError(ctx, err)
+		return ichat.BusinessError(ctx, err)
 	}
 
 	friends := make([]int, 0)
@@ -74,7 +74,7 @@ func (c *Talk) List(ctx *gin.Context) error {
 
 	remarks, err := c.contactService.Dao().GetFriendRemarks(ctx, uid, friends)
 	if err != nil {
-		return ginutil.BusinessError(ctx, err)
+		return ichat.BusinessError(ctx, err)
 	}
 
 	items := make([]*web.TalkListItem, 0)
@@ -112,7 +112,7 @@ func (c *Talk) List(ctx *gin.Context) error {
 		items = append(items, value)
 	}
 
-	return ginutil.Success(ctx, &web.GetTalkListResponse{
+	return ichat.Success(ctx, &web.GetTalkListResponse{
 		Items: items,
 	})
 }
@@ -126,7 +126,7 @@ func (c *Talk) Create(ctx *gin.Context) error {
 	)
 
 	if err := ctx.ShouldBind(params); err != nil {
-		return ginutil.InvalidParams(ctx, err)
+		return ichat.InvalidParams(ctx, err)
 	}
 
 	if agent != "" {
@@ -135,12 +135,12 @@ func (c *Talk) Create(ctx *gin.Context) error {
 
 	// 判断对方是否是自己
 	if params.TalkType == entity.ChatPrivateMode && params.ReceiverId == jwtutil.GetUid(ctx) {
-		return ginutil.BusinessError(ctx, "创建失败")
+		return ichat.BusinessError(ctx, "创建失败")
 	}
 
 	key := fmt.Sprintf("talk:list:%d-%d-%d-%s", uid, params.ReceiverId, params.TalkType, agent)
 	if !c.redisLock.Lock(ctx.Request.Context(), key, 10) {
-		return ginutil.BusinessError(ctx, "创建失败")
+		return ichat.BusinessError(ctx, "创建失败")
 	}
 
 	// 暂无权限
@@ -149,7 +149,7 @@ func (c *Talk) Create(ctx *gin.Context) error {
 		UserId:     uid,
 		ReceiverId: params.ReceiverId,
 	}) {
-		return ginutil.BusinessError(ctx, "暂无权限！")
+		return ichat.BusinessError(ctx, "暂无权限！")
 	}
 
 	result, err := c.talkListService.Create(ctx.Request.Context(), &service.TalkSessionCreateOpts{
@@ -158,7 +158,7 @@ func (c *Talk) Create(ctx *gin.Context) error {
 		ReceiverId: params.ReceiverId,
 	})
 	if err != nil {
-		return ginutil.BusinessError(ctx, err)
+		return ichat.BusinessError(ctx, err)
 	}
 
 	item := &web.TalkListItem{
@@ -189,7 +189,7 @@ func (c *Talk) Create(ctx *gin.Context) error {
 		item.UpdatedAt = msg.Datetime
 	}
 
-	return ginutil.Success(ctx, &web.CreateTalkListResponse{
+	return ichat.Success(ctx, &web.CreateTalkListResponse{
 		Item: item,
 	})
 }
@@ -198,21 +198,21 @@ func (c *Talk) Create(ctx *gin.Context) error {
 func (c *Talk) Delete(ctx *gin.Context) error {
 	params := &web.DeleteTalkListRequest{}
 	if err := ctx.ShouldBind(params); err != nil {
-		return ginutil.InvalidParams(ctx, err)
+		return ichat.InvalidParams(ctx, err)
 	}
 
 	if err := c.talkListService.Delete(ctx, jwtutil.GetUid(ctx), params.Id); err != nil {
-		return ginutil.BusinessError(ctx, err)
+		return ichat.BusinessError(ctx, err)
 	}
 
-	return ginutil.Success(ctx, &web.DeleteTalkListResponse{})
+	return ichat.Success(ctx, &web.DeleteTalkListResponse{})
 }
 
 // Top 置顶列表
 func (c *Talk) Top(ctx *gin.Context) error {
 	params := &web.TopTalkListRequest{}
 	if err := ctx.ShouldBind(params); err != nil {
-		return ginutil.InvalidParams(ctx, err)
+		return ichat.InvalidParams(ctx, err)
 	}
 
 	if err := c.talkListService.Top(ctx, &service.TalkSessionTopOpts{
@@ -220,17 +220,17 @@ func (c *Talk) Top(ctx *gin.Context) error {
 		Id:     params.Id,
 		Type:   params.Type,
 	}); err != nil {
-		return ginutil.BusinessError(ctx, err)
+		return ichat.BusinessError(ctx, err)
 	}
 
-	return ginutil.Success(ctx, &web.TopTalkListResponse{})
+	return ichat.Success(ctx, &web.TopTalkListResponse{})
 }
 
 // Disturb 会话免打扰
 func (c *Talk) Disturb(ctx *gin.Context) error {
 	params := &web.DisturbTalkListRequest{}
 	if err := ctx.ShouldBind(params); err != nil {
-		return ginutil.InvalidParams(ctx, err)
+		return ichat.InvalidParams(ctx, err)
 	}
 
 	if err := c.talkListService.Disturb(ctx, &service.TalkSessionDisturbOpts{
@@ -239,16 +239,16 @@ func (c *Talk) Disturb(ctx *gin.Context) error {
 		ReceiverId: params.ReceiverId,
 		IsDisturb:  params.IsDisturb,
 	}); err != nil {
-		return ginutil.BusinessError(ctx, err)
+		return ichat.BusinessError(ctx, err)
 	}
 
-	return ginutil.Success(ctx, &web.DisturbTalkListResponse{})
+	return ichat.Success(ctx, &web.DisturbTalkListResponse{})
 }
 
 func (c *Talk) ClearUnreadMessage(ctx *gin.Context) error {
 	params := &web.ClearTalkUnreadNumRequest{}
 	if err := ctx.ShouldBind(params); err != nil {
-		return ginutil.InvalidParams(ctx, err)
+		return ichat.InvalidParams(ctx, err)
 	}
 
 	uid := jwtutil.GetUid(ctx)
@@ -256,5 +256,5 @@ func (c *Talk) ClearUnreadMessage(ctx *gin.Context) error {
 		c.unreadTalkCache.Reset(ctx.Request.Context(), params.ReceiverId, uid)
 	}
 
-	return ginutil.Success(ctx, &web.ClearTalkUnreadNumResponse{})
+	return ichat.Success(ctx, &web.ClearTalkUnreadNumResponse{})
 }

@@ -6,7 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"go-chat/internal/http/internal/dto/web"
 	"go-chat/internal/model"
-	"go-chat/internal/pkg/ginutil"
+	"go-chat/internal/pkg/ichat"
 	"go-chat/internal/service/organize"
 	"gorm.io/gorm"
 
@@ -83,7 +83,7 @@ func (c *Message) authority(ctx *gin.Context, opt *AuthorityOpts) error {
 func (c *Message) Text(ctx *gin.Context) error {
 	params := &web.TextMessageRequest{}
 	if err := ctx.ShouldBind(params); err != nil {
-		return ginutil.InvalidParams(ctx, err)
+		return ichat.InvalidParams(ctx, err)
 	}
 
 	uid := jwtutil.GetUid(ctx)
@@ -92,7 +92,7 @@ func (c *Message) Text(ctx *gin.Context) error {
 		UserId:     uid,
 		ReceiverId: params.ReceiverId,
 	}); err != nil {
-		return ginutil.BusinessError(ctx, err.Error())
+		return ichat.BusinessError(ctx, err.Error())
 	}
 
 	if err := c.service.SendTextMessage(ctx.Request.Context(), &service.TextMessageOpts{
@@ -101,9 +101,9 @@ func (c *Message) Text(ctx *gin.Context) error {
 		ReceiverId: params.ReceiverId,
 		Text:       params.Text,
 	}); err != nil {
-		return ginutil.BusinessError(ctx, err)
+		return ichat.BusinessError(ctx, err)
 	} else {
-		return ginutil.Success(ctx, nil)
+		return ichat.Success(ctx, nil)
 	}
 }
 
@@ -111,7 +111,7 @@ func (c *Message) Text(ctx *gin.Context) error {
 func (c *Message) Code(ctx *gin.Context) error {
 	params := &web.CodeMessageRequest{}
 	if err := ctx.ShouldBind(params); err != nil {
-		return ginutil.InvalidParams(ctx, err)
+		return ichat.InvalidParams(ctx, err)
 	}
 
 	uid := jwtutil.GetUid(ctx)
@@ -120,7 +120,7 @@ func (c *Message) Code(ctx *gin.Context) error {
 		UserId:     uid,
 		ReceiverId: params.ReceiverId,
 	}); err != nil {
-		return ginutil.BusinessError(ctx, err.Error())
+		return ichat.BusinessError(ctx, err.Error())
 	}
 
 	if err := c.service.SendCodeMessage(ctx.Request.Context(), &service.CodeMessageOpts{
@@ -130,9 +130,9 @@ func (c *Message) Code(ctx *gin.Context) error {
 		Lang:       params.Lang,
 		Code:       params.Code,
 	}); err != nil {
-		return ginutil.BusinessError(ctx, err)
+		return ichat.BusinessError(ctx, err)
 	} else {
-		return ginutil.Success(ctx, nil)
+		return ichat.Success(ctx, nil)
 	}
 }
 
@@ -140,21 +140,21 @@ func (c *Message) Code(ctx *gin.Context) error {
 func (c *Message) Image(ctx *gin.Context) error {
 	params := &web.ImageMessageRequest{}
 	if err := ctx.ShouldBind(params); err != nil {
-		return ginutil.InvalidParams(ctx, err)
+		return ichat.InvalidParams(ctx, err)
 	}
 
 	file, err := ctx.FormFile("image")
 	if err != nil {
-		return ginutil.InvalidParams(ctx, "image 字段必传！")
+		return ichat.InvalidParams(ctx, "image 字段必传！")
 	}
 
 	if !sliceutil.InStr(strutil.FileSuffix(file.Filename), []string{"png", "jpg", "jpeg", "gif"}) {
-		return ginutil.InvalidParams(ctx, "上传文件格式不正确,仅支持 png、jpg、jpeg 和 gif")
+		return ichat.InvalidParams(ctx, "上传文件格式不正确,仅支持 png、jpg、jpeg 和 gif")
 	}
 
 	// 判断上传文件大小（5M）
 	if file.Size > 5<<20 {
-		return ginutil.InvalidParams(ctx, "上传文件大小不能超过5M！")
+		return ichat.InvalidParams(ctx, "上传文件大小不能超过5M！")
 	}
 
 	uid := jwtutil.GetUid(ctx)
@@ -163,7 +163,7 @@ func (c *Message) Image(ctx *gin.Context) error {
 		UserId:     uid,
 		ReceiverId: params.ReceiverId,
 	}); err != nil {
-		return ginutil.BusinessError(ctx, err.Error())
+		return ichat.BusinessError(ctx, err.Error())
 	}
 
 	if err := c.service.SendImageMessage(ctx.Request.Context(), &service.ImageMessageOpts{
@@ -172,17 +172,17 @@ func (c *Message) Image(ctx *gin.Context) error {
 		ReceiverId: params.ReceiverId,
 		File:       file,
 	}); err != nil {
-		return ginutil.BusinessError(ctx, err)
+		return ichat.BusinessError(ctx, err)
 	}
 
-	return ginutil.Success(ctx, nil)
+	return ichat.Success(ctx, nil)
 }
 
 // File 发送文件消息
 func (c *Message) File(ctx *gin.Context) error {
 	params := &web.FileMessageRequest{}
 	if err := ctx.ShouldBind(params); err != nil {
-		return ginutil.InvalidParams(ctx, err)
+		return ichat.InvalidParams(ctx, err)
 	}
 
 	uid := jwtutil.GetUid(ctx)
@@ -191,7 +191,7 @@ func (c *Message) File(ctx *gin.Context) error {
 		UserId:     uid,
 		ReceiverId: params.ReceiverId,
 	}); err != nil {
-		return ginutil.BusinessError(ctx, err.Error())
+		return ichat.BusinessError(ctx, err.Error())
 	}
 
 	if err := c.service.SendFileMessage(ctx.Request.Context(), &service.FileMessageOpts{
@@ -200,25 +200,25 @@ func (c *Message) File(ctx *gin.Context) error {
 		ReceiverId: params.ReceiverId,
 		UploadId:   params.UploadId,
 	}); err != nil {
-		return ginutil.BusinessError(ctx, err)
+		return ichat.BusinessError(ctx, err)
 	}
 
-	return ginutil.Success(ctx, nil)
+	return ichat.Success(ctx, nil)
 }
 
 // Vote 发送投票消息
 func (c *Message) Vote(ctx *gin.Context) error {
 	params := &web.VoteMessageRequest{}
 	if err := ctx.ShouldBind(params); err != nil {
-		return ginutil.InvalidParams(ctx, err)
+		return ichat.InvalidParams(ctx, err)
 	}
 
 	if len(params.Options) <= 1 {
-		return ginutil.InvalidParams(ctx, "options 选项必须大于1！")
+		return ichat.InvalidParams(ctx, "options 选项必须大于1！")
 	}
 
 	if len(params.Options) > 6 {
-		return ginutil.InvalidParams(ctx, "options 选项不能超过6个！")
+		return ichat.InvalidParams(ctx, "options 选项不能超过6个！")
 	}
 
 	uid := jwtutil.GetUid(ctx)
@@ -227,7 +227,7 @@ func (c *Message) Vote(ctx *gin.Context) error {
 		UserId:     uid,
 		ReceiverId: params.ReceiverId,
 	}); err != nil {
-		return ginutil.BusinessError(ctx, err.Error())
+		return ichat.BusinessError(ctx, err.Error())
 	}
 
 	if err := c.service.SendVoteMessage(ctx.Request.Context(), &service.VoteMessageOpts{
@@ -238,17 +238,17 @@ func (c *Message) Vote(ctx *gin.Context) error {
 		Title:      params.Title,
 		Options:    params.Options,
 	}); err != nil {
-		return ginutil.BusinessError(ctx, err)
+		return ichat.BusinessError(ctx, err)
 	}
 
-	return ginutil.Success(ctx, nil)
+	return ichat.Success(ctx, nil)
 }
 
 // Emoticon 发送表情包消息
 func (c *Message) Emoticon(ctx *gin.Context) error {
 	params := &web.EmoticonMessageRequest{}
 	if err := ctx.ShouldBind(params); err != nil {
-		return ginutil.InvalidParams(ctx, err)
+		return ichat.InvalidParams(ctx, err)
 	}
 
 	uid := jwtutil.GetUid(ctx)
@@ -257,7 +257,7 @@ func (c *Message) Emoticon(ctx *gin.Context) error {
 		UserId:     uid,
 		ReceiverId: params.ReceiverId,
 	}); err != nil {
-		return ginutil.BusinessError(ctx, err.Error())
+		return ichat.BusinessError(ctx, err.Error())
 	}
 
 	if err := c.service.SendEmoticonMessage(ctx.Request.Context(), &service.EmoticonMessageOpts{
@@ -266,21 +266,21 @@ func (c *Message) Emoticon(ctx *gin.Context) error {
 		ReceiverId: params.ReceiverId,
 		EmoticonId: params.EmoticonId,
 	}); err != nil {
-		return ginutil.BusinessError(ctx, err)
+		return ichat.BusinessError(ctx, err)
 	}
 
-	return ginutil.Success(ctx, nil)
+	return ichat.Success(ctx, nil)
 }
 
 // Forward 发送转发消息
 func (c *Message) Forward(ctx *gin.Context) error {
 	params := &web.ForwardMessageRequest{}
 	if err := ctx.ShouldBind(params); err != nil {
-		return ginutil.InvalidParams(ctx, err)
+		return ichat.InvalidParams(ctx, err)
 	}
 
 	if params.ReceiveGroupIds == "" && params.ReceiveUserIds == "" {
-		return ginutil.InvalidParams(ctx, "receive_user_ids 和 receive_group_ids 不能都为空！")
+		return ichat.InvalidParams(ctx, "receive_user_ids 和 receive_group_ids 不能都为空！")
 	}
 
 	uid := jwtutil.GetUid(ctx)
@@ -289,7 +289,7 @@ func (c *Message) Forward(ctx *gin.Context) error {
 		UserId:     uid,
 		ReceiverId: params.ReceiverId,
 	}); err != nil {
-		return ginutil.BusinessError(ctx, err.Error())
+		return ichat.BusinessError(ctx, err.Error())
 	}
 
 	forward := &service.TalkForwardOpts{
@@ -303,17 +303,17 @@ func (c *Message) Forward(ctx *gin.Context) error {
 	}
 
 	if err := c.forwardService.SendForwardMessage(ctx.Request.Context(), forward); err != nil {
-		return ginutil.BusinessError(ctx, err)
+		return ichat.BusinessError(ctx, err)
 	}
 
-	return ginutil.Success(ctx, nil)
+	return ichat.Success(ctx, nil)
 }
 
 // Card 发送用户名片消息
 func (c *Message) Card(ctx *gin.Context) error {
 	params := &web.CardMessageRequest{}
 	if err := ctx.ShouldBind(params); err != nil {
-		return ginutil.InvalidParams(ctx, err)
+		return ichat.InvalidParams(ctx, err)
 	}
 
 	uid := jwtutil.GetUid(ctx)
@@ -322,7 +322,7 @@ func (c *Message) Card(ctx *gin.Context) error {
 		UserId:     uid,
 		ReceiverId: params.ReceiverId,
 	}); err != nil {
-		return ginutil.BusinessError(ctx, err.Error())
+		return ichat.BusinessError(ctx, err.Error())
 	}
 
 	// todo SendCardMessage
@@ -332,45 +332,45 @@ func (c *Message) Card(ctx *gin.Context) error {
 		ReceiverId: params.ReceiverId,
 		ContactId:  0,
 	}); err != nil {
-		return ginutil.BusinessError(ctx, err)
+		return ichat.BusinessError(ctx, err)
 	}
 
-	return ginutil.Success(ctx, nil)
+	return ichat.Success(ctx, nil)
 }
 
 // Collect 收藏聊天图片
 func (c *Message) Collect(ctx *gin.Context) error {
 	params := &web.CollectMessageRequest{}
 	if err := ctx.ShouldBind(params); err != nil {
-		return ginutil.InvalidParams(ctx, err)
+		return ichat.InvalidParams(ctx, err)
 	}
 
 	if err := c.talkService.CollectRecord(ctx.Request.Context(), jwtutil.GetUid(ctx), params.RecordId); err != nil {
-		return ginutil.BusinessError(ctx, err)
+		return ichat.BusinessError(ctx, err)
 	}
 
-	return ginutil.Success(ctx, nil)
+	return ichat.Success(ctx, nil)
 }
 
 // Revoke 撤销聊天记录
 func (c *Message) Revoke(ctx *gin.Context) error {
 	params := &web.RevokeMessageRequest{}
 	if err := ctx.ShouldBind(params); err != nil {
-		return ginutil.InvalidParams(ctx, err)
+		return ichat.InvalidParams(ctx, err)
 	}
 
 	if err := c.service.SendRevokeRecordMessage(ctx.Request.Context(), jwtutil.GetUid(ctx), params.RecordId); err != nil {
-		return ginutil.BusinessError(ctx, err)
+		return ichat.BusinessError(ctx, err)
 	}
 
-	return ginutil.Success(ctx, nil)
+	return ichat.Success(ctx, nil)
 }
 
 // Delete 删除聊天记录
 func (c *Message) Delete(ctx *gin.Context) error {
 	params := &web.DeleteMessageRequest{}
 	if err := ctx.ShouldBind(params); err != nil {
-		return ginutil.InvalidParams(ctx, err)
+		return ichat.InvalidParams(ctx, err)
 	}
 
 	if err := c.talkService.RemoveRecords(ctx.Request.Context(), &service.TalkMessageDeleteOpts{
@@ -379,17 +379,17 @@ func (c *Message) Delete(ctx *gin.Context) error {
 		ReceiverId: params.ReceiverId,
 		RecordIds:  params.RecordIds,
 	}); err != nil {
-		return ginutil.BusinessError(ctx, err)
+		return ichat.BusinessError(ctx, err)
 	}
 
-	return ginutil.Success(ctx, nil)
+	return ichat.Success(ctx, nil)
 }
 
 // HandleVote 投票处理
 func (c *Message) HandleVote(ctx *gin.Context) error {
 	params := &web.VoteMessageHandleRequest{}
 	if err := ctx.ShouldBind(params); err != nil {
-		return ginutil.InvalidParams(ctx, err)
+		return ichat.InvalidParams(ctx, err)
 	}
 
 	vid, err := c.service.VoteHandle(ctx.Request.Context(), &service.VoteMessageHandleOpts{
@@ -398,18 +398,18 @@ func (c *Message) HandleVote(ctx *gin.Context) error {
 		Options:  params.Options,
 	})
 	if err != nil {
-		return ginutil.BusinessError(ctx, err)
+		return ichat.BusinessError(ctx, err)
 	}
 
 	res, _ := c.talkRecordsVoteDao.GetVoteStatistics(ctx.Request.Context(), vid)
-	return ginutil.Success(ctx, res)
+	return ichat.Success(ctx, res)
 }
 
 // Location 发送位置消息
 func (c *Message) Location(ctx *gin.Context) error {
 	params := &web.LocationMessageRequest{}
 	if err := ctx.ShouldBind(params); err != nil {
-		return ginutil.InvalidParams(ctx, err)
+		return ichat.InvalidParams(ctx, err)
 	}
 
 	uid := jwtutil.GetUid(ctx)
@@ -418,7 +418,7 @@ func (c *Message) Location(ctx *gin.Context) error {
 		UserId:     uid,
 		ReceiverId: params.ReceiverId,
 	}); err != nil {
-		return ginutil.BusinessError(ctx, err.Error())
+		return ichat.BusinessError(ctx, err.Error())
 	}
 
 	if err := c.service.SendLocationMessage(ctx.Request.Context(), &service.LocationMessageOpts{
@@ -428,8 +428,8 @@ func (c *Message) Location(ctx *gin.Context) error {
 		Longitude:  params.Longitude,
 		Latitude:   params.Latitude,
 	}); err != nil {
-		return ginutil.BusinessError(ctx, err)
+		return ichat.BusinessError(ctx, err)
 	}
 
-	return ginutil.Success(ctx, nil)
+	return ichat.Success(ctx, nil)
 }
