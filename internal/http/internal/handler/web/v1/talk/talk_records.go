@@ -3,7 +3,6 @@ package talk
 import (
 	"net/http"
 
-	"github.com/gin-gonic/gin"
 	api2 "go-chat/internal/http/internal/dto/web"
 	"go-chat/internal/pkg/ichat"
 	"go-chat/internal/pkg/timeutil"
@@ -32,15 +31,15 @@ func NewTalkRecordsHandler(service *service.TalkRecordsService, groupMemberServi
 }
 
 // GetRecords 获取会话记录
-func (c *Records) GetRecords(ctx *gin.Context) error {
+func (c *Records) GetRecords(ctx *ichat.Context) error {
 	params := &api2.GetTalkRecordsRequest{}
-	if err := ctx.ShouldBindQuery(params); err != nil {
-		return ichat.InvalidParams(ctx, err)
+	if err := ctx.Context.ShouldBindQuery(params); err != nil {
+		return ctx.InvalidParams(err)
 	}
 
-	uid := jwtutil.GetUid(ctx)
+	uid := jwtutil.GetUid(ctx.Context)
 	if params.TalkType == entity.ChatGroupMode {
-		if !c.authPermission.IsAuth(ctx.Request.Context(), &service.AuthPermission{
+		if !c.authPermission.IsAuth(ctx.Context.Request.Context(), &service.AuthPermission{
 			TalkType:   params.TalkType,
 			UserId:     uid,
 			ReceiverId: params.ReceiverId,
@@ -56,7 +55,7 @@ func (c *Records) GetRecords(ctx *gin.Context) error {
 				"user_id":     0,
 			})
 
-			return ichat.Success(ctx, entity.H{
+			return ctx.Success(entity.H{
 				"limit":     params.Limit,
 				"record_id": 0,
 				"rows":      rows,
@@ -64,16 +63,16 @@ func (c *Records) GetRecords(ctx *gin.Context) error {
 		}
 	}
 
-	records, err := c.service.GetTalkRecords(ctx, &service.QueryTalkRecordsOpts{
+	records, err := c.service.GetTalkRecords(ctx.Context, &service.QueryTalkRecordsOpts{
 		TalkType:   params.TalkType,
-		UserId:     jwtutil.GetUid(ctx),
+		UserId:     jwtutil.GetUid(ctx.Context),
 		ReceiverId: params.ReceiverId,
 		RecordId:   params.RecordId,
 		Limit:      params.Limit,
 	})
 
 	if err != nil {
-		return ichat.BusinessError(ctx, err)
+		return ctx.BusinessError(err.Error())
 	}
 
 	rid := 0
@@ -81,7 +80,7 @@ func (c *Records) GetRecords(ctx *gin.Context) error {
 		rid = records[length-1].Id
 	}
 
-	return ichat.Success(ctx, entity.H{
+	return ctx.Success(entity.H{
 		"limit":     params.Limit,
 		"record_id": rid,
 		"rows":      records,
@@ -89,21 +88,21 @@ func (c *Records) GetRecords(ctx *gin.Context) error {
 }
 
 // SearchHistoryRecords 查询下会话记录
-func (c *Records) SearchHistoryRecords(ctx *gin.Context) error {
+func (c *Records) SearchHistoryRecords(ctx *ichat.Context) error {
 	params := &api2.GetTalkRecordsRequest{}
-	if err := ctx.ShouldBindQuery(params); err != nil {
-		return ichat.InvalidParams(ctx, err)
+	if err := ctx.Context.ShouldBindQuery(params); err != nil {
+		return ctx.InvalidParams(err)
 	}
 
-	uid := jwtutil.GetUid(ctx)
+	uid := jwtutil.GetUid(ctx.Context)
 
 	if params.TalkType == entity.ChatGroupMode {
-		if !c.authPermission.IsAuth(ctx.Request.Context(), &service.AuthPermission{
+		if !c.authPermission.IsAuth(ctx.Context.Request.Context(), &service.AuthPermission{
 			TalkType:   params.TalkType,
 			UserId:     uid,
 			ReceiverId: params.ReceiverId,
 		}) {
-			return ichat.Success(ctx, entity.H{
+			return ctx.Success(entity.H{
 				"limit":     params.Limit,
 				"record_id": 0,
 				"rows":      make([]entity.H, 0),
@@ -123,17 +122,17 @@ func (c *Records) SearchHistoryRecords(ctx *gin.Context) error {
 		m = []int{params.MsgType}
 	}
 
-	records, err := c.service.GetTalkRecords(ctx, &service.QueryTalkRecordsOpts{
+	records, err := c.service.GetTalkRecords(ctx.Context, &service.QueryTalkRecordsOpts{
 		TalkType:   params.TalkType,
 		MsgType:    m,
-		UserId:     jwtutil.GetUid(ctx),
+		UserId:     jwtutil.GetUid(ctx.Context),
 		ReceiverId: params.ReceiverId,
 		RecordId:   params.RecordId,
 		Limit:      params.Limit,
 	})
 
 	if err != nil {
-		return ichat.BusinessError(ctx, err)
+		return ctx.BusinessError(err.Error())
 	}
 
 	rid := 0
@@ -141,7 +140,7 @@ func (c *Records) SearchHistoryRecords(ctx *gin.Context) error {
 		rid = records[length-1].Id
 	}
 
-	return ichat.Success(ctx, entity.H{
+	return ctx.Success(entity.H{
 		"limit":     params.Limit,
 		"record_id": rid,
 		"rows":      records,
@@ -149,54 +148,54 @@ func (c *Records) SearchHistoryRecords(ctx *gin.Context) error {
 }
 
 // GetForwardRecords 获取转发记录
-func (c *Records) GetForwardRecords(ctx *gin.Context) error {
+func (c *Records) GetForwardRecords(ctx *ichat.Context) error {
 	params := &api2.GetForwardTalkRecordRequest{}
-	if err := ctx.ShouldBind(params); err != nil {
-		return ichat.InvalidParams(ctx, err)
+	if err := ctx.Context.ShouldBind(params); err != nil {
+		return ctx.InvalidParams(err)
 	}
 
-	records, err := c.service.GetForwardRecords(ctx.Request.Context(), jwtutil.GetUid(ctx), int64(params.RecordId))
+	records, err := c.service.GetForwardRecords(ctx.Context.Request.Context(), jwtutil.GetUid(ctx.Context), int64(params.RecordId))
 	if err != nil {
-		return ichat.BusinessError(ctx, err)
+		return ctx.BusinessError(err.Error())
 	}
 
-	return ichat.Success(ctx, entity.H{
+	return ctx.Success(entity.H{
 		"rows": records,
 	})
 }
 
 // Download 聊天文件下载
-func (c *Records) Download(ctx *gin.Context) error {
+func (c *Records) Download(ctx *ichat.Context) error {
 	params := &api2.DownloadChatFileRequest{}
-	if err := ctx.ShouldBindQuery(params); err != nil {
-		return ichat.InvalidParams(ctx, err)
+	if err := ctx.Context.ShouldBindQuery(params); err != nil {
+		return ctx.InvalidParams(err)
 	}
 
-	resp, err := c.service.Dao().FindFileRecord(ctx.Request.Context(), params.RecordId)
+	resp, err := c.service.Dao().FindFileRecord(ctx.Context.Request.Context(), params.RecordId)
 	if err != nil {
-		return ichat.BusinessError(ctx, err)
+		return ctx.BusinessError(err.Error())
 	}
 
-	uid := jwtutil.GetUid(ctx)
+	uid := jwtutil.GetUid(ctx.Context)
 	if uid != resp.Record.UserId {
 		if resp.Record.TalkType == entity.ChatPrivateMode {
 			if resp.Record.ReceiverId != uid {
-				return ichat.Unauthorized(ctx, "无访问权限！")
+				return ctx.Unauthorized("无访问权限！")
 			}
 		} else {
 			if !c.groupMemberService.Dao().IsMember(resp.Record.ReceiverId, uid, false) {
-				return ichat.Unauthorized(ctx, "无访问权限！")
+				return ctx.Unauthorized("无访问权限！")
 			}
 		}
 	}
 
 	switch resp.FileInfo.Drive {
 	case entity.FileDriveLocal:
-		ctx.FileAttachment(c.fileSystem.Local.Path(resp.FileInfo.Path), resp.FileInfo.OriginalName)
+		ctx.Context.FileAttachment(c.fileSystem.Local.Path(resp.FileInfo.Path), resp.FileInfo.OriginalName)
 	case entity.FileDriveCos:
-		ctx.Redirect(http.StatusFound, c.fileSystem.Cos.PrivateUrl(resp.FileInfo.Path, 60))
+		ctx.Context.Redirect(http.StatusFound, c.fileSystem.Cos.PrivateUrl(resp.FileInfo.Path, 60))
 	default:
-		return ichat.BusinessError(ctx, "未知文件驱动类型")
+		return ctx.BusinessError("未知文件驱动类型")
 	}
 
 	return nil

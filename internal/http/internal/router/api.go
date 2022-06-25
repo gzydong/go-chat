@@ -20,27 +20,27 @@ func RegisterApiRoute(conf *config.Config, router *gin.Engine, handler *handler.
 	{
 		test := v1.Group("/test")
 		{
-			test.GET("/success", ichat.NewHandlerFunc(handler.Test.Success))
-			test.GET("/raw", ichat.NewHandlerFunc(handler.Test.Raw))
-			test.GET("/error", ichat.NewHandlerFunc(handler.Test.Error))
-			test.GET("/invalid", ichat.NewHandlerFunc(handler.Test.Invalid))
+			test.GET("/success", ichat.HandlerFunc(handler.Test.Success))
+			test.GET("/raw", ichat.HandlerFunc(handler.Test.Raw))
+			test.GET("/error", ichat.HandlerFunc(handler.Test.Error))
+			test.GET("/invalid", ichat.HandlerFunc(handler.Test.Invalid))
 		}
 
 		common := v1.Group("/common")
 		{
-			common.POST("/sms-code", ichat.NewHandlerFunc(handler.Common.SmsCode))
-			common.POST("/email-code", authorize, ichat.NewHandlerFunc(handler.Common.EmailCode))
-			common.GET("/setting", authorize, ichat.NewHandlerFunc(handler.Common.Setting))
+			common.POST("/sms-code", ichat.HandlerFunc(handler.Common.SmsCode))
+			common.POST("/email-code", authorize, ichat.HandlerFunc(handler.Common.EmailCode))
+			common.GET("/setting", authorize, ichat.HandlerFunc(handler.Common.Setting))
 		}
 
 		// 授权相关分组
 		auth := v1.Group("/auth")
 		{
-			auth.POST("/login", ichat.NewHandlerFunc(handler.Auth.Login))                // 登录
-			auth.POST("/register", ichat.NewHandlerFunc(handler.Auth.Register))          // 注册
-			auth.POST("/refresh", authorize, ichat.NewHandlerFunc(handler.Auth.Refresh)) // 刷新 Token
-			auth.POST("/logout", authorize, ichat.NewHandlerFunc(handler.Auth.Logout))   // 退出登录
-			auth.POST("/forget", ichat.NewHandlerFunc(handler.Auth.Forget))              // 找回密码
+			auth.POST("/login", ichat.HandlerFunc(handler.Auth.Login))                // 登录
+			auth.POST("/register", ichat.HandlerFunc(handler.Auth.Register))          // 注册
+			auth.POST("/refresh", authorize, ichat.HandlerFunc(handler.Auth.Refresh)) // 刷新 Token
+			auth.POST("/logout", authorize, ichat.HandlerFunc(handler.Auth.Logout))   // 退出登录
+			auth.POST("/forget", ichat.HandlerFunc(handler.Auth.Forget))              // 找回密码
 		}
 
 		// 用户相关分组
@@ -73,7 +73,7 @@ func RegisterApiRoute(conf *config.Config, router *gin.Engine, handler *handler.
 		// 聊天群相关分组
 		userGroup := v1.Group("/group").Use(authorize)
 		{
-			userGroup.GET("/list", ichat.HandlerFunc(handler.Group.GetGroups))            // 群组列表
+			userGroup.GET("/list", ichat.HandlerFunc(handler.Group.Groups))               // 群组列表
 			userGroup.GET("/overt/list", ichat.HandlerFunc(handler.Group.OvertList))      // 公开群组列表
 			userGroup.GET("/detail", ichat.HandlerFunc(handler.Group.Detail))             // 群组详情
 			userGroup.POST("/create", ichat.HandlerFunc(handler.Group.Create))            // 创建群组
@@ -86,7 +86,7 @@ func RegisterApiRoute(conf *config.Config, router *gin.Engine, handler *handler.
 			userGroup.POST("/no-speak", ichat.HandlerFunc(handler.Group.NoSpeak))         // 修改禁言状态
 
 			// 群成员相关
-			userGroup.GET("/member/list", ichat.HandlerFunc(handler.Group.GetMembers))          // 群成员列表
+			userGroup.GET("/member/list", ichat.HandlerFunc(handler.Group.Members))             // 群成员列表
 			userGroup.GET("/member/invites", ichat.HandlerFunc(handler.Group.GetInviteFriends)) // 群成员列表
 			userGroup.POST("/member/remove", ichat.HandlerFunc(handler.Group.RemoveMembers))    // 移出指定群成员
 			userGroup.POST("/member/remark", ichat.HandlerFunc(handler.Group.EditRemark))       // 设置群名片
@@ -188,8 +188,8 @@ func RegisterApiRoute(conf *config.Config, router *gin.Engine, handler *handler.
 
 		organize := v1.Group("/organize").Use(authorize)
 		{
-			organize.GET("/department/all", ichat.NewHandlerFunc(handler.Organize.DepartmentList))
-			organize.GET("/personnel/all", ichat.NewHandlerFunc(handler.Organize.PersonnelList))
+			organize.GET("/department/all", ichat.HandlerFunc(handler.Organize.DepartmentList))
+			organize.GET("/personnel/all", ichat.HandlerFunc(handler.Organize.PersonnelList))
 		}
 	}
 

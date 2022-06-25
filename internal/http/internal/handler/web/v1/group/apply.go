@@ -1,7 +1,6 @@
 package group
 
 import (
-	"github.com/gin-gonic/gin"
 	"go-chat/internal/entity"
 	"go-chat/internal/http/internal/dto/web"
 	"go-chat/internal/model"
@@ -22,47 +21,49 @@ func NewApplyHandler(applyServ *service.GroupApplyService, memberServ *service.G
 	return &Apply{applyServ: applyServ, memberServ: memberServ, groupServ: groupServ}
 }
 
-func (c *Apply) Create(ctx *gin.Context) error {
+func (c *Apply) Create(ctx *ichat.Context) error {
+
 	params := &web.GroupApplyCreateRequest{}
-	if err := ctx.ShouldBind(params); err != nil {
-		return ichat.InvalidParams(ctx, err)
+	if err := ctx.Context.ShouldBind(params); err != nil {
+		return ctx.InvalidParams(err)
 	}
 
-	err := c.applyServ.Insert(ctx.Request.Context(), params.GroupId, jwtutil.GetUid(ctx), params.Remark)
+	err := c.applyServ.Insert(ctx.Context.Request.Context(), params.GroupId, jwtutil.GetUid(ctx.Context), params.Remark)
 	if err != nil {
-		return ichat.BusinessError(ctx, "创建群聊失败，请稍后再试！")
+		return ctx.BusinessError("创建群聊失败，请稍后再试！")
 	}
 
 	// TODO 这里需要推送给群主
 
-	return ichat.Success(ctx, entity.H{})
+	return ctx.Success(entity.H{})
 }
 
-func (c *Apply) Agree(ctx *gin.Context) error {
+func (c *Apply) Agree(ctx *ichat.Context) error {
+
 	params := &web.GroupApplyAgreeRequest{}
-	if err := ctx.ShouldBind(params); err != nil {
-		return ichat.InvalidParams(ctx, err)
+	if err := ctx.Context.ShouldBind(params); err != nil {
+		return ctx.InvalidParams(err)
 	}
 
-	uid := jwtutil.GetUid(ctx)
+	uid := jwtutil.GetUid(ctx.Context)
 
 	apply := &model.GroupApply{}
 	if err := c.applyServ.Db().First(apply, params.ApplyId).Error; err != nil {
-		return ichat.BusinessError(ctx, "数据不存在！")
+		return ctx.BusinessError("数据不存在！")
 	}
 
 	if !c.memberServ.Dao().IsLeader(apply.GroupId, uid) {
-		return ichat.Unauthorized(ctx, "无权限访问")
+		return ctx.Unauthorized("无权限访问")
 	}
 
 	if !c.memberServ.Dao().IsMember(apply.GroupId, apply.UserId, false) {
-		err := c.groupServ.InviteMembers(ctx, &service.InviteGroupMembersOpts{
+		err := c.groupServ.InviteMembers(ctx.Context, &service.InviteGroupMembersOpts{
 			UserId:    uid,
 			GroupId:   apply.GroupId,
 			MemberIds: []int{apply.UserId},
 		})
 		if err != nil {
-			return ichat.BusinessError(ctx, "处理失败！")
+			return ctx.BusinessError("处理失败！")
 		}
 	}
 
@@ -71,37 +72,42 @@ func (c *Apply) Agree(ctx *gin.Context) error {
 		logger.Error("数据删除失败 err", err.Error())
 	}
 
-	return ichat.Success(ctx, entity.H{})
+	return ctx.Success(entity.H{})
 }
 
-func (c *Apply) Delete(ctx *gin.Context) error {
+func (c *Apply) Delete(ctx *ichat.Context) error {
+
 	params := &web.GroupApplyDeleteRequest{}
-	if err := ctx.ShouldBind(params); err != nil {
-		return ichat.InvalidParams(ctx, err)
+	if err := ctx.Context.ShouldBind(params); err != nil {
+		return ctx.InvalidParams(err)
 	}
 
-	err := c.applyServ.Delete(ctx, params.ApplyId, jwtutil.GetUid(ctx))
+	err := c.applyServ.Delete(ctx.Context, params.ApplyId, jwtutil.GetUid(ctx.Context))
 	if err != nil {
-		return ichat.BusinessError(ctx, "创建群聊失败，请稍后再试！")
+		return ctx.WithMeta(map[string]interface{}{
+			"error": err.Error(),
+		}).BusinessError("创建群聊失败，请稍后再试！")
 	}
 
-	return ichat.Success(ctx, entity.H{})
+	return ctx.Success(entity.H{})
 }
 
-func (c *Apply) List(ctx *gin.Context) error {
+func (c *Apply) List(ctx *ichat.Context) error {
 	params := &web.GroupApplyListRequest{}
-	if err := ctx.ShouldBind(params); err != nil {
-		return ichat.InvalidParams(ctx, err)
+	if err := ctx.Context.ShouldBind(params); err != nil {
+		return ctx.InvalidParams(err)
 	}
 
-	if !c.memberServ.Dao().IsLeader(params.GroupId, jwtutil.GetUid(ctx)) {
-		return ichat.Unauthorized(ctx, "无权限访问")
+	if !c.memberServ.Dao().IsLeader(params.GroupId, jwtutil.GetUid(ctx.Context)) {
+		return ctx.Unauthorized("无权限访问")
 	}
 
-	list, err := c.applyServ.Dao().List(ctx.Request.Context(), params.GroupId)
+	list, err := c.applyServ.Dao().List(ctx.Context.Request.Context(), params.GroupId)
 	if err != nil {
 		logger.Error("[Apply List] 接口异常 err:", err.Error())
-		return ichat.BusinessError(ctx, "创建群聊失败，请稍后再试！")
+		return ctx.WithMeta(map[string]interface{}{
+			"error": err.Error(),
+		}).BusinessError("创建群聊失败，请稍后再试！")
 	}
 
 	items := make([]*entity.H, 0)
@@ -117,5 +123,5 @@ func (c *Apply) List(ctx *gin.Context) error {
 		})
 	}
 
-	return ichat.Success(ctx, items)
+	return ctx.Success(items)
 }

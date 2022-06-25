@@ -14,8 +14,6 @@ import (
 	"go-chat/internal/pkg/jwtutil"
 	"go-chat/internal/pkg/utils"
 
-	"github.com/gin-gonic/gin"
-
 	"go-chat/internal/pkg/filesystem"
 	"go-chat/internal/pkg/sliceutil"
 	"go-chat/internal/pkg/strutil"
@@ -41,9 +39,9 @@ func NewEmoticonHandler(
 }
 
 // CollectList 收藏列表
-func (c *Emoticon) CollectList(ctx *gin.Context) error {
+func (c *Emoticon) CollectList(ctx *ichat.Context) error {
 	var (
-		uid     = jwtutil.GetUid(ctx)
+		uid     = jwtutil.GetUid(ctx.Context)
 		sys     = make([]*apiv.SysEmoticonResponse, 0)
 		collect = make([]*apiv.EmoticonItem, 0)
 	)
@@ -82,56 +80,56 @@ func (c *Emoticon) CollectList(ctx *gin.Context) error {
 
 	}
 
-	return ichat.Success(ctx, entity.H{
+	return ctx.Success(entity.H{
 		"sys_emoticon":     sys,
 		"collect_emoticon": collect,
 	})
 }
 
 // DeleteCollect 删除收藏表情包
-func (c *Emoticon) DeleteCollect(ctx *gin.Context) error {
+func (c *Emoticon) DeleteCollect(ctx *ichat.Context) error {
 	params := &api2.DeleteCollectRequest{}
-	if err := ctx.ShouldBind(params); err != nil {
-		return ichat.InvalidParams(ctx, err)
+	if err := ctx.Context.ShouldBind(params); err != nil {
+		return ctx.InvalidParams(err)
 	}
 
-	if err := c.service.DeleteCollect(jwtutil.GetUid(ctx), sliceutil.ParseIds(params.Ids)); err != nil {
-		return ichat.BusinessError(ctx, err)
+	if err := c.service.DeleteCollect(jwtutil.GetUid(ctx.Context), sliceutil.ParseIds(params.Ids)); err != nil {
+		return ctx.BusinessError(err.Error())
 	}
 
-	return ichat.Success(ctx, nil)
+	return ctx.Success(nil)
 }
 
 // Upload 上传自定义表情包
-func (c *Emoticon) Upload(ctx *gin.Context) error {
-	file, err := ctx.FormFile("emoticon")
+func (c *Emoticon) Upload(ctx *ichat.Context) error {
+	file, err := ctx.Context.FormFile("emoticon")
 	if err != nil {
-		return ichat.InvalidParams(ctx, "emoticon 字段必传！")
+		return ctx.InvalidParams("emoticon 字段必传！")
 	}
 
 	if !sliceutil.InStr(strutil.FileSuffix(file.Filename), []string{"png", "jpg", "jpeg", "gif"}) {
-		return ichat.InvalidParams(ctx, "上传文件格式不正确,仅支持 png、jpg、jpeg 和 gif")
+		return ctx.InvalidParams("上传文件格式不正确,仅支持 png、jpg、jpeg 和 gif")
 	}
 
 	// 判断上传文件大小（5M）
 	if file.Size > 5<<20 {
-		return ichat.InvalidParams(ctx, "上传文件大小不能超过5M！")
+		return ctx.InvalidParams("上传文件大小不能超过5M！")
 	}
 
 	stream, err := filesystem.ReadMultipartStream(file)
 	if err != nil {
-		return ichat.BusinessError(ctx, "上传失败！")
+		return ctx.BusinessError("上传失败！")
 	}
 
 	size := utils.ReadFileImage(bytes.NewReader(stream))
 	ext := strutil.FileSuffix(file.Filename)
 	src := fmt.Sprintf("public/media/image/emoticon/%s/%s", time.Now().Format("20060102"), strutil.GenImageName(ext, size.Width, size.Height))
 	if err = c.fileSystem.Default.Write(stream, src); err != nil {
-		return ichat.BusinessError(ctx, "上传失败！")
+		return ctx.BusinessError("上传失败！")
 	}
 
 	m := &model.EmoticonItem{
-		UserId:     jwtutil.GetUid(ctx),
+		UserId:     jwtutil.GetUid(ctx.Context),
 		Describe:   "自定义表情包",
 		Url:        c.fileSystem.Default.PublicUrl(src),
 		FileSuffix: ext,
@@ -139,24 +137,24 @@ func (c *Emoticon) Upload(ctx *gin.Context) error {
 	}
 
 	if err := c.service.Db().Create(m).Error; err != nil {
-		return ichat.BusinessError(ctx, "上传失败！")
+		return ctx.BusinessError("上传失败！")
 	}
 
-	return ichat.Success(ctx, entity.H{
+	return ctx.Success(entity.H{
 		"media_id": m.Id,
 		"src":      m.Url,
-	}, "文件上传成功")
+	})
 }
 
 // SystemList 系统表情包列表
-func (c *Emoticon) SystemList(ctx *gin.Context) error {
+func (c *Emoticon) SystemList(ctx *ichat.Context) error {
 	items, err := c.service.Dao().GetSystemEmoticonList()
 
 	if err != nil {
-		return ichat.BusinessError(ctx, err)
+		return ctx.BusinessError(err.Error())
 	}
 
-	ids := c.service.Dao().GetUserInstallIds(jwtutil.GetUid(ctx))
+	ids := c.service.Dao().GetUserInstallIds(jwtutil.GetUid(ctx.Context))
 
 	data := make([]*apiv.SysEmoticonList, 0, len(items))
 	for _, item := range items {
@@ -168,44 +166,43 @@ func (c *Emoticon) SystemList(ctx *gin.Context) error {
 		})
 	}
 
-	return ichat.Success(ctx, data)
+	return ctx.Success(data)
 }
 
 // SetSystemEmoticon 添加或移除系统表情包
-func (c *Emoticon) SetSystemEmoticon(ctx *gin.Context) error {
+func (c *Emoticon) SetSystemEmoticon(ctx *ichat.Context) error {
 	var (
 		err    error
 		params = &api2.SetSystemEmoticonRequest{}
-		uid    = jwtutil.GetUid(ctx)
+		uid    = jwtutil.GetUid(ctx.Context)
 		key    = fmt.Sprintf("sys-emoticon:%d", uid)
 	)
 
-	if err = ctx.ShouldBind(params); err != nil {
-		return ichat.InvalidParams(ctx, err)
+	if err = ctx.Context.ShouldBind(params); err != nil {
+		return ctx.InvalidParams(err)
 	}
 
-	if !c.redisLock.Lock(ctx, key, 5) {
-		return ichat.BusinessError(ctx, "请求频繁！")
+	if !c.redisLock.Lock(ctx.Context, key, 5) {
+		return ctx.BusinessError("请求频繁！")
 	}
-
-	defer c.redisLock.UnLock(ctx, key)
+	defer c.redisLock.UnLock(ctx.Context, key)
 
 	if params.Type == 2 {
 		if err = c.service.RemoveUserSysEmoticon(uid, params.EmoticonId); err != nil {
-			return ichat.BusinessError(ctx, err)
+			return ctx.BusinessError(err.Error())
 		}
 
-		return ichat.Success(ctx, nil)
+		return ctx.Success(nil)
 	}
 
 	// 查询表情包是否存在
 	info, err := c.service.Dao().FindById(params.EmoticonId)
 	if err != nil {
-		return ichat.BusinessError(ctx, err)
+		return ctx.BusinessError(err.Error())
 	}
 
-	if err = c.service.AddUserSysEmoticon(uid, params.EmoticonId); err != nil {
-		return ichat.BusinessError(ctx, err)
+	if err := c.service.AddUserSysEmoticon(uid, params.EmoticonId); err != nil {
+		return ctx.BusinessError(err.Error())
 	}
 
 	items := make([]*apiv.EmoticonItem, 0)
@@ -218,7 +215,7 @@ func (c *Emoticon) SetSystemEmoticon(ctx *gin.Context) error {
 		}
 	}
 
-	return ichat.Success(ctx, &apiv.SysEmoticonResponse{
+	return ctx.Success(&apiv.SysEmoticonResponse{
 		EmoticonId: info.Id,
 		Url:        info.Icon,
 		Name:       info.Name,

@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 
-	"github.com/gin-gonic/gin"
 	"go-chat/internal/entity"
 	"go-chat/internal/http/internal/dto/web"
 	"go-chat/internal/model"
@@ -30,57 +29,57 @@ func NewArticleHandler(service *note.ArticleService, fileSystem *filesystem.File
 }
 
 // List 文章列表
-func (c *Article) List(ctx *gin.Context) error {
-	params := &web.ArticleListRequest{}
+func (c *Article) List(ctx *ichat.Context) error {
 
-	if err := ctx.ShouldBindQuery(params); err != nil {
-		return ichat.InvalidParams(ctx, err)
+	params := &web.ArticleListRequest{}
+	if err := ctx.Context.ShouldBindQuery(params); err != nil {
+		return ctx.InvalidParams(err)
 	}
 
-	items, err := c.service.List(ctx.Request.Context(), &note.ArticleListOpts{
-		UserId:   jwtutil.GetUid(ctx),
+	items, err := c.service.List(ctx.Context.Request.Context(), &note.ArticleListOpts{
+		UserId:   jwtutil.GetUid(ctx.Context),
 		Keyword:  params.Keyword,
 		FindType: params.FindType,
 		Cid:      params.Cid,
 		Page:     params.Page,
 	})
 	if err != nil {
-		return ichat.BusinessError(ctx, err)
+		return ctx.BusinessError(err.Error())
 	}
 
 	list := make([]map[string]interface{}, 0)
 	for _, item := range items {
 		list = append(list, map[string]interface{}{
-			"abstract":    item.Abstract,
-			"class_id":    item.ClassId,
-			"created_at":  timeutil.FormatDatetime(item.CreatedAt),
 			"id":          item.Id,
+			"class_id":    item.ClassId,
+			"tags_id":     item.TagsId,
+			"title":       item.Title,
+			"abstract":    item.Abstract,
+			"class_name":  item.ClassName,
 			"image":       item.Image,
 			"is_asterisk": item.IsAsterisk,
 			"status":      item.Status,
-			"tags_id":     item.TagsId,
-			"title":       item.Title,
+			"created_at":  timeutil.FormatDatetime(item.CreatedAt),
 			"updated_at":  timeutil.FormatDatetime(item.UpdatedAt),
-			"class_name":  item.ClassName,
 		})
 	}
 
-	return ichat.SuccessPaginate(ctx, list, 1, 1000, len(items))
+	return ctx.Paginate(list, 1, 1000, len(items))
 }
 
 // Detail 文章详情
-func (c *Article) Detail(ctx *gin.Context) error {
-	params := &web.ArticleDetailRequest{}
+func (c *Article) Detail(ctx *ichat.Context) error {
 
-	if err := ctx.ShouldBind(params); err != nil {
-		return ichat.InvalidParams(ctx, err)
+	params := &web.ArticleDetailRequest{}
+	if err := ctx.Context.ShouldBind(params); err != nil {
+		return ctx.InvalidParams(err)
 	}
 
-	uid := jwtutil.GetUid(ctx)
+	uid := jwtutil.GetUid(ctx.Context)
 
-	detail, err := c.service.Detail(ctx.Request.Context(), uid, params.ArticleId)
+	detail, err := c.service.Detail(ctx.Context.Request.Context(), uid, params.ArticleId)
 	if err != nil {
-		return ichat.BusinessError(ctx, "笔记不存在")
+		return ctx.BusinessError("笔记不存在")
 	}
 
 	tags := make([]map[string]interface{}, 0)
@@ -89,7 +88,7 @@ func (c *Article) Detail(ctx *gin.Context) error {
 	}
 
 	files := make([]map[string]interface{}, 0)
-	items, err := c.articleAnnexService.Dao().AnnexList(ctx, uid, params.ArticleId)
+	items, err := c.articleAnnexService.Dao().AnnexList(ctx.Context, uid, params.ArticleId)
 	if err == nil {
 		for _, item := range items {
 			files = append(files, map[string]interface{}{
@@ -102,7 +101,7 @@ func (c *Article) Detail(ctx *gin.Context) error {
 		}
 	}
 
-	return ichat.Success(ctx, entity.H{
+	return ctx.Success(entity.H{
 		"id":          detail.Id,
 		"class_id":    detail.ClassId,
 		"title":       detail.Title,
@@ -118,15 +117,15 @@ func (c *Article) Detail(ctx *gin.Context) error {
 }
 
 // Edit 添加或编辑文章
-func (c *Article) Edit(ctx *gin.Context) error {
+func (c *Article) Edit(ctx *ichat.Context) error {
 	var (
 		err    error
 		params = &web.ArticleEditRequest{}
-		uid    = jwtutil.GetUid(ctx)
+		uid    = jwtutil.GetUid(ctx.Context)
 	)
 
-	if err = ctx.ShouldBind(params); err != nil {
-		return ichat.InvalidParams(ctx, err)
+	if err = ctx.Context.ShouldBind(params); err != nil {
+		return ctx.InvalidParams(err)
 	}
 
 	opts := &note.ArticleEditOpts{
@@ -139,19 +138,19 @@ func (c *Article) Edit(ctx *gin.Context) error {
 	}
 
 	if params.ArticleId == 0 {
-		params.ArticleId, err = c.service.Create(ctx.Request.Context(), opts)
+		params.ArticleId, err = c.service.Create(ctx.Context.Request.Context(), opts)
 	} else {
-		err = c.service.Update(ctx.Request.Context(), opts)
+		err = c.service.Update(ctx.Context.Request.Context(), opts)
 	}
 
 	if err != nil {
-		return ichat.BusinessError(ctx, err)
+		return ctx.BusinessError(err.Error())
 	}
 
 	var info *model.Article
 	_ = c.service.Db().First(&info, params.ArticleId)
 
-	return ichat.Success(ctx, entity.H{
+	return ctx.Success(entity.H{
 		"id":       info.Id,
 		"image":    info.Image,
 		"abstract": info.Abstract,
@@ -160,54 +159,54 @@ func (c *Article) Edit(ctx *gin.Context) error {
 }
 
 // Delete 删除文章
-func (c *Article) Delete(ctx *gin.Context) error {
+func (c *Article) Delete(ctx *ichat.Context) error {
 	params := &web.ArticleDeleteRequest{}
-	if err := ctx.ShouldBind(params); err != nil {
-		return ichat.InvalidParams(ctx, err)
+	if err := ctx.Context.ShouldBind(params); err != nil {
+		return ctx.InvalidParams(err)
 	}
 
-	err := c.service.UpdateStatus(ctx.Request.Context(), jwtutil.GetUid(ctx), params.ArticleId, 2)
+	err := c.service.UpdateStatus(ctx.Context.Request.Context(), jwtutil.GetUid(ctx.Context), params.ArticleId, 2)
 	if err != nil {
-		return ichat.BusinessError(ctx, err)
+		return ctx.BusinessError(err.Error())
 	}
 
-	return ichat.Success(ctx, nil)
+	return ctx.Success(nil)
 }
 
 // Recover 恢复文章
-func (c *Article) Recover(ctx *gin.Context) error {
+func (c *Article) Recover(ctx *ichat.Context) error {
 	params := &web.ArticleRecoverRequest{}
-	if err := ctx.ShouldBind(params); err != nil {
-		return ichat.InvalidParams(ctx, err)
+	if err := ctx.Context.ShouldBind(params); err != nil {
+		return ctx.InvalidParams(err)
 	}
 
-	err := c.service.UpdateStatus(ctx.Request.Context(), jwtutil.GetUid(ctx), params.ArticleId, 1)
+	err := c.service.UpdateStatus(ctx.Context.Request.Context(), jwtutil.GetUid(ctx.Context), params.ArticleId, 1)
 	if err != nil {
-		return ichat.BusinessError(ctx, err)
+		return ctx.BusinessError(err.Error())
 	}
 
-	return ichat.Success(ctx, nil)
+	return ctx.Success(nil)
 }
 
 // Upload 文章图片上传
-func (c *Article) Upload(ctx *gin.Context) error {
-	file, err := ctx.FormFile("image")
+func (c *Article) Upload(ctx *ichat.Context) error {
+	file, err := ctx.Context.FormFile("image")
 	if err != nil {
-		return ichat.InvalidParams(ctx, "image 字段必传！")
+		return ctx.InvalidParams("image 字段必传！")
 	}
 
 	if !sliceutil.InStr(strutil.FileSuffix(file.Filename), []string{"png", "jpg", "jpeg", "gif", "webp"}) {
-		return ichat.InvalidParams(ctx, "上传文件格式不正确,仅支持 png、jpg、jpeg、gif 和 webp")
+		return ctx.InvalidParams("上传文件格式不正确,仅支持 png、jpg、jpeg、gif 和 webp")
 	}
 
 	// 判断上传文件大小（5M）
 	if file.Size > 5<<20 {
-		return ichat.InvalidParams(ctx, "上传文件大小不能超过5M！")
+		return ctx.InvalidParams("上传文件大小不能超过5M！")
 	}
 
 	stream, err := filesystem.ReadMultipartStream(file)
 	if err != nil {
-		return ichat.BusinessError(ctx, "文件上传失败")
+		return ctx.BusinessError("文件上传失败")
 	}
 
 	ext := strutil.FileSuffix(file.Filename)
@@ -216,64 +215,64 @@ func (c *Article) Upload(ctx *gin.Context) error {
 	filePath := fmt.Sprintf("public/media/image/note/%s/%s", timeutil.DateNumber(), strutil.GenImageName(ext, m.Width, m.Height))
 
 	if err := c.fileSystem.Default.Write(stream, filePath); err != nil {
-		return ichat.BusinessError(ctx, "文件上传失败")
+		return ctx.BusinessError("文件上传失败")
 	}
 
-	return ichat.Success(ctx, entity.H{"url": c.fileSystem.Default.PublicUrl(filePath)})
+	return ctx.Success(entity.H{"url": c.fileSystem.Default.PublicUrl(filePath)})
 }
 
 // Move 文章移动
-func (c *Article) Move(ctx *gin.Context) error {
+func (c *Article) Move(ctx *ichat.Context) error {
 	params := &web.ArticleMoveRequest{}
-	if err := ctx.ShouldBind(params); err != nil {
-		return ichat.InvalidParams(ctx, err)
+	if err := ctx.Context.ShouldBind(params); err != nil {
+		return ctx.InvalidParams(err)
 	}
 
-	if err := c.service.Move(ctx.Request.Context(), jwtutil.GetUid(ctx), params.ArticleId, params.ClassId); err != nil {
-		return ichat.BusinessError(ctx, err)
+	if err := c.service.Move(ctx.Context.Request.Context(), jwtutil.GetUid(ctx.Context), params.ArticleId, params.ClassId); err != nil {
+		return ctx.BusinessError(err.Error())
 	}
 
-	return ichat.Success(ctx, nil)
+	return ctx.Success(nil)
 }
 
 // Asterisk 标记文章
-func (c Article) Asterisk(ctx *gin.Context) error {
+func (c Article) Asterisk(ctx *ichat.Context) error {
 	params := &web.ArticleAsteriskRequest{}
-	if err := ctx.ShouldBind(params); err != nil {
-		return ichat.InvalidParams(ctx, err)
+	if err := ctx.Context.ShouldBind(params); err != nil {
+		return ctx.InvalidParams(err)
 	}
 
-	if err := c.service.Asterisk(ctx.Request.Context(), jwtutil.GetUid(ctx), params.ArticleId, params.Type); err != nil {
-		return ichat.BusinessError(ctx, err)
+	if err := c.service.Asterisk(ctx.Context.Request.Context(), jwtutil.GetUid(ctx.Context), params.ArticleId, params.Type); err != nil {
+		return ctx.BusinessError(err.Error())
 	}
 
-	return ichat.Success(ctx, nil)
+	return ctx.Success(nil)
 }
 
 // Tag 文章标签
-func (c *Article) Tag(ctx *gin.Context) error {
+func (c *Article) Tag(ctx *ichat.Context) error {
 	params := &web.ArticleTagsRequest{}
-	if err := ctx.ShouldBind(params); err != nil {
-		return ichat.InvalidParams(ctx, err)
+	if err := ctx.Context.ShouldBind(params); err != nil {
+		return ctx.InvalidParams(err)
 	}
 
-	if err := c.service.Tag(ctx.Request.Context(), jwtutil.GetUid(ctx), params.ArticleId, params.Tags); err != nil {
-		return ichat.BusinessError(ctx, err)
+	if err := c.service.Tag(ctx.Context.Request.Context(), jwtutil.GetUid(ctx.Context), params.ArticleId, params.Tags); err != nil {
+		return ctx.BusinessError(err.Error())
 	}
 
-	return ichat.Success(ctx, nil)
+	return ctx.Success(nil)
 }
 
 // ForeverDelete 永久删除文章
-func (c *Article) ForeverDelete(ctx *gin.Context) error {
+func (c *Article) ForeverDelete(ctx *ichat.Context) error {
 	params := &web.ArticleForeverDeleteRequest{}
-	if err := ctx.ShouldBind(params); err != nil {
-		return ichat.InvalidParams(ctx, err)
+	if err := ctx.Context.ShouldBind(params); err != nil {
+		return ctx.InvalidParams(err)
 	}
 
-	if err := c.service.ForeverDelete(ctx.Request.Context(), jwtutil.GetUid(ctx), params.ArticleId); err != nil {
-		return ichat.BusinessError(ctx, err)
+	if err := c.service.ForeverDelete(ctx.Context.Request.Context(), jwtutil.GetUid(ctx.Context), params.ArticleId); err != nil {
+		return ctx.BusinessError(err.Error())
 	}
 
-	return ichat.Success(ctx, nil)
+	return ctx.Success(nil)
 }

@@ -13,17 +13,11 @@ func NewTest() *Test {
 }
 
 func (c *Test) Success(ctx *ichat.Context) error {
-
-	return ctx.Success(web.AuthLoginResponse{
-		Type:        "1111",
-		AccessToken: "222",
-		ExpiresIn:   13,
+	return ctx.Success(&web.AuthLoginResponse{
+		Type:        "",
+		AccessToken: "",
+		ExpiresIn:   15,
 	})
-	// return ctx.Success(&web.AuthLoginResponse{
-	// 	Type:        "",
-	// 	AccessToken: "",
-	// 	ExpiresIn:   15,
-	// })
 }
 
 func (c *Test) Raw(ctx *ichat.Context) error {
@@ -31,7 +25,9 @@ func (c *Test) Raw(ctx *ichat.Context) error {
 }
 
 func (c *Test) Error(ctx *ichat.Context) error {
-	return ctx.Error("maskjfank")
+	return ctx.WithMeta(map[string]interface{}{
+		"name": "maskjfank",
+	}).BusinessError("业务错误")
 }
 
 func (c *Test) Invalid(ctx *ichat.Context) error {
@@ -39,7 +35,7 @@ func (c *Test) Invalid(ctx *ichat.Context) error {
 }
 
 func (c *Test) WithData(ctx *ichat.Context) error {
-	return ctx.WithData(map[string]interface{}{
+	return ctx.WithMeta(map[string]interface{}{
 		"name": "maskjfank",
 	}).Error("maskjfank")
 }

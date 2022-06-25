@@ -1,7 +1,6 @@
 package article
 
 import (
-	"github.com/gin-gonic/gin"
 	"go-chat/internal/entity"
 	"go-chat/internal/http/internal/dto/web"
 	"go-chat/internal/pkg/ichat"
@@ -18,52 +17,52 @@ func NewTagHandler(service *note.ArticleTagService) *Tag {
 }
 
 // List 标签列表
-func (c *Tag) List(ctx *gin.Context) error {
-	items, err := c.service.List(ctx.Request.Context(), jwtutil.GetUid(ctx))
+func (c *Tag) List(ctx *ichat.Context) error {
+	items, err := c.service.List(ctx.Context.Request.Context(), jwtutil.GetUid(ctx.Context))
 	if err != nil {
-		return ichat.BusinessError(ctx, err)
+		return ctx.BusinessError(err)
 	}
 
-	return ichat.Success(ctx, entity.H{"tags": items})
+	return ctx.Success(entity.H{"tags": items})
 }
 
 // Edit 添加或修改标签
-func (c *Tag) Edit(ctx *gin.Context) error {
+func (c *Tag) Edit(ctx *ichat.Context) error {
 	var (
 		err    error
 		params = &web.ArticleTagEditRequest{}
-		uid    = jwtutil.GetUid(ctx)
+		uid    = jwtutil.GetUid(ctx.Context)
 	)
 
-	if err = ctx.ShouldBind(params); err != nil {
-		return ichat.InvalidParams(ctx, err)
+	if err = ctx.Context.ShouldBind(params); err != nil {
+		return ctx.InvalidParams(err)
 	}
 
 	if params.TagId == 0 {
-		params.TagId, err = c.service.Create(ctx.Request.Context(), uid, params.TagName)
+		params.TagId, err = c.service.Create(ctx.Context.Request.Context(), uid, params.TagName)
 	} else {
-		err = c.service.Update(ctx.Request.Context(), uid, params.TagId, params.TagName)
+		err = c.service.Update(ctx.Context.Request.Context(), uid, params.TagId, params.TagName)
 	}
 
 	if err != nil {
-		return ichat.BusinessError(ctx, "笔记标签编辑失败")
+		return ctx.BusinessError("笔记标签编辑失败")
 	}
 
-	return ichat.Success(ctx, entity.H{"id": params.TagId})
+	return ctx.Success(entity.H{"id": params.TagId})
 }
 
 // Delete 删除标签
-func (c *Tag) Delete(ctx *gin.Context) error {
+func (c *Tag) Delete(ctx *ichat.Context) error {
+
 	params := &web.ArticleTagDeleteRequest{}
-
-	if err := ctx.ShouldBind(params); err != nil {
-		return ichat.InvalidParams(ctx, err)
+	if err := ctx.Context.ShouldBind(params); err != nil {
+		return ctx.InvalidParams(err)
 	}
 
-	err := c.service.Delete(ctx.Request.Context(), jwtutil.GetUid(ctx), params.TagId)
+	err := c.service.Delete(ctx.Context.Request.Context(), jwtutil.GetUid(ctx.Context), params.TagId)
 	if err != nil {
-		return ichat.BusinessError(ctx, err)
+		return ctx.BusinessError(err)
 	}
 
-	return ichat.Success(ctx, nil, "删除成功")
+	return ctx.Success(nil)
 }

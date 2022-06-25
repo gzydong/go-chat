@@ -5,7 +5,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/gin-gonic/gin"
 	"go-chat/internal/cache"
 	"go-chat/internal/entity"
 	"go-chat/internal/http/internal/dto/web"
@@ -57,12 +56,13 @@ func NewTalkHandler(
 }
 
 // List 会话列表
-func (c *Talk) List(ctx *gin.Context) error {
-	uid := jwtutil.GetUid(ctx)
+func (c *Talk) List(ctx *ichat.Context) error {
 
-	data, err := c.talkListService.List(ctx.Request.Context(), uid)
+	uid := jwtutil.GetUid(ctx.Context)
+
+	data, err := c.talkListService.List(ctx.Context.Request.Context(), uid)
 	if err != nil {
-		return ichat.BusinessError(ctx, err)
+		return ctx.BusinessError(err.Error())
 	}
 
 	friends := make([]int, 0)
@@ -72,9 +72,9 @@ func (c *Talk) List(ctx *gin.Context) error {
 		}
 	}
 
-	remarks, err := c.contactService.Dao().GetFriendRemarks(ctx, uid, friends)
+	remarks, err := c.contactService.Dao().GetFriendRemarks(ctx.Context, uid, friends)
 	if err != nil {
-		return ichat.BusinessError(ctx, err)
+		return ctx.BusinessError(err.Error())
 	}
 
 	items := make([]*web.TalkListItem, 0)
@@ -96,15 +96,15 @@ func (c *Talk) List(ctx *gin.Context) error {
 			value.Name = item.Nickname
 			value.Avatar = item.UserAvatar
 			value.RemarkName = remarks[item.ReceiverId]
-			value.UnreadNum = int32(c.unreadTalkCache.Get(ctx.Request.Context(), item.ReceiverId, uid))
-			value.IsOnline = int32(strutil.BoolToInt(c.wsClient.IsOnline(ctx, entity.ImChannelDefault, strconv.Itoa(int(value.ReceiverId)))))
+			value.UnreadNum = int32(c.unreadTalkCache.Get(ctx.Context.Request.Context(), item.ReceiverId, uid))
+			value.IsOnline = int32(strutil.BoolToInt(c.wsClient.IsOnline(ctx.Context, entity.ImChannelDefault, strconv.Itoa(int(value.ReceiverId)))))
 		} else {
 			value.Name = item.GroupName
 			value.Avatar = item.GroupAvatar
 		}
 
 		// 查询缓存消息
-		if msg, err := c.lastMessage.Get(ctx.Request.Context(), item.TalkType, uid, item.ReceiverId); err == nil {
+		if msg, err := c.lastMessage.Get(ctx.Context.Request.Context(), item.TalkType, uid, item.ReceiverId); err == nil {
 			value.MsgText = msg.Content
 			value.UpdatedAt = msg.Datetime
 		}
@@ -112,21 +112,21 @@ func (c *Talk) List(ctx *gin.Context) error {
 		items = append(items, value)
 	}
 
-	return ichat.Success(ctx, &web.GetTalkListResponse{
+	return ctx.Success(&web.GetTalkListResponse{
 		Items: items,
 	})
 }
 
 // Create 创建会话列表
-func (c *Talk) Create(ctx *gin.Context) error {
+func (c *Talk) Create(ctx *ichat.Context) error {
 	var (
 		params = &web.CreateTalkListRequest{}
-		uid    = jwtutil.GetUid(ctx)
-		agent  = strings.TrimSpace(ctx.GetHeader("user-agent"))
+		uid    = jwtutil.GetUid(ctx.Context)
+		agent  = strings.TrimSpace(ctx.Context.GetHeader("user-agent"))
 	)
 
-	if err := ctx.ShouldBind(params); err != nil {
-		return ichat.InvalidParams(ctx, err)
+	if err := ctx.Context.ShouldBind(params); err != nil {
+		return ctx.InvalidParams(err)
 	}
 
 	if agent != "" {
@@ -134,31 +134,31 @@ func (c *Talk) Create(ctx *gin.Context) error {
 	}
 
 	// 判断对方是否是自己
-	if params.TalkType == entity.ChatPrivateMode && params.ReceiverId == jwtutil.GetUid(ctx) {
-		return ichat.BusinessError(ctx, "创建失败")
+	if params.TalkType == entity.ChatPrivateMode && params.ReceiverId == jwtutil.GetUid(ctx.Context) {
+		return ctx.BusinessError("创建失败")
 	}
 
 	key := fmt.Sprintf("talk:list:%d-%d-%d-%s", uid, params.ReceiverId, params.TalkType, agent)
-	if !c.redisLock.Lock(ctx.Request.Context(), key, 10) {
-		return ichat.BusinessError(ctx, "创建失败")
+	if !c.redisLock.Lock(ctx.Context.Request.Context(), key, 10) {
+		return ctx.BusinessError("创建失败")
 	}
 
 	// 暂无权限
-	if !c.authPermission.IsAuth(ctx.Request.Context(), &service.AuthPermission{
+	if !c.authPermission.IsAuth(ctx.Context.Request.Context(), &service.AuthPermission{
 		TalkType:   params.TalkType,
 		UserId:     uid,
 		ReceiverId: params.ReceiverId,
 	}) {
-		return ichat.BusinessError(ctx, "暂无权限！")
+		return ctx.BusinessError("暂无权限！")
 	}
 
-	result, err := c.talkListService.Create(ctx.Request.Context(), &service.TalkSessionCreateOpts{
+	result, err := c.talkListService.Create(ctx.Context.Request.Context(), &service.TalkSessionCreateOpts{
 		UserId:     uid,
 		TalkType:   params.TalkType,
 		ReceiverId: params.ReceiverId,
 	})
 	if err != nil {
-		return ichat.BusinessError(ctx, err)
+		return ctx.BusinessError(err.Error())
 	}
 
 	item := &web.TalkListItem{
@@ -170,8 +170,8 @@ func (c *Talk) Create(ctx *gin.Context) error {
 	}
 
 	if item.TalkType == entity.ChatPrivateMode {
-		item.UnreadNum = int32(c.unreadTalkCache.Get(ctx.Request.Context(), params.ReceiverId, uid))
-		item.RemarkName = c.contactService.Dao().GetFriendRemark(ctx.Request.Context(), uid, params.ReceiverId, true)
+		item.UnreadNum = int32(c.unreadTalkCache.Get(ctx.Context.Request.Context(), params.ReceiverId, uid))
+		item.RemarkName = c.contactService.Dao().GetFriendRemark(ctx.Context.Request.Context(), uid, params.ReceiverId, true)
 
 		if user, err := c.userService.Dao().FindById(result.ReceiverId); err == nil {
 			item.Name = user.Nickname
@@ -184,77 +184,79 @@ func (c *Talk) Create(ctx *gin.Context) error {
 	}
 
 	// 查询缓存消息
-	if msg, err := c.lastMessage.Get(ctx.Request.Context(), result.TalkType, uid, result.ReceiverId); err == nil {
+	if msg, err := c.lastMessage.Get(ctx.Context.Request.Context(), result.TalkType, uid, result.ReceiverId); err == nil {
 		item.MsgText = msg.Content
 		item.UpdatedAt = msg.Datetime
 	}
 
-	return ichat.Success(ctx, &web.CreateTalkListResponse{
+	return ctx.Success(&web.CreateTalkListResponse{
 		Item: item,
 	})
 }
 
 // Delete 删除列表
-func (c *Talk) Delete(ctx *gin.Context) error {
+func (c *Talk) Delete(ctx *ichat.Context) error {
 	params := &web.DeleteTalkListRequest{}
-	if err := ctx.ShouldBind(params); err != nil {
-		return ichat.InvalidParams(ctx, err)
+	if err := ctx.Context.ShouldBind(params); err != nil {
+		return ctx.InvalidParams(err)
 	}
 
-	if err := c.talkListService.Delete(ctx, jwtutil.GetUid(ctx), params.Id); err != nil {
-		return ichat.BusinessError(ctx, err)
+	if err := c.talkListService.Delete(ctx.Context, jwtutil.GetUid(ctx.Context), params.Id); err != nil {
+		return ctx.BusinessError(err.Error())
 	}
 
-	return ichat.Success(ctx, &web.DeleteTalkListResponse{})
+	return ctx.Success(&web.DeleteTalkListResponse{})
 }
 
 // Top 置顶列表
-func (c *Talk) Top(ctx *gin.Context) error {
+func (c *Talk) Top(ctx *ichat.Context) error {
 	params := &web.TopTalkListRequest{}
-	if err := ctx.ShouldBind(params); err != nil {
-		return ichat.InvalidParams(ctx, err)
+	if err := ctx.Context.ShouldBind(params); err != nil {
+		return ctx.InvalidParams(err)
 	}
 
-	if err := c.talkListService.Top(ctx, &service.TalkSessionTopOpts{
-		UserId: jwtutil.GetUid(ctx),
+	if err := c.talkListService.Top(ctx.Context, &service.TalkSessionTopOpts{
+		UserId: jwtutil.GetUid(ctx.Context),
 		Id:     params.Id,
 		Type:   params.Type,
 	}); err != nil {
-		return ichat.BusinessError(ctx, err)
+		return ctx.BusinessError(err.Error())
 	}
 
-	return ichat.Success(ctx, &web.TopTalkListResponse{})
+	return ctx.Success(&web.TopTalkListResponse{})
 }
 
 // Disturb 会话免打扰
-func (c *Talk) Disturb(ctx *gin.Context) error {
+func (c *Talk) Disturb(ctx *ichat.Context) error {
+
 	params := &web.DisturbTalkListRequest{}
-	if err := ctx.ShouldBind(params); err != nil {
-		return ichat.InvalidParams(ctx, err)
+	if err := ctx.Context.ShouldBind(params); err != nil {
+		return ctx.InvalidParams(err)
 	}
 
-	if err := c.talkListService.Disturb(ctx, &service.TalkSessionDisturbOpts{
-		UserId:     jwtutil.GetUid(ctx),
+	if err := c.talkListService.Disturb(ctx.Context, &service.TalkSessionDisturbOpts{
+		UserId:     jwtutil.GetUid(ctx.Context),
 		TalkType:   params.TalkType,
 		ReceiverId: params.ReceiverId,
 		IsDisturb:  params.IsDisturb,
 	}); err != nil {
-		return ichat.BusinessError(ctx, err)
+		return ctx.BusinessError(err.Error())
 	}
 
-	return ichat.Success(ctx, &web.DisturbTalkListResponse{})
+	return ctx.Success(&web.DisturbTalkListResponse{})
 }
 
-func (c *Talk) ClearUnreadMessage(ctx *gin.Context) error {
+func (c *Talk) ClearUnreadMessage(ctx *ichat.Context) error {
+
 	params := &web.ClearTalkUnreadNumRequest{}
-	if err := ctx.ShouldBind(params); err != nil {
-		return ichat.InvalidParams(ctx, err)
+	if err := ctx.Context.ShouldBind(params); err != nil {
+		return ctx.InvalidParams(err)
 	}
 
-	uid := jwtutil.GetUid(ctx)
+	uid := jwtutil.GetUid(ctx.Context)
 	if params.TalkType == 1 {
-		c.unreadTalkCache.Reset(ctx.Request.Context(), params.ReceiverId, uid)
+		c.unreadTalkCache.Reset(ctx.Context.Request.Context(), params.ReceiverId, uid)
 	}
 
-	return ichat.Success(ctx, &web.ClearTalkUnreadNumResponse{})
+	return ctx.Success(&web.ClearTalkUnreadNumResponse{})
 }

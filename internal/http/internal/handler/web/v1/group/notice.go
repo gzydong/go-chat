@@ -1,7 +1,6 @@
 package group
 
 import (
-	"github.com/gin-gonic/gin"
 	"go-chat/internal/entity"
 	"go-chat/internal/http/internal/dto/web"
 	"go-chat/internal/pkg/ichat"
@@ -21,10 +20,11 @@ func NewGroupNoticeHandler(service *service.GroupNoticeService, member *service.
 }
 
 // CreateAndUpdate 添加或编辑群公告
-func (c *Notice) CreateAndUpdate(ctx *gin.Context) error {
+func (c *Notice) CreateAndUpdate(ctx *ichat.Context) error {
+
 	params := &web.GroupNoticeEditRequest{}
-	if err := ctx.ShouldBind(params); err != nil {
-		return ichat.InvalidParams(ctx, err)
+	if err := ctx.Context.ShouldBind(params); err != nil {
+		return ctx.InvalidParams(err)
 	}
 
 	var (
@@ -32,14 +32,14 @@ func (c *Notice) CreateAndUpdate(ctx *gin.Context) error {
 		err error
 	)
 
-	uid := jwtutil.GetUid(ctx)
+	uid := jwtutil.GetUid(ctx.Context)
 
 	if !c.member.Dao().IsLeader(params.GroupId, uid) {
-		return ichat.BusinessError(ctx, "无权限操作")
+		return ctx.BusinessError("无权限操作")
 	}
 
 	if params.NoticeId == 0 {
-		err = c.service.Create(ctx.Request.Context(), &service.GroupNoticeEditOpts{
+		err = c.service.Create(ctx.Context.Request.Context(), &service.GroupNoticeEditOpts{
 			UserId:    uid,
 			GroupId:   params.GroupId,
 			NoticeId:  params.NoticeId,
@@ -50,7 +50,7 @@ func (c *Notice) CreateAndUpdate(ctx *gin.Context) error {
 		})
 		msg = "添加群公告成功！"
 	} else {
-		err = c.service.Update(ctx.Request.Context(), &service.GroupNoticeEditOpts{
+		err = c.service.Update(ctx.Context.Request.Context(), &service.GroupNoticeEditOpts{
 			GroupId:   params.GroupId,
 			NoticeId:  params.NoticeId,
 			Title:     params.Title,
@@ -62,39 +62,41 @@ func (c *Notice) CreateAndUpdate(ctx *gin.Context) error {
 	}
 
 	if err != nil {
-		return ichat.BusinessError(ctx, err)
+		return ctx.BusinessError(err.Error())
 	}
 
-	return ichat.Success(ctx, nil, msg)
+	return ctx.Success(nil, msg)
 }
 
 // Delete 删除群公告
-func (c *Notice) Delete(ctx *gin.Context) error {
+func (c *Notice) Delete(ctx *ichat.Context) error {
+
 	params := &web.GroupNoticeCommonRequest{}
-	if err := ctx.ShouldBind(params); err != nil {
-		return ichat.InvalidParams(ctx, err)
+	if err := ctx.Context.ShouldBind(params); err != nil {
+		return ctx.InvalidParams(err)
 	}
 
-	if err := c.service.Delete(ctx, params.GroupId, params.NoticeId); err != nil {
-		return ichat.BusinessError(ctx, err)
+	if err := c.service.Delete(ctx.Context, params.GroupId, params.NoticeId); err != nil {
+		return ctx.BusinessError(err.Error())
 	}
 
-	return ichat.Success(ctx, nil, "群公告删除成功！")
+	return ctx.Success(nil, "群公告删除成功！")
 }
 
 // List 获取群公告列表(所有)
-func (c *Notice) List(ctx *gin.Context) error {
+func (c *Notice) List(ctx *ichat.Context) error {
+
 	params := &web.GroupNoticeListRequest{}
-	if err := ctx.ShouldBindQuery(params); err != nil {
-		return ichat.InvalidParams(ctx, err)
+	if err := ctx.Context.ShouldBindQuery(params); err != nil {
+		return ctx.InvalidParams(err)
 	}
 
 	// 判断是否是群成员
-	if !c.member.Dao().IsMember(params.GroupId, jwtutil.GetUid(ctx), true) {
-		return ichat.BusinessError(ctx, "无获取数据权限！")
+	if !c.member.Dao().IsMember(params.GroupId, jwtutil.GetUid(ctx.Context), true) {
+		return ctx.BusinessError("无获取数据权限！")
 	}
 
-	items, _ := c.service.Dao().GetListAll(ctx, params.GroupId)
+	items, _ := c.service.Dao().GetListAll(ctx.Context, params.GroupId)
 
 	rows := make([]*entity.H, 0)
 	for i := 0; i < len(items); i++ {
@@ -113,7 +115,5 @@ func (c *Notice) List(ctx *gin.Context) error {
 		rows = append(rows, &row)
 	}
 
-	return ichat.Success(ctx, entity.H{
-		"rows": rows,
-	})
+	return ctx.Success(entity.H{"items": rows})
 }

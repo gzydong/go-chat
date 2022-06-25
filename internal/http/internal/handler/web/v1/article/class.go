@@ -1,12 +1,9 @@
 package article
 
 import (
-	"github.com/gin-gonic/gin"
 	"go-chat/internal/entity"
 	"go-chat/internal/http/internal/dto/web"
 	"go-chat/internal/pkg/ichat"
-	"go-chat/internal/pkg/logger"
-
 	"go-chat/internal/pkg/jwtutil"
 	"go-chat/internal/service/note"
 )
@@ -20,70 +17,70 @@ func NewClassHandler(service *note.ArticleClassService) *Class {
 }
 
 // List 分类列表
-func (c *Class) List(ctx *gin.Context) error {
-	items, err := c.service.List(ctx.Request.Context(), jwtutil.GetUid(ctx))
+func (c *Class) List(ctx *ichat.Context) error {
 
+	items, err := c.service.List(ctx.Context.Request.Context(), jwtutil.GetUid(ctx.Context))
 	if err != nil {
-		return ichat.BusinessError(ctx, err)
+		return ctx.BusinessError(err.Error())
 	}
 
-	return ichat.Success(ctx, entity.H{"rows": items})
+	return ctx.Paginate(items, 1, 100000, len(items))
 }
 
 // Edit 添加或修改分类
-func (c *Class) Edit(ctx *gin.Context) error {
+func (c *Class) Edit(ctx *ichat.Context) error {
+
 	var (
 		err    error
 		params = &web.ArticleClassEditRequest{}
-		uid    = jwtutil.GetUid(ctx)
+		uid    = jwtutil.GetUid(ctx.Context)
 	)
 
-	if err = ctx.ShouldBind(params); err != nil {
-		return ichat.InvalidParams(ctx, err)
+	if err = ctx.Context.ShouldBind(params); err != nil {
+		return ctx.InvalidParams(err)
 	}
 
 	if params.ClassId == 0 {
-		params.ClassId, err = c.service.Create(ctx.Request.Context(), uid, params.ClassName)
+		params.ClassId, err = c.service.Create(ctx.Context.Request.Context(), uid, params.ClassName)
 	} else {
-		err = c.service.Update(ctx.Request.Context(), uid, params.ClassId, params.ClassName)
+		err = c.service.Update(ctx.Context.Request.Context(), uid, params.ClassId, params.ClassName)
 	}
 
 	if err != nil {
-		logger.Error("笔记分类编辑失败", err)
-		return ichat.BusinessError(ctx, "笔记分类编辑失败")
+		return ctx.BusinessError("笔记分类编辑失败")
 	}
 
-	return ichat.Success(ctx, entity.H{"id": params.ClassId})
+	return ctx.Success(entity.H{"id": params.ClassId})
 }
 
 // Delete 删除分类
-func (c *Class) Delete(ctx *gin.Context) error {
+func (c *Class) Delete(ctx *ichat.Context) error {
+
 	params := &web.ArticleClassDeleteRequest{}
-
-	if err := ctx.ShouldBind(params); err != nil {
-		return ichat.InvalidParams(ctx, err)
+	if err := ctx.Context.ShouldBind(params); err != nil {
+		return ctx.InvalidParams(err)
 	}
 
-	err := c.service.Delete(ctx.Request.Context(), jwtutil.GetUid(ctx), params.ClassId)
+	err := c.service.Delete(ctx.Context.Request.Context(), jwtutil.GetUid(ctx.Context), params.ClassId)
 	if err != nil {
-		return ichat.BusinessError(ctx, err)
+		return ctx.BusinessError(err.Error())
 	}
 
-	return ichat.Success(ctx, nil, "删除成功")
+	return ctx.Success(nil)
 }
 
 // Sort 删除分类
-func (c *Class) Sort(ctx *gin.Context) error {
+func (c *Class) Sort(ctx *ichat.Context) error {
+
 	params := &web.ArticleClassSortRequest{}
-
-	if err := ctx.ShouldBind(params); err != nil {
-		return ichat.InvalidParams(ctx, err)
+	if err := ctx.Context.ShouldBind(params); err != nil {
+		return ctx.InvalidParams(err)
 	}
 
-	err := c.service.Sort(ctx.Request.Context(), jwtutil.GetUid(ctx), params.ClassId, params.SortType)
+	err := c.service.Sort(ctx.Context.Request.Context(), jwtutil.GetUid(ctx.Context), params.ClassId, params.SortType)
 	if err != nil {
-		return ichat.BusinessError(ctx, err)
+		return ctx.BusinessError(err.Error())
 	}
 
-	return ichat.Success(ctx, nil, "操作成功")
+	return ctx.Success(nil)
 }

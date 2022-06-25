@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/gin-gonic/gin"
 	"go-chat/config"
 	"go-chat/internal/entity"
 	"go-chat/internal/http/internal/dto/web"
@@ -34,73 +33,74 @@ func NewUploadHandler(
 }
 
 // Avatar 头像上传上传
-func (u *Upload) Avatar(ctx *gin.Context) error {
+func (u *Upload) Avatar(ctx *ichat.Context) error {
 
-	file, err := ctx.FormFile("file")
+	file, err := ctx.Context.FormFile("file")
 	if err != nil {
-		return ichat.InvalidParams(ctx, "文件上传失败！")
+		return ctx.InvalidParams("文件上传失败！")
 	}
 
 	stream, _ := filesystem.ReadMultipartStream(file)
 	object := fmt.Sprintf("public/media/image/avatar/%s/%s", time.Now().Format("20060102"), strutil.GenImageName("png", 200, 200))
 
 	if err := u.filesystem.Default.Write(stream, object); err != nil {
-		return ichat.BusinessError(ctx, "文件上传失败")
+		return ctx.BusinessError("文件上传失败")
 	}
 
-	return ichat.Success(ctx, entity.H{
+	return ctx.Success(entity.H{
 		"avatar": u.filesystem.Default.PublicUrl(object),
 	})
 }
 
 // InitiateMultipart 批量上传初始化
-func (u *Upload) InitiateMultipart(ctx *gin.Context) error {
+func (u *Upload) InitiateMultipart(ctx *ichat.Context) error {
+
 	params := &web.UploadInitiateMultipartRequest{}
-	if err := ctx.ShouldBind(params); err != nil {
-		return ichat.InvalidParams(ctx, err)
+	if err := ctx.Context.ShouldBind(params); err != nil {
+		return ctx.InvalidParams(err)
 	}
 
-	info, err := u.service.InitiateMultipartUpload(ctx.Request.Context(), &service.MultipartInitiateOpts{
+	info, err := u.service.InitiateMultipartUpload(ctx.Context.Request.Context(), &service.MultipartInitiateOpts{
 		Name:   params.FileName,
 		Size:   params.FileSize,
-		UserId: jwtutil.GetUid(ctx),
+		UserId: jwtutil.GetUid(ctx.Context),
 	})
 	if err != nil {
-		return ichat.BusinessError(ctx, err)
+		return ctx.BusinessError(err.Error())
 	}
 
-	return ichat.Success(ctx, entity.H{
+	return ctx.Success(entity.H{
 		"upload_id":  info.UploadId,
 		"split_size": 2 << 20,
 	})
 }
 
 // MultipartUpload 批量分片上传
-func (u *Upload) MultipartUpload(ctx *gin.Context) error {
+func (u *Upload) MultipartUpload(ctx *ichat.Context) error {
 	params := &web.UploadMultipartRequest{}
-	if err := ctx.ShouldBind(params); err != nil {
-		return ichat.InvalidParams(ctx, err)
+	if err := ctx.Context.ShouldBind(params); err != nil {
+		return ctx.InvalidParams(err)
 	}
 
-	file, err := ctx.FormFile("file")
+	file, err := ctx.Context.FormFile("file")
 	if err != nil {
-		return ichat.InvalidParams(ctx, "文件上传失败！")
+		return ctx.InvalidParams("文件上传失败！")
 	}
 
-	err = u.service.MultipartUpload(ctx.Request.Context(), &service.MultipartUploadOpts{
-		UserId:     jwtutil.GetUid(ctx),
+	err = u.service.MultipartUpload(ctx.Context.Request.Context(), &service.MultipartUploadOpts{
+		UserId:     jwtutil.GetUid(ctx.Context),
 		UploadId:   params.UploadId,
 		SplitIndex: params.SplitIndex,
 		SplitNum:   params.SplitNum,
 		File:       file,
 	})
 	if err != nil {
-		return ichat.BusinessError(ctx, err)
+		return ctx.BusinessError(err.Error())
 	}
 
 	if params.SplitIndex != params.SplitNum-1 {
-		return ichat.Success(ctx, entity.H{"is_merge": false})
+		return ctx.Success(entity.H{"is_merge": false})
 	}
 
-	return ichat.Success(ctx, entity.H{"is_merge": true, "upload_id": params.UploadId})
+	return ctx.Success(entity.H{"is_merge": true, "upload_id": params.UploadId})
 }

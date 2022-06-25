@@ -4,7 +4,6 @@ import (
 	"errors"
 	"strconv"
 
-	"github.com/gin-gonic/gin"
 	"go-chat/internal/http/internal/dto/web"
 	"go-chat/internal/pkg/ichat"
 	"go-chat/internal/service/organize"
@@ -45,34 +44,35 @@ func NewContactHandler(
 }
 
 // List 联系人列表
-func (c *Contact) List(ctx *gin.Context) error {
-	items, err := c.service.List(ctx, jwtutil.GetUid(ctx))
+func (c *Contact) List(ctx *ichat.Context) error {
+	items, err := c.service.List(ctx.Context, jwtutil.GetUid(ctx.Context))
 
 	if err != nil {
-		return ichat.BusinessError(ctx, err)
+		return ctx.BusinessError(err.Error())
 	}
 
 	for _, item := range items {
-		item.IsOnline = strutil.BoolToInt(c.wsClient.IsOnline(ctx, entity.ImChannelDefault, strconv.Itoa(item.Id)))
+		item.IsOnline = strutil.BoolToInt(c.wsClient.IsOnline(ctx.Context, entity.ImChannelDefault, strconv.Itoa(item.Id)))
 	}
 
-	return ichat.Success(ctx, items)
+	return ctx.Success(items)
 }
 
 // Delete 删除联系人
-func (c *Contact) Delete(ctx *gin.Context) error {
+func (c *Contact) Delete(ctx *ichat.Context) error {
+
 	params := &web.ContactDeleteRequest{}
-	if err := ctx.ShouldBind(params); err != nil {
-		return ichat.InvalidParams(ctx, err)
+	if err := ctx.Context.ShouldBind(params); err != nil {
+		return ctx.InvalidParams(err)
 	}
 
-	uid := jwtutil.GetUid(ctx)
-	if err := c.service.Delete(ctx, uid, params.FriendId); err != nil {
-		return ichat.BusinessError(ctx, err)
+	uid := jwtutil.GetUid(ctx.Context)
+	if err := c.service.Delete(ctx.Context, uid, params.FriendId); err != nil {
+		return ctx.BusinessError(err.Error())
 	}
 
 	// 解除好友关系后需添加一条聊天记录
-	_ = c.talkMessageService.SendSysMessage(ctx, &service.SysTextMessageOpts{
+	_ = c.talkMessageService.SendSysMessage(ctx.Context, &service.SysTextMessageOpts{
 		UserId:     uid,
 		TalkType:   entity.ChatPrivateMode,
 		ReceiverId: params.FriendId,
@@ -81,30 +81,31 @@ func (c *Contact) Delete(ctx *gin.Context) error {
 
 	// 删除聊天会话
 	sid := c.talkListService.Dao().FindBySessionId(uid, params.FriendId, entity.ChatPrivateMode)
-	if err := c.talkListService.Delete(ctx, jwtutil.GetUid(ctx), sid); err != nil {
-		return ichat.BusinessError(ctx, err)
+	if err := c.talkListService.Delete(ctx.Context, jwtutil.GetUid(ctx.Context), sid); err != nil {
+		return ctx.BusinessError(err.Error())
 	}
 
-	return ichat.Success(ctx, nil)
+	return ctx.Success(nil)
 }
 
 // Search 查找联系人
-func (c *Contact) Search(ctx *gin.Context) error {
+func (c *Contact) Search(ctx *ichat.Context) error {
+
 	params := &web.ContactSearchRequest{}
-	if err := ctx.ShouldBindQuery(params); err != nil {
-		return ichat.InvalidParams(ctx, err)
+	if err := ctx.Context.ShouldBindQuery(params); err != nil {
+		return ctx.InvalidParams(err)
 	}
 
 	user, err := c.userService.Dao().FindByMobile(params.Mobile)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return ichat.BusinessError(ctx, "用户不存在！")
+			return ctx.BusinessError("用户不存在！")
 		}
 
-		return ichat.BusinessError(ctx, err)
+		return ctx.BusinessError(err.Error())
 	}
 
-	return ichat.Success(ctx, entity.H{
+	return ctx.Success(entity.H{
 		"id":       user.Id,
 		"mobile":   user.Mobile,
 		"nickname": user.Nickname,
@@ -115,35 +116,37 @@ func (c *Contact) Search(ctx *gin.Context) error {
 }
 
 // EditRemark 编辑联系人备注
-func (c *Contact) EditRemark(ctx *gin.Context) error {
+func (c *Contact) EditRemark(ctx *ichat.Context) error {
+
 	params := &web.ContactEditRemarkRequest{}
-	if err := ctx.ShouldBind(params); err != nil {
-		return ichat.InvalidParams(ctx, err)
+	if err := ctx.Context.ShouldBind(params); err != nil {
+		return ctx.InvalidParams(err)
 	}
 
-	if err := c.service.EditRemark(ctx, jwtutil.GetUid(ctx), params.FriendId, params.Remarks); err != nil {
-		return ichat.BusinessError(ctx, err)
+	if err := c.service.EditRemark(ctx.Context, jwtutil.GetUid(ctx.Context), params.FriendId, params.Remarks); err != nil {
+		return ctx.BusinessError(err.Error())
 	}
 
-	return ichat.Success(ctx, nil)
+	return ctx.Success(nil)
 }
 
 // Detail 联系人详情信息
-func (c *Contact) Detail(ctx *gin.Context) error {
+func (c *Contact) Detail(ctx *ichat.Context) error {
+
 	params := &web.ContactDetailRequest{}
-	if err := ctx.ShouldBindQuery(params); err != nil {
-		return ichat.InvalidParams(ctx, err)
+	if err := ctx.Context.ShouldBindQuery(params); err != nil {
+		return ctx.InvalidParams(err)
 	}
 
-	uid := jwtutil.GetUid(ctx)
+	uid := jwtutil.GetUid(ctx.Context)
 
 	user, err := c.userService.Dao().FindById(params.UserId)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return ichat.BusinessError(ctx, "用户不存在！")
+			return ctx.BusinessError("用户不存在！")
 		}
 
-		return ichat.BusinessError(ctx, err)
+		return ctx.BusinessError(err.Error())
 	}
 
 	resp := entity.H{
@@ -159,9 +162,9 @@ func (c *Contact) Detail(ctx *gin.Context) error {
 	}
 
 	if uid != params.UserId {
-		if c.service.Dao().IsFriend(ctx.Request.Context(), uid, params.UserId, false) {
+		if c.service.Dao().IsFriend(ctx.Context.Request.Context(), uid, params.UserId, false) {
 			resp["friend_status"] = 2
-			resp["nickname_remark"] = c.service.Dao().GetFriendRemark(ctx.Request.Context(), uid, params.UserId, true)
+			resp["nickname_remark"] = c.service.Dao().GetFriendRemark(ctx.Context.Request.Context(), uid, params.UserId, true)
 		} else {
 			isOk, _ := c.organizeService.Dao().IsQiyeMember(uid, params.UserId)
 			if isOk {
@@ -172,5 +175,5 @@ func (c *Contact) Detail(ctx *gin.Context) error {
 		resp["friend_status"] = 0
 	}
 
-	return ichat.Success(ctx, &resp)
+	return ctx.Success(&resp)
 }
