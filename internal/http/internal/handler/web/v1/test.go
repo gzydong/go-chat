@@ -5,7 +5,9 @@ import (
 	"go-chat/config"
 	"go-chat/internal/pkg/email"
 	"go-chat/internal/pkg/ichat"
+	"go-chat/internal/pkg/utils"
 	"go-chat/internal/tmpl"
+	"gopkg.in/gomail.v2"
 )
 
 type Test struct {
@@ -24,7 +26,7 @@ func (c *Test) Success(ctx *ichat.Context) error {
 		return err
 	}
 
-	body, _ := email.RenderString(string(fileContent), map[string]string{
+	body, _ := utils.RenderString(string(fileContent), map[string]string{
 		"code":         "123456",
 		"service_name": "修改密码",
 		"domain":       "https://im.gzydong.club",
@@ -34,6 +36,8 @@ func (c *Test) Success(ctx *ichat.Context) error {
 		To:      []string{"837215079@qq.com"},
 		Subject: "测试邮件",
 		Body:    body,
+	}, func(msg *gomail.Message) {
+
 	})
 
 	return ctx.Success(&web.AuthLoginResponse{

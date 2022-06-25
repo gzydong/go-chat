@@ -2,16 +2,15 @@ package email
 
 import (
 	"crypto/tls"
-	"fmt"
 
 	"gopkg.in/gomail.v2"
 )
 
 type Client struct {
-	config *MailConfig
+	config *Config
 }
 
-type MailConfig struct {
+type Config struct {
 	Host     string // smtp.163.com
 	Port     int    // 端口号
 	UserName string // 登录账号
@@ -19,40 +18,53 @@ type MailConfig struct {
 	FromName string // 发送人名称
 }
 
-func NewEmail(config *MailConfig) *Client {
-
-	fmt.Println(config)
+func NewEmail(config *Config) *Client {
 	return &Client{
 		config: config,
 	}
 }
 
-type OptionFunc func(message *gomail.Message)
-
 type Option struct {
-	To      []string
-	Subject string
-	Body    string
+	To      []string // 收件人
+	Subject string   // 邮件主题
+	Body    string   // 邮件正文
 }
 
-func (e *Client) SendMail(email *Option, opt ...OptionFunc) error {
+type OptionFunc func(msg *gomail.Message)
+
+func (c *Client) do(msg *gomail.Message) error {
+	dialer := gomail.NewDialer(c.config.Host, c.config.Port, c.config.UserName, c.config.Password)
+
+	// 自动开启SSL
+	dialer.TLSConfig = &tls.Config{InsecureSkipVerify: true}
+
+	return dialer.DialAndSend(msg)
+}
+
+func (c *Client) SendMail(email *Option, opt ...OptionFunc) error {
 	m := gomail.NewMessage()
 
-	fmt.Println(e.config)
+	// 这种方式可以添加别名，即“XX官方”
+	m.SetHeader("From", m.FormatAddress(c.config.UserName, c.config.FromName))
 
-	m.SetHeader("From", m.FormatAddress(e.config.UserName, e.config.FromName)) // 这种方式可以添加别名，即“XX官方”
-	m.SetHeader("To", email.To...)                                             // 发送给多个用户
-	m.SetHeader("Subject", email.Subject)                                      // 设置邮件主题
-	m.SetBody("text/html", email.Body)                                         // 设置邮件正文
+	if len(email.To) > 0 {
+		m.SetHeader("To", email.To...)
+	}
+
+	if len(email.Subject) > 0 {
+		m.SetHeader("Subject", email.Subject)
+	}
+
+	if len(email.Body) > 0 {
+		m.SetBody("text/html", email.Body)
+	}
+
+	// m.SetHeader("Cc", m.FormatAddress("xxxx@foxmail.com", "收件人")) //抄送
+	// m.SetHeader("Bcc", m.FormatAddress("xxxx@gmail.com", "收件人"))  //暗送
 
 	for _, o := range opt {
 		o(m)
 	}
 
-	dialer := gomail.NewDialer(e.config.Host, e.config.Port, e.config.UserName, e.config.Password)
-
-	// 自动开启SSL
-	dialer.TLSConfig = &tls.Config{InsecureSkipVerify: true}
-
-	return dialer.DialAndSend(m)
+	return c.do(m)
 }
