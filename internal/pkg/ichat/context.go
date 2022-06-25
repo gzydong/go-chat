@@ -46,13 +46,13 @@ func (c *Context) InvalidParams(value interface{}) error {
 
 	var msg string
 
-	switch value.(type) {
+	switch val := value.(type) {
 	case error:
-		msg = validation.Translate(value.(error))
+		msg = validation.Translate(val)
 	case string:
-		msg = value.(string)
+		msg = val
 	default:
-		msg = fmt.Sprintf("%v", value)
+		msg = fmt.Sprintf("%v", val)
 	}
 
 	c.Context.JSON(http.StatusOK, &Response{
@@ -73,13 +73,13 @@ func (c *Context) BusinessError(message interface{}) error {
 		Meta:    c.meta,
 	}
 
-	switch message.(type) {
+	switch msg := message.(type) {
 	case error:
-		resp.Message = message.(error).Error()
+		resp.Message = msg.Error()
 	case string:
-		resp.Message = message.(string)
+		resp.Message = msg
 	default:
-		resp.Message = fmt.Sprintf("%v", message)
+		resp.Message = fmt.Sprintf("%v", msg)
 	}
 
 	c.Context.Abort()

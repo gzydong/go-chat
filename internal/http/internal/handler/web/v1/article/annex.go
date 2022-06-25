@@ -115,7 +115,8 @@ func (c *Annex) Recover(ctx *ichat.Context) error {
 	return ctx.Success(entity.H{})
 }
 
-// RecoverList nolint 附件回收站列表
+// RecoverList 附件回收站列表
+// nolit
 func (c *Annex) RecoverList(ctx *ichat.Context) error {
 
 	items, err := c.service.Dao().RecoverList(ctx.Context.Request.Context(), jwtutil.GetUid(ctx.Context))
@@ -128,7 +129,8 @@ func (c *Annex) RecoverList(ctx *ichat.Context) error {
 
 	for _, item := range items {
 
-		at := item.DeletedAt.AddDate(0, 0, 30).Sub(time.Now())
+		at := time.Until(item.DeletedAt.Add(time.Hour * 24 * 30))
+
 		data = append(data, map[string]interface{}{
 			"id":            item.Id,
 			"article_id":    item.ArticleId,

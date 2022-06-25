@@ -31,6 +31,7 @@ import (
 import (
 	_ "github.com/urfave/cli/v2"
 	_ "go-chat/internal/pkg/validation"
+	_ "go-chat/internal/tmpl"
 )
 
 // Injectors from wire.go:
@@ -110,7 +111,8 @@ func Initialize(ctx context.Context, conf *config.Config) *AppProvider {
 	class := article.NewClassHandler(articleClassService)
 	articleTagService := note2.NewArticleTagService(baseService)
 	tag := article.NewTagHandler(articleTagService)
-	test := v1.NewTest()
+	emailClient := provider.NewEmailClient(conf)
+	test := v1.NewTest(conf, emailClient)
 	apiHandler := &handler.ApiHandler{
 		Common:        common,
 		Auth:          auth,
@@ -150,7 +152,7 @@ func Initialize(ctx context.Context, conf *config.Config) *AppProvider {
 
 // wire.go:
 
-var providerSet = wire.NewSet(provider.NewMySQLClient, provider.NewRedisClient, provider.NewHttpClient, provider.NewHttpServer, provider.NewFilesystem, client.NewHttpClient, router.NewRouter, wire.Struct(new(handler.ApiHandler), "*"), wire.Struct(new(handler.AdminHandler), "*"), wire.Struct(new(handler.OpenHandler), "*"), wire.Struct(new(handler.Handler), "*"), wire.Struct(new(AppProvider), "*"))
+var providerSet = wire.NewSet(provider.NewMySQLClient, provider.NewRedisClient, provider.NewHttpClient, provider.NewEmailClient, provider.NewHttpServer, provider.NewFilesystem, client.NewHttpClient, router.NewRouter, wire.Struct(new(handler.ApiHandler), "*"), wire.Struct(new(handler.AdminHandler), "*"), wire.Struct(new(handler.OpenHandler), "*"), wire.Struct(new(handler.Handler), "*"), wire.Struct(new(AppProvider), "*"))
 
 var cacheProviderSet = wire.NewSet(cache.NewSession, cache.NewSid, cache.NewUnreadTalkCache, cache.NewRedisLock, cache.NewWsClientSession, cache.NewLastMessage, cache.NewTalkVote, cache.NewRoom, cache.NewRelation, cache.NewSmsCodeCache)
 

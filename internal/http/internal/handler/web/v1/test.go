@@ -2,17 +2,40 @@ package v1
 
 import (
 	"go-chat/api/pb/web/v1"
+	"go-chat/config"
+	"go-chat/internal/pkg/email"
 	"go-chat/internal/pkg/ichat"
+	"go-chat/internal/tmpl"
 )
 
 type Test struct {
+	config      *config.Config
+	emailClient *email.Client
 }
 
-func NewTest() *Test {
-	return &Test{}
+func NewTest(config *config.Config, emailClient *email.Client) *Test {
+	return &Test{config: config, emailClient: emailClient}
 }
 
 func (c *Test) Success(ctx *ichat.Context) error {
+
+	fileContent, err := tmpl.Templates().ReadFile("resource/email/verify_code.tmpl")
+	if err != nil {
+		return err
+	}
+
+	body, _ := email.RenderString(string(fileContent), map[string]string{
+		"code":         "123456",
+		"service_name": "修改密码",
+		"domain":       "https://im.gzydong.club",
+	})
+
+	_ = c.emailClient.SendMail(&email.Option{
+		To:      []string{"837215079@qq.com"},
+		Subject: "测试邮件",
+		Body:    body,
+	})
+
 	return ctx.Success(&web.AuthLoginResponse{
 		Type:        "",
 		AccessToken: "",
