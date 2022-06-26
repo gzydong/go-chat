@@ -103,6 +103,7 @@ var serviceProviderSet = wire.NewSet(
 	organize.NewOrganizeDeptService,
 	organize.NewOrganizeService,
 	organize.NewPositionService,
+	service.NewTemplateService,
 )
 
 func Initialize(ctx context.Context, conf *config.Config) *AppProvider {

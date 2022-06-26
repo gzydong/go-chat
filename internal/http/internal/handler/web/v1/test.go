@@ -5,30 +5,24 @@ import (
 	"go-chat/config"
 	"go-chat/internal/pkg/email"
 	"go-chat/internal/pkg/ichat"
-	"go-chat/internal/pkg/utils"
-	"go-chat/internal/tmpl"
-	"gopkg.in/gomail.v2"
+	"go-chat/internal/service"
 )
 
 type Test struct {
-	config      *config.Config
-	emailClient *email.Client
+	config          *config.Config
+	emailClient     *email.Client
+	templateService *service.TemplateService
 }
 
-func NewTest(config *config.Config, emailClient *email.Client) *Test {
-	return &Test{config: config, emailClient: emailClient}
+func NewTest(config *config.Config, emailClient *email.Client, templateService *service.TemplateService) *Test {
+	return &Test{config: config, emailClient: emailClient, templateService: templateService}
 }
 
 func (c *Test) Success(ctx *ichat.Context) error {
 
-	fileContent, err := tmpl.Templates().ReadFile("resource/email/verify_code.tmpl")
-	if err != nil {
-		return err
-	}
-
-	body, _ := utils.RenderString(string(fileContent), map[string]string{
-		"code":         "123456",
-		"service_name": "修改密码",
+	body, _ := c.templateService.CodeTemplate(map[string]string{
+		"code":         "253873",
+		"service_name": "修改手机号",
 		"domain":       "https://im.gzydong.club",
 	})
 
@@ -36,8 +30,6 @@ func (c *Test) Success(ctx *ichat.Context) error {
 		To:      []string{"837215079@qq.com"},
 		Subject: "测试邮件",
 		Body:    body,
-	}, func(msg *gomail.Message) {
-
 	})
 
 	return ctx.Success(&web.AuthLoginResponse{

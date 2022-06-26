@@ -1,10 +1,10 @@
-package tmpl
+package resource
 
 import (
 	"embed"
 )
 
-//go:embed "resource"
+//go:embed "templates"
 var templates embed.FS
 
 func Templates() embed.FS {

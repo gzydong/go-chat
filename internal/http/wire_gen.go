@@ -31,7 +31,6 @@ import (
 import (
 	_ "github.com/urfave/cli/v2"
 	_ "go-chat/internal/pkg/validation"
-	_ "go-chat/internal/tmpl"
 )
 
 // Injectors from wire.go:
@@ -112,7 +111,8 @@ func Initialize(ctx context.Context, conf *config.Config) *AppProvider {
 	articleTagService := note2.NewArticleTagService(baseService)
 	tag := article.NewTagHandler(articleTagService)
 	emailClient := provider.NewEmailClient(conf)
-	test := v1.NewTest(conf, emailClient)
+	templateService := service.NewTemplateService()
+	test := v1.NewTest(conf, emailClient, templateService)
 	apiHandler := &handler.ApiHandler{
 		Common:        common,
 		Auth:          auth,
@@ -158,4 +158,4 @@ var cacheProviderSet = wire.NewSet(cache.NewSession, cache.NewSid, cache.NewUnre
 
 var daoProviderSet = wire.NewSet(dao.NewBaseDao, dao.NewContactDao, dao.NewGroupMemberDao, dao.NewUserDao, dao.NewGroupDao, dao.NewGroupApply, dao.NewTalkRecordsDao, dao.NewGroupNoticeDao, dao.NewTalkSessionDao, dao.NewEmoticonDao, dao.NewTalkRecordsVoteDao, dao.NewFileSplitUploadDao, note.NewArticleClassDao, note.NewArticleAnnexDao, organize.NewDepartmentDao, organize.NewOrganizeDao, organize.NewPositionDao)
 
-var serviceProviderSet = wire.NewSet(service.NewBaseService, service.NewUserService, service.NewSmsService, service.NewTalkService, service.NewTalkMessageService, service.NewClientService, service.NewGroupService, service.NewGroupMemberService, service.NewGroupNoticeService, service.NewGroupApplyService, service.NewTalkSessionService, service.NewTalkMessageForwardService, service.NewEmoticonService, service.NewTalkRecordsService, service.NewContactService, service.NewContactsApplyService, service.NewSplitUploadService, service.NewIpAddressService, service.NewAuthPermissionService, note2.NewArticleService, note2.NewArticleTagService, note2.NewArticleClassService, note2.NewArticleAnnexService, organize2.NewOrganizeDeptService, organize2.NewOrganizeService, organize2.NewPositionService)
+var serviceProviderSet = wire.NewSet(service.NewBaseService, service.NewUserService, service.NewSmsService, service.NewTalkService, service.NewTalkMessageService, service.NewClientService, service.NewGroupService, service.NewGroupMemberService, service.NewGroupNoticeService, service.NewGroupApplyService, service.NewTalkSessionService, service.NewTalkMessageForwardService, service.NewEmoticonService, service.NewTalkRecordsService, service.NewContactService, service.NewContactsApplyService, service.NewSplitUploadService, service.NewIpAddressService, service.NewAuthPermissionService, note2.NewArticleService, note2.NewArticleTagService, note2.NewArticleClassService, note2.NewArticleAnnexService, organize2.NewOrganizeDeptService, organize2.NewOrganizeService, organize2.NewPositionService, service.NewTemplateService)

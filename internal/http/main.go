@@ -16,7 +16,7 @@ import (
 	"go-chat/config"
 	"go-chat/internal/pkg/logger"
 	_ "go-chat/internal/pkg/validation"
-	_ "go-chat/internal/tmpl"
+	// _ "go-chat/internal/tmpl"
 	"golang.org/x/sync/errgroup"
 )
 

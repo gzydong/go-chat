@@ -5,16 +5,10 @@ import (
 	"html/template"
 )
 
-func RenderString(text string, data interface{}) (string, error) {
-	tmpl, _ := template.New("tmpl").Parse(text)
+func StrTemplate(text []byte, data interface{}) (string, error) {
+	tmpl, _ := template.New("tmpl").Parse(string(text))
 
 	return render(tmpl, data)
-}
-
-func RenderFile(filePath string, data interface{}) (string, error) {
-
-	t1 := template.Must(template.ParseFiles(filePath))
-	return render(t1, data)
 }
 
 func render(tmpl *template.Template, data interface{}) (string, error) {
