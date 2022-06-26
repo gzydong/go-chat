@@ -7,12 +7,12 @@ import (
 	"context"
 
 	"go-chat/config"
-	"go-chat/internal/cache"
-	"go-chat/internal/dao"
-	note2 "go-chat/internal/dao/note"
-	organize2 "go-chat/internal/dao/organize"
 	"go-chat/internal/pkg/client"
 	"go-chat/internal/provider"
+	cache2 "go-chat/internal/repository/cache"
+	dao2 "go-chat/internal/repository/dao"
+	note3 "go-chat/internal/repository/dao/note"
+	organize3 "go-chat/internal/repository/dao/organize"
 	"go-chat/internal/service/note"
 	"go-chat/internal/service/organize"
 
@@ -44,36 +44,36 @@ var providerSet = wire.NewSet(
 )
 
 var cacheProviderSet = wire.NewSet(
-	cache.NewSession,
-	cache.NewSid,
-	cache.NewUnreadTalkCache,
-	cache.NewRedisLock,
-	cache.NewWsClientSession,
-	cache.NewLastMessage,
-	cache.NewTalkVote,
-	cache.NewRoom,
-	cache.NewRelation,
-	cache.NewSmsCodeCache,
+	cache2.NewSession,
+	cache2.NewSid,
+	cache2.NewUnreadTalkCache,
+	cache2.NewRedisLock,
+	cache2.NewWsClientSession,
+	cache2.NewLastMessage,
+	cache2.NewTalkVote,
+	cache2.NewRoom,
+	cache2.NewRelation,
+	cache2.NewSmsCodeCache,
 )
 
 var daoProviderSet = wire.NewSet(
-	dao.NewBaseDao,
-	dao.NewContactDao,
-	dao.NewGroupMemberDao,
-	dao.NewUserDao,
-	dao.NewGroupDao,
-	dao.NewGroupApply,
-	dao.NewTalkRecordsDao,
-	dao.NewGroupNoticeDao,
-	dao.NewTalkSessionDao,
-	dao.NewEmoticonDao,
-	dao.NewTalkRecordsVoteDao,
-	dao.NewFileSplitUploadDao,
-	note2.NewArticleClassDao,
-	note2.NewArticleAnnexDao,
-	organize2.NewDepartmentDao,
-	organize2.NewOrganizeDao,
-	organize2.NewPositionDao,
+	dao2.NewBaseDao,
+	dao2.NewContactDao,
+	dao2.NewGroupMemberDao,
+	dao2.NewUserDao,
+	dao2.NewGroupDao,
+	dao2.NewGroupApply,
+	dao2.NewTalkRecordsDao,
+	dao2.NewGroupNoticeDao,
+	dao2.NewTalkSessionDao,
+	dao2.NewEmoticonDao,
+	dao2.NewTalkRecordsVoteDao,
+	dao2.NewFileSplitUploadDao,
+	note3.NewArticleClassDao,
+	note3.NewArticleAnnexDao,
+	organize3.NewDepartmentDao,
+	organize3.NewOrganizeDao,
+	organize3.NewPositionDao,
 )
 
 var serviceProviderSet = wire.NewSet(

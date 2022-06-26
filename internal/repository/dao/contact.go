@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"time"
 
-	"go-chat/internal/cache"
-	"go-chat/internal/model"
+	"go-chat/internal/repository/cache"
+	"go-chat/internal/repository/model"
 )
 
 type IContactDao interface {

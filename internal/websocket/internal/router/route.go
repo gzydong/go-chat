@@ -6,9 +6,9 @@ import (
 	"github.com/gin-gonic/gin"
 	"go-chat/internal/entity"
 	"go-chat/internal/pkg/im"
+	"go-chat/internal/repository/cache"
 
 	"go-chat/config"
-	"go-chat/internal/cache"
 	"go-chat/internal/pkg/jwtutil"
 	"go-chat/internal/websocket/internal/handler"
 )

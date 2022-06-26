@@ -3,11 +3,11 @@ package router
 import (
 	"github.com/gin-gonic/gin"
 	"go-chat/config"
-	"go-chat/internal/cache"
 	"go-chat/internal/entity"
 	"go-chat/internal/http/internal/handler"
 	"go-chat/internal/pkg/ichat"
 	"go-chat/internal/pkg/jwtutil"
+	"go-chat/internal/repository/cache"
 )
 
 // RegisterApiRoute 注册 API 路由

@@ -1,9 +1,9 @@
 package service
 
 import (
-	"go-chat/internal/dao"
 	"go-chat/internal/entity"
-	"go-chat/internal/model"
+	"go-chat/internal/repository/dao"
+	"go-chat/internal/repository/model"
 	"gorm.io/gorm"
 )
 

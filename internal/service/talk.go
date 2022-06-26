@@ -5,10 +5,10 @@ import (
 	"errors"
 	"time"
 
-	"go-chat/internal/dao"
 	"go-chat/internal/entity"
-	"go-chat/internal/model"
 	"go-chat/internal/pkg/sliceutil"
+	"go-chat/internal/repository/dao"
+	model2 "go-chat/internal/repository/model"
 )
 
 type TalkMessageDeleteOpts struct {
@@ -39,22 +39,22 @@ func (s *TalkService) RemoveRecords(ctx context.Context, opts *TalkMessageDelete
 	if opts.TalkType == entity.ChatPrivateMode {
 		subQuery := s.db.Where("user_id = ? and receiver_id = ?", opts.UserId, opts.ReceiverId).Or("user_id = ? and receiver_id = ?", opts.ReceiverId, opts.UserId)
 
-		s.db.Model(&model.TalkRecords{}).Where("id in ?", ids).Where("talk_type = ?", entity.ChatPrivateMode).Where(subQuery).Pluck("id", &findIds)
+		s.db.Model(&model2.TalkRecords{}).Where("id in ?", ids).Where("talk_type = ?", entity.ChatPrivateMode).Where(subQuery).Pluck("id", &findIds)
 	} else {
 		if !s.groupMemberDao.IsMember(opts.ReceiverId, opts.UserId, false) {
 			return entity.ErrPermissionDenied
 		}
 
-		s.db.Model(&model.TalkRecords{}).Where("id in ? and talk_type = ?", ids, entity.ChatGroupMode).Pluck("id", &findIds)
+		s.db.Model(&model2.TalkRecords{}).Where("id in ? and talk_type = ?", ids, entity.ChatGroupMode).Pluck("id", &findIds)
 	}
 
 	if len(ids) != len(findIds) {
 		return errors.New("删除异常! ")
 	}
 
-	items := make([]*model.TalkRecordsDelete, 0)
+	items := make([]*model2.TalkRecordsDelete, 0)
 	for _, val := range ids {
-		items = append(items, &model.TalkRecordsDelete{
+		items = append(items, &model2.TalkRecordsDelete{
 			RecordId:  val,
 			UserId:    opts.UserId,
 			CreatedAt: time.Now(),
@@ -68,8 +68,8 @@ func (s *TalkService) RemoveRecords(ctx context.Context, opts *TalkMessageDelete
 func (s *TalkService) CollectRecord(ctx context.Context, uid int, recordId int) error {
 	var (
 		err      error
-		record   model.TalkRecords
-		fileInfo model.TalkRecordsFile
+		record   model2.TalkRecords
+		fileInfo model2.TalkRecordsFile
 	)
 
 	if err = s.db.First(&record, recordId).Error; err != nil {
@@ -98,7 +98,7 @@ func (s *TalkService) CollectRecord(ctx context.Context, uid int, recordId int) 
 		return err
 	}
 
-	emoticon := &model.EmoticonItem{
+	emoticon := &model2.EmoticonItem{
 		UserId:     uid,
 		Url:        fileInfo.Url,
 		FileSuffix: fileInfo.Suffix,

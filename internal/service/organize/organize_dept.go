@@ -1,7 +1,7 @@
 package organize
 
 import (
-	"go-chat/internal/dao/organize"
+	"go-chat/internal/repository/dao/organize"
 	"go-chat/internal/service"
 )
 

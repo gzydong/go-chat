@@ -6,10 +6,10 @@ import (
 
 	"go-chat/internal/http/internal/dto/web"
 	"go-chat/internal/pkg/ichat"
+	"go-chat/internal/repository/cache"
 	"go-chat/internal/service/organize"
 	"gorm.io/gorm"
 
-	"go-chat/internal/cache"
 	"go-chat/internal/entity"
 	"go-chat/internal/pkg/jwtutil"
 	"go-chat/internal/pkg/strutil"

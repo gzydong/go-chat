@@ -3,7 +3,7 @@ package dao
 import (
 	"context"
 
-	"go-chat/internal/model"
+	"go-chat/internal/repository/model"
 )
 
 type GroupDao struct {

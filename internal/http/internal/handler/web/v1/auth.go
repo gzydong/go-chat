@@ -7,10 +7,10 @@ import (
 	"go-chat/internal/http/internal/dto/web"
 	"go-chat/internal/pkg/ichat"
 	"go-chat/internal/pkg/jwtutil"
+	cache2 "go-chat/internal/repository/cache"
 	"go-chat/internal/service/note"
 
 	"go-chat/config"
-	"go-chat/internal/cache"
 	"go-chat/internal/entity"
 	"go-chat/internal/service"
 )
@@ -19,8 +19,8 @@ type Auth struct {
 	config             *config.Config
 	userService        *service.UserService
 	smsService         *service.SmsService
-	session            *cache.Session
-	redisLock          *cache.RedisLock
+	session            *cache2.Session
+	redisLock          *cache2.RedisLock
 	talkMessageService *service.TalkMessageService
 	ipAddressService   *service.IpAddressService
 	talkSessionService *service.TalkSessionService
@@ -31,8 +31,8 @@ func NewAuthHandler(
 	config *config.Config,
 	userService *service.UserService,
 	smsService *service.SmsService,
-	session *cache.Session,
-	redisLock *cache.RedisLock,
+	session *cache2.Session,
+	redisLock *cache2.RedisLock,
 	talkMessageService *service.TalkMessageService,
 	ipAddressService *service.IpAddressService,
 	talkSessionService *service.TalkSessionService,

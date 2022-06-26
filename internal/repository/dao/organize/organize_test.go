@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"testing"
 
-	"go-chat/internal/dao"
 	"go-chat/internal/pkg/jsonutil"
+	"go-chat/internal/repository/dao"
 	"go-chat/testutil"
 )
 

@@ -3,10 +3,10 @@ package note
 import (
 	"context"
 
-	"go-chat/internal/dao/note"
-	"go-chat/internal/model"
 	"go-chat/internal/pkg/filesystem"
 	"go-chat/internal/pkg/timeutil"
+	"go-chat/internal/repository/dao/note"
+	"go-chat/internal/repository/model"
 	"go-chat/internal/service"
 )
 

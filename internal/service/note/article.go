@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"html"
 
+	model2 "go-chat/internal/repository/model"
 	"gorm.io/gorm"
 
-	"go-chat/internal/model"
 	"go-chat/internal/pkg/sliceutil"
 	"go-chat/internal/pkg/strutil"
 	"go-chat/internal/pkg/timeutil"
@@ -41,18 +41,18 @@ func NewArticleService(baseService *service.BaseService) *ArticleService {
 }
 
 // Detail 笔记详情
-func (s *ArticleService) Detail(ctx context.Context, uid, articleId int) (*model.ArticleDetailInfo, error) {
-	data := &model.Article{}
+func (s *ArticleService) Detail(ctx context.Context, uid, articleId int) (*model2.ArticleDetailInfo, error) {
+	data := &model2.Article{}
 
 	if err := s.Db().First(data, "id = ? and user_id = ?", articleId, uid).Error; err != nil {
 		return nil, err
 	}
 
-	detail := &model.ArticleDetail{}
+	detail := &model2.ArticleDetail{}
 
 	s.Db().First(detail, "article_id = ?", articleId)
 
-	return &model.ArticleDetailInfo{
+	return &model2.ArticleDetailInfo{
 		Id:         data.Id,
 		UserId:     data.UserId,
 		ClassId:    data.ClassId,
@@ -76,7 +76,7 @@ func (s *ArticleService) Create(ctx context.Context, opts *ArticleEditOpts) (int
 
 	abstract = strutil.Strip(abstract)
 
-	data := &model.Article{
+	data := &model2.Article{
 		UserId:   opts.UserId,
 		ClassId:  opts.ClassId,
 		Title:    opts.Title,
@@ -91,7 +91,7 @@ func (s *ArticleService) Create(ctx context.Context, opts *ArticleEditOpts) (int
 			return err
 		}
 
-		if err := tx.Create(&model.ArticleDetail{
+		if err := tx.Create(&model2.ArticleDetail{
 			ArticleId: data.Id,
 			MdContent: html.EscapeString(opts.MdContent),
 			Content:   html.EscapeString(opts.Content),
@@ -117,7 +117,7 @@ func (s *ArticleService) Update(ctx context.Context, opts *ArticleEditOpts) erro
 
 	return s.Db().Transaction(func(tx *gorm.DB) error {
 
-		if err := tx.Model(&model.Article{}).Where("id = ? and user_id = ?", opts.ArticleId, opts.UserId).Updates(&model.Article{
+		if err := tx.Model(&model2.Article{}).Where("id = ? and user_id = ?", opts.ArticleId, opts.UserId).Updates(&model2.Article{
 			Title:    opts.Title,
 			Image:    strutil.ParseHtmlImage(opts.Content),
 			Abstract: abstract,
@@ -125,7 +125,7 @@ func (s *ArticleService) Update(ctx context.Context, opts *ArticleEditOpts) erro
 			return err
 		}
 
-		if err := tx.Model(&model.ArticleDetail{}).Where("article_id = ?", opts.ArticleId).Updates(&model.ArticleDetail{
+		if err := tx.Model(&model2.ArticleDetail{}).Where("article_id = ?", opts.ArticleId).Updates(&model2.ArticleDetail{
 			MdContent: html.EscapeString(opts.MdContent),
 			Content:   html.EscapeString(opts.Content),
 		}).Error; err != nil {
@@ -137,7 +137,7 @@ func (s *ArticleService) Update(ctx context.Context, opts *ArticleEditOpts) erro
 }
 
 // List 笔记列表
-func (s *ArticleService) List(ctx context.Context, opts *ArticleListOpts) ([]*model.ArticleItem, error) {
+func (s *ArticleService) List(ctx context.Context, opts *ArticleListOpts) ([]*model2.ArticleItem, error) {
 
 	query := s.Db().Table("article").Select("article.*,article_class.class_name")
 	query.Joins("left join article_class on article_class.id = article.class_id")
@@ -167,7 +167,7 @@ func (s *ArticleService) List(ctx context.Context, opts *ArticleListOpts) ([]*mo
 		query.Order("article.id desc")
 	}
 
-	items := make([]*model.ArticleItem, 0)
+	items := make([]*model2.ArticleItem, 0)
 	if err := query.Scan(&items).Error; err != nil {
 		return nil, err
 	}
@@ -182,17 +182,17 @@ func (s *ArticleService) Asterisk(ctx context.Context, uid int, articleId int, m
 		mode = 0
 	}
 
-	return s.Db().Model(&model.Article{}).Where("id = ? and user_id = ?", articleId, uid).Update("is_asterisk", mode).Error
+	return s.Db().Model(&model2.Article{}).Where("id = ? and user_id = ?", articleId, uid).Update("is_asterisk", mode).Error
 }
 
 // Tag 更新笔记标签
 func (s *ArticleService) Tag(ctx context.Context, uid int, articleId int, tags []int) error {
-	return s.Db().Model(&model.Article{}).Where("id = ? and user_id = ?", articleId, uid).Update("tags_id", sliceutil.IntToIds(tags)).Error
+	return s.Db().Model(&model2.Article{}).Where("id = ? and user_id = ?", articleId, uid).Update("tags_id", sliceutil.IntToIds(tags)).Error
 }
 
 // Move 移动笔记分类
 func (s *ArticleService) Move(ctx context.Context, uid, articleId, classId int) error {
-	return s.Db().Model(&model.Article{}).Where("id = ? and user_id = ?", articleId, uid).Update("class_id", classId).Error
+	return s.Db().Model(&model2.Article{}).Where("id = ? and user_id = ?", articleId, uid).Update("class_id", classId).Error
 }
 
 // UpdateStatus 修改笔记状态
@@ -205,12 +205,12 @@ func (s *ArticleService) UpdateStatus(ctx context.Context, uid int, articleId in
 		data["deleted_at"] = timeutil.DateTime()
 	}
 
-	return s.Db().Model(&model.Article{}).Where("id = ? and user_id = ?", articleId, uid).Updates(data).Error
+	return s.Db().Model(&model2.Article{}).Where("id = ? and user_id = ?", articleId, uid).Updates(data).Error
 }
 
 // ForeverDelete 永久笔记
 func (s *ArticleService) ForeverDelete(ctx context.Context, uid int, articleId int) error {
-	var detail *model.Article
+	var detail *model2.Article
 	if err := s.Db().First(&detail, "id = ? and user_id = ?", articleId, uid).Error; err != nil {
 		return err
 	}
@@ -221,15 +221,15 @@ func (s *ArticleService) ForeverDelete(ctx context.Context, uid int, articleId i
 
 	return s.Db().Transaction(func(tx *gorm.DB) error {
 
-		if err := tx.Delete(&model.ArticleDetail{}, "article_id = ?", detail.Id).Error; err != nil {
+		if err := tx.Delete(&model2.ArticleDetail{}, "article_id = ?", detail.Id).Error; err != nil {
 			return err
 		}
 
-		if err := tx.Delete(&model.Article{}, detail.Id).Error; err != nil {
+		if err := tx.Delete(&model2.Article{}, detail.Id).Error; err != nil {
 			return err
 		}
 
-		if err := tx.Delete(&model.ArticleAnnex{}, "user_id = ? and article_id = ?", uid, detail.Id).Error; err != nil {
+		if err := tx.Delete(&model2.ArticleAnnex{}, "user_id = ? and article_id = ?", uid, detail.Id).Error; err != nil {
 			return err
 		}
 

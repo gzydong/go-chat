@@ -5,10 +5,10 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"go-chat/config"
-	"go-chat/internal/cache"
 	"go-chat/internal/entity"
 	"go-chat/internal/http/internal/handler"
 	"go-chat/internal/http/internal/middleware"
+	"go-chat/internal/repository/cache"
 )
 
 // NewRouter 初始化配置路由

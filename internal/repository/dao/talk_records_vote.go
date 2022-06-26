@@ -3,9 +3,9 @@ package dao
 import (
 	"context"
 
-	"go-chat/internal/cache"
-	"go-chat/internal/model"
 	"go-chat/internal/pkg/jsonutil"
+	"go-chat/internal/repository/cache"
+	"go-chat/internal/repository/model"
 )
 
 type TalkRecordsVoteDao struct {

@@ -3,7 +3,7 @@ package dao
 import (
 	"fmt"
 
-	"go-chat/internal/model"
+	"go-chat/internal/repository/model"
 )
 
 type UsersDao struct {

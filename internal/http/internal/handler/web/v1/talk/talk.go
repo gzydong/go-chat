@@ -5,7 +5,6 @@ import (
 	"strconv"
 	"strings"
 
-	"go-chat/internal/cache"
 	"go-chat/internal/entity"
 	"go-chat/internal/http/internal/dto/web"
 	"go-chat/internal/pkg/encrypt"
@@ -13,18 +12,19 @@ import (
 	"go-chat/internal/pkg/jwtutil"
 	"go-chat/internal/pkg/strutil"
 	"go-chat/internal/pkg/timeutil"
+	cache2 "go-chat/internal/repository/cache"
 	"go-chat/internal/service"
 )
 
 type Talk struct {
 	service         *service.TalkService
 	talkListService *service.TalkSessionService
-	redisLock       *cache.RedisLock
+	redisLock       *cache2.RedisLock
 	userService     *service.UserService
-	wsClient        *cache.WsClientSession
-	lastMessage     *cache.LastMessage
+	wsClient        *cache2.WsClientSession
+	lastMessage     *cache2.LastMessage
 	contactService  *service.ContactService
-	unreadTalkCache *cache.UnreadTalkCache
+	unreadTalkCache *cache2.UnreadTalkCache
 	groupService    *service.GroupService
 	authPermission  *service.AuthPermissionService
 }
@@ -32,11 +32,11 @@ type Talk struct {
 func NewTalkHandler(
 	service *service.TalkService,
 	talkListService *service.TalkSessionService,
-	redisLock *cache.RedisLock,
+	redisLock *cache2.RedisLock,
 	userService *service.UserService,
-	wsClient *cache.WsClientSession,
-	lastMessage *cache.LastMessage,
-	unreadTalkCache *cache.UnreadTalkCache,
+	wsClient *cache2.WsClientSession,
+	lastMessage *cache2.LastMessage,
+	unreadTalkCache *cache2.UnreadTalkCache,
 	contactService *service.ContactService,
 	groupService *service.GroupService,
 	authPermission *service.AuthPermissionService,

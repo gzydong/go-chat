@@ -3,20 +3,20 @@ package service
 import (
 	"context"
 
-	"go-chat/internal/dao"
-	"go-chat/internal/dao/organize"
 	"go-chat/internal/entity"
-	"go-chat/internal/model"
 	"go-chat/internal/pkg/logger"
+	dao2 "go-chat/internal/repository/dao"
+	"go-chat/internal/repository/dao/organize"
+	"go-chat/internal/repository/model"
 )
 
 type AuthPermissionService struct {
-	contactDao     *dao.ContactDao
-	groupMemberDao *dao.GroupMemberDao
+	contactDao     *dao2.ContactDao
+	groupMemberDao *dao2.GroupMemberDao
 	organizeDao    *organize.OrganizeDao
 }
 
-func NewAuthPermissionService(contactDao *dao.ContactDao, groupMemberDao *dao.GroupMemberDao, organizeDao *organize.OrganizeDao) *AuthPermissionService {
+func NewAuthPermissionService(contactDao *dao2.ContactDao, groupMemberDao *dao2.GroupMemberDao, organizeDao *organize.OrganizeDao) *AuthPermissionService {
 	return &AuthPermissionService{contactDao: contactDao, groupMemberDao: groupMemberDao, organizeDao: organizeDao}
 }
 

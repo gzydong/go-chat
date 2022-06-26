@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	"go-chat/internal/cache"
 	"go-chat/internal/pkg/strutil"
+	"go-chat/internal/repository/cache"
 )
 
 type SmsService struct {

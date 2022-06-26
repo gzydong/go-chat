@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"go-chat/internal/cache"
+	"go-chat/internal/repository/cache"
 )
 
 type ClientService struct {

@@ -1,7 +1,7 @@
 package dao
 
 import (
-	"go-chat/internal/model"
+	"go-chat/internal/repository/model"
 )
 
 type TalkSessionDao struct {

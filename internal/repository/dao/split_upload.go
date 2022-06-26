@@ -1,6 +1,8 @@
 package dao
 
-import "go-chat/internal/model"
+import (
+	"go-chat/internal/repository/model"
+)
 
 type SplitUploadDao struct {
 	*BaseDao

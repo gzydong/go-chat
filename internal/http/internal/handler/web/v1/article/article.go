@@ -6,8 +6,8 @@ import (
 
 	"go-chat/internal/entity"
 	"go-chat/internal/http/internal/dto/web"
-	"go-chat/internal/model"
 	"go-chat/internal/pkg/ichat"
+	"go-chat/internal/repository/model"
 
 	"go-chat/internal/pkg/filesystem"
 	"go-chat/internal/pkg/jwtutil"

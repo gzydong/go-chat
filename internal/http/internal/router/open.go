@@ -3,9 +3,9 @@ package router
 import (
 	"github.com/gin-gonic/gin"
 	"go-chat/config"
-	"go-chat/internal/cache"
 	"go-chat/internal/http/internal/handler"
 	"go-chat/internal/pkg/jwtutil"
+	"go-chat/internal/repository/cache"
 )
 
 // RegisterOpenRoute 注册 Open 路由

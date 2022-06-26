@@ -7,9 +7,9 @@ import (
 	"context"
 
 	"go-chat/config"
-	"go-chat/internal/cache"
-	"go-chat/internal/dao"
 	"go-chat/internal/provider"
+	cache2 "go-chat/internal/repository/cache"
+	dao2 "go-chat/internal/repository/dao"
 	"go-chat/internal/service"
 	handle2 "go-chat/internal/websocket/internal/handler"
 	"go-chat/internal/websocket/internal/process"
@@ -33,20 +33,20 @@ var providerSet = wire.NewSet(
 	handle.NewSubscribeConsume,
 
 	// 缓存
-	cache.NewSession,
-	cache.NewSid,
-	cache.NewRedisLock,
-	cache.NewWsClientSession,
-	cache.NewRoom,
-	cache.NewTalkVote,
-	cache.NewRelation,
+	cache2.NewSession,
+	cache2.NewSid,
+	cache2.NewRedisLock,
+	cache2.NewWsClientSession,
+	cache2.NewRoom,
+	cache2.NewTalkVote,
+	cache2.NewRelation,
 
 	// dao 数据层
-	dao.NewBaseDao,
-	dao.NewTalkRecordsDao,
-	dao.NewTalkRecordsVoteDao,
-	dao.NewGroupMemberDao,
-	dao.NewContactDao,
+	dao2.NewBaseDao,
+	dao2.NewTalkRecordsDao,
+	dao2.NewTalkRecordsVoteDao,
+	dao2.NewGroupMemberDao,
+	dao2.NewContactDao,
 
 	// 服务
 	service.NewBaseService,

@@ -1,6 +1,8 @@
 package note
 
-import "go-chat/internal/dao"
+import (
+	"go-chat/internal/repository/dao"
+)
 
 type ArticleDao struct {
 	*dao.BaseDao

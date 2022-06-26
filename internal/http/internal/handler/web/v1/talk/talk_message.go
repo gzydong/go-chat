@@ -4,12 +4,12 @@ import (
 	"errors"
 
 	"go-chat/internal/http/internal/dto/web"
-	"go-chat/internal/model"
 	"go-chat/internal/pkg/ichat"
+	"go-chat/internal/repository/dao"
+	"go-chat/internal/repository/model"
 	"go-chat/internal/service/organize"
 	"gorm.io/gorm"
 
-	"go-chat/internal/dao"
 	"go-chat/internal/entity"
 	"go-chat/internal/pkg/jwtutil"
 	"go-chat/internal/pkg/sliceutil"

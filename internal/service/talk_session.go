@@ -5,10 +5,9 @@ import (
 	"errors"
 	"time"
 
+	"go-chat/internal/repository/dao"
+	"go-chat/internal/repository/model"
 	"gorm.io/gorm"
-
-	"go-chat/internal/dao"
-	"go-chat/internal/model"
 )
 
 type TalkSessionCreateOpts struct {

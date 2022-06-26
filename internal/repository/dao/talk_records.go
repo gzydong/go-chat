@@ -2,7 +2,8 @@ package dao
 
 import (
 	"context"
-	"go-chat/internal/model"
+
+	model2 "go-chat/internal/repository/model"
 )
 
 type TalkRecordsDao struct {
@@ -23,14 +24,14 @@ func (dao *TalkRecordsDao) SearchChatRecords() {
 }
 
 type FindFileRecordData struct {
-	Record   *model.TalkRecords
-	FileInfo *model.TalkRecordsFile
+	Record   *model2.TalkRecords
+	FileInfo *model2.TalkRecordsFile
 }
 
 func (dao *TalkRecordsDao) FindFileRecord(ctx context.Context, recordId int) (*FindFileRecordData, error) {
 	var (
-		record   *model.TalkRecords
-		fileInfo *model.TalkRecordsFile
+		record   *model2.TalkRecords
+		fileInfo *model2.TalkRecordsFile
 	)
 
 	if err := dao.Db().First(&record, recordId).Error; err != nil {

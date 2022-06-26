@@ -3,7 +3,7 @@ package cron
 import (
 	"context"
 
-	"go-chat/internal/cache"
+	"go-chat/internal/repository/cache"
 )
 
 type ClearExpireServerHandle struct {

@@ -6,7 +6,7 @@ import (
 
 	"github.com/sirupsen/logrus"
 	"go-chat/config"
-	"go-chat/internal/cache"
+	"go-chat/internal/repository/cache"
 )
 
 type Health struct {

@@ -12,13 +12,13 @@ import (
 	"time"
 
 	"github.com/sirupsen/logrus"
+	cache2 "go-chat/internal/repository/cache"
+	dao2 "go-chat/internal/repository/dao"
+	model2 "go-chat/internal/repository/model"
 	"gorm.io/gorm"
 
 	"go-chat/config"
-	"go-chat/internal/cache"
-	"go-chat/internal/dao"
 	"go-chat/internal/entity"
-	"go-chat/internal/model"
 	"go-chat/internal/pkg/encrypt"
 	"go-chat/internal/pkg/filesystem"
 	"go-chat/internal/pkg/jsonutil"
@@ -111,23 +111,23 @@ type VoteMessageHandleOpts struct {
 type TalkMessageService struct {
 	*BaseService
 	config             *config.Config
-	unreadTalkCache    *cache.UnreadTalkCache
-	lastMessage        *cache.LastMessage
-	talkRecordsVoteDao *dao.TalkRecordsVoteDao
-	groupMemberDao     *dao.GroupMemberDao
-	sidServer          *cache.SidServer
-	client             *cache.WsClientSession
+	unreadTalkCache    *cache2.UnreadTalkCache
+	lastMessage        *cache2.LastMessage
+	talkRecordsVoteDao *dao2.TalkRecordsVoteDao
+	groupMemberDao     *dao2.GroupMemberDao
+	sidServer          *cache2.SidServer
+	client             *cache2.WsClientSession
 	fileSystem         *filesystem.Filesystem
-	splitUploadDao     *dao.SplitUploadDao
+	splitUploadDao     *dao2.SplitUploadDao
 }
 
-func NewTalkMessageService(baseService *BaseService, config *config.Config, unreadTalkCache *cache.UnreadTalkCache, lastMessage *cache.LastMessage, talkRecordsVoteDao *dao.TalkRecordsVoteDao, groupMemberDao *dao.GroupMemberDao, sidServer *cache.SidServer, client *cache.WsClientSession, fileSystem *filesystem.Filesystem, splitUploadDao *dao.SplitUploadDao) *TalkMessageService {
+func NewTalkMessageService(baseService *BaseService, config *config.Config, unreadTalkCache *cache2.UnreadTalkCache, lastMessage *cache2.LastMessage, talkRecordsVoteDao *dao2.TalkRecordsVoteDao, groupMemberDao *dao2.GroupMemberDao, sidServer *cache2.SidServer, client *cache2.WsClientSession, fileSystem *filesystem.Filesystem, splitUploadDao *dao2.SplitUploadDao) *TalkMessageService {
 	return &TalkMessageService{BaseService: baseService, config: config, unreadTalkCache: unreadTalkCache, lastMessage: lastMessage, talkRecordsVoteDao: talkRecordsVoteDao, groupMemberDao: groupMemberDao, sidServer: sidServer, client: client, fileSystem: fileSystem, splitUploadDao: splitUploadDao}
 }
 
 // SendSysMessage 发送文本消息
 func (s *TalkMessageService) SendSysMessage(ctx context.Context, opts *SysTextMessageOpts) error {
-	record := &model.TalkRecords{
+	record := &model2.TalkRecords{
 		TalkType:   opts.TalkType,
 		MsgType:    entity.MsgTypeSystemText,
 		UserId:     opts.UserId,
@@ -148,7 +148,7 @@ func (s *TalkMessageService) SendSysMessage(ctx context.Context, opts *SysTextMe
 
 // SendTextMessage 发送文本消息
 func (s *TalkMessageService) SendTextMessage(ctx context.Context, opts *TextMessageOpts) error {
-	record := &model.TalkRecords{
+	record := &model2.TalkRecords{
 		TalkType:   opts.TalkType,
 		MsgType:    entity.MsgTypeText,
 		UserId:     opts.UserId,
@@ -171,7 +171,7 @@ func (s *TalkMessageService) SendTextMessage(ctx context.Context, opts *TextMess
 func (s *TalkMessageService) SendCodeMessage(ctx context.Context, opts *CodeMessageOpts) error {
 	var (
 		err    error
-		record = &model.TalkRecords{
+		record = &model2.TalkRecords{
 			TalkType:   opts.TalkType,
 			MsgType:    entity.MsgTypeCode,
 			UserId:     opts.UserId,
@@ -184,7 +184,7 @@ func (s *TalkMessageService) SendCodeMessage(ctx context.Context, opts *CodeMess
 			return err
 		}
 
-		if err = s.db.Create(&model.TalkRecordsCode{
+		if err = s.db.Create(&model2.TalkRecordsCode{
 			RecordId: record.Id,
 			UserId:   opts.UserId,
 			Lang:     opts.Lang,
@@ -209,7 +209,7 @@ func (s *TalkMessageService) SendCodeMessage(ctx context.Context, opts *CodeMess
 func (s *TalkMessageService) SendImageMessage(ctx context.Context, opts *ImageMessageOpts) error {
 	var (
 		err    error
-		record = &model.TalkRecords{
+		record = &model2.TalkRecords{
 			TalkType:   opts.TalkType,
 			MsgType:    entity.MsgTypeFile,
 			UserId:     opts.UserId,
@@ -237,7 +237,7 @@ func (s *TalkMessageService) SendImageMessage(ctx context.Context, opts *ImageMe
 			return err
 		}
 
-		if err = s.db.Create(&model.TalkRecordsFile{
+		if err = s.db.Create(&model2.TalkRecordsFile{
 			RecordId:     record.Id,
 			UserId:       opts.UserId,
 			Source:       1,
@@ -269,7 +269,7 @@ func (s *TalkMessageService) SendFileMessage(ctx context.Context, opts *FileMess
 
 	var (
 		err    error
-		record = &model.TalkRecords{
+		record = &model2.TalkRecords{
 			TalkType:   opts.TalkType,
 			MsgType:    entity.MsgTypeFile,
 			UserId:     opts.UserId,
@@ -299,7 +299,7 @@ func (s *TalkMessageService) SendFileMessage(ctx context.Context, opts *FileMess
 			return err
 		}
 
-		if err = s.db.Create(&model.TalkRecordsFile{
+		if err = s.db.Create(&model2.TalkRecordsFile{
 			RecordId:     record.Id,
 			UserId:       opts.UserId,
 			Source:       1,
@@ -336,7 +336,7 @@ func (s *TalkMessageService) SendCardMessage(ctx context.Context, opts *CardMess
 func (s *TalkMessageService) SendVoteMessage(ctx context.Context, opts *VoteMessageOpts) error {
 	var (
 		err    error
-		record = &model.TalkRecords{
+		record = &model2.TalkRecords{
 			TalkType:   entity.ChatGroupMode,
 			MsgType:    entity.MsgTypeVote,
 			UserId:     opts.UserId,
@@ -356,7 +356,7 @@ func (s *TalkMessageService) SendVoteMessage(ctx context.Context, opts *VoteMess
 			return err
 		}
 
-		if err = s.db.Create(&model.TalkRecordsVote{
+		if err = s.db.Create(&model2.TalkRecordsVote{
 			RecordId:     record.Id,
 			UserId:       opts.UserId,
 			Title:        opts.Title,
@@ -384,8 +384,8 @@ func (s *TalkMessageService) SendVoteMessage(ctx context.Context, opts *VoteMess
 func (s *TalkMessageService) SendEmoticonMessage(ctx context.Context, opts *EmoticonMessageOpts) error {
 	var (
 		err      error
-		emoticon model.EmoticonItem
-		record   = &model.TalkRecords{
+		emoticon model2.EmoticonItem
+		record   = &model2.TalkRecords{
 			TalkType:   opts.TalkType,
 			MsgType:    entity.MsgTypeFile,
 			UserId:     opts.UserId,
@@ -393,7 +393,7 @@ func (s *TalkMessageService) SendEmoticonMessage(ctx context.Context, opts *Emot
 		}
 	)
 
-	if err = s.db.Model(&model.EmoticonItem{}).Where("id = ?", opts.EmoticonId).First(&emoticon).Error; err != nil {
+	if err = s.db.Model(&model2.EmoticonItem{}).Where("id = ?", opts.EmoticonId).First(&emoticon).Error; err != nil {
 		return err
 	}
 
@@ -406,7 +406,7 @@ func (s *TalkMessageService) SendEmoticonMessage(ctx context.Context, opts *Emot
 			return err
 		}
 
-		if err = s.db.Create(&model.TalkRecordsFile{
+		if err = s.db.Create(&model2.TalkRecordsFile{
 			RecordId:     record.Id,
 			UserId:       opts.UserId,
 			Source:       2,
@@ -437,7 +437,7 @@ func (s *TalkMessageService) SendLocationMessage(ctx context.Context, opts *Loca
 
 	var (
 		err    error
-		record = &model.TalkRecords{
+		record = &model2.TalkRecords{
 			TalkType:   opts.TalkType,
 			MsgType:    entity.MsgTypeLocation,
 			UserId:     opts.UserId,
@@ -450,7 +450,7 @@ func (s *TalkMessageService) SendLocationMessage(ctx context.Context, opts *Loca
 			return err
 		}
 
-		if err = s.db.Create(&model.TalkRecordsLocation{
+		if err = s.db.Create(&model2.TalkRecordsLocation{
 			RecordId:  record.Id,
 			UserId:    opts.UserId,
 			Longitude: opts.Longitude,
@@ -475,7 +475,7 @@ func (s *TalkMessageService) SendLocationMessage(ctx context.Context, opts *Loca
 func (s *TalkMessageService) SendRevokeRecordMessage(ctx context.Context, uid int, recordId int) error {
 	var (
 		err    error
-		record model.TalkRecords
+		record model2.TalkRecords
 	)
 
 	if err = s.db.First(&record, recordId).Error; err != nil {
@@ -494,7 +494,7 @@ func (s *TalkMessageService) SendRevokeRecordMessage(ctx context.Context, uid in
 		return errors.New("超出有效撤回时间范围，无法进行撤销！")
 	}
 
-	if err = s.db.Model(&model.TalkRecords{Id: recordId}).Update("is_revoke", 1).Error; err != nil {
+	if err = s.db.Model(&model2.TalkRecords{Id: recordId}).Update("is_revoke", 1).Error; err != nil {
 		return err
 	}
 
@@ -514,7 +514,7 @@ func (s *TalkMessageService) SendRevokeRecordMessage(ctx context.Context, uid in
 func (s *TalkMessageService) VoteHandle(ctx context.Context, opts *VoteMessageHandleOpts) (int, error) {
 	var (
 		err  error
-		vote *model.QueryVoteModel
+		vote *model2.QueryVoteModel
 	)
 
 	tx := s.db.Table("talk_records")
@@ -566,10 +566,10 @@ func (s *TalkMessageService) VoteHandle(ctx context.Context, opts *VoteMessageHa
 		options = options[:1]
 	}
 
-	answers := make([]*model.TalkRecordsVoteAnswer, 0, len(options))
+	answers := make([]*model2.TalkRecordsVoteAnswer, 0, len(options))
 
 	for _, option := range options {
-		answers = append(answers, &model.TalkRecordsVoteAnswer{
+		answers = append(answers, &model2.TalkRecordsVoteAnswer{
 			VoteId: vote.VoteId,
 			UserId: opts.UserId,
 			Option: option,
@@ -605,7 +605,7 @@ func (s *TalkMessageService) VoteHandle(ctx context.Context, opts *VoteMessageHa
 func (s *TalkMessageService) SendLoginMessage(ctx context.Context, opts *LoginMessageOpts) error {
 	var (
 		err    error
-		record = &model.TalkRecords{
+		record = &model2.TalkRecords{
 			TalkType:   entity.ChatPrivateMode,
 			MsgType:    entity.MsgTypeLogin,
 			UserId:     4257,
@@ -618,7 +618,7 @@ func (s *TalkMessageService) SendLoginMessage(ctx context.Context, opts *LoginMe
 			return err
 		}
 
-		if err = s.db.Create(&model.TalkRecordsLogin{
+		if err = s.db.Create(&model2.TalkRecordsLogin{
 			RecordId: record.Id,
 			UserId:   opts.UserId,
 			Ip:       opts.Ip,
@@ -641,7 +641,7 @@ func (s *TalkMessageService) SendLoginMessage(ctx context.Context, opts *LoginMe
 }
 
 // 发送消息后置处理
-func (s *TalkMessageService) afterHandle(ctx context.Context, record *model.TalkRecords, opts map[string]string) {
+func (s *TalkMessageService) afterHandle(ctx context.Context, record *model2.TalkRecords, opts map[string]string) {
 	if record.TalkType == entity.ChatPrivateMode {
 		s.unreadTalkCache.Increment(ctx, record.UserId, record.ReceiverId)
 
@@ -650,7 +650,7 @@ func (s *TalkMessageService) afterHandle(ctx context.Context, record *model.Talk
 		}
 	}
 
-	_ = s.lastMessage.Set(ctx, record.TalkType, record.UserId, record.ReceiverId, &cache.LastCacheMessage{
+	_ = s.lastMessage.Set(ctx, record.TalkType, record.UserId, record.ReceiverId, &cache2.LastCacheMessage{
 		Content:  opts["text"],
 		Datetime: timeutil.DateTime(),
 	})

@@ -10,8 +10,6 @@ import (
 	"context"
 	"github.com/google/wire"
 	"go-chat/config"
-	"go-chat/internal/cache"
-	"go-chat/internal/dao"
 	"go-chat/internal/job/internal/command"
 	cron2 "go-chat/internal/job/internal/command/cron"
 	other2 "go-chat/internal/job/internal/command/other"
@@ -22,6 +20,8 @@ import (
 	"go-chat/internal/pkg/client"
 	"go-chat/internal/pkg/filesystem"
 	"go-chat/internal/provider"
+	"go-chat/internal/repository/cache"
+	"go-chat/internal/repository/dao"
 )
 
 // Injectors from wire.go:

@@ -5,8 +5,8 @@ import (
 	"path"
 	"time"
 
-	"go-chat/internal/model"
 	"go-chat/internal/pkg/filesystem"
+	"go-chat/internal/repository/model"
 	"gorm.io/gorm"
 )
 

@@ -4,14 +4,14 @@ import (
 	"context"
 	"sort"
 
-	"go-chat/internal/cache"
-	"go-chat/internal/dao"
 	"go-chat/internal/entity"
-	"go-chat/internal/model"
 	"go-chat/internal/pkg/jsonutil"
 	"go-chat/internal/pkg/logger"
 	"go-chat/internal/pkg/sliceutil"
 	"go-chat/internal/pkg/timeutil"
+	"go-chat/internal/repository/cache"
+	dao2 "go-chat/internal/repository/dao"
+	model2 "go-chat/internal/repository/model"
 )
 
 type QueryTalkRecordsOpts struct {
@@ -48,16 +48,16 @@ type TalkRecordsItem struct {
 type TalkRecordsService struct {
 	*BaseService
 	talkVoteCache      *cache.TalkVote
-	talkRecordsVoteDao *dao.TalkRecordsVoteDao
-	groupMemberDao     *dao.GroupMemberDao
-	dao                *dao.TalkRecordsDao
+	talkRecordsVoteDao *dao2.TalkRecordsVoteDao
+	groupMemberDao     *dao2.GroupMemberDao
+	dao                *dao2.TalkRecordsDao
 }
 
-func NewTalkRecordsService(baseService *BaseService, talkVoteCache *cache.TalkVote, talkRecordsVoteDao *dao.TalkRecordsVoteDao, groupMemberDao *dao.GroupMemberDao, dao *dao.TalkRecordsDao) *TalkRecordsService {
+func NewTalkRecordsService(baseService *BaseService, talkVoteCache *cache.TalkVote, talkRecordsVoteDao *dao2.TalkRecordsVoteDao, groupMemberDao *dao2.GroupMemberDao, dao *dao2.TalkRecordsDao) *TalkRecordsService {
 	return &TalkRecordsService{BaseService: baseService, talkVoteCache: talkVoteCache, talkRecordsVoteDao: talkRecordsVoteDao, groupMemberDao: groupMemberDao, dao: dao}
 }
 
-func (s *TalkRecordsService) Dao() *dao.TalkRecordsDao {
+func (s *TalkRecordsService) Dao() *dao2.TalkRecordsDao {
 	return s.dao
 }
 
@@ -65,7 +65,7 @@ func (s *TalkRecordsService) Dao() *dao.TalkRecordsDao {
 func (s *TalkRecordsService) GetTalkRecords(ctx context.Context, opts *QueryTalkRecordsOpts) ([]*TalkRecordsItem, error) {
 	var (
 		err    error
-		items  = make([]*model.QueryTalkRecordsItem, 0)
+		items  = make([]*model2.QueryTalkRecordsItem, 0)
 		fields = []string{
 			"talk_records.id",
 			"talk_records.talk_type",
@@ -124,7 +124,7 @@ func (s *TalkRecordsService) SearchTalkRecords() {
 func (s *TalkRecordsService) GetTalkRecord(ctx context.Context, recordId int64) (*TalkRecordsItem, error) {
 	var (
 		err    error
-		item   *model.QueryTalkRecordsItem
+		item   *model2.QueryTalkRecordsItem
 		fields = []string{
 			"talk_records.id",
 			"talk_records.talk_type",
@@ -147,7 +147,7 @@ func (s *TalkRecordsService) GetTalkRecord(ctx context.Context, recordId int64) 
 		return nil, err
 	}
 
-	list, err := s.HandleTalkRecords(ctx, []*model.QueryTalkRecordsItem{item})
+	list, err := s.HandleTalkRecords(ctx, []*model2.QueryTalkRecordsItem{item})
 	if err != nil {
 		return nil, err
 	}
@@ -157,7 +157,7 @@ func (s *TalkRecordsService) GetTalkRecord(ctx context.Context, recordId int64) 
 
 // GetForwardRecords 获取转发消息记录
 func (s *TalkRecordsService) GetForwardRecords(ctx context.Context, uid int, recordId int64) ([]*TalkRecordsItem, error) {
-	record := &model.TalkRecords{}
+	record := &model2.TalkRecords{}
 	if err := s.db.First(&record, recordId).Error; err != nil {
 		return nil, err
 	}
@@ -174,13 +174,13 @@ func (s *TalkRecordsService) GetForwardRecords(ctx context.Context, uid int, rec
 		return nil, entity.ErrPermissionDenied
 	}
 
-	forward := &model.TalkRecordsForward{}
+	forward := &model2.TalkRecordsForward{}
 	if err := s.db.Where("record_id = ?", recordId).First(forward).Error; err != nil {
 		return nil, err
 	}
 
 	var (
-		items  = make([]*model.QueryTalkRecordsItem, 0)
+		items  = make([]*model2.QueryTalkRecordsItem, 0)
 		fields = []string{
 			"talk_records.id",
 			"talk_records.talk_type",
@@ -207,7 +207,7 @@ func (s *TalkRecordsService) GetForwardRecords(ctx context.Context, uid int, rec
 	return s.HandleTalkRecords(ctx, items)
 }
 
-func (s *TalkRecordsService) HandleTalkRecords(ctx context.Context, items []*model.QueryTalkRecordsItem) ([]*TalkRecordsItem, error) {
+func (s *TalkRecordsService) HandleTalkRecords(ctx context.Context, items []*model2.QueryTalkRecordsItem) ([]*TalkRecordsItem, error) {
 	var (
 		files     []int
 		codes     []int
@@ -217,13 +217,13 @@ func (s *TalkRecordsService) HandleTalkRecords(ctx context.Context, items []*mod
 		logins    []int
 		locations []int
 
-		fileItems     []*model.TalkRecordsFile
-		codeItems     []*model.TalkRecordsCode
-		forwardItems  []*model.TalkRecordsForward
-		inviteItems   []*model.TalkRecordsInvite
-		voteItems     []*model.TalkRecordsVote
-		loginItems    []*model.TalkRecordsLogin
-		locationItems []*model.TalkRecordsLocation
+		fileItems     []*model2.TalkRecordsFile
+		codeItems     []*model2.TalkRecordsCode
+		forwardItems  []*model2.TalkRecordsForward
+		inviteItems   []*model2.TalkRecordsInvite
+		voteItems     []*model2.TalkRecordsVote
+		loginItems    []*model2.TalkRecordsLogin
+		locationItems []*model2.TalkRecordsLocation
 	)
 
 	for _, item := range items {
@@ -247,57 +247,57 @@ func (s *TalkRecordsService) HandleTalkRecords(ctx context.Context, items []*mod
 		}
 	}
 
-	hashFiles := make(map[int]*model.TalkRecordsFile)
+	hashFiles := make(map[int]*model2.TalkRecordsFile)
 	if len(files) > 0 {
-		s.db.Model(&model.TalkRecordsFile{}).Where("record_id in ?", files).Scan(&fileItems)
+		s.db.Model(&model2.TalkRecordsFile{}).Where("record_id in ?", files).Scan(&fileItems)
 		for i := range fileItems {
 			hashFiles[fileItems[i].RecordId] = fileItems[i]
 		}
 	}
 
-	hashForwards := make(map[int]*model.TalkRecordsForward)
+	hashForwards := make(map[int]*model2.TalkRecordsForward)
 	if len(forwards) > 0 {
-		s.db.Model(&model.TalkRecordsForward{}).Where("record_id in ?", forwards).Scan(&forwardItems)
+		s.db.Model(&model2.TalkRecordsForward{}).Where("record_id in ?", forwards).Scan(&forwardItems)
 		for i := range forwardItems {
 			hashForwards[forwardItems[i].RecordId] = forwardItems[i]
 		}
 	}
 
-	hashCodes := make(map[int]*model.TalkRecordsCode)
+	hashCodes := make(map[int]*model2.TalkRecordsCode)
 	if len(codes) > 0 {
-		s.db.Model(&model.TalkRecordsCode{}).Where("record_id in ?", codes).Select("record_id", "lang", "code").Scan(&codeItems)
+		s.db.Model(&model2.TalkRecordsCode{}).Where("record_id in ?", codes).Select("record_id", "lang", "code").Scan(&codeItems)
 		for i := range codeItems {
 			hashCodes[codeItems[i].RecordId] = codeItems[i]
 		}
 	}
 
-	hashVotes := make(map[int]*model.TalkRecordsVote)
+	hashVotes := make(map[int]*model2.TalkRecordsVote)
 	if len(votes) > 0 {
-		s.db.Model(&model.TalkRecordsVote{}).Where("record_id in ?", votes).Scan(&voteItems)
+		s.db.Model(&model2.TalkRecordsVote{}).Where("record_id in ?", votes).Scan(&voteItems)
 		for i := range voteItems {
 			hashVotes[voteItems[i].RecordId] = voteItems[i]
 		}
 	}
 
-	hashLogins := make(map[int]*model.TalkRecordsLogin)
+	hashLogins := make(map[int]*model2.TalkRecordsLogin)
 	if len(logins) > 0 {
-		s.db.Model(&model.TalkRecordsLogin{}).Where("record_id in ?", logins).Scan(&loginItems)
+		s.db.Model(&model2.TalkRecordsLogin{}).Where("record_id in ?", logins).Scan(&loginItems)
 		for i := range loginItems {
 			hashLogins[loginItems[i].RecordId] = loginItems[i]
 		}
 	}
 
-	hashInvites := make(map[int]*model.TalkRecordsInvite)
+	hashInvites := make(map[int]*model2.TalkRecordsInvite)
 	if len(invites) > 0 {
-		s.db.Model(&model.TalkRecordsInvite{}).Where("record_id in ?", invites).Scan(&inviteItems)
+		s.db.Model(&model2.TalkRecordsInvite{}).Where("record_id in ?", invites).Scan(&inviteItems)
 		for i := range inviteItems {
 			hashInvites[inviteItems[i].RecordId] = inviteItems[i]
 		}
 	}
 
-	hashLocations := make(map[int]*model.TalkRecordsLocation)
+	hashLocations := make(map[int]*model2.TalkRecordsLocation)
 	if len(locations) > 0 {
-		s.db.Model(&model.TalkRecordsLocation{}).Where("record_id in ?", locations).Scan(&locationItems)
+		s.db.Model(&model2.TalkRecordsLocation{}).Where("record_id in ?", locations).Scan(&locationItems)
 		for i := range locationItems {
 			hashLocations[locationItems[i].RecordId] = locationItems[i]
 		}
@@ -415,7 +415,7 @@ func (s *TalkRecordsService) HandleTalkRecords(ctx context.Context, items []*mod
 					"nickname": "",
 				}
 
-				var user *model.Users
+				var user *model2.Users
 				if err := s.db.First(&user, value.OperateUserId).Error; err == nil {
 					operateUser["nickname"] = user.Nickname
 				}
@@ -428,7 +428,7 @@ func (s *TalkRecordsService) HandleTalkRecords(ctx context.Context, items []*mod
 
 				if value.Type == 1 || value.Type == 3 {
 					var results []map[string]interface{}
-					s.db.Model(&model.Users{}).Select("id", "nickname").Where("id in ?", sliceutil.ParseIds(value.UserIds)).Scan(&results)
+					s.db.Model(&model2.Users{}).Select("id", "nickname").Where("id in ?", sliceutil.ParseIds(value.UserIds)).Scan(&results)
 					m["users"] = results
 				} else {
 					m["users"] = operateUser

@@ -1,8 +1,8 @@
 package note
 
 import (
-	"go-chat/internal/dao"
-	"go-chat/internal/model"
+	"go-chat/internal/repository/dao"
+	model2 "go-chat/internal/repository/model"
 )
 
 type ArticleClassDao struct {
@@ -16,7 +16,7 @@ func NewArticleClassDao(baseDao *dao.BaseDao) *ArticleClassDao {
 func (dao *ArticleClassDao) MaxSort(uid int) (int, error) {
 	var sort int
 
-	err := dao.Db().Model(&model.ArticleClass{}).Select("max(sort)").Where("user_id = ?", uid).Scan(&sort).Error
+	err := dao.Db().Model(&model2.ArticleClass{}).Select("max(sort)").Where("user_id = ?", uid).Scan(&sort).Error
 	if err != nil {
 		return 0, err
 	}
@@ -27,7 +27,7 @@ func (dao *ArticleClassDao) MaxSort(uid int) (int, error) {
 func (dao *ArticleClassDao) MinSort(uid int) (int, error) {
 	var sort int
 
-	err := dao.Db().Model(&model.ArticleClass{}).Select("min(sort)").Where("user_id = ?", uid).Scan(&sort).Error
+	err := dao.Db().Model(&model2.ArticleClass{}).Select("min(sort)").Where("user_id = ?", uid).Scan(&sort).Error
 	if err != nil {
 		return 0, err
 	}
@@ -42,7 +42,7 @@ type ClassCount struct {
 
 func (dao *ArticleClassDao) GroupCount(uid int) (map[int]int, error) {
 	items := make([]*ClassCount, 0)
-	if err := dao.Db().Model(&model.Article{}).Select("class_id", "count(*) as count").Where("user_id = ? and status = 1", uid).Group("class_id").Scan(&items).Error; err != nil {
+	if err := dao.Db().Model(&model2.Article{}).Select("class_id", "count(*) as count").Where("user_id = ? and status = 1", uid).Group("class_id").Scan(&items).Error; err != nil {
 		return nil, err
 	}
 
