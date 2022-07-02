@@ -7,10 +7,13 @@ import (
 	"context"
 
 	"go-chat/config"
+	"go-chat/internal/http/internal/handler/admin"
+	"go-chat/internal/http/internal/handler/open"
+	"go-chat/internal/http/internal/handler/web"
 	"go-chat/internal/pkg/client"
 	"go-chat/internal/provider"
-	cache2 "go-chat/internal/repository/cache"
-	dao2 "go-chat/internal/repository/dao"
+	"go-chat/internal/repository/cache"
+	"go-chat/internal/repository/dao"
 	note3 "go-chat/internal/repository/dao/note"
 	organize3 "go-chat/internal/repository/dao/organize"
 	"go-chat/internal/service/note"
@@ -34,9 +37,9 @@ var providerSet = wire.NewSet(
 
 	// 注册路由
 	router.NewRouter,
-	wire.Struct(new(handler.ApiHandler), "*"),
-	wire.Struct(new(handler.AdminHandler), "*"),
-	wire.Struct(new(handler.OpenHandler), "*"),
+	wire.Struct(new(web.Handler), "*"),
+	wire.Struct(new(admin.Handler), "*"),
+	wire.Struct(new(open.Handler), "*"),
 	wire.Struct(new(handler.Handler), "*"),
 
 	// AppProvider
@@ -44,31 +47,31 @@ var providerSet = wire.NewSet(
 )
 
 var cacheProviderSet = wire.NewSet(
-	cache2.NewSession,
-	cache2.NewSid,
-	cache2.NewUnreadTalkCache,
-	cache2.NewRedisLock,
-	cache2.NewWsClientSession,
-	cache2.NewLastMessage,
-	cache2.NewTalkVote,
-	cache2.NewRoom,
-	cache2.NewRelation,
-	cache2.NewSmsCodeCache,
+	cache.NewSession,
+	cache.NewSid,
+	cache.NewUnreadTalkCache,
+	cache.NewRedisLock,
+	cache.NewWsClientSession,
+	cache.NewLastMessage,
+	cache.NewTalkVote,
+	cache.NewRoom,
+	cache.NewRelation,
+	cache.NewSmsCodeCache,
 )
 
 var daoProviderSet = wire.NewSet(
-	dao2.NewBaseDao,
-	dao2.NewContactDao,
-	dao2.NewGroupMemberDao,
-	dao2.NewUserDao,
-	dao2.NewGroupDao,
-	dao2.NewGroupApply,
-	dao2.NewTalkRecordsDao,
-	dao2.NewGroupNoticeDao,
-	dao2.NewTalkSessionDao,
-	dao2.NewEmoticonDao,
-	dao2.NewTalkRecordsVoteDao,
-	dao2.NewFileSplitUploadDao,
+	dao.NewBaseDao,
+	dao.NewContactDao,
+	dao.NewGroupMemberDao,
+	dao.NewUserDao,
+	dao.NewGroupDao,
+	dao.NewGroupApply,
+	dao.NewTalkRecordsDao,
+	dao.NewGroupNoticeDao,
+	dao.NewTalkSessionDao,
+	dao.NewEmoticonDao,
+	dao.NewTalkRecordsVoteDao,
+	dao.NewFileSplitUploadDao,
 	note3.NewArticleClassDao,
 	note3.NewArticleAnnexDao,
 	organize3.NewDepartmentDao,
@@ -113,7 +116,9 @@ func Initialize(ctx context.Context, conf *config.Config) *AppProvider {
 			cacheProviderSet,   // 注入 Cache 依赖
 			daoProviderSet,     // 注入 Dao 依赖
 			serviceProviderSet, // 注入 Service 依赖
-			handler.ProviderSet,
+			web.ProviderSet,    // 注入 Web Handler 依赖
+			admin.ProviderSet,  // 注入 Admin Handler 依赖
+			open.ProviderSet,   // 注入 Open Handler 依赖
 		),
 	)
 }

@@ -4,14 +4,14 @@ import (
 	"github.com/gin-gonic/gin"
 	"go-chat/config"
 	"go-chat/internal/entity"
-	"go-chat/internal/http/internal/handler"
+	"go-chat/internal/http/internal/handler/web"
 	"go-chat/internal/pkg/ichat"
 	"go-chat/internal/pkg/jwtutil"
 	"go-chat/internal/repository/cache"
 )
 
-// RegisterApiRoute 注册 API 路由
-func RegisterApiRoute(conf *config.Config, router *gin.Engine, handler *handler.ApiHandler, session *cache.Session) {
+// RegisterWebRoute 注册 API 路由
+func RegisterWebRoute(conf *config.Config, router *gin.Engine, handler *web.Handler, session *cache.Session) {
 	// 授权验证中间件
 	authorize := jwtutil.Auth(conf.Jwt.Secret, "api", session)
 

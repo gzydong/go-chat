@@ -35,7 +35,7 @@ func NewRouter(conf *config.Config, handler *handler.Handler, tokenCache *cache.
 		c.JSON(200, entity.H{"status": "ok"})
 	})
 
-	RegisterApiRoute(conf, router, handler.Api, tokenCache)
+	RegisterWebRoute(conf, router, handler.Api, tokenCache)
 	RegisterAdminRoute(conf, router, handler.Admin, tokenCache)
 	RegisterOpenRoute(conf, router, handler.Open, tokenCache)
 

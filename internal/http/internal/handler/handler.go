@@ -1,43 +1,13 @@
 package handler
 
 import (
-	"go-chat/internal/http/internal/handler/web/v1"
-	"go-chat/internal/http/internal/handler/web/v1/article"
-	"go-chat/internal/http/internal/handler/web/v1/contact"
-	"go-chat/internal/http/internal/handler/web/v1/group"
-	"go-chat/internal/http/internal/handler/web/v1/talk"
+	"go-chat/internal/http/internal/handler/admin"
+	"go-chat/internal/http/internal/handler/open"
+	"go-chat/internal/http/internal/handler/web"
 )
 
 type Handler struct {
-	Api   *ApiHandler   // 前端接口
-	Admin *AdminHandler // 后台接口
-	Open  *OpenHandler  // 对外接口
-}
-
-type ApiHandler struct {
-	Common        *v1.Common
-	Auth          *v1.Auth
-	User          *v1.User
-	Organize      *v1.Organize
-	TalkMessage   *talk.Message
-	Talk          *talk.Talk
-	TalkRecords   *talk.Records
-	Emoticon      *v1.Emoticon
-	Upload        *v1.Upload
-	Group         *group.Group
-	GroupNotice   *group.Notice
-	GroupApply    *group.Apply
-	Contact       *contact.Contact
-	ContactsApply *contact.Apply
-	Article       *article.Article
-	ArticleAnnex  *article.Annex
-	ArticleClass  *article.Class
-	ArticleTag    *article.Tag
-	Test          *v1.Test
-}
-
-type AdminHandler struct {
-}
-
-type OpenHandler struct {
+	Api   *web.Handler   // 前端接口
+	Admin *admin.Handler // 后台接口
+	Open  *open.Handler  // 对外接口
 }

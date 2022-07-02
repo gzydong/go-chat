@@ -11,6 +11,11 @@ import (
 	"github.com/google/wire"
 	"go-chat/config"
 	"go-chat/internal/http/internal/handler"
+	"go-chat/internal/http/internal/handler/admin"
+	v1_2 "go-chat/internal/http/internal/handler/admin/v1"
+	"go-chat/internal/http/internal/handler/open"
+	v1_3 "go-chat/internal/http/internal/handler/open/v1"
+	"go-chat/internal/http/internal/handler/web"
 	"go-chat/internal/http/internal/handler/web/v1"
 	"go-chat/internal/http/internal/handler/web/v1/article"
 	"go-chat/internal/http/internal/handler/web/v1/contact"
@@ -113,7 +118,7 @@ func Initialize(ctx context.Context, conf *config.Config) *AppProvider {
 	emailClient := provider.NewEmailClient(conf)
 	templateService := service.NewTemplateService()
 	test := v1.NewTest(conf, emailClient, templateService)
-	apiHandler := &handler.ApiHandler{
+	webHandler := &web.Handler{
 		Common:        common,
 		Auth:          auth,
 		User:          user,
@@ -134,10 +139,16 @@ func Initialize(ctx context.Context, conf *config.Config) *AppProvider {
 		ArticleTag:    tag,
 		Test:          test,
 	}
-	adminHandler := &handler.AdminHandler{}
-	openHandler := &handler.OpenHandler{}
+	index := v1_2.NewIndex()
+	adminHandler := &admin.Handler{
+		Index: index,
+	}
+	v1Index := v1_3.NewIndex()
+	openHandler := &open.Handler{
+		Index: v1Index,
+	}
 	handlerHandler := &handler.Handler{
-		Api:   apiHandler,
+		Api:   webHandler,
 		Admin: adminHandler,
 		Open:  openHandler,
 	}
@@ -152,7 +163,7 @@ func Initialize(ctx context.Context, conf *config.Config) *AppProvider {
 
 // wire.go:
 
-var providerSet = wire.NewSet(provider.NewMySQLClient, provider.NewRedisClient, provider.NewHttpClient, provider.NewEmailClient, provider.NewHttpServer, provider.NewFilesystem, client.NewHttpClient, router.NewRouter, wire.Struct(new(handler.ApiHandler), "*"), wire.Struct(new(handler.AdminHandler), "*"), wire.Struct(new(handler.OpenHandler), "*"), wire.Struct(new(handler.Handler), "*"), wire.Struct(new(AppProvider), "*"))
+var providerSet = wire.NewSet(provider.NewMySQLClient, provider.NewRedisClient, provider.NewHttpClient, provider.NewEmailClient, provider.NewHttpServer, provider.NewFilesystem, client.NewHttpClient, router.NewRouter, wire.Struct(new(web.Handler), "*"), wire.Struct(new(admin.Handler), "*"), wire.Struct(new(open.Handler), "*"), wire.Struct(new(handler.Handler), "*"), wire.Struct(new(AppProvider), "*"))
 
 var cacheProviderSet = wire.NewSet(cache.NewSession, cache.NewSid, cache.NewUnreadTalkCache, cache.NewRedisLock, cache.NewWsClientSession, cache.NewLastMessage, cache.NewTalkVote, cache.NewRoom, cache.NewRelation, cache.NewSmsCodeCache)
 

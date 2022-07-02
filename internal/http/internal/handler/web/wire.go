@@ -1,8 +1,8 @@
-package handler
+package web
 
 import (
 	"github.com/google/wire"
-	v1 "go-chat/internal/http/internal/handler/web/v1"
+	"go-chat/internal/http/internal/handler/web/v1"
 	"go-chat/internal/http/internal/handler/web/v1/article"
 	"go-chat/internal/http/internal/handler/web/v1/contact"
 	"go-chat/internal/http/internal/handler/web/v1/group"

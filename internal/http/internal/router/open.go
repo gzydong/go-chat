@@ -3,13 +3,13 @@ package router
 import (
 	"github.com/gin-gonic/gin"
 	"go-chat/config"
-	"go-chat/internal/http/internal/handler"
+	"go-chat/internal/http/internal/handler/open"
 	"go-chat/internal/pkg/jwtutil"
 	"go-chat/internal/repository/cache"
 )
 
 // RegisterOpenRoute 注册 Open 路由
-func RegisterOpenRoute(conf *config.Config, router *gin.Engine, handler *handler.OpenHandler, session *cache.Session) {
+func RegisterOpenRoute(conf *config.Config, router *gin.Engine, handler *open.Handler, session *cache.Session) {
 	// 授权验证中间件
 	authorize := jwtutil.Auth(conf.Jwt.Secret, "open", session)
 
