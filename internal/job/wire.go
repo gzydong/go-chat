@@ -58,9 +58,9 @@ var providerSet = wire.NewSet(
 
 	// 服务
 	wire.Struct(new(command.Commands), "*"),
-	wire.Struct(new(Provider), "*"),
+	wire.Struct(new(AppProvider), "*"),
 )
 
-func Initialize(ctx context.Context, conf *config.Config) *Provider {
+func Initialize(ctx context.Context, conf *config.Config) *AppProvider {
 	panic(wire.Build(providerSet))
 }

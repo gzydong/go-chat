@@ -8,11 +8,11 @@ import (
 
 	"go-chat/config"
 	"go-chat/internal/provider"
-	cache2 "go-chat/internal/repository/cache"
-	dao2 "go-chat/internal/repository/dao"
+	"go-chat/internal/repository/cache"
+	"go-chat/internal/repository/dao"
 	"go-chat/internal/service"
-	handle2 "go-chat/internal/websocket/internal/handler"
-	handle "go-chat/internal/websocket/internal/process/handle"
+	"go-chat/internal/websocket/internal/handler"
+	"go-chat/internal/websocket/internal/process/handle"
 	"go-chat/internal/websocket/internal/process/server"
 	"go-chat/internal/websocket/internal/router"
 
@@ -36,20 +36,20 @@ var providerSet = wire.NewSet(
 	handle.NewSubscribeConsume,
 
 	// 缓存
-	cache2.NewSession,
-	cache2.NewSid,
-	cache2.NewRedisLock,
-	cache2.NewWsClientSession,
-	cache2.NewRoom,
-	cache2.NewTalkVote,
-	cache2.NewRelation,
+	cache.NewSession,
+	cache.NewSid,
+	cache.NewRedisLock,
+	cache.NewWsClientSession,
+	cache.NewRoom,
+	cache.NewTalkVote,
+	cache.NewRelation,
 
 	// dao 数据层
-	dao2.NewBaseDao,
-	dao2.NewTalkRecordsDao,
-	dao2.NewTalkRecordsVoteDao,
-	dao2.NewGroupMemberDao,
-	dao2.NewContactDao,
+	dao.NewBaseDao,
+	dao.NewTalkRecordsDao,
+	dao.NewTalkRecordsVoteDao,
+	dao.NewGroupMemberDao,
+	dao.NewContactDao,
 
 	// 服务
 	service.NewBaseService,
@@ -59,10 +59,10 @@ var providerSet = wire.NewSet(
 	service.NewContactService,
 
 	// handle
-	handle2.NewDefaultWebSocket,
-	handle2.NewExampleWebsocket,
+	handler.NewDefaultWebSocket,
+	handler.NewExampleWebsocket,
 
-	wire.Struct(new(handle2.Handler), "*"),
+	wire.Struct(new(handler.Handler), "*"),
 	wire.Struct(new(Provider), "*"),
 )
 

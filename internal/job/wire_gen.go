@@ -25,7 +25,7 @@ import (
 
 // Injectors from wire.go:
 
-func Initialize(ctx context.Context, conf *config.Config) *Provider {
+func Initialize(ctx context.Context, conf *config.Config) *AppProvider {
 	client := provider.NewRedisClient(ctx, conf)
 	sidServer := cache.NewSid(client)
 	clearWsCacheHandle := cron.NewClearWsCacheHandle(sidServer)
@@ -54,13 +54,13 @@ func Initialize(ctx context.Context, conf *config.Config) *Provider {
 		QueueCommand:   queueCommand,
 		OtherCommand:   otherCommand,
 	}
-	mainProvider := &Provider{
+	appProvider := &AppProvider{
 		Config:   conf,
 		Commands: commands,
 	}
-	return mainProvider
+	return appProvider
 }
 
 // wire.go:
 
-var providerSet = wire.NewSet(provider.NewMySQLClient, provider.NewRedisClient, provider.NewHttpClient, provider.NewEmailClient, provider.NewRequestClient, filesystem.NewFilesystem, cache.NewSid, dao.NewBaseDao, cron2.NewCrontabCommand, cron.NewClearTmpFile, cron.NewClearArticle, cron.NewClearWsCacheHandle, cron.NewClearExpireServer, wire.Struct(new(cron2.Handles), "*"), queue.NewQueueCommand, wire.Struct(new(queue.Subcommands), "*"), queue2.NewEmailHandle, other2.NewOtherCommand, other2.NewExampleCommand, wire.Struct(new(other2.Subcommands), "*"), other.NewExampleHandle, wire.Struct(new(command.Commands), "*"), wire.Struct(new(Provider), "*"))
+var providerSet = wire.NewSet(provider.NewMySQLClient, provider.NewRedisClient, provider.NewHttpClient, provider.NewEmailClient, provider.NewRequestClient, filesystem.NewFilesystem, cache.NewSid, dao.NewBaseDao, cron2.NewCrontabCommand, cron.NewClearTmpFile, cron.NewClearArticle, cron.NewClearWsCacheHandle, cron.NewClearExpireServer, wire.Struct(new(cron2.Handles), "*"), queue.NewQueueCommand, wire.Struct(new(queue.Subcommands), "*"), queue2.NewEmailHandle, other2.NewOtherCommand, other2.NewExampleCommand, wire.Struct(new(other2.Subcommands), "*"), other.NewExampleHandle, wire.Struct(new(command.Commands), "*"), wire.Struct(new(AppProvider), "*"))

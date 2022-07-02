@@ -6,7 +6,7 @@ import (
 
 	"go-chat/internal/entity"
 	"go-chat/internal/pkg/filesystem"
-	model2 "go-chat/internal/repository/model"
+	"go-chat/internal/repository/model"
 	"gorm.io/gorm"
 )
 
@@ -40,9 +40,9 @@ func (c *ClearArticleHandle) clearAnnex() {
 	size := 100
 
 	for {
-		items := make([]*model2.ArticleAnnex, 0)
+		items := make([]*model.ArticleAnnex, 0)
 
-		err := c.db.Model(&model2.ArticleAnnex{}).Where("id > ? and status = 2 and deleted_at <= ?", lastId, time.Now().AddDate(0, 0, -30)).Order("id asc").Limit(size).Scan(&items).Error
+		err := c.db.Model(&model.ArticleAnnex{}).Where("id > ? and status = 2 and deleted_at <= ?", lastId, time.Now().AddDate(0, 0, -30)).Order("id asc").Limit(size).Scan(&items).Error
 		if err != nil {
 			break
 		}
@@ -54,7 +54,7 @@ func (c *ClearArticleHandle) clearAnnex() {
 				_ = c.fileSystem.Cos.Delete(item.Path)
 			}
 
-			c.db.Delete(&model2.ArticleAnnex{}, item.Id)
+			c.db.Delete(&model.ArticleAnnex{}, item.Id)
 		}
 
 		if len(items) < size {
@@ -71,17 +71,17 @@ func (c *ClearArticleHandle) clearNote() {
 	size := 100
 
 	for {
-		items := make([]*model2.Article, 0)
+		items := make([]*model.Article, 0)
 
-		err := c.db.Model(&model2.Article{}).Where("id > ? and status = 2 and deleted_at <= ?", lastId, time.Now().AddDate(0, 0, -30)).Order("id asc").Limit(size).Scan(&items).Error
+		err := c.db.Model(&model.Article{}).Where("id > ? and status = 2 and deleted_at <= ?", lastId, time.Now().AddDate(0, 0, -30)).Order("id asc").Limit(size).Scan(&items).Error
 		if err != nil {
 			break
 		}
 
 		for _, item := range items {
-			subItems := make([]*model2.ArticleAnnex, 0)
+			subItems := make([]*model.ArticleAnnex, 0)
 
-			if err := c.db.Model(&model2.ArticleAnnex{}).Select("drive", "path").Where("article_id = ?", item.Id).Scan(&subItems).Error; err != nil {
+			if err := c.db.Model(&model.ArticleAnnex{}).Select("drive", "path").Where("article_id = ?", item.Id).Scan(&subItems).Error; err != nil {
 				continue
 			}
 
@@ -92,11 +92,11 @@ func (c *ClearArticleHandle) clearNote() {
 					_ = c.fileSystem.Cos.Delete(subItem.Path)
 				}
 
-				c.db.Delete(&model2.ArticleAnnex{}, subItem.Id)
+				c.db.Delete(&model.ArticleAnnex{}, subItem.Id)
 			}
 
-			c.db.Delete(&model2.Article{}, item.Id)
-			c.db.Delete(&model2.ArticleDetail{}, "article_id = ?", item.Id)
+			c.db.Delete(&model.Article{}, item.Id)
+			c.db.Delete(&model.ArticleDetail{}, "article_id = ?", item.Id)
 		}
 
 		if len(items) < size {

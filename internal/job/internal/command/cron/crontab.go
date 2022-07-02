@@ -16,7 +16,7 @@ import (
 
 type Command *cli.Command
 
-type CrontabHandle interface {
+type ICrontab interface {
 	// Spec 配置定时任务规则
 	Spec() string
 
@@ -24,7 +24,7 @@ type CrontabHandle interface {
 	Handle(ctx context.Context) error
 }
 
-// Handles 注册的任务请务必实现 CrontabHandle 接口
+// Handles 注册的任务请务必实现 ICrontab 接口
 type Handles struct {
 	ClearWsCacheHandle      *crontab.ClearWsCacheHandle
 	ClearArticleHandle      *crontab.ClearArticleHandle
@@ -35,20 +35,24 @@ type Handles struct {
 func NewCrontabCommand(handles *Handles) Command {
 	return &cli.Command{
 		Name:  "crontab",
-		Usage: "Crontab Command | 常驻定时任务",
+		Usage: "Crontab Command - 常驻定时任务",
 		Action: func(ctx *cli.Context) error {
 			c := cron.New()
 
-			for _, job := range toCrontabHandle(handles) {
-				_, _ = c.AddFunc(job.Spec(), func() {
+			for _, job := range toCrontab(handles) {
+				_, err := c.AddFunc(job.Spec(), func() {
 					defer func() {
 						if err := recover(); err != nil {
-							fmt.Printf("CrontabHandle err: %v \n", err)
+							fmt.Printf("ICrontab err: %v \n", err)
 						}
 					}()
 
 					_ = job.Handle(ctx.Context)
 				})
+
+				if err != nil {
+					panic(err)
+				}
 			}
 
 			log.Println("Crontab 定时任务已启动...")
@@ -78,11 +82,11 @@ func run(cron *cron.Cron, ctx context.Context) error {
 	return nil
 }
 
-func toCrontabHandle(value interface{}) []CrontabHandle {
-	jobs := make([]CrontabHandle, 0)
+func toCrontab(value interface{}) []ICrontab {
+	jobs := make([]ICrontab, 0)
 	elem := reflect.ValueOf(value).Elem()
 	for i := 0; i < elem.NumField(); i++ {
-		if v, ok := elem.Field(i).Interface().(CrontabHandle); ok {
+		if v, ok := elem.Field(i).Interface().(ICrontab); ok {
 			jobs = append(jobs, v)
 		}
 	}
