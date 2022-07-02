@@ -6,8 +6,7 @@ import (
 	"time"
 
 	"go-chat/internal/entity"
-	"go-chat/internal/http/internal/dto/apiv"
-	api2 "go-chat/internal/http/internal/dto/web"
+	"go-chat/internal/http/internal/dto/web"
 	"go-chat/internal/pkg/ichat"
 	"go-chat/internal/pkg/jwtutil"
 	"go-chat/internal/pkg/utils"
@@ -42,23 +41,23 @@ func NewEmoticonHandler(
 func (c *Emoticon) CollectList(ctx *ichat.Context) error {
 	var (
 		uid     = jwtutil.GetUid(ctx.Context)
-		sys     = make([]*apiv.SysEmoticonResponse, 0)
-		collect = make([]*apiv.EmoticonItem, 0)
+		sys     = make([]*web.SysEmoticonResponse, 0)
+		collect = make([]*web.EmoticonItem, 0)
 	)
 
 	if ids := c.service.Dao().GetUserInstallIds(uid); len(ids) > 0 {
 		if items, err := c.service.Dao().FindByIds(ids); err == nil {
 			for _, item := range items {
-				data := &apiv.SysEmoticonResponse{
+				data := &web.SysEmoticonResponse{
 					EmoticonId: item.Id,
 					Url:        item.Icon,
 					Name:       item.Name,
-					List:       make([]*apiv.EmoticonItem, 0),
+					List:       make([]*web.EmoticonItem, 0),
 				}
 
 				if items, err := c.service.Dao().GetDetailsAll(item.Id, 0); err == nil {
 					for _, item := range items {
-						data.List = append(data.List, &apiv.EmoticonItem{
+						data.List = append(data.List, &web.EmoticonItem{
 							MediaId: item.Id,
 							Src:     item.Url,
 						})
@@ -72,7 +71,7 @@ func (c *Emoticon) CollectList(ctx *ichat.Context) error {
 
 	if items, err := c.service.Dao().GetDetailsAll(0, uid); err == nil {
 		for _, item := range items {
-			collect = append(collect, &apiv.EmoticonItem{
+			collect = append(collect, &web.EmoticonItem{
 				MediaId: item.Id,
 				Src:     item.Url,
 			})
@@ -88,7 +87,7 @@ func (c *Emoticon) CollectList(ctx *ichat.Context) error {
 
 // DeleteCollect 删除收藏表情包
 func (c *Emoticon) DeleteCollect(ctx *ichat.Context) error {
-	params := &api2.DeleteCollectRequest{}
+	params := &web.DeleteCollectRequest{}
 	if err := ctx.Context.ShouldBind(params); err != nil {
 		return ctx.InvalidParams(err)
 	}
@@ -156,9 +155,9 @@ func (c *Emoticon) SystemList(ctx *ichat.Context) error {
 
 	ids := c.service.Dao().GetUserInstallIds(jwtutil.GetUid(ctx.Context))
 
-	data := make([]*apiv.SysEmoticonList, 0, len(items))
+	data := make([]*web.SysEmoticonList, 0, len(items))
 	for _, item := range items {
-		data = append(data, &apiv.SysEmoticonList{
+		data = append(data, &web.SysEmoticonList{
 			ID:     item.Id,
 			Name:   item.Name,
 			Icon:   item.Icon,
@@ -173,7 +172,7 @@ func (c *Emoticon) SystemList(ctx *ichat.Context) error {
 func (c *Emoticon) SetSystemEmoticon(ctx *ichat.Context) error {
 	var (
 		err    error
-		params = &api2.SetSystemEmoticonRequest{}
+		params = &web.SetSystemEmoticonRequest{}
 		uid    = jwtutil.GetUid(ctx.Context)
 		key    = fmt.Sprintf("sys-emoticon:%d", uid)
 	)
@@ -205,17 +204,17 @@ func (c *Emoticon) SetSystemEmoticon(ctx *ichat.Context) error {
 		return ctx.BusinessError(err.Error())
 	}
 
-	items := make([]*apiv.EmoticonItem, 0)
+	items := make([]*web.EmoticonItem, 0)
 	if list, err := c.service.Dao().GetDetailsAll(params.EmoticonId, 0); err == nil {
 		for _, item := range list {
-			items = append(items, &apiv.EmoticonItem{
+			items = append(items, &web.EmoticonItem{
 				MediaId: item.Id,
 				Src:     item.Url,
 			})
 		}
 	}
 
-	return ctx.Success(&apiv.SysEmoticonResponse{
+	return ctx.Success(&web.SysEmoticonResponse{
 		EmoticonId: info.Id,
 		Url:        info.Icon,
 		Name:       info.Name,
