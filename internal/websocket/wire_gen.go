@@ -59,7 +59,7 @@ func Initialize(ctx context.Context, conf *config.Config) *Provider {
 	serverServer := server.NewServer(subServer)
 	mainProvider := &Provider{
 		Config:    conf,
-		WsServer:  websocketServer,
+		Server:    websocketServer,
 		Coroutine: serverServer,
 	}
 	return mainProvider

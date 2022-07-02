@@ -79,16 +79,16 @@ func Initialize(ctx context.Context, conf *config.Config) *AppProvider {
 	positionService := organize2.NewPositionService(baseService, positionDao)
 	v1Organize := v1.NewOrganize(organizeDeptService, organizeService, positionService)
 	talkService := service.NewTalkService(baseService, groupMemberDao)
-	talkMessageForwardService := service.NewTalkMessageForwardService(baseService)
-	splitUploadService := service.NewSplitUploadService(baseService, splitUploadDao, conf, filesystem)
 	contactDao := dao.NewContactDao(baseDao, relation)
 	contactService := service.NewContactService(baseService, contactDao)
-	groupMemberService := service.NewGroupMemberService(baseService, groupMemberDao)
-	message := talk.NewMessage(talkMessageService, talkService, talkRecordsVoteDao, talkMessageForwardService, splitUploadService, contactService, groupMemberService, organizeService)
 	groupDao := dao.NewGroupDao(baseDao)
 	groupService := service.NewGroupService(baseService, groupDao, groupMemberDao, relation)
 	authPermissionService := service.NewAuthPermissionService(contactDao, groupMemberDao, organizeDao)
 	talkTalk := talk.NewTalk(talkService, talkSessionService, redisLock, userService, wsClientSession, lastMessage, unreadTalkCache, contactService, groupService, authPermissionService)
+	talkMessageForwardService := service.NewTalkMessageForwardService(baseService)
+	splitUploadService := service.NewSplitUploadService(baseService, splitUploadDao, conf, filesystem)
+	groupMemberService := service.NewGroupMemberService(baseService, groupMemberDao)
+	message := talk.NewMessage(talkMessageService, talkService, talkRecordsVoteDao, talkMessageForwardService, splitUploadService, contactService, groupMemberService, organizeService)
 	talkRecordsDao := dao.NewTalkRecordsDao(baseDao)
 	talkRecordsService := service.NewTalkRecordsService(baseService, talkVote, talkRecordsVoteDao, groupMemberDao, talkRecordsDao)
 	records := talk.NewRecords(talkRecordsService, groupMemberService, filesystem, authPermissionService)
@@ -119,8 +119,8 @@ func Initialize(ctx context.Context, conf *config.Config) *AppProvider {
 		Auth:          auth,
 		User:          user,
 		Organize:      v1Organize,
-		TalkMessage:   message,
 		Talk:          talkTalk,
+		TalkMessage:   message,
 		TalkRecords:   records,
 		Emoticon:      emoticon,
 		Upload:        upload,

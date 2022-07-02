@@ -29,14 +29,8 @@ type DefaultWebSocket struct {
 	groupMemberService *service.GroupMemberService
 }
 
-func NewDefaultWebSocket(
-	rds *redis.Client,
-	conf *config.Config,
-	client *service.ClientService,
-	room *cache.Room,
-	groupMemberService *service.GroupMemberService,
-) *DefaultWebSocket {
-	return &DefaultWebSocket{rds: rds, conf: conf, cache: client, room: room, groupMemberService: groupMemberService}
+func NewDefaultWebSocket(rds *redis.Client, conf *config.Config, cache *service.ClientService, room *cache.Room, groupMemberService *service.GroupMemberService) *DefaultWebSocket {
+	return &DefaultWebSocket{rds: rds, conf: conf, cache: cache, room: room, groupMemberService: groupMemberService}
 }
 
 // Connect 初始化连接

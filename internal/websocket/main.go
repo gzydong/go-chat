@@ -69,7 +69,7 @@ func main() {
 		log.Printf("Websocket Listen Port :%d", conf.App.Port)
 		log.Printf("Websocket Server Pid  :%d", os.Getpid())
 
-		return start(c, eg, groupCtx, cancel, providers.WsServer)
+		return start(c, eg, groupCtx, cancel, providers.Server)
 	}
 
 	_ = cmd.Run(os.Args)

@@ -8,6 +8,6 @@ import (
 
 type Provider struct {
 	Config    *config.Config
-	WsServer  provider.WebsocketServer
+	Server    provider.WebsocketServer
 	Coroutine *server.Server
 }
