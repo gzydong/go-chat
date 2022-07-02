@@ -118,7 +118,7 @@ func Initialize(ctx context.Context, conf *config.Config) *AppProvider {
 	emailClient := provider.NewEmailClient(conf)
 	templateService := service.NewTemplateService()
 	test := v1.NewTest(conf, emailClient, templateService)
-	webHandler := &web.Handler{
+	webV1 := &web.V1{
 		Common:        common,
 		Auth:          auth,
 		User:          user,
@@ -139,9 +139,17 @@ func Initialize(ctx context.Context, conf *config.Config) *AppProvider {
 		ArticleTag:    tag,
 		Test:          test,
 	}
+	webHandler := &web.Handler{
+		V1: webV1,
+	}
 	index := v1_2.NewIndex()
-	adminHandler := &admin.Handler{
+	adminV1 := &admin.V1{
 		Index: index,
+	}
+	v2 := &admin.V2{}
+	adminHandler := &admin.Handler{
+		V1: adminV1,
+		V2: v2,
 	}
 	v1Index := v1_3.NewIndex()
 	openHandler := &open.Handler{

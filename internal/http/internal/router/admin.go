@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"go-chat/config"
 	"go-chat/internal/http/internal/handler/admin"
+	"go-chat/internal/pkg/ichat"
 	"go-chat/internal/pkg/jwtutil"
 	"go-chat/internal/repository/cache"
 )
@@ -16,11 +17,9 @@ func RegisterAdminRoute(conf *config.Config, router *gin.Engine, handler *admin.
 	// v1 接口
 	v1 := router.Group("/admin/v1", authorize)
 	{
-		common := v1.Group("/common")
+		index := v1.Group("/index")
 		{
-			common.GET("/index", func(context *gin.Context) {
-				context.JSON(200, "holle word")
-			})
+			index.GET("/", ichat.HandlerFunc(handler.V1.Index.Index))
 		}
 	}
 }

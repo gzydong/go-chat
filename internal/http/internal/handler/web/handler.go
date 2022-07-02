@@ -8,7 +8,7 @@ import (
 	"go-chat/internal/http/internal/handler/web/v1/talk"
 )
 
-type Handler struct {
+type V1 struct {
 	Common        *v1.Common
 	Auth          *v1.Auth
 	User          *v1.User
@@ -28,4 +28,8 @@ type Handler struct {
 	ArticleClass  *article.Class
 	ArticleTag    *article.Tag
 	Test          *v1.Test
+}
+
+type Handler struct {
+	V1 *V1
 }
