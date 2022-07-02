@@ -10,22 +10,15 @@ import (
 	"go-chat/internal/repository/cache"
 )
 
-// RegisterWebRoute 注册 API 路由
+// RegisterWebRoute 注册 Web 路由
 func RegisterWebRoute(conf *config.Config, router *gin.Engine, handler *web.Handler, session *cache.Session) {
+
 	// 授权验证中间件
 	authorize := jwtutil.Auth(conf.Jwt.Secret, "api", session)
 
 	// v1 接口
 	v1 := router.Group("/api/v1")
 	{
-		test := v1.Group("/test")
-		{
-			test.GET("/success", ichat.HandlerFunc(handler.V1.Test.Success))
-			test.GET("/raw", ichat.HandlerFunc(handler.V1.Test.Raw))
-			test.GET("/error", ichat.HandlerFunc(handler.V1.Test.Error))
-			test.GET("/invalid", ichat.HandlerFunc(handler.V1.Test.Invalid))
-		}
-
 		common := v1.Group("/common")
 		{
 			common.POST("/sms-code", ichat.HandlerFunc(handler.V1.Common.SmsCode))

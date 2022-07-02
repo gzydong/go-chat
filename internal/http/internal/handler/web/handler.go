@@ -27,7 +27,6 @@ type V1 struct {
 	ArticleAnnex  *article.Annex
 	ArticleClass  *article.Class
 	ArticleTag    *article.Tag
-	Test          *v1.Test
 }
 
 type Handler struct {

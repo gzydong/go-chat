@@ -22,7 +22,6 @@ import (
 	"go-chat/internal/http/internal/handler/web/v1/group"
 	"go-chat/internal/http/internal/handler/web/v1/talk"
 	"go-chat/internal/http/internal/router"
-	"go-chat/internal/pkg/client"
 	"go-chat/internal/provider"
 	"go-chat/internal/repository/cache"
 	"go-chat/internal/repository/dao"
@@ -41,31 +40,31 @@ import (
 // Injectors from wire.go:
 
 func Initialize(ctx context.Context, conf *config.Config) *AppProvider {
-	redisClient := provider.NewRedisClient(ctx, conf)
-	smsCodeCache := cache.NewSmsCodeCache(redisClient)
+	client := provider.NewRedisClient(ctx, conf)
+	smsCodeCache := cache.NewSmsCodeCache(client)
 	smsService := service.NewSmsService(smsCodeCache)
 	db := provider.NewMySQLClient(conf)
-	baseDao := dao.NewBaseDao(db, redisClient)
+	baseDao := dao.NewBaseDao(db, client)
 	usersDao := dao.NewUserDao(baseDao)
 	userService := service.NewUserService(usersDao)
 	common := v1.NewCommonHandler(conf, smsService, userService)
-	session := cache.NewSession(redisClient)
-	redisLock := cache.NewRedisLock(redisClient)
-	baseService := service.NewBaseService(db, redisClient)
-	unreadTalkCache := cache.NewUnreadTalkCache(redisClient)
-	lastMessage := cache.NewLastMessage(redisClient)
-	talkVote := cache.NewTalkVote(redisClient)
+	session := cache.NewSession(client)
+	redisLock := cache.NewRedisLock(client)
+	baseService := service.NewBaseService(db, client)
+	unreadTalkCache := cache.NewUnreadTalkCache(client)
+	lastMessage := cache.NewLastMessage(client)
+	talkVote := cache.NewTalkVote(client)
 	talkRecordsVoteDao := dao.NewTalkRecordsVoteDao(baseDao, talkVote)
-	relation := cache.NewRelation(redisClient)
+	relation := cache.NewRelation(client)
 	groupMemberDao := dao.NewGroupMemberDao(baseDao, relation)
-	sidServer := cache.NewSid(redisClient)
-	wsClientSession := cache.NewWsClientSession(redisClient, conf, sidServer)
+	sidServer := cache.NewSid(client)
+	wsClientSession := cache.NewWsClientSession(client, conf, sidServer)
 	filesystem := provider.NewFilesystem(conf)
 	splitUploadDao := dao.NewFileSplitUploadDao(baseDao)
 	talkMessageService := service.NewTalkMessageService(baseService, conf, unreadTalkCache, lastMessage, talkRecordsVoteDao, groupMemberDao, sidServer, wsClientSession, filesystem, splitUploadDao)
 	httpClient := provider.NewHttpClient()
-	clientHttpClient := client.NewHttpClient(httpClient)
-	ipAddressService := service.NewIpAddressService(baseService, conf, clientHttpClient)
+	requestClient := provider.NewRequestClient(httpClient)
+	ipAddressService := service.NewIpAddressService(baseService, conf, requestClient)
 	talkSessionDao := dao.NewTalkSessionDao(baseDao)
 	talkSessionService := service.NewTalkSessionService(baseService, talkSessionDao)
 	articleClassDao := note.NewArticleClassDao(baseDao)
@@ -115,9 +114,6 @@ func Initialize(ctx context.Context, conf *config.Config) *AppProvider {
 	class := article.NewClassHandler(articleClassService)
 	articleTagService := note2.NewArticleTagService(baseService)
 	tag := article.NewTagHandler(articleTagService)
-	emailClient := provider.NewEmailClient(conf)
-	templateService := service.NewTemplateService()
-	test := v1.NewTest(conf, emailClient, templateService)
 	webV1 := &web.V1{
 		Common:        common,
 		Auth:          auth,
@@ -137,7 +133,6 @@ func Initialize(ctx context.Context, conf *config.Config) *AppProvider {
 		ArticleAnnex:  annex,
 		ArticleClass:  class,
 		ArticleTag:    tag,
-		Test:          test,
 	}
 	webHandler := &web.Handler{
 		V1: webV1,
@@ -152,8 +147,11 @@ func Initialize(ctx context.Context, conf *config.Config) *AppProvider {
 		V2: v2,
 	}
 	v1Index := v1_3.NewIndex()
-	openHandler := &open.Handler{
+	openV1 := &open.V1{
 		Index: v1Index,
+	}
+	openHandler := &open.Handler{
+		V1: openV1,
 	}
 	handlerHandler := &handler.Handler{
 		Api:   webHandler,
@@ -171,7 +169,7 @@ func Initialize(ctx context.Context, conf *config.Config) *AppProvider {
 
 // wire.go:
 
-var providerSet = wire.NewSet(provider.NewMySQLClient, provider.NewRedisClient, provider.NewHttpClient, provider.NewEmailClient, provider.NewHttpServer, provider.NewFilesystem, client.NewHttpClient, router.NewRouter, wire.Struct(new(web.Handler), "*"), wire.Struct(new(admin.Handler), "*"), wire.Struct(new(open.Handler), "*"), wire.Struct(new(handler.Handler), "*"), wire.Struct(new(AppProvider), "*"))
+var providerSet = wire.NewSet(provider.NewMySQLClient, provider.NewRedisClient, provider.NewHttpClient, provider.NewEmailClient, provider.NewHttpServer, provider.NewFilesystem, provider.NewRequestClient, router.NewRouter, wire.Struct(new(web.Handler), "*"), wire.Struct(new(admin.Handler), "*"), wire.Struct(new(open.Handler), "*"), wire.Struct(new(handler.Handler), "*"), wire.Struct(new(AppProvider), "*"))
 
 var cacheProviderSet = wire.NewSet(cache.NewSession, cache.NewSid, cache.NewUnreadTalkCache, cache.NewRedisLock, cache.NewWsClientSession, cache.NewLastMessage, cache.NewTalkVote, cache.NewRoom, cache.NewRelation, cache.NewSmsCodeCache)
 

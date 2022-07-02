@@ -15,7 +15,6 @@ import (
 	cron2 "go-chat/internal/job/internal/handle/cron"
 	other2 "go-chat/internal/job/internal/handle/other"
 	queue2 "go-chat/internal/job/internal/handle/queue"
-	"go-chat/internal/pkg/client"
 	"go-chat/internal/pkg/filesystem"
 	"go-chat/internal/provider"
 	"go-chat/internal/repository/cache"
@@ -28,7 +27,7 @@ var providerSet = wire.NewSet(
 	provider.NewRedisClient,
 	provider.NewHttpClient,
 	provider.NewEmailClient,
-	client.NewHttpClient,
+	provider.NewRequestClient,
 
 	filesystem.NewFilesystem,
 

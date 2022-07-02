@@ -11,6 +11,7 @@ import (
 
 // RegisterAdminRoute 注册 Admin 路由
 func RegisterAdminRoute(conf *config.Config, router *gin.Engine, handler *admin.Handler, session *cache.Session) {
+
 	// 授权验证中间件
 	authorize := jwtutil.Auth(conf.Jwt.Secret, "admin", session)
 

@@ -10,7 +10,6 @@ import (
 	"go-chat/internal/http/internal/handler/admin"
 	"go-chat/internal/http/internal/handler/open"
 	"go-chat/internal/http/internal/handler/web"
-	"go-chat/internal/pkg/client"
 	"go-chat/internal/provider"
 	"go-chat/internal/repository/cache"
 	"go-chat/internal/repository/dao"
@@ -33,7 +32,7 @@ var providerSet = wire.NewSet(
 	provider.NewEmailClient,
 	provider.NewHttpServer,
 	provider.NewFilesystem,
-	client.NewHttpClient,
+	provider.NewRequestClient,
 
 	// 注册路由
 	router.NewRouter,

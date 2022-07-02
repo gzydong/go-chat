@@ -7,8 +7,8 @@ import (
 	"testing"
 )
 
-func getHttpClient() *HttpClient {
-	return NewHttpClient(&http.Client{})
+func getHttpClient() *RequestClient {
+	return NewRequestClient(&http.Client{})
 }
 
 func TestHttpClient_GET(t *testing.T) {

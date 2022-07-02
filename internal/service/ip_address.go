@@ -15,10 +15,10 @@ import (
 type IpAddressService struct {
 	*BaseService
 	conf       *config.Config
-	httpClient *client.HttpClient
+	httpClient *client.RequestClient
 }
 
-func NewIpAddressService(baseService *BaseService, conf *config.Config, httpClient *client.HttpClient) *IpAddressService {
+func NewIpAddressService(baseService *BaseService, conf *config.Config, httpClient *client.RequestClient) *IpAddressService {
 	return &IpAddressService{BaseService: baseService, conf: conf, httpClient: httpClient}
 }
 

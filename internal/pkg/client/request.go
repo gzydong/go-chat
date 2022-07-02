@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-type HttpClient struct {
+type RequestClient struct {
 	debug  bool
 	client *http.Client
 }
@@ -20,18 +20,18 @@ type FileData struct {
 	Content  []byte // 文件字节流
 }
 
-func NewHttpClient(client *http.Client) *HttpClient {
-	return &HttpClient{client: client}
+func NewRequestClient(client *http.Client) *RequestClient {
+	return &RequestClient{client: client}
 }
 
-func (c *HttpClient) SetDebug() {
+func (c *RequestClient) SetDebug() {
 	c.debug = true
 }
 
 // Get 请求
 // @params url    请求地址
 // @params params 请求参数
-func (c *HttpClient) Get(url string, params *url.Values) ([]byte, error) {
+func (c *RequestClient) Get(url string, params *url.Values) ([]byte, error) {
 	if params != nil {
 		if strings.Contains(url, "?") {
 			url = fmt.Sprintf("%s&%s", url, params.Encode())
@@ -62,7 +62,7 @@ func (c *HttpClient) Get(url string, params *url.Values) ([]byte, error) {
 	return res, nil
 }
 
-func (c *HttpClient) Post(url string, params *url.Values) ([]byte, error) {
+func (c *RequestClient) Post(url string, params *url.Values) ([]byte, error) {
 	resp, err := c.client.PostForm(url, *params)
 
 	if err != nil {
@@ -87,7 +87,7 @@ func (c *HttpClient) Post(url string, params *url.Values) ([]byte, error) {
 	return res, nil
 }
 
-func (c *HttpClient) PostJson(url string, params interface{}) ([]byte, error) {
+func (c *RequestClient) PostJson(url string, params interface{}) ([]byte, error) {
 	text, _ := json.Marshal(params)
 
 	req, _ := http.NewRequest("POST", url, strings.NewReader(string(text)))
@@ -122,6 +122,6 @@ func (c *HttpClient) PostJson(url string, params interface{}) ([]byte, error) {
 // @params url    请求地址
 // @params params 请求参数
 // @params files  上传文件
-func (c *HttpClient) PostFrom(url string, params *url.Values, files []*FileData) {
+func (c *RequestClient) PostFrom(url string, params *url.Values, files []*FileData) {
 
 }

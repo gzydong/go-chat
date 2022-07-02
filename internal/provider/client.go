@@ -1,24 +1,20 @@
 package provider
 
 import (
-	"context"
-	"net"
 	"net/http"
 	"time"
+
+	"go-chat/internal/pkg/client"
 )
 
-const timeout = 20 * time.Second
-
-func dialTimeout(ctx context.Context, network, addr string) (net.Conn, error) {
-	return net.DialTimeout(network, addr, timeout)
-}
+const timeout = 10 * time.Second
 
 func NewHttpClient() *http.Client {
 	return &http.Client{
-		Transport: &http.Transport{
-			DialTLSContext:        dialTimeout,
-			ResponseHeaderTimeout: time.Second * 2,
-		},
 		Timeout: timeout,
 	}
+}
+
+func NewRequestClient(c *http.Client) *client.RequestClient {
+	return client.NewRequestClient(c)
 }
