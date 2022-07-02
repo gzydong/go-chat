@@ -16,16 +16,8 @@ type Common struct {
 	userService *service.UserService
 }
 
-func NewCommon(
-	config *config.Config,
-	sms *service.SmsService,
-	userService *service.UserService,
-) *Common {
-	return &Common{
-		config:      config,
-		smsService:  sms,
-		userService: userService,
-	}
+func NewCommon(config *config.Config, smsService *service.SmsService, userService *service.UserService) *Common {
+	return &Common{config: config, smsService: smsService, userService: userService}
 }
 
 // SmsCode 发送短信验证码

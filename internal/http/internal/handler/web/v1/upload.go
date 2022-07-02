@@ -20,16 +20,8 @@ type Upload struct {
 	service    *service.SplitUploadService
 }
 
-func NewUpload(
-	config *config.Config,
-	filesystem *filesystem.Filesystem,
-	service *service.SplitUploadService,
-) *Upload {
-	return &Upload{
-		config:     config,
-		filesystem: filesystem,
-		service:    service,
-	}
+func NewUpload(config *config.Config, filesystem *filesystem.Filesystem, service *service.SplitUploadService) *Upload {
+	return &Upload{config: config, filesystem: filesystem, service: service}
 }
 
 // Avatar 头像上传上传

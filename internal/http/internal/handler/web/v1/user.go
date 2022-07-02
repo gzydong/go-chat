@@ -17,16 +17,8 @@ type User struct {
 	organizeServ *organize.OrganizeService
 }
 
-func NewUser(
-	userService *service.UserService,
-	smsService *service.SmsService,
-	organizeServ *organize.OrganizeService,
-) *User {
-	return &User{
-		service:      userService,
-		smsService:   smsService,
-		organizeServ: organizeServ,
-	}
+func NewUser(service *service.UserService, smsService *service.SmsService, organizeServ *organize.OrganizeService) *User {
+	return &User{service: service, smsService: smsService, organizeServ: organizeServ}
 }
 
 // Detail 个人用户信息

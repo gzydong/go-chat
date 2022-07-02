@@ -25,16 +25,8 @@ type Emoticon struct {
 	redisLock  *cache.RedisLock
 }
 
-func NewEmoticon(
-	service *service.EmoticonService,
-	fileSystem *filesystem.Filesystem,
-	redisLock *cache.RedisLock,
-) *Emoticon {
-	return &Emoticon{
-		service:    service,
-		fileSystem: fileSystem,
-		redisLock:  redisLock,
-	}
+func NewEmoticon(fileSystem *filesystem.Filesystem, service *service.EmoticonService, redisLock *cache.RedisLock) *Emoticon {
+	return &Emoticon{fileSystem: fileSystem, service: service, redisLock: redisLock}
 }
 
 // CollectList 收藏列表

@@ -22,12 +22,7 @@ type Records struct {
 }
 
 func NewRecords(service *service.TalkRecordsService, groupMemberService *service.GroupMemberService, fileSystem *filesystem.Filesystem, authPermission *service.AuthPermissionService) *Records {
-	return &Records{
-		service:            service,
-		groupMemberService: groupMemberService,
-		fileSystem:         fileSystem,
-		authPermission:     authPermission,
-	}
+	return &Records{service: service, groupMemberService: groupMemberService, fileSystem: fileSystem, authPermission: authPermission}
 }
 
 // GetRecords 获取会话记录

@@ -29,30 +29,8 @@ type Talk struct {
 	authPermission  *service.AuthPermissionService
 }
 
-func NewTalk(
-	service *service.TalkService,
-	talkListService *service.TalkSessionService,
-	redisLock *cache2.RedisLock,
-	userService *service.UserService,
-	wsClient *cache2.WsClientSession,
-	lastMessage *cache2.LastMessage,
-	unreadTalkCache *cache2.UnreadTalkCache,
-	contactService *service.ContactService,
-	groupService *service.GroupService,
-	authPermission *service.AuthPermissionService,
-) *Talk {
-	return &Talk{
-		service:         service,
-		talkListService: talkListService,
-		redisLock:       redisLock,
-		userService:     userService,
-		wsClient:        wsClient,
-		lastMessage:     lastMessage,
-		unreadTalkCache: unreadTalkCache,
-		contactService:  contactService,
-		groupService:    groupService,
-		authPermission:  authPermission,
-	}
+func NewTalk(service *service.TalkService, talkListService *service.TalkSessionService, redisLock *cache2.RedisLock, userService *service.UserService, wsClient *cache2.WsClientSession, lastMessage *cache2.LastMessage, contactService *service.ContactService, unreadTalkCache *cache2.UnreadTalkCache, groupService *service.GroupService, authPermission *service.AuthPermissionService) *Talk {
+	return &Talk{service: service, talkListService: talkListService, redisLock: redisLock, userService: userService, wsClient: wsClient, lastMessage: lastMessage, contactService: contactService, unreadTalkCache: unreadTalkCache, groupService: groupService, authPermission: authPermission}
 }
 
 // List 会话列表

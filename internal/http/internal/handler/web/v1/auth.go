@@ -27,28 +27,8 @@ type Auth struct {
 	noteClassService   *note.ArticleClassService
 }
 
-func NewAuth(
-	config *config.Config,
-	userService *service.UserService,
-	smsService *service.SmsService,
-	session *cache2.Session,
-	redisLock *cache2.RedisLock,
-	talkMessageService *service.TalkMessageService,
-	ipAddressService *service.IpAddressService,
-	talkSessionService *service.TalkSessionService,
-	noteClassService *note.ArticleClassService,
-) *Auth {
-	return &Auth{
-		config:             config,
-		userService:        userService,
-		smsService:         smsService,
-		session:            session,
-		redisLock:          redisLock,
-		talkMessageService: talkMessageService,
-		ipAddressService:   ipAddressService,
-		talkSessionService: talkSessionService,
-		noteClassService:   noteClassService,
-	}
+func NewAuth(config *config.Config, userService *service.UserService, smsService *service.SmsService, session *cache2.Session, redisLock *cache2.RedisLock, talkMessageService *service.TalkMessageService, ipAddressService *service.IpAddressService, talkSessionService *service.TalkSessionService, noteClassService *note.ArticleClassService) *Auth {
+	return &Auth{config: config, userService: userService, smsService: smsService, session: session, redisLock: redisLock, talkMessageService: talkMessageService, ipAddressService: ipAddressService, talkSessionService: talkSessionService, noteClassService: noteClassService}
 }
 
 // Login 登录接口

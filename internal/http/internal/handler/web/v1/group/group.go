@@ -26,26 +26,8 @@ type Group struct {
 	messageService     *service.TalkMessageService
 }
 
-func NewGroup(
-	service *service.GroupService,
-	memberService *service.GroupMemberService,
-	talkListService *service.TalkSessionService,
-	redisLock *cache.RedisLock,
-	contactService *service.ContactService,
-	userService *service.UserService,
-	groupNoticeService *service.GroupNoticeService,
-	messageService *service.TalkMessageService,
-) *Group {
-	return &Group{
-		service:            service,
-		memberService:      memberService,
-		talkListService:    talkListService,
-		redisLock:          redisLock,
-		contactService:     contactService,
-		userService:        userService,
-		groupNoticeService: groupNoticeService,
-		messageService:     messageService,
-	}
+func NewGroup(service *service.GroupService, memberService *service.GroupMemberService, talkListService *service.TalkSessionService, userService *service.UserService, redisLock *cache.RedisLock, contactService *service.ContactService, groupNoticeService *service.GroupNoticeService, messageService *service.TalkMessageService) *Group {
+	return &Group{service: service, memberService: memberService, talkListService: talkListService, userService: userService, redisLock: redisLock, contactService: contactService, groupNoticeService: groupNoticeService, messageService: messageService}
 }
 
 // Create 创建群聊分组

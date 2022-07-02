@@ -25,22 +25,8 @@ type Contact struct {
 	organizeService    *organize.OrganizeService
 }
 
-func NewContact(
-	service *service.ContactService,
-	wsClient *cache.WsClientSession,
-	userService *service.UserService,
-	talkListService *service.TalkSessionService,
-	talkMessageService *service.TalkMessageService,
-	organizeService *organize.OrganizeService,
-) *Contact {
-	return &Contact{
-		service:            service,
-		wsClient:           wsClient,
-		userService:        userService,
-		talkListService:    talkListService,
-		talkMessageService: talkMessageService,
-		organizeService:    organizeService,
-	}
+func NewContact(service *service.ContactService, wsClient *cache.WsClientSession, userService *service.UserService, talkListService *service.TalkSessionService, talkMessageService *service.TalkMessageService, organizeService *organize.OrganizeService) *Contact {
+	return &Contact{service: service, wsClient: wsClient, userService: userService, talkListService: talkListService, talkMessageService: talkMessageService, organizeService: organizeService}
 }
 
 // List 联系人列表

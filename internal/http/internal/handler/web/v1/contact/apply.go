@@ -17,12 +17,7 @@ type Apply struct {
 	contactService     *service.ContactService
 }
 
-func NewApply(
-	service *service.ContactApplyService,
-	userService *service.UserService,
-	talkMessageService *service.TalkMessageService,
-	contactService *service.ContactService,
-) *Apply {
+func NewApply(service *service.ContactApplyService, userService *service.UserService, talkMessageService *service.TalkMessageService, contactService *service.ContactService) *Apply {
 	return &Apply{service: service, userService: userService, talkMessageService: talkMessageService, contactService: contactService}
 }
 
