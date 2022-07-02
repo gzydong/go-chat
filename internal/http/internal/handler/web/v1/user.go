@@ -17,7 +17,7 @@ type User struct {
 	organizeServ *organize.OrganizeService
 }
 
-func NewUserHandler(
+func NewUser(
 	userService *service.UserService,
 	smsService *service.SmsService,
 	organizeServ *organize.OrganizeService,

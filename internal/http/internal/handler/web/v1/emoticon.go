@@ -25,7 +25,7 @@ type Emoticon struct {
 	redisLock  *cache.RedisLock
 }
 
-func NewEmoticonHandler(
+func NewEmoticon(
 	service *service.EmoticonService,
 	fileSystem *filesystem.Filesystem,
 	redisLock *cache.RedisLock,

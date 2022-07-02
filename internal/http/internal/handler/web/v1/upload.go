@@ -20,7 +20,7 @@ type Upload struct {
 	service    *service.SplitUploadService
 }
 
-func NewUploadHandler(
+func NewUpload(
 	config *config.Config,
 	filesystem *filesystem.Filesystem,
 	service *service.SplitUploadService,

@@ -1,11 +1,12 @@
-package process
+package server
 
 import (
 	"context"
+	"log"
 	"time"
 
-	"github.com/sirupsen/logrus"
 	"go-chat/config"
+	"go-chat/internal/pkg/logger"
 	"go-chat/internal/repository/cache"
 )
 
@@ -19,6 +20,9 @@ func NewHealth(conf *config.Config, server *cache.SidServer) *Health {
 }
 
 func (s *Health) Setup(ctx context.Context) error {
+
+	log.Println("Health Setup")
+
 	for {
 		select {
 
@@ -28,7 +32,7 @@ func (s *Health) Setup(ctx context.Context) error {
 		// 每隔10秒上报心跳
 		case <-time.After(10 * time.Second):
 			if err := s.server.Set(ctx, s.conf.ServerId(), time.Now().Unix()); err != nil {
-				logrus.Errorf("Websocket Health Report Err: %s \n", err.Error())
+				logger.Errorf("Websocket Health Report Err: %s \n", err.Error())
 			}
 		}
 	}

@@ -26,7 +26,7 @@ type Group struct {
 	messageService     *service.TalkMessageService
 }
 
-func NewGroupHandler(
+func NewGroup(
 	service *service.GroupService,
 	memberService *service.GroupMemberService,
 	talkListService *service.TalkSessionService,

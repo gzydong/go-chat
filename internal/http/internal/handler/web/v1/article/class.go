@@ -12,7 +12,7 @@ type Class struct {
 	service *note.ArticleClassService
 }
 
-func NewClassHandler(service *note.ArticleClassService) *Class {
+func NewClass(service *note.ArticleClassService) *Class {
 	return &Class{service}
 }
 

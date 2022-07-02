@@ -15,7 +15,7 @@ type Notice struct {
 	member  *service.GroupMemberService
 }
 
-func NewGroupNoticeHandler(service *service.GroupNoticeService, member *service.GroupMemberService) *Notice {
+func NewNotice(service *service.GroupNoticeService, member *service.GroupMemberService) *Notice {
 	return &Notice{service: service, member: member}
 }
 

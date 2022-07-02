@@ -29,7 +29,7 @@ type Talk struct {
 	authPermission  *service.AuthPermissionService
 }
 
-func NewTalkHandler(
+func NewTalk(
 	service *service.TalkService,
 	talkListService *service.TalkSessionService,
 	redisLock *cache2.RedisLock,

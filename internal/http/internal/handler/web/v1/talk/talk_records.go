@@ -21,7 +21,7 @@ type Records struct {
 	authPermission     *service.AuthPermissionService
 }
 
-func NewTalkRecordsHandler(service *service.TalkRecordsService, groupMemberService *service.GroupMemberService, fileSystem *filesystem.Filesystem, authPermission *service.AuthPermissionService) *Records {
+func NewRecords(service *service.TalkRecordsService, groupMemberService *service.GroupMemberService, fileSystem *filesystem.Filesystem, authPermission *service.AuthPermissionService) *Records {
 	return &Records{
 		service:            service,
 		groupMemberService: groupMemberService,

@@ -17,7 +17,7 @@ type Apply struct {
 	groupServ  *service.GroupService
 }
 
-func NewApplyHandler(applyServ *service.GroupApplyService, memberServ *service.GroupMemberService, groupServ *service.GroupService) *Apply {
+func NewApply(applyServ *service.GroupApplyService, memberServ *service.GroupMemberService, groupServ *service.GroupService) *Apply {
 	return &Apply{applyServ: applyServ, memberServ: memberServ, groupServ: groupServ}
 }
 

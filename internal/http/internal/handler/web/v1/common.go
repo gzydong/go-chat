@@ -16,7 +16,7 @@ type Common struct {
 	userService *service.UserService
 }
 
-func NewCommonHandler(
+func NewCommon(
 	config *config.Config,
 	sms *service.SmsService,
 	userService *service.UserService,

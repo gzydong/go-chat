@@ -42,7 +42,5 @@ func NewRouter(conf *config.Config, handle *handler.Handler, session *cache.Sess
 		c.JSON(http.StatusNotFound, entity.H{"msg": "请求地址不存在"})
 	})
 
-	// pprof.Register(router)
-
 	return router
 }

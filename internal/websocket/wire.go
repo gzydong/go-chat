@@ -12,8 +12,8 @@ import (
 	dao2 "go-chat/internal/repository/dao"
 	"go-chat/internal/service"
 	handle2 "go-chat/internal/websocket/internal/handler"
-	"go-chat/internal/websocket/internal/process"
 	handle "go-chat/internal/websocket/internal/process/handle"
+	"go-chat/internal/websocket/internal/process/server"
 	"go-chat/internal/websocket/internal/router"
 
 	"github.com/google/wire"
@@ -24,12 +24,15 @@ var providerSet = wire.NewSet(
 	provider.NewMySQLClient,
 	provider.NewRedisClient,
 	provider.NewWebsocketServer,
+
+	// 路由
 	router.NewRouter,
 
 	// process
-	process.NewCoroutine,
-	process.NewHealth,
-	process.NewWsSubscribe,
+	wire.Struct(new(server.SubServer), "*"),
+	server.NewServer,
+	server.NewHealth,
+	server.NewWsSubscribe,
 	handle.NewSubscribeConsume,
 
 	// 缓存

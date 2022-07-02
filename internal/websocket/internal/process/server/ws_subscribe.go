@@ -1,16 +1,16 @@
-package process
+package server
 
 import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/go-redis/redis/v8"
-	"github.com/sirupsen/logrus"
-
 	"go-chat/config"
 	"go-chat/internal/entity"
+	"go-chat/internal/pkg/logger"
 	"go-chat/internal/pkg/worker"
 	"go-chat/internal/websocket/internal/process/handle"
 )
@@ -31,6 +31,9 @@ func NewWsSubscribe(rds *redis.Client, conf *config.Config, consume *handle.Subs
 }
 
 func (w *WsSubscribe) Setup(ctx context.Context) error {
+
+	log.Println("WsSubscribe Setup")
+
 	gateway := fmt.Sprintf(entity.IMGatewayPrivate, w.conf.ServerId())
 
 	channels := []string{
@@ -54,7 +57,7 @@ func (w *WsSubscribe) Setup(ctx context.Context) error {
 			if err := json.Unmarshal([]byte(value.Payload), &message); err == nil {
 				w.consume.Handle(message.Event, message.Data)
 			} else {
-				logrus.Warnf("订阅消息格式错误 Err: %s \n", err.Error())
+				logger.Warnf("订阅消息格式错误 Err: %s \n", err.Error())
 			}
 		}
 	}

@@ -12,7 +12,7 @@ type Tag struct {
 	service *note.ArticleTagService
 }
 
-func NewTagHandler(service *note.ArticleTagService) *Tag {
+func NewTag(service *note.ArticleTagService) *Tag {
 	return &Tag{service}
 }
 

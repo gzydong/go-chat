@@ -17,7 +17,7 @@ type Organize struct {
 	positionServ *organize.PositionService
 }
 
-func NewOrganizeHandler(deptServ *organize.OrganizeDeptService, organizeServ *organize.OrganizeService, positionServ *organize.PositionService) *Organize {
+func NewOrganize(deptServ *organize.OrganizeDeptService, organizeServ *organize.OrganizeService, positionServ *organize.PositionService) *Organize {
 	return &Organize{deptServ: deptServ, organizeServ: organizeServ, positionServ: positionServ}
 }
 

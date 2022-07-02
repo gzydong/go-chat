@@ -23,7 +23,7 @@ type Annex struct {
 	fileSystem *filesystem.Filesystem
 }
 
-func NewAnnexHandler(service *note.ArticleAnnexService, fileSystem *filesystem.Filesystem) *Annex {
+func NewAnnex(service *note.ArticleAnnexService, fileSystem *filesystem.Filesystem) *Annex {
 	return &Annex{service, fileSystem}
 }
 

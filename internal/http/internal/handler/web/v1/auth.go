@@ -27,7 +27,7 @@ type Auth struct {
 	noteClassService   *note.ArticleClassService
 }
 
-func NewAuthHandler(
+func NewAuth(
 	config *config.Config,
 	userService *service.UserService,
 	smsService *service.SmsService,

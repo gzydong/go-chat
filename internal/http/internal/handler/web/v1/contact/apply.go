@@ -17,7 +17,7 @@ type Apply struct {
 	contactService     *service.ContactService
 }
 
-func NewContactsApplyHandler(
+func NewApply(
 	service *service.ContactApplyService,
 	userService *service.UserService,
 	talkMessageService *service.TalkMessageService,

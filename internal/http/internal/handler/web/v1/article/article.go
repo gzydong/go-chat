@@ -24,7 +24,7 @@ type Article struct {
 	articleAnnexService *note.ArticleAnnexService
 }
 
-func NewArticleHandler(service *note.ArticleService, fileSystem *filesystem.Filesystem, articleAnnexService *note.ArticleAnnexService) *Article {
+func NewArticle(service *note.ArticleService, fileSystem *filesystem.Filesystem, articleAnnexService *note.ArticleAnnexService) *Article {
 	return &Article{service, fileSystem, articleAnnexService}
 }
 

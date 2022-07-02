@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"errors"
-	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -77,6 +76,7 @@ func main() {
 }
 
 func start(c chan os.Signal, eg *errgroup.Group, ctx context.Context, cancel context.CancelFunc, server *http.Server) error {
+
 	// 启动 http 服务
 	eg.Go(func() error {
 		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
@@ -112,7 +112,6 @@ func start(c chan os.Signal, eg *errgroup.Group, ctx context.Context, cancel con
 		return err
 	}
 
-	fmt.Println()
 	log.Fatal("Websocket Shutdown")
 
 	return nil

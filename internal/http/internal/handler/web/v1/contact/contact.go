@@ -25,7 +25,7 @@ type Contact struct {
 	organizeService    *organize.OrganizeService
 }
 
-func NewContactHandler(
+func NewContact(
 	service *service.ContactService,
 	wsClient *cache.WsClientSession,
 	userService *service.UserService,

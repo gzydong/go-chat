@@ -8,8 +8,8 @@ import (
 
 	"github.com/sirupsen/logrus"
 	"go-chat/internal/pkg/timeutil"
-	cache2 "go-chat/internal/repository/cache"
-	model2 "go-chat/internal/repository/model"
+	"go-chat/internal/repository/cache"
+	"go-chat/internal/repository/model"
 
 	"go-chat/config"
 	"go-chat/internal/entity"
@@ -22,13 +22,13 @@ type onConsumeFunc func(data string)
 
 type SubscribeConsume struct {
 	conf           *config.Config
-	ws             *cache2.WsClientSession
-	room           *cache2.Room
+	ws             *cache.WsClientSession
+	room           *cache.Room
 	recordsService *service.TalkRecordsService
 	contactService *service.ContactService
 }
 
-func NewSubscribeConsume(conf *config.Config, ws *cache2.WsClientSession, room *cache2.Room, recordsService *service.TalkRecordsService, contactService *service.ContactService) *SubscribeConsume {
+func NewSubscribeConsume(conf *config.Config, ws *cache.WsClientSession, room *cache.Room, recordsService *service.TalkRecordsService, contactService *service.ContactService) *SubscribeConsume {
 	return &SubscribeConsume{conf: conf, ws: ws, room: room, recordsService: recordsService, contactService: contactService}
 }
 
@@ -76,7 +76,7 @@ func (s *SubscribeConsume) onConsumeTalk(body string) {
 			cids = append(cids, ids...)
 		}
 	} else if msg.TalkType == entity.ChatGroupMode {
-		ids := s.room.All(ctx, &cache2.RoomOption{
+		ids := s.room.All(ctx, &cache.RoomOption{
 			Channel:  im.Session.Default.Name(),
 			RoomType: entity.RoomImGroup,
 			Number:   strconv.Itoa(int(msg.ReceiverID)),
@@ -185,7 +185,7 @@ func (s *SubscribeConsume) onConsumeTalkRevoke(body string) {
 		msg struct {
 			RecordId int `json:"record_id"`
 		}
-		record *model2.TalkRecords
+		record *model.TalkRecords
 		ctx    = context.Background()
 	)
 
@@ -205,7 +205,7 @@ func (s *SubscribeConsume) onConsumeTalkRevoke(body string) {
 			cids = append(cids, ids...)
 		}
 	} else if record.TalkType == entity.ChatGroupMode {
-		cids = s.room.All(ctx, &cache2.RoomOption{
+		cids = s.room.All(ctx, &cache.RoomOption{
 			Channel:  im.Session.Default.Name(),
 			RoomType: entity.RoomImGroup,
 			Number:   strconv.Itoa(record.ReceiverId),
@@ -247,7 +247,7 @@ func (s *SubscribeConsume) onConsumeContactApply(body string) {
 		return
 	}
 
-	apply := &model2.ContactApply{}
+	apply := &model.ContactApply{}
 	if err := s.contactService.Db().First(&apply, msg.ApplId).Error; err != nil {
 		return
 	}
@@ -257,7 +257,7 @@ func (s *SubscribeConsume) onConsumeContactApply(body string) {
 		return
 	}
 
-	user := &model2.Users{}
+	user := &model.Users{}
 	if err := s.contactService.Db().First(&user, apply.FriendId).Error; err != nil {
 		return
 	}
@@ -303,7 +303,7 @@ func (s *SubscribeConsume) onConsumeTalkJoinGroup(body string) {
 		cids := s.ws.GetUidFromClientIds(ctx, sid, im.Session.Default.Name(), strconv.Itoa(uid))
 
 		for _, cid := range cids {
-			opts := &cache2.RoomOption{
+			opts := &cache.RoomOption{
 				Channel:  im.Session.Default.Name(),
 				RoomType: entity.RoomImGroup,
 				Number:   strconv.Itoa(data.Gid),
