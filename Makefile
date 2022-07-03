@@ -5,6 +5,7 @@ install:
 	go install github.com/google/wire/cmd/wire \
 	&& go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.46.0 \
 	&& go install google.golang.org/protobuf/cmd/protoc-gen-go@latest \
+	&& go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest \
 	&& go install github.com/envoyproxy/protoc-gen-validate@latest \
 	&& go install github.com/srikrsna/protoc-gen-gotag \
 
@@ -37,15 +38,8 @@ build:generate lint
 	go build -o ./bin/ws-server ./internal/websocket
 	go build -o ./bin/job-cmd ./internal/job
 
-.PHONY: build-windows
-build-windows:generate lint
-	CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o ./bin/http-server.exe ./internal/http
-	CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o ./bin/ws-server.exe ./internal/websocket
-	CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o ./bin/job-cmd.exe ./internal/job
-	cp ./config.example.yaml ./build/windows/config.yaml
-
-.PHONY: build-all-app
-build-all-app:generate lint
+.PHONY: build-all
+build-all:generate lint
 	# 构建 windows
 	CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o ./build/windows/bin/http-server.exe ./internal/http
 	CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o ./build/windows/bin/ws-server.exe ./internal/websocket
@@ -80,3 +74,6 @@ proto:
 	 && protoc --proto_path=./third_party --proto_path=./api/proto --gotag_out=outdir="./api/pb/":./ $(PROTO_FILES) \
 	 && echo "protoc generate success"; \
 	fi
+
+
+#--go-grpc_out=paths=source_relative:./api/pb/ \

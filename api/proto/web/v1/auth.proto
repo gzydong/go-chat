@@ -26,3 +26,13 @@ message AuthRefreshResponse{
   string access_token = 2;
   int64 expires_in = 3;
 }
+
+message AuthRefreshRequest{
+  string refresh_token = 1;
+}
+
+
+service Auth{
+  rpc Login(AuthLoginRequest) returns (AuthLoginResponse);
+  rpc Refresh(AuthRefreshRequest) returns (AuthRefreshResponse);
+}
