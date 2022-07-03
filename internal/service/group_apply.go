@@ -5,7 +5,7 @@ import (
 	"errors"
 
 	"go-chat/internal/repository/dao"
-	model2 "go-chat/internal/repository/model"
+	"go-chat/internal/repository/model"
 )
 
 type GroupApplyService struct {
@@ -22,14 +22,14 @@ func (s *GroupApplyService) Dao() *dao.GroupApplyDao {
 }
 
 func (s *GroupApplyService) Auth(ctx context.Context, applyId, userId int) bool {
-	info := &model2.GroupApply{}
+	info := &model.GroupApply{}
 
 	err := s.Db().First(info, "id = ?", applyId).Error
 	if err != nil {
 		return false
 	}
 
-	member := &model2.GroupMember{}
+	member := &model.GroupMember{}
 	err = s.Db().First(member, "group_id = ? and user_id = ? and leader in (1,2) and is_quit = 0", info.GroupId).Error
 	if err != nil {
 		return false
@@ -39,7 +39,7 @@ func (s *GroupApplyService) Auth(ctx context.Context, applyId, userId int) bool 
 }
 
 func (s *GroupApplyService) Insert(ctx context.Context, groupId, userId int, remark string) error {
-	return s.Db().Create(&model2.GroupApply{
+	return s.Db().Create(&model.GroupApply{
 		GroupId: groupId,
 		UserId:  userId,
 		Remark:  remark,
@@ -52,5 +52,5 @@ func (s *GroupApplyService) Delete(ctx context.Context, applyId, userId int) err
 		return errors.New("auth failed")
 	}
 
-	return s.Db().Delete(&model2.GroupApply{}, "id = ?", applyId).Error
+	return s.Db().Delete(&model.GroupApply{}, "id = ?", applyId).Error
 }

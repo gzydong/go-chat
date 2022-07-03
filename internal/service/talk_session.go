@@ -10,26 +10,6 @@ import (
 	"gorm.io/gorm"
 )
 
-type TalkSessionCreateOpts struct {
-	UserId     int
-	TalkType   int
-	ReceiverId int
-	IsBoot     bool
-}
-
-type TalkSessionTopOpts struct {
-	UserId int
-	Id     int
-	Type   int
-}
-
-type TalkSessionDisturbOpts struct {
-	UserId     int
-	TalkType   int
-	ReceiverId int
-	IsDisturb  int
-}
-
 type TalkSessionService struct {
 	*BaseService
 	dao *dao.TalkSessionDao
@@ -69,8 +49,15 @@ func (s *TalkSessionService) List(ctx context.Context, uid int) ([]*model.Search
 	return items, nil
 }
 
+type TalkSessionCreateOpt struct {
+	UserId     int
+	TalkType   int
+	ReceiverId int
+	IsBoot     bool
+}
+
 // Create 创建会话列表
-func (s *TalkSessionService) Create(ctx context.Context, opts *TalkSessionCreateOpts) (*model.TalkSession, error) {
+func (s *TalkSessionService) Create(ctx context.Context, opts *TalkSessionCreateOpt) (*model.TalkSession, error) {
 	var (
 		err    error
 		result *model.TalkSession
@@ -121,8 +108,14 @@ func (s *TalkSessionService) Delete(ctx context.Context, uid int, id int) error 
 	}).Error
 }
 
+type TalkSessionTopOpt struct {
+	UserId int
+	Id     int
+	Type   int
+}
+
 // Top 会话置顶
-func (s *TalkSessionService) Top(ctx context.Context, opts *TalkSessionTopOpts) error {
+func (s *TalkSessionService) Top(ctx context.Context, opts *TalkSessionTopOpt) error {
 
 	isTop := 0
 
@@ -139,8 +132,15 @@ func (s *TalkSessionService) Top(ctx context.Context, opts *TalkSessionTopOpts) 
 	return err
 }
 
+type TalkSessionDisturbOpt struct {
+	UserId     int
+	TalkType   int
+	ReceiverId int
+	IsDisturb  int
+}
+
 // Disturb 会话免打扰
-func (s *TalkSessionService) Disturb(ctx context.Context, opts *TalkSessionDisturbOpts) error {
+func (s *TalkSessionService) Disturb(ctx context.Context, opts *TalkSessionDisturbOpt) error {
 	err := s.db.Model(&model.TalkSession{}).
 		Where("user_id = ? and receiver_id = ? and talk_type = ?", opts.UserId, opts.ReceiverId, opts.TalkType).
 		Updates(map[string]interface{}{

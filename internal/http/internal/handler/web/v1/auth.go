@@ -48,7 +48,7 @@ func (c *Auth) Login(ctx *ichat.Context) error {
 
 	address, _ := c.ipAddressService.FindAddress(ip)
 
-	_, _ = c.talkSessionService.Create(ctx.Context.Request.Context(), &service.TalkSessionCreateOpts{
+	_, _ = c.talkSessionService.Create(ctx.Context.Request.Context(), &service.TalkSessionCreateOpt{
 		UserId:     user.Id,
 		TalkType:   entity.ChatPrivateMode,
 		ReceiverId: 4257,
@@ -56,7 +56,7 @@ func (c *Auth) Login(ctx *ichat.Context) error {
 	})
 
 	// 推送登录消息
-	_ = c.talkMessageService.SendLoginMessage(ctx.Context.Request.Context(), &service.LoginMessageOpts{
+	_ = c.talkMessageService.SendLoginMessage(ctx.Context.Request.Context(), &service.LoginMessageOpt{
 		UserId:   user.Id,
 		Ip:       ip,
 		Address:  address,
@@ -84,7 +84,7 @@ func (c *Auth) Register(ctx *ichat.Context) error {
 		return ctx.InvalidParams("短信验证码填写错误！")
 	}
 
-	_, err := c.userService.Register(&service.UserRegisterOpts{
+	_, err := c.userService.Register(&service.UserRegisterOpt{
 		Nickname: params.Nickname,
 		Mobile:   params.Mobile,
 		Password: params.Password,
@@ -132,7 +132,7 @@ func (c *Auth) Forget(ctx *ichat.Context) error {
 		return ctx.InvalidParams("短信验证码填写错误！")
 	}
 
-	if _, err := c.userService.Forget(&service.UserForgetOpts{
+	if _, err := c.userService.Forget(&service.UserForgetOpt{
 		Mobile:   params.Mobile,
 		Password: params.Password,
 		SmsCode:  params.SmsCode,

@@ -9,20 +9,6 @@ import (
 	"gorm.io/gorm"
 )
 
-type UserRegisterOpts struct {
-	Nickname string
-	Mobile   string
-	Password string
-	Platform string
-}
-
-// UserForgetOpts ForgetRequest 账号找回接口验证
-type UserForgetOpts struct {
-	Mobile   string
-	Password string
-	SmsCode  string
-}
-
 type UserService struct {
 	dao *dao.UsersDao
 }
@@ -35,8 +21,15 @@ func (s *UserService) Dao() *dao.UsersDao {
 	return s.dao
 }
 
+type UserRegisterOpt struct {
+	Nickname string
+	Mobile   string
+	Password string
+	Platform string
+}
+
 // Register 注册用户
-func (s *UserService) Register(opts *UserRegisterOpts) (*model.Users, error) {
+func (s *UserService) Register(opts *UserRegisterOpt) (*model.Users, error) {
 	if s.dao.IsMobileExist(opts.Mobile) {
 		return nil, errors.New("账号已存在! ")
 	}
@@ -73,8 +66,15 @@ func (s *UserService) Login(mobile string, password string) (*model.Users, error
 	return user, nil
 }
 
+// UserForgetOpt ForgetRequest 账号找回接口验证
+type UserForgetOpt struct {
+	Mobile   string
+	Password string
+	SmsCode  string
+}
+
 // Forget 账号找回
-func (s *UserService) Forget(opts *UserForgetOpts) (bool, error) {
+func (s *UserService) Forget(opts *UserForgetOpt) (bool, error) {
 
 	user, err := s.dao.FindByMobile(opts.Mobile)
 	if err != nil || user.Id == 0 {

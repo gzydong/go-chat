@@ -1,10 +1,11 @@
-package server
+package process
 
 import (
 	"context"
 	"reflect"
 	"sync"
 
+	"go-chat/internal/websocket/internal/process/server"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -14,25 +15,25 @@ type IServer interface {
 	Setup(ctx context.Context) error
 }
 
-// SubServer 订阅的服务列表
-type SubServer struct {
-	Health    *Health      // 注册健康上报
-	Subscribe *WsSubscribe // 注册消息订阅
+// SubServers 订阅的服务列表
+type SubServers struct {
+	Health    *server.Health      // 注册健康上报
+	Subscribe *server.WsSubscribe // 注册消息订阅
 }
 
 type Server struct {
 	items []IServer
 }
 
-func NewServer(routines *SubServer) *Server {
-	server := &Server{}
+func NewServer(routines *SubServers) *Server {
+	s := &Server{}
 
-	server.binds(routines)
+	s.binds(routines)
 
-	return server
+	return s
 }
 
-func (c *Server) binds(routines *SubServer) {
+func (c *Server) binds(routines *SubServers) {
 	elem := reflect.ValueOf(routines).Elem()
 	for i := 0; i < elem.NumField(); i++ {
 		if v, ok := elem.Field(i).Interface().(IServer); ok {

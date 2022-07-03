@@ -5,7 +5,7 @@ import (
 	"errors"
 
 	"go-chat/internal/repository/dao/note"
-	model2 "go-chat/internal/repository/model"
+	"go-chat/internal/repository/model"
 	"gorm.io/gorm"
 
 	"go-chat/internal/service"
@@ -21,10 +21,10 @@ func NewArticleClassService(baseService *service.BaseService, dao *note.ArticleC
 }
 
 // List 分类列表
-func (s *ArticleClassService) List(ctx context.Context, uid int) ([]*model2.ArticleClassItem, error) {
-	items := make([]*model2.ArticleClassItem, 0)
+func (s *ArticleClassService) List(ctx context.Context, uid int) ([]*model.ArticleClassItem, error) {
+	items := make([]*model.ArticleClassItem, 0)
 
-	err := s.Db().Model(&model2.ArticleClass{}).Select("id", "class_name", "is_default").Where("user_id = ?", uid).Order("sort asc").Scan(&items).Error
+	err := s.Db().Model(&model.ArticleClass{}).Select("id", "class_name", "is_default").Where("user_id = ?", uid).Order("sort asc").Scan(&items).Error
 	if err != nil {
 		return nil, err
 	}
@@ -34,7 +34,7 @@ func (s *ArticleClassService) List(ctx context.Context, uid int) ([]*model2.Arti
 		return nil, err
 	}
 
-	items = append(items, &model2.ArticleClassItem{
+	items = append(items, &model.ArticleClassItem{
 		ClassName: "默认分类",
 	})
 
@@ -49,14 +49,14 @@ func (s *ArticleClassService) List(ctx context.Context, uid int) ([]*model2.Arti
 
 // Create 创建分类
 func (s *ArticleClassService) Create(ctx context.Context, uid int, name string) (int, error) {
-	data := &model2.ArticleClass{
+	data := &model.ArticleClass{
 		UserId:    uid,
 		ClassName: name,
 		Sort:      1,
 	}
 
 	err := s.Db().Transaction(func(tx *gorm.DB) error {
-		if err := tx.Model(&model2.ArticleClass{}).Where("user_id = ?", uid).Updates(map[string]interface{}{
+		if err := tx.Model(&model.ArticleClass{}).Where("user_id = ?", uid).Updates(map[string]interface{}{
 			"sort": gorm.Expr("sort + 1"),
 		}).Error; err != nil {
 			return err
@@ -72,12 +72,12 @@ func (s *ArticleClassService) Create(ctx context.Context, uid int, name string) 
 }
 
 func (s *ArticleClassService) Update(ctx context.Context, uid, cid int, name string) error {
-	return s.Db().Model(&model2.ArticleClass{}).Where("id = ? and user_id = ?", cid, uid).UpdateColumn("class_name", name).Error
+	return s.Db().Model(&model.ArticleClass{}).Where("id = ? and user_id = ?", cid, uid).UpdateColumn("class_name", name).Error
 }
 
 func (s *ArticleClassService) Delete(ctx context.Context, uid, cid int) error {
 	var num int64
-	if err := s.Db().Model(&model2.Article{}).Where("user_id = ? and class_id = ?", uid, cid).Count(&num).Error; err != nil {
+	if err := s.Db().Model(&model.Article{}).Where("user_id = ? and class_id = ?", uid, cid).Count(&num).Error; err != nil {
 		return err
 	}
 
@@ -85,12 +85,12 @@ func (s *ArticleClassService) Delete(ctx context.Context, uid, cid int) error {
 		return errors.New("分类已被使用不能删除")
 	}
 
-	return s.Db().Delete(&model2.ArticleClass{}, "id = ? and user_id = ? and is_default = 0", cid, uid).Error
+	return s.Db().Delete(&model.ArticleClass{}, "id = ? and user_id = ? and is_default = 0", cid, uid).Error
 }
 
 func (s *ArticleClassService) Sort(ctx context.Context, uid, cid, mode int) error {
 
-	var item *model2.ArticleClass
+	var item *model.ArticleClass
 	if err := s.Db().First(&item, "id = ? and user_id = ?", cid, uid).Error; err != nil {
 		return err
 	}
@@ -106,13 +106,13 @@ func (s *ArticleClassService) Sort(ctx context.Context, uid, cid, mode int) erro
 		}
 
 		return s.Db().Transaction(func(tx *gorm.DB) error {
-			if err := tx.Model(&model2.ArticleClass{}).Where("user_id = ? and sort = ?", uid, item.Sort+1).Updates(map[string]interface{}{
+			if err := tx.Model(&model.ArticleClass{}).Where("user_id = ? and sort = ?", uid, item.Sort+1).Updates(map[string]interface{}{
 				"sort": gorm.Expr("sort - 1"),
 			}).Error; err != nil {
 				return err
 			}
 
-			if err := tx.Model(&model2.ArticleClass{}).Where("id = ? and user_id = ?", cid, uid).Updates(map[string]interface{}{
+			if err := tx.Model(&model.ArticleClass{}).Where("id = ? and user_id = ?", cid, uid).Updates(map[string]interface{}{
 				"sort": gorm.Expr("sort + 1"),
 			}).Error; err != nil {
 				return err
@@ -131,13 +131,13 @@ func (s *ArticleClassService) Sort(ctx context.Context, uid, cid, mode int) erro
 		}
 
 		return s.Db().Transaction(func(tx *gorm.DB) error {
-			if err := tx.Model(&model2.ArticleClass{}).Where("user_id = ? and sort = ?", uid, item.Sort-1).Updates(map[string]interface{}{
+			if err := tx.Model(&model.ArticleClass{}).Where("user_id = ? and sort = ?", uid, item.Sort-1).Updates(map[string]interface{}{
 				"sort": gorm.Expr("sort + 1"),
 			}).Error; err != nil {
 				return err
 			}
 
-			if err := tx.Model(&model2.ArticleClass{}).Where("id = ? and user_id = ?", cid, uid).Updates(map[string]interface{}{
+			if err := tx.Model(&model.ArticleClass{}).Where("id = ? and user_id = ?", cid, uid).Updates(map[string]interface{}{
 				"sort": gorm.Expr("sort - 1"),
 			}).Error; err != nil {
 				return err
@@ -151,7 +151,7 @@ func (s *ArticleClassService) Sort(ctx context.Context, uid, cid, mode int) erro
 // SetDefaultClass 设置默认分类
 func (s *ArticleClassService) SetDefaultClass(ctx context.Context, uid int) {
 
-	defaultClass := &model2.ArticleClass{}
+	defaultClass := &model.ArticleClass{}
 
 	err := s.Db().First(defaultClass, "id = ? and is_default = ?", uid, 1).Error
 
@@ -159,7 +159,7 @@ func (s *ArticleClassService) SetDefaultClass(ctx context.Context, uid int) {
 		return
 	}
 
-	s.Db().Create(&model2.ArticleClass{
+	s.Db().Create(&model.ArticleClass{
 		UserId:    uid,
 		ClassName: "默认分类",
 		Sort:      1,

@@ -38,7 +38,7 @@ func (c *Group) Create(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	gid, err := c.service.Create(ctx.Context.Request.Context(), &service.CreateGroupOpts{
+	gid, err := c.service.Create(ctx.Context.Request.Context(), &service.CreateGroupOpt{
 		UserId:    jwtutil.GetUid(ctx.Context),
 		Name:      params.Name,
 		Avatar:    params.Avatar,
@@ -73,7 +73,7 @@ func (c *Group) Dismiss(ctx *ichat.Context) error {
 		}).BusinessError("群组解散失败！")
 	}
 
-	_ = c.messageService.SendSysMessage(ctx.Context, &service.SysTextMessageOpts{
+	_ = c.messageService.SendSysMessage(ctx.Context, &service.SysTextMessageOpt{
 		UserId:     uid,
 		TalkType:   entity.ChatGroupMode,
 		ReceiverId: params.GroupId,
@@ -109,7 +109,7 @@ func (c *Group) Invite(ctx *ichat.Context) error {
 		return ctx.BusinessError("非群组成员，无权邀请好友！")
 	}
 
-	if err := c.service.InviteMembers(ctx.Context, &service.InviteGroupMembersOpts{
+	if err := c.service.InviteMembers(ctx.Context, &service.InviteGroupMembersOpt{
 		UserId:    uid,
 		GroupId:   params.GroupId,
 		MemberIds: uids,
@@ -155,7 +155,7 @@ func (c *Group) Setting(ctx *ichat.Context) error {
 		return ctx.BusinessError("无权限操作")
 	}
 
-	if err := c.service.Update(ctx.Context.Request.Context(), &service.UpdateGroupOpts{
+	if err := c.service.Update(ctx.Context.Request.Context(), &service.UpdateGroupOpt{
 		GroupId: params.GroupId,
 		Name:    params.GroupName,
 		Avatar:  params.Avatar,
@@ -164,7 +164,7 @@ func (c *Group) Setting(ctx *ichat.Context) error {
 		return ctx.BusinessError(err.Error())
 	}
 
-	_ = c.messageService.SendSysMessage(ctx.Context, &service.SysTextMessageOpts{
+	_ = c.messageService.SendSysMessage(ctx.Context, &service.SysTextMessageOpt{
 		UserId:     uid,
 		TalkType:   entity.ChatGroupMode,
 		ReceiverId: params.GroupId,
@@ -188,7 +188,7 @@ func (c *Group) RemoveMembers(ctx *ichat.Context) error {
 		return ctx.BusinessError("无权限操作")
 	}
 
-	err := c.service.RemoveMembers(ctx.Context.Request.Context(), &service.RemoveMembersOpts{
+	err := c.service.RemoveMembers(ctx.Context.Request.Context(), &service.RemoveMembersOpt{
 		UserId:    uid,
 		GroupId:   params.GroupId,
 		MemberIds: sliceutil.ParseIds(params.MembersIds),

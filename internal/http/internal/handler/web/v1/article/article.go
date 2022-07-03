@@ -36,7 +36,7 @@ func (c *Article) List(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	items, err := c.service.List(ctx.Context.Request.Context(), &note.ArticleListOpts{
+	items, err := c.service.List(ctx.Context.Request.Context(), &note.ArticleListOpt{
 		UserId:   jwtutil.GetUid(ctx.Context),
 		Keyword:  params.Keyword,
 		FindType: params.FindType,
@@ -128,7 +128,7 @@ func (c *Article) Edit(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	opts := &note.ArticleEditOpts{
+	opts := &note.ArticleEditOpt{
 		UserId:    uid,
 		ArticleId: params.ArticleId,
 		ClassId:   params.ClassId,

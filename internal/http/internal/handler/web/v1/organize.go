@@ -12,12 +12,12 @@ import (
 )
 
 type Organize struct {
-	deptServ     *organize.OrganizeDeptService
+	deptServ     *organize.DeptService
 	organizeServ *organize.OrganizeService
 	positionServ *organize.PositionService
 }
 
-func NewOrganize(deptServ *organize.OrganizeDeptService, organizeServ *organize.OrganizeService, positionServ *organize.PositionService) *Organize {
+func NewOrganize(deptServ *organize.DeptService, organizeServ *organize.OrganizeService, positionServ *organize.PositionService) *Organize {
 	return &Organize{deptServ: deptServ, organizeServ: organizeServ, positionServ: positionServ}
 }
 

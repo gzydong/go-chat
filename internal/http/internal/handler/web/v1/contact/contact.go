@@ -58,7 +58,7 @@ func (c *Contact) Delete(ctx *ichat.Context) error {
 	}
 
 	// 解除好友关系后需添加一条聊天记录
-	_ = c.talkMessageService.SendSysMessage(ctx.Context, &service.SysTextMessageOpts{
+	_ = c.talkMessageService.SendSysMessage(ctx.Context, &service.SysTextMessageOpt{
 		UserId:     uid,
 		TalkType:   entity.ChatPrivateMode,
 		ReceiverId: params.FriendId,

@@ -95,7 +95,7 @@ func (c *Message) Text(ctx *ichat.Context) error {
 		return ctx.BusinessError(err.Error())
 	}
 
-	if err := c.service.SendTextMessage(ctx.Context.Request.Context(), &service.TextMessageOpts{
+	if err := c.service.SendTextMessage(ctx.Context.Request.Context(), &service.TextMessageOpt{
 		UserId:     uid,
 		TalkType:   params.TalkType,
 		ReceiverId: params.ReceiverId,
@@ -124,7 +124,7 @@ func (c *Message) Code(ctx *ichat.Context) error {
 		return ctx.BusinessError(err.Error())
 	}
 
-	if err := c.service.SendCodeMessage(ctx.Context.Request.Context(), &service.CodeMessageOpts{
+	if err := c.service.SendCodeMessage(ctx.Context.Request.Context(), &service.CodeMessageOpt{
 		UserId:     uid,
 		TalkType:   params.TalkType,
 		ReceiverId: params.ReceiverId,
@@ -168,7 +168,7 @@ func (c *Message) Image(ctx *ichat.Context) error {
 		return ctx.BusinessError(err.Error())
 	}
 
-	if err := c.service.SendImageMessage(ctx.Context.Request.Context(), &service.ImageMessageOpts{
+	if err := c.service.SendImageMessage(ctx.Context.Request.Context(), &service.ImageMessageOpt{
 		UserId:     uid,
 		TalkType:   params.TalkType,
 		ReceiverId: params.ReceiverId,
@@ -197,7 +197,7 @@ func (c *Message) File(ctx *ichat.Context) error {
 		return ctx.BusinessError(err.Error())
 	}
 
-	if err := c.service.SendFileMessage(ctx.Context.Request.Context(), &service.FileMessageOpts{
+	if err := c.service.SendFileMessage(ctx.Context.Request.Context(), &service.FileMessageOpt{
 		UserId:     uid,
 		TalkType:   params.TalkType,
 		ReceiverId: params.ReceiverId,
@@ -234,7 +234,7 @@ func (c *Message) Vote(ctx *ichat.Context) error {
 		return ctx.BusinessError(err.Error())
 	}
 
-	if err := c.service.SendVoteMessage(ctx.Context.Request.Context(), &service.VoteMessageOpts{
+	if err := c.service.SendVoteMessage(ctx.Context.Request.Context(), &service.VoteMessageOpt{
 		UserId:     uid,
 		ReceiverId: params.ReceiverId,
 		Mode:       params.Mode,
@@ -265,7 +265,7 @@ func (c *Message) Emoticon(ctx *ichat.Context) error {
 		return ctx.BusinessError(err.Error())
 	}
 
-	if err := c.service.SendEmoticonMessage(ctx.Context.Request.Context(), &service.EmoticonMessageOpts{
+	if err := c.service.SendEmoticonMessage(ctx.Context.Request.Context(), &service.EmoticonMessageOpt{
 		UserId:     uid,
 		TalkType:   params.TalkType,
 		ReceiverId: params.ReceiverId,
@@ -298,7 +298,7 @@ func (c *Message) Forward(ctx *ichat.Context) error {
 		return ctx.BusinessError(err.Error())
 	}
 
-	forward := &service.TalkForwardOpts{
+	forward := &service.TalkForwardOpt{
 		Mode:       params.ForwardMode,
 		UserId:     uid,
 		ReceiverId: params.ReceiverId,
@@ -333,7 +333,7 @@ func (c *Message) Card(ctx *ichat.Context) error {
 	}
 
 	// todo SendCardMessage
-	if err := c.service.SendCardMessage(ctx.Context.Request.Context(), &service.CardMessageOpts{
+	if err := c.service.SendCardMessage(ctx.Context.Request.Context(), &service.CardMessageOpt{
 		UserId:     uid,
 		TalkType:   params.TalkType,
 		ReceiverId: params.ReceiverId,
@@ -383,7 +383,7 @@ func (c *Message) Delete(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	if err := c.talkService.RemoveRecords(ctx.Context.Request.Context(), &service.TalkMessageDeleteOpts{
+	if err := c.talkService.RemoveRecords(ctx.Context.Request.Context(), &service.TalkMessageDeleteOpt{
 		UserId:     jwtutil.GetUid(ctx.Context),
 		TalkType:   params.TalkType,
 		ReceiverId: params.ReceiverId,
@@ -403,7 +403,7 @@ func (c *Message) HandleVote(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	vid, err := c.service.VoteHandle(ctx.Context.Request.Context(), &service.VoteMessageHandleOpts{
+	vid, err := c.service.VoteHandle(ctx.Context.Request.Context(), &service.VoteMessageHandleOpt{
 		UserId:   jwtutil.GetUid(ctx.Context),
 		RecordId: params.RecordId,
 		Options:  params.Options,
@@ -434,7 +434,7 @@ func (c *Message) Location(ctx *ichat.Context) error {
 		return ctx.BusinessError(err.Error())
 	}
 
-	if err := c.service.SendLocationMessage(ctx.Context.Request.Context(), &service.LocationMessageOpts{
+	if err := c.service.SendLocationMessage(ctx.Context.Request.Context(), &service.LocationMessageOpt{
 		UserId:     uid,
 		TalkType:   params.TalkType,
 		ReceiverId: params.ReceiverId,

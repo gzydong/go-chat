@@ -70,7 +70,7 @@ func (c *Apply) Accept(ctx *ichat.Context) error {
 		return ctx.BusinessError(err)
 	}
 
-	_ = c.talkMessageService.SendSysMessage(ctx.Context, &service.SysTextMessageOpts{
+	_ = c.talkMessageService.SendSysMessage(ctx.Context, &service.SysTextMessageOpt{
 		UserId:     applyInfo.UserId,
 		TalkType:   entity.ChatPrivateMode,
 		ReceiverId: applyInfo.FriendId,

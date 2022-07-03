@@ -11,7 +11,7 @@ type Client struct {
 }
 
 type Config struct {
-	Host     string // smtp.163.com
+	Host     string // 例如 smtp.163.com
 	Port     int    // 端口号
 	UserName string // 登录账号
 	Password string // 登录密码

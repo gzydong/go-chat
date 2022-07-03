@@ -130,7 +130,7 @@ func (c *Talk) Create(ctx *ichat.Context) error {
 		return ctx.BusinessError("暂无权限！")
 	}
 
-	result, err := c.talkListService.Create(ctx.Context.Request.Context(), &service.TalkSessionCreateOpts{
+	result, err := c.talkListService.Create(ctx.Context.Request.Context(), &service.TalkSessionCreateOpt{
 		UserId:     uid,
 		TalkType:   params.TalkType,
 		ReceiverId: params.ReceiverId,
@@ -193,7 +193,7 @@ func (c *Talk) Top(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	if err := c.talkListService.Top(ctx.Context, &service.TalkSessionTopOpts{
+	if err := c.talkListService.Top(ctx.Context, &service.TalkSessionTopOpt{
 		UserId: jwtutil.GetUid(ctx.Context),
 		Id:     params.Id,
 		Type:   params.Type,
@@ -212,7 +212,7 @@ func (c *Talk) Disturb(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	if err := c.talkListService.Disturb(ctx.Context, &service.TalkSessionDisturbOpts{
+	if err := c.talkListService.Disturb(ctx.Context, &service.TalkSessionDisturbOpt{
 		UserId:     jwtutil.GetUid(ctx.Context),
 		TalkType:   params.TalkType,
 		ReceiverId: params.ReceiverId,

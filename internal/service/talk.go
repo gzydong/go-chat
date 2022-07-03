@@ -8,15 +8,8 @@ import (
 	"go-chat/internal/entity"
 	"go-chat/internal/pkg/sliceutil"
 	"go-chat/internal/repository/dao"
-	model2 "go-chat/internal/repository/model"
+	"go-chat/internal/repository/model"
 )
-
-type TalkMessageDeleteOpts struct {
-	UserId     int
-	TalkType   int
-	ReceiverId int
-	RecordIds  string
-}
 
 type TalkService struct {
 	*BaseService
@@ -27,8 +20,15 @@ func NewTalkService(baseService *BaseService, groupMemberDao *dao.GroupMemberDao
 	return &TalkService{BaseService: baseService, groupMemberDao: groupMemberDao}
 }
 
+type TalkMessageDeleteOpt struct {
+	UserId     int
+	TalkType   int
+	ReceiverId int
+	RecordIds  string
+}
+
 // RemoveRecords 删除消息记录
-func (s *TalkService) RemoveRecords(ctx context.Context, opts *TalkMessageDeleteOpts) error {
+func (s *TalkService) RemoveRecords(ctx context.Context, opts *TalkMessageDeleteOpt) error {
 
 	// 需要删除的消息记录ID
 	ids := sliceutil.UniqueInt(sliceutil.ParseIds(opts.RecordIds))
@@ -39,22 +39,22 @@ func (s *TalkService) RemoveRecords(ctx context.Context, opts *TalkMessageDelete
 	if opts.TalkType == entity.ChatPrivateMode {
 		subQuery := s.db.Where("user_id = ? and receiver_id = ?", opts.UserId, opts.ReceiverId).Or("user_id = ? and receiver_id = ?", opts.ReceiverId, opts.UserId)
 
-		s.db.Model(&model2.TalkRecords{}).Where("id in ?", ids).Where("talk_type = ?", entity.ChatPrivateMode).Where(subQuery).Pluck("id", &findIds)
+		s.db.Model(&model.TalkRecords{}).Where("id in ?", ids).Where("talk_type = ?", entity.ChatPrivateMode).Where(subQuery).Pluck("id", &findIds)
 	} else {
 		if !s.groupMemberDao.IsMember(opts.ReceiverId, opts.UserId, false) {
 			return entity.ErrPermissionDenied
 		}
 
-		s.db.Model(&model2.TalkRecords{}).Where("id in ? and talk_type = ?", ids, entity.ChatGroupMode).Pluck("id", &findIds)
+		s.db.Model(&model.TalkRecords{}).Where("id in ? and talk_type = ?", ids, entity.ChatGroupMode).Pluck("id", &findIds)
 	}
 
 	if len(ids) != len(findIds) {
 		return errors.New("删除异常! ")
 	}
 
-	items := make([]*model2.TalkRecordsDelete, 0)
+	items := make([]*model.TalkRecordsDelete, 0)
 	for _, val := range ids {
-		items = append(items, &model2.TalkRecordsDelete{
+		items = append(items, &model.TalkRecordsDelete{
 			RecordId:  val,
 			UserId:    opts.UserId,
 			CreatedAt: time.Now(),
@@ -68,8 +68,8 @@ func (s *TalkService) RemoveRecords(ctx context.Context, opts *TalkMessageDelete
 func (s *TalkService) CollectRecord(ctx context.Context, uid int, recordId int) error {
 	var (
 		err      error
-		record   model2.TalkRecords
-		fileInfo model2.TalkRecordsFile
+		record   model.TalkRecords
+		fileInfo model.TalkRecordsFile
 	)
 
 	if err = s.db.First(&record, recordId).Error; err != nil {
@@ -98,7 +98,7 @@ func (s *TalkService) CollectRecord(ctx context.Context, uid int, recordId int) 
 		return err
 	}
 
-	emoticon := &model2.EmoticonItem{
+	emoticon := &model.EmoticonItem{
 		UserId:     uid,
 		Url:        fileInfo.Url,
 		FileSuffix: fileInfo.Suffix,

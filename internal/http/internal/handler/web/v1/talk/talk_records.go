@@ -58,7 +58,7 @@ func (c *Records) GetRecords(ctx *ichat.Context) error {
 		}
 	}
 
-	records, err := c.service.GetTalkRecords(ctx.Context, &service.QueryTalkRecordsOpts{
+	records, err := c.service.GetTalkRecords(ctx.Context, &service.QueryTalkRecordsOpt{
 		TalkType:   params.TalkType,
 		UserId:     jwtutil.GetUid(ctx.Context),
 		ReceiverId: params.ReceiverId,
@@ -117,7 +117,7 @@ func (c *Records) SearchHistoryRecords(ctx *ichat.Context) error {
 		m = []int{params.MsgType}
 	}
 
-	records, err := c.service.GetTalkRecords(ctx.Context, &service.QueryTalkRecordsOpts{
+	records, err := c.service.GetTalkRecords(ctx.Context, &service.QueryTalkRecordsOpt{
 		TalkType:   params.TalkType,
 		MsgType:    m,
 		UserId:     jwtutil.GetUid(ctx.Context),

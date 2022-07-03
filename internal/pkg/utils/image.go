@@ -8,13 +8,13 @@ import (
 	"io"
 )
 
-type MetaImage struct {
+type ImageMeta struct {
 	Width  int
 	Height int
 }
 
-func ReadFileImage(r io.Reader) *MetaImage {
+func ReadFileImage(r io.Reader) *ImageMeta {
 	c, _, _ := image.DecodeConfig(r)
 
-	return &MetaImage{c.Width, c.Height}
+	return &ImageMeta{c.Width, c.Height}
 }

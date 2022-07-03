@@ -5,7 +5,7 @@ import (
 	"errors"
 	"strings"
 
-	model2 "go-chat/internal/repository/model"
+	"go-chat/internal/repository/model"
 	"gorm.io/gorm"
 
 	"go-chat/internal/entity"
@@ -13,16 +13,6 @@ import (
 	"go-chat/internal/pkg/sliceutil"
 	"go-chat/internal/pkg/strutil"
 )
-
-type TalkForwardOpts struct {
-	UserId     int
-	ReceiverId int
-	TalkType   int
-	RecordsIds []int
-	UserIds    []int
-	GroupIds   []int
-	Mode       int
-}
 
 type receive struct {
 	ReceiverId int
@@ -49,10 +39,20 @@ func NewTalkMessageForwardService(base *BaseService) *TalkMessageForwardService 
 	return &TalkMessageForwardService{base}
 }
 
-// 验证消息转发
-func (t *TalkMessageForwardService) verify(forward *TalkForwardOpts) error {
+type TalkForwardOpt struct {
+	UserId     int
+	ReceiverId int
+	TalkType   int
+	RecordsIds []int
+	UserIds    []int
+	GroupIds   []int
+	Mode       int
+}
 
-	query := t.db.Model(&model2.TalkRecords{})
+// 验证消息转发
+func (t *TalkMessageForwardService) verify(forward *TalkForwardOpt) error {
+
+	query := t.db.Model(&model.TalkRecords{})
 
 	query.Where("id in ?", forward.RecordsIds)
 
@@ -79,7 +79,7 @@ func (t *TalkMessageForwardService) verify(forward *TalkForwardOpts) error {
 }
 
 // 聚合转发数据
-func (t *TalkMessageForwardService) aggregation(ctx context.Context, forward *TalkForwardOpts) (string, error) {
+func (t *TalkMessageForwardService) aggregation(ctx context.Context, forward *TalkForwardOpt) (string, error) {
 
 	rows := make([]*forwardItem, 0)
 
@@ -122,7 +122,7 @@ func (t *TalkMessageForwardService) aggregation(ctx context.Context, forward *Ta
 }
 
 // SendForwardMessage 推送转发消息
-func (t *TalkMessageForwardService) SendForwardMessage(ctx context.Context, forward *TalkForwardOpts) error {
+func (t *TalkMessageForwardService) SendForwardMessage(ctx context.Context, forward *TalkForwardOpt) error {
 	var (
 		err   error
 		items []*talkRecord
@@ -158,7 +158,7 @@ func (t *TalkMessageForwardService) SendForwardMessage(ctx context.Context, forw
 }
 
 // MultiMergeForward 转发消息（多条合并转发）
-func (t *TalkMessageForwardService) MultiMergeForward(ctx context.Context, forward *TalkForwardOpts) ([]*talkRecord, error) {
+func (t *TalkMessageForwardService) MultiMergeForward(ctx context.Context, forward *TalkForwardOpt) ([]*talkRecord, error) {
 	var (
 		receives = make([]*receive, 0)
 		arr      = make([]*talkRecord, 0)
@@ -179,11 +179,11 @@ func (t *TalkMessageForwardService) MultiMergeForward(ctx context.Context, forwa
 
 	str := sliceutil.IntToIds(forward.RecordsIds)
 	err = t.db.Transaction(func(tx *gorm.DB) error {
-		forwards := make([]*model2.TalkRecordsForward, 0, len(receives))
-		records := make([]*model2.TalkRecords, 0, len(receives))
+		forwards := make([]*model.TalkRecordsForward, 0, len(receives))
+		records := make([]*model.TalkRecords, 0, len(receives))
 
 		for _, item := range receives {
-			records = append(records, &model2.TalkRecords{
+			records = append(records, &model.TalkRecords{
 				TalkType:   item.TalkType,
 				MsgType:    entity.MsgTypeForward,
 				UserId:     forward.UserId,
@@ -196,7 +196,7 @@ func (t *TalkMessageForwardService) MultiMergeForward(ctx context.Context, forwa
 		}
 
 		for _, record := range records {
-			forwards = append(forwards, &model2.TalkRecordsForward{
+			forwards = append(forwards, &model.TalkRecordsForward{
 				RecordId:  record.Id,
 				UserId:    record.UserId,
 				RecordsId: str,
@@ -225,13 +225,13 @@ func (t *TalkMessageForwardService) MultiMergeForward(ctx context.Context, forwa
 }
 
 // MultiSplitForward 转发消息（多条拆分转发）
-func (t *TalkMessageForwardService) MultiSplitForward(ctx context.Context, forward *TalkForwardOpts) ([]*talkRecord, error) {
+func (t *TalkMessageForwardService) MultiSplitForward(ctx context.Context, forward *TalkForwardOpt) ([]*talkRecord, error) {
 	var (
 		receives  = make([]*receive, 0)
 		arr       = make([]*talkRecord, 0)
-		records   = make([]*model2.TalkRecords, 0)
-		hashFiles = make(map[int]*model2.TalkRecordsFile)
-		hashCodes = make(map[int]*model2.TalkRecordsCode)
+		records   = make([]*model.TalkRecords, 0)
+		hashFiles = make(map[int]*model.TalkRecordsFile)
+		hashCodes = make(map[int]*model.TalkRecordsCode)
 	)
 
 	for _, uid := range forward.UserIds {
@@ -242,7 +242,7 @@ func (t *TalkMessageForwardService) MultiSplitForward(ctx context.Context, forwa
 		receives = append(receives, &receive{gid, 2})
 	}
 
-	if err := t.db.Model(&model2.TalkRecords{}).Where("id IN ?", forward.RecordsIds).Scan(&records).Error; err != nil {
+	if err := t.db.Model(&model.TalkRecords{}).Where("id IN ?", forward.RecordsIds).Scan(&records).Error; err != nil {
 		return nil, err
 	}
 
@@ -258,8 +258,8 @@ func (t *TalkMessageForwardService) MultiSplitForward(ctx context.Context, forwa
 	}
 
 	if len(codeIds) > 0 {
-		items := make([]*model2.TalkRecordsCode, 0)
-		if err := t.db.Model(&model2.TalkRecordsCode{}).Where("record_id IN ?", codeIds).Scan(&items).Error; err == nil {
+		items := make([]*model.TalkRecordsCode, 0)
+		if err := t.db.Model(&model.TalkRecordsCode{}).Where("record_id IN ?", codeIds).Scan(&items).Error; err == nil {
 			for i := range items {
 				hashCodes[items[i].RecordId] = items[i]
 			}
@@ -267,8 +267,8 @@ func (t *TalkMessageForwardService) MultiSplitForward(ctx context.Context, forwa
 	}
 
 	if len(fileIds) > 0 {
-		items := make([]*model2.TalkRecordsFile, 0)
-		if err := t.db.Model(&model2.TalkRecordsFile{}).Where("record_id IN ?", fileIds).Scan(&items).Error; err == nil {
+		items := make([]*model.TalkRecordsFile, 0)
+		if err := t.db.Model(&model.TalkRecordsFile{}).Where("record_id IN ?", fileIds).Scan(&items).Error; err == nil {
 			for i := range items {
 				hashFiles[items[i].RecordId] = items[i]
 			}
@@ -277,12 +277,12 @@ func (t *TalkMessageForwardService) MultiSplitForward(ctx context.Context, forwa
 
 	err := t.db.Transaction(func(tx *gorm.DB) error {
 		for _, item := range records {
-			items := make([]*model2.TalkRecords, 0, len(receives))
-			files := make([]*model2.TalkRecordsFile, 0)
-			codes := make([]*model2.TalkRecordsCode, 0)
+			items := make([]*model.TalkRecords, 0, len(receives))
+			files := make([]*model.TalkRecordsFile, 0)
+			codes := make([]*model.TalkRecordsCode, 0)
 
 			for _, val := range receives {
-				items = append(items, &model2.TalkRecords{
+				items = append(items, &model.TalkRecords{
 					TalkType:   val.TalkType,
 					MsgType:    item.MsgType,
 					UserId:     forward.UserId,
@@ -305,7 +305,7 @@ func (t *TalkMessageForwardService) MultiSplitForward(ctx context.Context, forwa
 				switch record.MsgType {
 				case entity.MsgTypeFile:
 					if file, ok := hashFiles[item.Id]; ok {
-						files = append(files, &model2.TalkRecordsFile{
+						files = append(files, &model.TalkRecordsFile{
 							RecordId:     record.Id,
 							UserId:       forward.UserId,
 							Source:       file.Source,
@@ -319,7 +319,7 @@ func (t *TalkMessageForwardService) MultiSplitForward(ctx context.Context, forwa
 					}
 				case entity.MsgTypeCode:
 					if code, ok := hashCodes[item.Id]; ok {
-						codes = append(codes, &model2.TalkRecordsCode{
+						codes = append(codes, &model.TalkRecordsCode{
 							RecordId: record.Id,
 							UserId:   forward.UserId,
 							Lang:     code.Lang,
