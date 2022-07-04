@@ -6,7 +6,6 @@ import (
 	"go-chat/internal/pkg/ichat"
 	"go-chat/internal/pkg/timeutil"
 
-	"go-chat/internal/pkg/jwtutil"
 	"go-chat/internal/service"
 )
 
@@ -24,7 +23,7 @@ func NewApply(service *service.ContactApplyService, userService *service.UserSer
 // ApplyUnreadNum 获取好友申请未读数
 func (c *Apply) ApplyUnreadNum(ctx *ichat.Context) error {
 	return ctx.Success(entity.H{
-		"unread_num": c.service.GetApplyUnreadNum(ctx.Context.Request.Context(), jwtutil.GetUid(ctx.Context)),
+		"unread_num": c.service.GetApplyUnreadNum(ctx.Context.Request.Context(), ctx.LoginUID()),
 	})
 }
 
@@ -35,13 +34,13 @@ func (c *Apply) Create(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	uid := jwtutil.GetUid(ctx.Context)
+	uid := ctx.LoginUID()
 	if !c.contactService.Dao().IsFriend(ctx.Context, uid, params.FriendId, false) {
 		return ctx.Success(nil)
 	}
 
 	if err := c.service.Create(ctx.Context, &service.ContactApplyCreateOpts{
-		UserId:   jwtutil.GetUid(ctx.Context),
+		UserId:   ctx.LoginUID(),
 		Remarks:  params.Remarks,
 		FriendId: params.FriendId,
 	}); err != nil {
@@ -59,7 +58,7 @@ func (c *Apply) Accept(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	uid := jwtutil.GetUid(ctx.Context)
+	uid := ctx.LoginUID()
 	applyInfo, err := c.service.Accept(ctx.Context, &service.ContactApplyAcceptOpts{
 		Remarks: params.Remarks,
 		ApplyId: params.ApplyId,
@@ -89,7 +88,7 @@ func (c *Apply) Decline(ctx *ichat.Context) error {
 	}
 
 	if err := c.service.Decline(ctx.Context, &service.ContactApplyDeclineOpts{
-		UserId:  jwtutil.GetUid(ctx.Context),
+		UserId:  ctx.LoginUID(),
 		Remarks: params.Remarks,
 		ApplyId: params.ApplyId,
 	}); err != nil {
@@ -102,7 +101,7 @@ func (c *Apply) Decline(ctx *ichat.Context) error {
 // List 获取联系人申请列表
 func (c *Apply) List(ctx *ichat.Context) error {
 
-	list, err := c.service.List(ctx.Context, jwtutil.GetUid(ctx.Context), 1, 1000)
+	list, err := c.service.List(ctx.Context, ctx.LoginUID(), 1, 1000)
 	if err != nil {
 		return ctx.Error(err.Error())
 	}
@@ -120,7 +119,7 @@ func (c *Apply) List(ctx *ichat.Context) error {
 		})
 	}
 
-	c.service.ClearApplyUnreadNum(ctx.Context, jwtutil.GetUid(ctx.Context))
+	c.service.ClearApplyUnreadNum(ctx.Context, ctx.LoginUID())
 
 	return ctx.Paginate(items, 1, 1000, len(items))
 }

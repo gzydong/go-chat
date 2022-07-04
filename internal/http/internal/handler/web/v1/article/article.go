@@ -10,7 +10,6 @@ import (
 	"go-chat/internal/repository/model"
 
 	"go-chat/internal/pkg/filesystem"
-	"go-chat/internal/pkg/jwtutil"
 	"go-chat/internal/pkg/sliceutil"
 	"go-chat/internal/pkg/strutil"
 	"go-chat/internal/pkg/timeutil"
@@ -37,7 +36,7 @@ func (c *Article) List(ctx *ichat.Context) error {
 	}
 
 	items, err := c.service.List(ctx.Context.Request.Context(), &note.ArticleListOpt{
-		UserId:   jwtutil.GetUid(ctx.Context),
+		UserId:   ctx.LoginUID(),
 		Keyword:  params.Keyword,
 		FindType: params.FindType,
 		Cid:      params.Cid,
@@ -75,7 +74,7 @@ func (c *Article) Detail(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	uid := jwtutil.GetUid(ctx.Context)
+	uid := ctx.LoginUID()
 
 	detail, err := c.service.Detail(ctx.Context.Request.Context(), uid, params.ArticleId)
 	if err != nil {
@@ -121,7 +120,7 @@ func (c *Article) Edit(ctx *ichat.Context) error {
 	var (
 		err    error
 		params = &web.ArticleEditRequest{}
-		uid    = jwtutil.GetUid(ctx.Context)
+		uid    = ctx.LoginUID()
 	)
 
 	if err = ctx.Context.ShouldBind(params); err != nil {
@@ -165,7 +164,7 @@ func (c *Article) Delete(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	err := c.service.UpdateStatus(ctx.Context.Request.Context(), jwtutil.GetUid(ctx.Context), params.ArticleId, 2)
+	err := c.service.UpdateStatus(ctx.Context.Request.Context(), ctx.LoginUID(), params.ArticleId, 2)
 	if err != nil {
 		return ctx.BusinessError(err.Error())
 	}
@@ -180,7 +179,7 @@ func (c *Article) Recover(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	err := c.service.UpdateStatus(ctx.Context.Request.Context(), jwtutil.GetUid(ctx.Context), params.ArticleId, 1)
+	err := c.service.UpdateStatus(ctx.Context.Request.Context(), ctx.LoginUID(), params.ArticleId, 1)
 	if err != nil {
 		return ctx.BusinessError(err.Error())
 	}
@@ -228,7 +227,7 @@ func (c *Article) Move(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	if err := c.service.Move(ctx.Context.Request.Context(), jwtutil.GetUid(ctx.Context), params.ArticleId, params.ClassId); err != nil {
+	if err := c.service.Move(ctx.Context.Request.Context(), ctx.LoginUID(), params.ArticleId, params.ClassId); err != nil {
 		return ctx.BusinessError(err.Error())
 	}
 
@@ -242,7 +241,7 @@ func (c Article) Asterisk(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	if err := c.service.Asterisk(ctx.Context.Request.Context(), jwtutil.GetUid(ctx.Context), params.ArticleId, params.Type); err != nil {
+	if err := c.service.Asterisk(ctx.Context.Request.Context(), ctx.LoginUID(), params.ArticleId, params.Type); err != nil {
 		return ctx.BusinessError(err.Error())
 	}
 
@@ -256,7 +255,7 @@ func (c *Article) Tag(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	if err := c.service.Tag(ctx.Context.Request.Context(), jwtutil.GetUid(ctx.Context), params.ArticleId, params.Tags); err != nil {
+	if err := c.service.Tag(ctx.Context.Request.Context(), ctx.LoginUID(), params.ArticleId, params.Tags); err != nil {
 		return ctx.BusinessError(err.Error())
 	}
 
@@ -270,7 +269,7 @@ func (c *Article) ForeverDelete(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	if err := c.service.ForeverDelete(ctx.Context.Request.Context(), jwtutil.GetUid(ctx.Context), params.ArticleId); err != nil {
+	if err := c.service.ForeverDelete(ctx.Context.Request.Context(), ctx.LoginUID(), params.ArticleId); err != nil {
 		return ctx.BusinessError(err.Error())
 	}
 

@@ -11,7 +11,6 @@ import (
 	"go-chat/internal/http/internal/dto/web"
 	"go-chat/internal/pkg/filesystem"
 	"go-chat/internal/pkg/ichat"
-	"go-chat/internal/pkg/jwtutil"
 	"go-chat/internal/pkg/strutil"
 	"go-chat/internal/pkg/timeutil"
 	"go-chat/internal/repository/model"
@@ -59,7 +58,7 @@ func (c *Annex) Upload(ctx *ichat.Context) error {
 	}
 
 	data := &model.ArticleAnnex{
-		UserId:       jwtutil.GetUid(ctx.Context),
+		UserId:       ctx.LoginUID(),
 		ArticleId:    params.ArticleId,
 		Drive:        entity.FileDriveMode(c.fileSystem.Driver()),
 		Suffix:       ext,
@@ -92,7 +91,7 @@ func (c *Annex) Delete(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	err := c.service.UpdateStatus(ctx.Context.Request.Context(), jwtutil.GetUid(ctx.Context), params.AnnexId, 2)
+	err := c.service.UpdateStatus(ctx.Context.Request.Context(), ctx.LoginUID(), params.AnnexId, 2)
 	if err != nil {
 		return ctx.BusinessError(err.Error())
 	}
@@ -107,7 +106,7 @@ func (c *Annex) Recover(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	err := c.service.UpdateStatus(ctx.Context.Request.Context(), jwtutil.GetUid(ctx.Context), params.AnnexId, 1)
+	err := c.service.UpdateStatus(ctx.Context.Request.Context(), ctx.LoginUID(), params.AnnexId, 1)
 	if err != nil {
 		return ctx.BusinessError(err.Error())
 	}
@@ -119,7 +118,7 @@ func (c *Annex) Recover(ctx *ichat.Context) error {
 // nolit
 func (c *Annex) RecoverList(ctx *ichat.Context) error {
 
-	items, err := c.service.Dao().RecoverList(ctx.Context.Request.Context(), jwtutil.GetUid(ctx.Context))
+	items, err := c.service.Dao().RecoverList(ctx.Context.Request.Context(), ctx.LoginUID())
 
 	if err != nil {
 		return ctx.BusinessError(err.Error())
@@ -151,7 +150,7 @@ func (c *Annex) ForeverDelete(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	if err := c.service.ForeverDelete(ctx.Context.Request.Context(), jwtutil.GetUid(ctx.Context), params.AnnexId); err != nil {
+	if err := c.service.ForeverDelete(ctx.Context.Request.Context(), ctx.LoginUID(), params.AnnexId); err != nil {
 		return ctx.BusinessError(err.Error())
 	}
 
@@ -170,7 +169,7 @@ func (c *Annex) Download(ctx *ichat.Context) error {
 		return ctx.BusinessError(err.Error())
 	}
 
-	if info.UserId != jwtutil.GetUid(ctx.Context) {
+	if info.UserId != ctx.LoginUID() {
 		return ctx.Unauthorized("无权限下载")
 	}
 

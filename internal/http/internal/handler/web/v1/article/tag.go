@@ -4,7 +4,6 @@ import (
 	"go-chat/internal/entity"
 	"go-chat/internal/http/internal/dto/web"
 	"go-chat/internal/pkg/ichat"
-	"go-chat/internal/pkg/jwtutil"
 	"go-chat/internal/service/note"
 )
 
@@ -18,7 +17,7 @@ func NewTag(service *note.ArticleTagService) *Tag {
 
 // List 标签列表
 func (c *Tag) List(ctx *ichat.Context) error {
-	items, err := c.service.List(ctx.Context.Request.Context(), jwtutil.GetUid(ctx.Context))
+	items, err := c.service.List(ctx.Context.Request.Context(), ctx.LoginUID())
 	if err != nil {
 		return ctx.BusinessError(err)
 	}
@@ -31,7 +30,7 @@ func (c *Tag) Edit(ctx *ichat.Context) error {
 	var (
 		err    error
 		params = &web.ArticleTagEditRequest{}
-		uid    = jwtutil.GetUid(ctx.Context)
+		uid    = ctx.LoginUID()
 	)
 
 	if err = ctx.Context.ShouldBind(params); err != nil {
@@ -59,7 +58,7 @@ func (c *Tag) Delete(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	err := c.service.Delete(ctx.Context.Request.Context(), jwtutil.GetUid(ctx.Context), params.TagId)
+	err := c.service.Delete(ctx.Context.Request.Context(), ctx.LoginUID(), params.TagId)
 	if err != nil {
 		return ctx.BusinessError(err)
 	}

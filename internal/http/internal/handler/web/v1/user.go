@@ -24,9 +24,7 @@ func NewUser(service *service.UserService, smsService *service.SmsService, organ
 // Detail 个人用户信息
 func (u *User) Detail(ctx *ichat.Context) error {
 
-	uid := jwtutil.GetUid(ctx.Context)
-
-	user, err := u.service.Dao().FindById(uid)
+	user, err := u.service.Dao().FindById(ctx.LoginUID())
 	if err != nil {
 		return ctx.Error(err.Error())
 	}
@@ -44,7 +42,7 @@ func (u *User) Detail(ctx *ichat.Context) error {
 
 // Setting 用户设置
 func (u *User) Setting(ctx *ichat.Context) error {
-	uid := jwtutil.GetUid(ctx.Context)
+	uid := ctx.LoginUID()
 
 	user, _ := u.service.Dao().FindById(uid)
 
@@ -79,7 +77,7 @@ func (u *User) ChangeDetail(ctx *ichat.Context) error {
 	}
 
 	_, _ = u.service.Dao().BaseUpdate(&model.Users{}, entity.MapStrAny{
-		"id": jwtutil.GetUid(ctx.Context),
+		"id": ctx.LoginUID(),
 	}, entity.MapStrAny{
 		"nickname": params.Nickname,
 		"avatar":   params.Avatar,
@@ -98,7 +96,7 @@ func (u *User) ChangePassword(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	uid := jwtutil.GetUid(ctx.Context)
+	uid := ctx.LoginUID()
 
 	if uid == 2054 || uid == 2055 {
 		return ctx.BusinessError("预览账号不支持修改密码！")
@@ -119,7 +117,7 @@ func (u *User) ChangeMobile(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	uid := jwtutil.GetUid(ctx.Context)
+	uid := ctx.LoginUID()
 
 	if uid == 2054 || uid == 2055 {
 		return ctx.BusinessError("预览账号不支持修改手机号！")
@@ -129,7 +127,7 @@ func (u *User) ChangeMobile(ctx *ichat.Context) error {
 		return ctx.BusinessError("短信验证码填写错误！")
 	}
 
-	user, _ := u.service.Dao().FindById(jwtutil.GetUid(ctx.Context))
+	user, _ := u.service.Dao().FindById(uid)
 
 	if user.Mobile != params.Mobile {
 		return ctx.BusinessError("手机号与原手机号一致无需修改！")

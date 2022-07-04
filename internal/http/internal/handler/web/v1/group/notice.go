@@ -6,7 +6,6 @@ import (
 	"go-chat/internal/pkg/ichat"
 	"go-chat/internal/pkg/timeutil"
 
-	"go-chat/internal/pkg/jwtutil"
 	"go-chat/internal/service"
 )
 
@@ -32,7 +31,7 @@ func (c *Notice) CreateAndUpdate(ctx *ichat.Context) error {
 		err error
 	)
 
-	uid := jwtutil.GetUid(ctx.Context)
+	uid := ctx.LoginUID()
 
 	if !c.member.Dao().IsLeader(params.GroupId, uid) {
 		return ctx.BusinessError("无权限操作")
@@ -92,7 +91,7 @@ func (c *Notice) List(ctx *ichat.Context) error {
 	}
 
 	// 判断是否是群成员
-	if !c.member.Dao().IsMember(params.GroupId, jwtutil.GetUid(ctx.Context), true) {
+	if !c.member.Dao().IsMember(params.GroupId, ctx.LoginUID(), true) {
 		return ctx.BusinessError("无获取数据权限！")
 	}
 

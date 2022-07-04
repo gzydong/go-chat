@@ -9,7 +9,6 @@ import (
 
 	"go-chat/internal/entity"
 	"go-chat/internal/pkg/filesystem"
-	"go-chat/internal/pkg/jwtutil"
 	"go-chat/internal/pkg/sliceutil"
 	"go-chat/internal/service"
 )
@@ -32,7 +31,7 @@ func (c *Records) GetRecords(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	uid := jwtutil.GetUid(ctx.Context)
+	uid := ctx.LoginUID()
 	if params.TalkType == entity.ChatGroupMode {
 		if !c.authPermission.IsAuth(ctx.Context.Request.Context(), &service.AuthPermission{
 			TalkType:   params.TalkType,
@@ -60,7 +59,7 @@ func (c *Records) GetRecords(ctx *ichat.Context) error {
 
 	records, err := c.service.GetTalkRecords(ctx.Context, &service.QueryTalkRecordsOpt{
 		TalkType:   params.TalkType,
-		UserId:     jwtutil.GetUid(ctx.Context),
+		UserId:     ctx.LoginUID(),
 		ReceiverId: params.ReceiverId,
 		RecordId:   params.RecordId,
 		Limit:      params.Limit,
@@ -89,7 +88,7 @@ func (c *Records) SearchHistoryRecords(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	uid := jwtutil.GetUid(ctx.Context)
+	uid := ctx.LoginUID()
 
 	if params.TalkType == entity.ChatGroupMode {
 		if !c.authPermission.IsAuth(ctx.Context.Request.Context(), &service.AuthPermission{
@@ -120,7 +119,7 @@ func (c *Records) SearchHistoryRecords(ctx *ichat.Context) error {
 	records, err := c.service.GetTalkRecords(ctx.Context, &service.QueryTalkRecordsOpt{
 		TalkType:   params.TalkType,
 		MsgType:    m,
-		UserId:     jwtutil.GetUid(ctx.Context),
+		UserId:     ctx.LoginUID(),
 		ReceiverId: params.ReceiverId,
 		RecordId:   params.RecordId,
 		Limit:      params.Limit,
@@ -149,7 +148,7 @@ func (c *Records) GetForwardRecords(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	records, err := c.service.GetForwardRecords(ctx.Context.Request.Context(), jwtutil.GetUid(ctx.Context), int64(params.RecordId))
+	records, err := c.service.GetForwardRecords(ctx.Context.Request.Context(), ctx.LoginUID(), int64(params.RecordId))
 	if err != nil {
 		return ctx.BusinessError(err.Error())
 	}
@@ -171,7 +170,7 @@ func (c *Records) Download(ctx *ichat.Context) error {
 		return ctx.BusinessError(err.Error())
 	}
 
-	uid := jwtutil.GetUid(ctx.Context)
+	uid := ctx.LoginUID()
 	if uid != resp.Record.UserId {
 		if resp.Record.TalkType == entity.ChatPrivateMode {
 			if resp.Record.ReceiverId != uid {

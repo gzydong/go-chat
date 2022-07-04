@@ -4,7 +4,6 @@ import (
 	"go-chat/internal/entity"
 	"go-chat/internal/http/internal/dto/web"
 	"go-chat/internal/pkg/ichat"
-	"go-chat/internal/pkg/jwtutil"
 	"go-chat/internal/service/note"
 )
 
@@ -19,7 +18,7 @@ func NewClass(service *note.ArticleClassService) *Class {
 // List 分类列表
 func (c *Class) List(ctx *ichat.Context) error {
 
-	items, err := c.service.List(ctx.Context.Request.Context(), jwtutil.GetUid(ctx.Context))
+	items, err := c.service.List(ctx.Context.Request.Context(), ctx.LoginUID())
 	if err != nil {
 		return ctx.BusinessError(err.Error())
 	}
@@ -33,7 +32,7 @@ func (c *Class) Edit(ctx *ichat.Context) error {
 	var (
 		err    error
 		params = &web.ArticleClassEditRequest{}
-		uid    = jwtutil.GetUid(ctx.Context)
+		uid    = ctx.LoginUID()
 	)
 
 	if err = ctx.Context.ShouldBind(params); err != nil {
@@ -61,7 +60,7 @@ func (c *Class) Delete(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	err := c.service.Delete(ctx.Context.Request.Context(), jwtutil.GetUid(ctx.Context), params.ClassId)
+	err := c.service.Delete(ctx.Context.Request.Context(), ctx.LoginUID(), params.ClassId)
 	if err != nil {
 		return ctx.BusinessError(err.Error())
 	}
@@ -77,7 +76,7 @@ func (c *Class) Sort(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	err := c.service.Sort(ctx.Context.Request.Context(), jwtutil.GetUid(ctx.Context), params.ClassId, params.SortType)
+	err := c.service.Sort(ctx.Context.Request.Context(), ctx.LoginUID(), params.ClassId, params.SortType)
 	if err != nil {
 		return ctx.BusinessError(err.Error())
 	}

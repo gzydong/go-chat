@@ -9,7 +9,6 @@ import (
 	"go-chat/internal/http/internal/dto/web"
 	"go-chat/internal/pkg/encrypt"
 	"go-chat/internal/pkg/ichat"
-	"go-chat/internal/pkg/jwtutil"
 	"go-chat/internal/pkg/strutil"
 	"go-chat/internal/pkg/timeutil"
 	cache2 "go-chat/internal/repository/cache"
@@ -36,7 +35,7 @@ func NewTalk(service *service.TalkService, talkListService *service.TalkSessionS
 // List 会话列表
 func (c *Talk) List(ctx *ichat.Context) error {
 
-	uid := jwtutil.GetUid(ctx.Context)
+	uid := ctx.LoginUID()
 
 	data, err := c.talkListService.List(ctx.Context.Request.Context(), uid)
 	if err != nil {
@@ -99,7 +98,7 @@ func (c *Talk) List(ctx *ichat.Context) error {
 func (c *Talk) Create(ctx *ichat.Context) error {
 	var (
 		params = &web.CreateTalkListRequest{}
-		uid    = jwtutil.GetUid(ctx.Context)
+		uid    = ctx.LoginUID()
 		agent  = strings.TrimSpace(ctx.Context.GetHeader("user-agent"))
 	)
 
@@ -112,7 +111,7 @@ func (c *Talk) Create(ctx *ichat.Context) error {
 	}
 
 	// 判断对方是否是自己
-	if params.TalkType == entity.ChatPrivateMode && params.ReceiverId == jwtutil.GetUid(ctx.Context) {
+	if params.TalkType == entity.ChatPrivateMode && params.ReceiverId == ctx.LoginUID() {
 		return ctx.BusinessError("创建失败")
 	}
 
@@ -179,7 +178,7 @@ func (c *Talk) Delete(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	if err := c.talkListService.Delete(ctx.Context, jwtutil.GetUid(ctx.Context), params.Id); err != nil {
+	if err := c.talkListService.Delete(ctx.Context, ctx.LoginUID(), params.Id); err != nil {
 		return ctx.BusinessError(err.Error())
 	}
 
@@ -194,7 +193,7 @@ func (c *Talk) Top(ctx *ichat.Context) error {
 	}
 
 	if err := c.talkListService.Top(ctx.Context, &service.TalkSessionTopOpt{
-		UserId: jwtutil.GetUid(ctx.Context),
+		UserId: ctx.LoginUID(),
 		Id:     params.Id,
 		Type:   params.Type,
 	}); err != nil {
@@ -213,7 +212,7 @@ func (c *Talk) Disturb(ctx *ichat.Context) error {
 	}
 
 	if err := c.talkListService.Disturb(ctx.Context, &service.TalkSessionDisturbOpt{
-		UserId:     jwtutil.GetUid(ctx.Context),
+		UserId:     ctx.LoginUID(),
 		TalkType:   params.TalkType,
 		ReceiverId: params.ReceiverId,
 		IsDisturb:  params.IsDisturb,
@@ -231,7 +230,7 @@ func (c *Talk) ClearUnreadMessage(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	uid := jwtutil.GetUid(ctx.Context)
+	uid := ctx.LoginUID()
 	if params.TalkType == 1 {
 		c.unreadTalkCache.Reset(ctx.Context.Request.Context(), params.ReceiverId, uid)
 	}

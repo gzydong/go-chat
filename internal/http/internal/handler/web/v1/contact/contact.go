@@ -11,7 +11,6 @@ import (
 	"gorm.io/gorm"
 
 	"go-chat/internal/entity"
-	"go-chat/internal/pkg/jwtutil"
 	"go-chat/internal/pkg/strutil"
 	"go-chat/internal/service"
 )
@@ -31,7 +30,7 @@ func NewContact(service *service.ContactService, wsClient *cache.WsClientSession
 
 // List 联系人列表
 func (c *Contact) List(ctx *ichat.Context) error {
-	items, err := c.service.List(ctx.Context, jwtutil.GetUid(ctx.Context))
+	items, err := c.service.List(ctx.Context, ctx.LoginUID())
 
 	if err != nil {
 		return ctx.BusinessError(err.Error())
@@ -52,7 +51,7 @@ func (c *Contact) Delete(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	uid := jwtutil.GetUid(ctx.Context)
+	uid := ctx.LoginUID()
 	if err := c.service.Delete(ctx.Context, uid, params.FriendId); err != nil {
 		return ctx.BusinessError(err.Error())
 	}
@@ -67,7 +66,7 @@ func (c *Contact) Delete(ctx *ichat.Context) error {
 
 	// 删除聊天会话
 	sid := c.talkListService.Dao().FindBySessionId(uid, params.FriendId, entity.ChatPrivateMode)
-	if err := c.talkListService.Delete(ctx.Context, jwtutil.GetUid(ctx.Context), sid); err != nil {
+	if err := c.talkListService.Delete(ctx.Context, ctx.LoginUID(), sid); err != nil {
 		return ctx.BusinessError(err.Error())
 	}
 
@@ -109,7 +108,7 @@ func (c *Contact) EditRemark(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	if err := c.service.EditRemark(ctx.Context, jwtutil.GetUid(ctx.Context), params.FriendId, params.Remarks); err != nil {
+	if err := c.service.EditRemark(ctx.Context, ctx.LoginUID(), params.FriendId, params.Remarks); err != nil {
 		return ctx.BusinessError(err.Error())
 	}
 
@@ -124,7 +123,7 @@ func (c *Contact) Detail(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	uid := jwtutil.GetUid(ctx.Context)
+	uid := ctx.LoginUID()
 
 	user, err := c.userService.Dao().FindById(params.UserId)
 	if err != nil {

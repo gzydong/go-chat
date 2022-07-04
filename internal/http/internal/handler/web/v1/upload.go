@@ -9,7 +9,6 @@ import (
 	"go-chat/internal/http/internal/dto/web"
 	"go-chat/internal/pkg/filesystem"
 	"go-chat/internal/pkg/ichat"
-	"go-chat/internal/pkg/jwtutil"
 	"go-chat/internal/pkg/strutil"
 	"go-chat/internal/service"
 )
@@ -55,7 +54,7 @@ func (u *Upload) InitiateMultipart(ctx *ichat.Context) error {
 	info, err := u.service.InitiateMultipartUpload(ctx.Context.Request.Context(), &service.MultipartInitiateOpts{
 		Name:   params.FileName,
 		Size:   params.FileSize,
-		UserId: jwtutil.GetUid(ctx.Context),
+		UserId: ctx.LoginUID(),
 	})
 	if err != nil {
 		return ctx.BusinessError(err.Error())
@@ -80,7 +79,7 @@ func (u *Upload) MultipartUpload(ctx *ichat.Context) error {
 	}
 
 	err = u.service.MultipartUpload(ctx.Context.Request.Context(), &service.MultipartUploadOpts{
-		UserId:     jwtutil.GetUid(ctx.Context),
+		UserId:     ctx.LoginUID(),
 		UploadId:   params.UploadId,
 		SplitIndex: params.SplitIndex,
 		SplitNum:   params.SplitNum,

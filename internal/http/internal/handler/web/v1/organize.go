@@ -6,7 +6,6 @@ import (
 
 	"go-chat/internal/entity"
 	"go-chat/internal/pkg/ichat"
-	"go-chat/internal/pkg/jwtutil"
 	model2 "go-chat/internal/repository/model"
 	"go-chat/internal/service/organize"
 )
@@ -23,7 +22,7 @@ func NewOrganize(deptServ *organize.DeptService, organizeServ *organize.Organize
 
 func (o *Organize) DepartmentList(ctx *ichat.Context) error {
 
-	uid := jwtutil.GetUid(ctx.Context)
+	uid := ctx.LoginUID()
 	if isOk, _ := o.organizeServ.Dao().IsQiyeMember(uid); !isOk {
 		return ctx.Success(entity.H{
 			"items": []string{},
@@ -62,7 +61,7 @@ type PositionItems struct {
 
 func (o *Organize) PersonnelList(ctx *ichat.Context) error {
 
-	uid := jwtutil.GetUid(ctx.Context)
+	uid := ctx.LoginUID()
 	if isOk, _ := o.organizeServ.Dao().IsQiyeMember(uid); !isOk {
 		return ctx.Success(entity.H{
 			"items": []string{},

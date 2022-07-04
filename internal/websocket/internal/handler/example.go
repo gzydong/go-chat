@@ -4,8 +4,8 @@ import (
 	"fmt"
 
 	"github.com/gin-gonic/gin"
-	"github.com/sirupsen/logrus"
 	"go-chat/internal/pkg/im"
+	"go-chat/internal/pkg/logger"
 )
 
 // ExampleWebsocket 使用案例
@@ -19,7 +19,7 @@ func NewExampleWebsocket() *ExampleWebsocket {
 func (c *ExampleWebsocket) Connect(ctx *gin.Context) {
 	conn, err := im.NewConnect(ctx)
 	if err != nil {
-		logrus.Error("websocket connect error: ", err.Error())
+		logger.Error("websocket connect error: ", err.Error())
 		return
 	}
 

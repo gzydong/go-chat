@@ -161,5 +161,10 @@ func (c *Context) Raw(value string) error {
 
 // LoginUID 返回登录用户的UID
 func (c *Context) LoginUID() int {
-	return 0
+	return c.Context.GetInt("__UID__")
+}
+
+// IsGuest 是否是游客(未登录状态)
+func (c *Context) IsGuest() bool {
+	return c.LoginUID() == 0
 }

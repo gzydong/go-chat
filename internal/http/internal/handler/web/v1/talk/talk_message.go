@@ -11,7 +11,6 @@ import (
 	"gorm.io/gorm"
 
 	"go-chat/internal/entity"
-	"go-chat/internal/pkg/jwtutil"
 	"go-chat/internal/pkg/sliceutil"
 	"go-chat/internal/pkg/strutil"
 	"go-chat/internal/service"
@@ -86,7 +85,7 @@ func (c *Message) Text(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	uid := jwtutil.GetUid(ctx.Context)
+	uid := ctx.LoginUID()
 	if err := c.authority(ctx, &AuthorityOpts{
 		TalkType:   params.TalkType,
 		UserId:     uid,
@@ -115,7 +114,7 @@ func (c *Message) Code(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	uid := jwtutil.GetUid(ctx.Context)
+	uid := ctx.LoginUID()
 	if err := c.authority(ctx, &AuthorityOpts{
 		TalkType:   params.TalkType,
 		UserId:     uid,
@@ -159,7 +158,7 @@ func (c *Message) Image(ctx *ichat.Context) error {
 		return ctx.InvalidParams("上传文件大小不能超过5M！")
 	}
 
-	uid := jwtutil.GetUid(ctx.Context)
+	uid := ctx.LoginUID()
 	if err := c.authority(ctx, &AuthorityOpts{
 		TalkType:   params.TalkType,
 		UserId:     uid,
@@ -188,7 +187,7 @@ func (c *Message) File(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	uid := jwtutil.GetUid(ctx.Context)
+	uid := ctx.LoginUID()
 	if err := c.authority(ctx, &AuthorityOpts{
 		TalkType:   params.TalkType,
 		UserId:     uid,
@@ -225,7 +224,7 @@ func (c *Message) Vote(ctx *ichat.Context) error {
 		return ctx.InvalidParams("options 选项不能超过6个！")
 	}
 
-	uid := jwtutil.GetUid(ctx.Context)
+	uid := ctx.LoginUID()
 	if err := c.authority(ctx, &AuthorityOpts{
 		TalkType:   entity.ChatGroupMode,
 		UserId:     uid,
@@ -256,7 +255,7 @@ func (c *Message) Emoticon(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	uid := jwtutil.GetUid(ctx.Context)
+	uid := ctx.LoginUID()
 	if err := c.authority(ctx, &AuthorityOpts{
 		TalkType:   params.TalkType,
 		UserId:     uid,
@@ -289,7 +288,7 @@ func (c *Message) Forward(ctx *ichat.Context) error {
 		return ctx.InvalidParams("receive_user_ids 和 receive_group_ids 不能都为空！")
 	}
 
-	uid := jwtutil.GetUid(ctx.Context)
+	uid := ctx.LoginUID()
 	if err := c.authority(ctx, &AuthorityOpts{
 		TalkType:   params.TalkType,
 		UserId:     uid,
@@ -323,7 +322,7 @@ func (c *Message) Card(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	uid := jwtutil.GetUid(ctx.Context)
+	uid := ctx.LoginUID()
 	if err := c.authority(ctx, &AuthorityOpts{
 		TalkType:   params.TalkType,
 		UserId:     uid,
@@ -353,7 +352,7 @@ func (c *Message) Collect(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	if err := c.talkService.CollectRecord(ctx.Context.Request.Context(), jwtutil.GetUid(ctx.Context), params.RecordId); err != nil {
+	if err := c.talkService.CollectRecord(ctx.Context.Request.Context(), ctx.LoginUID(), params.RecordId); err != nil {
 		return ctx.BusinessError(err.Error())
 	}
 
@@ -368,7 +367,7 @@ func (c *Message) Revoke(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	if err := c.service.SendRevokeRecordMessage(ctx.Context.Request.Context(), jwtutil.GetUid(ctx.Context), params.RecordId); err != nil {
+	if err := c.service.SendRevokeRecordMessage(ctx.Context.Request.Context(), ctx.LoginUID(), params.RecordId); err != nil {
 		return ctx.BusinessError(err.Error())
 	}
 
@@ -384,7 +383,7 @@ func (c *Message) Delete(ctx *ichat.Context) error {
 	}
 
 	if err := c.talkService.RemoveRecords(ctx.Context.Request.Context(), &service.TalkMessageDeleteOpt{
-		UserId:     jwtutil.GetUid(ctx.Context),
+		UserId:     ctx.LoginUID(),
 		TalkType:   params.TalkType,
 		ReceiverId: params.ReceiverId,
 		RecordIds:  params.RecordIds,
@@ -404,7 +403,7 @@ func (c *Message) HandleVote(ctx *ichat.Context) error {
 	}
 
 	vid, err := c.service.VoteHandle(ctx.Context.Request.Context(), &service.VoteMessageHandleOpt{
-		UserId:   jwtutil.GetUid(ctx.Context),
+		UserId:   ctx.LoginUID(),
 		RecordId: params.RecordId,
 		Options:  params.Options,
 	})
@@ -425,7 +424,7 @@ func (c *Message) Location(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	uid := jwtutil.GetUid(ctx.Context)
+	uid := ctx.LoginUID()
 	if err := c.authority(ctx, &AuthorityOpts{
 		TalkType:   params.TalkType,
 		UserId:     uid,

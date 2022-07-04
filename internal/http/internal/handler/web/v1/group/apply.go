@@ -4,7 +4,6 @@ import (
 	"go-chat/internal/entity"
 	"go-chat/internal/http/internal/dto/web"
 	"go-chat/internal/pkg/ichat"
-	"go-chat/internal/pkg/jwtutil"
 	"go-chat/internal/pkg/logger"
 	"go-chat/internal/pkg/timeutil"
 	"go-chat/internal/repository/model"
@@ -28,7 +27,7 @@ func (c *Apply) Create(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	err := c.applyServ.Insert(ctx.Context.Request.Context(), params.GroupId, jwtutil.GetUid(ctx.Context), params.Remark)
+	err := c.applyServ.Insert(ctx.Context.Request.Context(), params.GroupId, ctx.LoginUID(), params.Remark)
 	if err != nil {
 		return ctx.BusinessError("创建群聊失败，请稍后再试！")
 	}
@@ -45,7 +44,7 @@ func (c *Apply) Agree(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	uid := jwtutil.GetUid(ctx.Context)
+	uid := ctx.LoginUID()
 
 	apply := &model.GroupApply{}
 	if err := c.applyServ.Db().First(apply, params.ApplyId).Error; err != nil {
@@ -82,7 +81,7 @@ func (c *Apply) Delete(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	err := c.applyServ.Delete(ctx.Context, params.ApplyId, jwtutil.GetUid(ctx.Context))
+	err := c.applyServ.Delete(ctx.Context, params.ApplyId, ctx.LoginUID())
 	if err != nil {
 		return ctx.WithMeta(map[string]interface{}{
 			"error": err.Error(),
@@ -98,7 +97,7 @@ func (c *Apply) List(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	if !c.memberServ.Dao().IsLeader(params.GroupId, jwtutil.GetUid(ctx.Context)) {
+	if !c.memberServ.Dao().IsLeader(params.GroupId, ctx.LoginUID()) {
 		return ctx.Unauthorized("无权限访问")
 	}
 

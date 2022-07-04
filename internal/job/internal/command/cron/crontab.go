@@ -43,7 +43,7 @@ func NewCrontabCommand(handles *Subcommands) Command {
 				_, err := c.AddFunc(job.Spec(), func() {
 					defer func() {
 						if err := recover(); err != nil {
-							fmt.Printf("ICrontab err: %v \n", err)
+							fmt.Printf("Crontab Err: %v \n", err)
 						}
 					}()
 
