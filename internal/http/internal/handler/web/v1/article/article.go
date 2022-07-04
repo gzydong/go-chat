@@ -117,6 +117,7 @@ func (c *Article) Detail(ctx *ichat.Context) error {
 
 // Edit 添加或编辑文章
 func (c *Article) Edit(ctx *ichat.Context) error {
+
 	var (
 		err    error
 		params = &web.ArticleEditRequest{}
@@ -159,6 +160,7 @@ func (c *Article) Edit(ctx *ichat.Context) error {
 
 // Delete 删除文章
 func (c *Article) Delete(ctx *ichat.Context) error {
+
 	params := &web.ArticleDeleteRequest{}
 	if err := ctx.Context.ShouldBind(params); err != nil {
 		return ctx.InvalidParams(err)
@@ -174,6 +176,7 @@ func (c *Article) Delete(ctx *ichat.Context) error {
 
 // Recover 恢复文章
 func (c *Article) Recover(ctx *ichat.Context) error {
+
 	params := &web.ArticleRecoverRequest{}
 	if err := ctx.Context.ShouldBind(params); err != nil {
 		return ctx.InvalidParams(err)
@@ -189,6 +192,7 @@ func (c *Article) Recover(ctx *ichat.Context) error {
 
 // Upload 文章图片上传
 func (c *Article) Upload(ctx *ichat.Context) error {
+
 	file, err := ctx.Context.FormFile("image")
 	if err != nil {
 		return ctx.InvalidParams("image 字段必传！")
@@ -222,6 +226,7 @@ func (c *Article) Upload(ctx *ichat.Context) error {
 
 // Move 文章移动
 func (c *Article) Move(ctx *ichat.Context) error {
+
 	params := &web.ArticleMoveRequest{}
 	if err := ctx.Context.ShouldBind(params); err != nil {
 		return ctx.InvalidParams(err)
@@ -236,6 +241,7 @@ func (c *Article) Move(ctx *ichat.Context) error {
 
 // Asterisk 标记文章
 func (c Article) Asterisk(ctx *ichat.Context) error {
+
 	params := &web.ArticleAsteriskRequest{}
 	if err := ctx.Context.ShouldBind(params); err != nil {
 		return ctx.InvalidParams(err)
@@ -250,6 +256,7 @@ func (c Article) Asterisk(ctx *ichat.Context) error {
 
 // Tag 文章标签
 func (c *Article) Tag(ctx *ichat.Context) error {
+
 	params := &web.ArticleTagsRequest{}
 	if err := ctx.Context.ShouldBind(params); err != nil {
 		return ctx.InvalidParams(err)
@@ -264,6 +271,7 @@ func (c *Article) Tag(ctx *ichat.Context) error {
 
 // ForeverDelete 永久删除文章
 func (c *Article) ForeverDelete(ctx *ichat.Context) error {
+
 	params := &web.ArticleForeverDeleteRequest{}
 	if err := ctx.Context.ShouldBind(params); err != nil {
 		return ctx.InvalidParams(err)

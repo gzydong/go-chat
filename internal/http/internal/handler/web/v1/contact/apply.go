@@ -29,6 +29,7 @@ func (c *Apply) ApplyUnreadNum(ctx *ichat.Context) error {
 
 // Create 创建联系人申请
 func (c *Apply) Create(ctx *ichat.Context) error {
+
 	params := &web.ContactApplyCreateRequest{}
 	if err := ctx.Context.ShouldBind(params); err != nil {
 		return ctx.InvalidParams(err)

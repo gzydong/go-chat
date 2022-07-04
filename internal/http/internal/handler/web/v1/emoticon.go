@@ -30,6 +30,7 @@ func NewEmoticon(fileSystem *filesystem.Filesystem, service *service.EmoticonSer
 
 // CollectList 收藏列表
 func (c *Emoticon) CollectList(ctx *ichat.Context) error {
+
 	var (
 		uid     = ctx.UserId()
 		sys     = make([]*web.SysEmoticonResponse, 0)
@@ -78,6 +79,7 @@ func (c *Emoticon) CollectList(ctx *ichat.Context) error {
 
 // DeleteCollect 删除收藏表情包
 func (c *Emoticon) DeleteCollect(ctx *ichat.Context) error {
+
 	params := &web.DeleteCollectRequest{}
 	if err := ctx.Context.ShouldBind(params); err != nil {
 		return ctx.InvalidParams(err)
@@ -92,6 +94,7 @@ func (c *Emoticon) DeleteCollect(ctx *ichat.Context) error {
 
 // Upload 上传自定义表情包
 func (c *Emoticon) Upload(ctx *ichat.Context) error {
+
 	file, err := ctx.Context.FormFile("emoticon")
 	if err != nil {
 		return ctx.InvalidParams("emoticon 字段必传！")
@@ -138,6 +141,7 @@ func (c *Emoticon) Upload(ctx *ichat.Context) error {
 
 // SystemList 系统表情包列表
 func (c *Emoticon) SystemList(ctx *ichat.Context) error {
+
 	items, err := c.service.Dao().GetSystemEmoticonList()
 
 	if err != nil {

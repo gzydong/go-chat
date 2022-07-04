@@ -42,6 +42,7 @@ func (u *User) Detail(ctx *ichat.Context) error {
 
 // Setting 用户设置
 func (u *User) Setting(ctx *ichat.Context) error {
+
 	uid := ctx.UserId()
 
 	user, _ := u.service.Dao().FindById(uid)
@@ -71,6 +72,7 @@ func (u *User) Setting(ctx *ichat.Context) error {
 
 // ChangeDetail 修改个人用户信息
 func (u *User) ChangeDetail(ctx *ichat.Context) error {
+
 	params := &web.ChangeUserDetailRequest{}
 	if err := ctx.Context.ShouldBind(params); err != nil {
 		return ctx.InvalidParams(err)

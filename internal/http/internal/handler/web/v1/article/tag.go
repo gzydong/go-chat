@@ -17,6 +17,7 @@ func NewTag(service *note.ArticleTagService) *Tag {
 
 // List 标签列表
 func (c *Tag) List(ctx *ichat.Context) error {
+
 	items, err := c.service.List(ctx.RequestContext(), ctx.UserId())
 	if err != nil {
 		return ctx.BusinessError(err)
@@ -27,6 +28,7 @@ func (c *Tag) List(ctx *ichat.Context) error {
 
 // Edit 添加或修改标签
 func (c *Tag) Edit(ctx *ichat.Context) error {
+
 	var (
 		err    error
 		params = &web.ArticleTagEditRequest{}

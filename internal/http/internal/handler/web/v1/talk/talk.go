@@ -96,6 +96,7 @@ func (c *Talk) List(ctx *ichat.Context) error {
 
 // Create 创建会话列表
 func (c *Talk) Create(ctx *ichat.Context) error {
+
 	var (
 		params = &web.CreateTalkListRequest{}
 		uid    = ctx.UserId()
@@ -173,6 +174,7 @@ func (c *Talk) Create(ctx *ichat.Context) error {
 
 // Delete 删除列表
 func (c *Talk) Delete(ctx *ichat.Context) error {
+
 	params := &web.DeleteTalkListRequest{}
 	if err := ctx.Context.ShouldBind(params); err != nil {
 		return ctx.InvalidParams(err)
@@ -187,6 +189,7 @@ func (c *Talk) Delete(ctx *ichat.Context) error {
 
 // Top 置顶列表
 func (c *Talk) Top(ctx *ichat.Context) error {
+
 	params := &web.TopTalkListRequest{}
 	if err := ctx.Context.ShouldBind(params); err != nil {
 		return ctx.InvalidParams(err)

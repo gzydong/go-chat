@@ -30,6 +30,7 @@ func NewContact(service *service.ContactService, wsClient *cache.WsClientSession
 
 // List 联系人列表
 func (c *Contact) List(ctx *ichat.Context) error {
+
 	items, err := c.service.List(ctx.Context, ctx.UserId())
 
 	if err != nil {

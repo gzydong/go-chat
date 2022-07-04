@@ -92,6 +92,7 @@ func (c *Apply) Delete(ctx *ichat.Context) error {
 }
 
 func (c *Apply) List(ctx *ichat.Context) error {
+
 	params := &web.GroupApplyListRequest{}
 	if err := ctx.Context.ShouldBind(params); err != nil {
 		return ctx.InvalidParams(err)

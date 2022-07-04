@@ -3,7 +3,7 @@ package talk
 import (
 	"net/http"
 
-	api2 "go-chat/internal/http/internal/dto/web"
+	"go-chat/internal/http/internal/dto/web"
 	"go-chat/internal/pkg/ichat"
 	"go-chat/internal/pkg/timeutil"
 
@@ -26,7 +26,8 @@ func NewRecords(service *service.TalkRecordsService, groupMemberService *service
 
 // GetRecords 获取会话记录
 func (c *Records) GetRecords(ctx *ichat.Context) error {
-	params := &api2.GetTalkRecordsRequest{}
+
+	params := &web.GetTalkRecordsRequest{}
 	if err := ctx.Context.ShouldBindQuery(params); err != nil {
 		return ctx.InvalidParams(err)
 	}
@@ -83,7 +84,8 @@ func (c *Records) GetRecords(ctx *ichat.Context) error {
 
 // SearchHistoryRecords 查询下会话记录
 func (c *Records) SearchHistoryRecords(ctx *ichat.Context) error {
-	params := &api2.GetTalkRecordsRequest{}
+
+	params := &web.GetTalkRecordsRequest{}
 	if err := ctx.Context.ShouldBindQuery(params); err != nil {
 		return ctx.InvalidParams(err)
 	}
@@ -143,7 +145,8 @@ func (c *Records) SearchHistoryRecords(ctx *ichat.Context) error {
 
 // GetForwardRecords 获取转发记录
 func (c *Records) GetForwardRecords(ctx *ichat.Context) error {
-	params := &api2.GetForwardTalkRecordRequest{}
+
+	params := &web.GetForwardTalkRecordRequest{}
 	if err := ctx.Context.ShouldBind(params); err != nil {
 		return ctx.InvalidParams(err)
 	}
@@ -160,7 +163,8 @@ func (c *Records) GetForwardRecords(ctx *ichat.Context) error {
 
 // Download 聊天文件下载
 func (c *Records) Download(ctx *ichat.Context) error {
-	params := &api2.DownloadChatFileRequest{}
+
+	params := &web.DownloadChatFileRequest{}
 	if err := ctx.Context.ShouldBindQuery(params); err != nil {
 		return ctx.InvalidParams(err)
 	}

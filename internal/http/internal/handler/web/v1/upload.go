@@ -68,6 +68,7 @@ func (u *Upload) InitiateMultipart(ctx *ichat.Context) error {
 
 // MultipartUpload 批量分片上传
 func (u *Upload) MultipartUpload(ctx *ichat.Context) error {
+
 	params := &web.UploadMultipartRequest{}
 	if err := ctx.Context.ShouldBind(params); err != nil {
 		return ctx.InvalidParams(err)

@@ -86,6 +86,7 @@ func (c *Annex) Upload(ctx *ichat.Context) error {
 
 // Delete 删除附件
 func (c *Annex) Delete(ctx *ichat.Context) error {
+
 	params := &web.ArticleAnnexDeleteRequest{}
 	if err := ctx.Context.ShouldBind(params); err != nil {
 		return ctx.InvalidParams(err)
@@ -101,6 +102,7 @@ func (c *Annex) Delete(ctx *ichat.Context) error {
 
 // Recover 恢复附件
 func (c *Annex) Recover(ctx *ichat.Context) error {
+
 	params := &web.ArticleAnnexRecoverRequest{}
 	if err := ctx.Context.ShouldBind(params); err != nil {
 		return ctx.InvalidParams(err)
@@ -159,6 +161,7 @@ func (c *Annex) ForeverDelete(ctx *ichat.Context) error {
 
 // Download 下载笔记附件
 func (c *Annex) Download(ctx *ichat.Context) error {
+
 	params := &web.ArticleAnnexDownloadRequest{}
 	if err := ctx.Context.ShouldBind(params); err != nil {
 		return ctx.InvalidParams(err)
