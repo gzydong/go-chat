@@ -2,7 +2,6 @@ package router
 
 import (
 	"github.com/gin-gonic/gin"
-	"go-chat/config"
 	"go-chat/internal/entity"
 	"go-chat/internal/http/internal/handler/web"
 	"go-chat/internal/pkg/ichat"
@@ -11,10 +10,10 @@ import (
 )
 
 // RegisterWebRoute 注册 Web 路由
-func RegisterWebRoute(conf *config.Config, router *gin.Engine, handler *web.Handler, session *cache.Session) {
+func RegisterWebRoute(secret string, router *gin.Engine, handler *web.Handler, session *cache.Session) {
 
 	// 授权验证中间件
-	authorize := jwtutil.Auth(conf.Jwt.Secret, "api", session)
+	authorize := jwtutil.Auth(secret, "api", session)
 
 	// v1 接口
 	v1 := router.Group("/api/v1")

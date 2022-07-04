@@ -14,7 +14,9 @@ import (
 // NewRouter 初始化配置路由
 func NewRouter(conf *config.Config, handler *handler.Handler, tokenCache *cache.Session) *gin.Engine {
 	router := gin.New()
+
 	router.Use(gin.Logger())
+
 	router.Use(gin.RecoveryWithWriter(gin.DefaultWriter, func(c *gin.Context, err interface{}) {
 
 		// errorStr := fmt.Sprintf("[Recovery] %s panic recovered: %s\n%s", timeutil.FormatDatetime(time.Now()), err, string(debug.Stack(4)))
@@ -35,9 +37,9 @@ func NewRouter(conf *config.Config, handler *handler.Handler, tokenCache *cache.
 		c.JSON(200, entity.H{"status": "ok"})
 	})
 
-	RegisterWebRoute(conf, router, handler.Api, tokenCache)
-	RegisterAdminRoute(conf, router, handler.Admin, tokenCache)
-	RegisterOpenRoute(conf, router, handler.Open, tokenCache)
+	RegisterWebRoute(conf.Jwt.Secret, router, handler.Api, tokenCache)
+	RegisterAdminRoute(conf.Jwt.Secret, router, handler.Admin, tokenCache)
+	RegisterOpenRoute(router, handler.Open)
 
 	// 注册 debug 路由
 	if conf.Debug() {

@@ -2,7 +2,6 @@ package router
 
 import (
 	"github.com/gin-gonic/gin"
-	"go-chat/config"
 	"go-chat/internal/http/internal/handler/admin"
 	"go-chat/internal/pkg/ichat"
 	"go-chat/internal/pkg/jwtutil"
@@ -10,10 +9,10 @@ import (
 )
 
 // RegisterAdminRoute 注册 Admin 路由
-func RegisterAdminRoute(conf *config.Config, router *gin.Engine, handler *admin.Handler, session *cache.Session) {
+func RegisterAdminRoute(secret string, router *gin.Engine, handler *admin.Handler, session *cache.Session) {
 
 	// 授权验证中间件
-	authorize := jwtutil.Auth(conf.Jwt.Secret, "admin", session)
+	authorize := jwtutil.Auth(secret, "admin", session)
 
 	// v1 接口
 	v1 := router.Group("/admin/v1")
