@@ -7,8 +7,9 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"go-chat/internal/entity"
 )
+
+const uuid = "__UID__"
 
 var (
 	ErrorNoLogin = errors.New("请登录后操作! ")
@@ -24,16 +25,16 @@ func Auth(secret string, guard string, store IStore) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		token := GetJwtToken(c)
 
-		claims, err := check(guard, secret, token)
+		claims, err := verify(guard, secret, token)
 		if err != nil {
-			c.JSON(http.StatusUnauthorized, entity.H{"code": 401, "message": err.Error()})
+			c.JSON(http.StatusUnauthorized, gin.H{"code": 401, "message": err.Error()})
 			c.Abort()
 			return
 		}
 
 		// 这里还需要验证 token 黑名单
 		if store.IsBlackList(context.Background(), token) {
-			c.JSON(http.StatusUnauthorized, entity.H{"code": 401, "message": "请登录再试！"})
+			c.JSON(http.StatusUnauthorized, gin.H{"code": 401, "message": "请登录再试！"})
 			c.Abort()
 			return
 		}
@@ -53,7 +54,7 @@ func Auth(secret string, guard string, store IStore) gin.HandlerFunc {
 	}
 }
 
-func check(guard string, secret string, token string) (*AuthClaims, error) {
+func verify(guard string, secret string, token string) (*AuthClaims, error) {
 	if token == "" {
 		return nil, ErrorNoLogin
 	}

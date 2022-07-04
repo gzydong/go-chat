@@ -10,8 +10,6 @@ import (
 
 type Options jwt.StandardClaims
 
-const uuid = "__UID__"
-
 type AuthClaims struct {
 	Guard string `json:"guard"` // 授权守卫
 	jwt.StandardClaims
@@ -52,11 +50,6 @@ func ParseToken(token string, secret string) (*AuthClaims, error) {
 	})
 
 	return claims, err
-}
-
-// GetUid 获取授权登录的用户ID
-func GetUid(c *gin.Context) int {
-	return c.GetInt(uuid)
 }
 
 // GetJwtToken 获取登录授权 token
