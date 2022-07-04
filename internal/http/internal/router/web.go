@@ -5,7 +5,7 @@ import (
 	"go-chat/internal/entity"
 	"go-chat/internal/http/internal/handler/web"
 	"go-chat/internal/pkg/ichat"
-	"go-chat/internal/pkg/jwtutil"
+	"go-chat/internal/pkg/jwt"
 	"go-chat/internal/repository/cache"
 )
 
@@ -13,7 +13,7 @@ import (
 func RegisterWebRoute(secret string, router *gin.Engine, handler *web.Handler, session *cache.Session) {
 
 	// 授权验证中间件
-	authorize := jwtutil.Auth(secret, "api", session)
+	authorize := jwt.Auth(secret, "api", session)
 
 	// v1 接口
 	v1 := router.Group("/api/v1")

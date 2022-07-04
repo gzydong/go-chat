@@ -6,7 +6,7 @@ import (
 
 	"go-chat/internal/http/internal/dto/web"
 	"go-chat/internal/pkg/ichat"
-	"go-chat/internal/pkg/jwtutil"
+	"go-chat/internal/pkg/jwt"
 	cache2 "go-chat/internal/repository/cache"
 	"go-chat/internal/service/note"
 
@@ -150,7 +150,7 @@ func (c *Auth) token(uid int) string {
 	expiresAt := time.Now().Add(time.Second * time.Duration(c.config.Jwt.ExpiresTime)).Unix()
 
 	// 生成登录凭证
-	token := jwtutil.GenerateToken("api", c.config.Jwt.Secret, &jwtutil.Options{
+	token := jwt.GenerateToken("api", c.config.Jwt.Secret, &jwt.Options{
 		ExpiresAt: expiresAt,
 		Id:        strconv.Itoa(uid),
 	})
