@@ -1,7 +1,6 @@
 package sliceutil
 
 import (
-	"fmt"
 	"strconv"
 	"strings"
 )
@@ -63,25 +62,6 @@ func ParseIds(str string) []int {
 	}
 
 	return ids
-}
-
-func ToMap(arr []map[string]interface{}, field string) (map[int64]map[string]interface{}, error) {
-	hashMap := make(map[int64]map[string]interface{}, len(arr))
-
-	for _, data := range arr {
-		value, ok := data[field]
-		if !ok {
-			return nil, fmt.Errorf("%s 字段不存在", field)
-		}
-
-		if val, ok := value.(int64); ok {
-			hashMap[val] = data
-		} else {
-			return nil, fmt.Errorf("%s 字段非 int64 类型", field)
-		}
-	}
-
-	return hashMap, nil
 }
 
 func IntToIds(items []int) string {

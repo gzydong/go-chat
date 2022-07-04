@@ -7,6 +7,6 @@ import (
 //go:embed "templates"
 var templates embed.FS
 
-func Templates() embed.FS {
+func Template() embed.FS {
 	return templates
 }

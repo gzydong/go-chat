@@ -7,7 +7,7 @@ func Encode(value interface{}) string {
 	return data
 }
 
-func EncodeToByte(value interface{}) []byte {
+func EncodeToBt(value interface{}) []byte {
 	data, _ := jsoniter.Marshal(value)
 	return data
 }

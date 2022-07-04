@@ -128,7 +128,7 @@ func (c *Client) Write(data *ClientOutContent) error {
 // 推送心跳检测配置
 func (c *Client) writeHeartbeat() {
 	_ = c.Write(&ClientOutContent{
-		Content: jsonutil.EncodeToByte(&Message{
+		Content: jsonutil.EncodeToBt(&Message{
 			Event: "connect",
 			Content: map[string]interface{}{
 				"ping_interval": heartbeatInterval,
@@ -187,7 +187,7 @@ func (c *Client) loopAccept() {
 			c.lastTime = time.Now().Unix()
 
 			_ = c.Write(&ClientOutContent{
-				Content: jsonutil.EncodeToByte(&Message{"heartbeat", "pong"}),
+				Content: jsonutil.EncodeToBt(&Message{"heartbeat", "pong"}),
 			})
 		case "ack":
 			ack.del(&AckBufferOption{

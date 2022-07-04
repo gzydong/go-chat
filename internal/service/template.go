@@ -15,10 +15,10 @@ func NewTemplateService() *TemplateService {
 // CodeTemplate 验证码通知模板
 func (t *TemplateService) CodeTemplate(data map[string]string) (string, error) {
 
-	fileContent, err := resource.Templates().ReadFile("templates/email/verify_code.tmpl")
+	fileContent, err := resource.Template().ReadFile("templates/email/verify_code.tmpl")
 	if err != nil {
 		return "", err
 	}
 
-	return utils.StrTemplate(fileContent, data)
+	return utils.RenderTemplate(fileContent, data)
 }

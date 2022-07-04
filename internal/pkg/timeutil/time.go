@@ -25,10 +25,6 @@ func Time() string {
 	return time.Now().Format(TimeFormat)
 }
 
-func Timestamp() int64 {
-	return time.Now().Unix()
-}
-
 func Location() *time.Location {
 	lo, _ := time.LoadLocation("Asia/Shanghai")
 	return lo
@@ -61,4 +57,16 @@ func ParseDateTime(datetime string) time.Time {
 
 func FormatDatetime(t time.Time) string {
 	return t.Format(DatetimeFormat)
+}
+
+func IsDateTimeFormat(datetime string) bool {
+	_, err := time.Parse(DatetimeFormat, datetime)
+
+	return err != nil
+}
+
+func IsDateFormat(date string) bool {
+	_, err := time.Parse(DatetimeFormat, date)
+
+	return err != nil
 }

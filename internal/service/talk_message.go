@@ -172,9 +172,9 @@ func (s *TalkMessageService) SendImageMessage(ctx context.Context, opts *ImageMe
 
 	ext := strutil.FileSuffix(opts.File.Filename)
 
-	m := utils.ReadFileImage(bytes.NewReader(stream))
+	meta := utils.LoadImage(bytes.NewReader(stream))
 
-	filePath := fmt.Sprintf("public/media/image/talk/%s/%s", timeutil.DateNumber(), strutil.GenImageName(ext, m.Width, m.Height))
+	filePath := fmt.Sprintf("public/media/image/talk/%s/%s", timeutil.DateNumber(), strutil.GenImageName(ext, meta.Width, meta.Height))
 
 	if err := s.fileSystem.Default.Write(stream, filePath); err != nil {
 		return err
