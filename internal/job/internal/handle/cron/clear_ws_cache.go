@@ -7,21 +7,21 @@ import (
 	"go-chat/internal/repository/cache"
 )
 
-type ClearWsCacheHandle struct {
+type ClearWsCache struct {
 	server *cache.SidServer
 }
 
-func NewClearWsCacheHandle(server *cache.SidServer) *ClearWsCacheHandle {
-	return &ClearWsCacheHandle{server: server}
+func NewClearWsCache(server *cache.SidServer) *ClearWsCache {
+	return &ClearWsCache{server: server}
 }
 
 // Spec 配置定时任务规则
 // 每隔30分钟处理 websocket 缓存
-func (c *ClearWsCacheHandle) Spec() string {
+func (c *ClearWsCache) Spec() string {
 	return "*/30 * * * *"
 }
 
-func (c *ClearWsCacheHandle) Handle(ctx context.Context) error {
+func (c *ClearWsCache) Handle(ctx context.Context) error {
 
 	for _, sid := range c.server.GetExpireServerAll(ctx) {
 

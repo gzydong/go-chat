@@ -24,15 +24,15 @@ type ICrontab interface {
 	Handle(ctx context.Context) error
 }
 
-// Handles 注册的任务请务必实现 ICrontab 接口
-type Handles struct {
-	ClearWsCacheHandle      *crontab.ClearWsCacheHandle
-	ClearArticleHandle      *crontab.ClearArticleHandle
-	ClearTmpFileHandle      *crontab.ClearTmpFileHandle
-	ClearExpireServerHandle *crontab.ClearExpireServerHandle
+// Subcommands 注册的任务请务必实现 ICrontab 接口
+type Subcommands struct {
+	ClearWsCache      *crontab.ClearWsCache
+	ClearArticle      *crontab.ClearArticle
+	ClearTmpFile      *crontab.ClearTmpFile
+	ClearExpireServer *crontab.ClearExpireServer
 }
 
-func NewCrontabCommand(handles *Handles) Command {
+func NewCrontabCommand(handles *Subcommands) Command {
 	return &cli.Command{
 		Name:  "crontab",
 		Usage: "Crontab Command - 常驻定时任务",

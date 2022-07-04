@@ -6,20 +6,20 @@ import (
 	"go-chat/internal/repository/cache"
 )
 
-type ClearExpireServerHandle struct {
+type ClearExpireServer struct {
 	server *cache.SidServer
 }
 
-func NewClearExpireServer(server *cache.SidServer) *ClearExpireServerHandle {
-	return &ClearExpireServerHandle{server: server}
+func NewClearExpireServer(server *cache.SidServer) *ClearExpireServer {
+	return &ClearExpireServer{server: server}
 }
 
 // Spec 配置定时任务规则
-func (c *ClearExpireServerHandle) Spec() string {
+func (c *ClearExpireServer) Spec() string {
 	return "* * * * *"
 }
 
-func (c *ClearExpireServerHandle) Handle(ctx context.Context) error {
+func (c *ClearExpireServer) Handle(ctx context.Context) error {
 
 	for _, sid := range c.server.All(ctx, 2) {
 		_ = c.server.Del(ctx, sid)

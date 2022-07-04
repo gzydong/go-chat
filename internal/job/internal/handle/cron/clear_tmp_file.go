@@ -10,22 +10,22 @@ import (
 	"gorm.io/gorm"
 )
 
-type ClearTmpFileHandle struct {
+type ClearTmpFile struct {
 	db         *gorm.DB
 	fileSystem *filesystem.Filesystem
 }
 
-func NewClearTmpFile(db *gorm.DB, fileSystem *filesystem.Filesystem) *ClearTmpFileHandle {
-	return &ClearTmpFileHandle{db: db, fileSystem: fileSystem}
+func NewClearTmpFile(db *gorm.DB, fileSystem *filesystem.Filesystem) *ClearTmpFile {
+	return &ClearTmpFile{db: db, fileSystem: fileSystem}
 }
 
 // Spec 配置定时任务规则
 // 每天凌晨1点10分执行
-func (c *ClearTmpFileHandle) Spec() string {
+func (c *ClearTmpFile) Spec() string {
 	return "20 1 * * *"
 }
 
-func (c *ClearTmpFileHandle) Handle(ctx context.Context) error {
+func (c *ClearTmpFile) Handle(ctx context.Context) error {
 
 	lastId, size := 0, 100
 

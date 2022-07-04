@@ -28,21 +28,21 @@ import (
 func Initialize(ctx context.Context, conf *config.Config) *AppProvider {
 	client := provider.NewRedisClient(ctx, conf)
 	sidServer := cache.NewSid(client)
-	clearWsCacheHandle := cron.NewClearWsCacheHandle(sidServer)
+	clearWsCache := cron.NewClearWsCache(sidServer)
 	db := provider.NewMySQLClient(conf)
 	filesystemFilesystem := filesystem.NewFilesystem(conf)
-	clearArticleHandle := cron.NewClearArticle(db, filesystemFilesystem)
-	clearTmpFileHandle := cron.NewClearTmpFile(db, filesystemFilesystem)
-	clearExpireServerHandle := cron.NewClearExpireServer(sidServer)
-	handles := &cron2.Handles{
-		ClearWsCacheHandle:      clearWsCacheHandle,
-		ClearArticleHandle:      clearArticleHandle,
-		ClearTmpFileHandle:      clearTmpFileHandle,
-		ClearExpireServerHandle: clearExpireServerHandle,
+	clearArticle := cron.NewClearArticle(db, filesystemFilesystem)
+	clearTmpFile := cron.NewClearTmpFile(db, filesystemFilesystem)
+	clearExpireServer := cron.NewClearExpireServer(sidServer)
+	subcommands := &cron2.Subcommands{
+		ClearWsCache:      clearWsCache,
+		ClearArticle:      clearArticle,
+		ClearTmpFile:      clearTmpFile,
+		ClearExpireServer: clearExpireServer,
 	}
-	cronCommand := cron2.NewCrontabCommand(handles)
-	subcommands := &queue.Subcommands{}
-	queueCommand := queue.NewQueueCommand(subcommands)
+	cronCommand := cron2.NewCrontabCommand(subcommands)
+	queueSubcommands := &queue.Subcommands{}
+	queueCommand := queue.NewQueueCommand(queueSubcommands)
 	exampleHandle := other.NewExampleHandle()
 	exampleCommand := other2.NewExampleCommand(exampleHandle)
 	otherSubcommands := &other2.Subcommands{
@@ -63,4 +63,4 @@ func Initialize(ctx context.Context, conf *config.Config) *AppProvider {
 
 // wire.go:
 
-var providerSet = wire.NewSet(provider.NewMySQLClient, provider.NewRedisClient, provider.NewHttpClient, provider.NewEmailClient, provider.NewRequestClient, filesystem.NewFilesystem, cache.NewSid, dao.NewBaseDao, cron2.NewCrontabCommand, cron.NewClearTmpFile, cron.NewClearArticle, cron.NewClearWsCacheHandle, cron.NewClearExpireServer, wire.Struct(new(cron2.Handles), "*"), queue.NewQueueCommand, wire.Struct(new(queue.Subcommands), "*"), queue2.NewEmailHandle, other2.NewOtherCommand, other2.NewExampleCommand, wire.Struct(new(other2.Subcommands), "*"), other.NewExampleHandle, wire.Struct(new(command.Commands), "*"), wire.Struct(new(AppProvider), "*"))
+var providerSet = wire.NewSet(provider.NewMySQLClient, provider.NewRedisClient, provider.NewHttpClient, provider.NewEmailClient, provider.NewRequestClient, filesystem.NewFilesystem, cache.NewSid, dao.NewBaseDao, cron2.NewCrontabCommand, cron.NewClearTmpFile, cron.NewClearArticle, cron.NewClearWsCache, cron.NewClearExpireServer, wire.Struct(new(cron2.Subcommands), "*"), queue.NewQueueCommand, wire.Struct(new(queue.Subcommands), "*"), queue2.NewEmailHandle, other2.NewOtherCommand, other2.NewExampleCommand, wire.Struct(new(other2.Subcommands), "*"), other.NewExampleHandle, wire.Struct(new(command.Commands), "*"), wire.Struct(new(AppProvider), "*"))

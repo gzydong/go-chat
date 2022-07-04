@@ -10,22 +10,22 @@ import (
 	"gorm.io/gorm"
 )
 
-type ClearArticleHandle struct {
+type ClearArticle struct {
 	db         *gorm.DB
 	fileSystem *filesystem.Filesystem
 }
 
-func NewClearArticle(db *gorm.DB, fileSystem *filesystem.Filesystem) *ClearArticleHandle {
-	return &ClearArticleHandle{db: db, fileSystem: fileSystem}
+func NewClearArticle(db *gorm.DB, fileSystem *filesystem.Filesystem) *ClearArticle {
+	return &ClearArticle{db: db, fileSystem: fileSystem}
 }
 
 // Spec 配置定时任务规则
 // 每天凌晨1点执行
-func (c *ClearArticleHandle) Spec() string {
+func (c *ClearArticle) Spec() string {
 	return "0 1 * * *"
 }
 
-func (c *ClearArticleHandle) Handle(ctx context.Context) error {
+func (c *ClearArticle) Handle(ctx context.Context) error {
 
 	c.clearAnnex()
 
@@ -35,7 +35,7 @@ func (c *ClearArticleHandle) Handle(ctx context.Context) error {
 }
 
 // 删除回收站文章附件
-func (c *ClearArticleHandle) clearAnnex() {
+func (c *ClearArticle) clearAnnex() {
 	lastId := 0
 	size := 100
 
@@ -66,7 +66,7 @@ func (c *ClearArticleHandle) clearAnnex() {
 }
 
 // 删除回收站笔记
-func (c *ClearArticleHandle) clearNote() {
+func (c *ClearArticle) clearNote() {
 	lastId := 0
 	size := 100
 
