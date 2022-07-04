@@ -46,7 +46,7 @@ func (c *Common) SmsCode(ctx *ichat.Context) error {
 	}
 
 	// 发送短信验证码
-	code, err := c.smsService.SendSmsCode(ctx.Context.Request.Context(), params.Channel, params.Mobile)
+	code, err := c.smsService.SendSmsCode(ctx.RequestContext(), params.Channel, params.Mobile)
 	if err != nil {
 		return ctx.BusinessError(err.Error())
 	}

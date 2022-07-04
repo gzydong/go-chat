@@ -30,7 +30,7 @@ func NewContact(service *service.ContactService, wsClient *cache.WsClientSession
 
 // List 联系人列表
 func (c *Contact) List(ctx *ichat.Context) error {
-	items, err := c.service.List(ctx.Context, ctx.LoginUID())
+	items, err := c.service.List(ctx.Context, ctx.UserId())
 
 	if err != nil {
 		return ctx.BusinessError(err.Error())
@@ -51,7 +51,7 @@ func (c *Contact) Delete(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	uid := ctx.LoginUID()
+	uid := ctx.UserId()
 	if err := c.service.Delete(ctx.Context, uid, params.FriendId); err != nil {
 		return ctx.BusinessError(err.Error())
 	}
@@ -66,7 +66,7 @@ func (c *Contact) Delete(ctx *ichat.Context) error {
 
 	// 删除聊天会话
 	sid := c.talkListService.Dao().FindBySessionId(uid, params.FriendId, entity.ChatPrivateMode)
-	if err := c.talkListService.Delete(ctx.Context, ctx.LoginUID(), sid); err != nil {
+	if err := c.talkListService.Delete(ctx.Context, ctx.UserId(), sid); err != nil {
 		return ctx.BusinessError(err.Error())
 	}
 
@@ -108,7 +108,7 @@ func (c *Contact) EditRemark(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	if err := c.service.EditRemark(ctx.Context, ctx.LoginUID(), params.FriendId, params.Remarks); err != nil {
+	if err := c.service.EditRemark(ctx.Context, ctx.UserId(), params.FriendId, params.Remarks); err != nil {
 		return ctx.BusinessError(err.Error())
 	}
 
@@ -123,7 +123,7 @@ func (c *Contact) Detail(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	uid := ctx.LoginUID()
+	uid := ctx.UserId()
 
 	user, err := c.userService.Dao().FindById(params.UserId)
 	if err != nil {
@@ -147,9 +147,9 @@ func (c *Contact) Detail(ctx *ichat.Context) error {
 	}
 
 	if uid != params.UserId {
-		if c.service.Dao().IsFriend(ctx.Context.Request.Context(), uid, params.UserId, false) {
+		if c.service.Dao().IsFriend(ctx.RequestContext(), uid, params.UserId, false) {
 			resp["friend_status"] = 2
-			resp["nickname_remark"] = c.service.Dao().GetFriendRemark(ctx.Context.Request.Context(), uid, params.UserId, true)
+			resp["nickname_remark"] = c.service.Dao().GetFriendRemark(ctx.RequestContext(), uid, params.UserId, true)
 		} else {
 			isOk, _ := c.organizeService.Dao().IsQiyeMember(uid, params.UserId)
 			if isOk {

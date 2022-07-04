@@ -27,7 +27,7 @@ func (c *Apply) Create(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	err := c.applyServ.Insert(ctx.Context.Request.Context(), params.GroupId, ctx.LoginUID(), params.Remark)
+	err := c.applyServ.Insert(ctx.RequestContext(), params.GroupId, ctx.UserId(), params.Remark)
 	if err != nil {
 		return ctx.BusinessError("创建群聊失败，请稍后再试！")
 	}
@@ -44,7 +44,7 @@ func (c *Apply) Agree(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	uid := ctx.LoginUID()
+	uid := ctx.UserId()
 
 	apply := &model.GroupApply{}
 	if err := c.applyServ.Db().First(apply, params.ApplyId).Error; err != nil {
@@ -81,7 +81,7 @@ func (c *Apply) Delete(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	err := c.applyServ.Delete(ctx.Context, params.ApplyId, ctx.LoginUID())
+	err := c.applyServ.Delete(ctx.Context, params.ApplyId, ctx.UserId())
 	if err != nil {
 		return ctx.WithMeta(map[string]interface{}{
 			"error": err.Error(),
@@ -97,11 +97,11 @@ func (c *Apply) List(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	if !c.memberServ.Dao().IsLeader(params.GroupId, ctx.LoginUID()) {
+	if !c.memberServ.Dao().IsLeader(params.GroupId, ctx.UserId()) {
 		return ctx.Unauthorized("无权限访问")
 	}
 
-	list, err := c.applyServ.Dao().List(ctx.Context.Request.Context(), params.GroupId)
+	list, err := c.applyServ.Dao().List(ctx.RequestContext(), params.GroupId)
 	if err != nil {
 		logger.Error("[Apply List] 接口异常 err:", err.Error())
 		return ctx.WithMeta(map[string]interface{}{

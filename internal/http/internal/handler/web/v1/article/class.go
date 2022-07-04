@@ -18,7 +18,7 @@ func NewClass(service *note.ArticleClassService) *Class {
 // List 分类列表
 func (c *Class) List(ctx *ichat.Context) error {
 
-	items, err := c.service.List(ctx.Context.Request.Context(), ctx.LoginUID())
+	items, err := c.service.List(ctx.RequestContext(), ctx.UserId())
 	if err != nil {
 		return ctx.BusinessError(err.Error())
 	}
@@ -32,7 +32,7 @@ func (c *Class) Edit(ctx *ichat.Context) error {
 	var (
 		err    error
 		params = &web.ArticleClassEditRequest{}
-		uid    = ctx.LoginUID()
+		uid    = ctx.UserId()
 	)
 
 	if err = ctx.Context.ShouldBind(params); err != nil {
@@ -40,9 +40,9 @@ func (c *Class) Edit(ctx *ichat.Context) error {
 	}
 
 	if params.ClassId == 0 {
-		params.ClassId, err = c.service.Create(ctx.Context.Request.Context(), uid, params.ClassName)
+		params.ClassId, err = c.service.Create(ctx.RequestContext(), uid, params.ClassName)
 	} else {
-		err = c.service.Update(ctx.Context.Request.Context(), uid, params.ClassId, params.ClassName)
+		err = c.service.Update(ctx.RequestContext(), uid, params.ClassId, params.ClassName)
 	}
 
 	if err != nil {
@@ -60,7 +60,7 @@ func (c *Class) Delete(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	err := c.service.Delete(ctx.Context.Request.Context(), ctx.LoginUID(), params.ClassId)
+	err := c.service.Delete(ctx.RequestContext(), ctx.UserId(), params.ClassId)
 	if err != nil {
 		return ctx.BusinessError(err.Error())
 	}
@@ -76,7 +76,7 @@ func (c *Class) Sort(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	err := c.service.Sort(ctx.Context.Request.Context(), ctx.LoginUID(), params.ClassId, params.SortType)
+	err := c.service.Sort(ctx.RequestContext(), ctx.UserId(), params.ClassId, params.SortType)
 	if err != nil {
 		return ctx.BusinessError(err.Error())
 	}

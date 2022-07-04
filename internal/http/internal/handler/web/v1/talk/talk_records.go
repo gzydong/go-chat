@@ -31,9 +31,9 @@ func (c *Records) GetRecords(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	uid := ctx.LoginUID()
+	uid := ctx.UserId()
 	if params.TalkType == entity.ChatGroupMode {
-		if !c.authPermission.IsAuth(ctx.Context.Request.Context(), &service.AuthPermission{
+		if !c.authPermission.IsAuth(ctx.RequestContext(), &service.AuthPermission{
 			TalkType:   params.TalkType,
 			UserId:     uid,
 			ReceiverId: params.ReceiverId,
@@ -59,7 +59,7 @@ func (c *Records) GetRecords(ctx *ichat.Context) error {
 
 	records, err := c.service.GetTalkRecords(ctx.Context, &service.QueryTalkRecordsOpt{
 		TalkType:   params.TalkType,
-		UserId:     ctx.LoginUID(),
+		UserId:     ctx.UserId(),
 		ReceiverId: params.ReceiverId,
 		RecordId:   params.RecordId,
 		Limit:      params.Limit,
@@ -88,10 +88,10 @@ func (c *Records) SearchHistoryRecords(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	uid := ctx.LoginUID()
+	uid := ctx.UserId()
 
 	if params.TalkType == entity.ChatGroupMode {
-		if !c.authPermission.IsAuth(ctx.Context.Request.Context(), &service.AuthPermission{
+		if !c.authPermission.IsAuth(ctx.RequestContext(), &service.AuthPermission{
 			TalkType:   params.TalkType,
 			UserId:     uid,
 			ReceiverId: params.ReceiverId,
@@ -119,7 +119,7 @@ func (c *Records) SearchHistoryRecords(ctx *ichat.Context) error {
 	records, err := c.service.GetTalkRecords(ctx.Context, &service.QueryTalkRecordsOpt{
 		TalkType:   params.TalkType,
 		MsgType:    m,
-		UserId:     ctx.LoginUID(),
+		UserId:     ctx.UserId(),
 		ReceiverId: params.ReceiverId,
 		RecordId:   params.RecordId,
 		Limit:      params.Limit,
@@ -148,7 +148,7 @@ func (c *Records) GetForwardRecords(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	records, err := c.service.GetForwardRecords(ctx.Context.Request.Context(), ctx.LoginUID(), int64(params.RecordId))
+	records, err := c.service.GetForwardRecords(ctx.RequestContext(), ctx.UserId(), int64(params.RecordId))
 	if err != nil {
 		return ctx.BusinessError(err.Error())
 	}
@@ -165,12 +165,12 @@ func (c *Records) Download(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	resp, err := c.service.Dao().FindFileRecord(ctx.Context.Request.Context(), params.RecordId)
+	resp, err := c.service.Dao().FindFileRecord(ctx.RequestContext(), params.RecordId)
 	if err != nil {
 		return ctx.BusinessError(err.Error())
 	}
 
-	uid := ctx.LoginUID()
+	uid := ctx.UserId()
 	if uid != resp.Record.UserId {
 		if resp.Record.TalkType == entity.ChatPrivateMode {
 			if resp.Record.ReceiverId != uid {

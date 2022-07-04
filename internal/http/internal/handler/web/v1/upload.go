@@ -51,10 +51,10 @@ func (u *Upload) InitiateMultipart(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	info, err := u.service.InitiateMultipartUpload(ctx.Context.Request.Context(), &service.MultipartInitiateOpts{
+	info, err := u.service.InitiateMultipartUpload(ctx.RequestContext(), &service.MultipartInitiateOpts{
 		Name:   params.FileName,
 		Size:   params.FileSize,
-		UserId: ctx.LoginUID(),
+		UserId: ctx.UserId(),
 	})
 	if err != nil {
 		return ctx.BusinessError(err.Error())
@@ -78,8 +78,8 @@ func (u *Upload) MultipartUpload(ctx *ichat.Context) error {
 		return ctx.InvalidParams("文件上传失败！")
 	}
 
-	err = u.service.MultipartUpload(ctx.Context.Request.Context(), &service.MultipartUploadOpts{
-		UserId:     ctx.LoginUID(),
+	err = u.service.MultipartUpload(ctx.RequestContext(), &service.MultipartUploadOpts{
+		UserId:     ctx.UserId(),
 		UploadId:   params.UploadId,
 		SplitIndex: params.SplitIndex,
 		SplitNum:   params.SplitNum,

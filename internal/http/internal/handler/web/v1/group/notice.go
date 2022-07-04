@@ -31,14 +31,14 @@ func (c *Notice) CreateAndUpdate(ctx *ichat.Context) error {
 		err error
 	)
 
-	uid := ctx.LoginUID()
+	uid := ctx.UserId()
 
 	if !c.member.Dao().IsLeader(params.GroupId, uid) {
 		return ctx.BusinessError("无权限操作")
 	}
 
 	if params.NoticeId == 0 {
-		err = c.service.Create(ctx.Context.Request.Context(), &service.GroupNoticeEditOpts{
+		err = c.service.Create(ctx.RequestContext(), &service.GroupNoticeEditOpts{
 			UserId:    uid,
 			GroupId:   params.GroupId,
 			NoticeId:  params.NoticeId,
@@ -49,7 +49,7 @@ func (c *Notice) CreateAndUpdate(ctx *ichat.Context) error {
 		})
 		msg = "添加群公告成功！"
 	} else {
-		err = c.service.Update(ctx.Context.Request.Context(), &service.GroupNoticeEditOpts{
+		err = c.service.Update(ctx.RequestContext(), &service.GroupNoticeEditOpts{
 			GroupId:   params.GroupId,
 			NoticeId:  params.NoticeId,
 			Title:     params.Title,
@@ -91,7 +91,7 @@ func (c *Notice) List(ctx *ichat.Context) error {
 	}
 
 	// 判断是否是群成员
-	if !c.member.Dao().IsMember(params.GroupId, ctx.LoginUID(), true) {
+	if !c.member.Dao().IsMember(params.GroupId, ctx.UserId(), true) {
 		return ctx.BusinessError("无获取数据权限！")
 	}
 

@@ -48,7 +48,7 @@ func (c *Message) authority(ctx *ichat.Context, opt *AuthorityOpts) error {
 			return nil
 		}
 
-		isOk := c.contactService.Dao().IsFriend(ctx.Context.Request.Context(), opt.UserId, opt.ReceiverId, false)
+		isOk := c.contactService.Dao().IsFriend(ctx.RequestContext(), opt.UserId, opt.ReceiverId, false)
 		if isOk {
 			return nil
 		}
@@ -85,7 +85,7 @@ func (c *Message) Text(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	uid := ctx.LoginUID()
+	uid := ctx.UserId()
 	if err := c.authority(ctx, &AuthorityOpts{
 		TalkType:   params.TalkType,
 		UserId:     uid,
@@ -94,7 +94,7 @@ func (c *Message) Text(ctx *ichat.Context) error {
 		return ctx.BusinessError(err.Error())
 	}
 
-	if err := c.service.SendTextMessage(ctx.Context.Request.Context(), &service.TextMessageOpt{
+	if err := c.service.SendTextMessage(ctx.RequestContext(), &service.TextMessageOpt{
 		UserId:     uid,
 		TalkType:   params.TalkType,
 		ReceiverId: params.ReceiverId,
@@ -114,7 +114,7 @@ func (c *Message) Code(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	uid := ctx.LoginUID()
+	uid := ctx.UserId()
 	if err := c.authority(ctx, &AuthorityOpts{
 		TalkType:   params.TalkType,
 		UserId:     uid,
@@ -123,7 +123,7 @@ func (c *Message) Code(ctx *ichat.Context) error {
 		return ctx.BusinessError(err.Error())
 	}
 
-	if err := c.service.SendCodeMessage(ctx.Context.Request.Context(), &service.CodeMessageOpt{
+	if err := c.service.SendCodeMessage(ctx.RequestContext(), &service.CodeMessageOpt{
 		UserId:     uid,
 		TalkType:   params.TalkType,
 		ReceiverId: params.ReceiverId,
@@ -158,7 +158,7 @@ func (c *Message) Image(ctx *ichat.Context) error {
 		return ctx.InvalidParams("上传文件大小不能超过5M！")
 	}
 
-	uid := ctx.LoginUID()
+	uid := ctx.UserId()
 	if err := c.authority(ctx, &AuthorityOpts{
 		TalkType:   params.TalkType,
 		UserId:     uid,
@@ -167,7 +167,7 @@ func (c *Message) Image(ctx *ichat.Context) error {
 		return ctx.BusinessError(err.Error())
 	}
 
-	if err := c.service.SendImageMessage(ctx.Context.Request.Context(), &service.ImageMessageOpt{
+	if err := c.service.SendImageMessage(ctx.RequestContext(), &service.ImageMessageOpt{
 		UserId:     uid,
 		TalkType:   params.TalkType,
 		ReceiverId: params.ReceiverId,
@@ -187,7 +187,7 @@ func (c *Message) File(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	uid := ctx.LoginUID()
+	uid := ctx.UserId()
 	if err := c.authority(ctx, &AuthorityOpts{
 		TalkType:   params.TalkType,
 		UserId:     uid,
@@ -196,7 +196,7 @@ func (c *Message) File(ctx *ichat.Context) error {
 		return ctx.BusinessError(err.Error())
 	}
 
-	if err := c.service.SendFileMessage(ctx.Context.Request.Context(), &service.FileMessageOpt{
+	if err := c.service.SendFileMessage(ctx.RequestContext(), &service.FileMessageOpt{
 		UserId:     uid,
 		TalkType:   params.TalkType,
 		ReceiverId: params.ReceiverId,
@@ -224,7 +224,7 @@ func (c *Message) Vote(ctx *ichat.Context) error {
 		return ctx.InvalidParams("options 选项不能超过6个！")
 	}
 
-	uid := ctx.LoginUID()
+	uid := ctx.UserId()
 	if err := c.authority(ctx, &AuthorityOpts{
 		TalkType:   entity.ChatGroupMode,
 		UserId:     uid,
@@ -233,7 +233,7 @@ func (c *Message) Vote(ctx *ichat.Context) error {
 		return ctx.BusinessError(err.Error())
 	}
 
-	if err := c.service.SendVoteMessage(ctx.Context.Request.Context(), &service.VoteMessageOpt{
+	if err := c.service.SendVoteMessage(ctx.RequestContext(), &service.VoteMessageOpt{
 		UserId:     uid,
 		ReceiverId: params.ReceiverId,
 		Mode:       params.Mode,
@@ -255,7 +255,7 @@ func (c *Message) Emoticon(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	uid := ctx.LoginUID()
+	uid := ctx.UserId()
 	if err := c.authority(ctx, &AuthorityOpts{
 		TalkType:   params.TalkType,
 		UserId:     uid,
@@ -264,7 +264,7 @@ func (c *Message) Emoticon(ctx *ichat.Context) error {
 		return ctx.BusinessError(err.Error())
 	}
 
-	if err := c.service.SendEmoticonMessage(ctx.Context.Request.Context(), &service.EmoticonMessageOpt{
+	if err := c.service.SendEmoticonMessage(ctx.RequestContext(), &service.EmoticonMessageOpt{
 		UserId:     uid,
 		TalkType:   params.TalkType,
 		ReceiverId: params.ReceiverId,
@@ -288,7 +288,7 @@ func (c *Message) Forward(ctx *ichat.Context) error {
 		return ctx.InvalidParams("receive_user_ids 和 receive_group_ids 不能都为空！")
 	}
 
-	uid := ctx.LoginUID()
+	uid := ctx.UserId()
 	if err := c.authority(ctx, &AuthorityOpts{
 		TalkType:   params.TalkType,
 		UserId:     uid,
@@ -307,7 +307,7 @@ func (c *Message) Forward(ctx *ichat.Context) error {
 		GroupIds:   sliceutil.ParseIds(params.ReceiveGroupIds),
 	}
 
-	if err := c.forwardService.SendForwardMessage(ctx.Context.Request.Context(), forward); err != nil {
+	if err := c.forwardService.SendForwardMessage(ctx.RequestContext(), forward); err != nil {
 		return ctx.BusinessError(err.Error())
 	}
 
@@ -322,7 +322,7 @@ func (c *Message) Card(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	uid := ctx.LoginUID()
+	uid := ctx.UserId()
 	if err := c.authority(ctx, &AuthorityOpts{
 		TalkType:   params.TalkType,
 		UserId:     uid,
@@ -332,7 +332,7 @@ func (c *Message) Card(ctx *ichat.Context) error {
 	}
 
 	// todo SendCardMessage
-	if err := c.service.SendCardMessage(ctx.Context.Request.Context(), &service.CardMessageOpt{
+	if err := c.service.SendCardMessage(ctx.RequestContext(), &service.CardMessageOpt{
 		UserId:     uid,
 		TalkType:   params.TalkType,
 		ReceiverId: params.ReceiverId,
@@ -352,7 +352,7 @@ func (c *Message) Collect(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	if err := c.talkService.CollectRecord(ctx.Context.Request.Context(), ctx.LoginUID(), params.RecordId); err != nil {
+	if err := c.talkService.CollectRecord(ctx.RequestContext(), ctx.UserId(), params.RecordId); err != nil {
 		return ctx.BusinessError(err.Error())
 	}
 
@@ -367,7 +367,7 @@ func (c *Message) Revoke(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	if err := c.service.SendRevokeRecordMessage(ctx.Context.Request.Context(), ctx.LoginUID(), params.RecordId); err != nil {
+	if err := c.service.SendRevokeRecordMessage(ctx.RequestContext(), ctx.UserId(), params.RecordId); err != nil {
 		return ctx.BusinessError(err.Error())
 	}
 
@@ -382,8 +382,8 @@ func (c *Message) Delete(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	if err := c.talkService.RemoveRecords(ctx.Context.Request.Context(), &service.TalkMessageDeleteOpt{
-		UserId:     ctx.LoginUID(),
+	if err := c.talkService.RemoveRecords(ctx.RequestContext(), &service.TalkMessageDeleteOpt{
+		UserId:     ctx.UserId(),
 		TalkType:   params.TalkType,
 		ReceiverId: params.ReceiverId,
 		RecordIds:  params.RecordIds,
@@ -402,8 +402,8 @@ func (c *Message) HandleVote(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	vid, err := c.service.VoteHandle(ctx.Context.Request.Context(), &service.VoteMessageHandleOpt{
-		UserId:   ctx.LoginUID(),
+	vid, err := c.service.VoteHandle(ctx.RequestContext(), &service.VoteMessageHandleOpt{
+		UserId:   ctx.UserId(),
 		RecordId: params.RecordId,
 		Options:  params.Options,
 	})
@@ -411,7 +411,7 @@ func (c *Message) HandleVote(ctx *ichat.Context) error {
 		return ctx.BusinessError(err.Error())
 	}
 
-	res, _ := c.talkRecordsVoteDao.GetVoteStatistics(ctx.Context.Request.Context(), vid)
+	res, _ := c.talkRecordsVoteDao.GetVoteStatistics(ctx.RequestContext(), vid)
 
 	return ctx.Success(res)
 }
@@ -424,7 +424,7 @@ func (c *Message) Location(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	uid := ctx.LoginUID()
+	uid := ctx.UserId()
 	if err := c.authority(ctx, &AuthorityOpts{
 		TalkType:   params.TalkType,
 		UserId:     uid,
@@ -433,7 +433,7 @@ func (c *Message) Location(ctx *ichat.Context) error {
 		return ctx.BusinessError(err.Error())
 	}
 
-	if err := c.service.SendLocationMessage(ctx.Context.Request.Context(), &service.LocationMessageOpt{
+	if err := c.service.SendLocationMessage(ctx.RequestContext(), &service.LocationMessageOpt{
 		UserId:     uid,
 		TalkType:   params.TalkType,
 		ReceiverId: params.ReceiverId,

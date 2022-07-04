@@ -17,7 +17,7 @@ func NewTag(service *note.ArticleTagService) *Tag {
 
 // List 标签列表
 func (c *Tag) List(ctx *ichat.Context) error {
-	items, err := c.service.List(ctx.Context.Request.Context(), ctx.LoginUID())
+	items, err := c.service.List(ctx.RequestContext(), ctx.UserId())
 	if err != nil {
 		return ctx.BusinessError(err)
 	}
@@ -30,7 +30,7 @@ func (c *Tag) Edit(ctx *ichat.Context) error {
 	var (
 		err    error
 		params = &web.ArticleTagEditRequest{}
-		uid    = ctx.LoginUID()
+		uid    = ctx.UserId()
 	)
 
 	if err = ctx.Context.ShouldBind(params); err != nil {
@@ -38,9 +38,9 @@ func (c *Tag) Edit(ctx *ichat.Context) error {
 	}
 
 	if params.TagId == 0 {
-		params.TagId, err = c.service.Create(ctx.Context.Request.Context(), uid, params.TagName)
+		params.TagId, err = c.service.Create(ctx.RequestContext(), uid, params.TagName)
 	} else {
-		err = c.service.Update(ctx.Context.Request.Context(), uid, params.TagId, params.TagName)
+		err = c.service.Update(ctx.RequestContext(), uid, params.TagId, params.TagName)
 	}
 
 	if err != nil {
@@ -58,7 +58,7 @@ func (c *Tag) Delete(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	err := c.service.Delete(ctx.Context.Request.Context(), ctx.LoginUID(), params.TagId)
+	err := c.service.Delete(ctx.RequestContext(), ctx.UserId(), params.TagId)
 	if err != nil {
 		return ctx.BusinessError(err)
 	}

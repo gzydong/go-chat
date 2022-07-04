@@ -1,6 +1,7 @@
 package ichat
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 
@@ -28,6 +29,7 @@ func (c *Context) WithMeta(data map[string]interface{}) *Context {
 	return c
 }
 
+// Unauthorized 未授权
 func (c *Context) Unauthorized(message string) error {
 	c.Context.Abort()
 
@@ -159,12 +161,16 @@ func (c *Context) Raw(value string) error {
 	return nil
 }
 
-// LoginUID 返回登录用户的UID
-func (c *Context) LoginUID() int {
+// UserId 返回登录用户的UID
+func (c *Context) UserId() int {
 	return c.Context.GetInt("__UID__")
 }
 
 // IsGuest 是否是游客(未登录状态)
 func (c *Context) IsGuest() bool {
-	return c.LoginUID() == 0
+	return c.UserId() == 0
+}
+
+func (c *Context) RequestContext() context.Context {
+	return c.Context.Request.Context()
 }

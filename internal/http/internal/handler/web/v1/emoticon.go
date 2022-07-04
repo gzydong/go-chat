@@ -31,7 +31,7 @@ func NewEmoticon(fileSystem *filesystem.Filesystem, service *service.EmoticonSer
 // CollectList 收藏列表
 func (c *Emoticon) CollectList(ctx *ichat.Context) error {
 	var (
-		uid     = ctx.LoginUID()
+		uid     = ctx.UserId()
 		sys     = make([]*web.SysEmoticonResponse, 0)
 		collect = make([]*web.EmoticonItem, 0)
 	)
@@ -83,7 +83,7 @@ func (c *Emoticon) DeleteCollect(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	if err := c.service.DeleteCollect(ctx.LoginUID(), sliceutil.ParseIds(params.Ids)); err != nil {
+	if err := c.service.DeleteCollect(ctx.UserId(), sliceutil.ParseIds(params.Ids)); err != nil {
 		return ctx.BusinessError(err.Error())
 	}
 
@@ -119,7 +119,7 @@ func (c *Emoticon) Upload(ctx *ichat.Context) error {
 	}
 
 	m := &model.EmoticonItem{
-		UserId:     ctx.LoginUID(),
+		UserId:     ctx.UserId(),
 		Describe:   "自定义表情包",
 		Url:        c.fileSystem.Default.PublicUrl(src),
 		FileSuffix: ext,
@@ -144,7 +144,7 @@ func (c *Emoticon) SystemList(ctx *ichat.Context) error {
 		return ctx.BusinessError(err.Error())
 	}
 
-	ids := c.service.Dao().GetUserInstallIds(ctx.LoginUID())
+	ids := c.service.Dao().GetUserInstallIds(ctx.UserId())
 
 	data := make([]*web.SysEmoticonList, 0, len(items))
 	for _, item := range items {
@@ -164,7 +164,7 @@ func (c *Emoticon) SetSystemEmoticon(ctx *ichat.Context) error {
 	var (
 		err    error
 		params = &web.SetSystemEmoticonRequest{}
-		uid    = ctx.LoginUID()
+		uid    = ctx.UserId()
 		key    = fmt.Sprintf("sys-emoticon:%d", uid)
 	)
 

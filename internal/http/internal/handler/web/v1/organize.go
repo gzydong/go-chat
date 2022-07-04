@@ -22,7 +22,7 @@ func NewOrganize(deptServ *organize.DeptService, organizeServ *organize.Organize
 
 func (o *Organize) DepartmentList(ctx *ichat.Context) error {
 
-	uid := ctx.LoginUID()
+	uid := ctx.UserId()
 	if isOk, _ := o.organizeServ.Dao().IsQiyeMember(uid); !isOk {
 		return ctx.Success(entity.H{
 			"items": []string{},
@@ -61,7 +61,7 @@ type PositionItems struct {
 
 func (o *Organize) PersonnelList(ctx *ichat.Context) error {
 
-	uid := ctx.LoginUID()
+	uid := ctx.UserId()
 	if isOk, _ := o.organizeServ.Dao().IsQiyeMember(uid); !isOk {
 		return ctx.Success(entity.H{
 			"items": []string{},

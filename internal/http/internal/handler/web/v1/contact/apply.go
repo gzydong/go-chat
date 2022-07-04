@@ -23,7 +23,7 @@ func NewApply(service *service.ContactApplyService, userService *service.UserSer
 // ApplyUnreadNum 获取好友申请未读数
 func (c *Apply) ApplyUnreadNum(ctx *ichat.Context) error {
 	return ctx.Success(entity.H{
-		"unread_num": c.service.GetApplyUnreadNum(ctx.Context.Request.Context(), ctx.LoginUID()),
+		"unread_num": c.service.GetApplyUnreadNum(ctx.RequestContext(), ctx.UserId()),
 	})
 }
 
@@ -34,13 +34,13 @@ func (c *Apply) Create(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	uid := ctx.LoginUID()
+	uid := ctx.UserId()
 	if !c.contactService.Dao().IsFriend(ctx.Context, uid, params.FriendId, false) {
 		return ctx.Success(nil)
 	}
 
 	if err := c.service.Create(ctx.Context, &service.ContactApplyCreateOpts{
-		UserId:   ctx.LoginUID(),
+		UserId:   ctx.UserId(),
 		Remarks:  params.Remarks,
 		FriendId: params.FriendId,
 	}); err != nil {
@@ -58,7 +58,7 @@ func (c *Apply) Accept(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	uid := ctx.LoginUID()
+	uid := ctx.UserId()
 	applyInfo, err := c.service.Accept(ctx.Context, &service.ContactApplyAcceptOpts{
 		Remarks: params.Remarks,
 		ApplyId: params.ApplyId,
@@ -88,7 +88,7 @@ func (c *Apply) Decline(ctx *ichat.Context) error {
 	}
 
 	if err := c.service.Decline(ctx.Context, &service.ContactApplyDeclineOpts{
-		UserId:  ctx.LoginUID(),
+		UserId:  ctx.UserId(),
 		Remarks: params.Remarks,
 		ApplyId: params.ApplyId,
 	}); err != nil {
@@ -101,7 +101,7 @@ func (c *Apply) Decline(ctx *ichat.Context) error {
 // List 获取联系人申请列表
 func (c *Apply) List(ctx *ichat.Context) error {
 
-	list, err := c.service.List(ctx.Context, ctx.LoginUID(), 1, 1000)
+	list, err := c.service.List(ctx.Context, ctx.UserId(), 1, 1000)
 	if err != nil {
 		return ctx.Error(err.Error())
 	}
@@ -119,7 +119,7 @@ func (c *Apply) List(ctx *ichat.Context) error {
 		})
 	}
 
-	c.service.ClearApplyUnreadNum(ctx.Context, ctx.LoginUID())
+	c.service.ClearApplyUnreadNum(ctx.Context, ctx.UserId())
 
 	return ctx.Paginate(items, 1, 1000, len(items))
 }
