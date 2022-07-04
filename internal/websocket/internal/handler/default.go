@@ -6,15 +6,14 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis/v8"
 	"github.com/sirupsen/logrus"
 	"github.com/tidwall/gjson"
 	"go-chat/config"
 	"go-chat/internal/entity"
+	"go-chat/internal/pkg/ichat"
 	"go-chat/internal/pkg/im"
 	"go-chat/internal/pkg/jsonutil"
-	"go-chat/internal/pkg/jwtutil"
 	"go-chat/internal/repository/cache"
 	"go-chat/internal/repository/model"
 	"go-chat/internal/service"
@@ -34,17 +33,17 @@ func NewDefaultWebSocket(rds *redis.Client, conf *config.Config, cache *service.
 }
 
 // Connect 初始化连接
-func (c *DefaultWebSocket) Connect(ctx *gin.Context) {
-	conn, err := im.NewConnect(ctx)
+func (c *DefaultWebSocket) Connect(ctx *ichat.Context) error {
+	conn, err := im.NewConnect(ctx.Context)
 	if err != nil {
 		logrus.Errorf("websocket connect error: %s", err.Error())
-		return
+		return nil
 	}
 
 	// 创建客户端
-	im.NewClient(ctx.Request.Context(), conn, &im.ClientOptions{
+	im.NewClient(ctx.RequestContext(), conn, &im.ClientOptions{
 		Channel: im.Session.Default,
-		Uid:     jwtutil.GetUid(ctx),
+		Uid:     ctx.UserId(),
 		Storage: c.cache,
 	}, im.NewClientCallback(
 		// 连接成功回调
@@ -61,10 +60,13 @@ func (c *DefaultWebSocket) Connect(ctx *gin.Context) {
 			// fmt.Printf("客户端[%d] 已关闭连接，关闭提示【%d】%s \n", client.ClientId(), code, text)
 		}),
 	))
+
+	return nil
 }
 
 // 连接成功回调事件
 func (c *DefaultWebSocket) open(client im.IClient) {
+
 	// 1.查询用户群列表
 	ids := c.groupMemberService.Dao().GetUserGroupIds(client.ClientUid())
 
@@ -91,6 +93,7 @@ func (c *DefaultWebSocket) open(client im.IClient) {
 
 // 消息接收回调事件
 func (c *DefaultWebSocket) message(client im.IClient, message []byte) {
+
 	content := string(message)
 
 	event := gjson.Get(content, "event").String()
@@ -132,6 +135,7 @@ func (c *DefaultWebSocket) message(client im.IClient, message []byte) {
 
 // 客户端关闭回调事件
 func (c *DefaultWebSocket) close(client im.IClient, code int, text string) {
+
 	// 1.判断用户是否是多点登录
 
 	// 2.查询用户群列表

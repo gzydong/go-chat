@@ -5,6 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"go-chat/internal/entity"
+	"go-chat/internal/pkg/ichat"
 	"go-chat/internal/pkg/im"
 	"go-chat/internal/repository/cache"
 
@@ -31,8 +32,8 @@ func NewRouter(conf *config.Config, handle *handler.Handler, session *cache.Sess
 		})
 	})
 
-	router.GET("/wss/default.io", authorize, handle.DefaultWebSocket.Connect)
-	router.GET("/wss/example.io", authorize, handle.ExampleWebsocket.Connect)
+	router.GET("/wss/default.io", authorize, ichat.HandlerFunc(handle.DefaultWebSocket.Connect))
+	router.GET("/wss/example.io", authorize, ichat.HandlerFunc(handle.ExampleWebsocket.Connect))
 
 	router.GET("/", func(c *gin.Context) {
 		c.JSON(http.StatusOK, entity.H{"ok": "success"})

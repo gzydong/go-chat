@@ -3,7 +3,7 @@ package handler
 import (
 	"fmt"
 
-	"github.com/gin-gonic/gin"
+	"go-chat/internal/pkg/ichat"
 	"go-chat/internal/pkg/im"
 	"go-chat/internal/pkg/logger"
 )
@@ -16,15 +16,15 @@ func NewExampleWebsocket() *ExampleWebsocket {
 	return &ExampleWebsocket{}
 }
 
-func (c *ExampleWebsocket) Connect(ctx *gin.Context) {
-	conn, err := im.NewConnect(ctx)
+func (c *ExampleWebsocket) Connect(ctx *ichat.Context) error {
+	conn, err := im.NewConnect(ctx.Context)
 	if err != nil {
 		logger.Error("websocket connect error: ", err.Error())
-		return
+		return nil
 	}
 
 	// 创建客户端
-	im.NewClient(ctx.Request.Context(), conn, &im.ClientOptions{
+	im.NewClient(ctx.RequestContext(), conn, &im.ClientOptions{
 		Channel: im.Session.Example,
 		Uid:     0, // 自行提供用户ID
 	}, im.NewClientCallback(
@@ -44,4 +44,6 @@ func (c *ExampleWebsocket) Connect(ctx *gin.Context) {
 			fmt.Printf("客户端[%d] 已关闭连接，关闭提示【%d】%s \n", client.ClientId(), code, text)
 		}),
 	))
+
+	return nil
 }

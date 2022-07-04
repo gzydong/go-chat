@@ -114,7 +114,7 @@ func (c *Auth) Refresh(ctx *ichat.Context) error {
 
 	return ctx.Success(&web.AuthRefreshResponse{
 		Type:        "Bearer",
-		AccessToken: c.token(jwtutil.GetUid(ctx.Context)),
+		AccessToken: c.token(ctx.UserId()),
 		ExpiresIn:   int(c.config.Jwt.ExpiresTime),
 	})
 }

@@ -5,7 +5,6 @@ import (
 	"go-chat/internal/http/internal/dto/web"
 	"go-chat/internal/pkg/encrypt"
 	"go-chat/internal/pkg/ichat"
-	"go-chat/internal/pkg/jwtutil"
 	"go-chat/internal/repository/model"
 	"go-chat/internal/service"
 	"go-chat/internal/service/organize"
@@ -104,7 +103,7 @@ func (u *User) ChangePassword(ctx *ichat.Context) error {
 		return ctx.BusinessError("预览账号不支持修改密码！")
 	}
 
-	if err := u.service.UpdatePassword(jwtutil.GetUid(ctx.Context), params.OldPassword, params.NewPassword); err != nil {
+	if err := u.service.UpdatePassword(ctx.UserId(), params.OldPassword, params.NewPassword); err != nil {
 		return ctx.BusinessError("密码修改失败！")
 	}
 
