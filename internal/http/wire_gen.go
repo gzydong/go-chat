@@ -138,8 +138,10 @@ func Initialize(ctx context.Context, conf *config.Config) *AppProvider {
 		V1: webV1,
 	}
 	index := v1_2.NewIndex()
+	v1Auth := v1_2.NewAuth()
 	adminV1 := &admin.V1{
 		Index: index,
+		Auth:  v1Auth,
 	}
 	v2 := &admin.V2{}
 	adminHandler := &admin.Handler{

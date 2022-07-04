@@ -19,7 +19,7 @@ func RegisterOpenRoute(conf *config.Config, router *gin.Engine, handler *open.Ha
 	{
 		index := v1.Group("/index")
 		{
-			index.GET("/", ichat.HandlerFunc(handler.V1.Index.Index))
+			index.GET("", ichat.HandlerFunc(handler.V1.Index.Index))
 		}
 	}
 }
