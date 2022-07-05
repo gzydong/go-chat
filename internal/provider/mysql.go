@@ -18,7 +18,7 @@ func NewMySQLClient(conf *config.Config) *gorm.DB {
 
 	gormConfig := &gorm.Config{
 		NamingStrategy: schema.NamingStrategy{
-			SingularTable: true, // 使用单数表名，启用该选项，此时，`Article` 的表名应该是 `it_article`
+			SingularTable: true,
 		},
 	}
 
@@ -57,5 +57,5 @@ func NewMySQLClient(conf *config.Config) *gorm.DB {
 	sqlDB.SetMaxOpenConns(100)
 	sqlDB.SetConnMaxLifetime(time.Hour)
 
-	return db.Debug()
+	return db
 }

@@ -64,7 +64,6 @@ type QueryTalkRecordsOpt struct {
 // GetTalkRecords 获取对话消息
 func (s *TalkRecordsService) GetTalkRecords(ctx context.Context, opts *QueryTalkRecordsOpt) ([]*TalkRecordsItem, error) {
 	var (
-		err    error
 		items  = make([]*model.QueryTalkRecordsItem, 0)
 		fields = []string{
 			"talk_records.id",
@@ -83,6 +82,7 @@ func (s *TalkRecordsService) GetTalkRecords(ctx context.Context, opts *QueryTalk
 
 	query := s.db.Table("talk_records")
 	query.Joins("left join users on talk_records.user_id = users.id")
+	query.Joins("left join talk_records_delete on talk_records.id = talk_records_delete.record_id and talk_records_delete.user_id = ?", opts.UserId)
 
 	if opts.RecordId > 0 {
 		query.Where("talk_records.id < ?", opts.RecordId)
@@ -102,15 +102,15 @@ func (s *TalkRecordsService) GetTalkRecords(ctx context.Context, opts *QueryTalk
 	}
 
 	query.Where("talk_records.talk_type = ?", opts.TalkType)
-	query.Where("NOT EXISTS (SELECT 1 FROM `talk_records_delete` WHERE talk_records_delete.record_id = talk_records.id AND talk_records_delete.user_id = ? LIMIT 1)", opts.UserId)
+	query.Where("ifnull(talk_records_delete.id,0) = 0")
 	query.Select(fields).Order("talk_records.id desc").Limit(opts.Limit)
 
-	if err = query.Scan(&items).Error; err != nil {
+	if err := query.Scan(&items).Error; err != nil {
 		return nil, err
 	}
 
 	if len(items) == 0 {
-		return make([]*TalkRecordsItem, 0), err
+		return make([]*TalkRecordsItem, 0), nil
 	}
 
 	return s.HandleTalkRecords(ctx, items)
