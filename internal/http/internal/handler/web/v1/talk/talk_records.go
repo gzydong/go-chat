@@ -1,7 +1,9 @@
 package talk
 
 import (
+	"fmt"
 	"net/http"
+	"time"
 
 	"go-chat/internal/http/internal/dto/web"
 	"go-chat/internal/pkg/ichat"
@@ -27,6 +29,7 @@ func NewRecords(service *service.TalkRecordsService, groupMemberService *service
 // GetRecords 获取会话记录
 func (c *Records) GetRecords(ctx *ichat.Context) error {
 
+	ctime := time.Now()
 	params := &web.GetTalkRecordsRequest{}
 	if err := ctx.Context.ShouldBindQuery(params); err != nil {
 		return ctx.InvalidParams(err)
@@ -75,10 +78,13 @@ func (c *Records) GetRecords(ctx *ichat.Context) error {
 		rid = records[length-1].Id
 	}
 
+	fmt.Println("处理耗时 :", time.Since(ctime))
+
 	return ctx.Success(entity.H{
 		"limit":     params.Limit,
 		"record_id": rid,
 		"rows":      records,
+		"ctime":     time.Since(ctime),
 	})
 }
 

@@ -10,16 +10,6 @@ import (
 	"go-chat/internal/repository/model"
 )
 
-type GroupNoticeEditOpts struct {
-	UserId    int
-	GroupId   int
-	NoticeId  int
-	Title     string
-	Content   string
-	IsTop     int
-	IsConfirm int
-}
-
 type GroupNoticeService struct {
 	dao *dao.GroupNoticeDao
 }
@@ -34,8 +24,18 @@ func (s *GroupNoticeService) Dao() *dao.GroupNoticeDao {
 	return s.dao
 }
 
+type GroupNoticeEditOpt struct {
+	UserId    int
+	GroupId   int
+	NoticeId  int
+	Title     string
+	Content   string
+	IsTop     int
+	IsConfirm int
+}
+
 // Create 创建群公告
-func (s *GroupNoticeService) Create(ctx context.Context, opts *GroupNoticeEditOpts) error {
+func (s *GroupNoticeService) Create(ctx context.Context, opts *GroupNoticeEditOpt) error {
 	return s.dao.Db().Create(&model.GroupNotice{
 		GroupId:      opts.GroupId,
 		CreatorId:    opts.UserId,
@@ -48,7 +48,7 @@ func (s *GroupNoticeService) Create(ctx context.Context, opts *GroupNoticeEditOp
 }
 
 // Update 更新群公告
-func (s *GroupNoticeService) Update(ctx context.Context, opts *GroupNoticeEditOpts) error {
+func (s *GroupNoticeService) Update(ctx context.Context, opts *GroupNoticeEditOpt) error {
 	_, err := s.dao.BaseUpdate(&model.GroupNotice{}, entity.MapStrAny{
 		"id":       opts.NoticeId,
 		"group_id": opts.GroupId,

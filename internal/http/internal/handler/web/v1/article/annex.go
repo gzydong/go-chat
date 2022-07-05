@@ -117,7 +117,6 @@ func (c *Annex) Recover(ctx *ichat.Context) error {
 }
 
 // RecoverList 附件回收站列表
-// nolit
 func (c *Annex) RecoverList(ctx *ichat.Context) error {
 
 	items, err := c.service.Dao().RecoverList(ctx.RequestContext(), ctx.UserId())
