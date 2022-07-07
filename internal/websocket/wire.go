@@ -64,9 +64,9 @@ var providerSet = wire.NewSet(
 	handler.NewExampleWebsocket,
 
 	wire.Struct(new(handler.Handler), "*"),
-	wire.Struct(new(Provider), "*"),
+	wire.Struct(new(AppProvider), "*"),
 )
 
-func Initialize(ctx context.Context, conf *config.Config) *Provider {
+func Initialize(ctx context.Context, conf *config.Config) *AppProvider {
 	panic(wire.Build(providerSet))
 }

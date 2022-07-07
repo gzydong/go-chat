@@ -13,8 +13,9 @@ func NewIndex() *Index {
 }
 
 func (c *Index) Index(ctx *ichat.Context) error {
+
 	return ctx.Success(entity.H{
-		"uid":     ctx.UserId(),
-		"IsGuest": ctx.IsGuest(),
+		"uid":      ctx.UserId(),
+		"is_guest": ctx.IsGuest(),
 	})
 }

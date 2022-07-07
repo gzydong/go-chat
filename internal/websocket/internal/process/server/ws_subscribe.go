@@ -63,14 +63,18 @@ func (w *WsSubscribe) Setup(ctx context.Context) error {
 	}
 
 	go func() {
-		work := worker.NewConcurrent(10) // 设置协程并发处理数
+		// work := worker.NewTask(10) // 设置协程并发处理数
+
+		w := worker.NewWorker(10, 10)
 
 		// 订阅 redis 消息
 		for msg := range sub.Channel(redis.WithChannelHealthCheckInterval(30 * time.Second)) {
-			work.Add(func() { consume(msg) })
+			w.Do(func() {
+				consume(msg)
+			})
 		}
 
-		work.Wait()
+		w.Wait()
 	}()
 
 	<-ctx.Done()
