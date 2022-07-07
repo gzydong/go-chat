@@ -7,6 +7,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"go-chat/internal/pkg/jsonutil"
+	"go-chat/internal/pkg/jwt"
 	"go-chat/internal/pkg/validation"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
@@ -163,7 +164,23 @@ func (c *Context) Raw(value string) error {
 
 // UserId 返回登录用户的UID
 func (c *Context) UserId() int {
-	return c.Context.GetInt("__UID__")
+
+	if jwtSession := c.JwtSession(); jwtSession != nil {
+		return jwtSession.Uid
+	}
+
+	return 0
+}
+
+// JwtSession 返回登录用户的JSession
+func (c *Context) JwtSession() *jwt.JSession {
+
+	data, isOk := c.Context.Get("__JWT_SESSION__")
+	if !isOk {
+		return nil
+	}
+
+	return data.(*jwt.JSession)
 }
 
 // IsGuest 是否是游客(未登录状态)

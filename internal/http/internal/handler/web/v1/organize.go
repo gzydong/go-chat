@@ -29,13 +29,13 @@ func (o *Organize) DepartmentList(ctx *ichat.Context) error {
 		})
 	}
 
-	all, err := o.deptServ.Dao().FindAll()
+	items, err := o.deptServ.Dao().FindAll()
 	if err != nil {
 		return ctx.BusinessError(err.Error())
 	}
 
 	return ctx.Success(entity.H{
-		"items": all,
+		"items": items,
 	})
 }
 

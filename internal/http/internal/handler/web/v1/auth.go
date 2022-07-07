@@ -160,12 +160,12 @@ func (c *Auth) token(uid int) string {
 
 // 设置黑名单
 func (c *Auth) toBlackList(ctx *ichat.Context) {
-	info := ctx.Context.GetStringMapString("jwt")
 
-	expiresAt, _ := strconv.Atoi(info["expires_at"])
+	session := ctx.JwtSession()
+	if session != nil {
+		ex := session.ExpiresAt - time.Now().Unix()
 
-	ex := expiresAt - int(time.Now().Unix())
-
-	// 将 session 加入黑名单
-	_ = c.session.SetBlackList(ctx.RequestContext(), info["session"], ex)
+		// 将 session 加入黑名单
+		_ = c.session.SetBlackList(ctx.RequestContext(), session.Token, int(ex))
+	}
 }

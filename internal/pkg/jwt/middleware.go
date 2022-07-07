@@ -18,6 +18,12 @@ type IStore interface {
 	IsBlackList(ctx context.Context, token string) bool
 }
 
+type JSession struct {
+	Uid       int    `json:"uid"`
+	Token     string `json:"token"`
+	ExpiresAt int64  `json:"expires_at"`
+}
+
 // Auth 授权中间件
 func Auth(secret string, guard string, store IStore) gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -38,18 +44,18 @@ func Auth(secret string, guard string, store IStore) gin.HandlerFunc {
 		}
 
 		// 设置登录用户ID
-		if uid, err := strconv.Atoi(claims.Id); err != nil {
+		uid, err := strconv.Atoi(claims.Id)
+		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": "解析 jwt 失败."})
 			c.Abort()
 			return
-		} else {
-			c.Set("__UID__", uid)
 		}
 
 		// 记录 jwt 相关信息
-		c.Set("jwt", map[string]string{
-			"token":      token,
-			"expires_at": strconv.Itoa(int(claims.ExpiresAt)),
+		c.Set("__JWT_SESSION__", &JSession{
+			Uid:       uid,
+			Token:     token,
+			ExpiresAt: claims.ExpiresAt,
 		})
 
 		c.Next()
