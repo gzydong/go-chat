@@ -9,6 +9,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+const JSessionConst = "__JWT_SESSION__"
+
 var (
 	ErrorNoLogin = errors.New("请登录后操作! ")
 )
@@ -52,7 +54,7 @@ func Auth(secret string, guard string, store IStore) gin.HandlerFunc {
 		}
 
 		// 记录 jwt 相关信息
-		c.Set("__JWT_SESSION__", &JSession{
+		c.Set(JSessionConst, &JSession{
 			Uid:       uid,
 			Token:     token,
 			ExpiresAt: claims.ExpiresAt,

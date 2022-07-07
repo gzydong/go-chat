@@ -175,7 +175,7 @@ func (c *Context) UserId() int {
 // JwtSession 返回登录用户的JSession
 func (c *Context) JwtSession() *jwt.JSession {
 
-	data, isOk := c.Context.Get("__JWT_SESSION__")
+	data, isOk := c.Context.Get(jwt.JSessionConst)
 	if !isOk {
 		return nil
 	}

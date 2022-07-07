@@ -28,8 +28,6 @@ func (u *User) Detail(ctx *ichat.Context) error {
 		return ctx.Error(err.Error())
 	}
 
-	ctx.JwtSession()
-
 	return ctx.Success(&web.GetUserInfoResponse{
 		Id:       user.Id,
 		Mobile:   user.Mobile,
