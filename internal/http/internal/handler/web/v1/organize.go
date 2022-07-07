@@ -6,7 +6,7 @@ import (
 
 	"go-chat/internal/entity"
 	"go-chat/internal/pkg/ichat"
-	model2 "go-chat/internal/repository/model"
+	"go-chat/internal/repository/model"
 	"go-chat/internal/service/organize"
 )
 
@@ -78,7 +78,7 @@ func (o *Organize) PersonnelList(ctx *ichat.Context) error {
 		return ctx.BusinessError(err.Error())
 	}
 
-	deptHash := make(map[int]*model2.OrganizeDept)
+	deptHash := make(map[int]*model.OrganizeDept)
 	for _, department := range departments {
 		deptHash[department.DeptId] = department
 	}
@@ -88,7 +88,7 @@ func (o *Organize) PersonnelList(ctx *ichat.Context) error {
 		return ctx.BusinessError(err.Error())
 	}
 
-	positionHash := make(map[int]*model2.OrganizePost)
+	positionHash := make(map[int]*model.OrganizePost)
 	for _, position := range positions {
 		positionHash[position.PositionId] = position
 	}

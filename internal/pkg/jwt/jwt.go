@@ -54,6 +54,7 @@ func ParseToken(token string, secret string) (*AuthClaims, error) {
 
 // GetJwtToken 获取登录授权 token
 func GetJwtToken(c *gin.Context) string {
+
 	token := c.GetHeader("Authorization")
 	token = strings.TrimSpace(strings.TrimPrefix(token, "Bearer"))
 

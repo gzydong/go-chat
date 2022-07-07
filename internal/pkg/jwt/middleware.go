@@ -9,8 +9,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-const uuid = "__UID__"
-
 var (
 	ErrorNoLogin = errors.New("请登录后操作! ")
 )
@@ -33,16 +31,20 @@ func Auth(secret string, guard string, store IStore) gin.HandlerFunc {
 		}
 
 		// 这里还需要验证 token 黑名单
-		if store.IsBlackList(context.Background(), token) {
-			c.JSON(http.StatusUnauthorized, gin.H{"code": 401, "message": "请登录再试！"})
+		if store.IsBlackList(c.Request.Context(), token) {
+			c.JSON(http.StatusUnauthorized, gin.H{"code": 401, "message": "请登录再试."})
 			c.Abort()
 			return
 		}
 
 		// 设置登录用户ID
-		uid, _ := strconv.Atoi(claims.Id)
-
-		c.Set(uuid, uid)
+		if uid, err := strconv.Atoi(claims.Id); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": "解析 jwt 失败."})
+			c.Abort()
+			return
+		} else {
+			c.Set("__UID__", uid)
+		}
 
 		// 记录 jwt 相关信息
 		c.Set("jwt", map[string]string{
@@ -55,6 +57,7 @@ func Auth(secret string, guard string, store IStore) gin.HandlerFunc {
 }
 
 func verify(guard string, secret string, token string) (*AuthClaims, error) {
+
 	if token == "" {
 		return nil, ErrorNoLogin
 	}
@@ -65,7 +68,7 @@ func verify(guard string, secret string, token string) (*AuthClaims, error) {
 	}
 
 	// 判断权限认证守卫是否一致
-	if claims.Valid() != nil || claims.Guard != guard {
+	if claims.Guard != guard || claims.Valid() != nil {
 		return nil, ErrorNoLogin
 	}
 

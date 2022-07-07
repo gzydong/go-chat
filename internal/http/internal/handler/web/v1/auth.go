@@ -7,7 +7,7 @@ import (
 	"go-chat/internal/http/internal/dto/web"
 	"go-chat/internal/pkg/ichat"
 	"go-chat/internal/pkg/jwt"
-	cache2 "go-chat/internal/repository/cache"
+	"go-chat/internal/repository/cache"
 	"go-chat/internal/service/note"
 
 	"go-chat/config"
@@ -19,15 +19,15 @@ type Auth struct {
 	config             *config.Config
 	userService        *service.UserService
 	smsService         *service.SmsService
-	session            *cache2.Session
-	redisLock          *cache2.RedisLock
+	session            *cache.Session
+	redisLock          *cache.RedisLock
 	talkMessageService *service.TalkMessageService
 	ipAddressService   *service.IpAddressService
 	talkSessionService *service.TalkSessionService
 	noteClassService   *note.ArticleClassService
 }
 
-func NewAuth(config *config.Config, userService *service.UserService, smsService *service.SmsService, session *cache2.Session, redisLock *cache2.RedisLock, talkMessageService *service.TalkMessageService, ipAddressService *service.IpAddressService, talkSessionService *service.TalkSessionService, noteClassService *note.ArticleClassService) *Auth {
+func NewAuth(config *config.Config, userService *service.UserService, smsService *service.SmsService, session *cache.Session, redisLock *cache.RedisLock, talkMessageService *service.TalkMessageService, ipAddressService *service.IpAddressService, talkSessionService *service.TalkSessionService, noteClassService *note.ArticleClassService) *Auth {
 	return &Auth{config: config, userService: userService, smsService: smsService, session: session, redisLock: redisLock, talkMessageService: talkMessageService, ipAddressService: ipAddressService, talkSessionService: talkSessionService, noteClassService: noteClassService}
 }
 

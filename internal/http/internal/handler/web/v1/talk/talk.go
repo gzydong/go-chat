@@ -11,24 +11,24 @@ import (
 	"go-chat/internal/pkg/ichat"
 	"go-chat/internal/pkg/strutil"
 	"go-chat/internal/pkg/timeutil"
-	cache2 "go-chat/internal/repository/cache"
+	"go-chat/internal/repository/cache"
 	"go-chat/internal/service"
 )
 
 type Talk struct {
 	service         *service.TalkService
 	talkListService *service.TalkSessionService
-	redisLock       *cache2.RedisLock
+	redisLock       *cache.RedisLock
 	userService     *service.UserService
-	wsClient        *cache2.WsClientSession
-	lastMessage     *cache2.LastMessage
+	wsClient        *cache.WsClientSession
+	lastMessage     *cache.LastMessage
 	contactService  *service.ContactService
-	unreadTalkCache *cache2.UnreadTalkCache
+	unreadTalkCache *cache.UnreadTalkCache
 	groupService    *service.GroupService
 	authPermission  *service.AuthPermissionService
 }
 
-func NewTalk(service *service.TalkService, talkListService *service.TalkSessionService, redisLock *cache2.RedisLock, userService *service.UserService, wsClient *cache2.WsClientSession, lastMessage *cache2.LastMessage, contactService *service.ContactService, unreadTalkCache *cache2.UnreadTalkCache, groupService *service.GroupService, authPermission *service.AuthPermissionService) *Talk {
+func NewTalk(service *service.TalkService, talkListService *service.TalkSessionService, redisLock *cache.RedisLock, userService *service.UserService, wsClient *cache.WsClientSession, lastMessage *cache.LastMessage, contactService *service.ContactService, unreadTalkCache *cache.UnreadTalkCache, groupService *service.GroupService, authPermission *service.AuthPermissionService) *Talk {
 	return &Talk{service: service, talkListService: talkListService, redisLock: redisLock, userService: userService, wsClient: wsClient, lastMessage: lastMessage, contactService: contactService, unreadTalkCache: unreadTalkCache, groupService: groupService, authPermission: authPermission}
 }
 
