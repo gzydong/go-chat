@@ -20,13 +20,6 @@ var MarshalOptions = protojson.MarshalOptions{
 
 type Context struct {
 	Context *gin.Context
-	meta    interface{}
-}
-
-// WithMeta 挂载错误详情信息
-func (c *Context) WithMeta(data map[string]interface{}) *Context {
-	c.meta = data
-	return c
 }
 
 // Unauthorized 未授权
@@ -36,7 +29,6 @@ func (c *Context) Unauthorized(message string) error {
 	c.Context.JSON(http.StatusForbidden, &Response{
 		Code:    403,
 		Message: message,
-		Meta:    c.meta,
 	})
 
 	return nil
@@ -60,7 +52,6 @@ func (c *Context) InvalidParams(value interface{}) error {
 	c.Context.JSON(http.StatusOK, &Response{
 		Code:    305,
 		Message: msg,
-		Meta:    c.meta,
 	})
 
 	return nil
@@ -72,7 +63,6 @@ func (c *Context) BusinessError(message interface{}) error {
 	resp := &Response{
 		Code:    400,
 		Message: "business error",
-		Meta:    c.meta,
 	}
 
 	switch msg := message.(type) {
@@ -98,7 +88,6 @@ func (c *Context) Error(error string) error {
 	c.Context.JSON(http.StatusInternalServerError, &Response{
 		Code:    500,
 		Message: error,
-		Meta:    c.meta,
 	})
 
 	return nil
