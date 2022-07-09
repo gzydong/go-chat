@@ -12,7 +12,7 @@ import (
 type Channel struct {
 	name    string              // 渠道名称
 	count   int64               // 客户端连接数
-	node    *Node               // 客户端列表【客户端ID取余拆分，降低 map 长度，减少 map 加锁时间提高并发处理量】
+	node    *Node               // 客户端列表【客户端ID取余拆分，降低 map 长度】
 	outChan chan *SenderContent // 消息发送通道
 }
 
