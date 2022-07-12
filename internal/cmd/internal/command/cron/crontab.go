@@ -11,7 +11,7 @@ import (
 
 	"github.com/robfig/cron/v3"
 	"github.com/urfave/cli/v2"
-	crontab "go-chat/internal/job/internal/handle/cron"
+	crontab "go-chat/internal/cmd/internal/handle/cron"
 )
 
 type Command *cli.Command

@@ -2,7 +2,6 @@ package dao
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"time"
 
@@ -51,7 +50,7 @@ func (dao *ContactDao) IsFriend(ctx context.Context, uid int, friendId int, cach
 
 func (dao *ContactDao) GetFriendRemarks(ctx context.Context, uid int, fids []int) (map[int]string, error) {
 	if len(fids) == 0 {
-		return nil, errors.New("fids empty")
+		return make(map[int]string), nil
 	}
 
 	sql := `SELECT user_id, friend_id, remark FROM contact WHERE user_id = ? and friend_id in (?) and status = 1`

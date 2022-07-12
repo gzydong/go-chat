@@ -10,6 +10,7 @@ type Command *cli.Command
 // Subcommands 注册子命令
 type Subcommands struct {
 	ExampleCommand ExampleCommand
+	MigrateCommand MigrateCommand
 }
 
 func NewOtherCommand(subcommands *Subcommands) Command {

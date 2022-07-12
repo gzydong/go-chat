@@ -2,9 +2,9 @@ package command
 
 import (
 	"github.com/urfave/cli/v2"
-	"go-chat/internal/job/internal/command/cron"
-	"go-chat/internal/job/internal/command/other"
-	"go-chat/internal/job/internal/command/queue"
+	"go-chat/internal/cmd/internal/command/cron"
+	"go-chat/internal/cmd/internal/command/other"
+	"go-chat/internal/cmd/internal/command/queue"
 	"go-chat/internal/pkg/cmdutil"
 )
 

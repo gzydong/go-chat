@@ -8,6 +8,7 @@ import (
 	"go-chat/internal/pkg/ichat"
 	"go-chat/internal/pkg/jwt"
 	"go-chat/internal/repository/cache"
+	"go-chat/internal/repository/dao"
 	"go-chat/internal/service/note"
 
 	"go-chat/config"
@@ -25,10 +26,11 @@ type Auth struct {
 	ipAddressService   *service.IpAddressService
 	talkSessionService *service.TalkSessionService
 	noteClassService   *note.ArticleClassService
+	robotDao           *dao.RobotDao
 }
 
-func NewAuth(config *config.Config, userService *service.UserService, smsService *service.SmsService, session *cache.Session, redisLock *cache.RedisLock, talkMessageService *service.TalkMessageService, ipAddressService *service.IpAddressService, talkSessionService *service.TalkSessionService, noteClassService *note.ArticleClassService) *Auth {
-	return &Auth{config: config, userService: userService, smsService: smsService, session: session, redisLock: redisLock, talkMessageService: talkMessageService, ipAddressService: ipAddressService, talkSessionService: talkSessionService, noteClassService: noteClassService}
+func NewAuth(config *config.Config, userService *service.UserService, smsService *service.SmsService, session *cache.Session, redisLock *cache.RedisLock, talkMessageService *service.TalkMessageService, ipAddressService *service.IpAddressService, talkSessionService *service.TalkSessionService, noteClassService *note.ArticleClassService, robotDao *dao.RobotDao) *Auth {
+	return &Auth{config: config, userService: userService, smsService: smsService, session: session, redisLock: redisLock, talkMessageService: talkMessageService, ipAddressService: ipAddressService, talkSessionService: talkSessionService, noteClassService: noteClassService, robotDao: robotDao}
 }
 
 // Login 登录接口
@@ -44,25 +46,28 @@ func (c *Auth) Login(ctx *ichat.Context) error {
 		return ctx.BusinessError(err.Error())
 	}
 
-	ip := ctx.Context.ClientIP()
+	root, _ := c.robotDao.FindLoginRobot()
+	if root != nil {
+		ip := ctx.Context.ClientIP()
 
-	address, _ := c.ipAddressService.FindAddress(ip)
+		address, _ := c.ipAddressService.FindAddress(ip)
 
-	_, _ = c.talkSessionService.Create(ctx.RequestContext(), &service.TalkSessionCreateOpt{
-		UserId:     user.Id,
-		TalkType:   entity.ChatPrivateMode,
-		ReceiverId: 4257,
-		IsBoot:     true,
-	})
+		_, _ = c.talkSessionService.Create(ctx.RequestContext(), &service.TalkSessionCreateOpt{
+			UserId:     user.Id,
+			TalkType:   entity.ChatPrivateMode,
+			ReceiverId: root.UserId,
+			IsBoot:     true,
+		})
 
-	// 推送登录消息
-	_ = c.talkMessageService.SendLoginMessage(ctx.RequestContext(), &service.LoginMessageOpt{
-		UserId:   user.Id,
-		Ip:       ip,
-		Address:  address,
-		Platform: params.Platform,
-		Agent:    ctx.Context.GetHeader("user-agent"),
-	})
+		// 推送登录消息
+		_ = c.talkMessageService.SendLoginMessage(ctx.RequestContext(), &service.LoginMessageOpt{
+			UserId:   user.Id,
+			Ip:       ip,
+			Address:  address,
+			Platform: params.Platform,
+			Agent:    ctx.Context.GetHeader("user-agent"),
+		})
+	}
 
 	return ctx.Success(&web.AuthLoginResponse{
 		Type:        "Bearer",

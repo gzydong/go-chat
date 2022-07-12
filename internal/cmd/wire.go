@@ -8,13 +8,13 @@ import (
 
 	"github.com/google/wire"
 	"go-chat/config"
-	"go-chat/internal/job/internal/command"
-	"go-chat/internal/job/internal/command/cron"
-	"go-chat/internal/job/internal/command/other"
-	"go-chat/internal/job/internal/command/queue"
-	cron2 "go-chat/internal/job/internal/handle/cron"
-	other2 "go-chat/internal/job/internal/handle/other"
-	queue2 "go-chat/internal/job/internal/handle/queue"
+	"go-chat/internal/cmd/internal/command"
+	"go-chat/internal/cmd/internal/command/cron"
+	"go-chat/internal/cmd/internal/command/other"
+	"go-chat/internal/cmd/internal/command/queue"
+	cron2 "go-chat/internal/cmd/internal/handle/cron"
+	other2 "go-chat/internal/cmd/internal/handle/other"
+	queue2 "go-chat/internal/cmd/internal/handle/queue"
 	"go-chat/internal/pkg/filesystem"
 	"go-chat/internal/provider"
 	"go-chat/internal/repository/cache"
@@ -53,6 +53,7 @@ var providerSet = wire.NewSet(
 	// Other Command
 	other.NewOtherCommand,
 	other.NewExampleCommand,
+	other.NewMigrateCommand,
 	wire.Struct(new(other.Subcommands), "*"),
 	other2.NewExampleHandle,
 

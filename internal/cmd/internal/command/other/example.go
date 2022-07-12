@@ -2,7 +2,7 @@ package other
 
 import (
 	"github.com/urfave/cli/v2"
-	"go-chat/internal/job/internal/handle/other"
+	"go-chat/internal/cmd/internal/handle/other"
 )
 
 type ExampleCommand *cli.Command
