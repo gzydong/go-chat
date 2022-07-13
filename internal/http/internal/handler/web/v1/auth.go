@@ -20,7 +20,7 @@ type Auth struct {
 	config             *config.Config
 	userService        *service.UserService
 	smsService         *service.SmsService
-	session            *cache.Session
+	session            *cache.SessionStorage
 	redisLock          *cache.RedisLock
 	talkMessageService *service.TalkMessageService
 	ipAddressService   *service.IpAddressService
@@ -29,7 +29,7 @@ type Auth struct {
 	robotDao           *dao.RobotDao
 }
 
-func NewAuth(config *config.Config, userService *service.UserService, smsService *service.SmsService, session *cache.Session, redisLock *cache.RedisLock, talkMessageService *service.TalkMessageService, ipAddressService *service.IpAddressService, talkSessionService *service.TalkSessionService, noteClassService *note.ArticleClassService, robotDao *dao.RobotDao) *Auth {
+func NewAuth(config *config.Config, userService *service.UserService, smsService *service.SmsService, session *cache.SessionStorage, redisLock *cache.RedisLock, talkMessageService *service.TalkMessageService, ipAddressService *service.IpAddressService, talkSessionService *service.TalkSessionService, noteClassService *note.ArticleClassService, robotDao *dao.RobotDao) *Auth {
 	return &Auth{config: config, userService: userService, smsService: smsService, session: session, redisLock: redisLock, talkMessageService: talkMessageService, ipAddressService: ipAddressService, talkSessionService: talkSessionService, noteClassService: noteClassService, robotDao: robotDao}
 }
 

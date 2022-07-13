@@ -24,11 +24,11 @@ type DefaultWebSocket struct {
 	rds                *redis.Client
 	conf               *config.Config
 	cache              *service.ClientService
-	room               *cache.Room
+	room               *cache.RoomStorage
 	groupMemberService *service.GroupMemberService
 }
 
-func NewDefaultWebSocket(rds *redis.Client, conf *config.Config, cache *service.ClientService, room *cache.Room, groupMemberService *service.GroupMemberService) *DefaultWebSocket {
+func NewDefaultWebSocket(rds *redis.Client, conf *config.Config, cache *service.ClientService, room *cache.RoomStorage, groupMemberService *service.GroupMemberService) *DefaultWebSocket {
 	return &DefaultWebSocket{rds: rds, conf: conf, cache: cache, room: room, groupMemberService: groupMemberService}
 }
 
@@ -42,9 +42,10 @@ func (c *DefaultWebSocket) Connect(ctx *ichat.Context) error {
 
 	// 创建客户端
 	im.NewClient(ctx.RequestContext(), conn, &im.ClientOptions{
-		Channel: im.Session.Default,
 		Uid:     ctx.UserId(),
+		Channel: im.Session.Default,
 		Storage: c.cache,
+		Buffer:  10,
 	}, im.NewClientCallback(
 		// 连接成功回调
 		im.WithOpenCallback(func(client im.IClient) {

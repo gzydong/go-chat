@@ -23,12 +23,12 @@ type Talk struct {
 	wsClient        *cache.WsClientSession
 	lastMessage     *cache.LastMessage
 	contactService  *service.ContactService
-	unreadTalkCache *cache.UnreadTalkCache
+	unreadTalkCache *cache.UnreadStorage
 	groupService    *service.GroupService
 	authPermission  *service.AuthPermissionService
 }
 
-func NewTalk(service *service.TalkService, talkListService *service.TalkSessionService, redisLock *cache.RedisLock, userService *service.UserService, wsClient *cache.WsClientSession, lastMessage *cache.LastMessage, contactService *service.ContactService, unreadTalkCache *cache.UnreadTalkCache, groupService *service.GroupService, authPermission *service.AuthPermissionService) *Talk {
+func NewTalk(service *service.TalkService, talkListService *service.TalkSessionService, redisLock *cache.RedisLock, userService *service.UserService, wsClient *cache.WsClientSession, lastMessage *cache.LastMessage, contactService *service.ContactService, unreadTalkCache *cache.UnreadStorage, groupService *service.GroupService, authPermission *service.AuthPermissionService) *Talk {
 	return &Talk{service: service, talkListService: talkListService, redisLock: redisLock, userService: userService, wsClient: wsClient, lastMessage: lastMessage, contactService: contactService, unreadTalkCache: unreadTalkCache, groupService: groupService, authPermission: authPermission}
 }
 
@@ -73,11 +73,13 @@ func (c *Talk) List(ctx *ichat.Context) error {
 			value.Name = item.Nickname
 			value.Avatar = item.UserAvatar
 			value.RemarkName = remarks[item.ReceiverId]
-			value.UnreadNum = int32(c.unreadTalkCache.Get(ctx.RequestContext(), item.ReceiverId, uid))
+			value.UnreadNum = int32(c.unreadTalkCache.Get(ctx.RequestContext(), 1, item.ReceiverId, uid))
 			value.IsOnline = int32(strutil.BoolToInt(c.wsClient.IsOnline(ctx.Context, entity.ImChannelDefault, strconv.Itoa(int(value.ReceiverId)))))
 		} else {
 			value.Name = item.GroupName
 			value.Avatar = item.GroupAvatar
+
+			value.UnreadNum = int32(c.unreadTalkCache.Get(ctx.RequestContext(), 2, uid, item.ReceiverId))
 		}
 
 		// 查询缓存消息
@@ -148,7 +150,7 @@ func (c *Talk) Create(ctx *ichat.Context) error {
 	}
 
 	if item.TalkType == entity.ChatPrivateMode {
-		item.UnreadNum = int32(c.unreadTalkCache.Get(ctx.RequestContext(), params.ReceiverId, uid))
+		item.UnreadNum = int32(c.unreadTalkCache.Get(ctx.RequestContext(), 1, params.ReceiverId, uid))
 		item.RemarkName = c.contactService.Dao().GetFriendRemark(ctx.RequestContext(), uid, params.ReceiverId, true)
 
 		if user, err := c.userService.Dao().FindById(result.ReceiverId); err == nil {
@@ -233,9 +235,10 @@ func (c *Talk) ClearUnreadMessage(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	uid := ctx.UserId()
 	if params.TalkType == 1 {
-		c.unreadTalkCache.Reset(ctx.RequestContext(), params.ReceiverId, uid)
+		c.unreadTalkCache.Reset(ctx.RequestContext(), params.TalkType, params.ReceiverId, ctx.UserId())
+	} else {
+		c.unreadTalkCache.Reset(ctx.RequestContext(), params.TalkType, ctx.UserId(), params.ReceiverId)
 	}
 
 	return ctx.Success(&web.ClearTalkUnreadNumResponse{})

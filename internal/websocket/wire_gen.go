@@ -28,21 +28,21 @@ func Initialize(ctx context.Context, conf *config.Config) *AppProvider {
 	sidServer := cache.NewSid(client)
 	wsClientSession := cache.NewWsClientSession(client, conf, sidServer)
 	clientService := service.NewClientService(wsClientSession)
-	room := cache.NewRoom(client)
+	roomStorage := cache.NewRoomStorage(client)
 	db := provider.NewMySQLClient(conf)
 	baseService := service.NewBaseService(db, client)
 	baseDao := dao.NewBaseDao(db, client)
 	relation := cache.NewRelation(client)
 	groupMemberDao := dao.NewGroupMemberDao(baseDao, relation)
 	groupMemberService := service.NewGroupMemberService(baseService, groupMemberDao)
-	defaultWebSocket := handler.NewDefaultWebSocket(client, conf, clientService, room, groupMemberService)
+	defaultWebSocket := handler.NewDefaultWebSocket(client, conf, clientService, roomStorage, groupMemberService)
 	exampleWebsocket := handler.NewExampleWebsocket()
 	handlerHandler := &handler.Handler{
 		DefaultWebSocket: defaultWebSocket,
 		ExampleWebsocket: exampleWebsocket,
 	}
-	session := cache.NewSession(client)
-	engine := router.NewRouter(conf, handlerHandler, session)
+	sessionStorage := cache.NewSessionStorage(client)
+	engine := router.NewRouter(conf, handlerHandler, sessionStorage)
 	websocketServer := provider.NewWebsocketServer(conf, engine)
 	health := server.NewHealth(conf, sidServer)
 	talkVote := cache.NewTalkVote(client)
@@ -51,7 +51,7 @@ func Initialize(ctx context.Context, conf *config.Config) *AppProvider {
 	talkRecordsService := service.NewTalkRecordsService(baseService, talkVote, talkRecordsVoteDao, groupMemberDao, talkRecordsDao)
 	contactDao := dao.NewContactDao(baseDao, relation)
 	contactService := service.NewContactService(baseService, contactDao)
-	subscribeConsume := handle.NewSubscribeConsume(conf, wsClientSession, room, talkRecordsService, contactService)
+	subscribeConsume := handle.NewSubscribeConsume(conf, wsClientSession, roomStorage, talkRecordsService, contactService)
 	wsSubscribe := server.NewWsSubscribe(client, conf, subscribeConsume)
 	subServers := &process.SubServers{
 		Health:    health,
@@ -68,4 +68,4 @@ func Initialize(ctx context.Context, conf *config.Config) *AppProvider {
 
 // wire.go:
 
-var providerSet = wire.NewSet(provider.NewMySQLClient, provider.NewRedisClient, provider.NewWebsocketServer, router.NewRouter, wire.Struct(new(process.SubServers), "*"), process.NewServer, server.NewHealth, server.NewWsSubscribe, handle.NewSubscribeConsume, cache.NewSession, cache.NewSid, cache.NewRedisLock, cache.NewWsClientSession, cache.NewRoom, cache.NewTalkVote, cache.NewRelation, dao.NewBaseDao, dao.NewTalkRecordsDao, dao.NewTalkRecordsVoteDao, dao.NewGroupMemberDao, dao.NewContactDao, service.NewBaseService, service.NewTalkRecordsService, service.NewClientService, service.NewGroupMemberService, service.NewContactService, handler.NewDefaultWebSocket, handler.NewExampleWebsocket, wire.Struct(new(handler.Handler), "*"), wire.Struct(new(AppProvider), "*"))
+var providerSet = wire.NewSet(provider.NewMySQLClient, provider.NewRedisClient, provider.NewWebsocketServer, router.NewRouter, wire.Struct(new(process.SubServers), "*"), process.NewServer, server.NewHealth, server.NewWsSubscribe, handle.NewSubscribeConsume, cache.NewSessionStorage, cache.NewSid, cache.NewRedisLock, cache.NewWsClientSession, cache.NewRoomStorage, cache.NewTalkVote, cache.NewRelation, dao.NewBaseDao, dao.NewTalkRecordsDao, dao.NewTalkRecordsVoteDao, dao.NewGroupMemberDao, dao.NewContactDao, service.NewBaseService, service.NewTalkRecordsService, service.NewClientService, service.NewGroupMemberService, service.NewContactService, handler.NewDefaultWebSocket, handler.NewExampleWebsocket, wire.Struct(new(handler.Handler), "*"), wire.Struct(new(AppProvider), "*"))

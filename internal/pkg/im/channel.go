@@ -66,13 +66,17 @@ func (c *Channel) delClient(client *Client) {
 
 // 推送客户端数据
 func (c *Channel) loopPush(ctx context.Context) {
+
 	out := 2 * time.Second
 	timer := time.NewTimer(out)
 
 	defer timer.Stop()
 
 	for {
+		timer.Reset(out)
+
 		select {
+		case <-timer.C:
 		case <-ctx.Done():
 			return
 		case body, ok := <-c.outChan:
@@ -92,8 +96,6 @@ func (c *Channel) loopPush(ctx context.Context) {
 					}
 				}
 			}
-		case <-timer.C:
-			timer.Reset(out)
 		}
 	}
 }

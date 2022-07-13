@@ -53,10 +53,16 @@ type ClientOptions struct {
 	Uid     int      // 用户识别ID
 	Channel *Channel // 渠道信息
 	Storage IStorage // 自定义缓存组件，用于绑定用户与客户端的关系
+	Buffer  int      // 缓冲区大小根据业务，自行调整
 }
 
 // NewClient 初始化客户端信息
 func NewClient(ctx context.Context, conn *websocket.Conn, opt *ClientOptions, callBack ICallback) IClient {
+
+	if opt.Buffer <= 0 {
+		opt.Buffer = 10
+	}
+
 	client := &Client{
 		conn:     conn,
 		cid:      Counter.GenID(),
@@ -64,7 +70,7 @@ func NewClient(ctx context.Context, conn *websocket.Conn, opt *ClientOptions, ca
 		uid:      opt.Uid,
 		channel:  opt.Channel,
 		storage:  opt.Storage,
-		outChan:  make(chan *ClientOutContent, 10), // 缓冲区大小根据业务，自行调整
+		outChan:  make(chan *ClientOutContent, opt.Buffer),
 		callBack: callBack,
 	}
 
@@ -115,7 +121,7 @@ func (c *Client) Write(data *ClientOutContent) error {
 
 	defer func() {
 		if err := recover(); err != nil {
-			fmt.Printf("Client write err :%v \n", err)
+			fmt.Printf("client write err :%v \n", err)
 		}
 	}()
 
@@ -190,10 +196,7 @@ func (c *Client) loopAccept() {
 				Content: jsonutil.EncodeToBt(&Message{"heartbeat", "pong"}),
 			})
 		case "ack":
-			ack.del(&AckBufferOption{
-				Client: c,
-				MsgID:  "",
-			})
+			ack.del(&AckBufferOption{Client: c, MsgID: ""})
 		default:
 			// 触发消息回调
 			c.callBack.Message(c, message)

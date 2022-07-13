@@ -30,7 +30,7 @@ import (
 type TalkMessageService struct {
 	*BaseService
 	config             *config.Config
-	unreadTalkCache    *cache.UnreadTalkCache
+	unreadTalkCache    *cache.UnreadStorage
 	lastMessage        *cache.LastMessage
 	talkRecordsVoteDao *dao.TalkRecordsVoteDao
 	groupMemberDao     *dao.GroupMemberDao
@@ -40,7 +40,7 @@ type TalkMessageService struct {
 	splitUploadDao     *dao.SplitUploadDao
 }
 
-func NewTalkMessageService(baseService *BaseService, config *config.Config, unreadTalkCache *cache.UnreadTalkCache, lastMessage *cache.LastMessage, talkRecordsVoteDao *dao.TalkRecordsVoteDao, groupMemberDao *dao.GroupMemberDao, sidServer *cache.SidServer, client *cache.WsClientSession, fileSystem *filesystem.Filesystem, splitUploadDao *dao.SplitUploadDao) *TalkMessageService {
+func NewTalkMessageService(baseService *BaseService, config *config.Config, unreadTalkCache *cache.UnreadStorage, lastMessage *cache.LastMessage, talkRecordsVoteDao *dao.TalkRecordsVoteDao, groupMemberDao *dao.GroupMemberDao, sidServer *cache.SidServer, client *cache.WsClientSession, fileSystem *filesystem.Filesystem, splitUploadDao *dao.SplitUploadDao) *TalkMessageService {
 	return &TalkMessageService{BaseService: baseService, config: config, unreadTalkCache: unreadTalkCache, lastMessage: lastMessage, talkRecordsVoteDao: talkRecordsVoteDao, groupMemberDao: groupMemberDao, sidServer: sidServer, client: client, fileSystem: fileSystem, splitUploadDao: splitUploadDao}
 }
 
@@ -642,11 +642,24 @@ func (s *TalkMessageService) SendLoginMessage(ctx context.Context, opts *LoginMe
 
 // 发送消息后置处理
 func (s *TalkMessageService) afterHandle(ctx context.Context, record *model.TalkRecords, opts map[string]string) {
+
 	if record.TalkType == entity.ChatPrivateMode {
-		s.unreadTalkCache.Increment(ctx, record.UserId, record.ReceiverId)
+		s.unreadTalkCache.Increment(ctx, entity.ChatPrivateMode, record.UserId, record.ReceiverId)
 
 		if record.MsgType == entity.MsgTypeSystemText {
-			s.unreadTalkCache.Increment(ctx, record.ReceiverId, record.UserId)
+			s.unreadTalkCache.Increment(ctx, 1, record.ReceiverId, record.UserId)
+		}
+	} else if record.TalkType == entity.ChatGroupMode {
+
+		// todo 需要加缓存
+		ids := s.groupMemberDao.GetMemberIds(record.ReceiverId)
+		for _, uid := range ids {
+
+			if uid == record.UserId {
+				continue
+			}
+
+			s.unreadTalkCache.Increment(ctx, entity.ChatGroupMode, uid, record.ReceiverId)
 		}
 	}
 
@@ -669,13 +682,12 @@ func (s *TalkMessageService) afterHandle(ctx context.Context, record *model.Talk
 	if record.TalkType == entity.ChatPrivateMode {
 		sids := s.sidServer.All(ctx, 1)
 
-		// 小于两台服务器则采用全局广播
+		// 小于三台服务器则采用全局广播
 		if len(sids) <= 3 {
 			s.rds.Publish(ctx, entity.IMGatewayAll, content)
 		} else {
-			to := []int{record.UserId, record.ReceiverId}
 			for _, sid := range s.sidServer.All(ctx, 1) {
-				for _, uid := range to {
+				for _, uid := range []int{record.UserId, record.ReceiverId} {
 					if s.client.IsCurrentServerOnline(ctx, sid, entity.ImChannelDefault, strconv.Itoa(uid)) {
 						s.rds.Publish(ctx, entity.GetIMGatewayPrivate(sid), content)
 					}

@@ -63,8 +63,6 @@ func (w *WsSubscribe) Setup(ctx context.Context) error {
 	}
 
 	go func() {
-		// work := worker.NewTask(10) // 设置协程并发处理数
-
 		w := worker.NewWorker(10, 10)
 
 		// 订阅 redis 消息

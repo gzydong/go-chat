@@ -37,11 +37,11 @@ var providerSet = wire.NewSet(
 	handle.NewSubscribeConsume,
 
 	// 缓存
-	cache.NewSession,
+	cache.NewSessionStorage,
 	cache.NewSid,
 	cache.NewRedisLock,
 	cache.NewWsClientSession,
-	cache.NewRoom,
+	cache.NewRoomStorage,
 	cache.NewTalkVote,
 	cache.NewRelation,
 

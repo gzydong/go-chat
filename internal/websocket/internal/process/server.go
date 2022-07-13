@@ -25,16 +25,16 @@ type Server struct {
 	items []IServer
 }
 
-func NewServer(routines *SubServers) *Server {
+func NewServer(servers *SubServers) *Server {
 	s := &Server{}
 
-	s.binds(routines)
+	s.binds(servers)
 
 	return s
 }
 
-func (c *Server) binds(routines *SubServers) {
-	elem := reflect.ValueOf(routines).Elem()
+func (c *Server) binds(servers *SubServers) {
+	elem := reflect.ValueOf(servers).Elem()
 	for i := 0; i < elem.NumField(); i++ {
 		if v, ok := elem.Field(i).Interface().(IServer); ok {
 			c.items = append(c.items, v)
@@ -46,9 +46,9 @@ func (c *Server) binds(routines *SubServers) {
 func (c *Server) Start(eg *errgroup.Group, ctx context.Context) {
 	once.Do(func() {
 		for _, process := range c.items {
-			func(obj IServer) {
+			func(serv IServer) {
 				eg.Go(func() error {
-					return obj.Setup(ctx)
+					return serv.Setup(ctx)
 				})
 			}(process)
 		}

@@ -23,12 +23,12 @@ type onConsumeFunc func(data string)
 type SubscribeConsume struct {
 	conf           *config.Config
 	ws             *cache.WsClientSession
-	room           *cache.Room
+	room           *cache.RoomStorage
 	recordsService *service.TalkRecordsService
 	contactService *service.ContactService
 }
 
-func NewSubscribeConsume(conf *config.Config, ws *cache.WsClientSession, room *cache.Room, recordsService *service.TalkRecordsService, contactService *service.ContactService) *SubscribeConsume {
+func NewSubscribeConsume(conf *config.Config, ws *cache.WsClientSession, room *cache.RoomStorage, recordsService *service.TalkRecordsService, contactService *service.ContactService) *SubscribeConsume {
 	return &SubscribeConsume{conf: conf, ws: ws, room: room, recordsService: recordsService, contactService: contactService}
 }
 

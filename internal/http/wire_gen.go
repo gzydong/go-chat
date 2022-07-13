@@ -48,10 +48,10 @@ func Initialize(ctx context.Context, conf *config.Config) *AppProvider {
 	usersDao := dao.NewUserDao(baseDao)
 	userService := service.NewUserService(usersDao)
 	common := v1.NewCommon(conf, smsService, userService)
-	session := cache.NewSession(client)
+	sessionStorage := cache.NewSessionStorage(client)
 	redisLock := cache.NewRedisLock(client)
 	baseService := service.NewBaseService(db, client)
-	unreadTalkCache := cache.NewUnreadTalkCache(client)
+	unreadStorage := cache.NewUnreadTalkCache(client)
 	lastMessage := cache.NewLastMessage(client)
 	talkVote := cache.NewTalkVote(client)
 	talkRecordsVoteDao := dao.NewTalkRecordsVoteDao(baseDao, talkVote)
@@ -61,7 +61,7 @@ func Initialize(ctx context.Context, conf *config.Config) *AppProvider {
 	wsClientSession := cache.NewWsClientSession(client, conf, sidServer)
 	filesystem := provider.NewFilesystem(conf)
 	splitUploadDao := dao.NewFileSplitUploadDao(baseDao)
-	talkMessageService := service.NewTalkMessageService(baseService, conf, unreadTalkCache, lastMessage, talkRecordsVoteDao, groupMemberDao, sidServer, wsClientSession, filesystem, splitUploadDao)
+	talkMessageService := service.NewTalkMessageService(baseService, conf, unreadStorage, lastMessage, talkRecordsVoteDao, groupMemberDao, sidServer, wsClientSession, filesystem, splitUploadDao)
 	httpClient := provider.NewHttpClient()
 	requestClient := provider.NewRequestClient(httpClient)
 	ipAddressService := service.NewIpAddressService(baseService, conf, requestClient)
@@ -70,7 +70,7 @@ func Initialize(ctx context.Context, conf *config.Config) *AppProvider {
 	articleClassDao := note.NewArticleClassDao(baseDao)
 	articleClassService := note2.NewArticleClassService(baseService, articleClassDao)
 	robotDao := dao.NewRobotDao(baseDao)
-	auth := v1.NewAuth(conf, userService, smsService, session, redisLock, talkMessageService, ipAddressService, talkSessionService, articleClassService, robotDao)
+	auth := v1.NewAuth(conf, userService, smsService, sessionStorage, redisLock, talkMessageService, ipAddressService, talkSessionService, articleClassService, robotDao)
 	organizeDao := organize.NewOrganizeDao(baseDao)
 	organizeService := organize2.NewOrganizeService(baseService, organizeDao)
 	user := v1.NewUser(userService, smsService, organizeService)
@@ -85,7 +85,7 @@ func Initialize(ctx context.Context, conf *config.Config) *AppProvider {
 	groupDao := dao.NewGroupDao(baseDao)
 	groupService := service.NewGroupService(baseService, groupDao, groupMemberDao, relation)
 	authPermissionService := service.NewAuthPermissionService(contactDao, groupMemberDao, organizeDao)
-	talkTalk := talk.NewTalk(talkService, talkSessionService, redisLock, userService, wsClientSession, lastMessage, contactService, unreadTalkCache, groupService, authPermissionService)
+	talkTalk := talk.NewTalk(talkService, talkSessionService, redisLock, userService, wsClientSession, lastMessage, contactService, unreadStorage, groupService, authPermissionService)
 	talkMessageForwardService := service.NewTalkMessageForwardService(baseService)
 	splitUploadService := service.NewSplitUploadService(baseService, splitUploadDao, conf, filesystem)
 	groupMemberService := service.NewGroupMemberService(baseService, groupMemberDao)
@@ -161,7 +161,7 @@ func Initialize(ctx context.Context, conf *config.Config) *AppProvider {
 		Admin: adminHandler,
 		Open:  openHandler,
 	}
-	engine := router.NewRouter(conf, handlerHandler, session)
+	engine := router.NewRouter(conf, handlerHandler, sessionStorage)
 	httpServer := provider.NewHttpServer(conf, engine)
 	appProvider := &AppProvider{
 		Config: conf,
@@ -174,7 +174,7 @@ func Initialize(ctx context.Context, conf *config.Config) *AppProvider {
 
 var providerSet = wire.NewSet(provider.NewMySQLClient, provider.NewRedisClient, provider.NewHttpClient, provider.NewEmailClient, provider.NewHttpServer, provider.NewFilesystem, provider.NewRequestClient, router.NewRouter, wire.Struct(new(web.Handler), "*"), wire.Struct(new(admin.Handler), "*"), wire.Struct(new(open.Handler), "*"), wire.Struct(new(handler.Handler), "*"), wire.Struct(new(AppProvider), "*"))
 
-var cacheProviderSet = wire.NewSet(cache.NewSession, cache.NewSid, cache.NewUnreadTalkCache, cache.NewRedisLock, cache.NewWsClientSession, cache.NewLastMessage, cache.NewTalkVote, cache.NewRoom, cache.NewRelation, cache.NewSmsCodeCache)
+var cacheProviderSet = wire.NewSet(cache.NewSessionStorage, cache.NewSid, cache.NewUnreadTalkCache, cache.NewRedisLock, cache.NewWsClientSession, cache.NewLastMessage, cache.NewTalkVote, cache.NewRoomStorage, cache.NewRelation, cache.NewSmsCodeCache)
 
 var daoProviderSet = wire.NewSet(dao.NewBaseDao, dao.NewContactDao, dao.NewGroupMemberDao, dao.NewUserDao, dao.NewGroupDao, dao.NewGroupApply, dao.NewTalkRecordsDao, dao.NewGroupNoticeDao, dao.NewTalkSessionDao, dao.NewEmoticonDao, dao.NewTalkRecordsVoteDao, dao.NewFileSplitUploadDao, note.NewArticleClassDao, note.NewArticleAnnexDao, organize.NewDepartmentDao, organize.NewOrganizeDao, organize.NewPositionDao, dao.NewRobotDao)
 
