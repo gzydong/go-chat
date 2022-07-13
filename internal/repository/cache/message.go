@@ -10,7 +10,7 @@ import (
 
 const lastMessageCacheKey = "rds:hash:last-message"
 
-type LastMessage struct {
+type MessageStorage struct {
 	rds *redis.Client
 }
 
@@ -19,11 +19,11 @@ type LastCacheMessage struct {
 	Datetime string `json:"datetime"`
 }
 
-func NewLastMessage(rds *redis.Client) *LastMessage {
-	return &LastMessage{rds}
+func NewMessageStorage(rds *redis.Client) *MessageStorage {
+	return &MessageStorage{rds}
 }
 
-func (cache *LastMessage) key(talkType int, sender int, receive int) string {
+func (m *MessageStorage) key(talkType int, sender int, receive int) string {
 	if talkType == 2 {
 		sender = 0
 	}
@@ -35,15 +35,15 @@ func (cache *LastMessage) key(talkType int, sender int, receive int) string {
 	return fmt.Sprintf("%d_%d_%d", talkType, sender, receive)
 }
 
-func (cache *LastMessage) Set(ctx context.Context, talkType int, sender int, receive int, message *LastCacheMessage) error {
+func (m *MessageStorage) Set(ctx context.Context, talkType int, sender int, receive int, message *LastCacheMessage) error {
 	text := jsonutil.Encode(message)
 
-	return cache.rds.HSet(ctx, lastMessageCacheKey, cache.key(talkType, sender, receive), text).Err()
+	return m.rds.HSet(ctx, lastMessageCacheKey, m.key(talkType, sender, receive), text).Err()
 }
 
-func (cache *LastMessage) Get(ctx context.Context, talkType int, sender int, receive int) (*LastCacheMessage, error) {
+func (m *MessageStorage) Get(ctx context.Context, talkType int, sender int, receive int) (*LastCacheMessage, error) {
 
-	res, err := cache.rds.HGet(ctx, lastMessageCacheKey, cache.key(talkType, sender, receive)).Result()
+	res, err := m.rds.HGet(ctx, lastMessageCacheKey, m.key(talkType, sender, receive)).Result()
 	if err != nil {
 		return nil, err
 	}

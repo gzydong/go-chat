@@ -48,10 +48,10 @@ var providerSet = wire.NewSet(
 var cacheProviderSet = wire.NewSet(
 	cache.NewSessionStorage,
 	cache.NewSid,
-	cache.NewUnreadTalkCache,
+	cache.NewUnreadStorage,
 	cache.NewRedisLock,
 	cache.NewWsClientSession,
-	cache.NewLastMessage,
+	cache.NewMessageStorage,
 	cache.NewTalkVote,
 	cache.NewRoomStorage,
 	cache.NewRelation,

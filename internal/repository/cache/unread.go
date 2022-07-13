@@ -11,7 +11,7 @@ type UnreadStorage struct {
 	rds *redis.Client
 }
 
-func NewUnreadTalkCache(rds *redis.Client) *UnreadStorage {
+func NewUnreadStorage(rds *redis.Client) *UnreadStorage {
 	return &UnreadStorage{rds}
 }
 

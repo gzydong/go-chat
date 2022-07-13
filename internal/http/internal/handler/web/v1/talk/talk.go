@@ -21,14 +21,14 @@ type Talk struct {
 	redisLock       *cache.RedisLock
 	userService     *service.UserService
 	wsClient        *cache.WsClientSession
-	lastMessage     *cache.LastMessage
+	lastMessage     *cache.MessageStorage
 	contactService  *service.ContactService
 	unreadTalkCache *cache.UnreadStorage
 	groupService    *service.GroupService
 	authPermission  *service.AuthPermissionService
 }
 
-func NewTalk(service *service.TalkService, talkListService *service.TalkSessionService, redisLock *cache.RedisLock, userService *service.UserService, wsClient *cache.WsClientSession, lastMessage *cache.LastMessage, contactService *service.ContactService, unreadTalkCache *cache.UnreadStorage, groupService *service.GroupService, authPermission *service.AuthPermissionService) *Talk {
+func NewTalk(service *service.TalkService, talkListService *service.TalkSessionService, redisLock *cache.RedisLock, userService *service.UserService, wsClient *cache.WsClientSession, lastMessage *cache.MessageStorage, contactService *service.ContactService, unreadTalkCache *cache.UnreadStorage, groupService *service.GroupService, authPermission *service.AuthPermissionService) *Talk {
 	return &Talk{service: service, talkListService: talkListService, redisLock: redisLock, userService: userService, wsClient: wsClient, lastMessage: lastMessage, contactService: contactService, unreadTalkCache: unreadTalkCache, groupService: groupService, authPermission: authPermission}
 }
 
