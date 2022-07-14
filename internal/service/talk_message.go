@@ -659,7 +659,7 @@ func (s *TalkMessageService) afterHandle(ctx context.Context, record *model.Talk
 				continue
 			}
 
-			s.unreadTalkCache.Increment(ctx, entity.ChatGroupMode, uid, record.ReceiverId)
+			s.unreadTalkCache.Increment(ctx, entity.ChatGroupMode, record.ReceiverId, uid)
 		}
 	}
 
