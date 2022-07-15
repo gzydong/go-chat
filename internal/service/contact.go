@@ -24,6 +24,7 @@ func (s *ContactService) Dao() dao.IContactDao {
 // @params uid      用户ID
 // @params friendId 联系人ID
 func (s *ContactService) EditRemark(ctx context.Context, uid int, friendId int, remark string) error {
+
 	err := s.db.Model(&model.Contact{}).Where("user_id = ? and friend_id = ?", uid, friendId).Update("remark", remark).Error
 
 	_ = s.dao.SetFriendRemark(ctx, uid, friendId, remark)
@@ -64,6 +65,7 @@ func (s *ContactService) List(ctx context.Context, uid int) ([]*model.ContactLis
 }
 
 func (s *ContactService) GetContactIds(ctx context.Context, uid int) []int64 {
+
 	ids := make([]int64, 0)
 
 	s.db.Model(&model.Contact{}).Where("user_id = ? and status = ?", uid, 1).Pluck("friend_id", &ids)

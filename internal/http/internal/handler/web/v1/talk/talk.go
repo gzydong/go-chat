@@ -16,20 +16,21 @@ import (
 )
 
 type Talk struct {
-	service         *service.TalkService
-	talkListService *service.TalkSessionService
-	redisLock       *cache.RedisLock
-	userService     *service.UserService
-	wsClient        *cache.WsClientSession
-	lastMessage     *cache.MessageStorage
-	contactService  *service.ContactService
-	unreadTalkCache *cache.UnreadStorage
-	groupService    *service.GroupService
-	authPermission  *service.AuthPermissionService
+	service            *service.TalkService
+	talkListService    *service.TalkSessionService
+	redisLock          *cache.RedisLock
+	userService        *service.UserService
+	wsClient           *cache.WsClientSession
+	lastMessage        *cache.MessageStorage
+	contactService     *service.ContactService
+	unreadTalkCache    *cache.UnreadStorage
+	contactRemarkCache *cache.ContactRemark
+	groupService       *service.GroupService
+	authPermission     *service.AuthPermissionService
 }
 
-func NewTalk(service *service.TalkService, talkListService *service.TalkSessionService, redisLock *cache.RedisLock, userService *service.UserService, wsClient *cache.WsClientSession, lastMessage *cache.MessageStorage, contactService *service.ContactService, unreadTalkCache *cache.UnreadStorage, groupService *service.GroupService, authPermission *service.AuthPermissionService) *Talk {
-	return &Talk{service: service, talkListService: talkListService, redisLock: redisLock, userService: userService, wsClient: wsClient, lastMessage: lastMessage, contactService: contactService, unreadTalkCache: unreadTalkCache, groupService: groupService, authPermission: authPermission}
+func NewTalk(service *service.TalkService, talkListService *service.TalkSessionService, redisLock *cache.RedisLock, userService *service.UserService, wsClient *cache.WsClientSession, lastMessage *cache.MessageStorage, contactService *service.ContactService, unreadTalkCache *cache.UnreadStorage, contactRemarkCache *cache.ContactRemark, groupService *service.GroupService, authPermission *service.AuthPermissionService) *Talk {
+	return &Talk{service: service, talkListService: talkListService, redisLock: redisLock, userService: userService, wsClient: wsClient, lastMessage: lastMessage, contactService: contactService, unreadTalkCache: unreadTalkCache, contactRemarkCache: contactRemarkCache, groupService: groupService, authPermission: authPermission}
 }
 
 // List 会话列表
@@ -49,10 +50,8 @@ func (c *Talk) List(ctx *ichat.Context) error {
 		}
 	}
 
-	remarks, err := c.contactService.Dao().GetFriendRemarks(ctx.Context, uid, friends)
-	if err != nil {
-		return ctx.BusinessError(err.Error())
-	}
+	// 获取好友备注
+	remarks, _ := c.contactService.Dao().Remarks(ctx.RequestContext(), uid, friends)
 
 	// 获取未读消息数
 	unReads := c.unreadTalkCache.GetAll(ctx.RequestContext(), uid)
@@ -154,7 +153,7 @@ func (c *Talk) Create(ctx *ichat.Context) error {
 
 	if item.TalkType == entity.ChatPrivateMode {
 		item.UnreadNum = int32(c.unreadTalkCache.Get(ctx.RequestContext(), 1, params.ReceiverId, uid))
-		item.RemarkName = c.contactService.Dao().GetFriendRemark(ctx.RequestContext(), uid, params.ReceiverId, true)
+		item.RemarkName = c.contactService.Dao().GetFriendRemark(ctx.RequestContext(), uid, params.ReceiverId)
 
 		if user, err := c.userService.Dao().FindById(result.ReceiverId); err == nil {
 			item.Name = user.Nickname

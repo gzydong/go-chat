@@ -150,7 +150,7 @@ func (c *Contact) Detail(ctx *ichat.Context) error {
 	if uid != params.UserId {
 		if c.service.Dao().IsFriend(ctx.RequestContext(), uid, params.UserId, false) {
 			resp["friend_status"] = 2
-			resp["nickname_remark"] = c.service.Dao().GetFriendRemark(ctx.RequestContext(), uid, params.UserId, true)
+			resp["nickname_remark"] = c.service.Dao().GetFriendRemark(ctx.RequestContext(), uid, params.UserId)
 		} else {
 			isOk, _ := c.organizeService.Dao().IsQiyeMember(uid, params.UserId)
 			if isOk {
