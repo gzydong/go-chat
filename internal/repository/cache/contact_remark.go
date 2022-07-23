@@ -22,7 +22,7 @@ func (c *ContactRemark) name(uid int) string {
 }
 
 func (c *ContactRemark) Get(ctx context.Context, uid int, fid int) string {
-	return c.rds.HMGet(ctx, c.name(uid), fmt.Sprintf("%d", fid)).String()
+	return c.rds.HGet(ctx, c.name(uid), fmt.Sprintf("%d", fid)).Val()
 }
 
 func (c *ContactRemark) MGet(ctx context.Context, uid int, fids []int) (map[int]string, error) {
