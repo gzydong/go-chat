@@ -48,7 +48,7 @@ func (c *Message) authority(ctx *ichat.Context, opt *AuthorityOpts) error {
 			return nil
 		}
 
-		isOk := c.contactService.Dao().IsFriend(ctx.RequestContext(), opt.UserId, opt.ReceiverId, false)
+		isOk := c.contactService.Dao().IsFriend(ctx.RequestCtx(), opt.UserId, opt.ReceiverId, false)
 		if isOk {
 			return nil
 		}
@@ -94,7 +94,7 @@ func (c *Message) Text(ctx *ichat.Context) error {
 		return ctx.BusinessError(err.Error())
 	}
 
-	if err := c.service.SendTextMessage(ctx.RequestContext(), &service.TextMessageOpt{
+	if err := c.service.SendTextMessage(ctx.RequestCtx(), &service.TextMessageOpt{
 		UserId:     uid,
 		TalkType:   params.TalkType,
 		ReceiverId: params.ReceiverId,
@@ -123,7 +123,7 @@ func (c *Message) Code(ctx *ichat.Context) error {
 		return ctx.BusinessError(err.Error())
 	}
 
-	if err := c.service.SendCodeMessage(ctx.RequestContext(), &service.CodeMessageOpt{
+	if err := c.service.SendCodeMessage(ctx.RequestCtx(), &service.CodeMessageOpt{
 		UserId:     uid,
 		TalkType:   params.TalkType,
 		ReceiverId: params.ReceiverId,
@@ -167,7 +167,7 @@ func (c *Message) Image(ctx *ichat.Context) error {
 		return ctx.BusinessError(err.Error())
 	}
 
-	if err := c.service.SendImageMessage(ctx.RequestContext(), &service.ImageMessageOpt{
+	if err := c.service.SendImageMessage(ctx.RequestCtx(), &service.ImageMessageOpt{
 		UserId:     uid,
 		TalkType:   params.TalkType,
 		ReceiverId: params.ReceiverId,
@@ -196,7 +196,7 @@ func (c *Message) File(ctx *ichat.Context) error {
 		return ctx.BusinessError(err.Error())
 	}
 
-	if err := c.service.SendFileMessage(ctx.RequestContext(), &service.FileMessageOpt{
+	if err := c.service.SendFileMessage(ctx.RequestCtx(), &service.FileMessageOpt{
 		UserId:     uid,
 		TalkType:   params.TalkType,
 		ReceiverId: params.ReceiverId,
@@ -233,7 +233,7 @@ func (c *Message) Vote(ctx *ichat.Context) error {
 		return ctx.BusinessError(err.Error())
 	}
 
-	if err := c.service.SendVoteMessage(ctx.RequestContext(), &service.VoteMessageOpt{
+	if err := c.service.SendVoteMessage(ctx.RequestCtx(), &service.VoteMessageOpt{
 		UserId:     uid,
 		ReceiverId: params.ReceiverId,
 		Mode:       params.Mode,
@@ -264,7 +264,7 @@ func (c *Message) Emoticon(ctx *ichat.Context) error {
 		return ctx.BusinessError(err.Error())
 	}
 
-	if err := c.service.SendEmoticonMessage(ctx.RequestContext(), &service.EmoticonMessageOpt{
+	if err := c.service.SendEmoticonMessage(ctx.RequestCtx(), &service.EmoticonMessageOpt{
 		UserId:     uid,
 		TalkType:   params.TalkType,
 		ReceiverId: params.ReceiverId,
@@ -307,7 +307,7 @@ func (c *Message) Forward(ctx *ichat.Context) error {
 		GroupIds:   sliceutil.ParseIds(params.ReceiveGroupIds),
 	}
 
-	if err := c.forwardService.SendForwardMessage(ctx.RequestContext(), forward); err != nil {
+	if err := c.forwardService.SendForwardMessage(ctx.RequestCtx(), forward); err != nil {
 		return ctx.BusinessError(err.Error())
 	}
 
@@ -332,7 +332,7 @@ func (c *Message) Card(ctx *ichat.Context) error {
 	}
 
 	// todo SendCardMessage
-	if err := c.service.SendCardMessage(ctx.RequestContext(), &service.CardMessageOpt{
+	if err := c.service.SendCardMessage(ctx.RequestCtx(), &service.CardMessageOpt{
 		UserId:     uid,
 		TalkType:   params.TalkType,
 		ReceiverId: params.ReceiverId,
@@ -352,7 +352,7 @@ func (c *Message) Collect(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	if err := c.talkService.CollectRecord(ctx.RequestContext(), ctx.UserId(), params.RecordId); err != nil {
+	if err := c.talkService.CollectRecord(ctx.RequestCtx(), ctx.UserId(), params.RecordId); err != nil {
 		return ctx.BusinessError(err.Error())
 	}
 
@@ -367,7 +367,7 @@ func (c *Message) Revoke(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	if err := c.service.SendRevokeRecordMessage(ctx.RequestContext(), ctx.UserId(), params.RecordId); err != nil {
+	if err := c.service.SendRevokeRecordMessage(ctx.RequestCtx(), ctx.UserId(), params.RecordId); err != nil {
 		return ctx.BusinessError(err.Error())
 	}
 
@@ -382,7 +382,7 @@ func (c *Message) Delete(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	if err := c.talkService.RemoveRecords(ctx.RequestContext(), &service.TalkMessageDeleteOpt{
+	if err := c.talkService.RemoveRecords(ctx.RequestCtx(), &service.TalkMessageDeleteOpt{
 		UserId:     ctx.UserId(),
 		TalkType:   params.TalkType,
 		ReceiverId: params.ReceiverId,
@@ -402,7 +402,7 @@ func (c *Message) HandleVote(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	vid, err := c.service.VoteHandle(ctx.RequestContext(), &service.VoteMessageHandleOpt{
+	vid, err := c.service.VoteHandle(ctx.RequestCtx(), &service.VoteMessageHandleOpt{
 		UserId:   ctx.UserId(),
 		RecordId: params.RecordId,
 		Options:  params.Options,
@@ -411,7 +411,7 @@ func (c *Message) HandleVote(ctx *ichat.Context) error {
 		return ctx.BusinessError(err.Error())
 	}
 
-	res, _ := c.talkRecordsVoteDao.GetVoteStatistics(ctx.RequestContext(), vid)
+	res, _ := c.talkRecordsVoteDao.GetVoteStatistics(ctx.RequestCtx(), vid)
 
 	return ctx.Success(res)
 }
@@ -433,7 +433,7 @@ func (c *Message) Location(ctx *ichat.Context) error {
 		return ctx.BusinessError(err.Error())
 	}
 
-	if err := c.service.SendLocationMessage(ctx.RequestContext(), &service.LocationMessageOpt{
+	if err := c.service.SendLocationMessage(ctx.RequestCtx(), &service.LocationMessageOpt{
 		UserId:     uid,
 		TalkType:   params.TalkType,
 		ReceiverId: params.ReceiverId,

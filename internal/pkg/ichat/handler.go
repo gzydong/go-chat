@@ -6,6 +6,6 @@ import (
 
 func HandlerFunc(fn func(ctx *Context) error) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		_ = fn(&Context{Context: c})
+		_ = fn(New(c))
 	}
 }

@@ -37,7 +37,7 @@ func (c *Group) Create(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	gid, err := c.service.Create(ctx.RequestContext(), &service.CreateGroupOpt{
+	gid, err := c.service.Create(ctx.RequestCtx(), &service.CreateGroupOpt{
 		UserId:    ctx.UserId(),
 		Name:      params.Name,
 		Avatar:    params.Avatar,
@@ -66,10 +66,8 @@ func (c *Group) Dismiss(ctx *ichat.Context) error {
 		return ctx.BusinessError("暂无权限解散群组！")
 	}
 
-	if err := c.service.Dismiss(ctx.RequestContext(), params.GroupId, ctx.UserId()); err != nil {
-		return ctx.WithMeta(map[string]interface{}{
-			"error": err.Error(),
-		}).BusinessError("群组解散失败！")
+	if err := c.service.Dismiss(ctx.RequestCtx(), params.GroupId, ctx.UserId()); err != nil {
+		return ctx.BusinessError("群组解散失败！")
 	}
 
 	_ = c.messageService.SendSysMessage(ctx.Context, &service.SysTextMessageOpt{
@@ -113,9 +111,7 @@ func (c *Group) Invite(ctx *ichat.Context) error {
 		GroupId:   params.GroupId,
 		MemberIds: uids,
 	}); err != nil {
-		return ctx.WithMeta(map[string]interface{}{
-			"error": err.Error(),
-		}).BusinessError("邀请好友加入群聊失败！")
+		return ctx.BusinessError("邀请好友加入群聊失败！")
 	}
 
 	return ctx.Success(nil)
@@ -130,7 +126,7 @@ func (c *Group) SignOut(ctx *ichat.Context) error {
 	}
 
 	uid := ctx.UserId()
-	if err := c.service.Secede(ctx.RequestContext(), params.GroupId, uid); err != nil {
+	if err := c.service.Secede(ctx.RequestCtx(), params.GroupId, uid); err != nil {
 		return ctx.BusinessError(err.Error())
 	}
 
@@ -154,7 +150,7 @@ func (c *Group) Setting(ctx *ichat.Context) error {
 		return ctx.BusinessError("无权限操作")
 	}
 
-	if err := c.service.Update(ctx.RequestContext(), &service.UpdateGroupOpt{
+	if err := c.service.Update(ctx.RequestCtx(), &service.UpdateGroupOpt{
 		GroupId: params.GroupId,
 		Name:    params.GroupName,
 		Avatar:  params.Avatar,
@@ -187,16 +183,14 @@ func (c *Group) RemoveMembers(ctx *ichat.Context) error {
 		return ctx.BusinessError("无权限操作")
 	}
 
-	err := c.service.RemoveMembers(ctx.RequestContext(), &service.RemoveMembersOpt{
+	err := c.service.RemoveMembers(ctx.RequestCtx(), &service.RemoveMembersOpt{
 		UserId:    uid,
 		GroupId:   params.GroupId,
 		MemberIds: sliceutil.ParseIds(params.MembersIds),
 	})
 
 	if err != nil {
-		return ctx.WithMeta(map[string]interface{}{
-			"error": err.Error(),
-		}).BusinessError(err.Error())
+		return ctx.BusinessError(err.Error())
 	}
 
 	return ctx.Success(nil)
@@ -331,9 +325,7 @@ func (c *Group) OvertList(ctx *ichat.Context) error {
 
 	list, err := c.service.Dao().SearchOvertList(ctx.Context, params.Name, params.Page, 21)
 	if err != nil {
-		return ctx.WithMeta(map[string]interface{}{
-			"error": err.Error(),
-		}).BusinessError("查询异常！")
+		return ctx.BusinessError("查询异常！")
 	}
 
 	if len(list) == 0 {
@@ -409,9 +401,7 @@ func (c *Group) Handover(ctx *ichat.Context) error {
 
 	err := c.memberService.Handover(params.GroupId, uid, params.UserId)
 	if err != nil {
-		return ctx.WithMeta(map[string]interface{}{
-			"error": err.Error(),
-		}).BusinessError("转让群主失败！")
+		return ctx.BusinessError("转让群主失败！")
 	}
 
 	return ctx.Success(entity.H{})
@@ -464,9 +454,7 @@ func (c *Group) NoSpeak(ctx *ichat.Context) error {
 
 	err := c.memberService.UpdateMuteStatus(params.GroupId, params.UserId, status)
 	if err != nil {
-		return ctx.WithMeta(map[string]interface{}{
-			"error": err.Error(),
-		}).BusinessError("设置群成员禁言状态失败！")
+		return ctx.BusinessError("设置群成员禁言状态失败！")
 	}
 
 	return ctx.Success(entity.H{})

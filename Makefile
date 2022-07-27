@@ -1,4 +1,4 @@
-PROTO_FILES := $(shell find api -name *.proto)
+PROTO_FILES := $(shell find api -iname *.proto)
 
 .PHONY: install
 install:

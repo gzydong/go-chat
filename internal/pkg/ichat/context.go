@@ -21,13 +21,10 @@ var MarshalOptions = protojson.MarshalOptions{
 
 type Context struct {
 	Context *gin.Context
-	meta    interface{}
 }
 
-// WithMeta 挂载错误详情信息
-func (c *Context) WithMeta(data map[string]interface{}) *Context {
-	c.meta = data
-	return c
+func New(ctx *gin.Context) *Context {
+	return &Context{ctx}
 }
 
 // Unauthorized 未授权
@@ -37,7 +34,6 @@ func (c *Context) Unauthorized(message string) error {
 	c.Context.JSON(http.StatusForbidden, &Response{
 		Code:    403,
 		Message: message,
-		Meta:    c.meta,
 	})
 
 	return nil
@@ -61,7 +57,6 @@ func (c *Context) InvalidParams(value interface{}) error {
 	c.Context.JSON(http.StatusOK, &Response{
 		Code:    305,
 		Message: msg,
-		Meta:    c.meta,
 	})
 
 	return nil
@@ -73,7 +68,6 @@ func (c *Context) BusinessError(message interface{}) error {
 	resp := &Response{
 		Code:    400,
 		Message: "business error",
-		Meta:    c.meta,
 	}
 
 	switch msg := message.(type) {
@@ -99,7 +93,6 @@ func (c *Context) Error(error string) error {
 	c.Context.JSON(http.StatusInternalServerError, &Response{
 		Code:    500,
 		Message: error,
-		Meta:    c.meta,
 	})
 
 	return nil
@@ -118,15 +111,13 @@ func (c *Context) Success(data interface{}, message ...string) error {
 		resp.Message = message[0]
 	}
 
+	// 检测是否是 proto 对象
 	if value, ok := data.(proto.Message); ok {
-		var body interface{}
-
 		bt, _ := MarshalOptions.Marshal(value)
-		if err := jsonutil.Decode(string(bt), &body); err != nil {
+
+		if err := jsonutil.Decode(string(bt), &resp.Data); err != nil {
 			return c.Error(err.Error())
 		}
-
-		resp.Data = body
 	}
 
 	c.Context.JSON(http.StatusOK, resp)
@@ -140,12 +131,12 @@ func (c *Context) Paginate(items interface{}, page, size, total int) error {
 	c.Context.JSON(http.StatusOK, &Response{
 		Code:    200,
 		Message: "success",
-		Data: &PaginateResponse{
-			Items: items,
-			Paginate: Paginate{
-				Page:  page,
-				Size:  size,
-				Total: total,
+		Data: map[string]interface{}{
+			"items": items,
+			"paginate": map[string]interface{}{
+				"page":  page,
+				"size":  size,
+				"total": total,
 			},
 		},
 	})
@@ -165,8 +156,8 @@ func (c *Context) Raw(value string) error {
 // UserId 返回登录用户的UID
 func (c *Context) UserId() int {
 
-	if jwtSession := c.JwtSession(); jwtSession != nil {
-		return jwtSession.Uid
+	if session := c.JwtSession(); session != nil {
+		return session.Uid
 	}
 
 	return 0
@@ -188,6 +179,6 @@ func (c *Context) IsGuest() bool {
 	return c.UserId() == 0
 }
 
-func (c *Context) RequestContext() context.Context {
+func (c *Context) RequestCtx() context.Context {
 	return c.Context.Request.Context()
 }

@@ -46,7 +46,7 @@ func Auth(secret string, guard string, store IStore) gin.HandlerFunc {
 		}
 
 		// 设置登录用户ID
-		uid, err := strconv.Atoi(claims.Id)
+		uid, err := strconv.Atoi(claims.ID)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": "解析 jwt 失败."})
 			c.Abort()
@@ -57,7 +57,7 @@ func Auth(secret string, guard string, store IStore) gin.HandlerFunc {
 		c.Set(JSessionConst, &JSession{
 			Uid:       uid,
 			Token:     token,
-			ExpiresAt: claims.ExpiresAt,
+			ExpiresAt: claims.ExpiresAt.Unix(),
 		})
 
 		c.Next()

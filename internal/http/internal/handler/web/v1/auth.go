@@ -52,7 +52,7 @@ func (c *Auth) Login(ctx *ichat.Context) error {
 
 		address, _ := c.ipAddressService.FindAddress(ip)
 
-		_, _ = c.talkSessionService.Create(ctx.RequestContext(), &service.TalkSessionCreateOpt{
+		_, _ = c.talkSessionService.Create(ctx.RequestCtx(), &service.TalkSessionCreateOpt{
 			UserId:     user.Id,
 			TalkType:   entity.ChatPrivateMode,
 			ReceiverId: root.UserId,
@@ -60,7 +60,7 @@ func (c *Auth) Login(ctx *ichat.Context) error {
 		})
 
 		// 推送登录消息
-		_ = c.talkMessageService.SendLoginMessage(ctx.RequestContext(), &service.LoginMessageOpt{
+		_ = c.talkMessageService.SendLoginMessage(ctx.RequestCtx(), &service.LoginMessageOpt{
 			UserId:   user.Id,
 			Ip:       ip,
 			Address:  address,
@@ -85,7 +85,7 @@ func (c *Auth) Register(ctx *ichat.Context) error {
 	}
 
 	// 验证短信验证码是否正确
-	if !c.smsService.CheckSmsCode(ctx.RequestContext(), entity.SmsRegisterChannel, params.Mobile, params.SmsCode) {
+	if !c.smsService.CheckSmsCode(ctx.RequestCtx(), entity.SmsRegisterChannel, params.Mobile, params.SmsCode) {
 		return ctx.InvalidParams("短信验证码填写错误！")
 	}
 
@@ -99,7 +99,7 @@ func (c *Auth) Register(ctx *ichat.Context) error {
 		return ctx.BusinessError(err.Error())
 	}
 
-	c.smsService.DeleteSmsCode(ctx.RequestContext(), entity.SmsRegisterChannel, params.Mobile)
+	c.smsService.DeleteSmsCode(ctx.RequestCtx(), entity.SmsRegisterChannel, params.Mobile)
 
 	return ctx.Success(nil)
 }
@@ -133,7 +133,7 @@ func (c *Auth) Forget(ctx *ichat.Context) error {
 	}
 
 	// 验证短信验证码是否正确
-	if !c.smsService.CheckSmsCode(ctx.RequestContext(), entity.SmsForgetAccountChannel, params.Mobile, params.SmsCode) {
+	if !c.smsService.CheckSmsCode(ctx.RequestCtx(), entity.SmsForgetAccountChannel, params.Mobile, params.SmsCode) {
 		return ctx.InvalidParams("短信验证码填写错误！")
 	}
 
@@ -145,19 +145,19 @@ func (c *Auth) Forget(ctx *ichat.Context) error {
 		return ctx.BusinessError(err.Error())
 	}
 
-	c.smsService.DeleteSmsCode(ctx.RequestContext(), entity.SmsForgetAccountChannel, params.Mobile)
+	c.smsService.DeleteSmsCode(ctx.RequestCtx(), entity.SmsForgetAccountChannel, params.Mobile)
 
 	return ctx.Success(nil)
 }
 
 func (c *Auth) token(uid int) string {
 
-	expiresAt := time.Now().Add(time.Second * time.Duration(c.config.Jwt.ExpiresTime)).Unix()
+	expiresAt := time.Now().Add(time.Second * time.Duration(c.config.Jwt.ExpiresTime))
 
 	// 生成登录凭证
 	token := jwt.GenerateToken("api", c.config.Jwt.Secret, &jwt.Options{
-		ExpiresAt: expiresAt,
-		Id:        strconv.Itoa(uid),
+		ExpiresAt: jwt.NewNumericDate(expiresAt),
+		ID:        strconv.Itoa(uid),
 	})
 
 	return token
@@ -171,6 +171,6 @@ func (c *Auth) toBlackList(ctx *ichat.Context) {
 		ex := session.ExpiresAt - time.Now().Unix()
 
 		// 将 session 加入黑名单
-		_ = c.session.SetBlackList(ctx.RequestContext(), session.Token, int(ex))
+		_ = c.session.SetBlackList(ctx.RequestCtx(), session.Token, int(ex))
 	}
 }

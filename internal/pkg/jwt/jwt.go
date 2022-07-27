@@ -3,26 +3,32 @@ package jwt
 import (
 	"fmt"
 	"strings"
+	"time"
 
-	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt/v4"
 )
 
-type Options jwt.StandardClaims
+type Options jwt.RegisteredClaims
 
 type AuthClaims struct {
 	Guard string `json:"guard"` // 授权守卫
-	jwt.StandardClaims
+	jwt.RegisteredClaims
+}
+
+func NewNumericDate(t time.Time) *jwt.NumericDate {
+	return jwt.NewNumericDate(t)
 }
 
 // GenerateToken 生成 JWT 令牌
 func GenerateToken(guard string, secret string, ops *Options) string {
+
 	claims := AuthClaims{
 		Guard: guard,
-		StandardClaims: jwt.StandardClaims{
+		RegisteredClaims: jwt.RegisteredClaims{
 			Audience:  ops.Audience,
 			ExpiresAt: ops.ExpiresAt,
-			Id:        ops.Id,
+			ID:        ops.ID,
 			IssuedAt:  ops.IssuedAt,
 			Issuer:    ops.Issuer,
 			NotBefore: ops.NotBefore,
@@ -30,18 +36,15 @@ func GenerateToken(guard string, secret string, ops *Options) string {
 		},
 	}
 
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-
-	tokenString, _ := token.SignedString([]byte(secret))
+	tokenString, _ := jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString([]byte(secret))
 
 	return tokenString
 }
 
 // ParseToken 解析 JWT Token
 func ParseToken(token string, secret string) (*AuthClaims, error) {
-	claims := &AuthClaims{}
 
-	_, err := jwt.ParseWithClaims(token, claims, func(token *jwt.Token) (interface{}, error) {
+	data, err := jwt.ParseWithClaims(token, &AuthClaims{}, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
@@ -49,7 +52,11 @@ func ParseToken(token string, secret string) (*AuthClaims, error) {
 		return []byte(secret), nil
 	})
 
-	return claims, err
+	if claims, ok := data.Claims.(*AuthClaims); ok && data.Valid {
+		return claims, nil
+	}
+
+	return nil, err
 }
 
 // GetJwtToken 获取登录授权 token

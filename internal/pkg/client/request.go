@@ -55,8 +55,8 @@ func (c *RequestClient) Get(url string, params *url.Values) ([]byte, error) {
 	if c.debug {
 		fmt.Printf("\n[GET] HTTP Request\n")
 		fmt.Printf("Request URL : %s\n", url)
-		fmt.Printf("Response StatusCode: %d\n", resp.StatusCode)
-		fmt.Printf("Response Data: %s\n\n", string(res))
+		fmt.Printf("NewResponse StatusCode: %d\n", resp.StatusCode)
+		fmt.Printf("NewResponse Data: %s\n\n", string(res))
 	}
 
 	return res, nil
@@ -80,8 +80,8 @@ func (c *RequestClient) Post(url string, params *url.Values) ([]byte, error) {
 		fmt.Printf("\n[POST] HTTP Request\n")
 		fmt.Printf("Request URL : %s\n", url)
 		fmt.Printf("Request Data: %s\n", params.Encode())
-		fmt.Printf("Response StatusCode: %d\n", resp.StatusCode)
-		fmt.Printf("Response Data: %s\n\n", string(res))
+		fmt.Printf("NewResponse StatusCode: %d\n", resp.StatusCode)
+		fmt.Printf("NewResponse Data: %s\n\n", string(res))
 	}
 
 	return res, nil
@@ -111,8 +111,8 @@ func (c *RequestClient) PostJson(url string, params interface{}) ([]byte, error)
 		fmt.Printf("\n[POST] HTTP Request\n")
 		fmt.Printf("Request URL : %s\n", url)
 		fmt.Printf("Request Data: %s\n", string(text))
-		fmt.Printf("Response StatusCode: %d\n", resp.StatusCode)
-		fmt.Printf("Response Data: %s\n\n", string(res))
+		fmt.Printf("NewResponse StatusCode: %d\n", resp.StatusCode)
+		fmt.Printf("NewResponse Data: %s\n\n", string(res))
 	}
 
 	return res, nil
