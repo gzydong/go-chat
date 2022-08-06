@@ -18,13 +18,25 @@ type TalkListItem struct {
 
 // 创建会话列表接口
 type (
-	CreateTalkListRequest struct {
+	CreateTalkRequest struct {
 		TalkType   int `form:"talk_type" json:"talk_type" binding:"required,oneof=1 2" label:"talk_type"`
 		ReceiverId int `form:"receiver_id" json:"receiver_id" binding:"required,numeric,min=1" label:"receiver_id"`
 	}
 
-	CreateTalkListResponse struct {
-		Item *TalkListItem `json:"item"`
+	CreateTalkResponse struct {
+		Id         int32  `json:"id"`
+		TalkType   int32  `json:"talk_type"`
+		ReceiverId int32  `json:"receiver_id"`
+		IsTop      int32  `json:"is_top"`
+		IsDisturb  int32  `json:"is_disturb"`
+		IsOnline   int32  `json:"is_online"`
+		IsRobot    int32  `json:"is_robot"`
+		Name       string `json:"name"`
+		Avatar     string `json:"avatar"`
+		RemarkName string `json:"remark_name"`
+		UnreadNum  int32  `json:"unread_num"`
+		MsgText    string `json:"msg_text"`
+		UpdatedAt  string `json:"updated_at"`
 	}
 )
 

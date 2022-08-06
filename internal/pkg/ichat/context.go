@@ -29,8 +29,8 @@ func New(ctx *gin.Context) *Context {
 
 // Unauthorized 未授权
 func (c *Context) Unauthorized(message string) error {
-	c.Context.Abort()
 
+	c.Context.Abort()
 	c.Context.JSON(http.StatusForbidden, &Response{
 		Code:    403,
 		Message: message,
@@ -40,24 +40,21 @@ func (c *Context) Unauthorized(message string) error {
 }
 
 // InvalidParams 参数错误
-func (c *Context) InvalidParams(value interface{}) error {
-	c.Context.Abort()
+func (c *Context) InvalidParams(message interface{}) error {
 
-	var msg string
+	resp := &Response{Code: 305, Message: "invalid params"}
 
-	switch val := value.(type) {
+	switch msg := message.(type) {
 	case error:
-		msg = validation.Translate(val)
+		resp.Message = validation.Translate(msg)
 	case string:
-		msg = val
+		resp.Message = msg
 	default:
-		msg = fmt.Sprintf("%v", val)
+		resp.Message = fmt.Sprintf("%v", msg)
 	}
 
-	c.Context.JSON(http.StatusOK, &Response{
-		Code:    305,
-		Message: msg,
-	})
+	c.Context.Abort()
+	c.Context.JSON(http.StatusOK, resp)
 
 	return nil
 }
@@ -65,10 +62,7 @@ func (c *Context) InvalidParams(value interface{}) error {
 // BusinessError 业务错误
 func (c *Context) BusinessError(message interface{}) error {
 
-	resp := &Response{
-		Code:    400,
-		Message: "business error",
-	}
+	resp := &Response{Code: 400, Message: "business error"}
 
 	switch msg := message.(type) {
 	case error:
@@ -89,7 +83,6 @@ func (c *Context) BusinessError(message interface{}) error {
 func (c *Context) Error(error string) error {
 
 	c.Context.Abort()
-
 	c.Context.JSON(http.StatusInternalServerError, &Response{
 		Code:    500,
 		Message: error,
@@ -120,14 +113,15 @@ func (c *Context) Success(data interface{}, message ...string) error {
 		}
 	}
 
+	c.Context.Abort()
 	c.Context.JSON(http.StatusOK, resp)
 
 	return nil
 }
 
 func (c *Context) Paginate(items interface{}, page, size, total int) error {
-	c.Context.Abort()
 
+	c.Context.Abort()
 	c.Context.JSON(http.StatusOK, &Response{
 		Code:    200,
 		Message: "success",
@@ -146,8 +140,8 @@ func (c *Context) Paginate(items interface{}, page, size, total int) error {
 
 // Raw 成功响应(原始数据)
 func (c *Context) Raw(value string) error {
-	c.Context.Abort()
 
+	c.Context.Abort()
 	c.Context.String(http.StatusOK, value)
 
 	return nil

@@ -102,7 +102,7 @@ func (c *Talk) List(ctx *ichat.Context) error {
 func (c *Talk) Create(ctx *ichat.Context) error {
 
 	var (
-		params = &web.CreateTalkListRequest{}
+		params = &web.CreateTalkRequest{}
 		uid    = ctx.UserId()
 		agent  = strings.TrimSpace(ctx.Context.GetHeader("user-agent"))
 	)
@@ -171,8 +171,20 @@ func (c *Talk) Create(ctx *ichat.Context) error {
 		item.UpdatedAt = msg.Datetime
 	}
 
-	return ctx.Success(&web.CreateTalkListResponse{
-		Item: item,
+	return ctx.Success(&web.CreateTalkResponse{
+		Id:         item.Id,
+		TalkType:   item.TalkType,
+		ReceiverId: item.ReceiverId,
+		IsTop:      item.IsTop,
+		IsDisturb:  item.IsDisturb,
+		IsOnline:   item.IsOnline,
+		IsRobot:    item.IsRobot,
+		Name:       item.Name,
+		Avatar:     item.Avatar,
+		RemarkName: item.RemarkName,
+		UnreadNum:  item.UnreadNum,
+		MsgText:    item.MsgText,
+		UpdatedAt:  item.UpdatedAt,
 	})
 }
 
