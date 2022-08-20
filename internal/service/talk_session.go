@@ -161,7 +161,11 @@ func (s *TalkSessionService) BatchAddList(ctx context.Context, uid int, values m
 	ctime := timeutil.DateTime()
 
 	data := make([]string, 0)
-	for k, _ := range values {
+	for k, v := range values {
+		if v == 0 {
+			continue
+		}
+
 		value := strings.Split(k, "_")
 		if len(value) != 2 {
 			continue
@@ -171,6 +175,10 @@ func (s *TalkSessionService) BatchAddList(ctx context.Context, uid int, values m
 		receiverId, _ := strconv.Atoi(value[1])
 
 		data = append(data, fmt.Sprintf("(%d, %d, %d, '%s', '%s')", talkType, uid, receiverId, ctime, ctime))
+	}
+
+	if len(data) == 0 {
+		return
 	}
 
 	sql := fmt.Sprintf("INSERT INTO talk_session ( `talk_type`, `user_id`, `receiver_id`, created_at, updated_at ) VALUES %s ON DUPLICATE KEY UPDATE is_delete = 0, updated_at = '%s';", strings.Join(data, ","), ctime)
