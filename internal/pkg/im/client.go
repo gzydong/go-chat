@@ -18,8 +18,8 @@ type IClient interface {
 }
 
 type IStorage interface {
-	Bind(ctx context.Context, channel string, clientId int64, uid int)
-	UnBind(ctx context.Context, channel string, clientId int64)
+	Bind(ctx context.Context, channel string, cid int64, uid int)
+	UnBind(ctx context.Context, channel string, cid int64)
 }
 
 // ClientInContent 客户端接收消息体
@@ -75,7 +75,7 @@ func NewClient(ctx context.Context, conn *websocket.Conn, opt *ClientOptions, ca
 	}
 
 	// 设置客户端连接关闭回调事件
-	conn.SetCloseHandler(client.setCloseHandler)
+	conn.SetCloseHandler(client.closeHandler)
 
 	// 绑定客户端映射关系
 	if client.storage != nil {
@@ -132,7 +132,7 @@ func (c *Client) Write(data *ClientOutContent) error {
 }
 
 // 推送心跳检测配置
-func (c *Client) writeHeartbeat() {
+func (c *Client) heartbeat() {
 	_ = c.Write(&ClientOutContent{
 		Content: jsonutil.EncodeToBt(&Message{
 			Event: "connect",
@@ -145,7 +145,7 @@ func (c *Client) writeHeartbeat() {
 }
 
 // 关闭回调
-func (c *Client) setCloseHandler(code int, text string) error {
+func (c *Client) closeHandler(code int, text string) error {
 	if !c.isClosed {
 		c.isClosed = true
 		close(c.outChan) // 关闭通道
@@ -238,7 +238,7 @@ func (c *Client) init() *Client {
 	go c.loopWrite()
 
 	// 推送心跳检测配置
-	c.writeHeartbeat()
+	c.heartbeat()
 
 	return c
 }

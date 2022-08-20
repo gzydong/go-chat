@@ -3,8 +3,12 @@ package service
 import (
 	"context"
 	"errors"
+	"fmt"
+	"strconv"
+	"strings"
 	"time"
 
+	"go-chat/internal/pkg/timeutil"
 	"go-chat/internal/repository/dao"
 	"go-chat/internal/repository/model"
 	"gorm.io/gorm"
@@ -149,4 +153,27 @@ func (s *TalkSessionService) Disturb(ctx context.Context, opts *TalkSessionDistu
 		}).Error
 
 	return err
+}
+
+// BatchAddList 批量添加会话列表
+func (s *TalkSessionService) BatchAddList(ctx context.Context, uid int, values map[string]int) {
+
+	ctime := timeutil.DateTime()
+
+	data := make([]string, 0)
+	for k, _ := range values {
+		value := strings.Split(k, "_")
+		if len(value) != 2 {
+			continue
+		}
+
+		talkType, _ := strconv.Atoi(value[0])
+		receiverId, _ := strconv.Atoi(value[1])
+
+		data = append(data, fmt.Sprintf("(%d, %d, %d, '%s', '%s')", talkType, uid, receiverId, ctime, ctime))
+	}
+
+	sql := fmt.Sprintf("INSERT INTO talk_session ( `talk_type`, `user_id`, `receiver_id`, created_at, updated_at ) VALUES %s ON DUPLICATE KEY UPDATE is_delete = 0, updated_at = '%s';", strings.Join(data, ","), ctime)
+
+	s.db.Exec(sql)
 }

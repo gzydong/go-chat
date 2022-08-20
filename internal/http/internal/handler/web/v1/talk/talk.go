@@ -38,6 +38,12 @@ func (c *Talk) List(ctx *ichat.Context) error {
 
 	uid := ctx.UserId()
 
+	// 获取未读消息数
+	unReads := c.unreadTalkCache.GetAll(ctx.RequestCtx(), uid)
+	if len(unReads) > 0 {
+		c.talkListService.BatchAddList(ctx.RequestCtx(), uid, unReads)
+	}
+
 	data, err := c.talkListService.List(ctx.RequestCtx(), uid)
 	if err != nil {
 		return ctx.BusinessError(err.Error())
@@ -52,9 +58,6 @@ func (c *Talk) List(ctx *ichat.Context) error {
 
 	// 获取好友备注
 	remarks, _ := c.contactService.Dao().Remarks(ctx.RequestCtx(), uid, friends)
-
-	// 获取未读消息数
-	unReads := c.unreadTalkCache.GetAll(ctx.RequestCtx(), uid)
 
 	items := make([]*web.TalkListItem, 0)
 	for _, item := range data {
