@@ -8,6 +8,7 @@ import (
 	"github.com/gorilla/websocket"
 	"github.com/tidwall/gjson"
 	"go-chat/internal/pkg/jsonutil"
+	"go-chat/internal/pkg/timeutil"
 )
 
 type IClient interface {
@@ -179,7 +180,11 @@ func (c *Client) loopAccept() {
 			break
 		}
 
+		c.lastTime = time.Now().Unix() // 更新最后心跳时间
+
 		msg := string(message)
+
+		fmt.Println("msg:", msg, timeutil.DateTime())
 
 		res := gjson.Get(msg, "event")
 
@@ -190,12 +195,10 @@ func (c *Client) loopAccept() {
 
 		switch res.String() {
 		case "heartbeat": // 心跳消息判断
-			c.lastTime = time.Now().Unix()
-
 			_ = c.Write(&ClientOutContent{
 				Content: jsonutil.EncodeToBt(&Message{"heartbeat", "pong"}),
 			})
-		case "ack":
+		case "ack": // TODO 后续实现
 			ack.del(&AckBufferOption{Client: c, MsgID: ""})
 		default:
 			// 触发消息回调

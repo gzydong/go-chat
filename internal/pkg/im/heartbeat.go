@@ -3,6 +3,9 @@ package im
 import (
 	"context"
 	"time"
+
+	"go-chat/internal/pkg/jsonutil"
+	"go-chat/internal/pkg/worker"
 )
 
 const (
@@ -40,15 +43,42 @@ func (h *heartbeat) Start(ctx context.Context) error {
 		case <-ctx.Done():
 			return nil
 		case <-timer.C:
-			t := time.Now().Unix()
 
-			h.node.each(func(c *Client) {
-				if int(t-c.lastTime) > heartbeatTimeout {
-					c.Close(2000, "心跳检测超时，连接自动关闭")
-				}
-			})
+			h.check()
 
 			timer.Reset(heartbeatInterval * time.Second)
 		}
 	}
+}
+
+func (h *heartbeat) check() {
+
+	work := worker.NewTask(10)
+
+	for _, val := range h.node.nodes {
+		node := val
+
+		work.Do(func() {
+
+			ctime := time.Now().Unix()
+
+			node.Range(func(key, value interface{}) bool {
+				c := value.(*Client)
+
+				interval := int(ctime - c.lastTime)
+				if interval > heartbeatTimeout {
+					c.Close(2000, "心跳检测超时，连接自动关闭")
+				} else if interval > heartbeatInterval {
+					// 超过心跳间隔时间则主动推送一次消息
+					_ = c.Write(&ClientOutContent{
+						Content: jsonutil.EncodeToBt(&Message{"heartbeat", "ping"}),
+					})
+				}
+
+				return true
+			})
+		})
+	}
+
+	work.Wait()
 }
