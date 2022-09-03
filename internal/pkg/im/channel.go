@@ -8,6 +8,11 @@ import (
 	"time"
 )
 
+type IChannel interface {
+	Name() string
+	Count() int64
+}
+
 // Channel 渠道管理（多渠道划分，实现不同业务之间隔离）
 type Channel struct {
 	name    string              // 渠道名称

@@ -10,6 +10,9 @@ import (
 	"go-chat/internal/pkg/jsonutil"
 )
 
+type IConn struct {
+}
+
 type IClient interface {
 	ClientId() int64                    // 获取客户端ID
 	ClientUid() int                     // 获取客户端关联用户ID
