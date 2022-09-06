@@ -13,6 +13,7 @@ import (
 	"go-chat/internal/entity"
 	"go-chat/internal/pkg/ichat"
 	"go-chat/internal/pkg/im"
+	"go-chat/internal/pkg/im/adapter"
 	"go-chat/internal/pkg/jsonutil"
 	"go-chat/internal/repository/cache"
 	"go-chat/internal/repository/model"
@@ -34,7 +35,7 @@ func NewDefaultWebSocket(rds *redis.Client, conf *config.Config, cache *service.
 
 // Connect 初始化连接
 func (c *DefaultWebSocket) Connect(ctx *ichat.Context) error {
-	conn, err := im.NewConnect(ctx.Context)
+	conn, err := adapter.NewWsAdapter(ctx.Context)
 	if err != nil {
 		logrus.Errorf("websocket connect error: %s", err.Error())
 		return nil
@@ -58,7 +59,11 @@ func (c *DefaultWebSocket) Connect(ctx *ichat.Context) error {
 		// 关闭连接回调
 		im.WithCloseCallback(func(client im.IClient, code int, text string) {
 			c.close(client, code, text)
-			// fmt.Printf("客户端[%d] 已关闭连接，关闭提示【%d】%s \n", client.ClientId(), code, text)
+			fmt.Printf("客户端[%d] 已关闭连接，关闭提示【%d】%s \n", client.Cid(), code, text)
+		}),
+		// 客户端销毁回调事件
+		im.WithDestroyCallback(func(client im.IClient) {
+			fmt.Printf("客户端[%d] 已销毁 \n", client.Cid())
 		}),
 	))
 
@@ -69,7 +74,7 @@ func (c *DefaultWebSocket) Connect(ctx *ichat.Context) error {
 func (c *DefaultWebSocket) open(client im.IClient) {
 
 	// 1.查询用户群列表
-	ids := c.groupMemberService.Dao().GetUserGroupIds(client.ClientUid())
+	ids := c.groupMemberService.Dao().GetUserGroupIds(client.Uid())
 
 	// 2.客户端加入群房间
 	for _, id := range ids {
@@ -78,7 +83,7 @@ func (c *DefaultWebSocket) open(client im.IClient) {
 			RoomType: entity.RoomImGroup,
 			Number:   strconv.Itoa(id),
 			Sid:      c.conf.ServerId(),
-			Cid:      client.ClientId(),
+			Cid:      client.Cid(),
 		})
 	}
 
@@ -86,7 +91,7 @@ func (c *DefaultWebSocket) open(client im.IClient) {
 	c.rds.Publish(context.Background(), entity.IMGatewayAll, jsonutil.Encode(entity.MapStrAny{
 		"event": entity.EventOnlineStatus,
 		"data": jsonutil.Encode(entity.MapStrAny{
-			"user_id": client.ClientUid(),
+			"user_id": client.Uid(),
 			"status":  1,
 		}),
 	}))
@@ -118,12 +123,12 @@ func (c *DefaultWebSocket) message(client im.IClient, message []byte) {
 	case entity.EventTalkRead:
 		var m *dto.TalkReadMessage
 		if err := json.Unmarshal(message, &m); err == nil {
-			c.groupMemberService.Db().Model(&model.TalkRecords{}).Where("id in ? and receiver_id = ? and is_read = 0", m.Data.MsgIds, client.ClientUid()).Update("is_read", 1)
+			c.groupMemberService.Db().Model(&model.TalkRecords{}).Where("id in ? and receiver_id = ? and is_read = 0", m.Data.MsgIds, client.Uid()).Update("is_read", 1)
 
 			c.rds.Publish(context.Background(), entity.IMGatewayAll, jsonutil.Encode(entity.MapStrAny{
 				"event": entity.EventTalkRead,
 				"data": jsonutil.Encode(entity.MapStrAny{
-					"sender_id":   client.ClientUid(),
+					"sender_id":   client.Uid(),
 					"receiver_id": m.Data.ReceiverId,
 					"ids":         m.Data.MsgIds,
 				}),
@@ -140,7 +145,7 @@ func (c *DefaultWebSocket) close(client im.IClient, code int, text string) {
 	// 1.判断用户是否是多点登录
 
 	// 2.查询用户群列表
-	ids := c.groupMemberService.Dao().GetUserGroupIds(client.ClientUid())
+	ids := c.groupMemberService.Dao().GetUserGroupIds(client.Uid())
 
 	// 3.客户端退出群房间
 	for _, id := range ids {
@@ -149,7 +154,7 @@ func (c *DefaultWebSocket) close(client im.IClient, code int, text string) {
 			RoomType: entity.RoomImGroup,
 			Number:   strconv.Itoa(id),
 			Sid:      c.conf.ServerId(),
-			Cid:      client.ClientId(),
+			Cid:      client.Cid(),
 		})
 	}
 
@@ -157,7 +162,7 @@ func (c *DefaultWebSocket) close(client im.IClient, code int, text string) {
 	c.rds.Publish(context.Background(), entity.IMGatewayAll, jsonutil.Encode(entity.MapStrAny{
 		"event": entity.EventOnlineStatus,
 		"data": jsonutil.Encode(entity.MapStrAny{
-			"user_id": client.ClientUid(),
+			"user_id": client.Uid(),
 			"status":  0,
 		}),
 	}))

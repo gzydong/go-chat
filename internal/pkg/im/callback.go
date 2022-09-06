@@ -4,12 +4,14 @@ type ICallback interface {
 	Open(client IClient)
 	Message(client IClient, message []byte)
 	Close(client IClient, code int, text string)
+	Destroy(client IClient)
 }
 
 type (
 	OpenCallback         func(client IClient)
 	MessageCallback      func(client IClient, message []byte)
 	CloseCallback        func(client IClient, code int, text string)
+	DestroyCallback      func(client IClient)
 	ClientCallbackOption func(callBack *ClientCallback)
 )
 
@@ -17,6 +19,7 @@ type ClientCallback struct {
 	openCallBack    OpenCallback
 	messageCallBack MessageCallback
 	closeCallBack   CloseCallback
+	destroyCallBack DestroyCallback
 }
 
 func NewClientCallback(opts ...ClientCallbackOption) *ClientCallback {
@@ -48,6 +51,12 @@ func (c *ClientCallback) Close(client IClient, code int, text string) {
 	}
 }
 
+func (c *ClientCallback) Destroy(client IClient) {
+	if c.destroyCallBack != nil {
+		c.destroyCallBack(client)
+	}
+}
+
 func WithOpenCallback(call OpenCallback) ClientCallbackOption {
 	return func(callBack *ClientCallback) {
 		callBack.openCallBack = call
@@ -63,5 +72,11 @@ func WithMessageCallback(call MessageCallback) ClientCallbackOption {
 func WithCloseCallback(call CloseCallback) ClientCallbackOption {
 	return func(callBack *ClientCallback) {
 		callBack.closeCallBack = call
+	}
+}
+
+func WithDestroyCallback(call DestroyCallback) ClientCallbackOption {
+	return func(callBack *ClientCallback) {
+		callBack.destroyCallBack = call
 	}
 }

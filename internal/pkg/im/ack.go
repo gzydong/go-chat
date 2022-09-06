@@ -26,11 +26,11 @@ type AckBufferOption struct {
 }
 
 func (a *AckBuffer) add(opt *AckBufferOption) {
-	a.list.Store(fmt.Sprintf("%s-%d", opt.MsgID, opt.Client.ClientId()), opt)
+	a.list.Store(fmt.Sprintf("%s-%d", opt.MsgID, opt.Client.Cid()), opt)
 }
 
 func (a *AckBuffer) del(opt *AckBufferOption) {
-	a.list.Delete(fmt.Sprintf("%s-%d", opt.MsgID, opt.Client.ClientId()))
+	a.list.Delete(fmt.Sprintf("%s-%d", opt.MsgID, opt.Client.Cid()))
 }
 
 func (a *AckBuffer) Start(ctx context.Context) error {

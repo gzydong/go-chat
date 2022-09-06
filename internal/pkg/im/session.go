@@ -40,10 +40,6 @@ func initialize(ctx context.Context, eg *errgroup.Group) {
 		})
 
 		eg.Go(func() error {
-			return ack.Start(ctx)
-		})
-
-		eg.Go(func() error {
 			return Session.Default.Start(ctx)
 		})
 

@@ -5,19 +5,15 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/gorilla/websocket"
 	"github.com/tidwall/gjson"
 	"go-chat/internal/pkg/jsonutil"
 )
 
-type IConn struct {
-}
-
 type IClient interface {
-	ClientId() int64                    // 获取客户端ID
-	ClientUid() int                     // 获取客户端关联用户ID
+	Cid() int64                         // 客户端ID
+	Uid() int                           // 客户端关联用户ID
 	Close(code int, text string)        // 关闭客户端
-	Write(data *ClientOutContent) error // 客户端写入数据
+	Write(data *ClientOutContent) error // 写入数据
 }
 
 type IStorage interface {
@@ -41,7 +37,7 @@ type ClientOutContent struct {
 
 // Client WebSocket 客户端连接信息
 type Client struct {
-	conn     *websocket.Conn        // 客户端连接
+	conn     IConn                  // 客户端连接
 	cid      int64                  // 客户端ID/客户端唯一标识
 	uid      int                    // 用户ID
 	lastTime int64                  // 客户端最后心跳时间/心跳检测
@@ -60,7 +56,7 @@ type ClientOptions struct {
 }
 
 // NewClient 初始化客户端信息
-func NewClient(ctx context.Context, conn *websocket.Conn, opt *ClientOptions, callBack ICallback) IClient {
+func NewClient(ctx context.Context, conn IConn, opt *ClientOptions, callBack ICallback) IClient {
 
 	if opt.Buffer <= 0 {
 		opt.Buffer = 10
@@ -78,7 +74,7 @@ func NewClient(ctx context.Context, conn *websocket.Conn, opt *ClientOptions, ca
 	}
 
 	// 设置客户端连接关闭回调事件
-	conn.SetCloseHandler(client.closeHandler)
+	conn.SetCloseHandler(client.close)
 
 	// 绑定客户端映射关系
 	if client.storage != nil {
@@ -97,22 +93,24 @@ func NewClient(ctx context.Context, conn *websocket.Conn, opt *ClientOptions, ca
 	return client.init()
 }
 
-// ClientId 获取客户端ID
-func (c *Client) ClientId() int64 {
+// Cid 获取客户端ID
+func (c *Client) Cid() int64 {
 	return c.cid
 }
 
-// ClientUid 获取客户端关联的用户ID
-func (c *Client) ClientUid() int {
+// Uid 获取客户端关联的用户ID
+func (c *Client) Uid() int {
 	return c.uid
 }
 
 // Close 关闭客户端连接
 func (c *Client) Close(code int, message string) {
-	defer c.conn.Close()
+	defer func() {
+		_ = c.conn.Close()
+	}()
 
 	// 触发客户端关闭回调事件
-	_ = c.conn.CloseHandler()(code, message)
+	_ = c.close(code, message)
 }
 
 // Write 客户端写入数据
@@ -148,7 +146,8 @@ func (c *Client) heartbeat() {
 }
 
 // 关闭回调
-func (c *Client) closeHandler(code int, text string) error {
+func (c *Client) close(code int, text string) error {
+
 	if !c.isClosed {
 		c.isClosed = true
 		close(c.outChan) // 关闭通道
@@ -173,11 +172,13 @@ func (c *Client) closeHandler(code int, text string) error {
 
 // 循环接收客户端推送信息
 func (c *Client) loopAccept() {
-	defer c.conn.Close()
+	defer func() {
+		_ = c.conn.Close()
+	}()
 
 	for {
 		// 读取客户端中的数据
-		_, message, err := c.conn.ReadMessage()
+		message, err := c.conn.Read()
 		if err != nil {
 			break
 		}
@@ -198,8 +199,6 @@ func (c *Client) loopAccept() {
 			_ = c.Write(&ClientOutContent{
 				Content: jsonutil.EncodeToBt(&Message{"heartbeat", "pong"}),
 			})
-		case "ack": // TODO 后续实现
-			ack.del(&AckBufferOption{Client: c, MsgID: ""})
 		default:
 			// 触发消息回调
 			c.callBack.Message(c, message)
@@ -215,33 +214,23 @@ func (c *Client) loopWrite() {
 			break
 		}
 
-		err := c.conn.WriteMessage(websocket.TextMessage, data.Content)
+		err := c.conn.Write(data.Content)
 		if err != nil {
 			break
-		}
-
-		// 判断是否开启 ack 确认机制，且重重试机制在3次以内
-		if data.IsAck && data.Retry < 3 {
-			ack.add(&AckBufferOption{
-				Client:  c,
-				MsgID:   "111111", // 预留
-				Retry:   data.Retry + 1,
-				Content: data.Content,
-			})
 		}
 	}
 }
 
 // 初始化连接
 func (c *Client) init() *Client {
+	// 推送心跳检测配置
+	c.heartbeat()
+
 	// 启动协程处理接收信息
 	go c.loopAccept()
 
 	// 启动协程处理推送信息
 	go c.loopWrite()
-
-	// 推送心跳检测配置
-	c.heartbeat()
 
 	return c
 }
