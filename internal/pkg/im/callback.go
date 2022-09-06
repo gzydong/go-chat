@@ -16,13 +16,13 @@ type (
 )
 
 type ClientCallback struct {
-	openCallBack    OpenCallback
-	messageCallBack MessageCallback
-	closeCallBack   CloseCallback
-	destroyCallBack DestroyCallback
+	open    OpenCallback
+	message MessageCallback
+	close   CloseCallback
+	destroy DestroyCallback
 }
 
-func NewClientCallback(opts ...ClientCallbackOption) *ClientCallback {
+func NewClientCallback(opts ...ClientCallbackOption) ICallback {
 
 	o := &ClientCallback{}
 
@@ -34,49 +34,49 @@ func NewClientCallback(opts ...ClientCallbackOption) *ClientCallback {
 }
 
 func (c *ClientCallback) Open(client IClient) {
-	if c.openCallBack != nil {
-		c.openCallBack(client)
+	if c.open != nil {
+		c.open(client)
 	}
 }
 
 func (c *ClientCallback) Message(client IClient, message []byte) {
-	if c.messageCallBack != nil {
-		c.messageCallBack(client, message)
+	if c.message != nil {
+		c.message(client, message)
 	}
 }
 
 func (c *ClientCallback) Close(client IClient, code int, text string) {
-	if c.closeCallBack != nil {
-		c.closeCallBack(client, code, text)
+	if c.close != nil {
+		c.close(client, code, text)
 	}
 }
 
 func (c *ClientCallback) Destroy(client IClient) {
-	if c.destroyCallBack != nil {
-		c.destroyCallBack(client)
+	if c.destroy != nil {
+		c.destroy(client)
 	}
 }
 
 func WithOpenCallback(call OpenCallback) ClientCallbackOption {
 	return func(callBack *ClientCallback) {
-		callBack.openCallBack = call
+		callBack.open = call
 	}
 }
 
 func WithMessageCallback(call MessageCallback) ClientCallbackOption {
 	return func(callBack *ClientCallback) {
-		callBack.messageCallBack = call
+		callBack.message = call
 	}
 }
 
 func WithCloseCallback(call CloseCallback) ClientCallbackOption {
 	return func(callBack *ClientCallback) {
-		callBack.closeCallBack = call
+		callBack.close = call
 	}
 }
 
 func WithDestroyCallback(call DestroyCallback) ClientCallbackOption {
 	return func(callBack *ClientCallback) {
-		callBack.destroyCallBack = call
+		callBack.destroy = call
 	}
 }

@@ -55,8 +55,8 @@ func (h *heartbeat) check() {
 
 	work := worker.NewTask(10)
 
-	for _, val := range h.node.nodes {
-		node := val
+	for _, v := range h.node.nodes {
+		node := v
 
 		work.Do(func() {
 
