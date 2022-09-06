@@ -3,7 +3,6 @@ package adapter
 import (
 	"net/http"
 
-	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 )
 
@@ -12,8 +11,8 @@ type WsAdapter struct {
 	conn *websocket.Conn
 }
 
-// 获取 WebSocket 连接
-func ws(w http.ResponseWriter, r *http.Request) (*websocket.Conn, error) {
+func NewWsAdapter(w http.ResponseWriter, r *http.Request) (*WsAdapter, error) {
+
 	upGrader := websocket.Upgrader{
 		ReadBufferSize:  1024 * 2, // 指定读缓存区大小
 		WriteBufferSize: 1024 * 2, // 指定写缓存区大小
@@ -22,11 +21,7 @@ func ws(w http.ResponseWriter, r *http.Request) (*websocket.Conn, error) {
 		},
 	}
 
-	return upGrader.Upgrade(w, r, nil)
-}
-
-func NewWsAdapter(ctx *gin.Context) (*WsAdapter, error) {
-	conn, err := ws(ctx.Writer, ctx.Request)
+	conn, err := upGrader.Upgrade(w, r, nil)
 	if err != nil {
 		return nil, err
 	}

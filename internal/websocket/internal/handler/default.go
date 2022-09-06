@@ -35,7 +35,7 @@ func NewDefaultWebSocket(rds *redis.Client, conf *config.Config, cache *service.
 
 // Connect 初始化连接
 func (c *DefaultWebSocket) Connect(ctx *ichat.Context) error {
-	conn, err := adapter.NewWsAdapter(ctx.Context)
+	conn, err := adapter.NewWsAdapter(ctx.Context.Writer, ctx.Context.Request)
 	if err != nil {
 		logrus.Errorf("websocket connect error: %s", err.Error())
 		return nil

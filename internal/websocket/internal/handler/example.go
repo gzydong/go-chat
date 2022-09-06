@@ -18,7 +18,7 @@ func NewExampleWebsocket() *ExampleWebsocket {
 }
 
 func (c *ExampleWebsocket) Connect(ctx *ichat.Context) error {
-	conn, err := adapter.NewWsAdapter(ctx.Context)
+	conn, err := adapter.NewWsAdapter(ctx.Context.Writer, ctx.Context.Request)
 	if err != nil {
 		logrus.Errorf("websocket connect error: %s", err.Error())
 		return nil
