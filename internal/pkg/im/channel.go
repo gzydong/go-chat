@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"sync/atomic"
 	"time"
+
+	"go-chat/internal/pkg/worker"
 )
 
 type IChannel interface {
@@ -15,14 +17,15 @@ type IChannel interface {
 
 // Channel 渠道管理（多渠道划分，实现不同业务之间隔离）
 type Channel struct {
-	name    string              // 渠道名称
-	count   int64               // 客户端连接数
-	node    *Node               // 客户端列表【客户端ID取余拆分，降低 map 长度】
-	outChan chan *SenderContent // 消息发送通道
+	name          string              // 渠道名称
+	count         int64               // 客户端连接数
+	node          *Node               // 客户端列表【客户端ID取余拆分，降低 map 长度】
+	outChan       chan *SenderContent // 消息发送通道
+	broadcastChan chan *SenderContent // 广播消息
 }
 
 func NewChannel(name string, node *Node, outChan chan *SenderContent) *Channel {
-	return &Channel{name: name, node: node, outChan: outChan}
+	return &Channel{name: name, node: node, outChan: outChan, broadcastChan: make(chan *SenderContent, 100)}
 }
 
 // Name 获取渠道名称
@@ -42,12 +45,23 @@ func (c *Channel) Client(cid int64) (*Client, bool) {
 
 // Write 推送消息到消费通道
 func (c *Channel) Write(msg *SenderContent) {
-	select {
-	case c.outChan <- msg:
-		break
-	case <-time.After(3 * time.Second):
-		fmt.Printf("[%s] Channel OutChan 写入消息超时,管道长度：%d \n", c.name, len(c.outChan))
-		break
+
+	if msg.IsBroadcast() {
+		select {
+		case c.broadcastChan <- msg:
+			break
+		case <-time.After(3 * time.Second):
+			fmt.Printf("[%s] Channel broadcastChan 写入消息超时,管道长度：%d \n", c.name, len(c.outChan))
+			break
+		}
+	} else {
+		select {
+		case c.outChan <- msg:
+			break
+		case <-time.After(3 * time.Second):
+			fmt.Printf("[%s] Channel OutChan 写入消息超时,管道长度：%d \n", c.name, len(c.outChan))
+			break
+		}
 	}
 }
 
@@ -72,34 +86,54 @@ func (c *Channel) delClient(client *Client) {
 // 推送客户端数据
 func (c *Channel) loopPush(ctx context.Context) {
 
-	out := 2 * time.Second
-	timer := time.NewTimer(out)
-
-	defer timer.Stop()
+	work := worker.NewTask(50)
 
 	for {
-		timer.Reset(out)
-
 		select {
-		case <-timer.C:
 		case <-ctx.Done():
+			work.Wait()
 			return
+
 		case body, ok := <-c.outChan:
 			if ok {
-				content, _ := json.Marshal(body.GetMessage())
+				bodyContent := body
 
-				// 判断是否广播消息
-				if body.IsBroadcast() {
-					c.node.each(func(client *Client) {
-						_ = client.Write(&ClientOutContent{Content: content})
-					})
-				} else {
-					for _, cid := range body.receives {
+				work.Do(func() {
+					content, _ := json.Marshal(bodyContent.GetMessage())
+
+					for _, cid := range bodyContent.receives {
 						if client, ok := c.Client(cid); ok {
 							_ = client.Write(&ClientOutContent{Content: content})
 						}
 					}
-				}
+				})
+			}
+		}
+	}
+}
+
+// 广播推送
+func (c *Channel) loopBroadcast(ctx context.Context) {
+
+	work := worker.NewTask(10)
+
+	for {
+		select {
+		case <-ctx.Done():
+			work.Wait()
+			return
+
+		case body, ok := <-c.broadcastChan:
+			if ok {
+				bodyContent := body
+
+				work.Do(func() {
+					content, _ := json.Marshal(bodyContent.GetMessage())
+
+					c.node.each(func(client *Client) {
+						_ = client.Write(&ClientOutContent{Content: content})
+					})
+				})
 			}
 		}
 	}
@@ -107,7 +141,10 @@ func (c *Channel) loopPush(ctx context.Context) {
 
 // Start 渠道消费协程
 func (c *Channel) Start(ctx context.Context) error {
+
 	go c.loopPush(ctx)
+
+	go c.loopBroadcast(ctx)
 
 	return nil
 }

@@ -183,18 +183,15 @@ func (c *Client) loopAccept() {
 			break
 		}
 
-		c.lastTime = time.Now().Unix() // 更新最后心跳时间
+		// 更新最后心跳时间
+		c.lastTime = time.Now().Unix()
 
-		msg := string(message)
-
-		res := gjson.Get(msg, "event")
-
-		// 判断消息格式是否正确
-		if !res.Exists() {
+		result := gjson.GetBytes(message, "event")
+		if !result.Exists() {
 			continue
 		}
 
-		switch res.String() {
+		switch result.String() {
 		case "heartbeat": // 心跳消息判断
 			_ = c.Write(&ClientOutContent{
 				Content: jsonutil.EncodeToBt(&Message{"heartbeat", "pong"}),
