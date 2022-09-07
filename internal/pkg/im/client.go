@@ -62,6 +62,10 @@ func NewClient(ctx context.Context, conn IConn, opt *ClientOptions, callBack ICa
 		opt.Buffer = 10
 	}
 
+	if callBack == nil {
+		panic("callBack nil")
+	}
+
 	client := &Client{
 		conn:     conn,
 		cid:      Counter.GenID(),
@@ -90,7 +94,7 @@ func NewClient(ctx context.Context, conn IConn, opt *ClientOptions, callBack ICa
 	// 注册心跳管理
 	health.addClient(client)
 
-	return client.init()
+	return client.initialize()
 }
 
 // Cid 获取客户端ID
@@ -219,7 +223,7 @@ func (c *Client) loopWrite() {
 }
 
 // 初始化连接
-func (c *Client) init() *Client {
+func (c *Client) initialize() *Client {
 	// 推送心跳检测配置
 	c.heartbeat()
 

@@ -1,4 +1,4 @@
-package handle
+package consume
 
 import (
 	"context"
@@ -20,20 +20,21 @@ import (
 
 type onConsumeFunc func(data string)
 
-type SubscribeConsume struct {
+type DefaultSubscribe struct {
 	conf           *config.Config
 	ws             *cache.WsClientSession
 	room           *cache.RoomStorage
 	recordsService *service.TalkRecordsService
 	contactService *service.ContactService
+	handlers       map[string]onConsumeFunc
 }
 
-func NewSubscribeConsume(conf *config.Config, ws *cache.WsClientSession, room *cache.RoomStorage, recordsService *service.TalkRecordsService, contactService *service.ContactService) *SubscribeConsume {
-	return &SubscribeConsume{conf: conf, ws: ws, room: room, recordsService: recordsService, contactService: contactService}
+func NewDefaultSubscribe(conf *config.Config, ws *cache.WsClientSession, room *cache.RoomStorage, recordsService *service.TalkRecordsService, contactService *service.ContactService) *DefaultSubscribe {
+	return &DefaultSubscribe{conf: conf, ws: ws, room: room, recordsService: recordsService, contactService: contactService}
 }
 
-func (s *SubscribeConsume) Handle(event string, data string) {
-
+// RegisterEvent 注册事件
+func (s *DefaultSubscribe) RegisterEvent() {
 	handler := make(map[string]onConsumeFunc)
 
 	// 注册消息回调事件
@@ -45,7 +46,16 @@ func (s *SubscribeConsume) Handle(event string, data string) {
 	handler[entity.EventContactApply] = s.onConsumeContactApply
 	handler[entity.EventTalkRead] = s.onConsumeTalkRead
 
-	if f, ok := handler[event]; ok {
+	s.handlers = handler
+}
+
+func (s *DefaultSubscribe) Handle(event string, data string) {
+
+	if s.handlers == nil {
+		panic("事件未注册")
+	}
+
+	if f, ok := s.handlers[event]; ok {
 		f(data)
 	} else {
 		logrus.Warnf("Event: [%s]未注册回调方法\n", event)
@@ -53,7 +63,7 @@ func (s *SubscribeConsume) Handle(event string, data string) {
 }
 
 // onConsumeTalk 聊天消息事件
-func (s *SubscribeConsume) onConsumeTalk(body string) {
+func (s *DefaultSubscribe) onConsumeTalk(body string) {
 	var msg struct {
 		TalkType   int   `json:"talk_type"`
 		SenderID   int64 `json:"sender_id"`
@@ -62,7 +72,7 @@ func (s *SubscribeConsume) onConsumeTalk(body string) {
 	}
 
 	if err := json.Unmarshal([]byte(body), &msg); err != nil {
-		logrus.Error("[SubscribeConsume] onConsumeTalk Unmarshal err: ", err.Error())
+		logrus.Error("[DefaultSubscribe] onConsumeTalk Unmarshal err: ", err.Error())
 		return
 	}
 
@@ -88,7 +98,7 @@ func (s *SubscribeConsume) onConsumeTalk(body string) {
 
 	data, err := s.recordsService.GetTalkRecord(ctx, msg.RecordID)
 	if err != nil {
-		logrus.Error("[SubscribeConsume] 读取对话记录失败 err: ", err.Error())
+		logrus.Error("[DefaultSubscribe] 读取对话记录失败 err: ", err.Error())
 		return
 	}
 
@@ -112,14 +122,14 @@ func (s *SubscribeConsume) onConsumeTalk(body string) {
 }
 
 // onConsumeTalkKeyboard 键盘输入事件消息
-func (s *SubscribeConsume) onConsumeTalkKeyboard(body string) {
+func (s *DefaultSubscribe) onConsumeTalkKeyboard(body string) {
 	var msg struct {
 		SenderID   int `json:"sender_id"`
 		ReceiverID int `json:"receiver_id"`
 	}
 
 	if err := json.Unmarshal([]byte(body), &msg); err != nil {
-		logrus.Error("[SubscribeConsume] onConsumeTalkKeyboard Unmarshal err: ", err.Error())
+		logrus.Error("[DefaultSubscribe] onConsumeTalkKeyboard Unmarshal err: ", err.Error())
 		return
 	}
 
@@ -143,14 +153,14 @@ func (s *SubscribeConsume) onConsumeTalkKeyboard(body string) {
 }
 
 // onConsumeLogin 用户上线或下线消息
-func (s *SubscribeConsume) onConsumeLogin(body string) {
+func (s *DefaultSubscribe) onConsumeLogin(body string) {
 	var msg struct {
 		Status int `json:"status"`
 		UserID int `json:"user_id"`
 	}
 
 	if err := json.Unmarshal([]byte(body), &msg); err != nil {
-		logrus.Error("[SubscribeConsume] onConsumeLogin Unmarshal err: ", err.Error())
+		logrus.Error("[DefaultSubscribe] onConsumeLogin Unmarshal err: ", err.Error())
 		return
 	}
 
@@ -180,7 +190,7 @@ func (s *SubscribeConsume) onConsumeLogin(body string) {
 }
 
 // onConsumeTalkRevoke 撤销聊天消息
-func (s *SubscribeConsume) onConsumeTalkRevoke(body string) {
+func (s *DefaultSubscribe) onConsumeTalkRevoke(body string) {
 	var (
 		msg struct {
 			RecordId int `json:"record_id"`
@@ -190,7 +200,7 @@ func (s *SubscribeConsume) onConsumeTalkRevoke(body string) {
 	)
 
 	if err := jsonutil.Decode(body, &msg); err != nil {
-		logrus.Error("[SubscribeConsume] onConsumeTalkRevoke Unmarshal err: ", err.Error())
+		logrus.Error("[DefaultSubscribe] onConsumeTalkRevoke Unmarshal err: ", err.Error())
 		return
 	}
 
@@ -233,7 +243,7 @@ func (s *SubscribeConsume) onConsumeTalkRevoke(body string) {
 }
 
 // nolint onConsumeContactApply 好友申请消息
-func (s *SubscribeConsume) onConsumeContactApply(body string) {
+func (s *DefaultSubscribe) onConsumeContactApply(body string) {
 	var (
 		msg struct {
 			ApplId int `json:"apply_id"`
@@ -243,7 +253,7 @@ func (s *SubscribeConsume) onConsumeContactApply(body string) {
 	)
 
 	if err := jsonutil.Decode(body, &msg); err != nil {
-		logrus.Error("[SubscribeConsume] onConsumeContactApply Unmarshal err: ", err.Error())
+		logrus.Error("[DefaultSubscribe] onConsumeContactApply Unmarshal err: ", err.Error())
 		return
 	}
 
@@ -283,7 +293,7 @@ func (s *SubscribeConsume) onConsumeContactApply(body string) {
 }
 
 // onConsumeTalkJoinGroup 加入群房间
-func (s *SubscribeConsume) onConsumeTalkJoinGroup(body string) {
+func (s *DefaultSubscribe) onConsumeTalkJoinGroup(body string) {
 	var (
 		ctx  = context.Background()
 		sid  = s.conf.ServerId()
@@ -295,7 +305,7 @@ func (s *SubscribeConsume) onConsumeTalkJoinGroup(body string) {
 	)
 
 	if err := json.Unmarshal([]byte(body), &data); err != nil {
-		logrus.Error("[SubscribeConsume] onConsumeTalkJoinGroup Unmarshal err: ", err.Error())
+		logrus.Error("[DefaultSubscribe] onConsumeTalkJoinGroup Unmarshal err: ", err.Error())
 		return
 	}
 
@@ -321,7 +331,7 @@ func (s *SubscribeConsume) onConsumeTalkJoinGroup(body string) {
 }
 
 // onConsumeTalkRead 消息已读事件
-func (s *SubscribeConsume) onConsumeTalkRead(body string) {
+func (s *DefaultSubscribe) onConsumeTalkRead(body string) {
 	var (
 		ctx  = context.Background()
 		sid  = s.conf.ServerId()
@@ -333,7 +343,7 @@ func (s *SubscribeConsume) onConsumeTalkRead(body string) {
 	)
 
 	if err := jsonutil.Decode(body, &data); err != nil {
-		logrus.Error("[SubscribeConsume] onConsumeContactApply Unmarshal err: ", err.Error())
+		logrus.Error("[DefaultSubscribe] onConsumeContactApply Unmarshal err: ", err.Error())
 		return
 	}
 

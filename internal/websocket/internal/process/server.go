@@ -17,8 +17,9 @@ type IServer interface {
 
 // SubServers 订阅的服务列表
 type SubServers struct {
-	Health    *server.Health      // 注册健康上报
-	Subscribe *server.WsSubscribe // 注册消息订阅
+	Health           *server.Health           // 注册健康上报
+	DefaultSubscribe *server.DefaultSubscribe // 注册消息订阅
+	ExampleSubscribe *server.ExampleSubscribe // 注册消息订阅
 }
 
 type Server struct {

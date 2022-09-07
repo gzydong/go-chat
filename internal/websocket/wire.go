@@ -13,7 +13,7 @@ import (
 	"go-chat/internal/service"
 	"go-chat/internal/websocket/internal/handler"
 	"go-chat/internal/websocket/internal/process"
-	"go-chat/internal/websocket/internal/process/handle"
+	"go-chat/internal/websocket/internal/process/consume"
 	"go-chat/internal/websocket/internal/process/server"
 	"go-chat/internal/websocket/internal/router"
 
@@ -33,8 +33,10 @@ var providerSet = wire.NewSet(
 	wire.Struct(new(process.SubServers), "*"),
 	process.NewServer,
 	server.NewHealth,
-	server.NewWsSubscribe,
-	handle.NewSubscribeConsume,
+	server.NewDefaultSubscribe,
+	server.NewExampleSubscribe,
+	consume.NewDefaultSubscribe,
+	consume.NewExampleSubscribe,
 
 	// 缓存
 	cache.NewSessionStorage,

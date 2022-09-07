@@ -1,7 +1,5 @@
 package entity
 
-import "fmt"
-
 // IM 渠道分组(用于业务划分，业务间相互隔离)
 const (
 	// ImChannelDefault 默认分组
@@ -10,10 +8,11 @@ const (
 )
 
 const (
-	IMGatewayAll     = "im:gateway:all"
-	IMGatewayPrivate = "im:gateway:%s"
-)
+	// ImTopicDefault 默认渠道消息订阅
+	ImTopicDefault        = "im:message:default:all"
+	ImTopicDefaultPrivate = "im:message:default:%s"
 
-func GetIMGatewayPrivate(sid string) string {
-	return fmt.Sprintf(IMGatewayPrivate, sid)
-}
+	// ImTopicExample Example渠道消息订阅
+	ImTopicExample        = "im:message:example:all"
+	ImTopicExamplePrivate = "im:message:example:%s"
+)

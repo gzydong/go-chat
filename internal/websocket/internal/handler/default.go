@@ -88,7 +88,7 @@ func (c *DefaultWebSocket) open(client im.IClient) {
 	}
 
 	// 推送上线消息
-	c.rds.Publish(context.Background(), entity.IMGatewayAll, jsonutil.Encode(entity.MapStrAny{
+	c.rds.Publish(context.Background(), entity.ImTopicDefault, jsonutil.Encode(entity.MapStrAny{
 		"event": entity.EventOnlineStatus,
 		"data": jsonutil.Encode(entity.MapStrAny{
 			"user_id": client.Uid(),
@@ -110,7 +110,7 @@ func (c *DefaultWebSocket) message(client im.IClient, message []byte) {
 	case entity.EventTalkKeyboard:
 		var m *dto.KeyboardMessage
 		if err := json.Unmarshal(message, &m); err == nil {
-			c.rds.Publish(context.Background(), entity.IMGatewayAll, jsonutil.Encode(entity.MapStrAny{
+			c.rds.Publish(context.Background(), entity.ImTopicDefault, jsonutil.Encode(entity.MapStrAny{
 				"event": entity.EventTalkKeyboard,
 				"data": jsonutil.Encode(entity.MapStrAny{
 					"sender_id":   m.Data.SenderID,
@@ -125,7 +125,7 @@ func (c *DefaultWebSocket) message(client im.IClient, message []byte) {
 		if err := json.Unmarshal(message, &m); err == nil {
 			c.groupMemberService.Db().Model(&model.TalkRecords{}).Where("id in ? and receiver_id = ? and is_read = 0", m.Data.MsgIds, client.Uid()).Update("is_read", 1)
 
-			c.rds.Publish(context.Background(), entity.IMGatewayAll, jsonutil.Encode(entity.MapStrAny{
+			c.rds.Publish(context.Background(), entity.ImTopicDefault, jsonutil.Encode(entity.MapStrAny{
 				"event": entity.EventTalkRead,
 				"data": jsonutil.Encode(entity.MapStrAny{
 					"sender_id":   client.Uid(),
@@ -159,7 +159,7 @@ func (c *DefaultWebSocket) close(client im.IClient, code int, text string) {
 	}
 
 	// 推送下线消息
-	c.rds.Publish(context.Background(), entity.IMGatewayAll, jsonutil.Encode(entity.MapStrAny{
+	c.rds.Publish(context.Background(), entity.ImTopicDefault, jsonutil.Encode(entity.MapStrAny{
 		"event": entity.EventOnlineStatus,
 		"data": jsonutil.Encode(entity.MapStrAny{
 			"user_id": client.Uid(),

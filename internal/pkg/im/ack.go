@@ -7,6 +7,7 @@ import (
 	"time"
 )
 
+// nolint
 var ack *AckBuffer
 
 // AckBuffer Ack 确认缓冲区
@@ -25,6 +26,7 @@ type AckBufferOption struct {
 	Content []byte  // 内容
 }
 
+// nolint
 func (a *AckBuffer) add(opt *AckBufferOption) {
 	a.list.Store(fmt.Sprintf("%s-%d", opt.MsgID, opt.Client.Cid()), opt)
 }

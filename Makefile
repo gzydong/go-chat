@@ -15,7 +15,7 @@ conf:
 
 .PHONY: generate
 generate:
-	wire ./...
+	go generate ./...
 
 lint:
 	golangci-lint run --timeout=5m --config ./.golangci.yml
