@@ -21,35 +21,33 @@ import (
 type onConsumeFunc func(data string)
 
 type DefaultSubscribe struct {
-	conf           *config.Config
-	ws             *cache.WsClientSession
-	room           *cache.RoomStorage
+	config         *config.Config
+	clientStorage  *cache.ClientStorage
+	roomStorage    *cache.RoomStorage
 	recordsService *service.TalkRecordsService
 	contactService *service.ContactService
 	handlers       map[string]onConsumeFunc
 }
 
-func NewDefaultSubscribe(conf *config.Config, ws *cache.WsClientSession, room *cache.RoomStorage, recordsService *service.TalkRecordsService, contactService *service.ContactService) *DefaultSubscribe {
-	return &DefaultSubscribe{conf: conf, ws: ws, room: room, recordsService: recordsService, contactService: contactService}
+func NewDefaultSubscribe(config *config.Config, clientStorage *cache.ClientStorage, roomStorage *cache.RoomStorage, recordsService *service.TalkRecordsService, contactService *service.ContactService) *DefaultSubscribe {
+	return &DefaultSubscribe{config: config, clientStorage: clientStorage, roomStorage: roomStorage, recordsService: recordsService, contactService: contactService}
 }
 
-// RegisterEvent 注册事件
-func (s *DefaultSubscribe) RegisterEvent() {
-	handler := make(map[string]onConsumeFunc)
+// Events 注册事件
+func (s *DefaultSubscribe) Events() {
+	s.handlers = make(map[string]onConsumeFunc)
 
-	// 注册消息回调事件
-	handler[entity.EventTalk] = s.onConsumeTalk
-	handler[entity.EventTalkKeyboard] = s.onConsumeTalkKeyboard
-	handler[entity.EventOnlineStatus] = s.onConsumeLogin
-	handler[entity.EventTalkRevoke] = s.onConsumeTalkRevoke
-	handler[entity.EventTalkJoinGroup] = s.onConsumeTalkJoinGroup
-	handler[entity.EventContactApply] = s.onConsumeContactApply
-	handler[entity.EventTalkRead] = s.onConsumeTalkRead
-
-	s.handlers = handler
+	s.handlers[entity.EventTalk] = s.onConsumeTalk
+	s.handlers[entity.EventTalkKeyboard] = s.onConsumeTalkKeyboard
+	s.handlers[entity.EventOnlineStatus] = s.onConsumeLogin
+	s.handlers[entity.EventTalkRevoke] = s.onConsumeTalkRevoke
+	s.handlers[entity.EventTalkJoinGroup] = s.onConsumeTalkJoinGroup
+	s.handlers[entity.EventContactApply] = s.onConsumeContactApply
+	s.handlers[entity.EventTalkRead] = s.onConsumeTalkRead
 }
 
-func (s *DefaultSubscribe) Handle(event string, data string) {
+// Call 触发回调事件
+func (s *DefaultSubscribe) Call(event string, data string) {
 
 	if s.handlers == nil {
 		panic("事件未注册")
@@ -81,16 +79,16 @@ func (s *DefaultSubscribe) onConsumeTalk(body string) {
 	cids := make([]int64, 0)
 	if msg.TalkType == entity.ChatPrivateMode {
 		for _, val := range [2]int64{msg.SenderID, msg.ReceiverID} {
-			ids := s.ws.GetUidFromClientIds(ctx, s.conf.ServerId(), im.Session.Default.Name(), strconv.Itoa(int(val)))
+			ids := s.clientStorage.GetUidFromClientIds(ctx, s.config.ServerId(), im.Session.Default.Name(), strconv.Itoa(int(val)))
 
 			cids = append(cids, ids...)
 		}
 	} else if msg.TalkType == entity.ChatGroupMode {
-		ids := s.room.All(ctx, &cache.RoomOption{
+		ids := s.roomStorage.All(ctx, &cache.RoomOption{
 			Channel:  im.Session.Default.Name(),
 			RoomType: entity.RoomImGroup,
 			Number:   strconv.Itoa(int(msg.ReceiverID)),
-			Sid:      s.conf.ServerId(),
+			Sid:      s.config.ServerId(),
 		})
 
 		cids = append(cids, ids...)
@@ -133,7 +131,7 @@ func (s *DefaultSubscribe) onConsumeTalkKeyboard(body string) {
 		return
 	}
 
-	cids := s.ws.GetUidFromClientIds(context.Background(), s.conf.ServerId(), im.Session.Default.Name(), strconv.Itoa(msg.ReceiverID))
+	cids := s.clientStorage.GetUidFromClientIds(context.Background(), s.config.ServerId(), im.Session.Default.Name(), strconv.Itoa(msg.ReceiverID))
 
 	if len(cids) == 0 {
 		return
@@ -168,9 +166,9 @@ func (s *DefaultSubscribe) onConsumeLogin(body string) {
 	cids := make([]int64, 0)
 
 	uids := s.contactService.GetContactIds(ctx, msg.UserID)
-	sid := s.conf.ServerId()
+	sid := s.config.ServerId()
 	for _, uid := range uids {
-		ids := s.ws.GetUidFromClientIds(ctx, sid, im.Session.Default.Name(), fmt.Sprintf("%d", uid))
+		ids := s.clientStorage.GetUidFromClientIds(ctx, sid, im.Session.Default.Name(), fmt.Sprintf("%d", uid))
 
 		cids = append(cids, ids...)
 	}
@@ -211,15 +209,15 @@ func (s *DefaultSubscribe) onConsumeTalkRevoke(body string) {
 	cids := make([]int64, 0)
 	if record.TalkType == entity.ChatPrivateMode {
 		for _, uid := range [2]int{record.UserId, record.ReceiverId} {
-			ids := s.ws.GetUidFromClientIds(ctx, s.conf.ServerId(), im.Session.Default.Name(), strconv.Itoa(uid))
+			ids := s.clientStorage.GetUidFromClientIds(ctx, s.config.ServerId(), im.Session.Default.Name(), strconv.Itoa(uid))
 			cids = append(cids, ids...)
 		}
 	} else if record.TalkType == entity.ChatGroupMode {
-		cids = s.room.All(ctx, &cache.RoomOption{
+		cids = s.roomStorage.All(ctx, &cache.RoomOption{
 			Channel:  im.Session.Default.Name(),
 			RoomType: entity.RoomImGroup,
 			Number:   strconv.Itoa(record.ReceiverId),
-			Sid:      s.conf.ServerId(),
+			Sid:      s.config.ServerId(),
 		})
 	}
 
@@ -262,7 +260,7 @@ func (s *DefaultSubscribe) onConsumeContactApply(body string) {
 		return
 	}
 
-	cids := s.ws.GetUidFromClientIds(ctx, s.conf.ServerId(), im.Session.Default.Name(), strconv.Itoa(apply.FriendId))
+	cids := s.clientStorage.GetUidFromClientIds(ctx, s.config.ServerId(), im.Session.Default.Name(), strconv.Itoa(apply.FriendId))
 	if len(cids) == 0 {
 		return
 	}
@@ -296,7 +294,7 @@ func (s *DefaultSubscribe) onConsumeContactApply(body string) {
 func (s *DefaultSubscribe) onConsumeTalkJoinGroup(body string) {
 	var (
 		ctx  = context.Background()
-		sid  = s.conf.ServerId()
+		sid  = s.config.ServerId()
 		data struct {
 			Gid  int   `json:"group_id"`
 			Type int   `json:"type"`
@@ -310,21 +308,21 @@ func (s *DefaultSubscribe) onConsumeTalkJoinGroup(body string) {
 	}
 
 	for _, uid := range data.Uids {
-		cids := s.ws.GetUidFromClientIds(ctx, sid, im.Session.Default.Name(), strconv.Itoa(uid))
+		cids := s.clientStorage.GetUidFromClientIds(ctx, sid, im.Session.Default.Name(), strconv.Itoa(uid))
 
 		for _, cid := range cids {
 			opts := &cache.RoomOption{
 				Channel:  im.Session.Default.Name(),
 				RoomType: entity.RoomImGroup,
 				Number:   strconv.Itoa(data.Gid),
-				Sid:      s.conf.ServerId(),
+				Sid:      s.config.ServerId(),
 				Cid:      cid,
 			}
 
 			if data.Type == 2 {
-				_ = s.room.Del(ctx, opts)
+				_ = s.roomStorage.Del(ctx, opts)
 			} else {
-				_ = s.room.Add(ctx, opts)
+				_ = s.roomStorage.Add(ctx, opts)
 			}
 		}
 	}
@@ -334,7 +332,7 @@ func (s *DefaultSubscribe) onConsumeTalkJoinGroup(body string) {
 func (s *DefaultSubscribe) onConsumeTalkRead(body string) {
 	var (
 		ctx  = context.Background()
-		sid  = s.conf.ServerId()
+		sid  = s.config.ServerId()
 		data struct {
 			SenderId   int   `json:"sender_id"`
 			ReceiverId int   `json:"receiver_id"`
@@ -347,7 +345,7 @@ func (s *DefaultSubscribe) onConsumeTalkRead(body string) {
 		return
 	}
 
-	cids := s.ws.GetUidFromClientIds(ctx, sid, im.Session.Default.Name(), fmt.Sprintf("%d", data.ReceiverId))
+	cids := s.clientStorage.GetUidFromClientIds(ctx, sid, im.Session.Default.Name(), fmt.Sprintf("%d", data.ReceiverId))
 
 	c := im.NewSenderContent()
 	c.SetReceive(cids...)

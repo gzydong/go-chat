@@ -65,9 +65,12 @@ func main() {
 			app.Coroutine.Start(eg, groupCtx)
 		})
 
-		log.Printf("Websocket Server ID   :%s", conf.ServerId())
+		log.Printf("Server ID   :%s", conf.ServerId())
+		log.Printf("Server Pid  :%d", os.Getpid())
 		log.Printf("Websocket Listen Port :%d", conf.App.Port)
-		log.Printf("Websocket Server Pid  :%d", os.Getpid())
+		log.Printf("Tcp Listen Port :%d", 9505)
+
+		go NewTcpServer(app)
 
 		return start(c, eg, groupCtx, cancel, app.Server)
 	}
@@ -77,9 +80,7 @@ func main() {
 
 func start(c chan os.Signal, eg *errgroup.Group, ctx context.Context, cancel context.CancelFunc, server *http.Server) error {
 
-	// 启动 http 服务
 	eg.Go(func() error {
-
 		err := server.ListenAndServe()
 		if err != nil && err != http.ErrServerClosed {
 			log.Fatalf("Websocket Listen Err: %s", err)
@@ -93,7 +94,7 @@ func start(c chan os.Signal, eg *errgroup.Group, ctx context.Context, cancel con
 			cancel()
 
 			// 等待中断信号以优雅地关闭服务器（设置 5 秒的超时时间）
-			timeCtx, timeCancel := context.WithTimeout(context.Background(), 5*time.Second)
+			timeCtx, timeCancel := context.WithTimeout(context.Background(), 3*time.Second)
 			defer timeCancel()
 
 			if err := server.Shutdown(timeCtx); err != nil {
@@ -110,11 +111,10 @@ func start(c chan os.Signal, eg *errgroup.Group, ctx context.Context, cancel con
 	})
 
 	if err := eg.Wait(); err != nil && !errors.Is(err, context.Canceled) {
-		log.Fatalf("eg error: %s", err)
-		return err
+		time.Sleep(3 * time.Second)
 	}
 
-	log.Fatal("Websocket Shutdown")
+	log.Fatal("IM Server Shutdown")
 
 	return nil
 }

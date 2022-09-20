@@ -32,9 +32,8 @@ var providerSet = wire.NewSet(
 	// process
 	wire.Struct(new(process.SubServers), "*"),
 	process.NewServer,
-	server.NewHealth,
-	server.NewDefaultSubscribe,
-	server.NewExampleSubscribe,
+	server.NewHealthSubscribe,
+	server.NewMessageSubscribe,
 	consume.NewDefaultSubscribe,
 	consume.NewExampleSubscribe,
 
@@ -42,7 +41,7 @@ var providerSet = wire.NewSet(
 	cache.NewSessionStorage,
 	cache.NewSid,
 	cache.NewRedisLock,
-	cache.NewWsClientSession,
+	cache.NewClientStorage,
 	cache.NewRoomStorage,
 	cache.NewTalkVote,
 	cache.NewRelation,

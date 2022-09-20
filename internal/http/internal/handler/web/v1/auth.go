@@ -52,7 +52,7 @@ func (c *Auth) Login(ctx *ichat.Context) error {
 
 		address, _ := c.ipAddressService.FindAddress(ip)
 
-		_, _ = c.talkSessionService.Create(ctx.RequestCtx(), &service.TalkSessionCreateOpt{
+		_, _ = c.talkSessionService.Create(ctx.Ctx(), &service.TalkSessionCreateOpt{
 			UserId:     user.Id,
 			TalkType:   entity.ChatPrivateMode,
 			ReceiverId: root.UserId,
@@ -60,7 +60,7 @@ func (c *Auth) Login(ctx *ichat.Context) error {
 		})
 
 		// 推送登录消息
-		_ = c.talkMessageService.SendLoginMessage(ctx.RequestCtx(), &service.LoginMessageOpt{
+		_ = c.talkMessageService.SendLoginMessage(ctx.Ctx(), &service.LoginMessageOpt{
 			UserId:   user.Id,
 			Ip:       ip,
 			Address:  address,
@@ -85,7 +85,7 @@ func (c *Auth) Register(ctx *ichat.Context) error {
 	}
 
 	// 验证短信验证码是否正确
-	if !c.smsService.CheckSmsCode(ctx.RequestCtx(), entity.SmsRegisterChannel, params.Mobile, params.SmsCode) {
+	if !c.smsService.CheckSmsCode(ctx.Ctx(), entity.SmsRegisterChannel, params.Mobile, params.SmsCode) {
 		return ctx.InvalidParams("短信验证码填写错误！")
 	}
 
@@ -99,7 +99,7 @@ func (c *Auth) Register(ctx *ichat.Context) error {
 		return ctx.BusinessError(err.Error())
 	}
 
-	c.smsService.DeleteSmsCode(ctx.RequestCtx(), entity.SmsRegisterChannel, params.Mobile)
+	c.smsService.DeleteSmsCode(ctx.Ctx(), entity.SmsRegisterChannel, params.Mobile)
 
 	return ctx.Success(nil)
 }
@@ -133,7 +133,7 @@ func (c *Auth) Forget(ctx *ichat.Context) error {
 	}
 
 	// 验证短信验证码是否正确
-	if !c.smsService.CheckSmsCode(ctx.RequestCtx(), entity.SmsForgetAccountChannel, params.Mobile, params.SmsCode) {
+	if !c.smsService.CheckSmsCode(ctx.Ctx(), entity.SmsForgetAccountChannel, params.Mobile, params.SmsCode) {
 		return ctx.InvalidParams("短信验证码填写错误！")
 	}
 
@@ -145,7 +145,7 @@ func (c *Auth) Forget(ctx *ichat.Context) error {
 		return ctx.BusinessError(err.Error())
 	}
 
-	c.smsService.DeleteSmsCode(ctx.RequestCtx(), entity.SmsForgetAccountChannel, params.Mobile)
+	c.smsService.DeleteSmsCode(ctx.Ctx(), entity.SmsForgetAccountChannel, params.Mobile)
 
 	return ctx.Success(nil)
 }
@@ -171,6 +171,6 @@ func (c *Auth) toBlackList(ctx *ichat.Context) {
 		ex := session.ExpiresAt - time.Now().Unix()
 
 		// 将 session 加入黑名单
-		_ = c.session.SetBlackList(ctx.RequestCtx(), session.Token, int(ex))
+		_ = c.session.SetBlackList(ctx.Ctx(), session.Token, int(ex))
 	}
 }

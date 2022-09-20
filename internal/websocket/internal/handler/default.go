@@ -42,7 +42,7 @@ func (c *DefaultWebSocket) Connect(ctx *ichat.Context) error {
 	}
 
 	// 创建客户端
-	im.NewClient(ctx.RequestCtx(), conn, &im.ClientOptions{
+	im.NewClient(ctx.Ctx(), conn, &im.ClientOptions{
 		Uid:     ctx.UserId(),
 		Channel: im.Session.Default,
 		Storage: c.cache,
@@ -166,4 +166,9 @@ func (c *DefaultWebSocket) close(client im.IClient, code int, text string) {
 			"status":  0,
 		}),
 	}))
+}
+
+// TCPConnect AcceptTcp 连接
+func (c *DefaultWebSocket) TCPConnect() {
+
 }

@@ -34,7 +34,7 @@ func (c *Records) GetRecords(ctx *ichat.Context) error {
 
 	uid := ctx.UserId()
 	if params.TalkType == entity.ChatGroupMode {
-		if !c.authPermission.IsAuth(ctx.RequestCtx(), &service.AuthPermission{
+		if !c.authPermission.IsAuth(ctx.Ctx(), &service.AuthPermission{
 			TalkType:   params.TalkType,
 			UserId:     uid,
 			ReceiverId: params.ReceiverId,
@@ -93,7 +93,7 @@ func (c *Records) SearchHistoryRecords(ctx *ichat.Context) error {
 	uid := ctx.UserId()
 
 	if params.TalkType == entity.ChatGroupMode {
-		if !c.authPermission.IsAuth(ctx.RequestCtx(), &service.AuthPermission{
+		if !c.authPermission.IsAuth(ctx.Ctx(), &service.AuthPermission{
 			TalkType:   params.TalkType,
 			UserId:     uid,
 			ReceiverId: params.ReceiverId,
@@ -151,7 +151,7 @@ func (c *Records) GetForwardRecords(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	records, err := c.service.GetForwardRecords(ctx.RequestCtx(), ctx.UserId(), int64(params.RecordId))
+	records, err := c.service.GetForwardRecords(ctx.Ctx(), ctx.UserId(), int64(params.RecordId))
 	if err != nil {
 		return ctx.BusinessError(err.Error())
 	}
@@ -169,7 +169,7 @@ func (c *Records) Download(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	resp, err := c.service.Dao().FindFileRecord(ctx.RequestCtx(), params.RecordId)
+	resp, err := c.service.Dao().FindFileRecord(ctx.Ctx(), params.RecordId)
 	if err != nil {
 		return ctx.BusinessError(err.Error())
 	}

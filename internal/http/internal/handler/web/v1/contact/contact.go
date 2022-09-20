@@ -17,14 +17,14 @@ import (
 
 type Contact struct {
 	service            *service.ContactService
-	wsClient           *cache.WsClientSession
+	wsClient           *cache.ClientStorage
 	userService        *service.UserService
 	talkListService    *service.TalkSessionService
 	talkMessageService *service.TalkMessageService
 	organizeService    *organize.OrganizeService
 }
 
-func NewContact(service *service.ContactService, wsClient *cache.WsClientSession, userService *service.UserService, talkListService *service.TalkSessionService, talkMessageService *service.TalkMessageService, organizeService *organize.OrganizeService) *Contact {
+func NewContact(service *service.ContactService, wsClient *cache.ClientStorage, userService *service.UserService, talkListService *service.TalkSessionService, talkMessageService *service.TalkMessageService, organizeService *organize.OrganizeService) *Contact {
 	return &Contact{service: service, wsClient: wsClient, userService: userService, talkListService: talkListService, talkMessageService: talkMessageService, organizeService: organizeService}
 }
 
@@ -148,9 +148,9 @@ func (c *Contact) Detail(ctx *ichat.Context) error {
 	}
 
 	if uid != params.UserId {
-		if c.service.Dao().IsFriend(ctx.RequestCtx(), uid, params.UserId, false) {
+		if c.service.Dao().IsFriend(ctx.Ctx(), uid, params.UserId, false) {
 			resp["friend_status"] = 2
-			resp["nickname_remark"] = c.service.Dao().GetFriendRemark(ctx.RequestCtx(), uid, params.UserId)
+			resp["nickname_remark"] = c.service.Dao().GetFriendRemark(ctx.Ctx(), uid, params.UserId)
 		} else {
 			isOk, _ := c.organizeService.Dao().IsQiyeMember(uid, params.UserId)
 			if isOk {

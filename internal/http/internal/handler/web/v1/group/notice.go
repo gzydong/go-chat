@@ -38,7 +38,7 @@ func (c *Notice) CreateAndUpdate(ctx *ichat.Context) error {
 	}
 
 	if params.NoticeId == 0 {
-		err = c.service.Create(ctx.RequestCtx(), &service.GroupNoticeEditOpt{
+		err = c.service.Create(ctx.Ctx(), &service.GroupNoticeEditOpt{
 			UserId:    uid,
 			GroupId:   params.GroupId,
 			NoticeId:  params.NoticeId,
@@ -49,7 +49,7 @@ func (c *Notice) CreateAndUpdate(ctx *ichat.Context) error {
 		})
 		msg = "添加群公告成功！"
 	} else {
-		err = c.service.Update(ctx.RequestCtx(), &service.GroupNoticeEditOpt{
+		err = c.service.Update(ctx.Ctx(), &service.GroupNoticeEditOpt{
 			GroupId:   params.GroupId,
 			NoticeId:  params.NoticeId,
 			Title:     params.Title,

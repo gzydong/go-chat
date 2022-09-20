@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"sync"
 	"sync/atomic"
 	"time"
 
@@ -84,9 +85,10 @@ func (c *Channel) delClient(client *Client) {
 }
 
 // 推送客户端数据
-func (c *Channel) loopPush(ctx context.Context) {
+func (c *Channel) loopPush(ctx context.Context, sw *sync.WaitGroup) {
 
 	work := worker.NewTask(50)
+	defer sw.Done()
 
 	for {
 		select {
@@ -113,9 +115,10 @@ func (c *Channel) loopPush(ctx context.Context) {
 }
 
 // 广播推送
-func (c *Channel) loopBroadcast(ctx context.Context) {
+func (c *Channel) loopBroadcast(ctx context.Context, sw *sync.WaitGroup) {
 
 	work := worker.NewTask(10)
+	defer sw.Done()
 
 	for {
 		select {
@@ -142,9 +145,13 @@ func (c *Channel) loopBroadcast(ctx context.Context) {
 // Start 渠道消费协程
 func (c *Channel) Start(ctx context.Context) error {
 
-	go c.loopPush(ctx)
+	sw := &sync.WaitGroup{}
+	sw.Add(2)
 
-	go c.loopBroadcast(ctx)
+	go c.loopPush(ctx, sw)
+	go c.loopBroadcast(ctx, sw)
+
+	sw.Wait()
 
 	return nil
 }

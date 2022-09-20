@@ -155,10 +155,10 @@ func (c *Client) close(code int, text string) error {
 	if !c.isClosed {
 		c.isClosed = true
 		close(c.outChan) // 关闭通道
-	}
 
-	// 触发连接关闭回调
-	c.callBack.Close(c, code, text)
+		// 触发连接关闭回调
+		c.callBack.Close(c, code, text)
+	}
 
 	// 解绑关联
 	if c.storage != nil {
@@ -184,7 +184,7 @@ func (c *Client) loopAccept() {
 		// 读取客户端中的数据
 		message, err := c.conn.Read()
 		if err != nil {
-			break
+			return
 		}
 
 		// 更新最后心跳时间

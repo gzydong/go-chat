@@ -3,6 +3,7 @@ package talk
 import (
 	"errors"
 
+	"github.com/gin-gonic/gin/binding"
 	"go-chat/internal/http/internal/dto/web"
 	"go-chat/internal/pkg/ichat"
 	"go-chat/internal/repository/dao"
@@ -25,10 +26,11 @@ type Message struct {
 	contactService     *service.ContactService
 	groupMemberService *service.GroupMemberService
 	organizeService    *organize.OrganizeService
+	auth               *service.TalkAuthService
 }
 
-func NewMessage(service *service.TalkMessageService, talkService *service.TalkService, talkRecordsVoteDao *dao.TalkRecordsVoteDao, forwardService *service.TalkMessageForwardService, splitUploadService *service.SplitUploadService, contactService *service.ContactService, groupMemberService *service.GroupMemberService, organizeService *organize.OrganizeService) *Message {
-	return &Message{service: service, talkService: talkService, talkRecordsVoteDao: talkRecordsVoteDao, forwardService: forwardService, splitUploadService: splitUploadService, contactService: contactService, groupMemberService: groupMemberService, organizeService: organizeService}
+func NewMessage(service *service.TalkMessageService, talkService *service.TalkService, talkRecordsVoteDao *dao.TalkRecordsVoteDao, forwardService *service.TalkMessageForwardService, splitUploadService *service.SplitUploadService, contactService *service.ContactService, groupMemberService *service.GroupMemberService, organizeService *organize.OrganizeService, auth *service.TalkAuthService) *Message {
+	return &Message{service: service, talkService: talkService, talkRecordsVoteDao: talkRecordsVoteDao, forwardService: forwardService, splitUploadService: splitUploadService, contactService: contactService, groupMemberService: groupMemberService, organizeService: organizeService, auth: auth}
 }
 
 type AuthorityOpts struct {
@@ -48,7 +50,7 @@ func (c *Message) authority(ctx *ichat.Context, opt *AuthorityOpts) error {
 			return nil
 		}
 
-		isOk := c.contactService.Dao().IsFriend(ctx.RequestCtx(), opt.UserId, opt.ReceiverId, false)
+		isOk := c.contactService.Dao().IsFriend(ctx.Ctx(), opt.UserId, opt.ReceiverId, false)
 		if isOk {
 			return nil
 		}
@@ -94,7 +96,7 @@ func (c *Message) Text(ctx *ichat.Context) error {
 		return ctx.BusinessError(err.Error())
 	}
 
-	if err := c.service.SendTextMessage(ctx.RequestCtx(), &service.TextMessageOpt{
+	if err := c.service.SendTextMessage(ctx.Ctx(), &service.TextMessageOpt{
 		UserId:     uid,
 		TalkType:   params.TalkType,
 		ReceiverId: params.ReceiverId,
@@ -123,7 +125,7 @@ func (c *Message) Code(ctx *ichat.Context) error {
 		return ctx.BusinessError(err.Error())
 	}
 
-	if err := c.service.SendCodeMessage(ctx.RequestCtx(), &service.CodeMessageOpt{
+	if err := c.service.SendCodeMessage(ctx.Ctx(), &service.CodeMessageOpt{
 		UserId:     uid,
 		TalkType:   params.TalkType,
 		ReceiverId: params.ReceiverId,
@@ -167,7 +169,7 @@ func (c *Message) Image(ctx *ichat.Context) error {
 		return ctx.BusinessError(err.Error())
 	}
 
-	if err := c.service.SendImageMessage(ctx.RequestCtx(), &service.ImageMessageOpt{
+	if err := c.service.SendImageMessage(ctx.Ctx(), &service.ImageMessageOpt{
 		UserId:     uid,
 		TalkType:   params.TalkType,
 		ReceiverId: params.ReceiverId,
@@ -196,7 +198,7 @@ func (c *Message) File(ctx *ichat.Context) error {
 		return ctx.BusinessError(err.Error())
 	}
 
-	if err := c.service.SendFileMessage(ctx.RequestCtx(), &service.FileMessageOpt{
+	if err := c.service.SendFileMessage(ctx.Ctx(), &service.FileMessageOpt{
 		UserId:     uid,
 		TalkType:   params.TalkType,
 		ReceiverId: params.ReceiverId,
@@ -233,7 +235,7 @@ func (c *Message) Vote(ctx *ichat.Context) error {
 		return ctx.BusinessError(err.Error())
 	}
 
-	if err := c.service.SendVoteMessage(ctx.RequestCtx(), &service.VoteMessageOpt{
+	if err := c.service.SendVoteMessage(ctx.Ctx(), &service.VoteMessageOpt{
 		UserId:     uid,
 		ReceiverId: params.ReceiverId,
 		Mode:       params.Mode,
@@ -264,7 +266,7 @@ func (c *Message) Emoticon(ctx *ichat.Context) error {
 		return ctx.BusinessError(err.Error())
 	}
 
-	if err := c.service.SendEmoticonMessage(ctx.RequestCtx(), &service.EmoticonMessageOpt{
+	if err := c.service.SendEmoticonMessage(ctx.Ctx(), &service.EmoticonMessageOpt{
 		UserId:     uid,
 		TalkType:   params.TalkType,
 		ReceiverId: params.ReceiverId,
@@ -307,7 +309,7 @@ func (c *Message) Forward(ctx *ichat.Context) error {
 		GroupIds:   sliceutil.ParseIds(params.ReceiveGroupIds),
 	}
 
-	if err := c.forwardService.SendForwardMessage(ctx.RequestCtx(), forward); err != nil {
+	if err := c.forwardService.SendForwardMessage(ctx.Ctx(), forward); err != nil {
 		return ctx.BusinessError(err.Error())
 	}
 
@@ -332,7 +334,7 @@ func (c *Message) Card(ctx *ichat.Context) error {
 	}
 
 	// todo SendCardMessage
-	if err := c.service.SendCardMessage(ctx.RequestCtx(), &service.CardMessageOpt{
+	if err := c.service.SendCardMessage(ctx.Ctx(), &service.CardMessageOpt{
 		UserId:     uid,
 		TalkType:   params.TalkType,
 		ReceiverId: params.ReceiverId,
@@ -352,7 +354,7 @@ func (c *Message) Collect(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	if err := c.talkService.CollectRecord(ctx.RequestCtx(), ctx.UserId(), params.RecordId); err != nil {
+	if err := c.talkService.CollectRecord(ctx.Ctx(), ctx.UserId(), params.RecordId); err != nil {
 		return ctx.BusinessError(err.Error())
 	}
 
@@ -367,7 +369,7 @@ func (c *Message) Revoke(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	if err := c.service.SendRevokeRecordMessage(ctx.RequestCtx(), ctx.UserId(), params.RecordId); err != nil {
+	if err := c.service.SendRevokeRecordMessage(ctx.Ctx(), ctx.UserId(), params.RecordId); err != nil {
 		return ctx.BusinessError(err.Error())
 	}
 
@@ -382,7 +384,7 @@ func (c *Message) Delete(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	if err := c.talkService.RemoveRecords(ctx.RequestCtx(), &service.TalkMessageDeleteOpt{
+	if err := c.talkService.RemoveRecords(ctx.Ctx(), &service.TalkMessageDeleteOpt{
 		UserId:     ctx.UserId(),
 		TalkType:   params.TalkType,
 		ReceiverId: params.ReceiverId,
@@ -402,7 +404,7 @@ func (c *Message) HandleVote(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	vid, err := c.service.VoteHandle(ctx.RequestCtx(), &service.VoteMessageHandleOpt{
+	vid, err := c.service.VoteHandle(ctx.Ctx(), &service.VoteMessageHandleOpt{
 		UserId:   ctx.UserId(),
 		RecordId: params.RecordId,
 		Options:  params.Options,
@@ -411,7 +413,7 @@ func (c *Message) HandleVote(ctx *ichat.Context) error {
 		return ctx.BusinessError(err.Error())
 	}
 
-	res, _ := c.talkRecordsVoteDao.GetVoteStatistics(ctx.RequestCtx(), vid)
+	res, _ := c.talkRecordsVoteDao.GetVoteStatistics(ctx.Ctx(), vid)
 
 	return ctx.Success(res)
 }
@@ -433,7 +435,7 @@ func (c *Message) Location(ctx *ichat.Context) error {
 		return ctx.BusinessError(err.Error())
 	}
 
-	if err := c.service.SendLocationMessage(ctx.RequestCtx(), &service.LocationMessageOpt{
+	if err := c.service.SendLocationMessage(ctx.Ctx(), &service.LocationMessageOpt{
 		UserId:     uid,
 		TalkType:   params.TalkType,
 		ReceiverId: params.ReceiverId,
@@ -444,4 +446,47 @@ func (c *Message) Location(ctx *ichat.Context) error {
 	}
 
 	return ctx.Success(nil)
+}
+
+// Send 通用消息发送接口
+func (c *Message) Send(ctx *ichat.Context) error {
+
+	value := &web.SendBaseMessageRequest{}
+	if err := ctx.Context.ShouldBindBodyWith(value, binding.JSON); err != nil {
+		return ctx.InvalidParams(err)
+	}
+
+	var params interface{}
+	switch value.Type {
+	case 1:
+		params = &web.SendTextRequest{}
+	case 2:
+		params = &web.SendImageRequest{}
+	case 5:
+		params = &web.SendVoiceRequest{}
+	case 6:
+		params = &web.SendVoiceRequest{}
+	case 7:
+		params = &web.SendFileRequest{}
+	case 8:
+		params = &web.SendCodeRequest{}
+	case 9:
+		params = &web.SendLocationRequest{}
+	case 10:
+		params = &web.SendVoteMessageRequest{}
+	case 11:
+		params = &web.SendVoteMessageRequest{}
+	case 12:
+		params = &web.SendEmoticonRequest{}
+	}
+
+	if params == nil {
+		return ctx.InvalidParams("消息类型不能为空")
+	}
+
+	if err := ctx.Context.ShouldBindBodyWith(params, binding.JSON); err != nil {
+		return ctx.InvalidParams(err)
+	}
+
+	return ctx.Success(params)
 }

@@ -111,6 +111,7 @@ func RegisterWebRoute(secret string, router *gin.Engine, handler *web.Handler, s
 
 		talkMsg := v1.Group("/talk/message").Use(authorize)
 		{
+			talkMsg.POST("/send", ichat.HandlerFunc(handler.V1.TalkMessage.Send))              // 发送消息
 			talkMsg.POST("/text", ichat.HandlerFunc(handler.V1.TalkMessage.Text))              // 发送文本消息
 			talkMsg.POST("/code", ichat.HandlerFunc(handler.V1.TalkMessage.Code))              // 发送代码消息
 			talkMsg.POST("/image", ichat.HandlerFunc(handler.V1.TalkMessage.Image))            // 发送图片消息

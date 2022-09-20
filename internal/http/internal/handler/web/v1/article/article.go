@@ -35,7 +35,7 @@ func (c *Article) List(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	items, err := c.service.List(ctx.RequestCtx(), &note.ArticleListOpt{
+	items, err := c.service.List(ctx.Ctx(), &note.ArticleListOpt{
 		UserId:   ctx.UserId(),
 		Keyword:  params.Keyword,
 		FindType: params.FindType,
@@ -76,7 +76,7 @@ func (c *Article) Detail(ctx *ichat.Context) error {
 
 	uid := ctx.UserId()
 
-	detail, err := c.service.Detail(ctx.RequestCtx(), uid, params.ArticleId)
+	detail, err := c.service.Detail(ctx.Ctx(), uid, params.ArticleId)
 	if err != nil {
 		return ctx.BusinessError("笔记不存在")
 	}
@@ -138,9 +138,9 @@ func (c *Article) Edit(ctx *ichat.Context) error {
 	}
 
 	if params.ArticleId == 0 {
-		params.ArticleId, err = c.service.Create(ctx.RequestCtx(), opts)
+		params.ArticleId, err = c.service.Create(ctx.Ctx(), opts)
 	} else {
-		err = c.service.Update(ctx.RequestCtx(), opts)
+		err = c.service.Update(ctx.Ctx(), opts)
 	}
 
 	if err != nil {
@@ -166,7 +166,7 @@ func (c *Article) Delete(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	err := c.service.UpdateStatus(ctx.RequestCtx(), ctx.UserId(), params.ArticleId, 2)
+	err := c.service.UpdateStatus(ctx.Ctx(), ctx.UserId(), params.ArticleId, 2)
 	if err != nil {
 		return ctx.BusinessError(err.Error())
 	}
@@ -182,7 +182,7 @@ func (c *Article) Recover(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	err := c.service.UpdateStatus(ctx.RequestCtx(), ctx.UserId(), params.ArticleId, 1)
+	err := c.service.UpdateStatus(ctx.Ctx(), ctx.UserId(), params.ArticleId, 1)
 	if err != nil {
 		return ctx.BusinessError(err.Error())
 	}
@@ -232,7 +232,7 @@ func (c *Article) Move(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	if err := c.service.Move(ctx.RequestCtx(), ctx.UserId(), params.ArticleId, params.ClassId); err != nil {
+	if err := c.service.Move(ctx.Ctx(), ctx.UserId(), params.ArticleId, params.ClassId); err != nil {
 		return ctx.BusinessError(err.Error())
 	}
 
@@ -247,7 +247,7 @@ func (c Article) Asterisk(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	if err := c.service.Asterisk(ctx.RequestCtx(), ctx.UserId(), params.ArticleId, params.Type); err != nil {
+	if err := c.service.Asterisk(ctx.Ctx(), ctx.UserId(), params.ArticleId, params.Type); err != nil {
 		return ctx.BusinessError(err.Error())
 	}
 
@@ -262,7 +262,7 @@ func (c *Article) Tag(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	if err := c.service.Tag(ctx.RequestCtx(), ctx.UserId(), params.ArticleId, params.Tags); err != nil {
+	if err := c.service.Tag(ctx.Ctx(), ctx.UserId(), params.ArticleId, params.Tags); err != nil {
 		return ctx.BusinessError(err.Error())
 	}
 
@@ -277,7 +277,7 @@ func (c *Article) ForeverDelete(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	if err := c.service.ForeverDelete(ctx.RequestCtx(), ctx.UserId(), params.ArticleId); err != nil {
+	if err := c.service.ForeverDelete(ctx.Ctx(), ctx.UserId(), params.ArticleId); err != nil {
 		return ctx.BusinessError(err.Error())
 	}
 

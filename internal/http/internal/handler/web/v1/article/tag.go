@@ -18,7 +18,7 @@ func NewTag(service *note.ArticleTagService) *Tag {
 // List 标签列表
 func (c *Tag) List(ctx *ichat.Context) error {
 
-	items, err := c.service.List(ctx.RequestCtx(), ctx.UserId())
+	items, err := c.service.List(ctx.Ctx(), ctx.UserId())
 	if err != nil {
 		return ctx.BusinessError(err)
 	}
@@ -40,9 +40,9 @@ func (c *Tag) Edit(ctx *ichat.Context) error {
 	}
 
 	if params.TagId == 0 {
-		params.TagId, err = c.service.Create(ctx.RequestCtx(), uid, params.TagName)
+		params.TagId, err = c.service.Create(ctx.Ctx(), uid, params.TagName)
 	} else {
-		err = c.service.Update(ctx.RequestCtx(), uid, params.TagId, params.TagName)
+		err = c.service.Update(ctx.Ctx(), uid, params.TagId, params.TagName)
 	}
 
 	if err != nil {
@@ -60,7 +60,7 @@ func (c *Tag) Delete(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	err := c.service.Delete(ctx.RequestCtx(), ctx.UserId(), params.TagId)
+	err := c.service.Delete(ctx.Ctx(), ctx.UserId(), params.TagId)
 	if err != nil {
 		return ctx.BusinessError(err)
 	}

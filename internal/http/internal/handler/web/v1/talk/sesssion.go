@@ -15,12 +15,12 @@ import (
 	"go-chat/internal/service"
 )
 
-type Talk struct {
+type Session struct {
 	service            *service.TalkService
 	talkListService    *service.TalkSessionService
 	redisLock          *cache.RedisLock
 	userService        *service.UserService
-	wsClient           *cache.WsClientSession
+	wsClient           *cache.ClientStorage
 	lastMessage        *cache.MessageStorage
 	contactService     *service.ContactService
 	unreadTalkCache    *cache.UnreadStorage
@@ -29,22 +29,22 @@ type Talk struct {
 	authPermission     *service.AuthPermissionService
 }
 
-func NewTalk(service *service.TalkService, talkListService *service.TalkSessionService, redisLock *cache.RedisLock, userService *service.UserService, wsClient *cache.WsClientSession, lastMessage *cache.MessageStorage, contactService *service.ContactService, unreadTalkCache *cache.UnreadStorage, contactRemarkCache *cache.ContactRemark, groupService *service.GroupService, authPermission *service.AuthPermissionService) *Talk {
-	return &Talk{service: service, talkListService: talkListService, redisLock: redisLock, userService: userService, wsClient: wsClient, lastMessage: lastMessage, contactService: contactService, unreadTalkCache: unreadTalkCache, contactRemarkCache: contactRemarkCache, groupService: groupService, authPermission: authPermission}
+func NewSession(service *service.TalkService, talkListService *service.TalkSessionService, redisLock *cache.RedisLock, userService *service.UserService, wsClient *cache.ClientStorage, lastMessage *cache.MessageStorage, contactService *service.ContactService, unreadTalkCache *cache.UnreadStorage, contactRemarkCache *cache.ContactRemark, groupService *service.GroupService, authPermission *service.AuthPermissionService) *Session {
+	return &Session{service: service, talkListService: talkListService, redisLock: redisLock, userService: userService, wsClient: wsClient, lastMessage: lastMessage, contactService: contactService, unreadTalkCache: unreadTalkCache, contactRemarkCache: contactRemarkCache, groupService: groupService, authPermission: authPermission}
 }
 
 // List 会话列表
-func (c *Talk) List(ctx *ichat.Context) error {
+func (c *Session) List(ctx *ichat.Context) error {
 
 	uid := ctx.UserId()
 
 	// 获取未读消息数
-	unReads := c.unreadTalkCache.GetAll(ctx.RequestCtx(), uid)
+	unReads := c.unreadTalkCache.GetAll(ctx.Ctx(), uid)
 	if len(unReads) > 0 {
-		c.talkListService.BatchAddList(ctx.RequestCtx(), uid, unReads)
+		c.talkListService.BatchAddList(ctx.Ctx(), uid, unReads)
 	}
 
-	data, err := c.talkListService.List(ctx.RequestCtx(), uid)
+	data, err := c.talkListService.List(ctx.Ctx(), uid)
 	if err != nil {
 		return ctx.BusinessError(err.Error())
 	}
@@ -57,7 +57,7 @@ func (c *Talk) List(ctx *ichat.Context) error {
 	}
 
 	// 获取好友备注
-	remarks, _ := c.contactService.Dao().Remarks(ctx.RequestCtx(), uid, friends)
+	remarks, _ := c.contactService.Dao().Remarks(ctx.Ctx(), uid, friends)
 
 	items := make([]*web.TalkListItem, 0)
 	for _, item := range data {
@@ -88,7 +88,7 @@ func (c *Talk) List(ctx *ichat.Context) error {
 		}
 
 		// 查询缓存消息
-		if msg, err := c.lastMessage.Get(ctx.RequestCtx(), item.TalkType, uid, item.ReceiverId); err == nil {
+		if msg, err := c.lastMessage.Get(ctx.Ctx(), item.TalkType, uid, item.ReceiverId); err == nil {
 			value.MsgText = msg.Content
 			value.UpdatedAt = msg.Datetime
 		}
@@ -102,7 +102,7 @@ func (c *Talk) List(ctx *ichat.Context) error {
 }
 
 // Create 创建会话列表
-func (c *Talk) Create(ctx *ichat.Context) error {
+func (c *Session) Create(ctx *ichat.Context) error {
 
 	var (
 		params = &web.CreateTalkRequest{}
@@ -124,12 +124,12 @@ func (c *Talk) Create(ctx *ichat.Context) error {
 	}
 
 	key := fmt.Sprintf("talk:list:%d-%d-%d-%s", uid, params.ReceiverId, params.TalkType, agent)
-	if !c.redisLock.Lock(ctx.RequestCtx(), key, 10) {
+	if !c.redisLock.Lock(ctx.Ctx(), key, 10) {
 		return ctx.BusinessError("创建失败")
 	}
 
 	// 暂无权限
-	if !c.authPermission.IsAuth(ctx.RequestCtx(), &service.AuthPermission{
+	if !c.authPermission.IsAuth(ctx.Ctx(), &service.AuthPermission{
 		TalkType:   params.TalkType,
 		UserId:     uid,
 		ReceiverId: params.ReceiverId,
@@ -137,7 +137,7 @@ func (c *Talk) Create(ctx *ichat.Context) error {
 		return ctx.BusinessError("暂无权限！")
 	}
 
-	result, err := c.talkListService.Create(ctx.RequestCtx(), &service.TalkSessionCreateOpt{
+	result, err := c.talkListService.Create(ctx.Ctx(), &service.TalkSessionCreateOpt{
 		UserId:     uid,
 		TalkType:   params.TalkType,
 		ReceiverId: params.ReceiverId,
@@ -155,8 +155,8 @@ func (c *Talk) Create(ctx *ichat.Context) error {
 	}
 
 	if item.TalkType == entity.ChatPrivateMode {
-		item.UnreadNum = int32(c.unreadTalkCache.Get(ctx.RequestCtx(), 1, params.ReceiverId, uid))
-		item.RemarkName = c.contactService.Dao().GetFriendRemark(ctx.RequestCtx(), uid, params.ReceiverId)
+		item.UnreadNum = int32(c.unreadTalkCache.Get(ctx.Ctx(), 1, params.ReceiverId, uid))
+		item.RemarkName = c.contactService.Dao().GetFriendRemark(ctx.Ctx(), uid, params.ReceiverId)
 
 		if user, err := c.userService.Dao().FindById(result.ReceiverId); err == nil {
 			item.Name = user.Nickname
@@ -169,7 +169,7 @@ func (c *Talk) Create(ctx *ichat.Context) error {
 	}
 
 	// 查询缓存消息
-	if msg, err := c.lastMessage.Get(ctx.RequestCtx(), result.TalkType, uid, result.ReceiverId); err == nil {
+	if msg, err := c.lastMessage.Get(ctx.Ctx(), result.TalkType, uid, result.ReceiverId); err == nil {
 		item.MsgText = msg.Content
 		item.UpdatedAt = msg.Datetime
 	}
@@ -192,7 +192,7 @@ func (c *Talk) Create(ctx *ichat.Context) error {
 }
 
 // Delete 删除列表
-func (c *Talk) Delete(ctx *ichat.Context) error {
+func (c *Session) Delete(ctx *ichat.Context) error {
 
 	params := &web.DeleteTalkListRequest{}
 	if err := ctx.Context.ShouldBind(params); err != nil {
@@ -207,7 +207,7 @@ func (c *Talk) Delete(ctx *ichat.Context) error {
 }
 
 // Top 置顶列表
-func (c *Talk) Top(ctx *ichat.Context) error {
+func (c *Session) Top(ctx *ichat.Context) error {
 
 	params := &web.TopTalkListRequest{}
 	if err := ctx.Context.ShouldBind(params); err != nil {
@@ -226,7 +226,7 @@ func (c *Talk) Top(ctx *ichat.Context) error {
 }
 
 // Disturb 会话免打扰
-func (c *Talk) Disturb(ctx *ichat.Context) error {
+func (c *Session) Disturb(ctx *ichat.Context) error {
 
 	params := &web.DisturbTalkListRequest{}
 	if err := ctx.Context.ShouldBind(params); err != nil {
@@ -245,14 +245,14 @@ func (c *Talk) Disturb(ctx *ichat.Context) error {
 	return ctx.Success(&web.DisturbTalkListResponse{})
 }
 
-func (c *Talk) ClearUnreadMessage(ctx *ichat.Context) error {
+func (c *Session) ClearUnreadMessage(ctx *ichat.Context) error {
 
 	params := &web.ClearTalkUnreadNumRequest{}
 	if err := ctx.Context.ShouldBind(params); err != nil {
 		return ctx.InvalidParams(err)
 	}
 
-	c.unreadTalkCache.Reset(ctx.RequestCtx(), params.TalkType, params.ReceiverId, ctx.UserId())
+	c.unreadTalkCache.Reset(ctx.Ctx(), params.TalkType, params.ReceiverId, ctx.UserId())
 
 	return ctx.Success(&web.ClearTalkUnreadNumResponse{})
 }

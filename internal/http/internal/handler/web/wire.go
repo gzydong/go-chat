@@ -19,7 +19,7 @@ var ProviderSet = wire.NewSet(
 	group.NewGroup,
 	group.NewApply,
 	group.NewNotice,
-	talk.NewTalk,
+	talk.NewSession,
 	talk.NewMessage,
 	v1.NewUpload,
 	v1.NewEmoticon,

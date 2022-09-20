@@ -13,7 +13,7 @@ type V1 struct {
 	Auth          *v1.Auth
 	User          *v1.User
 	Organize      *v1.Organize
-	Talk          *talk.Talk
+	Talk          *talk.Session
 	TalkMessage   *talk.Message
 	TalkRecords   *talk.Records
 	Emoticon      *v1.Emoticon

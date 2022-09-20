@@ -50,7 +50,7 @@ var cacheProviderSet = wire.NewSet(
 	cache.NewSid,
 	cache.NewUnreadStorage,
 	cache.NewRedisLock,
-	cache.NewWsClientSession,
+	cache.NewClientStorage,
 	cache.NewMessageStorage,
 	cache.NewTalkVote,
 	cache.NewRoomStorage,
@@ -108,6 +108,7 @@ var serviceProviderSet = wire.NewSet(
 	organize.NewOrganizeService,
 	organize.NewPositionService,
 	service.NewTemplateService,
+	service.NewTalkAuthService,
 )
 
 func Initialize(ctx context.Context, conf *config.Config) *AppProvider {

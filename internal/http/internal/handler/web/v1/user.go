@@ -124,7 +124,7 @@ func (u *User) ChangeMobile(ctx *ichat.Context) error {
 		return ctx.BusinessError("预览账号不支持修改手机号！")
 	}
 
-	if !u.smsService.CheckSmsCode(ctx.RequestCtx(), entity.SmsChangeAccountChannel, params.Mobile, params.SmsCode) {
+	if !u.smsService.CheckSmsCode(ctx.Ctx(), entity.SmsChangeAccountChannel, params.Mobile, params.SmsCode) {
 		return ctx.BusinessError("短信验证码填写错误！")
 	}
 

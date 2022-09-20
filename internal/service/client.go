@@ -8,10 +8,10 @@ import (
 )
 
 type ClientService struct {
-	cache *cache.WsClientSession
+	cache *cache.ClientStorage
 }
 
-func NewClientService(cache *cache.WsClientSession) *ClientService {
+func NewClientService(cache *cache.ClientStorage) *ClientService {
 	return &ClientService{
 		cache: cache,
 	}

@@ -173,6 +173,6 @@ func (c *Context) IsGuest() bool {
 	return c.UserId() == 0
 }
 
-func (c *Context) RequestCtx() context.Context {
+func (c *Context) Ctx() context.Context {
 	return c.Context.Request.Context()
 }

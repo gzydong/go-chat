@@ -39,8 +39,8 @@ func (w *WsAdapter) Read() ([]byte, error) {
 	return content, nil
 }
 
-func (w *WsAdapter) Write(content []byte) error {
-	return w.conn.WriteMessage(websocket.TextMessage, content)
+func (w *WsAdapter) Write(bytes []byte) error {
+	return w.conn.WriteMessage(websocket.TextMessage, bytes)
 }
 
 func (w *WsAdapter) Close() error {

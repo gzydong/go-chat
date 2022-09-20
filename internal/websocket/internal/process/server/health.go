@@ -10,18 +10,18 @@ import (
 	"go-chat/internal/repository/cache"
 )
 
-type Health struct {
+type HealthSubscribe struct {
 	conf   *config.Config
 	server *cache.SidServer
 }
 
-func NewHealth(conf *config.Config, server *cache.SidServer) *Health {
-	return &Health{conf: conf, server: server}
+func NewHealthSubscribe(conf *config.Config, server *cache.SidServer) *HealthSubscribe {
+	return &HealthSubscribe{conf: conf, server: server}
 }
 
-func (s *Health) Setup(ctx context.Context) error {
+func (s *HealthSubscribe) Setup(ctx context.Context) error {
 
-	log.Println("Health Setup")
+	log.Println("Start HealthSubscribe")
 
 	for {
 		select {
@@ -32,7 +32,7 @@ func (s *Health) Setup(ctx context.Context) error {
 		// 每隔10秒上报心跳
 		case <-time.After(10 * time.Second):
 			if err := s.server.Set(ctx, s.conf.ServerId(), time.Now().Unix()); err != nil {
-				logger.Errorf("Websocket Health Report Err: %s \n", err.Error())
+				logger.Errorf("Websocket HealthSubscribe Report Err: %s \n", err.Error())
 			}
 		}
 	}

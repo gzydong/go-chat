@@ -71,7 +71,7 @@ func (c *Annex) Upload(ctx *ichat.Context) error {
 		},
 	}
 
-	if err := c.service.Create(ctx.RequestCtx(), data); err != nil {
+	if err := c.service.Create(ctx.Ctx(), data); err != nil {
 		return ctx.BusinessError("附件上传失败")
 	}
 
@@ -92,7 +92,7 @@ func (c *Annex) Delete(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	err := c.service.UpdateStatus(ctx.RequestCtx(), ctx.UserId(), params.AnnexId, 2)
+	err := c.service.UpdateStatus(ctx.Ctx(), ctx.UserId(), params.AnnexId, 2)
 	if err != nil {
 		return ctx.BusinessError(err.Error())
 	}
@@ -108,7 +108,7 @@ func (c *Annex) Recover(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	err := c.service.UpdateStatus(ctx.RequestCtx(), ctx.UserId(), params.AnnexId, 1)
+	err := c.service.UpdateStatus(ctx.Ctx(), ctx.UserId(), params.AnnexId, 1)
 	if err != nil {
 		return ctx.BusinessError(err.Error())
 	}
@@ -119,7 +119,7 @@ func (c *Annex) Recover(ctx *ichat.Context) error {
 // RecoverList 附件回收站列表
 func (c *Annex) RecoverList(ctx *ichat.Context) error {
 
-	items, err := c.service.Dao().RecoverList(ctx.RequestCtx(), ctx.UserId())
+	items, err := c.service.Dao().RecoverList(ctx.Ctx(), ctx.UserId())
 
 	if err != nil {
 		return ctx.BusinessError(err.Error())
@@ -151,7 +151,7 @@ func (c *Annex) ForeverDelete(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	if err := c.service.ForeverDelete(ctx.RequestCtx(), ctx.UserId(), params.AnnexId); err != nil {
+	if err := c.service.ForeverDelete(ctx.Ctx(), ctx.UserId(), params.AnnexId); err != nil {
 		return ctx.BusinessError(err.Error())
 	}
 
@@ -166,7 +166,7 @@ func (c *Annex) Download(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	info, err := c.service.Dao().FindById(ctx.RequestCtx(), params.AnnexId)
+	info, err := c.service.Dao().FindById(ctx.Ctx(), params.AnnexId)
 	if err != nil {
 		return ctx.BusinessError(err.Error())
 	}

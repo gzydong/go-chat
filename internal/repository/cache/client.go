@@ -9,25 +9,25 @@ import (
 	"go-chat/config"
 )
 
-type WsClientSession struct {
+type ClientStorage struct {
 	rds    *redis.Client
 	conf   *config.Config
 	server *SidServer
 }
 
-func NewWsClientSession(
+func NewClientStorage(
 	rds *redis.Client,
 	conf *config.Config,
 	server *SidServer,
-) *WsClientSession {
-	return &WsClientSession{rds, conf, server}
+) *ClientStorage {
+	return &ClientStorage{rds, conf, server}
 }
 
-func (w *WsClientSession) getChannelClientKey(sid, channel string) string {
+func (w *ClientStorage) getChannelClientKey(sid, channel string) string {
 	return fmt.Sprintf("ws:%s:channel:%s:client", sid, channel)
 }
 
-func (w *WsClientSession) getChannelUserKey(sid, channel, uid string) string {
+func (w *ClientStorage) getChannelUserKey(sid, channel, uid string) string {
 	return fmt.Sprintf("ws:%s:channel:%s:user:%s", sid, channel, uid)
 }
 
@@ -35,7 +35,7 @@ func (w *WsClientSession) getChannelUserKey(sid, channel, uid string) string {
 // @params channel  渠道分组
 // @params fd       客户端连接ID
 // @params id       用户ID
-func (w *WsClientSession) Set(ctx context.Context, channel string, fd string, uid int) {
+func (w *ClientStorage) Set(ctx context.Context, channel string, fd string, uid int) {
 	w.rds.HSet(ctx, w.getChannelClientKey(w.conf.ServerId(), channel), fd, uid)
 
 	w.rds.SAdd(ctx, w.getChannelUserKey(w.conf.ServerId(), channel, strconv.Itoa(uid)), fd)
@@ -44,7 +44,7 @@ func (w *WsClientSession) Set(ctx context.Context, channel string, fd string, ui
 // Del 删除客户端与用户绑定关系
 // @params channel  渠道分组
 // @params fd     客户端连接ID
-func (w *WsClientSession) Del(ctx context.Context, channel, fd string) {
+func (w *ClientStorage) Del(ctx context.Context, channel, fd string) {
 	KeyName := w.getChannelClientKey(w.conf.ServerId(), channel)
 
 	uid, _ := w.rds.HGet(ctx, KeyName, fd).Result()
@@ -57,7 +57,7 @@ func (w *WsClientSession) Del(ctx context.Context, channel, fd string) {
 // IsOnline 判断客户端是否在线[所有部署机器]
 // @params channel  渠道分组
 // @params uid      用户ID
-func (w *WsClientSession) IsOnline(ctx context.Context, channel, uid string) bool {
+func (w *ClientStorage) IsOnline(ctx context.Context, channel, uid string) bool {
 	for _, sid := range w.server.All(ctx, 1) {
 		if w.IsCurrentServerOnline(ctx, sid, channel, uid) {
 			return true
@@ -71,7 +71,7 @@ func (w *WsClientSession) IsOnline(ctx context.Context, channel, uid string) boo
 // @params sid      服务ID
 // @params channel  渠道分组
 // @params uid      用户ID
-func (w *WsClientSession) IsCurrentServerOnline(ctx context.Context, sid, channel, uid string) bool {
+func (w *ClientStorage) IsCurrentServerOnline(ctx context.Context, sid, channel, uid string) bool {
 	val, err := w.rds.SCard(ctx, w.getChannelUserKey(sid, channel, uid)).Result()
 
 	return err == nil && val > 0
@@ -81,7 +81,7 @@ func (w *WsClientSession) IsCurrentServerOnline(ctx context.Context, sid, channe
 // @params sid      服务ID
 // @params channel  渠道分组
 // @params uid      用户ID
-func (w *WsClientSession) GetUidFromClientIds(ctx context.Context, sid, channel, uid string) []int64 {
+func (w *ClientStorage) GetUidFromClientIds(ctx context.Context, sid, channel, uid string) []int64 {
 	cids := make([]int64, 0)
 
 	items, err := w.rds.SMembers(ctx, w.getChannelUserKey(sid, channel, uid)).Result()
@@ -102,7 +102,7 @@ func (w *WsClientSession) GetUidFromClientIds(ctx context.Context, sid, channel,
 // @params sid     服务节点ID
 // @params channel 渠道分组
 // @params cid     客户端ID
-func (w *WsClientSession) GetClientIdFromUid(ctx context.Context, sid, channel, cid string) (int64, error) {
+func (w *ClientStorage) GetClientIdFromUid(ctx context.Context, sid, channel, cid string) (int64, error) {
 	uid, err := w.rds.HGet(ctx, w.getChannelClientKey(sid, channel), cid).Result()
 	if err != nil {
 		return 0, err

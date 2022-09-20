@@ -31,3 +31,14 @@ const (
 	MsgTypeGroupInvite = 9  // 入群退群消息
 	MsgTypeLocation    = 10 // 位置消息
 )
+
+const (
+	BusinessCodeTalk = 101
+
+	BusinessCodeExample = 102
+)
+
+type Message struct {
+	MsgType uint   // 1010001 前三位:100 代表业务码(区分业务),后四位:消息事件类型
+	Content string // 主体消息
+}

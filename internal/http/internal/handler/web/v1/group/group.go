@@ -37,7 +37,7 @@ func (c *Group) Create(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	gid, err := c.service.Create(ctx.RequestCtx(), &service.CreateGroupOpt{
+	gid, err := c.service.Create(ctx.Ctx(), &service.CreateGroupOpt{
 		UserId:    ctx.UserId(),
 		Name:      params.Name,
 		Avatar:    params.Avatar,
@@ -66,7 +66,7 @@ func (c *Group) Dismiss(ctx *ichat.Context) error {
 		return ctx.BusinessError("暂无权限解散群组！")
 	}
 
-	if err := c.service.Dismiss(ctx.RequestCtx(), params.GroupId, ctx.UserId()); err != nil {
+	if err := c.service.Dismiss(ctx.Ctx(), params.GroupId, ctx.UserId()); err != nil {
 		return ctx.BusinessError("群组解散失败！")
 	}
 
@@ -126,7 +126,7 @@ func (c *Group) SignOut(ctx *ichat.Context) error {
 	}
 
 	uid := ctx.UserId()
-	if err := c.service.Secede(ctx.RequestCtx(), params.GroupId, uid); err != nil {
+	if err := c.service.Secede(ctx.Ctx(), params.GroupId, uid); err != nil {
 		return ctx.BusinessError(err.Error())
 	}
 
@@ -150,7 +150,7 @@ func (c *Group) Setting(ctx *ichat.Context) error {
 		return ctx.BusinessError("无权限操作")
 	}
 
-	if err := c.service.Update(ctx.RequestCtx(), &service.UpdateGroupOpt{
+	if err := c.service.Update(ctx.Ctx(), &service.UpdateGroupOpt{
 		GroupId: params.GroupId,
 		Name:    params.GroupName,
 		Avatar:  params.Avatar,
@@ -183,7 +183,7 @@ func (c *Group) RemoveMembers(ctx *ichat.Context) error {
 		return ctx.BusinessError("无权限操作")
 	}
 
-	err := c.service.RemoveMembers(ctx.RequestCtx(), &service.RemoveMembersOpt{
+	err := c.service.RemoveMembers(ctx.Ctx(), &service.RemoveMembersOpt{
 		UserId:    uid,
 		GroupId:   params.GroupId,
 		MemberIds: sliceutil.ParseIds(params.MembersIds),

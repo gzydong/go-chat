@@ -25,7 +25,7 @@ func (c *ExampleWebsocket) Connect(ctx *ichat.Context) error {
 	}
 
 	// 创建客户端
-	im.NewClient(ctx.RequestCtx(), conn, &im.ClientOptions{
+	im.NewClient(ctx.Ctx(), conn, &im.ClientOptions{
 		Channel: im.Session.Example,
 		Uid:     0, // 自行提供用户ID
 	}, im.NewClientCallback(
