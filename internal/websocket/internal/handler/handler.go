@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"context"
 	"fmt"
 	"net"
 	"strconv"
@@ -43,6 +44,8 @@ func (h *Handler) AcceptTcp(conn net.Conn) {
 	case connInfo := <-ch:
 		fmt.Println(conn.RemoteAddr(), "认证成功==>>>", time.Now().Unix())
 		fmt.Println(connInfo)
+
+		h.DefaultWebSocket.TcpConnect(context.Background(), connInfo.conn)
 	}
 }
 

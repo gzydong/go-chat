@@ -32,7 +32,7 @@ func NewRouter(conf *config.Config, handle *handler.Handler, session *cache.Sess
 		})
 	})
 
-	router.GET("/wss/default.io", authorize, ichat.HandlerFunc(handle.DefaultWebSocket.Connect))
+	router.GET("/wss/default.io", authorize, ichat.HandlerFunc(handle.DefaultWebSocket.WsConnect))
 	router.GET("/wss/example.io", authorize, ichat.HandlerFunc(handle.ExampleWebsocket.Connect))
 
 	router.GET("/", func(c *gin.Context) {

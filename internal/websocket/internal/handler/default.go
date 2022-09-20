@@ -33,8 +33,8 @@ func NewDefaultWebSocket(rds *redis.Client, conf *config.Config, cache *service.
 	return &DefaultWebSocket{rds: rds, conf: conf, cache: cache, room: room, groupMemberService: groupMemberService}
 }
 
-// Connect 初始化连接
-func (c *DefaultWebSocket) Connect(ctx *ichat.Context) error {
+// WsConnect 初始化连接
+func (c *DefaultWebSocket) WsConnect(ctx *ichat.Context) error {
 	conn, err := adapter.NewWsAdapter(ctx.Context.Writer, ctx.Context.Request)
 	if err != nil {
 		logrus.Errorf("websocket connect error: %s", err.Error())
@@ -42,8 +42,19 @@ func (c *DefaultWebSocket) Connect(ctx *ichat.Context) error {
 	}
 
 	// 创建客户端
-	im.NewClient(ctx.Ctx(), conn, &im.ClientOptions{
-		Uid:     ctx.UserId(),
+	c.client(ctx.Ctx(), ctx.UserId(), conn)
+
+	return nil
+}
+
+// TcpConnect 初始化连接
+func (c *DefaultWebSocket) TcpConnect(ctx context.Context, conn *adapter.TcpAdapter) {
+	c.client(ctx, 2054, conn)
+}
+
+func (c *DefaultWebSocket) client(ctx context.Context, uid int, conn im.IConn) {
+	im.NewClient(ctx, conn, &im.ClientOptions{
+		Uid:     uid,
 		Channel: im.Session.Default,
 		Storage: c.cache,
 		Buffer:  10,
@@ -61,13 +72,7 @@ func (c *DefaultWebSocket) Connect(ctx *ichat.Context) error {
 			c.close(client, code, text)
 			fmt.Printf("客户端[%d] 已关闭连接，关闭提示【%d】%s \n", client.Cid(), code, text)
 		}),
-		// 客户端销毁回调事件
-		im.WithDestroyCallback(func(client im.IClient) {
-			fmt.Printf("客户端[%d] 已销毁 \n", client.Cid())
-		}),
 	))
-
-	return nil
 }
 
 // 连接成功回调事件
@@ -166,9 +171,4 @@ func (c *DefaultWebSocket) close(client im.IClient, code int, text string) {
 			"status":  0,
 		}),
 	}))
-}
-
-// TCPConnect AcceptTcp 连接
-func (c *DefaultWebSocket) TCPConnect() {
-
 }
