@@ -11,6 +11,7 @@ import (
 	"go-chat/internal/repository/cache"
 	"go-chat/internal/repository/dao"
 	"go-chat/internal/service"
+	"go-chat/internal/websocket/internal/event"
 	"go-chat/internal/websocket/internal/handler"
 	"go-chat/internal/websocket/internal/process"
 	"go-chat/internal/websocket/internal/process/consume"
@@ -54,6 +55,9 @@ var providerSet = wire.NewSet(
 	dao.NewGroupMemberDao,
 	dao.NewContactDao,
 
+	event.NewDefaultEvent,
+	event.NewExampleEvent,
+
 	// 服务
 	service.NewBaseService,
 	service.NewTalkRecordsService,
@@ -62,8 +66,8 @@ var providerSet = wire.NewSet(
 	service.NewContactService,
 
 	// handle
-	handler.NewDefaultWebSocket,
-	handler.NewExampleWebsocket,
+	handler.NewDefaultChannel,
+	handler.NewExampleChannel,
 
 	wire.Struct(new(handler.Handler), "*"),
 	wire.Struct(new(AppProvider), "*"),

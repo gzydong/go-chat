@@ -1,23 +1,25 @@
 package handler
 
 import (
-	"fmt"
-
 	"github.com/sirupsen/logrus"
 	"go-chat/internal/pkg/ichat"
 	"go-chat/internal/pkg/im"
 	"go-chat/internal/pkg/im/adapter"
+	"go-chat/internal/service"
+	"go-chat/internal/websocket/internal/event"
 )
 
-// ExampleWebsocket 使用案例
-type ExampleWebsocket struct {
+// ExampleChannel 使用案例
+type ExampleChannel struct {
+	cache *service.ClientService
+	event *event.ExampleEvent
 }
 
-func NewExampleWebsocket() *ExampleWebsocket {
-	return &ExampleWebsocket{}
+func NewExampleChannel(cache *service.ClientService, event *event.ExampleEvent) *ExampleChannel {
+	return &ExampleChannel{cache: cache, event: event}
 }
 
-func (c *ExampleWebsocket) Connect(ctx *ichat.Context) error {
+func (c *ExampleChannel) WsConnect(ctx *ichat.Context) error {
 	conn, err := adapter.NewWsAdapter(ctx.Context.Writer, ctx.Context.Request)
 	if err != nil {
 		logrus.Errorf("websocket connect error: %s", err.Error())
@@ -29,18 +31,12 @@ func (c *ExampleWebsocket) Connect(ctx *ichat.Context) error {
 		Channel: im.Session.Example,
 		Uid:     0, // 自行提供用户ID
 	}, im.NewClientCallback(
-		// 连接成功回调
-		im.WithOpenCallback(func(client im.IClient) {
-			fmt.Printf("客户端[%d] 已连接\n", client.Cid())
-		}),
+		// 连接成功回调事件
+		im.WithOpenCallback(c.event.OnOpen),
 		// 接收消息回调
-		im.WithMessageCallback(func(client im.IClient, message []byte) {
-			fmt.Println("接收消息===>>>", message)
-		}),
+		im.WithMessageCallback(c.event.OnMessage),
 		// 关闭连接回调
-		im.WithCloseCallback(func(client im.IClient, code int, text string) {
-			fmt.Printf("客户端[%d] 已关闭连接，关闭提示【%d】%s \n", client.Cid(), code, text)
-		}),
+		im.WithCloseCallback(c.event.OnClose),
 	))
 
 	return nil

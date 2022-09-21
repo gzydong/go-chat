@@ -14,6 +14,7 @@ import (
 	"go-chat/internal/repository/cache"
 	"go-chat/internal/repository/dao"
 	"go-chat/internal/service"
+	"go-chat/internal/websocket/internal/event"
 	"go-chat/internal/websocket/internal/handler"
 	"go-chat/internal/websocket/internal/process"
 	"go-chat/internal/websocket/internal/process/consume"
@@ -35,11 +36,13 @@ func Initialize(ctx context.Context, conf *config.Config) *AppProvider {
 	relation := cache.NewRelation(client)
 	groupMemberDao := dao.NewGroupMemberDao(baseDao, relation)
 	groupMemberService := service.NewGroupMemberService(baseService, groupMemberDao)
-	defaultWebSocket := handler.NewDefaultWebSocket(client, conf, clientService, roomStorage, groupMemberService)
-	exampleWebsocket := handler.NewExampleWebsocket()
+	defaultEvent := event.NewDefaultEvent(client, conf, clientService, roomStorage, groupMemberService)
+	defaultChannel := handler.NewDefaultChannel(clientService, defaultEvent)
+	exampleEvent := event.NewExampleEvent()
+	exampleChannel := handler.NewExampleChannel(clientService, exampleEvent)
 	handlerHandler := &handler.Handler{
-		DefaultWebSocket: defaultWebSocket,
-		ExampleWebsocket: exampleWebsocket,
+		DefaultChannel: defaultChannel,
+		ExampleChannel: exampleChannel,
 	}
 	sessionStorage := cache.NewSessionStorage(client)
 	engine := router.NewRouter(conf, handlerHandler, sessionStorage)
@@ -71,4 +74,4 @@ func Initialize(ctx context.Context, conf *config.Config) *AppProvider {
 
 // wire.go:
 
-var providerSet = wire.NewSet(provider.NewMySQLClient, provider.NewRedisClient, provider.NewWebsocketServer, router.NewRouter, wire.Struct(new(process.SubServers), "*"), process.NewServer, server.NewHealthSubscribe, server.NewMessageSubscribe, consume.NewDefaultSubscribe, consume.NewExampleSubscribe, cache.NewSessionStorage, cache.NewSid, cache.NewRedisLock, cache.NewClientStorage, cache.NewRoomStorage, cache.NewTalkVote, cache.NewRelation, cache.NewContactRemark, dao.NewBaseDao, dao.NewTalkRecordsDao, dao.NewTalkRecordsVoteDao, dao.NewGroupMemberDao, dao.NewContactDao, service.NewBaseService, service.NewTalkRecordsService, service.NewClientService, service.NewGroupMemberService, service.NewContactService, handler.NewDefaultWebSocket, handler.NewExampleWebsocket, wire.Struct(new(handler.Handler), "*"), wire.Struct(new(AppProvider), "*"))
+var providerSet = wire.NewSet(provider.NewMySQLClient, provider.NewRedisClient, provider.NewWebsocketServer, router.NewRouter, wire.Struct(new(process.SubServers), "*"), process.NewServer, server.NewHealthSubscribe, server.NewMessageSubscribe, consume.NewDefaultSubscribe, consume.NewExampleSubscribe, cache.NewSessionStorage, cache.NewSid, cache.NewRedisLock, cache.NewClientStorage, cache.NewRoomStorage, cache.NewTalkVote, cache.NewRelation, cache.NewContactRemark, dao.NewBaseDao, dao.NewTalkRecordsDao, dao.NewTalkRecordsVoteDao, dao.NewGroupMemberDao, dao.NewContactDao, event.NewDefaultEvent, event.NewExampleEvent, service.NewBaseService, service.NewTalkRecordsService, service.NewClientService, service.NewGroupMemberService, service.NewContactService, handler.NewDefaultChannel, handler.NewExampleChannel, wire.Struct(new(handler.Handler), "*"), wire.Struct(new(AppProvider), "*"))

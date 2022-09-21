@@ -13,8 +13,8 @@ import (
 )
 
 type Handler struct {
-	DefaultWebSocket *DefaultWebSocket
-	ExampleWebsocket *ExampleWebsocket
+	DefaultChannel *DefaultChannel
+	ExampleChannel *ExampleChannel
 }
 
 type AuthConn struct {
@@ -45,7 +45,7 @@ func (h *Handler) AcceptTcp(conn net.Conn) {
 		fmt.Println(conn.RemoteAddr(), "认证成功==>>>", time.Now().Unix())
 		fmt.Println(connInfo)
 
-		h.DefaultWebSocket.TcpConnect(context.Background(), connInfo.conn)
+		h.DefaultChannel.TcpConn(context.Background(), connInfo.conn)
 	}
 }
 
