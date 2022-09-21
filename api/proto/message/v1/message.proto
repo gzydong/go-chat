@@ -3,7 +3,7 @@ package message;
 
 option go_package = "message/v1;message";
 
-import "validate/validate.proto";
+//import "validate/validate.proto";
 import "tagger/tagger.proto";
 
 message MessageReceiver{

@@ -1,0 +1,15 @@
+syntax = "proto3";
+package message;
+
+option go_package = "message/v1;message";
+
+// 键盘消息
+message KeyboardMessage{
+  message Data{
+    int32 sender_id = 1;
+    int32 receiver_id = 2;
+  }
+
+  string event = 1;// 事件名
+  Data data = 3; // 数据包
+}

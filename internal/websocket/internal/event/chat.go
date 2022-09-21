@@ -3,7 +3,6 @@ package event
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"strconv"
 
 	"github.com/go-redis/redis/v8"
@@ -16,6 +15,7 @@ import (
 	"go-chat/internal/repository/model"
 	"go-chat/internal/service"
 	"go-chat/internal/websocket/internal/dto"
+	"go-chat/internal/websocket/internal/event/chat"
 )
 
 type DefaultEvent struct {
@@ -24,10 +24,11 @@ type DefaultEvent struct {
 	cache         *service.ClientService
 	roomStorage   *cache.RoomStorage
 	memberService *service.GroupMemberService
+	handler       *chat.Handler
 }
 
-func NewDefaultEvent(rds *redis.Client, conf *config.Config, cache *service.ClientService, room *cache.RoomStorage, groupMemberService *service.GroupMemberService) *DefaultEvent {
-	return &DefaultEvent{redis: rds, config: conf, cache: cache, roomStorage: room, memberService: groupMemberService}
+func NewDefaultEvent(redis *redis.Client, config *config.Config, cache *service.ClientService, roomStorage *cache.RoomStorage, memberService *service.GroupMemberService, handler *chat.Handler) *DefaultEvent {
+	return &DefaultEvent{redis: redis, config: config, cache: cache, roomStorage: roomStorage, memberService: memberService, handler: handler}
 }
 
 func (d *DefaultEvent) OnOpen(client im.IClient) {
@@ -60,20 +61,9 @@ func (d *DefaultEvent) OnMessage(client im.IClient, message []byte) {
 
 	event := gjson.Get(content, "event").String()
 
-	switch event {
+	d.handler.Call(context.Background(), event, content)
 
-	// 对话键盘事件
-	case entity.EventTalkKeyboard:
-		var m *dto.KeyboardMessage
-		if err := json.Unmarshal(message, &m); err == nil {
-			d.redis.Publish(context.Background(), entity.ImTopicDefault, jsonutil.Encode(entity.MapStrAny{
-				"event": entity.EventTalkKeyboard,
-				"data": jsonutil.Encode(entity.MapStrAny{
-					"sender_id":   m.Data.SenderID,
-					"receiver_id": m.Data.ReceiverID,
-				}),
-			}))
-		}
+	switch event {
 
 	// 对话消息读事件
 	case entity.EventTalkRead:
@@ -90,8 +80,6 @@ func (d *DefaultEvent) OnMessage(client im.IClient, message []byte) {
 				}),
 			}))
 		}
-	default:
-		fmt.Printf("消息事件未定义%s", event)
 	}
 }
 

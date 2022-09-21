@@ -4,9 +4,11 @@ import (
 	"fmt"
 
 	"go-chat/internal/pkg/im"
+	"go-chat/internal/websocket/internal/event/example"
 )
 
 type ExampleEvent struct {
+	handler *example.Handler
 }
 
 func NewExampleEvent() *ExampleEvent {

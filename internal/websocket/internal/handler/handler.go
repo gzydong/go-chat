@@ -13,8 +13,8 @@ import (
 )
 
 type Handler struct {
-	DefaultChannel *DefaultChannel
-	ExampleChannel *ExampleChannel
+	Default *DefaultChannel
+	Example *ExampleChannel
 }
 
 type AuthConn struct {
@@ -45,7 +45,7 @@ func (h *Handler) AcceptTcp(conn net.Conn) {
 		fmt.Println(conn.RemoteAddr(), "认证成功==>>>", time.Now().Unix())
 		fmt.Println(connInfo)
 
-		h.DefaultChannel.TcpConn(context.Background(), connInfo.conn)
+		h.Default.TcpConn(context.Background(), connInfo.conn)
 	}
 }
 
@@ -68,7 +68,7 @@ func (*Handler) auth(connect net.Conn, data chan *AuthConn) {
 		return
 	}
 
-	if msg.Event != "login" {
+	if msg.Event != "authorize" {
 		return
 	}
 

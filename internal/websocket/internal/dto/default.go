@@ -7,20 +7,9 @@ type RevokeTalkMessageContent struct {
 	TalkType   int `json:"talk_type"`
 }
 
-type LoginMessageContent struct {
-	Status int `json:"status"`
-	UserID int `json:"user_id"`
-}
-
 type KeyboardMessageContent struct {
 	SenderID   int `json:"sender_id"`
 	ReceiverID int `json:"receiver_id"`
-}
-
-type AckReplyContent struct {
-	SenderID   int `json:"sender_id"`
-	ReceiverID int `json:"receiver_id"`
-	MsgID      int `json:"msg_id"`
 }
 
 type KeyboardMessage struct {
