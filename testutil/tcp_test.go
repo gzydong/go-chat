@@ -24,9 +24,9 @@ func TestTcpServer_Setup(t1 *testing.T) {
 	defer conn.Close()
 
 	go func() {
-		msg := `{"event":"login","content":"2056"}`
-		data, _ := tcp.Encode(msg)
-		_, _ = conn.Write(data)
+		// msg := `{"event":"authorize","content":"2056"}`
+		// data, _ := tcp.Encode(msg)
+		// _, _ = conn.Write(data)
 
 		for {
 			msg := `{"event":"heartbeat","content":"ping"}`

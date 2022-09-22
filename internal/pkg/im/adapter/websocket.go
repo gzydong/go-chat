@@ -29,6 +29,10 @@ func NewWsAdapter(w http.ResponseWriter, r *http.Request) (*WsAdapter, error) {
 	return &WsAdapter{conn: conn}, nil
 }
 
+func (w *WsAdapter) Network() string {
+	return "websocket"
+}
+
 func (w *WsAdapter) Read() ([]byte, error) {
 
 	_, content, err := w.conn.ReadMessage()

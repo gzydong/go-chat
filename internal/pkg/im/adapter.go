@@ -9,4 +9,6 @@ type IConn interface {
 	Close() error
 	// SetCloseHandler 设置连接关闭回调事件
 	SetCloseHandler(fn func(code int, text string) error)
+	// Network 网络协议类型
+	Network() string
 }

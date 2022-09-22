@@ -30,6 +30,12 @@ type Message struct {
 func (h *Handler) AcceptTcp(conn net.Conn) {
 	ch := make(chan *AuthConn)
 
+	defer func() {
+		if err := recover(); err != nil {
+			fmt.Println("recover ===>>>", err)
+		}
+	}()
+
 	go h.auth(conn, ch)
 
 	fmt.Println(conn.RemoteAddr(), "开始认证==>>>", time.Now().Unix())
@@ -38,6 +44,8 @@ func (h *Handler) AcceptTcp(conn net.Conn) {
 	case <-time.After(2 * time.Second):
 		fmt.Println(conn.RemoteAddr(), "认证超时==>>>", time.Now().Unix())
 		_ = conn.Close()
+
+		panic("认证超时==>>>")
 		return
 
 	// 认证成功

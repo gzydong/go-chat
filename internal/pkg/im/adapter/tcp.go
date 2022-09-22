@@ -20,6 +20,10 @@ func NewTcpAdapter(conn net.Conn) (*TcpAdapter, error) {
 	return &TcpAdapter{conn: conn, reader: bufio.NewReader(conn)}, nil
 }
 
+func (t *TcpAdapter) Network() string {
+	return "tcp"
+}
+
 func (t *TcpAdapter) Read() ([]byte, error) {
 
 	msg, err := tcp.Decode(t.reader)
