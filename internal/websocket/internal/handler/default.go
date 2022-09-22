@@ -22,6 +22,7 @@ func NewDefaultChannel(cache *service.ClientService, event *event.DefaultEvent) 
 
 // WsConn 初始化连接
 func (c *DefaultChannel) WsConn(ctx *ichat.Context) error {
+
 	conn, err := adapter.NewWsAdapter(ctx.Context.Writer, ctx.Context.Request)
 	if err != nil {
 		logrus.Errorf("websocket connect error: %s", err.Error())

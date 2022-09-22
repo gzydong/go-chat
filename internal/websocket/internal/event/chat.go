@@ -2,7 +2,6 @@ package event
 
 import (
 	"context"
-	"encoding/json"
 	"strconv"
 
 	"github.com/go-redis/redis/v8"
@@ -12,9 +11,7 @@ import (
 	"go-chat/internal/pkg/im"
 	"go-chat/internal/pkg/jsonutil"
 	"go-chat/internal/repository/cache"
-	"go-chat/internal/repository/model"
 	"go-chat/internal/service"
-	"go-chat/internal/websocket/internal/dto"
 	"go-chat/internal/websocket/internal/event/chat"
 )
 
@@ -31,13 +28,17 @@ func NewDefaultEvent(redis *redis.Client, config *config.Config, cache *service.
 	return &DefaultEvent{redis: redis, config: config, cache: cache, roomStorage: roomStorage, memberService: memberService, handler: handler}
 }
 
+// OnOpen 连接成功回调事件
 func (d *DefaultEvent) OnOpen(client im.IClient) {
+
+	ctx := context.Background()
+
 	// 1.查询用户群列表
 	ids := d.memberService.Dao().GetUserGroupIds(client.Uid())
 
 	// 2.客户端加入群房间
 	for _, id := range ids {
-		_ = d.roomStorage.Add(context.Background(), &cache.RoomOption{
+		_ = d.roomStorage.Add(ctx, &cache.RoomOption{
 			Channel:  im.Session.Default.Name(),
 			RoomType: entity.RoomImGroup,
 			Number:   strconv.Itoa(id),
@@ -47,7 +48,7 @@ func (d *DefaultEvent) OnOpen(client im.IClient) {
 	}
 
 	// 推送上线消息
-	d.redis.Publish(context.Background(), entity.ImTopicDefault, jsonutil.Encode(entity.MapStrAny{
+	d.redis.Publish(ctx, entity.ImTopicDefault, jsonutil.Encode(entity.MapStrAny{
 		"event": entity.EventOnlineStatus,
 		"data": jsonutil.Encode(entity.MapStrAny{
 			"user_id": client.Uid(),
@@ -56,33 +57,17 @@ func (d *DefaultEvent) OnOpen(client im.IClient) {
 	}))
 }
 
+// OnMessage 消息回调事件
 func (d *DefaultEvent) OnMessage(client im.IClient, message []byte) {
-	content := string(message)
 
-	event := gjson.Get(content, "event").String()
+	// 获取事件名
+	event := gjson.GetBytes(message, "event").String()
 
-	d.handler.Call(context.Background(), event, content)
-
-	switch event {
-
-	// 对话消息读事件
-	case entity.EventTalkRead:
-		var m *dto.TalkReadMessage
-		if err := json.Unmarshal(message, &m); err == nil {
-			d.memberService.Db().Model(&model.TalkRecords{}).Where("id in ? and receiver_id = ? and is_read = 0", m.Data.MsgIds, client.Uid()).Update("is_read", 1)
-
-			d.redis.Publish(context.Background(), entity.ImTopicDefault, jsonutil.Encode(entity.MapStrAny{
-				"event": entity.EventTalkRead,
-				"data": jsonutil.Encode(entity.MapStrAny{
-					"sender_id":   client.Uid(),
-					"receiver_id": m.Data.ReceiverId,
-					"ids":         m.Data.MsgIds,
-				}),
-			}))
-		}
-	}
+	// 触发事件
+	d.handler.Call(context.Background(), client, event, message)
 }
 
+// OnClose 连接关闭回调事件
 func (d *DefaultEvent) OnClose(client im.IClient, code int, text string) {
 	// 1.判断用户是否是多点登录
 

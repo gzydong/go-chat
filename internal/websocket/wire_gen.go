@@ -37,7 +37,7 @@ func Initialize(ctx context.Context, conf *config.Config) *AppProvider {
 	relation := cache.NewRelation(client)
 	groupMemberDao := dao.NewGroupMemberDao(baseDao, relation)
 	groupMemberService := service.NewGroupMemberService(baseService, groupMemberDao)
-	chatHandler := chat.NewHandler(client)
+	chatHandler := chat.NewHandler(client, groupMemberService)
 	defaultEvent := event.NewDefaultEvent(client, conf, clientService, roomStorage, groupMemberService, chatHandler)
 	defaultChannel := handler.NewDefaultChannel(clientService, defaultEvent)
 	exampleEvent := event.NewExampleEvent()
