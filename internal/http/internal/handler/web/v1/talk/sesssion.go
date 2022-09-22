@@ -81,7 +81,7 @@ func (c *Session) List(ctx *ichat.Context) error {
 			value.Name = item.Nickname
 			value.Avatar = item.UserAvatar
 			value.RemarkName = remarks[item.ReceiverId]
-			value.IsOnline = int32(strutil.BoolToInt(c.wsClient.IsOnline(ctx.Context, entity.ImChannelDefault, strconv.Itoa(int(value.ReceiverId)))))
+			value.IsOnline = int32(strutil.BoolToInt(c.wsClient.IsOnline(ctx.Context, entity.ImChannelChat, strconv.Itoa(int(value.ReceiverId)))))
 		} else {
 			value.Name = item.GroupName
 			value.Avatar = item.GroupAvatar

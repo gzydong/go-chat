@@ -143,7 +143,7 @@ func (t *TalkMessageForwardService) SendForwardMessage(ctx context.Context, forw
 	}
 
 	for _, item := range items {
-		t.rds.Publish(ctx, entity.ImTopicDefault, jsonutil.Encode(entity.MapStrAny{
+		t.rds.Publish(ctx, entity.ImTopicChat, jsonutil.Encode(entity.MapStrAny{
 			"event": entity.EventTalk,
 			"data": jsonutil.Encode(entity.MapStrAny{
 				"sender_id":   forward.UserId,

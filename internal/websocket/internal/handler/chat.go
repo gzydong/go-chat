@@ -11,17 +11,17 @@ import (
 	"go-chat/internal/websocket/internal/event"
 )
 
-type DefaultChannel struct {
+type ChatChannel struct {
 	cache *service.ClientService
-	event *event.DefaultEvent
+	event *event.ChatEvent
 }
 
-func NewDefaultChannel(cache *service.ClientService, event *event.DefaultEvent) *DefaultChannel {
-	return &DefaultChannel{cache: cache, event: event}
+func NewChatChannel(cache *service.ClientService, event *event.ChatEvent) *ChatChannel {
+	return &ChatChannel{cache: cache, event: event}
 }
 
 // WsConn 初始化连接
-func (c *DefaultChannel) WsConn(ctx *ichat.Context) error {
+func (c *ChatChannel) WsConn(ctx *ichat.Context) error {
 
 	conn, err := adapter.NewWsAdapter(ctx.Context.Writer, ctx.Context.Request)
 	if err != nil {
@@ -36,14 +36,14 @@ func (c *DefaultChannel) WsConn(ctx *ichat.Context) error {
 }
 
 // TcpConn 初始化连接
-func (c *DefaultChannel) TcpConn(ctx context.Context, conn *adapter.TcpAdapter) {
+func (c *ChatChannel) TcpConn(ctx context.Context, conn *adapter.TcpAdapter) {
 	c.client(ctx, 2054, conn)
 }
 
-func (c *DefaultChannel) client(ctx context.Context, uid int, conn im.IConn) {
+func (c *ChatChannel) client(ctx context.Context, uid int, conn im.IConn) {
 	im.NewClient(ctx, conn, &im.ClientOptions{
 		Uid:     uid,
-		Channel: im.Session.Default,
+		Channel: im.Session.Chat,
 		Storage: c.cache,
 		Buffer:  10,
 	}, im.NewClientCallback(

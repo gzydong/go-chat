@@ -38,7 +38,7 @@ func (c *Contact) List(ctx *ichat.Context) error {
 	}
 
 	for _, item := range items {
-		item.IsOnline = strutil.BoolToInt(c.wsClient.IsOnline(ctx.Context, entity.ImChannelDefault, strconv.Itoa(item.Id)))
+		item.IsOnline = strutil.BoolToInt(c.wsClient.IsOnline(ctx.Context, entity.ImChannelChat, strconv.Itoa(item.Id)))
 	}
 
 	return ctx.Success(items)

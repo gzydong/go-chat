@@ -20,11 +20,11 @@ type MessageSubscribe struct {
 	config         *config.Config
 	redis          *redis.Client
 	server         *cache.SidServer
-	defaultConsume *consume.DefaultSubscribe
+	defaultConsume *consume.ChatSubscribe
 	exampleConsume *consume.ExampleSubscribe
 }
 
-func NewMessageSubscribe(config *config.Config, redis *redis.Client, server *cache.SidServer, defaultConsume *consume.DefaultSubscribe, exampleConsume *consume.ExampleSubscribe) *MessageSubscribe {
+func NewMessageSubscribe(config *config.Config, redis *redis.Client, server *cache.SidServer, defaultConsume *consume.ChatSubscribe, exampleConsume *consume.ExampleSubscribe) *MessageSubscribe {
 	return &MessageSubscribe{config: config, redis: redis, server: server, defaultConsume: defaultConsume, exampleConsume: exampleConsume}
 }
 
@@ -37,7 +37,7 @@ func (m *MessageSubscribe) Setup(ctx context.Context) error {
 
 	log.Println("Start MessageSubscribe")
 
-	go m.subscribe(ctx, []string{entity.ImTopicDefault, fmt.Sprintf(entity.ImTopicDefaultPrivate, m.config.ServerId())}, m.defaultConsume)
+	go m.subscribe(ctx, []string{entity.ImTopicChat, fmt.Sprintf(entity.ImTopicChatPrivate, m.config.ServerId())}, m.defaultConsume)
 
 	go m.subscribe(ctx, []string{entity.ImTopicExample, fmt.Sprintf(entity.ImTopicExamplePrivate, m.config.ServerId())}, m.exampleConsume)
 

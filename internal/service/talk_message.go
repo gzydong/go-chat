@@ -491,7 +491,7 @@ func (s *TalkMessageService) SendRevokeRecordMessage(ctx context.Context, uid in
 		}),
 	}
 
-	s.rds.Publish(ctx, entity.ImTopicDefault, jsonutil.Encode(body))
+	s.rds.Publish(ctx, entity.ImTopicChat, jsonutil.Encode(body))
 
 	return nil
 }
@@ -684,17 +684,17 @@ func (s *TalkMessageService) afterHandle(ctx context.Context, record *model.Talk
 
 		// 小于三台服务器则采用全局广播
 		if len(sids) <= 3 {
-			s.rds.Publish(ctx, entity.ImTopicDefault, content)
+			s.rds.Publish(ctx, entity.ImTopicChat, content)
 		} else {
 			for _, sid := range s.sidServer.All(ctx, 1) {
 				for _, uid := range []int{record.UserId, record.ReceiverId} {
-					if s.client.IsCurrentServerOnline(ctx, sid, entity.ImChannelDefault, strconv.Itoa(uid)) {
-						s.rds.Publish(ctx, fmt.Sprintf(entity.ImTopicDefaultPrivate, sid), content)
+					if s.client.IsCurrentServerOnline(ctx, sid, entity.ImChannelChat, strconv.Itoa(uid)) {
+						s.rds.Publish(ctx, fmt.Sprintf(entity.ImTopicChatPrivate, sid), content)
 					}
 				}
 			}
 		}
 	} else {
-		s.rds.Publish(ctx, entity.ImTopicDefault, content)
+		s.rds.Publish(ctx, entity.ImTopicChat, content)
 	}
 }

@@ -23,7 +23,7 @@ func (h Handler) OnReadMessage(ctx context.Context, client im.IClient, data []by
 		Where("id in ? and receiver_id = ? and is_read = 0", m.Data.MsgIds, client.Uid()).
 		Update("is_read", 1)
 
-	h.redis.Publish(ctx, entity.ImTopicDefault, jsonutil.Encode(entity.MapStrAny{
+	h.redis.Publish(ctx, entity.ImTopicChat, jsonutil.Encode(entity.MapStrAny{
 		"event": entity.EventTalkRead,
 		"data": jsonutil.Encode(entity.MapStrAny{
 			"sender_id":   client.Uid(),

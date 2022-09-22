@@ -36,7 +36,7 @@ var providerSet = wire.NewSet(
 	process.NewServer,
 	server.NewHealthSubscribe,
 	server.NewMessageSubscribe,
-	consume.NewDefaultSubscribe,
+	consume.NewChatSubscribe,
 	consume.NewExampleSubscribe,
 
 	// 缓存
@@ -58,7 +58,7 @@ var providerSet = wire.NewSet(
 
 	chat.NewHandler,
 
-	event.NewDefaultEvent,
+	event.NewChatEvent,
 	event.NewExampleEvent,
 
 	// 服务
@@ -69,7 +69,7 @@ var providerSet = wire.NewSet(
 	service.NewContactService,
 
 	// handle
-	handler.NewDefaultChannel,
+	handler.NewChatChannel,
 	handler.NewExampleChannel,
 
 	wire.Struct(new(handler.Handler), "*"),

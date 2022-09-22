@@ -13,7 +13,7 @@ import (
 )
 
 type Handler struct {
-	Default *DefaultChannel
+	Chat    *ChatChannel
 	Example *ExampleChannel
 }
 
@@ -45,7 +45,7 @@ func (h *Handler) AcceptTcp(conn net.Conn) {
 		fmt.Println(conn.RemoteAddr(), "认证成功==>>>", time.Now().Unix())
 		fmt.Println(connInfo)
 
-		h.Default.TcpConn(context.Background(), connInfo.conn)
+		h.Chat.TcpConn(context.Background(), connInfo.conn)
 	}
 }
 

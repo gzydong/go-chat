@@ -20,7 +20,7 @@ import (
 
 type onConsumeFunc func(data string)
 
-type DefaultSubscribe struct {
+type ChatSubscribe struct {
 	config         *config.Config
 	clientStorage  *cache.ClientStorage
 	roomStorage    *cache.RoomStorage
@@ -29,12 +29,12 @@ type DefaultSubscribe struct {
 	handlers       map[string]onConsumeFunc
 }
 
-func NewDefaultSubscribe(config *config.Config, clientStorage *cache.ClientStorage, roomStorage *cache.RoomStorage, recordsService *service.TalkRecordsService, contactService *service.ContactService) *DefaultSubscribe {
-	return &DefaultSubscribe{config: config, clientStorage: clientStorage, roomStorage: roomStorage, recordsService: recordsService, contactService: contactService}
+func NewChatSubscribe(config *config.Config, clientStorage *cache.ClientStorage, roomStorage *cache.RoomStorage, recordsService *service.TalkRecordsService, contactService *service.ContactService) *ChatSubscribe {
+	return &ChatSubscribe{config: config, clientStorage: clientStorage, roomStorage: roomStorage, recordsService: recordsService, contactService: contactService}
 }
 
 // Events 注册事件
-func (s *DefaultSubscribe) Events() {
+func (s *ChatSubscribe) Events() {
 	s.handlers = make(map[string]onConsumeFunc)
 
 	s.handlers[entity.EventTalk] = s.onConsumeTalk
@@ -47,7 +47,7 @@ func (s *DefaultSubscribe) Events() {
 }
 
 // Call 触发回调事件
-func (s *DefaultSubscribe) Call(event string, data string) {
+func (s *ChatSubscribe) Call(event string, data string) {
 
 	if s.handlers == nil {
 		panic("事件未注册")
@@ -61,7 +61,7 @@ func (s *DefaultSubscribe) Call(event string, data string) {
 }
 
 // onConsumeTalk 聊天消息事件
-func (s *DefaultSubscribe) onConsumeTalk(body string) {
+func (s *ChatSubscribe) onConsumeTalk(body string) {
 	var msg struct {
 		TalkType   int   `json:"talk_type"`
 		SenderID   int64 `json:"sender_id"`
@@ -70,7 +70,7 @@ func (s *DefaultSubscribe) onConsumeTalk(body string) {
 	}
 
 	if err := json.Unmarshal([]byte(body), &msg); err != nil {
-		logrus.Error("[DefaultSubscribe] onConsumeTalk Unmarshal err: ", err.Error())
+		logrus.Error("[ChatSubscribe] onConsumeTalk Unmarshal err: ", err.Error())
 		return
 	}
 
@@ -79,13 +79,13 @@ func (s *DefaultSubscribe) onConsumeTalk(body string) {
 	cids := make([]int64, 0)
 	if msg.TalkType == entity.ChatPrivateMode {
 		for _, val := range [2]int64{msg.SenderID, msg.ReceiverID} {
-			ids := s.clientStorage.GetUidFromClientIds(ctx, s.config.ServerId(), im.Session.Default.Name(), strconv.Itoa(int(val)))
+			ids := s.clientStorage.GetUidFromClientIds(ctx, s.config.ServerId(), im.Session.Chat.Name(), strconv.Itoa(int(val)))
 
 			cids = append(cids, ids...)
 		}
 	} else if msg.TalkType == entity.ChatGroupMode {
 		ids := s.roomStorage.All(ctx, &cache.RoomOption{
-			Channel:  im.Session.Default.Name(),
+			Channel:  im.Session.Chat.Name(),
 			RoomType: entity.RoomImGroup,
 			Number:   strconv.Itoa(int(msg.ReceiverID)),
 			Sid:      s.config.ServerId(),
@@ -96,7 +96,7 @@ func (s *DefaultSubscribe) onConsumeTalk(body string) {
 
 	data, err := s.recordsService.GetTalkRecord(ctx, msg.RecordID)
 	if err != nil {
-		logrus.Error("[DefaultSubscribe] 读取对话记录失败 err: ", err.Error())
+		logrus.Error("[ChatSubscribe] 读取对话记录失败 err: ", err.Error())
 		return
 	}
 
@@ -116,22 +116,22 @@ func (s *DefaultSubscribe) onConsumeTalk(body string) {
 		},
 	})
 
-	im.Session.Default.Write(c)
+	im.Session.Chat.Write(c)
 }
 
 // onConsumeTalkKeyboard 键盘输入事件消息
-func (s *DefaultSubscribe) onConsumeTalkKeyboard(body string) {
+func (s *ChatSubscribe) onConsumeTalkKeyboard(body string) {
 	var msg struct {
 		SenderID   int `json:"sender_id"`
 		ReceiverID int `json:"receiver_id"`
 	}
 
 	if err := json.Unmarshal([]byte(body), &msg); err != nil {
-		logrus.Error("[DefaultSubscribe] onConsumeTalkKeyboard Unmarshal err: ", err.Error())
+		logrus.Error("[ChatSubscribe] onConsumeTalkKeyboard Unmarshal err: ", err.Error())
 		return
 	}
 
-	cids := s.clientStorage.GetUidFromClientIds(context.Background(), s.config.ServerId(), im.Session.Default.Name(), strconv.Itoa(msg.ReceiverID))
+	cids := s.clientStorage.GetUidFromClientIds(context.Background(), s.config.ServerId(), im.Session.Chat.Name(), strconv.Itoa(msg.ReceiverID))
 
 	if len(cids) == 0 {
 		return
@@ -147,18 +147,18 @@ func (s *DefaultSubscribe) onConsumeTalkKeyboard(body string) {
 		},
 	})
 
-	im.Session.Default.Write(c)
+	im.Session.Chat.Write(c)
 }
 
 // onConsumeLogin 用户上线或下线消息
-func (s *DefaultSubscribe) onConsumeLogin(body string) {
+func (s *ChatSubscribe) onConsumeLogin(body string) {
 	var msg struct {
 		Status int `json:"status"`
 		UserID int `json:"user_id"`
 	}
 
 	if err := json.Unmarshal([]byte(body), &msg); err != nil {
-		logrus.Error("[DefaultSubscribe] onConsumeLogin Unmarshal err: ", err.Error())
+		logrus.Error("[ChatSubscribe] onConsumeLogin Unmarshal err: ", err.Error())
 		return
 	}
 
@@ -168,7 +168,7 @@ func (s *DefaultSubscribe) onConsumeLogin(body string) {
 	uids := s.contactService.GetContactIds(ctx, msg.UserID)
 	sid := s.config.ServerId()
 	for _, uid := range uids {
-		ids := s.clientStorage.GetUidFromClientIds(ctx, sid, im.Session.Default.Name(), fmt.Sprintf("%d", uid))
+		ids := s.clientStorage.GetUidFromClientIds(ctx, sid, im.Session.Chat.Name(), fmt.Sprintf("%d", uid))
 
 		cids = append(cids, ids...)
 	}
@@ -184,11 +184,11 @@ func (s *DefaultSubscribe) onConsumeLogin(body string) {
 		Content: msg,
 	})
 
-	im.Session.Default.Write(c)
+	im.Session.Chat.Write(c)
 }
 
 // onConsumeTalkRevoke 撤销聊天消息
-func (s *DefaultSubscribe) onConsumeTalkRevoke(body string) {
+func (s *ChatSubscribe) onConsumeTalkRevoke(body string) {
 	var (
 		msg struct {
 			RecordId int `json:"record_id"`
@@ -198,7 +198,7 @@ func (s *DefaultSubscribe) onConsumeTalkRevoke(body string) {
 	)
 
 	if err := jsonutil.Decode(body, &msg); err != nil {
-		logrus.Error("[DefaultSubscribe] onConsumeTalkRevoke Unmarshal err: ", err.Error())
+		logrus.Error("[ChatSubscribe] onConsumeTalkRevoke Unmarshal err: ", err.Error())
 		return
 	}
 
@@ -209,12 +209,12 @@ func (s *DefaultSubscribe) onConsumeTalkRevoke(body string) {
 	cids := make([]int64, 0)
 	if record.TalkType == entity.ChatPrivateMode {
 		for _, uid := range [2]int{record.UserId, record.ReceiverId} {
-			ids := s.clientStorage.GetUidFromClientIds(ctx, s.config.ServerId(), im.Session.Default.Name(), strconv.Itoa(uid))
+			ids := s.clientStorage.GetUidFromClientIds(ctx, s.config.ServerId(), im.Session.Chat.Name(), strconv.Itoa(uid))
 			cids = append(cids, ids...)
 		}
 	} else if record.TalkType == entity.ChatGroupMode {
 		cids = s.roomStorage.All(ctx, &cache.RoomOption{
-			Channel:  im.Session.Default.Name(),
+			Channel:  im.Session.Chat.Name(),
 			RoomType: entity.RoomImGroup,
 			Number:   strconv.Itoa(record.ReceiverId),
 			Sid:      s.config.ServerId(),
@@ -237,11 +237,11 @@ func (s *DefaultSubscribe) onConsumeTalkRevoke(body string) {
 		},
 	})
 
-	im.Session.Default.Write(c)
+	im.Session.Chat.Write(c)
 }
 
 // nolint onConsumeContactApply 好友申请消息
-func (s *DefaultSubscribe) onConsumeContactApply(body string) {
+func (s *ChatSubscribe) onConsumeContactApply(body string) {
 	var (
 		msg struct {
 			ApplId int `json:"apply_id"`
@@ -251,7 +251,7 @@ func (s *DefaultSubscribe) onConsumeContactApply(body string) {
 	)
 
 	if err := jsonutil.Decode(body, &msg); err != nil {
-		logrus.Error("[DefaultSubscribe] onConsumeContactApply Unmarshal err: ", err.Error())
+		logrus.Error("[ChatSubscribe] onConsumeContactApply Unmarshal err: ", err.Error())
 		return
 	}
 
@@ -260,7 +260,7 @@ func (s *DefaultSubscribe) onConsumeContactApply(body string) {
 		return
 	}
 
-	cids := s.clientStorage.GetUidFromClientIds(ctx, s.config.ServerId(), im.Session.Default.Name(), strconv.Itoa(apply.FriendId))
+	cids := s.clientStorage.GetUidFromClientIds(ctx, s.config.ServerId(), im.Session.Chat.Name(), strconv.Itoa(apply.FriendId))
 	if len(cids) == 0 {
 		return
 	}
@@ -287,11 +287,11 @@ func (s *DefaultSubscribe) onConsumeContactApply(body string) {
 		Content: data,
 	})
 
-	im.Session.Default.Write(c)
+	im.Session.Chat.Write(c)
 }
 
 // onConsumeTalkJoinGroup 加入群房间
-func (s *DefaultSubscribe) onConsumeTalkJoinGroup(body string) {
+func (s *ChatSubscribe) onConsumeTalkJoinGroup(body string) {
 	var (
 		ctx  = context.Background()
 		sid  = s.config.ServerId()
@@ -303,16 +303,16 @@ func (s *DefaultSubscribe) onConsumeTalkJoinGroup(body string) {
 	)
 
 	if err := json.Unmarshal([]byte(body), &data); err != nil {
-		logrus.Error("[DefaultSubscribe] onConsumeTalkJoinGroup Unmarshal err: ", err.Error())
+		logrus.Error("[ChatSubscribe] onConsumeTalkJoinGroup Unmarshal err: ", err.Error())
 		return
 	}
 
 	for _, uid := range data.Uids {
-		cids := s.clientStorage.GetUidFromClientIds(ctx, sid, im.Session.Default.Name(), strconv.Itoa(uid))
+		cids := s.clientStorage.GetUidFromClientIds(ctx, sid, im.Session.Chat.Name(), strconv.Itoa(uid))
 
 		for _, cid := range cids {
 			opts := &cache.RoomOption{
-				Channel:  im.Session.Default.Name(),
+				Channel:  im.Session.Chat.Name(),
 				RoomType: entity.RoomImGroup,
 				Number:   strconv.Itoa(data.Gid),
 				Sid:      s.config.ServerId(),
@@ -329,7 +329,7 @@ func (s *DefaultSubscribe) onConsumeTalkJoinGroup(body string) {
 }
 
 // onConsumeTalkRead 消息已读事件
-func (s *DefaultSubscribe) onConsumeTalkRead(body string) {
+func (s *ChatSubscribe) onConsumeTalkRead(body string) {
 	var (
 		ctx  = context.Background()
 		sid  = s.config.ServerId()
@@ -341,11 +341,11 @@ func (s *DefaultSubscribe) onConsumeTalkRead(body string) {
 	)
 
 	if err := jsonutil.Decode(body, &data); err != nil {
-		logrus.Error("[DefaultSubscribe] onConsumeContactApply Unmarshal err: ", err.Error())
+		logrus.Error("[ChatSubscribe] onConsumeContactApply Unmarshal err: ", err.Error())
 		return
 	}
 
-	cids := s.clientStorage.GetUidFromClientIds(ctx, sid, im.Session.Default.Name(), fmt.Sprintf("%d", data.ReceiverId))
+	cids := s.clientStorage.GetUidFromClientIds(ctx, sid, im.Session.Chat.Name(), fmt.Sprintf("%d", data.ReceiverId))
 
 	c := im.NewSenderContent()
 	c.SetReceive(cids...)
@@ -358,5 +358,5 @@ func (s *DefaultSubscribe) onConsumeTalkRead(body string) {
 		},
 	})
 
-	im.Session.Default.Write(c)
+	im.Session.Chat.Write(c)
 }

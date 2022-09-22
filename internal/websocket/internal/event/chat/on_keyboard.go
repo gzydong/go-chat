@@ -18,7 +18,7 @@ func (h *Handler) OnKeyboard(ctx context.Context, _ im.IClient, data []byte) {
 		return
 	}
 
-	h.redis.Publish(ctx, entity.ImTopicDefault, jsonutil.Encode(entity.MapStrAny{
+	h.redis.Publish(ctx, entity.ImTopicChat, jsonutil.Encode(entity.MapStrAny{
 		"event": entity.EventTalkKeyboard,
 		"data": jsonutil.Encode(entity.MapStrAny{
 			"sender_id":   m.Data.SenderID,

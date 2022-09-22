@@ -15,7 +15,7 @@ import (
 	"go-chat/internal/websocket/internal/event/chat"
 )
 
-type DefaultEvent struct {
+type ChatEvent struct {
 	redis         *redis.Client
 	config        *config.Config
 	cache         *service.ClientService
@@ -24,12 +24,12 @@ type DefaultEvent struct {
 	handler       *chat.Handler
 }
 
-func NewDefaultEvent(redis *redis.Client, config *config.Config, cache *service.ClientService, roomStorage *cache.RoomStorage, memberService *service.GroupMemberService, handler *chat.Handler) *DefaultEvent {
-	return &DefaultEvent{redis: redis, config: config, cache: cache, roomStorage: roomStorage, memberService: memberService, handler: handler}
+func NewChatEvent(redis *redis.Client, config *config.Config, cache *service.ClientService, roomStorage *cache.RoomStorage, memberService *service.GroupMemberService, handler *chat.Handler) *ChatEvent {
+	return &ChatEvent{redis: redis, config: config, cache: cache, roomStorage: roomStorage, memberService: memberService, handler: handler}
 }
 
 // OnOpen 连接成功回调事件
-func (d *DefaultEvent) OnOpen(client im.IClient) {
+func (d *ChatEvent) OnOpen(client im.IClient) {
 
 	ctx := context.Background()
 
@@ -39,7 +39,7 @@ func (d *DefaultEvent) OnOpen(client im.IClient) {
 	// 2.客户端加入群房间
 	for _, id := range ids {
 		_ = d.roomStorage.Add(ctx, &cache.RoomOption{
-			Channel:  im.Session.Default.Name(),
+			Channel:  im.Session.Chat.Name(),
 			RoomType: entity.RoomImGroup,
 			Number:   strconv.Itoa(id),
 			Sid:      d.config.ServerId(),
@@ -48,7 +48,7 @@ func (d *DefaultEvent) OnOpen(client im.IClient) {
 	}
 
 	// 推送上线消息
-	d.redis.Publish(ctx, entity.ImTopicDefault, jsonutil.Encode(entity.MapStrAny{
+	d.redis.Publish(ctx, entity.ImTopicChat, jsonutil.Encode(entity.MapStrAny{
 		"event": entity.EventOnlineStatus,
 		"data": jsonutil.Encode(entity.MapStrAny{
 			"user_id": client.Uid(),
@@ -58,7 +58,7 @@ func (d *DefaultEvent) OnOpen(client im.IClient) {
 }
 
 // OnMessage 消息回调事件
-func (d *DefaultEvent) OnMessage(client im.IClient, message []byte) {
+func (d *ChatEvent) OnMessage(client im.IClient, message []byte) {
 
 	// 获取事件名
 	event := gjson.GetBytes(message, "event").String()
@@ -69,7 +69,7 @@ func (d *DefaultEvent) OnMessage(client im.IClient, message []byte) {
 }
 
 // OnClose 连接关闭回调事件
-func (d *DefaultEvent) OnClose(client im.IClient, code int, text string) {
+func (d *ChatEvent) OnClose(client im.IClient, code int, text string) {
 	// 1.判断用户是否是多点登录
 
 	// 2.查询用户群列表
@@ -78,7 +78,7 @@ func (d *DefaultEvent) OnClose(client im.IClient, code int, text string) {
 	// 3.客户端退出群房间
 	for _, id := range ids {
 		_ = d.roomStorage.Del(context.Background(), &cache.RoomOption{
-			Channel:  im.Session.Default.Name(),
+			Channel:  im.Session.Chat.Name(),
 			RoomType: entity.RoomImGroup,
 			Number:   strconv.Itoa(id),
 			Sid:      d.config.ServerId(),
@@ -87,7 +87,7 @@ func (d *DefaultEvent) OnClose(client im.IClient, code int, text string) {
 	}
 
 	// 推送下线消息
-	d.redis.Publish(context.Background(), entity.ImTopicDefault, jsonutil.Encode(entity.MapStrAny{
+	d.redis.Publish(context.Background(), entity.ImTopicChat, jsonutil.Encode(entity.MapStrAny{
 		"event": entity.EventOnlineStatus,
 		"data": jsonutil.Encode(entity.MapStrAny{
 			"user_id": client.Uid(),

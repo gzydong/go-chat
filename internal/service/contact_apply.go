@@ -60,7 +60,7 @@ func (s *ContactApplyService) Create(ctx context.Context, opts *ContactApplyCrea
 
 	s.rds.Incr(ctx, fmt.Sprintf("friend-apply:user_%d", opts.FriendId))
 
-	s.rds.Publish(ctx, entity.ImTopicDefault, jsonutil.Encode(body))
+	s.rds.Publish(ctx, entity.ImTopicChat, jsonutil.Encode(body))
 
 	return nil
 }
@@ -134,7 +134,7 @@ func (s *ContactApplyService) Decline(ctx context.Context, opts *ContactApplyDec
 			}),
 		}
 
-		s.rds.Publish(ctx, entity.ImTopicDefault, jsonutil.Encode(body))
+		s.rds.Publish(ctx, entity.ImTopicChat, jsonutil.Encode(body))
 	}
 
 	return err

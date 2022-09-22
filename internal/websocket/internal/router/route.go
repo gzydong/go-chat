@@ -25,14 +25,14 @@ func NewRouter(conf *config.Config, handle *handler.Handler, session *cache.Sess
 	// 查看客户端连接状态
 	router.GET("/wss/connect/detail", func(ctx *gin.Context) {
 		ctx.JSON(200, entity.H{
-			"server_port":   conf.App.Port,
+			"port":          conf.App.Port,
 			"max_client_id": im.Counter.GetMaxID(),
-			"default":       entity.H{"online_total": im.Session.Default.Count()},
-			"example":       entity.H{"online_total": im.Session.Example.Count()},
+			"chat":          im.Session.Chat.Count(),
+			"example":       im.Session.Example.Count(),
 		})
 	})
 
-	router.GET("/wss/default.io", authorize, ichat.HandlerFunc(handle.Default.WsConn))
+	router.GET("/wss/default.io", authorize, ichat.HandlerFunc(handle.Chat.WsConn))
 	router.GET("/wss/example.io", authorize, ichat.HandlerFunc(handle.Example.WsConnect))
 
 	router.GET("/", func(c *gin.Context) {

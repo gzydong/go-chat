@@ -121,7 +121,7 @@ func (s *GroupService) Create(ctx context.Context, opts *CreateGroupOpt) (int, e
 		}),
 	}
 
-	s.rds.Publish(ctx, entity.ImTopicDefault, jsonutil.Encode(body))
+	s.rds.Publish(ctx, entity.ImTopicChat, jsonutil.Encode(body))
 
 	return group.Id, err
 }
@@ -217,7 +217,7 @@ func (s *GroupService) Secede(ctx context.Context, groupId int, uid int) error {
 
 	s.relation.DelGroupRelation(ctx, uid, groupId)
 
-	s.rds.Publish(ctx, entity.ImTopicDefault, jsonutil.Encode(map[string]interface{}{
+	s.rds.Publish(ctx, entity.ImTopicChat, jsonutil.Encode(map[string]interface{}{
 		"event": entity.EventTalkJoinGroup,
 		"data": jsonutil.Encode(map[string]interface{}{
 			"type":     2,
@@ -226,7 +226,7 @@ func (s *GroupService) Secede(ctx context.Context, groupId int, uid int) error {
 		}),
 	}))
 
-	s.rds.Publish(ctx, entity.ImTopicDefault, jsonutil.Encode(map[string]interface{}{
+	s.rds.Publish(ctx, entity.ImTopicChat, jsonutil.Encode(map[string]interface{}{
 		"event": entity.EventTalk,
 		"data": jsonutil.Encode(map[string]interface{}{
 			"sender_id":   record.UserId,
@@ -340,7 +340,7 @@ func (s *GroupService) InviteMembers(ctx context.Context, opts *InviteGroupMembe
 	}
 
 	// 广播网关将在线的用户加入房间
-	s.rds.Publish(ctx, entity.ImTopicDefault, jsonutil.Encode(map[string]interface{}{
+	s.rds.Publish(ctx, entity.ImTopicChat, jsonutil.Encode(map[string]interface{}{
 		"event": entity.EventTalkJoinGroup,
 		"data": jsonutil.Encode(map[string]interface{}{
 			"type":     1,
@@ -349,7 +349,7 @@ func (s *GroupService) InviteMembers(ctx context.Context, opts *InviteGroupMembe
 		}),
 	}))
 
-	s.rds.Publish(ctx, entity.ImTopicDefault, jsonutil.Encode(map[string]interface{}{
+	s.rds.Publish(ctx, entity.ImTopicChat, jsonutil.Encode(map[string]interface{}{
 		"event": entity.EventTalk,
 		"data": jsonutil.Encode(map[string]interface{}{
 			"sender_id":   record.UserId,
@@ -418,7 +418,7 @@ func (s *GroupService) RemoveMembers(ctx context.Context, opts *RemoveMembersOpt
 
 	s.relation.BatchDelGroupRelation(ctx, opts.MemberIds, opts.GroupId)
 
-	s.rds.Publish(ctx, entity.ImTopicDefault, jsonutil.Encode(map[string]interface{}{
+	s.rds.Publish(ctx, entity.ImTopicChat, jsonutil.Encode(map[string]interface{}{
 		"event": entity.EventTalkJoinGroup,
 		"data": jsonutil.Encode(map[string]interface{}{
 			"type":     2,
@@ -427,7 +427,7 @@ func (s *GroupService) RemoveMembers(ctx context.Context, opts *RemoveMembersOpt
 		}),
 	}))
 
-	s.rds.Publish(ctx, entity.ImTopicDefault, jsonutil.Encode(map[string]interface{}{
+	s.rds.Publish(ctx, entity.ImTopicChat, jsonutil.Encode(map[string]interface{}{
 		"event": entity.EventTalk,
 		"data": jsonutil.Encode(map[string]interface{}{
 			"sender_id":   int64(record.UserId),
