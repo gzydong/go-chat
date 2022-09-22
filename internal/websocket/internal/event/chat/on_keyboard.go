@@ -12,8 +12,8 @@ import (
 
 // OnKeyboard 键盘输入事件
 func (h *Handler) OnKeyboard(ctx context.Context, _ im.IClient, data []byte) {
-	var m *dto.KeyboardMessage
 
+	var m *dto.KeyboardMessage
 	if err := json.Unmarshal(data, &m); err != nil {
 		return
 	}

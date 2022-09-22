@@ -1,8 +1,10 @@
 package event
 
 import (
+	"context"
 	"fmt"
 
+	"github.com/tidwall/gjson"
 	"go-chat/internal/pkg/im"
 	"go-chat/internal/websocket/internal/event/example"
 )
@@ -20,7 +22,14 @@ func (e *ExampleEvent) OnOpen(client im.IClient) {
 }
 
 func (e *ExampleEvent) OnMessage(client im.IClient, message []byte) {
+
 	fmt.Println("接收消息===>>>", message)
+
+	event := gjson.GetBytes(message, "event").String()
+	if event != "" {
+		// 触发事件
+		e.handler.Call(context.Background(), client, event, message)
+	}
 }
 
 func (e *ExampleEvent) OnClose(client im.IClient, code int, text string) {

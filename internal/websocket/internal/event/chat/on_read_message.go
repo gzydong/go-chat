@@ -3,7 +3,6 @@ package chat
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 
 	"go-chat/internal/entity"
 	"go-chat/internal/pkg/im"
@@ -14,7 +13,6 @@ import (
 
 // OnReadMessage 消息已读事件
 func (h Handler) OnReadMessage(ctx context.Context, client im.IClient, data []byte) {
-	fmt.Println("OnReadMessage===>>>", data)
 
 	var m *dto.TalkReadMessage
 	if err := json.Unmarshal(data, &m); err != nil {

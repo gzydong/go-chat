@@ -62,9 +62,10 @@ func (d *DefaultEvent) OnMessage(client im.IClient, message []byte) {
 
 	// 获取事件名
 	event := gjson.GetBytes(message, "event").String()
-
-	// 触发事件
-	d.handler.Call(context.Background(), client, event, message)
+	if event != "" {
+		// 触发事件
+		d.handler.Call(context.Background(), client, event, message)
+	}
 }
 
 // OnClose 连接关闭回调事件
