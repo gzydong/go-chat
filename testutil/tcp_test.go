@@ -1,7 +1,6 @@
 package testutil
 
 import (
-	"bufio"
 	"fmt"
 	"net"
 	"testing"
@@ -10,12 +9,16 @@ import (
 	"go-chat/internal/pkg/im/tcp"
 )
 
-type TcpAuthRequest struct {
-	Channel string // 连接业务渠道
-	Token   string // 授权token
+func TestTcpServer_Setup(t1 *testing.T) {
+
+	for i := 0; i < 1000; i++ {
+		go conn()
+	}
+
+	time.Sleep(50 * time.Minute)
 }
 
-func TestTcpServer_Setup(t1 *testing.T) {
+func conn() {
 	conn, err := net.Dial("tcp", "127.0.0.1:9505")
 	if err != nil {
 		fmt.Println("dial failed, err", err)
@@ -23,11 +26,10 @@ func TestTcpServer_Setup(t1 *testing.T) {
 	}
 	defer conn.Close()
 
-	go func() {
-		// msg := `{"event":"authorize","content":"2056"}`
-		// data, _ := tcp.Encode(msg)
-		// _, _ = conn.Write(data)
+	data, _ := tcp.Encode(`{"event":"authorize","content":"2056"}`)
+	_, _ = conn.Write(data)
 
+	go func() {
 		for {
 			msg := `{"event":"heartbeat","content":"ping"}`
 
@@ -38,17 +40,5 @@ func TestTcpServer_Setup(t1 *testing.T) {
 		}
 	}()
 
-	go func() {
-		ch := bufio.NewReader(conn)
-		for {
-			decode, err := tcp.Decode(ch)
-			if err != nil {
-				return
-			}
-
-			fmt.Println(decode)
-		}
-	}()
-
-	time.Sleep(50 * time.Minute)
+	time.Sleep(1000 * time.Second)
 }

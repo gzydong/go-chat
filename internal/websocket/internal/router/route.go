@@ -25,7 +25,6 @@ func NewRouter(conf *config.Config, handle *handler.Handler, session *cache.Sess
 	// 查看客户端连接状态
 	router.GET("/wss/connect/detail", func(ctx *gin.Context) {
 		ctx.JSON(200, entity.H{
-			"port":          conf.App.Port,
 			"max_client_id": im.Counter.GetMaxID(),
 			"chat":          im.Session.Chat.Count(),
 			"example":       im.Session.Example.Count(),

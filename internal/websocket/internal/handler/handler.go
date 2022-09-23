@@ -30,6 +30,8 @@ type Message struct {
 func (h *Handler) ConnDispatcher(conn net.Conn) {
 	ch := make(chan *AuthConn)
 
+	fmt.Println("网络地址", conn.RemoteAddr().(*net.TCPAddr).IP)
+
 	defer func() {
 		if err := recover(); err != nil {
 			fmt.Println("recover ===>>>", err)
