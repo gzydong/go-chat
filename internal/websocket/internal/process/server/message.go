@@ -29,7 +29,6 @@ func NewMessageSubscribe(config *config.Config, redis *redis.Client, server *cac
 }
 
 type IConsume interface {
-	Events()
 	Call(event string, data string)
 }
 
@@ -57,9 +56,6 @@ func (m *MessageSubscribe) subscribe(ctx context.Context, topic []string, consum
 	defer sub.Close()
 
 	w := worker.NewWorker(10, 10)
-
-	// 注册回调事件
-	consume.Events()
 
 	// 订阅 redis 消息
 	for msg := range sub.Channel(redis.WithChannelHealthCheckInterval(30 * time.Second)) {

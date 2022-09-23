@@ -13,7 +13,7 @@ func NewExampleSubscribe() *ExampleSubscribe {
 }
 
 // Events 注册事件
-func (s *ExampleSubscribe) Events() {
+func (s *ExampleSubscribe) init() {
 	s.handlers = make(map[string]onConsumeFunc)
 }
 
@@ -21,12 +21,12 @@ func (s *ExampleSubscribe) Events() {
 func (s *ExampleSubscribe) Call(event string, data string) {
 
 	if s.handlers == nil {
-		panic("事件未注册")
+		s.init()
 	}
 
 	if f, ok := s.handlers[event]; ok {
 		f(data)
 	} else {
-		logger.Warnf("Event: [%s]未注册回调方法\n", event)
+		logger.Warnf("ExampleSubscribe Event: [%s]未注册回调方法\n", event)
 	}
 }

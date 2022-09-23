@@ -34,7 +34,7 @@ func NewChatSubscribe(config *config.Config, clientStorage *cache.ClientStorage,
 }
 
 // Events 注册事件
-func (s *ChatSubscribe) Events() {
+func (s *ChatSubscribe) init() {
 	s.handlers = make(map[string]onConsumeFunc)
 
 	s.handlers[entity.EventTalk] = s.onConsumeTalk
@@ -50,13 +50,13 @@ func (s *ChatSubscribe) Events() {
 func (s *ChatSubscribe) Call(event string, data string) {
 
 	if s.handlers == nil {
-		panic("事件未注册")
+		s.init()
 	}
 
 	if f, ok := s.handlers[event]; ok {
 		f(data)
 	} else {
-		logger.Warnf("Event: [%s]未注册回调方法\n", event)
+		logger.Warnf("ChatSubscribe Event: [%s]未注册回调方法\n", event)
 	}
 }
 
