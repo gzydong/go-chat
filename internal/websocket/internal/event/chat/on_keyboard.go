@@ -7,13 +7,20 @@ import (
 	"go-chat/internal/entity"
 	"go-chat/internal/pkg/im"
 	"go-chat/internal/pkg/jsonutil"
-	"go-chat/internal/websocket/internal/dto"
 )
+
+type KeyboardMessage struct {
+	Event string `json:"event"`
+	Data  struct {
+		SenderID   int `json:"sender_id"`
+		ReceiverID int `json:"receiver_id"`
+	} `json:"data"`
+}
 
 // OnKeyboard 键盘输入事件
 func (h *Handler) OnKeyboard(ctx context.Context, _ im.IClient, data []byte) {
 
-	var m *dto.KeyboardMessage
+	var m *KeyboardMessage
 	if err := json.Unmarshal(data, &m); err != nil {
 		return
 	}

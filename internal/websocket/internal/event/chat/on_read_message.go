@@ -8,13 +8,20 @@ import (
 	"go-chat/internal/pkg/im"
 	"go-chat/internal/pkg/jsonutil"
 	"go-chat/internal/repository/model"
-	"go-chat/internal/websocket/internal/dto"
 )
+
+type TalkReadMessage struct {
+	Event string `json:"event"`
+	Data  struct {
+		MsgIds     []int `json:"msg_id"`
+		ReceiverId int   `json:"receiver_id"`
+	} `json:"data"`
+}
 
 // OnReadMessage 消息已读事件
 func (h Handler) OnReadMessage(ctx context.Context, client im.IClient, data []byte) {
 
-	var m *dto.TalkReadMessage
+	var m *TalkReadMessage
 	if err := json.Unmarshal(data, &m); err != nil {
 		return
 	}
