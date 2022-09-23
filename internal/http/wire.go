@@ -86,7 +86,6 @@ var serviceProviderSet = wire.NewSet(
 	service.NewSmsService,
 	service.NewTalkService,
 	service.NewTalkMessageService,
-	service.NewClientService,
 	service.NewGroupService,
 	service.NewGroupMemberService,
 	service.NewGroupNoticeService,

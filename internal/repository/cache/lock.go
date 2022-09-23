@@ -18,15 +18,15 @@ func NewRedisLock(rds *redis.Client) *RedisLock {
 
 // key 获取锁名
 func (lock *RedisLock) key(name string) string {
-	return fmt.Sprintf("rds-lock:%s", name)
+	return fmt.Sprintf("redis-lock:%s", name)
 }
 
-// Lock 获取 rds 锁
+// Lock 获取 redis 锁
 func (lock *RedisLock) Lock(ctx context.Context, name string, expire int) bool {
 	return lock.rds.SetNX(ctx, lock.key(name), 1, time.Duration(expire)*time.Second).Val()
 }
 
-// UnLock 释放 rds 锁
+// UnLock 释放 redis 锁
 func (lock *RedisLock) UnLock(ctx context.Context, name string) bool {
 	script := `
 	if redis.call("GET", KEYS[1]) == ARGV[1] then

@@ -5,18 +5,18 @@ import (
 	"go-chat/internal/pkg/im"
 	"go-chat/internal/pkg/im/adapter"
 	"go-chat/internal/pkg/logger"
-	"go-chat/internal/service"
+	"go-chat/internal/repository/cache"
 	"go-chat/internal/websocket/internal/event"
 )
 
 // ExampleChannel 使用案例
 type ExampleChannel struct {
-	cache *service.ClientService
-	event *event.ExampleEvent
+	storage *cache.ClientStorage
+	event   *event.ExampleEvent
 }
 
-func NewExampleChannel(cache *service.ClientService, event *event.ExampleEvent) *ExampleChannel {
-	return &ExampleChannel{cache: cache, event: event}
+func NewExampleChannel(storage *cache.ClientStorage, event *event.ExampleEvent) *ExampleChannel {
+	return &ExampleChannel{storage: storage, event: event}
 }
 
 func (c *ExampleChannel) WsConnect(ctx *ichat.Context) error {

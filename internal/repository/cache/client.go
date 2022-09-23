@@ -10,24 +10,20 @@ import (
 )
 
 type ClientStorage struct {
-	rds    *redis.Client
-	conf   *config.Config
+	redis  *redis.Client
+	config *config.Config
 	server *SidServer
 }
 
-func NewClientStorage(
-	rds *redis.Client,
-	conf *config.Config,
-	server *SidServer,
-) *ClientStorage {
-	return &ClientStorage{rds, conf, server}
+func NewClientStorage(redis *redis.Client, config *config.Config, server *SidServer) *ClientStorage {
+	return &ClientStorage{redis: redis, config: config, server: server}
 }
 
-func (w *ClientStorage) getChannelClientKey(sid, channel string) string {
+func (w *ClientStorage) getClientKey(sid, channel string) string {
 	return fmt.Sprintf("ws:%s:channel:%s:client", sid, channel)
 }
 
-func (w *ClientStorage) getChannelUserKey(sid, channel, uid string) string {
+func (w *ClientStorage) getUserKey(sid, channel, uid string) string {
 	return fmt.Sprintf("ws:%s:channel:%s:user:%s", sid, channel, uid)
 }
 
@@ -36,22 +32,22 @@ func (w *ClientStorage) getChannelUserKey(sid, channel, uid string) string {
 // @params fd       客户端连接ID
 // @params id       用户ID
 func (w *ClientStorage) Set(ctx context.Context, channel string, fd string, uid int) {
-	w.rds.HSet(ctx, w.getChannelClientKey(w.conf.ServerId(), channel), fd, uid)
+	w.redis.HSet(ctx, w.getClientKey(w.config.ServerId(), channel), fd, uid)
 
-	w.rds.SAdd(ctx, w.getChannelUserKey(w.conf.ServerId(), channel, strconv.Itoa(uid)), fd)
+	w.redis.SAdd(ctx, w.getUserKey(w.config.ServerId(), channel, strconv.Itoa(uid)), fd)
 }
 
 // Del 删除客户端与用户绑定关系
 // @params channel  渠道分组
 // @params fd     客户端连接ID
 func (w *ClientStorage) Del(ctx context.Context, channel, fd string) {
-	KeyName := w.getChannelClientKey(w.conf.ServerId(), channel)
+	KeyName := w.getClientKey(w.config.ServerId(), channel)
 
-	uid, _ := w.rds.HGet(ctx, KeyName, fd).Result()
+	uid, _ := w.redis.HGet(ctx, KeyName, fd).Result()
 
-	w.rds.HDel(ctx, KeyName, fd)
+	w.redis.HDel(ctx, KeyName, fd)
 
-	w.rds.SRem(ctx, w.getChannelUserKey(w.conf.ServerId(), channel, uid), fd)
+	w.redis.SRem(ctx, w.getUserKey(w.config.ServerId(), channel, uid), fd)
 }
 
 // IsOnline 判断客户端是否在线[所有部署机器]
@@ -72,7 +68,7 @@ func (w *ClientStorage) IsOnline(ctx context.Context, channel, uid string) bool 
 // @params channel  渠道分组
 // @params uid      用户ID
 func (w *ClientStorage) IsCurrentServerOnline(ctx context.Context, sid, channel, uid string) bool {
-	val, err := w.rds.SCard(ctx, w.getChannelUserKey(sid, channel, uid)).Result()
+	val, err := w.redis.SCard(ctx, w.getUserKey(sid, channel, uid)).Result()
 
 	return err == nil && val > 0
 }
@@ -84,7 +80,7 @@ func (w *ClientStorage) IsCurrentServerOnline(ctx context.Context, sid, channel,
 func (w *ClientStorage) GetUidFromClientIds(ctx context.Context, sid, channel, uid string) []int64 {
 	cids := make([]int64, 0)
 
-	items, err := w.rds.SMembers(ctx, w.getChannelUserKey(sid, channel, uid)).Result()
+	items, err := w.redis.SMembers(ctx, w.getUserKey(sid, channel, uid)).Result()
 	if err != nil {
 		return cids
 	}
@@ -103,7 +99,7 @@ func (w *ClientStorage) GetUidFromClientIds(ctx context.Context, sid, channel, u
 // @params channel 渠道分组
 // @params cid     客户端ID
 func (w *ClientStorage) GetClientIdFromUid(ctx context.Context, sid, channel, cid string) (int64, error) {
-	uid, err := w.rds.HGet(ctx, w.getChannelClientKey(sid, channel), cid).Result()
+	uid, err := w.redis.HGet(ctx, w.getClientKey(sid, channel), cid).Result()
 	if err != nil {
 		return 0, err
 	}
@@ -113,4 +109,12 @@ func (w *ClientStorage) GetClientIdFromUid(ctx context.Context, sid, channel, ci
 	} else {
 		return 0, err
 	}
+}
+
+func (w *ClientStorage) Bind(ctx context.Context, channel string, clientId int64, uid int) {
+	w.Set(ctx, channel, fmt.Sprintf("%d", clientId), uid)
+}
+
+func (w *ClientStorage) UnBind(ctx context.Context, channel string, clientId int64) {
+	w.Del(ctx, channel, fmt.Sprintf("%d", clientId))
 }

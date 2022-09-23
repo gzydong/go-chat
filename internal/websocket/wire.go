@@ -64,7 +64,6 @@ var providerSet = wire.NewSet(
 	// 服务
 	service.NewBaseService,
 	service.NewTalkRecordsService,
-	service.NewClientService,
 	service.NewGroupMemberService,
 	service.NewContactService,
 

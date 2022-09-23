@@ -18,14 +18,13 @@ import (
 type ChatEvent struct {
 	redis         *redis.Client
 	config        *config.Config
-	cache         *service.ClientService
 	roomStorage   *cache.RoomStorage
 	memberService *service.GroupMemberService
 	handler       *chat.Handler
 }
 
-func NewChatEvent(redis *redis.Client, config *config.Config, cache *service.ClientService, roomStorage *cache.RoomStorage, memberService *service.GroupMemberService, handler *chat.Handler) *ChatEvent {
-	return &ChatEvent{redis: redis, config: config, cache: cache, roomStorage: roomStorage, memberService: memberService, handler: handler}
+func NewChatEvent(redis *redis.Client, config *config.Config, roomStorage *cache.RoomStorage, memberService *service.GroupMemberService, handler *chat.Handler) *ChatEvent {
+	return &ChatEvent{redis: redis, config: config, roomStorage: roomStorage, memberService: memberService, handler: handler}
 }
 
 // OnOpen 连接成功回调事件

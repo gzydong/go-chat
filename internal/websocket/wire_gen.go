@@ -29,7 +29,6 @@ func Initialize(ctx context.Context, conf *config.Config) *AppProvider {
 	client := provider.NewRedisClient(ctx, conf)
 	sidServer := cache.NewSid(client)
 	clientStorage := cache.NewClientStorage(client, conf, sidServer)
-	clientService := service.NewClientService(clientStorage)
 	roomStorage := cache.NewRoomStorage(client)
 	db := provider.NewMySQLClient(conf)
 	baseService := service.NewBaseService(db, client)
@@ -38,10 +37,10 @@ func Initialize(ctx context.Context, conf *config.Config) *AppProvider {
 	groupMemberDao := dao.NewGroupMemberDao(baseDao, relation)
 	groupMemberService := service.NewGroupMemberService(baseService, groupMemberDao)
 	chatHandler := chat.NewHandler(client, groupMemberService)
-	chatEvent := event.NewChatEvent(client, conf, clientService, roomStorage, groupMemberService, chatHandler)
-	chatChannel := handler.NewChatChannel(clientService, chatEvent)
+	chatEvent := event.NewChatEvent(client, conf, roomStorage, groupMemberService, chatHandler)
+	chatChannel := handler.NewChatChannel(clientStorage, chatEvent)
 	exampleEvent := event.NewExampleEvent()
-	exampleChannel := handler.NewExampleChannel(clientService, exampleEvent)
+	exampleChannel := handler.NewExampleChannel(clientStorage, exampleEvent)
 	handlerHandler := &handler.Handler{
 		Chat:    chatChannel,
 		Example: exampleChannel,
@@ -76,4 +75,4 @@ func Initialize(ctx context.Context, conf *config.Config) *AppProvider {
 
 // wire.go:
 
-var providerSet = wire.NewSet(provider.NewMySQLClient, provider.NewRedisClient, provider.NewWebsocketServer, router.NewRouter, wire.Struct(new(process.SubServers), "*"), process.NewServer, server.NewHealthSubscribe, server.NewMessageSubscribe, consume.NewChatSubscribe, consume.NewExampleSubscribe, cache.NewSessionStorage, cache.NewSid, cache.NewRedisLock, cache.NewClientStorage, cache.NewRoomStorage, cache.NewTalkVote, cache.NewRelation, cache.NewContactRemark, dao.NewBaseDao, dao.NewTalkRecordsDao, dao.NewTalkRecordsVoteDao, dao.NewGroupMemberDao, dao.NewContactDao, chat.NewHandler, event.NewChatEvent, event.NewExampleEvent, service.NewBaseService, service.NewTalkRecordsService, service.NewClientService, service.NewGroupMemberService, service.NewContactService, handler.NewChatChannel, handler.NewExampleChannel, wire.Struct(new(handler.Handler), "*"), wire.Struct(new(AppProvider), "*"))
+var providerSet = wire.NewSet(provider.NewMySQLClient, provider.NewRedisClient, provider.NewWebsocketServer, router.NewRouter, wire.Struct(new(process.SubServers), "*"), process.NewServer, server.NewHealthSubscribe, server.NewMessageSubscribe, consume.NewChatSubscribe, consume.NewExampleSubscribe, cache.NewSessionStorage, cache.NewSid, cache.NewRedisLock, cache.NewClientStorage, cache.NewRoomStorage, cache.NewTalkVote, cache.NewRelation, cache.NewContactRemark, dao.NewBaseDao, dao.NewTalkRecordsDao, dao.NewTalkRecordsVoteDao, dao.NewGroupMemberDao, dao.NewContactDao, chat.NewHandler, event.NewChatEvent, event.NewExampleEvent, service.NewBaseService, service.NewTalkRecordsService, service.NewGroupMemberService, service.NewContactService, handler.NewChatChannel, handler.NewExampleChannel, wire.Struct(new(handler.Handler), "*"), wire.Struct(new(AppProvider), "*"))

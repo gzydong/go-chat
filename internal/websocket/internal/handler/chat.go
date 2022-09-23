@@ -7,17 +7,17 @@ import (
 	"go-chat/internal/pkg/im"
 	"go-chat/internal/pkg/im/adapter"
 	"go-chat/internal/pkg/logger"
-	"go-chat/internal/service"
+	"go-chat/internal/repository/cache"
 	"go-chat/internal/websocket/internal/event"
 )
 
 type ChatChannel struct {
-	cache *service.ClientService
-	event *event.ChatEvent
+	storage *cache.ClientStorage
+	event   *event.ChatEvent
 }
 
-func NewChatChannel(cache *service.ClientService, event *event.ChatEvent) *ChatChannel {
-	return &ChatChannel{cache: cache, event: event}
+func NewChatChannel(storage *cache.ClientStorage, event *event.ChatEvent) *ChatChannel {
+	return &ChatChannel{storage: storage, event: event}
 }
 
 // WsConn 初始化连接
@@ -44,7 +44,7 @@ func (c *ChatChannel) client(ctx context.Context, uid int, conn im.IConn) {
 	im.NewClient(ctx, conn, &im.ClientOptions{
 		Uid:     uid,
 		Channel: im.Session.Chat,
-		Storage: c.cache,
+		Storage: c.storage,
 		Buffer:  10,
 	}, im.NewClientCallback(
 		// 连接成功回调事件
