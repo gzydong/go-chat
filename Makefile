@@ -36,7 +36,7 @@ migrate:
 	go run ./internal/cmd other migrate
 
 .PHONY: build
-build:generate lint
+build:generate
 	go build -o ./bin/http-server ./internal/http
 	go build -o ./bin/ws-server ./internal/websocket
 	go build -o ./bin/cmd ./internal/cmd
