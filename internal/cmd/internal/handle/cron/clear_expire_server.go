@@ -7,11 +7,11 @@ import (
 )
 
 type ClearExpireServer struct {
-	server *cache.SidServer
+	storage *cache.SidStorage
 }
 
-func NewClearExpireServer(server *cache.SidServer) *ClearExpireServer {
-	return &ClearExpireServer{server: server}
+func NewClearExpireServer(storage *cache.SidStorage) *ClearExpireServer {
+	return &ClearExpireServer{storage: storage}
 }
 
 // Spec 配置定时任务规则
@@ -21,9 +21,9 @@ func (c *ClearExpireServer) Spec() string {
 
 func (c *ClearExpireServer) Handle(ctx context.Context) error {
 
-	for _, sid := range c.server.All(ctx, 2) {
-		_ = c.server.Del(ctx, sid)
-		_ = c.server.SetExpireServer(ctx, sid)
+	for _, sid := range c.storage.All(ctx, 2) {
+		_ = c.storage.Del(ctx, sid)
+		_ = c.storage.SetExpireServer(ctx, sid)
 	}
 
 	return nil

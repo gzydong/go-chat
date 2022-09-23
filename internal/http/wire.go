@@ -47,7 +47,7 @@ var providerSet = wire.NewSet(
 
 var cacheProviderSet = wire.NewSet(
 	cache.NewSessionStorage,
-	cache.NewSid,
+	cache.NewSidStorage,
 	cache.NewUnreadStorage,
 	cache.NewRedisLock,
 	cache.NewClientStorage,

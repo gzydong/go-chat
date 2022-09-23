@@ -8,11 +8,11 @@ import (
 )
 
 type ClearWsCache struct {
-	server *cache.SidServer
+	storage *cache.SidStorage
 }
 
-func NewClearWsCache(server *cache.SidServer) *ClearWsCache {
-	return &ClearWsCache{server: server}
+func NewClearWsCache(storage *cache.SidStorage) *ClearWsCache {
+	return &ClearWsCache{storage: storage}
 }
 
 // Spec 配置定时任务规则
@@ -23,15 +23,15 @@ func (c *ClearWsCache) Spec() string {
 
 func (c *ClearWsCache) Handle(ctx context.Context) error {
 
-	for _, sid := range c.server.GetExpireServerAll(ctx) {
+	for _, sid := range c.storage.GetExpireServerAll(ctx) {
 
-		iter := c.server.Redis().Scan(ctx, 0, fmt.Sprintf("ws:%s:*", sid), 100).Iterator()
+		iter := c.storage.Redis().Scan(ctx, 0, fmt.Sprintf("ws:%s:*", sid), 100).Iterator()
 
 		for iter.Next(ctx) {
-			c.server.Redis().Del(ctx, iter.Val())
+			c.storage.Redis().Del(ctx, iter.Val())
 		}
 
-		_ = c.server.DelExpireServer(ctx, sid)
+		_ = c.storage.DelExpireServer(ctx, sid)
 	}
 
 	return nil

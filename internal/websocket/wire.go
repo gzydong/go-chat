@@ -41,7 +41,7 @@ var providerSet = wire.NewSet(
 
 	// 缓存
 	cache.NewSessionStorage,
-	cache.NewSid,
+	cache.NewSidStorage,
 	cache.NewRedisLock,
 	cache.NewClientStorage,
 	cache.NewRoomStorage,

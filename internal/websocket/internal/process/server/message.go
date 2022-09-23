@@ -12,20 +12,18 @@ import (
 	"go-chat/internal/entity"
 	"go-chat/internal/pkg/logger"
 	"go-chat/internal/pkg/worker"
-	"go-chat/internal/repository/cache"
 	"go-chat/internal/websocket/internal/process/consume"
 )
 
 type MessageSubscribe struct {
 	config         *config.Config
 	redis          *redis.Client
-	server         *cache.SidServer
 	defaultConsume *consume.ChatSubscribe
 	exampleConsume *consume.ExampleSubscribe
 }
 
-func NewMessageSubscribe(config *config.Config, redis *redis.Client, server *cache.SidServer, defaultConsume *consume.ChatSubscribe, exampleConsume *consume.ExampleSubscribe) *MessageSubscribe {
-	return &MessageSubscribe{config: config, redis: redis, server: server, defaultConsume: defaultConsume, exampleConsume: exampleConsume}
+func NewMessageSubscribe(config *config.Config, redis *redis.Client, defaultConsume *consume.ChatSubscribe, exampleConsume *consume.ExampleSubscribe) *MessageSubscribe {
+	return &MessageSubscribe{config: config, redis: redis, defaultConsume: defaultConsume, exampleConsume: exampleConsume}
 }
 
 type IConsume interface {

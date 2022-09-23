@@ -27,13 +27,13 @@ import (
 
 func Initialize(ctx context.Context, conf *config.Config) *AppProvider {
 	client := provider.NewRedisClient(ctx, conf)
-	sidServer := cache.NewSid(client)
-	clearWsCache := cron.NewClearWsCache(sidServer)
+	sidStorage := cache.NewSidStorage(client)
+	clearWsCache := cron.NewClearWsCache(sidStorage)
 	db := provider.NewMySQLClient(conf)
 	filesystemFilesystem := filesystem.NewFilesystem(conf)
 	clearArticle := cron.NewClearArticle(db, filesystemFilesystem)
 	clearTmpFile := cron.NewClearTmpFile(db, filesystemFilesystem)
-	clearExpireServer := cron.NewClearExpireServer(sidServer)
+	clearExpireServer := cron.NewClearExpireServer(sidStorage)
 	subcommands := &cron2.Subcommands{
 		ClearWsCache:      clearWsCache,
 		ClearArticle:      clearArticle,
@@ -65,4 +65,4 @@ func Initialize(ctx context.Context, conf *config.Config) *AppProvider {
 
 // wire.go:
 
-var providerSet = wire.NewSet(provider.NewMySQLClient, provider.NewRedisClient, provider.NewHttpClient, provider.NewEmailClient, provider.NewRequestClient, filesystem.NewFilesystem, cache.NewSid, dao.NewBaseDao, cron2.NewCrontabCommand, cron.NewClearTmpFile, cron.NewClearArticle, cron.NewClearWsCache, cron.NewClearExpireServer, wire.Struct(new(cron2.Subcommands), "*"), queue.NewQueueCommand, wire.Struct(new(queue.Subcommands), "*"), queue2.NewEmailHandle, other2.NewOtherCommand, other2.NewExampleCommand, other2.NewMigrateCommand, wire.Struct(new(other2.Subcommands), "*"), other.NewExampleHandle, wire.Struct(new(command.Commands), "*"), wire.Struct(new(AppProvider), "*"))
+var providerSet = wire.NewSet(provider.NewMySQLClient, provider.NewRedisClient, provider.NewHttpClient, provider.NewEmailClient, provider.NewRequestClient, filesystem.NewFilesystem, cache.NewSidStorage, dao.NewBaseDao, cron2.NewCrontabCommand, cron.NewClearTmpFile, cron.NewClearArticle, cron.NewClearWsCache, cron.NewClearExpireServer, wire.Struct(new(cron2.Subcommands), "*"), queue.NewQueueCommand, wire.Struct(new(queue.Subcommands), "*"), queue2.NewEmailHandle, other2.NewOtherCommand, other2.NewExampleCommand, other2.NewMigrateCommand, wire.Struct(new(other2.Subcommands), "*"), other.NewExampleHandle, wire.Struct(new(command.Commands), "*"), wire.Struct(new(AppProvider), "*"))

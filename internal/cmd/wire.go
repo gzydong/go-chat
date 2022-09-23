@@ -32,7 +32,7 @@ var providerSet = wire.NewSet(
 	filesystem.NewFilesystem,
 
 	// cache
-	cache.NewSid,
+	cache.NewSidStorage,
 
 	// Dao
 	dao.NewBaseDao,

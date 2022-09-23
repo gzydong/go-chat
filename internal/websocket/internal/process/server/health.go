@@ -11,12 +11,12 @@ import (
 )
 
 type HealthSubscribe struct {
-	conf   *config.Config
-	server *cache.SidServer
+	config  *config.Config
+	storage *cache.SidStorage
 }
 
-func NewHealthSubscribe(conf *config.Config, server *cache.SidServer) *HealthSubscribe {
-	return &HealthSubscribe{conf: conf, server: server}
+func NewHealthSubscribe(config *config.Config, storage *cache.SidStorage) *HealthSubscribe {
+	return &HealthSubscribe{config: config, storage: storage}
 }
 
 func (s *HealthSubscribe) Setup(ctx context.Context) error {
@@ -31,7 +31,7 @@ func (s *HealthSubscribe) Setup(ctx context.Context) error {
 
 		// 每隔10秒上报心跳
 		case <-time.After(10 * time.Second):
-			if err := s.server.Set(ctx, s.conf.ServerId(), time.Now().Unix()); err != nil {
+			if err := s.storage.Set(ctx, s.config.ServerId(), time.Now().Unix()); err != nil {
 				logger.Errorf("Websocket HealthSubscribe Report Err: %s \n", err.Error())
 			}
 		}

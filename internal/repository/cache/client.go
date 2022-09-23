@@ -10,13 +10,13 @@ import (
 )
 
 type ClientStorage struct {
-	redis  *redis.Client
-	config *config.Config
-	server *SidServer
+	redis   *redis.Client
+	config  *config.Config
+	storage *SidStorage
 }
 
-func NewClientStorage(redis *redis.Client, config *config.Config, server *SidServer) *ClientStorage {
-	return &ClientStorage{redis: redis, config: config, server: server}
+func NewClientStorage(redis *redis.Client, config *config.Config, storage *SidStorage) *ClientStorage {
+	return &ClientStorage{redis: redis, config: config, storage: storage}
 }
 
 func (w *ClientStorage) getClientKey(sid, channel string) string {
@@ -54,7 +54,7 @@ func (w *ClientStorage) Del(ctx context.Context, channel, fd string) {
 // @params channel  渠道分组
 // @params uid      用户ID
 func (w *ClientStorage) IsOnline(ctx context.Context, channel, uid string) bool {
-	for _, sid := range w.server.All(ctx, 1) {
+	for _, sid := range w.storage.All(ctx, 1) {
 		if w.IsCurrentServerOnline(ctx, sid, channel, uid) {
 			return true
 		}

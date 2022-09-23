@@ -19,30 +19,30 @@ const (
 	ServerOverTime = 50
 )
 
-type SidServer struct {
+type SidStorage struct {
 	rds *redis.Client
 }
 
-func NewSid(rds *redis.Client) *SidServer {
-	return &SidServer{rds: rds}
+func NewSidStorage(rds *redis.Client) *SidStorage {
+	return &SidStorage{rds: rds}
 }
 
 // Set 更新服务心跳时间
-func (s *SidServer) Set(ctx context.Context, server string, time int64) error {
+func (s *SidStorage) Set(ctx context.Context, server string, time int64) error {
 
 	_ = s.DelExpireServer(ctx, server)
 
 	return s.rds.HSet(ctx, ServerKey, server, time).Err()
 }
 
-// Del 删除指定 SidServer
-func (s *SidServer) Del(ctx context.Context, server string) error {
+// Del 删除指定 SidStorage
+func (s *SidStorage) Del(ctx context.Context, server string) error {
 	return s.rds.HDel(ctx, ServerKey, server).Err()
 }
 
-// All 获取指定状态的运行 SidServer
+// All 获取指定状态的运行 SidStorage
 // status 状态[1:运行中;2:已超时;3:全部]
-func (s *SidServer) All(ctx context.Context, status int) []string {
+func (s *SidStorage) All(ctx context.Context, status int) []string {
 	result, err := s.rds.HGetAll(ctx, ServerKey).Result()
 
 	slice := make([]string, 0)
@@ -74,18 +74,18 @@ func (s *SidServer) All(ctx context.Context, status int) []string {
 	return slice
 }
 
-func (s *SidServer) SetExpireServer(ctx context.Context, server string) error {
+func (s *SidStorage) SetExpireServer(ctx context.Context, server string) error {
 	return s.rds.SAdd(ctx, ServerKeyExpire, server).Err()
 }
 
-func (s *SidServer) DelExpireServer(ctx context.Context, server string) error {
+func (s *SidStorage) DelExpireServer(ctx context.Context, server string) error {
 	return s.rds.SRem(ctx, ServerKeyExpire, server).Err()
 }
 
-func (s *SidServer) GetExpireServerAll(ctx context.Context) []string {
+func (s *SidStorage) GetExpireServerAll(ctx context.Context) []string {
 	return s.rds.SMembers(ctx, ServerKeyExpire).Val()
 }
 
-func (s *SidServer) Redis() *redis.Client {
+func (s *SidStorage) Redis() *redis.Client {
 	return s.rds
 }

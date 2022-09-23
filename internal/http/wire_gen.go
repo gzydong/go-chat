@@ -57,11 +57,11 @@ func Initialize(ctx context.Context, conf *config.Config) *AppProvider {
 	talkRecordsVoteDao := dao.NewTalkRecordsVoteDao(baseDao, talkVote)
 	relation := cache.NewRelation(client)
 	groupMemberDao := dao.NewGroupMemberDao(baseDao, relation)
-	sidServer := cache.NewSid(client)
-	clientStorage := cache.NewClientStorage(client, conf, sidServer)
+	sidStorage := cache.NewSidStorage(client)
+	clientStorage := cache.NewClientStorage(client, conf, sidStorage)
 	filesystem := provider.NewFilesystem(conf)
 	splitUploadDao := dao.NewFileSplitUploadDao(baseDao)
-	talkMessageService := service.NewTalkMessageService(baseService, conf, unreadStorage, messageStorage, talkRecordsVoteDao, groupMemberDao, sidServer, clientStorage, filesystem, splitUploadDao)
+	talkMessageService := service.NewTalkMessageService(baseService, conf, unreadStorage, messageStorage, talkRecordsVoteDao, groupMemberDao, sidStorage, clientStorage, filesystem, splitUploadDao)
 	httpClient := provider.NewHttpClient()
 	requestClient := provider.NewRequestClient(httpClient)
 	ipAddressService := service.NewIpAddressService(baseService, conf, requestClient)
@@ -176,7 +176,7 @@ func Initialize(ctx context.Context, conf *config.Config) *AppProvider {
 
 var providerSet = wire.NewSet(provider.NewMySQLClient, provider.NewRedisClient, provider.NewHttpClient, provider.NewEmailClient, provider.NewHttpServer, provider.NewFilesystem, provider.NewRequestClient, router.NewRouter, wire.Struct(new(web.Handler), "*"), wire.Struct(new(admin.Handler), "*"), wire.Struct(new(open.Handler), "*"), wire.Struct(new(handler.Handler), "*"), wire.Struct(new(AppProvider), "*"))
 
-var cacheProviderSet = wire.NewSet(cache.NewSessionStorage, cache.NewSid, cache.NewUnreadStorage, cache.NewRedisLock, cache.NewClientStorage, cache.NewMessageStorage, cache.NewTalkVote, cache.NewRoomStorage, cache.NewRelation, cache.NewSmsCodeCache, cache.NewContactRemark)
+var cacheProviderSet = wire.NewSet(cache.NewSessionStorage, cache.NewSidStorage, cache.NewUnreadStorage, cache.NewRedisLock, cache.NewClientStorage, cache.NewMessageStorage, cache.NewTalkVote, cache.NewRoomStorage, cache.NewRelation, cache.NewSmsCodeCache, cache.NewContactRemark)
 
 var daoProviderSet = wire.NewSet(dao.NewBaseDao, dao.NewContactDao, dao.NewGroupMemberDao, dao.NewUserDao, dao.NewGroupDao, dao.NewGroupApply, dao.NewTalkRecordsDao, dao.NewGroupNoticeDao, dao.NewTalkSessionDao, dao.NewEmoticonDao, dao.NewTalkRecordsVoteDao, dao.NewFileSplitUploadDao, note.NewArticleClassDao, note.NewArticleAnnexDao, organize.NewDepartmentDao, organize.NewOrganizeDao, organize.NewPositionDao, dao.NewRobotDao)
 
