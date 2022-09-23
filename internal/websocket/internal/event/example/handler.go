@@ -3,8 +3,8 @@ package example
 import (
 	"context"
 
-	"github.com/sirupsen/logrus"
 	"go-chat/internal/pkg/im"
+	"go-chat/internal/pkg/logger"
 )
 
 type Handler struct {
@@ -28,6 +28,6 @@ func (h *Handler) Call(ctx context.Context, client im.IClient, event string, dat
 	if call, ok := h.handlers[event]; ok {
 		call(ctx, client, data)
 	} else {
-		logrus.Warnf("Chat Event: [%s]未注册回调事件\n", event)
+		logger.Warnf("Chat Event: [%s]未注册回调事件\n", event)
 	}
 }

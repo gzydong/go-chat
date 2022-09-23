@@ -22,7 +22,7 @@ func main() {
 	cmd := cli.NewApp()
 
 	cmd.Name = "LumenIM 在线聊天"
-	cmd.Usage = "Websocket Server"
+	cmd.Usage = "IM Server"
 
 	// 设置参数
 	cmd.Flags = []cli.Flag{

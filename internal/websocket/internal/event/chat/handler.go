@@ -4,9 +4,9 @@ import (
 	"context"
 
 	"github.com/go-redis/redis/v8"
-	"github.com/sirupsen/logrus"
 	"go-chat/internal/entity"
 	"go-chat/internal/pkg/im"
+	"go-chat/internal/pkg/logger"
 	"go-chat/internal/service"
 )
 
@@ -38,6 +38,6 @@ func (h *Handler) Call(ctx context.Context, client im.IClient, event string, dat
 	if call, ok := h.handlers[event]; ok {
 		call(ctx, client, data)
 	} else {
-		logrus.Warnf("Chat Event: [%s]未注册回调事件\n", event)
+		logger.Warnf("Chat Event: [%s]未注册回调事件\n", event)
 	}
 }

@@ -1,10 +1,10 @@
 package handler
 
 import (
-	"github.com/sirupsen/logrus"
 	"go-chat/internal/pkg/ichat"
 	"go-chat/internal/pkg/im"
 	"go-chat/internal/pkg/im/adapter"
+	"go-chat/internal/pkg/logger"
 	"go-chat/internal/service"
 	"go-chat/internal/websocket/internal/event"
 )
@@ -23,7 +23,7 @@ func (c *ExampleChannel) WsConnect(ctx *ichat.Context) error {
 
 	conn, err := adapter.NewWsAdapter(ctx.Context.Writer, ctx.Context.Request)
 	if err != nil {
-		logrus.Errorf("websocket connect error: %s", err.Error())
+		logger.Errorf("websocket connect error: %s", err.Error())
 		return nil
 	}
 

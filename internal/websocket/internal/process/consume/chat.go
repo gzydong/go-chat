@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/sirupsen/logrus"
+	"go-chat/internal/pkg/logger"
 	"go-chat/internal/pkg/timeutil"
 	"go-chat/internal/repository/cache"
 	"go-chat/internal/repository/model"
@@ -56,7 +56,7 @@ func (s *ChatSubscribe) Call(event string, data string) {
 	if f, ok := s.handlers[event]; ok {
 		f(data)
 	} else {
-		logrus.Warnf("Event: [%s]未注册回调方法\n", event)
+		logger.Warnf("Event: [%s]未注册回调方法\n", event)
 	}
 }
 
@@ -70,7 +70,7 @@ func (s *ChatSubscribe) onConsumeTalk(body string) {
 	}
 
 	if err := json.Unmarshal([]byte(body), &msg); err != nil {
-		logrus.Error("[ChatSubscribe] onConsumeTalk Unmarshal err: ", err.Error())
+		logger.Error("[ChatSubscribe] onConsumeTalk Unmarshal err: ", err.Error())
 		return
 	}
 
@@ -96,7 +96,7 @@ func (s *ChatSubscribe) onConsumeTalk(body string) {
 
 	data, err := s.recordsService.GetTalkRecord(ctx, msg.RecordID)
 	if err != nil {
-		logrus.Error("[ChatSubscribe] 读取对话记录失败 err: ", err.Error())
+		logger.Error("[ChatSubscribe] 读取对话记录失败 err: ", err.Error())
 		return
 	}
 
@@ -127,7 +127,7 @@ func (s *ChatSubscribe) onConsumeTalkKeyboard(body string) {
 	}
 
 	if err := json.Unmarshal([]byte(body), &msg); err != nil {
-		logrus.Error("[ChatSubscribe] onConsumeTalkKeyboard Unmarshal err: ", err.Error())
+		logger.Error("[ChatSubscribe] onConsumeTalkKeyboard Unmarshal err: ", err.Error())
 		return
 	}
 
@@ -158,7 +158,7 @@ func (s *ChatSubscribe) onConsumeLogin(body string) {
 	}
 
 	if err := json.Unmarshal([]byte(body), &msg); err != nil {
-		logrus.Error("[ChatSubscribe] onConsumeLogin Unmarshal err: ", err.Error())
+		logger.Error("[ChatSubscribe] onConsumeLogin Unmarshal err: ", err.Error())
 		return
 	}
 
@@ -198,7 +198,7 @@ func (s *ChatSubscribe) onConsumeTalkRevoke(body string) {
 	)
 
 	if err := jsonutil.Decode(body, &msg); err != nil {
-		logrus.Error("[ChatSubscribe] onConsumeTalkRevoke Unmarshal err: ", err.Error())
+		logger.Error("[ChatSubscribe] onConsumeTalkRevoke Unmarshal err: ", err.Error())
 		return
 	}
 
@@ -251,7 +251,7 @@ func (s *ChatSubscribe) onConsumeContactApply(body string) {
 	)
 
 	if err := jsonutil.Decode(body, &msg); err != nil {
-		logrus.Error("[ChatSubscribe] onConsumeContactApply Unmarshal err: ", err.Error())
+		logger.Error("[ChatSubscribe] onConsumeContactApply Unmarshal err: ", err.Error())
 		return
 	}
 
@@ -303,7 +303,7 @@ func (s *ChatSubscribe) onConsumeTalkJoinGroup(body string) {
 	)
 
 	if err := json.Unmarshal([]byte(body), &data); err != nil {
-		logrus.Error("[ChatSubscribe] onConsumeTalkJoinGroup Unmarshal err: ", err.Error())
+		logger.Error("[ChatSubscribe] onConsumeTalkJoinGroup Unmarshal err: ", err.Error())
 		return
 	}
 
@@ -341,7 +341,7 @@ func (s *ChatSubscribe) onConsumeTalkRead(body string) {
 	)
 
 	if err := jsonutil.Decode(body, &data); err != nil {
-		logrus.Error("[ChatSubscribe] onConsumeContactApply Unmarshal err: ", err.Error())
+		logger.Error("[ChatSubscribe] onConsumeContactApply Unmarshal err: ", err.Error())
 		return
 	}
 

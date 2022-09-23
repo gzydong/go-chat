@@ -1,7 +1,7 @@
 package consume
 
 import (
-	"github.com/sirupsen/logrus"
+	"go-chat/internal/pkg/logger"
 )
 
 type ExampleSubscribe struct {
@@ -27,6 +27,6 @@ func (s *ExampleSubscribe) Call(event string, data string) {
 	if f, ok := s.handlers[event]; ok {
 		f(data)
 	} else {
-		logrus.Warnf("Event: [%s]未注册回调方法\n", event)
+		logger.Warnf("Event: [%s]未注册回调方法\n", event)
 	}
 }

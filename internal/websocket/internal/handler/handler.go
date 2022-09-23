@@ -7,9 +7,9 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/sirupsen/logrus"
 	"go-chat/internal/pkg/im/adapter"
 	"go-chat/internal/pkg/jsonutil"
+	"go-chat/internal/pkg/logger"
 )
 
 type Handler struct {
@@ -27,7 +27,7 @@ type Message struct {
 	Content string `json:"content"`
 }
 
-func (h *Handler) AcceptTcp(conn net.Conn) {
+func (h *Handler) ConnDispatcher(conn net.Conn) {
 	ch := make(chan *AuthConn)
 
 	defer func() {
@@ -58,7 +58,7 @@ func (h *Handler) AcceptTcp(conn net.Conn) {
 func (*Handler) auth(connect net.Conn, data chan *AuthConn) {
 	conn, err := adapter.NewTcpAdapter(connect)
 	if err != nil {
-		logrus.Errorf("tcp connect error: %s", err.Error())
+		logger.Errorf("tcp connect error: %s", err.Error())
 	}
 
 	fmt.Println(connect.RemoteAddr(), "等待认证==>>>", time.Now().Unix())
