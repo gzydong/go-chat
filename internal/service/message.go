@@ -7,13 +7,13 @@ import (
 	"net/url"
 	"strconv"
 
-	"github.com/sirupsen/logrus"
 	"go-chat/api/pb/message/v1"
 	"go-chat/internal/entity"
 	"go-chat/internal/logic"
 	"go-chat/internal/pkg/encrypt"
 	"go-chat/internal/pkg/filesystem"
 	"go-chat/internal/pkg/jsonutil"
+	"go-chat/internal/pkg/logger"
 	"go-chat/internal/pkg/strutil"
 	"go-chat/internal/pkg/timeutil"
 	"go-chat/internal/repository/cache"
@@ -96,13 +96,11 @@ func (m *MessageService) SendImage(ctx context.Context, uid int, req *message.Im
 		return tx.Create(file).Error
 	})
 
-	if err != nil {
-		return err
+	if err == nil {
+		m.afterHandle(ctx, record, map[string]string{"text": "[图片消息]"})
 	}
 
-	m.afterHandle(ctx, record, map[string]string{"text": "[图片消息]"})
-
-	return nil
+	return err
 }
 
 // SendVoice 语音文件消息
@@ -141,13 +139,11 @@ func (m *MessageService) SendVoice(ctx context.Context, uid int, req *message.Vo
 		return tx.Create(file).Error
 	})
 
-	if err != nil {
-		return err
+	if err == nil {
+		m.afterHandle(ctx, record, map[string]string{"text": "[语音消息]"})
 	}
 
-	m.afterHandle(ctx, record, map[string]string{"text": "[语音消息]"})
-
-	return nil
+	return err
 }
 
 // SendVideo 视频文件消息
@@ -186,13 +182,11 @@ func (m *MessageService) SendVideo(ctx context.Context, uid int, req *message.Vi
 		return tx.Create(file).Error
 	})
 
-	if err != nil {
-		return err
+	if err == nil {
+		m.afterHandle(ctx, record, map[string]string{"text": "[视频文件消息]"})
 	}
 
-	m.afterHandle(ctx, record, map[string]string{"text": "[视频文件消息]"})
-
-	return nil
+	return err
 }
 
 // SendFile 文件消息
@@ -205,7 +199,7 @@ func (m *MessageService) SendFile(ctx context.Context, uid int, req *message.Fil
 
 	filePath := fmt.Sprintf("private/files/talks/%s/%s.%s", timeutil.DateNumber(), encrypt.Md5(strutil.Random(16)), file.FileExt)
 	if err := m.fileSystem.Default.Copy(file.Path, filePath); err != nil {
-		logrus.Error("文件拷贝失败 err: ", err.Error())
+		logger.Error("文件拷贝失败 err: ", err.Error())
 		return err
 	}
 
@@ -237,13 +231,11 @@ func (m *MessageService) SendFile(ctx context.Context, uid int, req *message.Fil
 		return tx.Create(data).Error
 	})
 
-	if err != nil {
-		return err
+	if err == nil {
+		m.afterHandle(ctx, record, map[string]string{"text": "[文件消息]"})
 	}
 
-	m.afterHandle(ctx, record, map[string]string{"text": "[文件消息]"})
-
-	return nil
+	return err
 }
 
 // SendCode 代码消息
@@ -271,13 +263,11 @@ func (m *MessageService) SendCode(ctx context.Context, uid int, req *message.Cod
 		return tx.Create(data).Error
 	})
 
-	if err != nil {
-		return err
+	if err == nil {
+		m.afterHandle(ctx, record, map[string]string{"text": "[代码消息]"})
 	}
 
-	m.afterHandle(ctx, record, map[string]string{"text": "[代码消息]"})
-
-	return nil
+	return err
 }
 
 // SendVote 投票消息
@@ -315,13 +305,11 @@ func (m *MessageService) SendVote(ctx context.Context, uid int, req *message.Vot
 		return tx.Create(data).Error
 	})
 
-	if err != nil {
-		return err
+	if err == nil {
+		m.afterHandle(ctx, record, map[string]string{"text": "[投票消息]"})
 	}
 
-	m.afterHandle(ctx, record, map[string]string{"text": "[投票消息]"})
-
-	return nil
+	return err
 }
 
 // SendEmoticon 表情消息
@@ -366,13 +354,11 @@ func (m *MessageService) SendEmoticon(ctx context.Context, uid int, req *message
 		return nil
 	})
 
-	if err != nil {
-		return err
+	if err == nil {
+		m.afterHandle(ctx, record, map[string]string{"text": "[表情包消息]"})
 	}
 
-	m.afterHandle(ctx, record, map[string]string{"text": "[表情包消息]"})
-
-	return nil
+	return err
 }
 
 // SendForward 转发消息
@@ -432,13 +418,11 @@ func (m *MessageService) SendLocation(ctx context.Context, uid int, req *message
 		return tx.Create(data).Error
 	})
 
-	if err != nil {
-		return err
+	if err == nil {
+		m.afterHandle(ctx, record, map[string]string{"text": "[位置消息]"})
 	}
 
-	m.afterHandle(ctx, record, map[string]string{"text": "[位置消息]"})
-
-	return nil
+	return err
 }
 
 // SendBusinessCard 推送用户名片消息
@@ -475,13 +459,11 @@ func (m *MessageService) SendLogin(ctx context.Context, uid int, req *message.Lo
 		return tx.Create(data).Error
 	})
 
-	if err != nil {
-		return err
+	if err == nil {
+		m.afterHandle(ctx, record, map[string]string{"text": "[登录消息]"})
 	}
 
-	m.afterHandle(ctx, record, map[string]string{"text": "[登录消息]"})
-
-	return nil
+	return err
 }
 
 // 发送消息后置处理
