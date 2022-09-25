@@ -10,6 +10,7 @@ import (
 	"go-chat/internal/http/internal/handler/admin"
 	"go-chat/internal/http/internal/handler/open"
 	"go-chat/internal/http/internal/handler/web"
+	"go-chat/internal/logic"
 	"go-chat/internal/provider"
 	"go-chat/internal/repository/cache"
 	"go-chat/internal/repository/dao"
@@ -91,7 +92,6 @@ var serviceProviderSet = wire.NewSet(
 	service.NewGroupNoticeService,
 	service.NewGroupApplyService,
 	service.NewTalkSessionService,
-	service.NewTalkMessageForwardService,
 	service.NewEmoticonService,
 	service.NewTalkRecordsService,
 	service.NewContactService,
@@ -99,6 +99,7 @@ var serviceProviderSet = wire.NewSet(
 	service.NewSplitUploadService,
 	service.NewIpAddressService,
 	service.NewAuthPermissionService,
+	service.NewMessageService,
 	note.NewArticleService,
 	note.NewArticleTagService,
 	note.NewArticleClassService,
@@ -108,6 +109,7 @@ var serviceProviderSet = wire.NewSet(
 	organize.NewPositionService,
 	service.NewTemplateService,
 	service.NewTalkAuthService,
+	logic.NewMessageForwardLogic,
 )
 
 func Initialize(ctx context.Context, conf *config.Config) *AppProvider {

@@ -22,6 +22,7 @@ import (
 	"go-chat/internal/http/internal/handler/web/v1/group"
 	"go-chat/internal/http/internal/handler/web/v1/talk"
 	"go-chat/internal/http/internal/router"
+	"go-chat/internal/logic"
 	"go-chat/internal/provider"
 	"go-chat/internal/repository/cache"
 	"go-chat/internal/repository/dao"
@@ -87,11 +88,12 @@ func Initialize(ctx context.Context, conf *config.Config) *AppProvider {
 	groupService := service.NewGroupService(baseService, groupDao, groupMemberDao, relation)
 	authPermissionService := service.NewAuthPermissionService(contactDao, groupMemberDao, organizeDao)
 	session := talk.NewSession(talkService, talkSessionService, redisLock, userService, clientStorage, messageStorage, contactService, unreadStorage, contactRemark, groupService, authPermissionService)
-	talkMessageForwardService := service.NewTalkMessageForwardService(baseService)
 	splitUploadService := service.NewSplitUploadService(baseService, splitUploadDao, conf, filesystem)
 	groupMemberService := service.NewGroupMemberService(baseService, groupMemberDao)
 	talkAuthService := service.NewTalkAuthService(organizeDao, contactDao)
-	message := talk.NewMessage(talkMessageService, talkService, talkRecordsVoteDao, talkMessageForwardService, splitUploadService, contactService, groupMemberService, organizeService, talkAuthService)
+	messageForwardLogic := logic.NewMessageForwardLogic(db)
+	messageService := service.NewMessageService(baseService, messageForwardLogic, groupMemberDao, splitUploadDao, filesystem)
+	message := talk.NewMessage(talkMessageService, talkService, talkRecordsVoteDao, splitUploadService, contactService, groupMemberService, organizeService, talkAuthService, messageService)
 	talkRecordsDao := dao.NewTalkRecordsDao(baseDao)
 	talkRecordsService := service.NewTalkRecordsService(baseService, talkVote, talkRecordsVoteDao, groupMemberDao, talkRecordsDao)
 	records := talk.NewRecords(talkRecordsService, groupMemberService, filesystem, authPermissionService)
@@ -180,4 +182,4 @@ var cacheProviderSet = wire.NewSet(cache.NewSessionStorage, cache.NewSidStorage,
 
 var daoProviderSet = wire.NewSet(dao.NewBaseDao, dao.NewContactDao, dao.NewGroupMemberDao, dao.NewUserDao, dao.NewGroupDao, dao.NewGroupApply, dao.NewTalkRecordsDao, dao.NewGroupNoticeDao, dao.NewTalkSessionDao, dao.NewEmoticonDao, dao.NewTalkRecordsVoteDao, dao.NewFileSplitUploadDao, note.NewArticleClassDao, note.NewArticleAnnexDao, organize.NewDepartmentDao, organize.NewOrganizeDao, organize.NewPositionDao, dao.NewRobotDao)
 
-var serviceProviderSet = wire.NewSet(service.NewBaseService, service.NewUserService, service.NewSmsService, service.NewTalkService, service.NewTalkMessageService, service.NewGroupService, service.NewGroupMemberService, service.NewGroupNoticeService, service.NewGroupApplyService, service.NewTalkSessionService, service.NewTalkMessageForwardService, service.NewEmoticonService, service.NewTalkRecordsService, service.NewContactService, service.NewContactsApplyService, service.NewSplitUploadService, service.NewIpAddressService, service.NewAuthPermissionService, note2.NewArticleService, note2.NewArticleTagService, note2.NewArticleClassService, note2.NewArticleAnnexService, organize2.NewOrganizeDeptService, organize2.NewOrganizeService, organize2.NewPositionService, service.NewTemplateService, service.NewTalkAuthService)
+var serviceProviderSet = wire.NewSet(service.NewBaseService, service.NewUserService, service.NewSmsService, service.NewTalkService, service.NewTalkMessageService, service.NewGroupService, service.NewGroupMemberService, service.NewGroupNoticeService, service.NewGroupApplyService, service.NewTalkSessionService, service.NewEmoticonService, service.NewTalkRecordsService, service.NewContactService, service.NewContactsApplyService, service.NewSplitUploadService, service.NewIpAddressService, service.NewAuthPermissionService, service.NewMessageService, note2.NewArticleService, note2.NewArticleTagService, note2.NewArticleClassService, note2.NewArticleAnnexService, organize2.NewOrganizeDeptService, organize2.NewOrganizeService, organize2.NewPositionService, service.NewTemplateService, service.NewTalkAuthService, logic.NewMessageForwardLogic)

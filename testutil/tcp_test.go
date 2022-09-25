@@ -19,7 +19,7 @@ func TestTcpServer_Setup(t1 *testing.T) {
 }
 
 func conn() {
-	conn, err := net.Dial("tcp", "127.0.0.1:9505")
+	conn, err := net.Dial("tcp", "106.14.177.175:9505")
 	if err != nil {
 		fmt.Println("dial failed, err", err)
 		return

@@ -1159,8 +1159,6 @@ func (m *ForwardMessageRequest) validate(all bool) error {
 
 	// no validation rules for Mode
 
-	// no validation rules for Height
-
 	if all {
 		switch v := interface{}(m.GetReceiver()).(type) {
 		case interface{ ValidateAll() error }:

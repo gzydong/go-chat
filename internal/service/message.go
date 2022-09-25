@@ -23,10 +23,13 @@ import (
 type MessageService struct {
 	*BaseService
 	forward        *logic.MessageForwardLogic
-	publisher      *logic.Publisher
 	groupMemberDao *dao.GroupMemberDao
 	splitUploadDao *dao.SplitUploadDao
 	fileSystem     *filesystem.Filesystem
+}
+
+func NewMessageService(baseService *BaseService, forward *logic.MessageForwardLogic, groupMemberDao *dao.GroupMemberDao, splitUploadDao *dao.SplitUploadDao, fileSystem *filesystem.Filesystem) *MessageService {
+	return &MessageService{BaseService: baseService, forward: forward, groupMemberDao: groupMemberDao, splitUploadDao: splitUploadDao, fileSystem: fileSystem}
 }
 
 // SendText 文本消息
@@ -357,23 +360,30 @@ func (m *MessageService) SendEmoticon(ctx context.Context, uid int, req *message
 // SendForward 转发消息
 func (m *MessageService) SendForward(ctx context.Context, uid int, req *message.ForwardMessageRequest) error {
 
-	var (
-		err   error
-		items []*logic.ForwardRecord
-	)
-
 	// 验证转发消息合法性
 	if err := m.forward.Verify(ctx, uid, req); err != nil {
 		return err
 	}
 
+	var items []*logic.ForwardRecord
+	// 发送方式 1:逐条发送 2:合并发送
 	if req.Mode == 1 {
-		items, err = m.forward.MultiMergeForward(ctx, uid, req)
+		items, _ = m.forward.MultiSplitForward(ctx, uid, req)
 	} else {
-		items, err = m.forward.MultiSplitForward(ctx, uid, req)
+		items, _ = m.forward.MultiMergeForward(ctx, uid, req)
 	}
 
-	fmt.Println(items, err)
+	for _, item := range items {
+		m.rds.Publish(ctx, entity.ImTopicChat, jsonutil.Encode(entity.MapStrAny{
+			"event": entity.EventTalk,
+			"data": jsonutil.Encode(entity.MapStrAny{
+				"sender_id":   uid,
+				"receiver_id": item.ReceiverId,
+				"talk_type":   item.TalkType,
+				"record_id":   item.RecordId,
+			}),
+		}))
+	}
 
 	return nil
 }
@@ -457,5 +467,5 @@ func (m *MessageService) SendLogin(ctx context.Context, uid int, req *message.Lo
 }
 
 func (m *MessageService) onPushMessage(ctx context.Context) {
-	_ = m.publisher.Publish(ctx, "", "")
+
 }

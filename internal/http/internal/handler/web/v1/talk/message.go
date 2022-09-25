@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"github.com/gin-gonic/gin/binding"
+	"go-chat/api/pb/message/v1"
 	"go-chat/internal/http/internal/dto/web"
 	"go-chat/internal/pkg/ichat"
 	"go-chat/internal/repository/dao"
@@ -21,16 +22,16 @@ type Message struct {
 	service            *service.TalkMessageService
 	talkService        *service.TalkService
 	talkRecordsVoteDao *dao.TalkRecordsVoteDao
-	forwardService     *service.TalkMessageForwardService
 	splitUploadService *service.SplitUploadService
 	contactService     *service.ContactService
 	groupMemberService *service.GroupMemberService
 	organizeService    *organize.OrganizeService
 	auth               *service.TalkAuthService
+	message            *service.MessageService
 }
 
-func NewMessage(service *service.TalkMessageService, talkService *service.TalkService, talkRecordsVoteDao *dao.TalkRecordsVoteDao, forwardService *service.TalkMessageForwardService, splitUploadService *service.SplitUploadService, contactService *service.ContactService, groupMemberService *service.GroupMemberService, organizeService *organize.OrganizeService, auth *service.TalkAuthService) *Message {
-	return &Message{service: service, talkService: talkService, talkRecordsVoteDao: talkRecordsVoteDao, forwardService: forwardService, splitUploadService: splitUploadService, contactService: contactService, groupMemberService: groupMemberService, organizeService: organizeService, auth: auth}
+func NewMessage(service *service.TalkMessageService, talkService *service.TalkService, talkRecordsVoteDao *dao.TalkRecordsVoteDao, splitUploadService *service.SplitUploadService, contactService *service.ContactService, groupMemberService *service.GroupMemberService, organizeService *organize.OrganizeService, auth *service.TalkAuthService, message *service.MessageService) *Message {
+	return &Message{service: service, talkService: talkService, talkRecordsVoteDao: talkRecordsVoteDao, splitUploadService: splitUploadService, contactService: contactService, groupMemberService: groupMemberService, organizeService: organizeService, auth: auth, message: message}
 }
 
 type AuthorityOpts struct {
@@ -299,17 +300,30 @@ func (c *Message) Forward(ctx *ichat.Context) error {
 		return ctx.BusinessError(err.Error())
 	}
 
-	forward := &service.TalkForwardOpt{
-		Mode:       params.ForwardMode,
-		UserId:     uid,
-		ReceiverId: params.ReceiverId,
-		TalkType:   params.TalkType,
-		RecordsIds: sliceutil.ParseIds(params.RecordsIds),
-		UserIds:    sliceutil.ParseIds(params.ReceiveUserIds),
-		GroupIds:   sliceutil.ParseIds(params.ReceiveGroupIds),
+	data := &message.ForwardMessageRequest{
+		Mode:       int32(params.ForwardMode),
+		MessageIds: make([]int32, 0),
+		Gids:       make([]int32, 0),
+		Uids:       make([]int32, 0),
+		Receiver: &message.MessageReceiver{
+			TalkType:   int32(params.TalkType),
+			ReceiverId: int32(params.ReceiverId),
+		},
 	}
 
-	if err := c.forwardService.SendForwardMessage(ctx.Ctx(), forward); err != nil {
+	for _, id := range sliceutil.ParseIds(params.RecordsIds) {
+		data.MessageIds = append(data.MessageIds, int32(id))
+	}
+
+	for _, id := range sliceutil.ParseIds(params.ReceiveUserIds) {
+		data.Uids = append(data.Uids, int32(id))
+	}
+
+	for _, id := range sliceutil.ParseIds(params.ReceiveGroupIds) {
+		data.Gids = append(data.Gids, int32(id))
+	}
+
+	if err := c.message.SendForward(ctx.Ctx(), uid, data); err != nil {
 		return ctx.BusinessError(err.Error())
 	}
 

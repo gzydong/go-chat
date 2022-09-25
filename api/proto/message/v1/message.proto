@@ -77,16 +77,14 @@ message LocationMessageRequest{
   MessageReceiver receiver = 5;// 消息接收者
 }
 
-// 代码消息
+// 转发消息
 message ForwardMessageRequest{
-
-  int32 type = 1;
+  int32 type = 1;   // 对话类型
   int32 mode = 2;   // 转发模式
   repeated int32 message_ids = 3;  // 消息ID
-  int32 height = 4; // 图片高度
-  repeated int32 gids = 5; // 群ID列表
-  repeated int32 uids = 6; // 好友ID列表
-  MessageReceiver receiver = 7;// 消息接收者
+  repeated int32 gids = 4; // 群ID列表
+  repeated int32 uids = 5; // 好友ID列表
+  MessageReceiver receiver = 6;// 消息接收者
 }
 
 // 投票消息
