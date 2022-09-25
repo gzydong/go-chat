@@ -316,12 +316,12 @@ func (m *MessageService) SendVote(ctx context.Context, uid int, req *message.Vot
 func (m *MessageService) SendEmoticon(ctx context.Context, uid int, req *message.EmoticonMessageRequest) error {
 
 	emoticon := &model.EmoticonItem{}
-	if err := m.db.Model(&model.EmoticonItem{}).Where("id = ?", req.EmoticonId).First(emoticon).Error; err != nil {
-		return err
-	}
+	if err := m.db.Model(&model.EmoticonItem{}).Where("id = ? and user_id = ?", req.EmoticonId, uid).First(emoticon).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return errors.New("表情信息不存在")
+		}
 
-	if emoticon.UserId > 0 && emoticon.UserId != uid {
-		return errors.New("表情包不存在！")
+		return err
 	}
 
 	record := &model.TalkRecords{

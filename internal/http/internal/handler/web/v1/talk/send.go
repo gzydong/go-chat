@@ -14,6 +14,11 @@ type SendMessage struct {
 	message *service.MessageService
 }
 
+func NewSendMessage(auth *service.TalkAuthService, message *service.MessageService) *SendMessage {
+	return &SendMessage{auth: auth, message: message}
+}
+
+// Send 发送消息接口
 func (c *SendMessage) Send(ctx *ichat.Context) error {
 
 	params := &web.SendBaseMessageRequest{}
@@ -30,7 +35,11 @@ func (c *SendMessage) Send(ctx *ichat.Context) error {
 		return ctx.BusinessError(err.Error())
 	}
 
-	switch params.Type {
+	return c.transfer(ctx, params.Type)
+}
+
+func (c *SendMessage) transfer(ctx *ichat.Context, typeValue int) error {
+	switch typeValue {
 	case entity.MsgTypeText:
 		return c.onSendText(ctx)
 	case entity.MsgTypeCode:
@@ -39,8 +48,12 @@ func (c *SendMessage) Send(ctx *ichat.Context) error {
 		return c.onSendForward(ctx)
 	case entity.MsgTypeLocation:
 		return c.onSendLocation(ctx)
+	case entity.MsgTypeEmoticon:
+		return c.onSendEmoticon(ctx)
+	case entity.MsgTypeVote:
+		return c.onSendVote(ctx)
 	default:
-		return ctx.InvalidParams("消息类型不能为空")
+		return ctx.InvalidParams("消息类型未定义")
 	}
 }
 
@@ -117,6 +130,38 @@ func (c *SendMessage) onSendForward(ctx *ichat.Context) error {
 	}
 
 	err := c.message.SendForward(ctx.Ctx(), ctx.UserId(), params)
+	if err != nil {
+		return ctx.BusinessError(err.Error())
+	}
+
+	return ctx.Success(nil)
+}
+
+// 表情消息
+func (c *SendMessage) onSendEmoticon(ctx *ichat.Context) error {
+
+	params := &message.EmoticonMessageRequest{}
+	if err := ctx.Context.ShouldBindBodyWith(params, binding.JSON); err != nil {
+		return ctx.InvalidParams(err)
+	}
+
+	err := c.message.SendEmoticon(ctx.Ctx(), ctx.UserId(), params)
+	if err != nil {
+		return ctx.BusinessError(err.Error())
+	}
+
+	return ctx.Success(nil)
+}
+
+// 投票消息
+func (c *SendMessage) onSendVote(ctx *ichat.Context) error {
+
+	params := &message.VoteMessageRequest{}
+	if err := ctx.Context.ShouldBindBodyWith(params, binding.JSON); err != nil {
+		return ctx.InvalidParams(err)
+	}
+
+	err := c.message.SendVote(ctx.Ctx(), ctx.UserId(), params)
 	if err != nil {
 		return ctx.BusinessError(err.Error())
 	}

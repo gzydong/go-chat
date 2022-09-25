@@ -93,7 +93,7 @@ message VoteMessageRequest{
   string title = 2 [(tagger.tags) = "binding:\"required\""];  // 标题
   int32 mode = 3; // 投票模式
   int32 anonymous = 4; // 匿名投票
-  repeated string Options = 5; // 投票选项
+  repeated string options = 5; // 投票选项
   MessageReceiver receiver = 6;// 消息接收者
 }
 

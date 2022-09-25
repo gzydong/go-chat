@@ -119,6 +119,7 @@ func Initialize(ctx context.Context, conf *config.Config) *AppProvider {
 	class := article.NewClass(articleClassService)
 	articleTagService := note2.NewArticleTagService(baseService)
 	tag := article.NewTag(articleTagService)
+	sendMessage := talk.NewSendMessage(talkAuthService, messageService)
 	webV1 := &web.V1{
 		Common:        common,
 		Auth:          auth,
@@ -138,6 +139,7 @@ func Initialize(ctx context.Context, conf *config.Config) *AppProvider {
 		ArticleAnnex:  annex,
 		ArticleClass:  class,
 		ArticleTag:    tag,
+		Message:       sendMessage,
 	}
 	webHandler := &web.Handler{
 		V1: webV1,
