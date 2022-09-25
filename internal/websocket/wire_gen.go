@@ -44,6 +44,7 @@ func Initialize(ctx context.Context, conf *config.Config) *AppProvider {
 	handlerHandler := &handler.Handler{
 		Chat:    chatChannel,
 		Example: exampleChannel,
+		Config:  conf,
 	}
 	sessionStorage := cache.NewSessionStorage(client)
 	engine := router.NewRouter(conf, handlerHandler, sessionStorage)

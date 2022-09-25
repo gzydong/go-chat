@@ -26,8 +26,9 @@ func (s *ContactService) Dao() dao.IContactDao {
 func (s *ContactService) EditRemark(ctx context.Context, uid int, friendId int, remark string) error {
 
 	err := s.db.Model(&model.Contact{}).Where("user_id = ? and friend_id = ?", uid, friendId).Update("remark", remark).Error
-
-	_ = s.dao.SetFriendRemark(ctx, uid, friendId, remark)
+	if err == nil {
+		_ = s.dao.SetFriendRemark(ctx, uid, friendId, remark)
+	}
 
 	return err
 }

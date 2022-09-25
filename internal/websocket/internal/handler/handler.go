@@ -7,14 +7,18 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/tidwall/gjson"
+	"go-chat/config"
 	"go-chat/internal/pkg/im/adapter"
 	"go-chat/internal/pkg/jsonutil"
+	"go-chat/internal/pkg/jwt"
 	"go-chat/internal/pkg/logger"
 )
 
 type Handler struct {
 	Chat    *ChatChannel
 	Example *ExampleChannel
+	Config  *config.Config
 }
 
 type AuthConn struct {
@@ -22,9 +26,9 @@ type AuthConn struct {
 	conn *adapter.TcpAdapter
 }
 
-type Message struct {
-	Event   string `json:"event"`
-	Content string `json:"content"`
+type Authorize struct {
+	Token   string `json:"token"`
+	Channel string `json:"channel"`
 }
 
 func (h *Handler) ConnDispatcher(conn net.Conn) {
@@ -57,7 +61,7 @@ func (h *Handler) ConnDispatcher(conn net.Conn) {
 	}
 }
 
-func (*Handler) auth(connect net.Conn, data chan *AuthConn) {
+func (h *Handler) auth(connect net.Conn, data chan *AuthConn) {
 	conn, err := adapter.NewTcpAdapter(connect)
 	if err != nil {
 		logger.Errorf("tcp connect error: %s", err.Error())
@@ -70,17 +74,26 @@ func (*Handler) auth(connect net.Conn, data chan *AuthConn) {
 		return
 	}
 
-	msg := &Message{}
-	if err := jsonutil.Decode(string(read), msg); err != nil {
-		fmt.Println("数据解析失败")
+	if !gjson.GetBytes(read, "token").Exists() {
 		return
 	}
 
-	if msg.Event != "authorize" {
+	detail := &Authorize{}
+	if err := jsonutil.DecodeBt(read, detail); err != nil {
 		return
 	}
 
-	uid, _ := strconv.Atoi(msg.Content)
+	claims, err := jwt.ParseToken(detail.Token, h.Config.Jwt.Secret)
+	if err != nil || claims.Valid() != nil {
+		return
+	}
 
-	data <- &AuthConn{Uid: uid, conn: conn}
+	uid, err := strconv.Atoi(claims.ID)
+	if err != nil {
+		return
+	}
+
+	if claims.Guard == "api" && detail.Channel == "chat" {
+		data <- &AuthConn{Uid: uid, conn: conn}
+	}
 }

@@ -15,3 +15,7 @@ func EncodeToBt(value interface{}) []byte {
 func Decode(str string, value interface{}) error {
 	return jsoniter.UnmarshalFromString(str, value)
 }
+
+func DecodeBt(str []byte, value interface{}) error {
+	return jsoniter.Unmarshal(str, value)
+}

@@ -19,14 +19,14 @@ func TestTcpServer_Setup(t1 *testing.T) {
 }
 
 func conn() {
-	conn, err := net.Dial("tcp", "106.14.177.175:9505")
+	conn, err := net.Dial("tcp", "127.0.0.1:9505")
 	if err != nil {
 		fmt.Println("dial failed, err", err)
 		return
 	}
 	defer conn.Close()
 
-	data, _ := tcp.Encode(`{"event":"authorize","content":"2056"}`)
+	data, _ := tcp.Encode(`{"token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJndWFyZCI6ImFwaSIsImV4cCI6MTcwMDExNTk0MiwianRpIjoiMjA1NCJ9.2hg4nkwDMflJJs4kqWuNXiizBdGgkbrTNiIM8l84d6E","channel":"chat"}`)
 	_, _ = conn.Write(data)
 
 	go func() {
