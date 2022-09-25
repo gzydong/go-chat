@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"net/url"
+	"strconv"
 
 	"github.com/sirupsen/logrus"
 	"go-chat/api/pb/message/v1"
@@ -15,6 +16,7 @@ import (
 	"go-chat/internal/pkg/jsonutil"
 	"go-chat/internal/pkg/strutil"
 	"go-chat/internal/pkg/timeutil"
+	"go-chat/internal/repository/cache"
 	"go-chat/internal/repository/dao"
 	"go-chat/internal/repository/model"
 	"gorm.io/gorm"
@@ -26,10 +28,14 @@ type MessageService struct {
 	groupMemberDao *dao.GroupMemberDao
 	splitUploadDao *dao.SplitUploadDao
 	fileSystem     *filesystem.Filesystem
+	unreadStorage  *cache.UnreadStorage
+	messageStorage *cache.MessageStorage
+	sidStorage     *cache.SidStorage
+	clientStorage  *cache.ClientStorage
 }
 
-func NewMessageService(baseService *BaseService, forward *logic.MessageForwardLogic, groupMemberDao *dao.GroupMemberDao, splitUploadDao *dao.SplitUploadDao, fileSystem *filesystem.Filesystem) *MessageService {
-	return &MessageService{BaseService: baseService, forward: forward, groupMemberDao: groupMemberDao, splitUploadDao: splitUploadDao, fileSystem: fileSystem}
+func NewMessageService(baseService *BaseService, forward *logic.MessageForwardLogic, groupMemberDao *dao.GroupMemberDao, splitUploadDao *dao.SplitUploadDao, fileSystem *filesystem.Filesystem, unreadStorage *cache.UnreadStorage, messageStorage *cache.MessageStorage, sidStorage *cache.SidStorage, clientStorage *cache.ClientStorage) *MessageService {
+	return &MessageService{BaseService: baseService, forward: forward, groupMemberDao: groupMemberDao, splitUploadDao: splitUploadDao, fileSystem: fileSystem, unreadStorage: unreadStorage, messageStorage: messageStorage, sidStorage: sidStorage, clientStorage: clientStorage}
 }
 
 // SendText 文本消息
@@ -47,7 +53,9 @@ func (m *MessageService) SendText(ctx context.Context, uid int, req *message.Tex
 		return err
 	}
 
-	// todo 推送MQ
+	m.afterHandle(ctx, data, map[string]string{
+		"text": strutil.MtSubstr(data.Content, 0, 30),
+	})
 
 	return nil
 }
@@ -92,6 +100,8 @@ func (m *MessageService) SendImage(ctx context.Context, uid int, req *message.Im
 		return err
 	}
 
+	m.afterHandle(ctx, record, map[string]string{"text": "[图片消息]"})
+
 	return nil
 }
 
@@ -135,6 +145,8 @@ func (m *MessageService) SendVoice(ctx context.Context, uid int, req *message.Vo
 		return err
 	}
 
+	m.afterHandle(ctx, record, map[string]string{"text": "[语音消息]"})
+
 	return nil
 }
 
@@ -177,6 +189,8 @@ func (m *MessageService) SendVideo(ctx context.Context, uid int, req *message.Vi
 	if err != nil {
 		return err
 	}
+
+	m.afterHandle(ctx, record, map[string]string{"text": "[视频文件消息]"})
 
 	return nil
 }
@@ -227,6 +241,8 @@ func (m *MessageService) SendFile(ctx context.Context, uid int, req *message.Fil
 		return err
 	}
 
+	m.afterHandle(ctx, record, map[string]string{"text": "[文件消息]"})
+
 	return nil
 }
 
@@ -259,7 +275,7 @@ func (m *MessageService) SendCode(ctx context.Context, uid int, req *message.Cod
 		return err
 	}
 
-	// todo 发送消息
+	m.afterHandle(ctx, record, map[string]string{"text": "[代码消息]"})
 
 	return nil
 }
@@ -303,7 +319,7 @@ func (m *MessageService) SendVote(ctx context.Context, uid int, req *message.Vot
 		return err
 	}
 
-	// todo 发消息
+	m.afterHandle(ctx, record, map[string]string{"text": "[投票消息]"})
 
 	return nil
 }
@@ -353,6 +369,8 @@ func (m *MessageService) SendEmoticon(ctx context.Context, uid int, req *message
 	if err != nil {
 		return err
 	}
+
+	m.afterHandle(ctx, record, map[string]string{"text": "[表情包消息]"})
 
 	return nil
 }
@@ -418,7 +436,7 @@ func (m *MessageService) SendLocation(ctx context.Context, uid int, req *message
 		return err
 	}
 
-	// todo 推送数据
+	m.afterHandle(ctx, record, map[string]string{"text": "[位置消息]"})
 
 	return nil
 }
@@ -461,11 +479,66 @@ func (m *MessageService) SendLogin(ctx context.Context, uid int, req *message.Lo
 		return err
 	}
 
-	// todo 发消息
+	m.afterHandle(ctx, record, map[string]string{"text": "[登录消息]"})
 
 	return nil
 }
 
-func (m *MessageService) onPushMessage(ctx context.Context) {
+// 发送消息后置处理
+func (m *MessageService) afterHandle(ctx context.Context, record *model.TalkRecords, opts map[string]string) {
 
+	if record.TalkType == entity.ChatPrivateMode {
+		m.unreadStorage.Increment(ctx, entity.ChatPrivateMode, record.UserId, record.ReceiverId)
+
+		if record.MsgType == entity.MsgTypeSystemText {
+			m.unreadStorage.Increment(ctx, 1, record.ReceiverId, record.UserId)
+		}
+	} else if record.TalkType == entity.ChatGroupMode {
+
+		// todo 需要加缓存
+		ids := m.groupMemberDao.GetMemberIds(record.ReceiverId)
+		for _, uid := range ids {
+
+			if uid == record.UserId {
+				continue
+			}
+
+			m.unreadStorage.Increment(ctx, entity.ChatGroupMode, record.ReceiverId, uid)
+		}
+	}
+
+	_ = m.messageStorage.Set(ctx, record.TalkType, record.UserId, record.ReceiverId, &cache.LastCacheMessage{
+		Content:  opts["text"],
+		Datetime: timeutil.DateTime(),
+	})
+
+	content := jsonutil.Encode(map[string]interface{}{
+		"event": entity.EventTalk,
+		"data": jsonutil.Encode(map[string]interface{}{
+			"sender_id":   record.UserId,
+			"receiver_id": record.ReceiverId,
+			"talk_type":   record.TalkType,
+			"record_id":   record.Id,
+		}),
+	})
+
+	// 点对点消息采用精确投递
+	if record.TalkType == entity.ChatPrivateMode {
+		sids := m.sidStorage.All(ctx, 1)
+
+		// 小于三台服务器则采用全局广播
+		if len(sids) <= 3 {
+			m.rds.Publish(ctx, entity.ImTopicChat, content)
+		} else {
+			for _, sid := range m.sidStorage.All(ctx, 1) {
+				for _, uid := range []int{record.UserId, record.ReceiverId} {
+					if m.clientStorage.IsCurrentServerOnline(ctx, sid, entity.ImChannelChat, strconv.Itoa(uid)) {
+						m.rds.Publish(ctx, fmt.Sprintf(entity.ImTopicChatPrivate, sid), content)
+					}
+				}
+			}
+		}
+	} else {
+		m.rds.Publish(ctx, entity.ImTopicChat, content)
+	}
 }

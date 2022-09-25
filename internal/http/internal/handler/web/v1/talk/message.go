@@ -3,7 +3,6 @@ package talk
 import (
 	"errors"
 
-	"github.com/gin-gonic/gin/binding"
 	"go-chat/api/pb/message/v1"
 	"go-chat/internal/http/internal/dto/web"
 	"go-chat/internal/pkg/ichat"
@@ -97,11 +96,12 @@ func (c *Message) Text(ctx *ichat.Context) error {
 		return ctx.BusinessError(err.Error())
 	}
 
-	if err := c.service.SendTextMessage(ctx.Ctx(), &service.TextMessageOpt{
-		UserId:     uid,
-		TalkType:   params.TalkType,
-		ReceiverId: params.ReceiverId,
-		Text:       params.Text,
+	if err := c.message.SendText(ctx.Ctx(), uid, &message.TextMessageRequest{
+		Content: params.Text,
+		Receiver: &message.MessageReceiver{
+			TalkType:   int32(params.TalkType),
+			ReceiverId: int32(params.ReceiverId),
+		},
 	}); err != nil {
 		return ctx.BusinessError(err.Error())
 	}
@@ -126,12 +126,13 @@ func (c *Message) Code(ctx *ichat.Context) error {
 		return ctx.BusinessError(err.Error())
 	}
 
-	if err := c.service.SendCodeMessage(ctx.Ctx(), &service.CodeMessageOpt{
-		UserId:     uid,
-		TalkType:   params.TalkType,
-		ReceiverId: params.ReceiverId,
-		Lang:       params.Lang,
-		Code:       params.Code,
+	if err := c.message.SendCode(ctx.Ctx(), uid, &message.CodeMessageRequest{
+		Lang: params.Lang,
+		Code: params.Code,
+		Receiver: &message.MessageReceiver{
+			TalkType:   int32(params.TalkType),
+			ReceiverId: int32(params.ReceiverId),
+		},
 	}); err != nil {
 		return ctx.BusinessError(err.Error())
 	}
@@ -236,13 +237,15 @@ func (c *Message) Vote(ctx *ichat.Context) error {
 		return ctx.BusinessError(err.Error())
 	}
 
-	if err := c.service.SendVoteMessage(ctx.Ctx(), &service.VoteMessageOpt{
-		UserId:     uid,
-		ReceiverId: params.ReceiverId,
-		Mode:       params.Mode,
-		Anonymous:  params.Anonymous,
-		Title:      params.Title,
-		Options:    params.Options,
+	if err := c.message.SendVote(ctx.Ctx(), uid, &message.VoteMessageRequest{
+		Mode:      int32(params.Mode),
+		Title:     params.Title,
+		Options:   params.Options,
+		Anonymous: int32(params.Anonymous),
+		Receiver: &message.MessageReceiver{
+			TalkType:   entity.ChatGroupMode,
+			ReceiverId: int32(params.ReceiverId),
+		},
 	}); err != nil {
 		return ctx.BusinessError(err.Error())
 	}
@@ -267,11 +270,12 @@ func (c *Message) Emoticon(ctx *ichat.Context) error {
 		return ctx.BusinessError(err.Error())
 	}
 
-	if err := c.service.SendEmoticonMessage(ctx.Ctx(), &service.EmoticonMessageOpt{
-		UserId:     uid,
-		TalkType:   params.TalkType,
-		ReceiverId: params.ReceiverId,
-		EmoticonId: params.EmoticonId,
+	if err := c.message.SendEmoticon(ctx.Ctx(), uid, &message.EmoticonMessageRequest{
+		EmoticonId: int32(params.EmoticonId),
+		Receiver: &message.MessageReceiver{
+			TalkType:   int32(params.TalkType),
+			ReceiverId: int32(params.ReceiverId),
+		},
 	}); err != nil {
 		return ctx.BusinessError(err.Error())
 	}
@@ -449,58 +453,17 @@ func (c *Message) Location(ctx *ichat.Context) error {
 		return ctx.BusinessError(err.Error())
 	}
 
-	if err := c.service.SendLocationMessage(ctx.Ctx(), &service.LocationMessageOpt{
-		UserId:     uid,
-		TalkType:   params.TalkType,
-		ReceiverId: params.ReceiverId,
-		Longitude:  params.Longitude,
-		Latitude:   params.Latitude,
+	if err := c.message.SendLocation(ctx.Ctx(), uid, &message.LocationMessageRequest{
+		Longitude:   params.Longitude,
+		Latitude:    params.Latitude,
+		Description: "", // todo 需完善
+		Receiver: &message.MessageReceiver{
+			TalkType:   int32(params.TalkType),
+			ReceiverId: int32(params.ReceiverId),
+		},
 	}); err != nil {
 		return ctx.BusinessError(err.Error())
 	}
 
 	return ctx.Success(nil)
-}
-
-// Send 通用消息发送接口
-func (c *Message) Send(ctx *ichat.Context) error {
-
-	value := &web.SendBaseMessageRequest{}
-	if err := ctx.Context.ShouldBindBodyWith(value, binding.JSON); err != nil {
-		return ctx.InvalidParams(err)
-	}
-
-	var params interface{}
-	switch value.Type {
-	case 1:
-		params = &web.SendTextRequest{}
-	case 2:
-		params = &web.SendImageRequest{}
-	case 5:
-		params = &web.SendVoiceRequest{}
-	case 6:
-		params = &web.SendVoiceRequest{}
-	case 7:
-		params = &web.SendFileRequest{}
-	case 8:
-		params = &web.SendCodeRequest{}
-	case 9:
-		params = &web.SendLocationRequest{}
-	case 10:
-		params = &web.SendVoteMessageRequest{}
-	case 11:
-		params = &web.SendVoteMessageRequest{}
-	case 12:
-		params = &web.SendEmoticonRequest{}
-	}
-
-	if params == nil {
-		return ctx.InvalidParams("消息类型不能为空")
-	}
-
-	if err := ctx.Context.ShouldBindBodyWith(params, binding.JSON); err != nil {
-		return ctx.InvalidParams(err)
-	}
-
-	return ctx.Success(params)
 }
