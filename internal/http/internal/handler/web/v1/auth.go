@@ -4,6 +4,7 @@ import (
 	"strconv"
 	"time"
 
+	"go-chat/api/pb/message/v1"
 	"go-chat/internal/http/internal/dto/web"
 	"go-chat/internal/pkg/ichat"
 	"go-chat/internal/pkg/jwt"
@@ -27,10 +28,11 @@ type Auth struct {
 	talkSessionService *service.TalkSessionService
 	noteClassService   *note.ArticleClassService
 	robotDao           *dao.RobotDao
+	message            *service.MessageService
 }
 
-func NewAuth(config *config.Config, userService *service.UserService, smsService *service.SmsService, session *cache.SessionStorage, redisLock *cache.RedisLock, talkMessageService *service.TalkMessageService, ipAddressService *service.IpAddressService, talkSessionService *service.TalkSessionService, noteClassService *note.ArticleClassService, robotDao *dao.RobotDao) *Auth {
-	return &Auth{config: config, userService: userService, smsService: smsService, session: session, redisLock: redisLock, talkMessageService: talkMessageService, ipAddressService: ipAddressService, talkSessionService: talkSessionService, noteClassService: noteClassService, robotDao: robotDao}
+func NewAuth(config *config.Config, userService *service.UserService, smsService *service.SmsService, session *cache.SessionStorage, redisLock *cache.RedisLock, talkMessageService *service.TalkMessageService, ipAddressService *service.IpAddressService, talkSessionService *service.TalkSessionService, noteClassService *note.ArticleClassService, robotDao *dao.RobotDao, message *service.MessageService) *Auth {
+	return &Auth{config: config, userService: userService, smsService: smsService, session: session, redisLock: redisLock, talkMessageService: talkMessageService, ipAddressService: ipAddressService, talkSessionService: talkSessionService, noteClassService: noteClassService, robotDao: robotDao, message: message}
 }
 
 // Login 登录接口
@@ -60,12 +62,12 @@ func (c *Auth) Login(ctx *ichat.Context) error {
 		})
 
 		// 推送登录消息
-		_ = c.talkMessageService.SendLoginMessage(ctx.Ctx(), &service.LoginMessageOpt{
-			UserId:   user.Id,
+		_ = c.message.SendLogin(ctx.Ctx(), user.Id, &message.LoginMessageRequest{
 			Ip:       ip,
 			Address:  address,
 			Platform: params.Platform,
 			Agent:    ctx.Context.GetHeader("user-agent"),
+			Reason:   "常用设备登录",
 		})
 	}
 
