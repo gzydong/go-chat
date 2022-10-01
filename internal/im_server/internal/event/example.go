@@ -5,8 +5,8 @@ import (
 	"fmt"
 
 	"github.com/tidwall/gjson"
+	"go-chat/internal/im_server/internal/event/example"
 	"go-chat/internal/pkg/im"
-	"go-chat/internal/websocket/internal/event/example"
 )
 
 type ExampleEvent struct {

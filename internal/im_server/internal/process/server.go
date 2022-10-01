@@ -5,7 +5,7 @@ import (
 	"reflect"
 	"sync"
 
-	"go-chat/internal/websocket/internal/process/server"
+	"go-chat/internal/im_server/internal/process/server"
 	"golang.org/x/sync/errgroup"
 )
 

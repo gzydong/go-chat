@@ -10,9 +10,9 @@ import (
 	"github.com/go-redis/redis/v8"
 	"go-chat/config"
 	"go-chat/internal/entity"
+	"go-chat/internal/im_server/internal/process/consume"
 	"go-chat/internal/pkg/logger"
 	"go-chat/internal/pkg/worker"
-	"go-chat/internal/websocket/internal/process/consume"
 )
 
 type MessageSubscribe struct {

@@ -5,9 +5,9 @@ import (
 	"net"
 
 	"go-chat/config"
+	"go-chat/internal/im_server/internal/handler"
+	"go-chat/internal/im_server/internal/process"
 	"go-chat/internal/provider"
-	"go-chat/internal/websocket/internal/handler"
-	"go-chat/internal/websocket/internal/process"
 )
 
 type AppProvider struct {

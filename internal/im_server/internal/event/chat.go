@@ -8,11 +8,11 @@ import (
 	"github.com/tidwall/gjson"
 	"go-chat/config"
 	"go-chat/internal/entity"
+	"go-chat/internal/im_server/internal/event/chat"
 	"go-chat/internal/pkg/im"
 	"go-chat/internal/pkg/jsonutil"
 	"go-chat/internal/repository/cache"
 	"go-chat/internal/service"
-	"go-chat/internal/websocket/internal/event/chat"
 )
 
 type ChatEvent struct {

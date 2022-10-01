@@ -1,12 +1,12 @@
 package handler
 
 import (
+	"go-chat/internal/im_server/internal/event"
 	"go-chat/internal/pkg/ichat"
 	"go-chat/internal/pkg/im"
 	"go-chat/internal/pkg/im/adapter"
 	"go-chat/internal/pkg/logger"
 	"go-chat/internal/repository/cache"
-	"go-chat/internal/websocket/internal/event"
 )
 
 // ExampleChannel 使用案例
