@@ -31,6 +31,6 @@ func NewTcpServer(app *AppProvider) {
 			continue
 		}
 
-		go app.Handler.ConnDispatcher(conn)
+		go app.Handler.Dispatcher(conn)
 	}
 }

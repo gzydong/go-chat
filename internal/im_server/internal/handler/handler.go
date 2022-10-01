@@ -31,7 +31,7 @@ type Authorize struct {
 	Channel string `json:"channel"`
 }
 
-func (h *Handler) ConnDispatcher(conn net.Conn) {
+func (h *Handler) Dispatcher(conn net.Conn) {
 	ch := make(chan *AuthConn)
 
 	fmt.Println("网络地址", conn.RemoteAddr().(*net.TCPAddr).IP)
