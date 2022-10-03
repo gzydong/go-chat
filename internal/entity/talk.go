@@ -55,12 +55,17 @@ const (
 	ChatMsgTypeForward  = 9  // 转发消息
 	ChatMsgTypeLogin    = 10 // 登录消息
 
-	ChatMsgSysText         = 1000 // 系统文本消息
-	ChatMsgSysCreateGroup  = 1001 // 创建群聊消息
-	ChatMsgSysJoinGroup    = 1002 // 加入群聊消息
-	ChatMsgSysQuitGroup    = 1003 // 群成员退出群消息
-	ChatMsgSysKickOutGroup = 1004 // 踢出群成员消息
-	ChatMsgSysRevokeGroup  = 1005 // 管理员撤回成员消息
+	ChatMsgSysText                   = 1000 // 系统文本消息
+	ChatMsgSysGroupCreate            = 1101 // 创建群聊消息
+	ChatMsgSysGroupMemberJoin        = 1102 // 加入群聊消息
+	ChatMsgSysGroupMemberQuit        = 1103 // 群成员退出群消息
+	ChatMsgSysGroupMemberKicked      = 1104 // 踢出群成员消息
+	ChatMsgSysGroupMessageRevoke     = 1105 // 管理员撤回成员消息
+	ChatMsgSysGroupDismissed         = 1106 // 群解散
+	ChatMsgSysGroupMuted             = 1107 // 群禁言
+	ChatMsgSysGroupCancelMuted       = 1108 // 群解除禁言
+	ChatMsgSysGroupMemberMuted       = 1109 // 群成员禁言
+	ChatMsgSysGroupMemberCancelMuted = 1110 // 群成员解除禁言
 )
 
 const (

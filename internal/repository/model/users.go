@@ -11,6 +11,7 @@ type Users struct {
 	Password  string    `gorm:"column:password;NOT NULL" json:"-"`                  // 用户密码
 	Motto     string    `gorm:"column:motto;NOT NULL" json:"motto"`                 // 用户座右铭
 	Email     string    `gorm:"column:email;NOT NULL" json:"email"`                 // 用户邮箱
+	Birthday  string    `gorm:"column:birthday;NOT NULL" json:"birthday"`           // 生日
 	IsRobot   int       `gorm:"column:is_robot;default:0;NOT NULL" json:"is_robot"` // 是否机器人[0:否;1:是;]
 	CreatedAt time.Time `gorm:"column:created_at;NOT NULL" json:"created_at"`       // 注册时间
 	UpdatedAt time.Time `gorm:"column:updated_at;NOT NULL" json:"updated_at"`       // 更新时间

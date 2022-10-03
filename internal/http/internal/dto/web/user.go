@@ -8,6 +8,7 @@ type GetUserInfoResponse struct {
 	Gender   int    `json:"gender"`
 	Motto    string `json:"motto"`
 	Email    string `json:"email"`
+	Birthday string `json:"birthday"`
 }
 
 // ChangeUserDetailRequest ...
@@ -16,6 +17,7 @@ type ChangeUserDetailRequest struct {
 	Nickname string `form:"nickname" json:"nickname" binding:"required,max=30" label:"nickname"`
 	Gender   int    `form:"gender" json:"gender" binding:"oneof=0 1 2" label:"gender"`
 	Motto    string `form:"motto" json:"motto" binding:"max=255" label:"motto"`
+	Birthday string `form:"birthday" json:"birthday" binding:"max=10" label:"birthday"`
 }
 
 // ChangeUserPasswordRequest ...

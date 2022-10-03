@@ -5,6 +5,7 @@ import (
 	"go-chat/internal/http/internal/dto/web"
 	"go-chat/internal/pkg/encrypt"
 	"go-chat/internal/pkg/ichat"
+	"go-chat/internal/pkg/timeutil"
 	"go-chat/internal/repository/model"
 	"go-chat/internal/service"
 	"go-chat/internal/service/organize"
@@ -36,6 +37,7 @@ func (u *User) Detail(ctx *ichat.Context) error {
 		Gender:   user.Gender,
 		Motto:    user.Motto,
 		Email:    user.Email,
+		Birthday: user.Birthday,
 	})
 }
 
@@ -77,6 +79,12 @@ func (u *User) ChangeDetail(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
+	if params.Birthday != "" {
+		if !timeutil.IsDateFormat(params.Birthday) {
+			return ctx.InvalidParams("birthday 格式错误")
+		}
+	}
+
 	_, _ = u.service.Dao().BaseUpdate(&model.Users{}, entity.MapStrAny{
 		"id": ctx.UserId(),
 	}, entity.MapStrAny{
@@ -84,6 +92,7 @@ func (u *User) ChangeDetail(ctx *ichat.Context) error {
 		"avatar":   params.Avatar,
 		"gender":   params.Gender,
 		"motto":    params.Motto,
+		"birthday": params.Birthday,
 	})
 
 	return ctx.Success(nil, "个人信息修改成功！")

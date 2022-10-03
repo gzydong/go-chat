@@ -161,6 +161,14 @@ func (c *SendMessage) onSendVote(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
+	if len(params.Options) <= 1 {
+		return ctx.InvalidParams("options 选项必须大于1！")
+	}
+
+	if len(params.Options) > 6 {
+		return ctx.InvalidParams("options 选项不能超过6个！")
+	}
+
 	err := c.message.SendVote(ctx.Ctx(), ctx.UserId(), params)
 	if err != nil {
 		return ctx.BusinessError(err.Error())
