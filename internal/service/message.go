@@ -54,7 +54,7 @@ func (m *MessageService) SendText(ctx context.Context, uid int, req *message.Tex
 	}
 
 	m.afterHandle(ctx, data, map[string]string{
-		"text": strutil.MtSubstr(data.Content, 0, 30),
+		"text": strutil.MtSubstr(data.Content, 0, 300),
 	})
 
 	return nil

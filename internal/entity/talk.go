@@ -69,13 +69,14 @@ const (
 )
 
 const (
-	EventAck              = 1000   // ACK消息确认
-	EventChatTalkMessage  = 101001 // IM对话消息事件
-	EventChatTalkKeyboard = 101002 // IM键盘输入消息事件
-	EventChatTalkRevoke   = 101002 // IM消息撤回事件
-	EventChatOnlineStatus = 101003 // IM在线状态事件
-	EventChatContactApply = 101004 // IM好友申请事件
-	EventChatGroupJoin    = 101005 // IM群加入申请事件
+	EventAck = 1000 // ACK消息确认
+
+	EventChatTalkMessage    = 101001 // IM对话消息事件
+	EventChatTalkKeyboard   = 101002 // IM键盘输入消息事件
+	EventChatTalkRevoke     = 101002 // IM消息撤回事件
+	EventChatOnlineStatus   = 101003 // IM在线状态事件
+	EventChatContactApply   = 101004 // IM好友申请事件
+	EventChatGroupJoinApply = 101005 // IM群加入申请事件
 )
 
 type Message struct {

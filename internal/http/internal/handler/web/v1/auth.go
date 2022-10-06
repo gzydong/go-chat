@@ -160,6 +160,8 @@ func (c *Auth) token(uid int) string {
 	token := jwt.GenerateToken("api", c.config.Jwt.Secret, &jwt.Options{
 		ExpiresAt: jwt.NewNumericDate(expiresAt),
 		ID:        strconv.Itoa(uid),
+		Issuer:    "lumen-im",
+		IssuedAt:  jwt.NewNumericDate(time.Now()),
 	})
 
 	return token
