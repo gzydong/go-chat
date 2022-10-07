@@ -323,7 +323,7 @@ func (c *Group) OvertList(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	list, err := c.service.Dao().SearchOvertList(ctx.Context, params.Name, params.Page, 21)
+	list, err := c.service.Dao().SearchOvertList(ctx.Context, params.Name, params.Page, 20)
 	if err != nil {
 		return ctx.BusinessError("查询异常！")
 	}
@@ -357,7 +357,7 @@ func (c *Group) OvertList(ctx *ichat.Context) error {
 
 	items := make([]*entity.H, 0)
 	for i, value := range list {
-		if i >= 20 {
+		if i >= 19 {
 			break
 		}
 
@@ -378,7 +378,7 @@ func (c *Group) OvertList(ctx *ichat.Context) error {
 
 	return ctx.Success(entity.H{
 		"items": items,
-		"next":  len(list) > 20,
+		"next":  len(list) > 19,
 	})
 }
 

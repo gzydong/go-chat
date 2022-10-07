@@ -450,6 +450,7 @@ func (s *GroupService) List(userId int) ([]*model.GroupItem, error) {
 	tx.Select("`group`.id,`group`.group_name,`group`.avatar,`group`.profile,group_member.leader")
 	tx.Joins("left join `group` on `group`.id = group_member.group_id")
 	tx.Where("group_member.user_id = ? and group_member.is_quit = ?", userId, 0)
+	tx.Order("group_member.created_at desc")
 
 	items := make([]*model.GroupItem, 0)
 	if err := tx.Scan(&items).Error; err != nil {
