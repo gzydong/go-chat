@@ -114,7 +114,7 @@ func (c *Records) SearchHistoryRecords(ctx *ichat.Context) error {
 		entity.MsgTypeVote,
 	}
 
-	if sliceutil.InInt(params.MsgType, m) {
+	if sliceutil.Include(params.MsgType, m) {
 		m = []int{params.MsgType}
 	}
 

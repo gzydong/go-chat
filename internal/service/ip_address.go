@@ -66,7 +66,7 @@ func (s *IpAddressService) FindAddress(ip string) (string, error) {
 	}
 
 	arr := []string{data.Result.Country, data.Result.Province, data.Result.City, data.Result.Isp}
-	val := strings.Join(sliceutil.UniqueString(arr), " ")
+	val := strings.Join(sliceutil.Unique(arr), " ")
 	val = strings.TrimSpace(val)
 
 	_ = s.setCache(ip, val)

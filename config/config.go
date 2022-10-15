@@ -2,7 +2,7 @@ package config
 
 import (
 	"fmt"
-	"io/ioutil"
+	"os"
 	"time"
 
 	"go-chat/internal/pkg/encrypt"
@@ -25,7 +25,7 @@ type Config struct {
 
 func ReadConfig(filename string) *Config {
 	conf := &Config{}
-	content, err := ioutil.ReadFile(filename)
+	content, err := os.ReadFile(filename)
 	if err != nil {
 		panic(err)
 	}

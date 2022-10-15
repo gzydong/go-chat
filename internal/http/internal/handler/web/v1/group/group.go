@@ -96,7 +96,7 @@ func (c *Group) Invite(ctx *ichat.Context) error {
 	defer c.redisLock.UnLock(ctx.Context, key)
 
 	uid := ctx.UserId()
-	uids := sliceutil.UniqueInt(sliceutil.ParseIds(params.Ids))
+	uids := sliceutil.Unique(sliceutil.ParseIds(params.Ids))
 
 	if len(uids) == 0 {
 		return ctx.BusinessError("邀请好友列表不能为空！")
@@ -280,7 +280,7 @@ func (c *Group) GetInviteFriends(ctx *ichat.Context) error {
 
 	data := make([]*model.ContactListItem, 0)
 	for i := 0; i < len(items); i++ {
-		if !sliceutil.InInt(items[i].Id, mids) {
+		if !sliceutil.Include(items[i].Id, mids) {
 			data = append(data, items[i])
 		}
 	}
@@ -369,7 +369,7 @@ func (c *Group) OvertList(ctx *ichat.Context) error {
 			"profile":    value.Profile,
 			"count":      countMap[value.Id],
 			"max_num":    value.MaxNum,
-			"is_member":  sliceutil.InInt(value.Id, checks),
+			"is_member":  sliceutil.Include(value.Id, checks),
 			"created_at": timeutil.FormatDatetime(value.CreatedAt),
 		}
 

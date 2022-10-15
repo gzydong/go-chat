@@ -31,7 +31,7 @@ type TalkMessageDeleteOpt struct {
 func (s *TalkService) RemoveRecords(ctx context.Context, opts *TalkMessageDeleteOpt) error {
 
 	// 需要删除的消息记录ID
-	ids := sliceutil.UniqueInt(sliceutil.ParseIds(opts.RecordIds))
+	ids := sliceutil.Unique(sliceutil.ParseIds(opts.RecordIds))
 
 	// 查询的ids
 	findIds := make([]int64, 0)

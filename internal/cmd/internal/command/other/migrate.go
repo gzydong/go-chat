@@ -2,7 +2,7 @@ package other
 
 import (
 	"fmt"
-	"io/ioutil"
+	"os"
 	"strings"
 
 	"github.com/urfave/cli/v2"
@@ -18,7 +18,7 @@ func NewMigrateCommand(db *gorm.DB) MigrateCommand {
 		Action: func(tx *cli.Context) error {
 			fmt.Println("数据库初始化中...")
 
-			content, err := ioutil.ReadFile("./doc/sql/go-chat.sql")
+			content, err := os.ReadFile("./doc/sql/go-chat.sql")
 			if err != nil {
 				fmt.Println("数据库导入失败", err)
 			}

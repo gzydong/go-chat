@@ -3,7 +3,7 @@ package client
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/url"
 	"strings"
@@ -47,7 +47,7 @@ func (c *RequestClient) Get(url string, params *url.Values) ([]byte, error) {
 
 	defer resp.Body.Close()
 
-	res, err := ioutil.ReadAll(resp.Body)
+	res, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
 	}
@@ -71,7 +71,7 @@ func (c *RequestClient) Post(url string, params *url.Values) ([]byte, error) {
 
 	defer resp.Body.Close()
 
-	res, err := ioutil.ReadAll(resp.Body)
+	res, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
 	}
@@ -102,7 +102,7 @@ func (c *RequestClient) PostJson(url string, params interface{}) ([]byte, error)
 
 	defer resp.Body.Close()
 
-	res, err := ioutil.ReadAll(resp.Body)
+	res, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
 	}

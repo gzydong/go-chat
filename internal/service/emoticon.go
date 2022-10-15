@@ -28,7 +28,7 @@ func (s *EmoticonService) Dao() *dao.EmoticonDao {
 func (s *EmoticonService) RemoveUserSysEmoticon(uid int, emoticonId int) error {
 	ids := s.dao.GetUserInstallIds(uid)
 
-	if !sliceutil.InInt(emoticonId, ids) {
+	if !sliceutil.Include(emoticonId, ids) {
 		return fmt.Errorf("数据不存在！")
 	}
 
@@ -46,7 +46,7 @@ func (s *EmoticonService) RemoveUserSysEmoticon(uid int, emoticonId int) error {
 func (s *EmoticonService) AddUserSysEmoticon(uid int, emoticonId int) error {
 	ids := s.dao.GetUserInstallIds(uid)
 
-	if sliceutil.InInt(emoticonId, ids) {
+	if sliceutil.Include(emoticonId, ids) {
 		return nil
 	}
 

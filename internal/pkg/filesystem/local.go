@@ -3,7 +3,6 @@ package filesystem
 import (
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"path"
 	"path/filepath"
@@ -165,7 +164,7 @@ func (s *LocalFilesystem) PrivateUrl(filePath string, timeout int) string {
 
 // ReadStream 读取文件流
 func (s *LocalFilesystem) ReadStream(filePath string) ([]byte, error) {
-	return ioutil.ReadFile(s.Path(filePath))
+	return os.ReadFile(s.Path(filePath))
 }
 
 func (s *LocalFilesystem) InitiateMultipartUpload(_ string, _ string) (string, error) {

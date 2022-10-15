@@ -49,7 +49,7 @@ func (s *GroupService) Create(ctx context.Context, opts *CreateGroupOpt) (int, e
 	)
 
 	// 群成员用户ID
-	mids := sliceutil.UniqueInt(append(opts.MemberIds, opts.UserId))
+	mids := sliceutil.Unique(append(opts.MemberIds, opts.UserId))
 
 	group := &model.Group{
 		CreatorId: opts.UserId,

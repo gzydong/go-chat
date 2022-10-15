@@ -1,7 +1,7 @@
 package filesystem
 
 import (
-	"io/ioutil"
+	"io"
 	"mime/multipart"
 )
 
@@ -13,5 +13,5 @@ func ReadMultipartStream(file *multipart.FileHeader) ([]byte, error) {
 
 	defer src.Close()
 
-	return ioutil.ReadAll(src)
+	return io.ReadAll(src)
 }

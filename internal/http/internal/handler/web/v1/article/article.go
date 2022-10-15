@@ -198,7 +198,7 @@ func (c *Article) Upload(ctx *ichat.Context) error {
 		return ctx.InvalidParams("image 字段必传！")
 	}
 
-	if !sliceutil.InStr(strutil.FileSuffix(file.Filename), []string{"png", "jpg", "jpeg", "gif", "webp"}) {
+	if !sliceutil.Include(strutil.FileSuffix(file.Filename), []string{"png", "jpg", "jpeg", "gif", "webp"}) {
 		return ctx.InvalidParams("上传文件格式不正确,仅支持 png、jpg、jpeg、gif 和 webp")
 	}
 
