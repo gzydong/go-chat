@@ -12,10 +12,10 @@ import (
 type ClientStorage struct {
 	redis   *redis.Client
 	config  *config.Config
-	storage *SidStorage
+	storage *ServerStorage
 }
 
-func NewClientStorage(redis *redis.Client, config *config.Config, storage *SidStorage) *ClientStorage {
+func NewClientStorage(redis *redis.Client, config *config.Config, storage *ServerStorage) *ClientStorage {
 	return &ClientStorage{redis: redis, config: config, storage: storage}
 }
 

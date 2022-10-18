@@ -47,7 +47,7 @@ func Initialize(ctx context.Context, conf *config.Config) *AppProvider {
 	usersDao := dao.NewUserDao(baseDao)
 	userService := service.NewUserService(usersDao)
 	common := v1.NewCommon(conf, smsService, userService)
-	sessionStorage := cache.NewSessionStorage(client)
+	tokenSessionStorage := cache.NewTokenSessionStorage(client)
 	redisLock := cache.NewRedisLock(client)
 	baseService := service.NewBaseService(db, client)
 	unreadStorage := cache.NewUnreadStorage(client)
@@ -56,11 +56,11 @@ func Initialize(ctx context.Context, conf *config.Config) *AppProvider {
 	talkRecordsVoteDao := dao.NewTalkRecordsVoteDao(baseDao, talkVote)
 	relation := cache.NewRelation(client)
 	groupMemberDao := dao.NewGroupMemberDao(baseDao, relation)
-	sidStorage := cache.NewSidStorage(client)
-	clientStorage := cache.NewClientStorage(client, conf, sidStorage)
+	serverStorage := cache.NewSidStorage(client)
+	clientStorage := cache.NewClientStorage(client, conf, serverStorage)
 	filesystem := provider.NewFilesystem(conf)
 	splitUploadDao := dao.NewFileSplitUploadDao(baseDao)
-	talkMessageService := service.NewTalkMessageService(baseService, conf, unreadStorage, messageStorage, talkRecordsVoteDao, groupMemberDao, sidStorage, clientStorage, filesystem, splitUploadDao)
+	talkMessageService := service.NewTalkMessageService(baseService, conf, unreadStorage, messageStorage, talkRecordsVoteDao, groupMemberDao, serverStorage, clientStorage, filesystem, splitUploadDao)
 	httpClient := provider.NewHttpClient()
 	requestClient := provider.NewRequestClient(httpClient)
 	ipAddressService := service.NewIpAddressService(baseService, conf, requestClient)
@@ -71,8 +71,8 @@ func Initialize(ctx context.Context, conf *config.Config) *AppProvider {
 	robotDao := dao.NewRobotDao(baseDao)
 	messageForwardLogic := logic.NewMessageForwardLogic(db)
 	sequence := cache.NewSequence(client)
-	messageService := service.NewMessageService(baseService, messageForwardLogic, groupMemberDao, splitUploadDao, filesystem, unreadStorage, messageStorage, sidStorage, clientStorage, sequence)
-	auth := v1.NewAuth(conf, userService, smsService, sessionStorage, redisLock, talkMessageService, ipAddressService, talkSessionService, articleClassService, robotDao, messageService)
+	messageService := service.NewMessageService(baseService, messageForwardLogic, groupMemberDao, splitUploadDao, filesystem, unreadStorage, messageStorage, serverStorage, clientStorage, sequence)
+	auth := v1.NewAuth(conf, userService, smsService, tokenSessionStorage, redisLock, talkMessageService, ipAddressService, talkSessionService, articleClassService, robotDao, messageService)
 	organizeDao := organize.NewOrganizeDao(baseDao)
 	organizeService := organize2.NewOrganizeService(baseService, organizeDao)
 	user := v1.NewUser(userService, smsService, organizeService)
@@ -166,7 +166,7 @@ func Initialize(ctx context.Context, conf *config.Config) *AppProvider {
 		Admin: adminHandler,
 		Open:  openHandler,
 	}
-	engine := router.NewRouter(conf, handlerHandler, sessionStorage)
+	engine := router.NewRouter(conf, handlerHandler, tokenSessionStorage)
 	httpServer := provider.NewHttpServer(conf, engine)
 	appProvider := &AppProvider{
 		Config: conf,
@@ -179,7 +179,7 @@ func Initialize(ctx context.Context, conf *config.Config) *AppProvider {
 
 var providerSet = wire.NewSet(provider.NewMySQLClient, provider.NewRedisClient, provider.NewHttpClient, provider.NewEmailClient, provider.NewHttpServer, provider.NewFilesystem, provider.NewRequestClient, router.NewRouter, wire.Struct(new(web.Handler), "*"), wire.Struct(new(admin.Handler), "*"), wire.Struct(new(open.Handler), "*"), wire.Struct(new(handler.Handler), "*"), wire.Struct(new(AppProvider), "*"))
 
-var cacheProviderSet = wire.NewSet(cache.NewSessionStorage, cache.NewSidStorage, cache.NewUnreadStorage, cache.NewRedisLock, cache.NewClientStorage, cache.NewMessageStorage, cache.NewTalkVote, cache.NewRoomStorage, cache.NewRelation, cache.NewSmsCodeCache, cache.NewContactRemark, cache.NewSequence)
+var cacheProviderSet = wire.NewSet(cache.NewTokenSessionStorage, cache.NewSidStorage, cache.NewUnreadStorage, cache.NewRedisLock, cache.NewClientStorage, cache.NewMessageStorage, cache.NewTalkVote, cache.NewRoomStorage, cache.NewRelation, cache.NewSmsCodeCache, cache.NewContactRemark, cache.NewSequence)
 
 var daoProviderSet = wire.NewSet(dao.NewBaseDao, dao.NewContactDao, dao.NewGroupMemberDao, dao.NewUserDao, dao.NewGroupDao, dao.NewGroupApply, dao.NewTalkRecordsDao, dao.NewGroupNoticeDao, dao.NewTalkSessionDao, dao.NewEmoticonDao, dao.NewTalkRecordsVoteDao, dao.NewFileSplitUploadDao, note.NewArticleClassDao, note.NewArticleAnnexDao, organize.NewDepartmentDao, organize.NewOrganizeDao, organize.NewPositionDao, dao.NewRobotDao)
 

@@ -39,7 +39,7 @@ func (c *Session) List(ctx *ichat.Context) error {
 	uid := ctx.UserId()
 
 	// 获取未读消息数
-	unReads := c.unreadTalkCache.GetAll(ctx.Ctx(), uid)
+	unReads := c.unreadTalkCache.All(ctx.Ctx(), uid)
 	if len(unReads) > 0 {
 		c.talkListService.BatchAddList(ctx.Ctx(), uid, unReads)
 	}

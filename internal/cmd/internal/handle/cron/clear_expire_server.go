@@ -7,10 +7,10 @@ import (
 )
 
 type ClearExpireServer struct {
-	storage *cache.SidStorage
+	storage *cache.ServerStorage
 }
 
-func NewClearExpireServer(storage *cache.SidStorage) *ClearExpireServer {
+func NewClearExpireServer(storage *cache.ServerStorage) *ClearExpireServer {
 	return &ClearExpireServer{storage: storage}
 }
 

@@ -40,7 +40,7 @@ var providerSet = wire.NewSet(
 	consume.NewExampleSubscribe,
 
 	// 缓存
-	cache.NewSessionStorage,
+	cache.NewTokenSessionStorage,
 	cache.NewSidStorage,
 	cache.NewRedisLock,
 	cache.NewClientStorage,

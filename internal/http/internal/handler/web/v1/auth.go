@@ -21,7 +21,7 @@ type Auth struct {
 	config             *config.Config
 	userService        *service.UserService
 	smsService         *service.SmsService
-	session            *cache.SessionStorage
+	session            *cache.TokenSessionStorage
 	redisLock          *cache.RedisLock
 	talkMessageService *service.TalkMessageService
 	ipAddressService   *service.IpAddressService
@@ -31,7 +31,7 @@ type Auth struct {
 	message            *service.MessageService
 }
 
-func NewAuth(config *config.Config, userService *service.UserService, smsService *service.SmsService, session *cache.SessionStorage, redisLock *cache.RedisLock, talkMessageService *service.TalkMessageService, ipAddressService *service.IpAddressService, talkSessionService *service.TalkSessionService, noteClassService *note.ArticleClassService, robotDao *dao.RobotDao, message *service.MessageService) *Auth {
+func NewAuth(config *config.Config, userService *service.UserService, smsService *service.SmsService, session *cache.TokenSessionStorage, redisLock *cache.RedisLock, talkMessageService *service.TalkMessageService, ipAddressService *service.IpAddressService, talkSessionService *service.TalkSessionService, noteClassService *note.ArticleClassService, robotDao *dao.RobotDao, message *service.MessageService) *Auth {
 	return &Auth{config: config, userService: userService, smsService: smsService, session: session, redisLock: redisLock, talkMessageService: talkMessageService, ipAddressService: ipAddressService, talkSessionService: talkSessionService, noteClassService: noteClassService, robotDao: robotDao, message: message}
 }
 
@@ -175,6 +175,6 @@ func (c *Auth) toBlackList(ctx *ichat.Context) {
 		ex := session.ExpiresAt - time.Now().Unix()
 
 		// 将 session 加入黑名单
-		_ = c.session.SetBlackList(ctx.Ctx(), session.Token, int(ex))
+		_ = c.session.SetBlackList(ctx.Ctx(), session.Token, time.Duration(ex)*time.Second)
 	}
 }

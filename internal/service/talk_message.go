@@ -34,13 +34,13 @@ type TalkMessageService struct {
 	lastMessage        *cache.MessageStorage
 	talkRecordsVoteDao *dao.TalkRecordsVoteDao
 	groupMemberDao     *dao.GroupMemberDao
-	sidServer          *cache.SidStorage
+	sidServer          *cache.ServerStorage
 	client             *cache.ClientStorage
 	fileSystem         *filesystem.Filesystem
 	splitUploadDao     *dao.SplitUploadDao
 }
 
-func NewTalkMessageService(baseService *BaseService, config *config.Config, unreadTalkCache *cache.UnreadStorage, lastMessage *cache.MessageStorage, talkRecordsVoteDao *dao.TalkRecordsVoteDao, groupMemberDao *dao.GroupMemberDao, sidServer *cache.SidStorage, client *cache.ClientStorage, fileSystem *filesystem.Filesystem, splitUploadDao *dao.SplitUploadDao) *TalkMessageService {
+func NewTalkMessageService(baseService *BaseService, config *config.Config, unreadTalkCache *cache.UnreadStorage, lastMessage *cache.MessageStorage, talkRecordsVoteDao *dao.TalkRecordsVoteDao, groupMemberDao *dao.GroupMemberDao, sidServer *cache.ServerStorage, client *cache.ClientStorage, fileSystem *filesystem.Filesystem, splitUploadDao *dao.SplitUploadDao) *TalkMessageService {
 	return &TalkMessageService{BaseService: baseService, config: config, unreadTalkCache: unreadTalkCache, lastMessage: lastMessage, talkRecordsVoteDao: talkRecordsVoteDao, groupMemberDao: groupMemberDao, sidServer: sidServer, client: client, fileSystem: fileSystem, splitUploadDao: splitUploadDao}
 }
 
@@ -644,10 +644,10 @@ func (s *TalkMessageService) SendLoginMessage(ctx context.Context, opts *LoginMe
 func (s *TalkMessageService) afterHandle(ctx context.Context, record *model.TalkRecords, opts map[string]string) {
 
 	if record.TalkType == entity.ChatPrivateMode {
-		s.unreadTalkCache.Increment(ctx, entity.ChatPrivateMode, record.UserId, record.ReceiverId)
+		s.unreadTalkCache.Incr(ctx, entity.ChatPrivateMode, record.UserId, record.ReceiverId)
 
 		if record.MsgType == entity.MsgTypeSystemText {
-			s.unreadTalkCache.Increment(ctx, 1, record.ReceiverId, record.UserId)
+			s.unreadTalkCache.Incr(ctx, 1, record.ReceiverId, record.UserId)
 		}
 	} else if record.TalkType == entity.ChatGroupMode {
 
@@ -659,7 +659,7 @@ func (s *TalkMessageService) afterHandle(ctx context.Context, record *model.Talk
 				continue
 			}
 
-			s.unreadTalkCache.Increment(ctx, entity.ChatGroupMode, record.ReceiverId, uid)
+			s.unreadTalkCache.Incr(ctx, entity.ChatGroupMode, record.ReceiverId, uid)
 		}
 	}
 

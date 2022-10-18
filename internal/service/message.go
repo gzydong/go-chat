@@ -30,12 +30,12 @@ type MessageService struct {
 	fileSystem     *filesystem.Filesystem
 	unreadStorage  *cache.UnreadStorage
 	messageStorage *cache.MessageStorage
-	sidStorage     *cache.SidStorage
+	sidStorage     *cache.ServerStorage
 	clientStorage  *cache.ClientStorage
 	Sequence       *cache.Sequence
 }
 
-func NewMessageService(baseService *BaseService, forward *logic.MessageForwardLogic, groupMemberDao *dao.GroupMemberDao, splitUploadDao *dao.SplitUploadDao, fileSystem *filesystem.Filesystem, unreadStorage *cache.UnreadStorage, messageStorage *cache.MessageStorage, sidStorage *cache.SidStorage, clientStorage *cache.ClientStorage, sequence *cache.Sequence) *MessageService {
+func NewMessageService(baseService *BaseService, forward *logic.MessageForwardLogic, groupMemberDao *dao.GroupMemberDao, splitUploadDao *dao.SplitUploadDao, fileSystem *filesystem.Filesystem, unreadStorage *cache.UnreadStorage, messageStorage *cache.MessageStorage, sidStorage *cache.ServerStorage, clientStorage *cache.ClientStorage, sequence *cache.Sequence) *MessageService {
 	return &MessageService{BaseService: baseService, forward: forward, groupMemberDao: groupMemberDao, splitUploadDao: splitUploadDao, fileSystem: fileSystem, unreadStorage: unreadStorage, messageStorage: messageStorage, sidStorage: sidStorage, clientStorage: clientStorage, Sequence: sequence}
 }
 
@@ -527,10 +527,10 @@ func (m *MessageService) SendLogin(ctx context.Context, uid int, req *message.Lo
 func (m *MessageService) afterHandle(ctx context.Context, record *model.TalkRecords, opts map[string]string) {
 
 	if record.TalkType == entity.ChatPrivateMode {
-		m.unreadStorage.Increment(ctx, entity.ChatPrivateMode, record.UserId, record.ReceiverId)
+		m.unreadStorage.Incr(ctx, entity.ChatPrivateMode, record.UserId, record.ReceiverId)
 
 		if record.MsgType == entity.MsgTypeSystemText {
-			m.unreadStorage.Increment(ctx, 1, record.ReceiverId, record.UserId)
+			m.unreadStorage.Incr(ctx, 1, record.ReceiverId, record.UserId)
 		}
 	} else if record.TalkType == entity.ChatGroupMode {
 
@@ -542,7 +542,7 @@ func (m *MessageService) afterHandle(ctx context.Context, record *model.TalkReco
 				continue
 			}
 
-			m.unreadStorage.Increment(ctx, entity.ChatGroupMode, record.ReceiverId, uid)
+			m.unreadStorage.Incr(ctx, entity.ChatGroupMode, record.ReceiverId, uid)
 		}
 	}
 

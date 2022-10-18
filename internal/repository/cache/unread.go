@@ -17,14 +17,14 @@ func NewUnreadStorage(rds *redis.Client) *UnreadStorage {
 }
 
 func (u *UnreadStorage) name(receive int) string {
-	return fmt.Sprintf("talk:unread_msg:uid_%d", receive)
+	return fmt.Sprintf("talk:unread:uid_%d", receive)
 }
 
-// Increment 消息未读数自增
+// Incr 消息未读数自增
 // @params mode    对话模式 1私信 2群聊
 // @params sender  发送者ID
 // @params receive 接收者ID
-func (u *UnreadStorage) Increment(ctx context.Context, mode, sender, receive int) {
+func (u *UnreadStorage) Incr(ctx context.Context, mode, sender, receive int) {
 	u.rds.HIncrBy(ctx, u.name(receive), fmt.Sprintf("%d_%d", mode, sender), 1)
 }
 
@@ -38,7 +38,11 @@ func (u *UnreadStorage) Get(ctx context.Context, mode, sender, receive int) int 
 	return val
 }
 
-func (u UnreadStorage) Del(ctx context.Context, mode, sender, receive int) {
+// Del 删除消息未读数
+// @params mode    对话模式 1私信 2群聊
+// @params sender  发送者ID
+// @params receive 接收者ID
+func (u *UnreadStorage) Del(ctx context.Context, mode, sender, receive int) {
 	u.rds.HDel(ctx, u.name(receive), fmt.Sprintf("%d_%d", mode, sender))
 }
 
@@ -50,7 +54,7 @@ func (u *UnreadStorage) Reset(ctx context.Context, mode, sender, receive int) {
 	u.rds.HSet(ctx, u.name(receive), fmt.Sprintf("%d_%d", mode, sender), 0)
 }
 
-func (u *UnreadStorage) GetAll(ctx context.Context, receive int) map[string]int {
+func (u *UnreadStorage) All(ctx context.Context, receive int) map[string]int {
 	items := make(map[string]int)
 	for k, v := range u.rds.HGetAll(ctx, u.name(receive)).Val() {
 		items[k], _ = strconv.Atoi(v)

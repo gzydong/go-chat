@@ -8,10 +8,10 @@ import (
 )
 
 type ClearWsCache struct {
-	storage *cache.SidStorage
+	storage *cache.ServerStorage
 }
 
-func NewClearWsCache(storage *cache.SidStorage) *ClearWsCache {
+func NewClearWsCache(storage *cache.ServerStorage) *ClearWsCache {
 	return &ClearWsCache{storage: storage}
 }
 

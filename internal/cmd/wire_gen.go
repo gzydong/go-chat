@@ -8,6 +8,7 @@ package main
 
 import (
 	"context"
+
 	"github.com/google/wire"
 	"go-chat/config"
 	"go-chat/internal/cmd/internal/command"
@@ -27,13 +28,13 @@ import (
 
 func Initialize(ctx context.Context, conf *config.Config) *AppProvider {
 	client := provider.NewRedisClient(ctx, conf)
-	sidStorage := cache.NewSidStorage(client)
-	clearWsCache := cron.NewClearWsCache(sidStorage)
+	serverStorage := cache.NewSidStorage(client)
+	clearWsCache := cron.NewClearWsCache(serverStorage)
 	db := provider.NewMySQLClient(conf)
 	filesystemFilesystem := filesystem.NewFilesystem(conf)
 	clearArticle := cron.NewClearArticle(db, filesystemFilesystem)
 	clearTmpFile := cron.NewClearTmpFile(db, filesystemFilesystem)
-	clearExpireServer := cron.NewClearExpireServer(sidStorage)
+	clearExpireServer := cron.NewClearExpireServer(serverStorage)
 	subcommands := &cron2.Subcommands{
 		ClearWsCache:      clearWsCache,
 		ClearArticle:      clearArticle,

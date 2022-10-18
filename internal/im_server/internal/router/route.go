@@ -15,7 +15,7 @@ import (
 )
 
 // NewRouter 初始化配置路由
-func NewRouter(conf *config.Config, handle *handler.Handler, session *cache.SessionStorage) *gin.Engine {
+func NewRouter(conf *config.Config, handle *handler.Handler, session *cache.TokenSessionStorage) *gin.Engine {
 
 	router := gin.Default()
 

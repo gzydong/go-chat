@@ -12,10 +12,10 @@ import (
 
 type HealthSubscribe struct {
 	config  *config.Config
-	storage *cache.SidStorage
+	storage *cache.ServerStorage
 }
 
-func NewHealthSubscribe(config *config.Config, storage *cache.SidStorage) *HealthSubscribe {
+func NewHealthSubscribe(config *config.Config, storage *cache.ServerStorage) *HealthSubscribe {
 	return &HealthSubscribe{config: config, storage: storage}
 }
 

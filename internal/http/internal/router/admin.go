@@ -9,7 +9,7 @@ import (
 )
 
 // RegisterAdminRoute 注册 Admin 路由
-func RegisterAdminRoute(secret string, router *gin.Engine, handler *admin.Handler, session *cache.SessionStorage) {
+func RegisterAdminRoute(secret string, router *gin.Engine, handler *admin.Handler, session *cache.TokenSessionStorage) {
 
 	// 授权验证中间件
 	authorize := jwt.Auth(secret, "admin", session)
