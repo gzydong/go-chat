@@ -8,6 +8,7 @@ package main
 
 import (
 	"context"
+
 	"github.com/google/wire"
 	"go-chat/config"
 	"go-chat/internal/im_server/internal/event"
@@ -76,4 +77,4 @@ func Initialize(ctx context.Context, conf *config.Config) *AppProvider {
 
 // wire.go:
 
-var providerSet = wire.NewSet(provider.NewMySQLClient, provider.NewRedisClient, provider.NewWebsocketServer, router.NewRouter, wire.Struct(new(process.SubServers), "*"), process.NewServer, server.NewHealthSubscribe, server.NewMessageSubscribe, consume.NewChatSubscribe, consume.NewExampleSubscribe, cache.NewSessionStorage, cache.NewSidStorage, cache.NewRedisLock, cache.NewClientStorage, cache.NewRoomStorage, cache.NewTalkVote, cache.NewRelation, cache.NewContactRemark, dao.NewBaseDao, dao.NewTalkRecordsDao, dao.NewTalkRecordsVoteDao, dao.NewGroupMemberDao, dao.NewContactDao, chat.NewHandler, event.NewChatEvent, event.NewExampleEvent, service.NewBaseService, service.NewTalkRecordsService, service.NewGroupMemberService, service.NewContactService, handler.NewChatChannel, handler.NewExampleChannel, wire.Struct(new(handler.Handler), "*"), wire.Struct(new(AppProvider), "*"))
+var providerSet = wire.NewSet(provider.NewMySQLClient, provider.NewRedisClient, provider.NewWebsocketServer, router.NewRouter, wire.Struct(new(process.SubServers), "*"), process.NewServer, server.NewHealthSubscribe, server.NewMessageSubscribe, consume.NewChatSubscribe, consume.NewExampleSubscribe, cache.NewSessionStorage, cache.NewSidStorage, cache.NewRedisLock, cache.NewClientStorage, cache.NewRoomStorage, cache.NewTalkVote, cache.NewRelation, cache.NewContactRemark, cache.NewSequence, dao.NewBaseDao, dao.NewTalkRecordsDao, dao.NewTalkRecordsVoteDao, dao.NewGroupMemberDao, dao.NewContactDao, chat.NewHandler, event.NewChatEvent, event.NewExampleEvent, service.NewBaseService, service.NewTalkRecordsService, service.NewGroupMemberService, service.NewContactService, handler.NewChatChannel, handler.NewExampleChannel, wire.Struct(new(handler.Handler), "*"), wire.Struct(new(AppProvider), "*"))

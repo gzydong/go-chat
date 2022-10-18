@@ -58,6 +58,7 @@ var cacheProviderSet = wire.NewSet(
 	cache.NewRelation,
 	cache.NewSmsCodeCache,
 	cache.NewContactRemark,
+	cache.NewSequence,
 )
 
 var daoProviderSet = wire.NewSet(

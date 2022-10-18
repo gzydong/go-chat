@@ -187,7 +187,7 @@ func (s *ArticleService) Asterisk(ctx context.Context, uid int, articleId int, m
 
 // Tag 更新笔记标签
 func (s *ArticleService) Tag(ctx context.Context, uid int, articleId int, tags []int) error {
-	return s.Db().Model(&model.Article{}).Where("id = ? and user_id = ?", articleId, uid).Update("tags_id", sliceutil.IntToIds(tags)).Error
+	return s.Db().Model(&model.Article{}).Where("id = ? and user_id = ?", articleId, uid).Update("tags_id", sliceutil.ToIds(tags)).Error
 }
 
 // Move 移动笔记分类

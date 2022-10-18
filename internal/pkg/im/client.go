@@ -139,7 +139,7 @@ func (c *Client) Write(data *ClientOutContent) error {
 // 推送心跳检测配置
 func (c *Client) heartbeat() {
 	_ = c.Write(&ClientOutContent{
-		Content: jsonutil.EncodeToBt(&Message{
+		Content: jsonutil.Marshal(&Message{
 			Event: "connect",
 			Content: map[string]interface{}{
 				"ping_interval": heartbeatInterval,
@@ -198,7 +198,7 @@ func (c *Client) loopAccept() {
 		switch result.String() {
 		case "heartbeat": // 心跳消息判断
 			_ = c.Write(&ClientOutContent{
-				Content: jsonutil.EncodeToBt(&Message{"heartbeat", "pong"}),
+				Content: jsonutil.Marshal(&Message{"heartbeat", "pong"}),
 			})
 		default:
 			// 触发消息回调

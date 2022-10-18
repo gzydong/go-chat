@@ -7,7 +7,7 @@ func Encode(value interface{}) string {
 	return data
 }
 
-func EncodeToBt(value interface{}) []byte {
+func Marshal(value interface{}) []byte {
 	data, _ := jsoniter.Marshal(value)
 	return data
 }
@@ -16,6 +16,6 @@ func Decode(str string, value interface{}) error {
 	return jsoniter.UnmarshalFromString(str, value)
 }
 
-func DecodeBt(str []byte, value interface{}) error {
+func Unmarshal(str []byte, value interface{}) error {
 	return jsoniter.Unmarshal(str, value)
 }

@@ -16,6 +16,7 @@ import (
 
 type TalkRecordsItem struct {
 	Id         int         `json:"id"`
+	Sequence   int         `json:"sequence"`
 	TalkType   int         `json:"talk_type"`
 	MsgType    int         `json:"msg_type"`
 	UserId     int         `json:"user_id"`
@@ -67,6 +68,7 @@ func (s *TalkRecordsService) GetTalkRecords(ctx context.Context, opts *QueryTalk
 		items  = make([]*model.QueryTalkRecordsItem, 0)
 		fields = []string{
 			"talk_records.id",
+			"talk_records.sequence",
 			"talk_records.talk_type",
 			"talk_records.msg_type",
 			"talk_records.user_id",
@@ -127,6 +129,7 @@ func (s *TalkRecordsService) GetTalkRecord(ctx context.Context, recordId int64) 
 		item   *model.QueryTalkRecordsItem
 		fields = []string{
 			"talk_records.id",
+			"talk_records.sequence",
 			"talk_records.talk_type",
 			"talk_records.msg_type",
 			"talk_records.user_id",
@@ -308,6 +311,7 @@ func (s *TalkRecordsService) HandleTalkRecords(ctx context.Context, items []*mod
 	for _, item := range items {
 		data := &TalkRecordsItem{
 			Id:         item.Id,
+			Sequence:   int(item.Sequence),
 			TalkType:   item.TalkType,
 			MsgType:    item.MsgType,
 			UserId:     item.UserId,

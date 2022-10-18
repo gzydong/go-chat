@@ -8,7 +8,9 @@ package main
 
 import (
 	"context"
+
 	"github.com/google/wire"
+	_ "github.com/urfave/cli/v2"
 	"go-chat/config"
 	"go-chat/internal/http/internal/handler"
 	"go-chat/internal/http/internal/handler/admin"
@@ -23,6 +25,7 @@ import (
 	"go-chat/internal/http/internal/handler/web/v1/talk"
 	"go-chat/internal/http/internal/router"
 	"go-chat/internal/logic"
+	_ "go-chat/internal/pkg/validation"
 	"go-chat/internal/provider"
 	"go-chat/internal/repository/cache"
 	"go-chat/internal/repository/dao"
@@ -31,11 +34,6 @@ import (
 	"go-chat/internal/service"
 	note2 "go-chat/internal/service/note"
 	organize2 "go-chat/internal/service/organize"
-)
-
-import (
-	_ "github.com/urfave/cli/v2"
-	_ "go-chat/internal/pkg/validation"
 )
 
 // Injectors from wire.go:
@@ -72,7 +70,8 @@ func Initialize(ctx context.Context, conf *config.Config) *AppProvider {
 	articleClassService := note2.NewArticleClassService(baseService, articleClassDao)
 	robotDao := dao.NewRobotDao(baseDao)
 	messageForwardLogic := logic.NewMessageForwardLogic(db)
-	messageService := service.NewMessageService(baseService, messageForwardLogic, groupMemberDao, splitUploadDao, filesystem, unreadStorage, messageStorage, sidStorage, clientStorage)
+	sequence := cache.NewSequence(client)
+	messageService := service.NewMessageService(baseService, messageForwardLogic, groupMemberDao, splitUploadDao, filesystem, unreadStorage, messageStorage, sidStorage, clientStorage, sequence)
 	auth := v1.NewAuth(conf, userService, smsService, sessionStorage, redisLock, talkMessageService, ipAddressService, talkSessionService, articleClassService, robotDao, messageService)
 	organizeDao := organize.NewOrganizeDao(baseDao)
 	organizeService := organize2.NewOrganizeService(baseService, organizeDao)
@@ -180,7 +179,7 @@ func Initialize(ctx context.Context, conf *config.Config) *AppProvider {
 
 var providerSet = wire.NewSet(provider.NewMySQLClient, provider.NewRedisClient, provider.NewHttpClient, provider.NewEmailClient, provider.NewHttpServer, provider.NewFilesystem, provider.NewRequestClient, router.NewRouter, wire.Struct(new(web.Handler), "*"), wire.Struct(new(admin.Handler), "*"), wire.Struct(new(open.Handler), "*"), wire.Struct(new(handler.Handler), "*"), wire.Struct(new(AppProvider), "*"))
 
-var cacheProviderSet = wire.NewSet(cache.NewSessionStorage, cache.NewSidStorage, cache.NewUnreadStorage, cache.NewRedisLock, cache.NewClientStorage, cache.NewMessageStorage, cache.NewTalkVote, cache.NewRoomStorage, cache.NewRelation, cache.NewSmsCodeCache, cache.NewContactRemark)
+var cacheProviderSet = wire.NewSet(cache.NewSessionStorage, cache.NewSidStorage, cache.NewUnreadStorage, cache.NewRedisLock, cache.NewClientStorage, cache.NewMessageStorage, cache.NewTalkVote, cache.NewRoomStorage, cache.NewRelation, cache.NewSmsCodeCache, cache.NewContactRemark, cache.NewSequence)
 
 var daoProviderSet = wire.NewSet(dao.NewBaseDao, dao.NewContactDao, dao.NewGroupMemberDao, dao.NewUserDao, dao.NewGroupDao, dao.NewGroupApply, dao.NewTalkRecordsDao, dao.NewGroupNoticeDao, dao.NewTalkSessionDao, dao.NewEmoticonDao, dao.NewTalkRecordsVoteDao, dao.NewFileSplitUploadDao, note.NewArticleClassDao, note.NewArticleAnnexDao, organize.NewDepartmentDao, organize.NewOrganizeDao, organize.NewPositionDao, dao.NewRobotDao)
 

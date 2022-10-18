@@ -98,7 +98,7 @@ func ParseIds(str string) []int {
 	return ids
 }
 
-func IntToIds[T IntInterface](items []T) string {
+func ToIds[T IntInterface](items []T) string {
 	tmp := make([]string, 0, len(items))
 
 	for _, item := range items {

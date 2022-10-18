@@ -36,8 +36,8 @@ func (c *ChatChannel) WsConn(ctx *ichat.Context) error {
 }
 
 // TcpConn 初始化连接
-func (c *ChatChannel) TcpConn(ctx context.Context, conn *adapter.TcpAdapter) {
-	c.client(ctx, 2054, conn)
+func (c *ChatChannel) TcpConn(ctx context.Context, uid int, conn *adapter.TcpAdapter) {
+	c.client(ctx, uid, conn)
 }
 
 func (c *ChatChannel) client(ctx context.Context, uid int, conn im.IConn) {

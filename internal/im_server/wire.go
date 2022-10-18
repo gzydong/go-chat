@@ -48,6 +48,7 @@ var providerSet = wire.NewSet(
 	cache.NewTalkVote,
 	cache.NewRelation,
 	cache.NewContactRemark,
+	cache.NewSequence,
 
 	// dao 数据层
 	dao.NewBaseDao,

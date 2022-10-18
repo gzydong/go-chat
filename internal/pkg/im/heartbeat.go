@@ -71,7 +71,7 @@ func (h *heartbeat) check() {
 				} else if interval > heartbeatInterval {
 					// 超过心跳间隔时间则主动推送一次消息
 					_ = c.Write(&ClientOutContent{
-						Content: jsonutil.EncodeToBt(&Message{"heartbeat", "ping"}),
+						Content: jsonutil.Marshal(&Message{"heartbeat", "ping"}),
 					})
 				}
 

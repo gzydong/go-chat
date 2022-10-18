@@ -2,7 +2,6 @@ package chat
 
 import (
 	"context"
-	"encoding/json"
 
 	"go-chat/internal/entity"
 	"go-chat/internal/pkg/im"
@@ -19,10 +18,10 @@ type TalkReadMessage struct {
 }
 
 // OnReadMessage 消息已读事件
-func (h Handler) OnReadMessage(ctx context.Context, client im.IClient, data []byte) {
+func (h *Handler) OnReadMessage(ctx context.Context, client im.IClient, data []byte) {
 
 	var m *TalkReadMessage
-	if err := json.Unmarshal(data, &m); err != nil {
+	if err := jsonutil.Unmarshal(data, &m); err != nil {
 		return
 	}
 

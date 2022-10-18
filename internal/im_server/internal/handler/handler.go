@@ -9,6 +9,7 @@ import (
 
 	"github.com/tidwall/gjson"
 	"go-chat/config"
+	"go-chat/internal/entity"
 	"go-chat/internal/pkg/im/adapter"
 	"go-chat/internal/pkg/jsonutil"
 	"go-chat/internal/pkg/jwt"
@@ -22,8 +23,9 @@ type Handler struct {
 }
 
 type AuthConn struct {
-	Uid  int
-	conn *adapter.TcpAdapter
+	Uid     int    `json:"uid"`
+	Channel string `json:"channel"`
+	conn    *adapter.TcpAdapter
 }
 
 type Authorize struct {
@@ -31,10 +33,8 @@ type Authorize struct {
 	Channel string `json:"channel"`
 }
 
-func (h *Handler) Dispatcher(conn net.Conn) {
+func (h *Handler) Dispatch(conn net.Conn) {
 	ch := make(chan *AuthConn)
-
-	fmt.Println("网络地址", conn.RemoteAddr().(*net.TCPAddr).IP)
 
 	defer func() {
 		if err := recover(); err != nil {
@@ -46,18 +46,19 @@ func (h *Handler) Dispatcher(conn net.Conn) {
 
 	fmt.Println(conn.RemoteAddr(), "开始认证==>>>", time.Now().Unix())
 	select {
-	// 认证超时
+	// 2s认证超时
 	case <-time.After(2 * time.Second):
 		fmt.Println(conn.RemoteAddr(), "认证超时==>>>", time.Now().Unix())
 		_ = conn.Close()
 		return
 
 	// 认证成功
-	case connInfo := <-ch:
+	case info := <-ch:
 		fmt.Println(conn.RemoteAddr(), "认证成功==>>>", time.Now().Unix())
-		fmt.Println(connInfo)
 
-		h.Chat.TcpConn(context.Background(), connInfo.conn)
+		if info.Channel == entity.ImChannelChat {
+			h.Chat.TcpConn(context.Background(), info.Uid, info.conn)
+		}
 	}
 }
 
@@ -79,7 +80,7 @@ func (h *Handler) auth(connect net.Conn, data chan *AuthConn) {
 	}
 
 	detail := &Authorize{}
-	if err := jsonutil.DecodeBt(read, detail); err != nil {
+	if err := jsonutil.Unmarshal(read, detail); err != nil {
 		return
 	}
 
@@ -93,7 +94,5 @@ func (h *Handler) auth(connect net.Conn, data chan *AuthConn) {
 		return
 	}
 
-	if claims.Guard == "api" && detail.Channel == "chat" {
-		data <- &AuthConn{Uid: uid, conn: conn}
-	}
+	data <- &AuthConn{Uid: uid, conn: conn, Channel: detail.Channel}
 }

@@ -104,7 +104,7 @@ func (s *GroupService) Create(ctx context.Context, opts *CreateGroupOpt) (int, e
 			RecordId:      record.Id,
 			Type:          1,
 			OperateUserId: opts.UserId,
-			UserIds:       sliceutil.IntToIds(mids[0 : len(mids)-1]),
+			UserIds:       sliceutil.ToIds(mids[0 : len(mids)-1]),
 		}).Error; err != nil {
 			return err
 		}
@@ -327,7 +327,7 @@ func (s *GroupService) InviteMembers(ctx context.Context, opts *InviteGroupMembe
 			RecordId:      record.Id,
 			Type:          1,
 			OperateUserId: opts.UserId,
-			UserIds:       sliceutil.IntToIds(opts.MemberIds),
+			UserIds:       sliceutil.ToIds(opts.MemberIds),
 		}).Error; err != nil {
 			return err
 		}
@@ -403,7 +403,7 @@ func (s *GroupService) RemoveMembers(ctx context.Context, opts *RemoveMembersOpt
 			RecordId:      record.Id,
 			Type:          3,
 			OperateUserId: opts.UserId,
-			UserIds:       sliceutil.IntToIds(opts.MemberIds),
+			UserIds:       sliceutil.ToIds(opts.MemberIds),
 		}).Error; err != nil {
 			return err
 		}

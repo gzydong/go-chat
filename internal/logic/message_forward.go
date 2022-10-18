@@ -86,7 +86,7 @@ func (m *MessageForwardLogic) MultiMergeForward(ctx context.Context, uid int, re
 		ids = append(ids, int(id))
 	}
 
-	str := sliceutil.IntToIds(ids)
+	str := sliceutil.ToIds(ids)
 	err = m.db.Transaction(func(tx *gorm.DB) error {
 		forwards := make([]*model.TalkRecordsForward, 0, len(receives))
 		records := make([]*model.TalkRecords, 0, len(receives))

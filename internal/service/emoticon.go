@@ -52,7 +52,7 @@ func (s *EmoticonService) AddUserSysEmoticon(uid int, emoticonId int) error {
 
 	ids = append(ids, emoticonId)
 
-	return s.db.Model(&model.UsersEmoticon{}).Where("user_id = ?", uid).Update("emoticon_ids", sliceutil.IntToIds(ids)).Error
+	return s.db.Model(&model.UsersEmoticon{}).Where("user_id = ?", uid).Update("emoticon_ids", sliceutil.ToIds(ids)).Error
 }
 
 // DeleteCollect 删除自定义表情包
