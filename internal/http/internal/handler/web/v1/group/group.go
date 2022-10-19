@@ -250,7 +250,7 @@ func (c *Group) EditRemark(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	if err := c.memberService.CardEdit(params.GroupId, ctx.UserId(), params.VisitCard); err != nil {
+	if err := c.memberService.ChangeGroupNickname(params.GroupId, ctx.UserId(), params.VisitCard); err != nil {
 		return ctx.BusinessError("修改群备注失败！")
 	}
 

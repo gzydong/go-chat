@@ -57,9 +57,9 @@ func (m *MessageReceiver) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for TalkType
+	// no validation rules for talkType
 
-	// no validation rules for ReceiverId
+	// no validation rules for id
 
 	if len(errors) > 0 {
 		return MessageReceiverMultiError(errors)

@@ -18,7 +18,6 @@ func NewRedisClient(ctx context.Context, conf *config.Config) *redis.Client {
 		ReadTimeout: -1,
 	})
 
-	// 检测心跳
 	if _, err := client.Ping(ctx).Result(); err != nil {
 		panic(fmt.Errorf("redis client error: %s", err))
 	}

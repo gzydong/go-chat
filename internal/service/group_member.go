@@ -20,8 +20,8 @@ func (s *GroupMemberService) Dao() *dao.GroupMemberDao {
 	return s.dao
 }
 
-// CardEdit 修改群名片
-func (s *GroupMemberService) CardEdit(groupId int, userId int, remark string) error {
+// ChangeGroupNickname 修改群名片
+func (s *GroupMemberService) ChangeGroupNickname(groupId int, userId int, remark string) error {
 
 	_, err := s.dao.BaseUpdate(&model.GroupMember{}, entity.MapStrAny{"group_id": groupId, "user_id": userId}, entity.MapStrAny{"user_card": remark})
 

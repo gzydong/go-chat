@@ -59,6 +59,8 @@ func (s *GroupService) Create(ctx context.Context, opts *CreateGroupOpt) (int, e
 		MaxNum:    model.GroupMemberMaxNum,
 	}
 
+	joinTime := time.Now()
+
 	err = s.db.Transaction(func(tx *gorm.DB) error {
 		if err = tx.Create(group).Error; err != nil {
 			return err
@@ -71,9 +73,10 @@ func (s *GroupService) Create(ctx context.Context, opts *CreateGroupOpt) (int, e
 			}
 
 			members = append(members, &model.GroupMember{
-				GroupId: group.Id,
-				UserId:  val,
-				Leader:  leader,
+				GroupId:  group.Id,
+				UserId:   val,
+				Leader:   leader,
+				JoinTime: joinTime,
 			})
 
 			talkList = append(talkList, &model.TalkSession{

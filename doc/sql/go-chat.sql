@@ -279,7 +279,6 @@ CREATE TABLE `talk_records`
     `is_mark`     tinyint(4) unsigned NOT NULL DEFAULT '0' COMMENT '是否重要消息[0:否;1:是;]',
     `is_read`     tinyint(4) unsigned NOT NULL DEFAULT '0' COMMENT '是否已读[0:否;1:是;]',
     `quote_id`    int(11) unsigned NOT NULL DEFAULT '0' COMMENT '引用消息ID',
-    `warn_users`  varchar(200) NOT NULL DEFAULT '' COMMENT '@好友 、 多个用英文逗号 “,” 拼接 (0:代表所有人)',
     `content`     text CHARACTER SET utf8mb4 COMMENT '文本消息 {@nickname@}',
     `created_at`  datetime     NOT NULL COMMENT '创建时间',
     `updated_at`  datetime     NOT NULL COMMENT '更新时间',

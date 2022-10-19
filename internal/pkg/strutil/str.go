@@ -7,6 +7,8 @@ import (
 	"path"
 	"strings"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 // GenValidateCode 生成数字验证码
@@ -76,4 +78,8 @@ func BoolToInt(value bool) int {
 // FileSuffix 获取文件后缀名
 func FileSuffix(filename string) string {
 	return strings.TrimPrefix(path.Ext(filename), ".")
+}
+
+func NewUuid() string {
+	return uuid.New().String()
 }

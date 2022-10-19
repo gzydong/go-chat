@@ -43,6 +43,7 @@ func NewMessageService(baseService *BaseService, forward *logic.MessageForwardLo
 func (m *MessageService) SendText(ctx context.Context, uid int, req *message.TextMessageRequest) error {
 
 	data := &model.TalkRecords{
+		MsgId:      strutil.NewUuid(),
 		TalkType:   int(req.Receiver.TalkType),
 		MsgType:    entity.MsgTypeText,
 		UserId:     uid,
@@ -76,6 +77,7 @@ func (m *MessageService) SendImage(ctx context.Context, uid int, req *message.Im
 	}
 
 	data := &model.TalkRecords{
+		MsgId:      strutil.NewUuid(),
 		TalkType:   int(req.Receiver.TalkType),
 		MsgType:    entity.MsgTypeFile,
 		UserId:     uid,
@@ -125,6 +127,7 @@ func (m *MessageService) SendVoice(ctx context.Context, uid int, req *message.Vo
 	}
 
 	data := &model.TalkRecords{
+		MsgId:      strutil.NewUuid(),
 		TalkType:   int(req.Receiver.TalkType),
 		MsgType:    entity.MsgTypeFile,
 		UserId:     uid,
@@ -174,6 +177,7 @@ func (m *MessageService) SendVideo(ctx context.Context, uid int, req *message.Vi
 	}
 
 	data := &model.TalkRecords{
+		MsgId:      strutil.NewUuid(),
 		TalkType:   int(req.Receiver.TalkType),
 		MsgType:    entity.MsgTypeFile,
 		UserId:     uid,
@@ -229,6 +233,7 @@ func (m *MessageService) SendFile(ctx context.Context, uid int, req *message.Fil
 	}
 
 	data := &model.TalkRecords{
+		MsgId:      strutil.NewUuid(),
 		TalkType:   int(req.Receiver.TalkType),
 		MsgType:    entity.MsgTypeFile,
 		UserId:     uid,
@@ -273,6 +278,7 @@ func (m *MessageService) SendFile(ctx context.Context, uid int, req *message.Fil
 func (m *MessageService) SendCode(ctx context.Context, uid int, req *message.CodeMessageRequest) error {
 
 	data := &model.TalkRecords{
+		MsgId:      strutil.NewUuid(),
 		TalkType:   int(req.Receiver.TalkType),
 		MsgType:    entity.MsgTypeCode,
 		UserId:     uid,
@@ -311,6 +317,7 @@ func (m *MessageService) SendCode(ctx context.Context, uid int, req *message.Cod
 func (m *MessageService) SendVote(ctx context.Context, uid int, req *message.VoteMessageRequest) error {
 
 	data := &model.TalkRecords{
+		MsgId:      strutil.NewUuid(),
 		TalkType:   entity.ChatGroupMode,
 		MsgType:    entity.MsgTypeVote,
 		UserId:     uid,
@@ -369,6 +376,7 @@ func (m *MessageService) SendEmoticon(ctx context.Context, uid int, req *message
 	}
 
 	data := &model.TalkRecords{
+		MsgId:      strutil.NewUuid(),
 		TalkType:   int(req.Receiver.TalkType),
 		MsgType:    entity.MsgTypeFile,
 		UserId:     uid,
@@ -446,6 +454,7 @@ func (m *MessageService) SendForward(ctx context.Context, uid int, req *message.
 func (m *MessageService) SendLocation(ctx context.Context, uid int, req *message.LocationMessageRequest) error {
 
 	data := &model.TalkRecords{
+		MsgId:      strutil.NewUuid(),
 		TalkType:   int(req.Receiver.TalkType),
 		MsgType:    entity.MsgTypeLocation,
 		UserId:     uid,
@@ -490,6 +499,7 @@ func (m *MessageService) SendBusinessCard(ctx context.Context, uid int) error {
 func (m *MessageService) SendLogin(ctx context.Context, uid int, req *message.LoginMessageRequest) error {
 
 	data := &model.TalkRecords{
+		MsgId:      strutil.NewUuid(),
 		Sequence:   m.Sequence.Seq(ctx, 4257, uid),
 		TalkType:   entity.ChatPrivateMode,
 		MsgType:    entity.MsgTypeLogin,

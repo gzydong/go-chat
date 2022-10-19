@@ -14,7 +14,6 @@ type TalkRecords struct {
 	IsMark     int       `gorm:"column:is_mark;default:0;NOT NULL" json:"is_mark"`         // 是否重要消息[0:否;1:是;]
 	IsRead     int       `gorm:"column:is_read;default:0;NOT NULL" json:"is_read"`         // 是否已读[0:否;1:是;]
 	QuoteId    int       `gorm:"column:quote_id;default:0;NOT NULL" json:"quote_id"`       // 引用消息ID
-	WarnUsers  string    `gorm:"column:warn_users;NOT NULL" json:"warn_users"`             // @好友 、 多个用英文逗号 “,” 拼接 (0:代表所有人)
 	Content    string    `gorm:"column:content" json:"content"`                            // 文本消息 {@nickname@}
 	CreatedAt  time.Time `gorm:"column:created_at;NOT NULL" json:"created_at"`             // 创建时间
 	UpdatedAt  time.Time `gorm:"column:updated_at;NOT NULL" json:"updated_at"`             // 更新时间
@@ -31,7 +30,6 @@ type QueryTalkRecordsItem struct {
 	IsMark     int       `json:"is_mark"`
 	IsRead     int       `json:"is_read"`
 	QuoteId    int       `json:"quote_id"`
-	WarnUsers  string    `json:"warn_users"`
 	Content    string    `json:"content"`
 	CreatedAt  time.Time `json:"created_at"`
 	Nickname   string    `json:"nickname"`

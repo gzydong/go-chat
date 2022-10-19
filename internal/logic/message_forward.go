@@ -10,21 +10,18 @@ import (
 	"go-chat/internal/pkg/jsonutil"
 	"go-chat/internal/pkg/sliceutil"
 	"go-chat/internal/pkg/strutil"
+	"go-chat/internal/repository/cache"
 	"go-chat/internal/repository/model"
 	"gorm.io/gorm"
 )
 
 type MessageForwardLogic struct {
-	db *gorm.DB
+	db       *gorm.DB
+	sequence *cache.Sequence
 }
 
-func NewMessageForwardLogic(db *gorm.DB) *MessageForwardLogic {
-	return &MessageForwardLogic{db: db}
-}
-
-type receive struct {
-	ReceiverId int
-	TalkType   int
+func NewMessageForwardLogic(db *gorm.DB, sequence *cache.Sequence) *MessageForwardLogic {
+	return &MessageForwardLogic{db: db, sequence: sequence}
 }
 
 type ForwardRecord struct {
@@ -64,16 +61,22 @@ func (m *MessageForwardLogic) Verify(ctx context.Context, uid int, req *message.
 // MultiMergeForward 批量合并转发
 func (m *MessageForwardLogic) MultiMergeForward(ctx context.Context, uid int, req *message.ForwardMessageRequest) ([]*ForwardRecord, error) {
 	var (
-		receives = make([]*receive, 0)
+		receives = make([]map[string]int, 0)
 		arr      = make([]*ForwardRecord, 0)
 	)
 
 	for _, uid := range req.Uids {
-		receives = append(receives, &receive{int(uid), 1})
+		receives = append(receives, map[string]int{
+			"id":   int(uid),
+			"type": 1,
+		})
 	}
 
 	for _, gid := range req.Gids {
-		receives = append(receives, &receive{int(gid), 2})
+		receives = append(receives, map[string]int{
+			"id":   int(gid),
+			"type": 2,
+		})
 	}
 
 	text, err := m.aggregation(ctx, req)
@@ -92,12 +95,22 @@ func (m *MessageForwardLogic) MultiMergeForward(ctx context.Context, uid int, re
 		records := make([]*model.TalkRecords, 0, len(receives))
 
 		for _, item := range receives {
-			records = append(records, &model.TalkRecords{
-				TalkType:   item.TalkType,
+
+			data := &model.TalkRecords{
+				MsgId:      strutil.NewUuid(),
+				TalkType:   item["type"],
 				MsgType:    entity.MsgTypeForward,
 				UserId:     uid,
-				ReceiverId: item.ReceiverId,
-			})
+				ReceiverId: item["id"],
+			}
+
+			if data.TalkType == entity.ChatGroupMode {
+				data.Sequence = m.sequence.Seq(ctx, 0, data.ReceiverId)
+			} else {
+				data.Sequence = m.sequence.Seq(ctx, uid, data.ReceiverId)
+			}
+
+			records = append(records, data)
 		}
 
 		if err := tx.Create(records).Error; err != nil {
@@ -136,7 +149,7 @@ func (m *MessageForwardLogic) MultiMergeForward(ctx context.Context, uid int, re
 // MultiSplitForward 批量逐条转发
 func (m *MessageForwardLogic) MultiSplitForward(ctx context.Context, uid int, req *message.ForwardMessageRequest) ([]*ForwardRecord, error) {
 	var (
-		receives  = make([]*receive, 0)
+		receives  = make([]map[string]int, 0)
 		arr       = make([]*ForwardRecord, 0)
 		records   = make([]*model.TalkRecords, 0)
 		hashFiles = make(map[int]*model.TalkRecordsFile)
@@ -144,11 +157,17 @@ func (m *MessageForwardLogic) MultiSplitForward(ctx context.Context, uid int, re
 	)
 
 	for _, uid := range req.Uids {
-		receives = append(receives, &receive{int(uid), 1})
+		receives = append(receives, map[string]int{
+			"id":   int(uid),
+			"type": 1,
+		})
 	}
 
 	for _, gid := range req.Gids {
-		receives = append(receives, &receive{int(gid), 2})
+		receives = append(receives, map[string]int{
+			"id":   int(gid),
+			"type": 2,
+		})
 	}
 
 	if err := m.db.Model(&model.TalkRecords{}).Where("id IN ?", req.MessageIds).Scan(&records).Error; err != nil {
@@ -190,14 +209,23 @@ func (m *MessageForwardLogic) MultiSplitForward(ctx context.Context, uid int, re
 			files := make([]*model.TalkRecordsFile, 0)
 			codes := make([]*model.TalkRecordsCode, 0)
 
-			for _, val := range receives {
-				items = append(items, &model.TalkRecords{
-					TalkType:   val.TalkType,
+			for _, v := range receives {
+				data := &model.TalkRecords{
+					MsgId:      strutil.NewUuid(),
+					TalkType:   v["type"],
 					MsgType:    item.MsgType,
 					UserId:     uid,
-					ReceiverId: val.ReceiverId,
+					ReceiverId: v["id"],
 					Content:    item.Content,
-				})
+				}
+
+				if data.TalkType == entity.ChatGroupMode {
+					data.Sequence = m.sequence.Seq(ctx, 0, data.ReceiverId)
+				} else {
+					data.Sequence = m.sequence.Seq(ctx, uid, data.ReceiverId)
+				}
+
+				items = append(items, data)
 			}
 
 			if err := tx.Create(items).Error; err != nil {

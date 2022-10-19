@@ -7,7 +7,7 @@ import (
 	"go-chat/internal/pkg/client"
 )
 
-const timeout = 10 * time.Second
+const timeout = 5 * time.Second
 
 func NewHttpClient() *http.Client {
 	return &http.Client{

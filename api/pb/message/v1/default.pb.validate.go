@@ -190,7 +190,7 @@ func (m *KeyboardMessage_Data) validate(all bool) error {
 
 	// no validation rules for SenderId
 
-	// no validation rules for ReceiverId
+	// no validation rules for id
 
 	if len(errors) > 0 {
 		return KeyboardMessage_DataMultiError(errors)

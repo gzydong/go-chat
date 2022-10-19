@@ -23,7 +23,7 @@ func NewMessageStorage(rds *redis.Client) *MessageStorage {
 	return &MessageStorage{rds}
 }
 
-func (m *MessageStorage) Key(talkType int, sender int, receive int) string {
+func (m *MessageStorage) name(talkType int, sender int, receive int) string {
 	if talkType == 2 {
 		sender = 0
 	}
@@ -38,12 +38,12 @@ func (m *MessageStorage) Key(talkType int, sender int, receive int) string {
 func (m *MessageStorage) Set(ctx context.Context, talkType int, sender int, receive int, message *LastCacheMessage) error {
 	text := jsonutil.Encode(message)
 
-	return m.rds.HSet(ctx, lastMessageCacheKey, m.Key(talkType, sender, receive), text).Err()
+	return m.rds.HSet(ctx, lastMessageCacheKey, m.name(talkType, sender, receive), text).Err()
 }
 
 func (m *MessageStorage) Get(ctx context.Context, talkType int, sender int, receive int) (*LastCacheMessage, error) {
 
-	res, err := m.rds.HGet(ctx, lastMessageCacheKey, m.Key(talkType, sender, receive)).Result()
+	res, err := m.rds.HGet(ctx, lastMessageCacheKey, m.name(talkType, sender, receive)).Result()
 	if err != nil {
 		return nil, err
 	}
