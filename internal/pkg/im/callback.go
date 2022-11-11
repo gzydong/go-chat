@@ -57,18 +57,21 @@ func (c *ClientCallback) Destroy(client IClient) {
 	}
 }
 
+// WithOpenCallback 绑定连接成功回调事件
 func WithOpenCallback(call OpenCallback) ClientCallbackOption {
 	return func(callBack *ClientCallback) {
 		callBack.open = call
 	}
 }
 
+// WithMessageCallback 绑定消息回调事件
 func WithMessageCallback(call MessageCallback) ClientCallbackOption {
 	return func(callBack *ClientCallback) {
 		callBack.message = call
 	}
 }
 
+// WithCloseCallback 绑定连接关闭回调事件
 func WithCloseCallback(call CloseCallback) ClientCallbackOption {
 	return func(callBack *ClientCallback) {
 		callBack.close = call

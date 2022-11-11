@@ -89,7 +89,7 @@ func NewClient(ctx context.Context, conn IConn, opt *ClientOptions, callBack ICa
 	// 注册客户端
 	client.channel.addClient(client)
 
-	// 触发自定义的 open 事件
+	// 触发自定义的 Open 事件
 	client.callBack.Open(client)
 
 	// 注册心跳管理
@@ -197,9 +197,9 @@ func (c *Client) loopAccept() {
 		}
 
 		switch result.String() {
-		case "SendHeartbeat": // 心跳消息判断
+		case "heartbeat": // 心跳消息判断
 			_ = c.Write(&ClientOutContent{
-				Content: jsonutil.Marshal(&Message{"SendHeartbeat", "pong"}),
+				Content: jsonutil.Marshal(&Message{"heartbeat", "pong"}),
 			})
 		default:
 			// 触发消息回调
