@@ -10,8 +10,8 @@ import (
 	"go-chat/internal/pkg/sliceutil"
 	"go-chat/internal/pkg/timeutil"
 	"go-chat/internal/repository/cache"
-	"go-chat/internal/repository/dao"
 	"go-chat/internal/repository/model"
+	"go-chat/internal/repository/repo"
 )
 
 type TalkRecordsItem struct {
@@ -40,16 +40,16 @@ type TalkRecordsItem struct {
 type TalkRecordsService struct {
 	*BaseService
 	talkVoteCache      *cache.TalkVote
-	talkRecordsVoteDao *dao.TalkRecordsVoteDao
-	groupMemberDao     *dao.GroupMemberDao
-	dao                *dao.TalkRecordsDao
+	talkRecordsVoteDao *repo.TalkRecordsVote
+	groupMemberDao     *repo.GroupMember
+	dao                *repo.TalkRecords
 }
 
-func NewTalkRecordsService(baseService *BaseService, talkVoteCache *cache.TalkVote, talkRecordsVoteDao *dao.TalkRecordsVoteDao, groupMemberDao *dao.GroupMemberDao, dao *dao.TalkRecordsDao) *TalkRecordsService {
+func NewTalkRecordsService(baseService *BaseService, talkVoteCache *cache.TalkVote, talkRecordsVoteDao *repo.TalkRecordsVote, groupMemberDao *repo.GroupMember, dao *repo.TalkRecords) *TalkRecordsService {
 	return &TalkRecordsService{BaseService: baseService, talkVoteCache: talkVoteCache, talkRecordsVoteDao: talkRecordsVoteDao, groupMemberDao: groupMemberDao, dao: dao}
 }
 
-func (s *TalkRecordsService) Dao() *dao.TalkRecordsDao {
+func (s *TalkRecordsService) Dao() *repo.TalkRecords {
 	return s.dao
 }
 

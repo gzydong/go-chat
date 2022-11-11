@@ -7,16 +7,16 @@ import (
 
 	"go-chat/internal/entity"
 	"go-chat/internal/pkg/sliceutil"
-	"go-chat/internal/repository/dao"
 	"go-chat/internal/repository/model"
+	"go-chat/internal/repository/repo"
 )
 
 type TalkService struct {
 	*BaseService
-	groupMemberDao *dao.GroupMemberDao
+	groupMemberDao *repo.GroupMember
 }
 
-func NewTalkService(baseService *BaseService, groupMemberDao *dao.GroupMemberDao) *TalkService {
+func NewTalkService(baseService *BaseService, groupMemberDao *repo.GroupMember) *TalkService {
 	return &TalkService{BaseService: baseService, groupMemberDao: groupMemberDao}
 }
 

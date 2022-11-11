@@ -1,4 +1,4 @@
-package dao
+package repo
 
 import (
 	"context"
@@ -6,15 +6,15 @@ import (
 	"go-chat/internal/repository/model"
 )
 
-type GroupNoticeDao struct {
-	*BaseDao
+type GroupNotice struct {
+	*Base
 }
 
-func NewGroupNoticeDao(baseDao *BaseDao) *GroupNoticeDao {
-	return &GroupNoticeDao{BaseDao: baseDao}
+func NewGroupNotice(baseDao *Base) *GroupNotice {
+	return &GroupNotice{Base: baseDao}
 }
 
-func (dao *GroupNoticeDao) GetListAll(ctx context.Context, groupId int) ([]*model.SearchNoticeItem, error) {
+func (repo *GroupNotice) GetListAll(ctx context.Context, groupId int) ([]*model.SearchNoticeItem, error) {
 
 	fields := []string{
 		"group_notice.id",
@@ -30,7 +30,7 @@ func (dao *GroupNoticeDao) GetListAll(ctx context.Context, groupId int) ([]*mode
 		"users.nickname",
 	}
 
-	query := dao.Db().Table("group_notice")
+	query := repo.Db().Table("group_notice")
 	query.Joins("left join users on users.id = group_notice.creator_id")
 	query.Where("group_notice.group_id = ? and group_notice.is_delete = ?", groupId, 0)
 	query.Order("group_notice.is_top desc")
@@ -45,10 +45,10 @@ func (dao *GroupNoticeDao) GetListAll(ctx context.Context, groupId int) ([]*mode
 }
 
 // GetLatestNotice 获取最新公告
-func (dao *GroupNoticeDao) GetLatestNotice(ctx context.Context, groupId int) (*model.GroupNotice, error) {
+func (repo *GroupNotice) GetLatestNotice(ctx context.Context, groupId int) (*model.GroupNotice, error) {
 	info := &model.GroupNotice{}
 
-	err := dao.Db().Last(info, "group_id = ? and is_delete = ?", groupId, 0).Error
+	err := repo.Db().Last(info, "group_id = ? and is_delete = ?", groupId, 0).Error
 	if err != nil {
 		return nil, err
 	}

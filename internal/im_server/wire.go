@@ -16,7 +16,7 @@ import (
 	"go-chat/internal/im_server/internal/router"
 	"go-chat/internal/provider"
 	"go-chat/internal/repository/cache"
-	"go-chat/internal/repository/dao"
+	"go-chat/internal/repository/repo"
 	"go-chat/internal/service"
 
 	"github.com/google/wire"
@@ -51,11 +51,11 @@ var providerSet = wire.NewSet(
 	cache.NewSequence,
 
 	// dao 数据层
-	dao.NewBaseDao,
-	dao.NewTalkRecordsDao,
-	dao.NewTalkRecordsVoteDao,
-	dao.NewGroupMemberDao,
-	dao.NewContactDao,
+	repo.NewBase,
+	repo.NewTalkRecords,
+	repo.NewTalkRecordsVote,
+	repo.NewGroupMember,
+	repo.NewContact,
 
 	chat.NewHandler,
 

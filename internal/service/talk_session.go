@@ -9,21 +9,21 @@ import (
 	"time"
 
 	"go-chat/internal/pkg/timeutil"
-	"go-chat/internal/repository/dao"
 	"go-chat/internal/repository/model"
+	"go-chat/internal/repository/repo"
 	"gorm.io/gorm"
 )
 
 type TalkSessionService struct {
 	*BaseService
-	dao *dao.TalkSessionDao
+	dao *repo.TalkSession
 }
 
-func NewTalkSessionService(base *BaseService, dao *dao.TalkSessionDao) *TalkSessionService {
+func NewTalkSessionService(base *BaseService, dao *repo.TalkSession) *TalkSessionService {
 	return &TalkSessionService{base, dao}
 }
 
-func (s *TalkSessionService) Dao() *dao.TalkSessionDao {
+func (s *TalkSessionService) Dao() *repo.TalkSession {
 	return s.dao
 }
 

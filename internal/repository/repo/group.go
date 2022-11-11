@@ -1,4 +1,4 @@
-package dao
+package repo
 
 import (
 	"context"
@@ -6,27 +6,27 @@ import (
 	"go-chat/internal/repository/model"
 )
 
-type GroupDao struct {
-	*BaseDao
+type Group struct {
+	*Base
 }
 
-func NewGroupDao(baseDao *BaseDao) *GroupDao {
-	return &GroupDao{BaseDao: baseDao}
+func NewGroup(baseDao *Base) *Group {
+	return &Group{Base: baseDao}
 }
 
-func (dao *GroupDao) FindById(id int) (*model.Group, error) {
+func (repo *Group) FindById(id int) (*model.Group, error) {
 	info := &model.Group{}
 
-	if err := dao.Db().First(&info, id).Error; err != nil {
+	if err := repo.Db().First(&info, id).Error; err != nil {
 		return nil, err
 	}
 
 	return info, nil
 }
 
-func (dao *GroupDao) SearchOvertList(ctx context.Context, name string, page, size int) ([]*model.Group, error) {
+func (repo *Group) SearchOvertList(ctx context.Context, name string, page, size int) ([]*model.Group, error) {
 
-	tx := dao.Db().Table("group")
+	tx := repo.Db().Table("group")
 
 	if name != "" {
 		tx.Where("group_name LIKE ?", "%"+name+"%")

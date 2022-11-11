@@ -7,21 +7,21 @@ import (
 
 	"go-chat/internal/pkg/filesystem"
 	"go-chat/internal/pkg/sliceutil"
-	"go-chat/internal/repository/dao"
 	"go-chat/internal/repository/model"
+	"go-chat/internal/repository/repo"
 )
 
 type EmoticonService struct {
 	*BaseService
-	dao        *dao.EmoticonDao
+	dao        *repo.Emoticon
 	fileSystem *filesystem.Filesystem
 }
 
-func NewEmoticonService(baseService *BaseService, dao *dao.EmoticonDao, fileSystem *filesystem.Filesystem) *EmoticonService {
+func NewEmoticonService(baseService *BaseService, dao *repo.Emoticon, fileSystem *filesystem.Filesystem) *EmoticonService {
 	return &EmoticonService{BaseService: baseService, dao: dao, fileSystem: fileSystem}
 }
 
-func (s *EmoticonService) Dao() *dao.EmoticonDao {
+func (s *EmoticonService) Dao() *repo.Emoticon {
 	return s.dao
 }
 

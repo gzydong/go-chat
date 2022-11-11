@@ -5,22 +5,22 @@ import (
 
 	"go-chat/internal/pkg/filesystem"
 	"go-chat/internal/pkg/timeutil"
-	"go-chat/internal/repository/dao/note"
 	"go-chat/internal/repository/model"
+	"go-chat/internal/repository/repo/note"
 	"go-chat/internal/service"
 )
 
 type ArticleAnnexService struct {
 	*service.BaseService
-	dao        *note.ArticleAnnexDao
+	dao        *note.ArticleAnnex
 	fileSystem *filesystem.Filesystem
 }
 
-func NewArticleAnnexService(baseService *service.BaseService, dao *note.ArticleAnnexDao, fileSystem *filesystem.Filesystem) *ArticleAnnexService {
+func NewArticleAnnexService(baseService *service.BaseService, dao *note.ArticleAnnex, fileSystem *filesystem.Filesystem) *ArticleAnnexService {
 	return &ArticleAnnexService{BaseService: baseService, dao: dao, fileSystem: fileSystem}
 }
 
-func (s *ArticleAnnexService) Dao() *note.ArticleAnnexDao {
+func (s *ArticleAnnexService) Dao() *note.ArticleAnnex {
 	return s.dao
 }
 

@@ -1,4 +1,4 @@
-package dao
+package repo
 
 import (
 	"github.com/go-redis/redis/v8"
@@ -10,21 +10,21 @@ type IBaseDao interface {
 	BaseUpdate(model interface{}, where entity.MapStrAny, data entity.MapStrAny) (int, error)
 }
 
-type BaseDao struct {
+type Base struct {
 	db  *gorm.DB
 	rds *redis.Client
 }
 
-func NewBaseDao(db *gorm.DB, rds *redis.Client) *BaseDao {
-	return &BaseDao{db: db, rds: rds}
+func NewBase(db *gorm.DB, rds *redis.Client) *Base {
+	return &Base{db: db, rds: rds}
 }
 
-func (dao *BaseDao) Db() *gorm.DB {
-	return dao.db
+func (b *Base) Db() *gorm.DB {
+	return b.db
 }
 
 // BaseUpdate 批量更新
-func (dao *BaseDao) BaseUpdate(model interface{}, where entity.MapStrAny, data entity.MapStrAny) (int, error) {
+func (b *Base) BaseUpdate(model interface{}, where entity.MapStrAny, data entity.MapStrAny) (int, error) {
 	fields := make([]string, 0, len(data))
 	values := make(map[string]interface{})
 
@@ -34,7 +34,7 @@ func (dao *BaseDao) BaseUpdate(model interface{}, where entity.MapStrAny, data e
 		values[field] = value
 	}
 
-	tx := dao.db.Model(model).Select(fields)
+	tx := b.db.Model(model).Select(fields)
 
 	for key, val := range where {
 		tx.Where(key, val)

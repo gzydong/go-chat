@@ -5,18 +5,18 @@ import (
 	"errors"
 
 	"go-chat/internal/entity"
-	"go-chat/internal/repository/dao"
-	"go-chat/internal/repository/dao/organize"
 	"go-chat/internal/repository/model"
+	"go-chat/internal/repository/repo"
+	"go-chat/internal/repository/repo/organize"
 	"gorm.io/gorm"
 )
 
 type TalkAuthService struct {
-	organize *organize.OrganizeDao
-	contact  *dao.ContactDao
+	organize *organize.Organize
+	contact  *repo.Contact
 }
 
-func NewTalkAuthService(organize *organize.OrganizeDao, contact *dao.ContactDao) *TalkAuthService {
+func NewTalkAuthService(organize *organize.Organize, contact *repo.Contact) *TalkAuthService {
 	return &TalkAuthService{organize: organize, contact: contact}
 }
 

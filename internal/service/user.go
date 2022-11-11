@@ -4,20 +4,20 @@ import (
 	"errors"
 
 	"go-chat/internal/pkg/encrypt"
-	"go-chat/internal/repository/dao"
 	"go-chat/internal/repository/model"
+	"go-chat/internal/repository/repo"
 	"gorm.io/gorm"
 )
 
 type UserService struct {
-	dao *dao.UsersDao
+	dao *repo.Users
 }
 
-func NewUserService(userDao *dao.UsersDao) *UserService {
+func NewUserService(userDao *repo.Users) *UserService {
 	return &UserService{dao: userDao}
 }
 
-func (s *UserService) Dao() *dao.UsersDao {
+func (s *UserService) Dao() *repo.Users {
 	return s.dao
 }
 

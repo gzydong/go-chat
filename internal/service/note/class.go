@@ -4,8 +4,8 @@ import (
 	"context"
 	"errors"
 
-	"go-chat/internal/repository/dao/note"
 	"go-chat/internal/repository/model"
+	"go-chat/internal/repository/repo/note"
 	"gorm.io/gorm"
 
 	"go-chat/internal/service"
@@ -13,10 +13,10 @@ import (
 
 type ArticleClassService struct {
 	*service.BaseService
-	dao *note.ArticleClassDao
+	dao *note.ArticleClass
 }
 
-func NewArticleClassService(baseService *service.BaseService, dao *note.ArticleClassDao) *ArticleClassService {
+func NewArticleClassService(baseService *service.BaseService, dao *note.ArticleClass) *ArticleClassService {
 	return &ArticleClassService{BaseService: baseService, dao: dao}
 }
 

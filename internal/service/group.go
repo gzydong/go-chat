@@ -7,8 +7,8 @@ import (
 	"time"
 
 	"go-chat/internal/repository/cache"
-	"go-chat/internal/repository/dao"
 	"go-chat/internal/repository/model"
+	"go-chat/internal/repository/repo"
 	"gorm.io/gorm"
 
 	"go-chat/internal/entity"
@@ -19,16 +19,16 @@ import (
 
 type GroupService struct {
 	*BaseService
-	dao       *dao.GroupDao
-	memberDao *dao.GroupMemberDao
+	dao       *repo.Group
+	memberDao *repo.GroupMember
 	relation  *cache.Relation
 }
 
-func NewGroupService(baseService *BaseService, dao *dao.GroupDao, memberDao *dao.GroupMemberDao, relation *cache.Relation) *GroupService {
+func NewGroupService(baseService *BaseService, dao *repo.Group, memberDao *repo.GroupMember, relation *cache.Relation) *GroupService {
 	return &GroupService{BaseService: baseService, dao: dao, memberDao: memberDao, relation: relation}
 }
 
-func (s *GroupService) Dao() *dao.GroupDao {
+func (s *GroupService) Dao() *repo.Group {
 	return s.dao
 }
 

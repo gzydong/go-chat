@@ -4,21 +4,21 @@ import (
 	"context"
 	"errors"
 
-	"go-chat/internal/repository/dao"
 	"go-chat/internal/repository/model"
+	"go-chat/internal/repository/repo"
 )
 
 type GroupApplyService struct {
 	*BaseService
-	dao *dao.GroupApplyDao
+	repo *repo.GroupApply
 }
 
-func NewGroupApplyService(baseService *BaseService, dao *dao.GroupApplyDao) *GroupApplyService {
-	return &GroupApplyService{BaseService: baseService, dao: dao}
+func NewGroupApplyService(baseService *BaseService, repo *repo.GroupApply) *GroupApplyService {
+	return &GroupApplyService{BaseService: baseService, repo: repo}
 }
 
-func (s *GroupApplyService) Dao() *dao.GroupApplyDao {
-	return s.dao
+func (s *GroupApplyService) Dao() *repo.GroupApply {
+	return s.repo
 }
 
 func (s *GroupApplyService) Auth(ctx context.Context, applyId, userId int) bool {

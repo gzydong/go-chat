@@ -1,4 +1,4 @@
-package dao
+package repo
 
 import (
 	"context"
@@ -6,15 +6,15 @@ import (
 	"go-chat/internal/repository/model"
 )
 
-type GroupApplyDao struct {
-	*BaseDao
+type GroupApply struct {
+	*Base
 }
 
-func NewGroupApply(baseDao *BaseDao) *GroupApplyDao {
-	return &GroupApplyDao{BaseDao: baseDao}
+func NewGroupApply(baseDao *Base) *GroupApply {
+	return &GroupApply{Base: baseDao}
 }
 
-func (dao *GroupApplyDao) List(ctx context.Context, groupId int) ([]*model.GroupApplyList, error) {
+func (repo *GroupApply) List(ctx context.Context, groupId int) ([]*model.GroupApplyList, error) {
 
 	fields := []string{
 		"group_apply.id",
@@ -26,7 +26,7 @@ func (dao *GroupApplyDao) List(ctx context.Context, groupId int) ([]*model.Group
 		"users.nickname",
 	}
 
-	query := dao.Db().Table("group_apply")
+	query := repo.Db().Table("group_apply")
 	query.Joins("left join users on users.id = group_apply.user_id")
 	query.Where("group_apply.group_id = ?", groupId)
 	query.Order("group_apply.created_at desc")

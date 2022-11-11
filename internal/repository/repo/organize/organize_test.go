@@ -5,12 +5,12 @@ import (
 	"testing"
 
 	"go-chat/internal/pkg/jsonutil"
-	"go-chat/internal/repository/dao"
+	"go-chat/internal/repository/repo"
 	"go-chat/testutil"
 )
 
-func newTestOrganizeDao(t *testing.T) *OrganizeDao {
-	return NewOrganizeDao(dao.NewBaseDao(testutil.GetDb(), testutil.TestRedisClient()))
+func newTestOrganizeDao(t *testing.T) *Organize {
+	return NewOrganize(repo.NewBase(testutil.GetDb(), testutil.TestRedisClient()))
 }
 
 func TestOrganizeDao_FindAll(t *testing.T) {

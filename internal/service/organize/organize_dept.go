@@ -1,16 +1,16 @@
 package organize
 
 import (
-	"go-chat/internal/repository/dao/organize"
+	"go-chat/internal/repository/repo/organize"
 	"go-chat/internal/service"
 )
 
 type DeptService struct {
 	*service.BaseService
-	dao *organize.DepartmentDao
+	dao *organize.Department
 }
 
-func NewOrganizeDeptService(baseService *service.BaseService, dao *organize.DepartmentDao) *DeptService {
+func NewOrganizeDeptService(baseService *service.BaseService, dao *organize.Department) *DeptService {
 	return &DeptService{BaseService: baseService, dao: dao}
 }
 

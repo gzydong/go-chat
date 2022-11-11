@@ -13,8 +13,8 @@ import (
 
 	"github.com/sirupsen/logrus"
 	"go-chat/internal/repository/cache"
-	"go-chat/internal/repository/dao"
 	"go-chat/internal/repository/model"
+	"go-chat/internal/repository/repo"
 	"gorm.io/gorm"
 
 	"go-chat/config"
@@ -32,15 +32,15 @@ type TalkMessageService struct {
 	config             *config.Config
 	unreadTalkCache    *cache.UnreadStorage
 	lastMessage        *cache.MessageStorage
-	talkRecordsVoteDao *dao.TalkRecordsVoteDao
-	groupMemberDao     *dao.GroupMemberDao
+	talkRecordsVoteDao *repo.TalkRecordsVote
+	groupMemberDao     *repo.GroupMember
 	sidServer          *cache.ServerStorage
 	client             *cache.ClientStorage
 	fileSystem         *filesystem.Filesystem
-	splitUploadDao     *dao.SplitUploadDao
+	splitUploadDao     *repo.SplitUpload
 }
 
-func NewTalkMessageService(baseService *BaseService, config *config.Config, unreadTalkCache *cache.UnreadStorage, lastMessage *cache.MessageStorage, talkRecordsVoteDao *dao.TalkRecordsVoteDao, groupMemberDao *dao.GroupMemberDao, sidServer *cache.ServerStorage, client *cache.ClientStorage, fileSystem *filesystem.Filesystem, splitUploadDao *dao.SplitUploadDao) *TalkMessageService {
+func NewTalkMessageService(baseService *BaseService, config *config.Config, unreadTalkCache *cache.UnreadStorage, lastMessage *cache.MessageStorage, talkRecordsVoteDao *repo.TalkRecordsVote, groupMemberDao *repo.GroupMember, sidServer *cache.ServerStorage, client *cache.ClientStorage, fileSystem *filesystem.Filesystem, splitUploadDao *repo.SplitUpload) *TalkMessageService {
 	return &TalkMessageService{BaseService: baseService, config: config, unreadTalkCache: unreadTalkCache, lastMessage: lastMessage, talkRecordsVoteDao: talkRecordsVoteDao, groupMemberDao: groupMemberDao, sidServer: sidServer, client: client, fileSystem: fileSystem, splitUploadDao: splitUploadDao}
 }
 

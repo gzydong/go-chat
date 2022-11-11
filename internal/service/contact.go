@@ -3,20 +3,20 @@ package service
 import (
 	"context"
 
-	"go-chat/internal/repository/dao"
 	"go-chat/internal/repository/model"
+	"go-chat/internal/repository/repo"
 )
 
 type ContactService struct {
 	*BaseService
-	dao *dao.ContactDao
+	dao *repo.Contact
 }
 
-func NewContactService(baseService *BaseService, dao *dao.ContactDao) *ContactService {
+func NewContactService(baseService *BaseService, dao *repo.Contact) *ContactService {
 	return &ContactService{BaseService: baseService, dao: dao}
 }
 
-func (s *ContactService) Dao() dao.IContactDao {
+func (s *ContactService) Dao() repo.IContactDao {
 	return s.dao
 }
 

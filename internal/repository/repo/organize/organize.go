@@ -1,8 +1,8 @@
 package organize
 
 import (
-	"go-chat/internal/repository/dao"
 	"go-chat/internal/repository/model"
+	"go-chat/internal/repository/repo"
 )
 
 type IOrganizeDao interface {
@@ -10,12 +10,12 @@ type IOrganizeDao interface {
 	IsQiyeMember(uid ...int) (bool, error)
 }
 
-type OrganizeDao struct {
-	*dao.BaseDao
+type Organize struct {
+	*repo.Base
 }
 
-func NewOrganizeDao(baseDao *dao.BaseDao) *OrganizeDao {
-	return &OrganizeDao{BaseDao: baseDao}
+func NewOrganize(baseDao *repo.Base) *Organize {
+	return &Organize{Base: baseDao}
 }
 
 type UserInfo struct {
@@ -26,9 +26,9 @@ type UserInfo struct {
 	Position   string `json:"position"`
 }
 
-func (o *OrganizeDao) FindAll() ([]*UserInfo, error) {
+func (repo *Organize) FindAll() ([]*UserInfo, error) {
 
-	tx := o.Db().Table("organize")
+	tx := repo.Db().Table("organize")
 	tx.Select([]string{
 		"organize.user_id", "organize.department", "organize.position",
 		"users.nickname", "users.gender",
@@ -44,10 +44,10 @@ func (o *OrganizeDao) FindAll() ([]*UserInfo, error) {
 }
 
 // IsQiyeMember 判断是否是企业成员
-func (o *OrganizeDao) IsQiyeMember(uid ...int) (bool, error) {
+func (repo *Organize) IsQiyeMember(uid ...int) (bool, error) {
 
 	var count int64
-	err := o.Db().Model(model.Organize{}).Where("user_id in ?", uid).Count(&count).Error
+	err := repo.Db().Model(model.Organize{}).Where("user_id in ?", uid).Count(&count).Error
 	if err != nil {
 		return false, err
 	}

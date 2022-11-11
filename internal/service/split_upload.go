@@ -10,8 +10,8 @@ import (
 	"strings"
 
 	"github.com/tencentyun/cos-go-sdk-v5"
-	"go-chat/internal/repository/dao"
 	"go-chat/internal/repository/model"
+	"go-chat/internal/repository/repo"
 
 	"go-chat/config"
 	"go-chat/internal/entity"
@@ -38,16 +38,16 @@ type MultipartUploadOpts struct {
 
 type SplitUploadService struct {
 	*BaseService
-	dao        *dao.SplitUploadDao
+	dao        *repo.SplitUpload
 	conf       *config.Config
 	fileSystem *filesystem.Filesystem
 }
 
-func NewSplitUploadService(baseService *BaseService, dao *dao.SplitUploadDao, conf *config.Config, fileSystem *filesystem.Filesystem) *SplitUploadService {
+func NewSplitUploadService(baseService *BaseService, dao *repo.SplitUpload, conf *config.Config, fileSystem *filesystem.Filesystem) *SplitUploadService {
 	return &SplitUploadService{BaseService: baseService, dao: dao, conf: conf, fileSystem: fileSystem}
 }
 
-func (s *SplitUploadService) Dao() *dao.SplitUploadDao {
+func (s *SplitUploadService) Dao() *repo.SplitUpload {
 	return s.dao
 }
 

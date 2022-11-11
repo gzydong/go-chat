@@ -19,7 +19,7 @@ import (
 	"go-chat/internal/im_server/internal/router"
 	"go-chat/internal/provider"
 	"go-chat/internal/repository/cache"
-	"go-chat/internal/repository/dao"
+	"go-chat/internal/repository/repo"
 	"go-chat/internal/service"
 )
 
@@ -32,10 +32,10 @@ func Initialize(ctx context.Context, conf *config.Config) *AppProvider {
 	roomStorage := cache.NewRoomStorage(client)
 	db := provider.NewMySQLClient(conf)
 	baseService := service.NewBaseService(db, client)
-	baseDao := dao.NewBaseDao(db, client)
+	base := repo.NewBase(db, client)
 	relation := cache.NewRelation(client)
-	groupMemberDao := dao.NewGroupMemberDao(baseDao, relation)
-	groupMemberService := service.NewGroupMemberService(baseService, groupMemberDao)
+	groupMember := repo.NewGroupMember(base, relation)
+	groupMemberService := service.NewGroupMemberService(baseService, groupMember)
 	chatHandler := chat.NewHandler(client, groupMemberService)
 	chatEvent := event.NewChatEvent(client, conf, roomStorage, groupMemberService, chatHandler)
 	chatChannel := handler.NewChatChannel(clientStorage, chatEvent)
@@ -51,12 +51,12 @@ func Initialize(ctx context.Context, conf *config.Config) *AppProvider {
 	websocketServer := provider.NewWebsocketServer(conf, engine)
 	healthSubscribe := server.NewHealthSubscribe(conf, serverStorage)
 	talkVote := cache.NewTalkVote(client)
-	talkRecordsVoteDao := dao.NewTalkRecordsVoteDao(baseDao, talkVote)
-	talkRecordsDao := dao.NewTalkRecordsDao(baseDao)
-	talkRecordsService := service.NewTalkRecordsService(baseService, talkVote, talkRecordsVoteDao, groupMemberDao, talkRecordsDao)
+	talkRecordsVote := repo.NewTalkRecordsVote(base, talkVote)
+	talkRecords := repo.NewTalkRecords(base)
+	talkRecordsService := service.NewTalkRecordsService(baseService, talkVote, talkRecordsVote, groupMember, talkRecords)
 	contactRemark := cache.NewContactRemark(client)
-	contactDao := dao.NewContactDao(baseDao, contactRemark, relation)
-	contactService := service.NewContactService(baseService, contactDao)
+	contact := repo.NewContact(base, contactRemark, relation)
+	contactService := service.NewContactService(baseService, contact)
 	chatSubscribe := consume.NewChatSubscribe(conf, clientStorage, roomStorage, talkRecordsService, contactService)
 	exampleSubscribe := consume.NewExampleSubscribe()
 	messageSubscribe := server.NewMessageSubscribe(conf, client, chatSubscribe, exampleSubscribe)
@@ -76,4 +76,4 @@ func Initialize(ctx context.Context, conf *config.Config) *AppProvider {
 
 // wire.go:
 
-var providerSet = wire.NewSet(provider.NewMySQLClient, provider.NewRedisClient, provider.NewWebsocketServer, router.NewRouter, wire.Struct(new(process.SubServers), "*"), process.NewServer, server.NewHealthSubscribe, server.NewMessageSubscribe, consume.NewChatSubscribe, consume.NewExampleSubscribe, cache.NewTokenSessionStorage, cache.NewSidStorage, cache.NewRedisLock, cache.NewClientStorage, cache.NewRoomStorage, cache.NewTalkVote, cache.NewRelation, cache.NewContactRemark, cache.NewSequence, dao.NewBaseDao, dao.NewTalkRecordsDao, dao.NewTalkRecordsVoteDao, dao.NewGroupMemberDao, dao.NewContactDao, chat.NewHandler, event.NewChatEvent, event.NewExampleEvent, service.NewBaseService, service.NewTalkRecordsService, service.NewGroupMemberService, service.NewContactService, handler.NewChatChannel, handler.NewExampleChannel, wire.Struct(new(handler.Handler), "*"), wire.Struct(new(AppProvider), "*"))
+var providerSet = wire.NewSet(provider.NewMySQLClient, provider.NewRedisClient, provider.NewWebsocketServer, router.NewRouter, wire.Struct(new(process.SubServers), "*"), process.NewServer, server.NewHealthSubscribe, server.NewMessageSubscribe, consume.NewChatSubscribe, consume.NewExampleSubscribe, cache.NewTokenSessionStorage, cache.NewSidStorage, cache.NewRedisLock, cache.NewClientStorage, cache.NewRoomStorage, cache.NewTalkVote, cache.NewRelation, cache.NewContactRemark, cache.NewSequence, repo.NewBase, repo.NewTalkRecords, repo.NewTalkRecordsVote, repo.NewGroupMember, repo.NewContact, chat.NewHandler, event.NewChatEvent, event.NewExampleEvent, service.NewBaseService, service.NewTalkRecordsService, service.NewGroupMemberService, service.NewContactService, handler.NewChatChannel, handler.NewExampleChannel, wire.Struct(new(handler.Handler), "*"), wire.Struct(new(AppProvider), "*"))

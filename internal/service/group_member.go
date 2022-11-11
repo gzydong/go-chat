@@ -2,21 +2,21 @@ package service
 
 import (
 	"go-chat/internal/entity"
-	"go-chat/internal/repository/dao"
 	"go-chat/internal/repository/model"
+	"go-chat/internal/repository/repo"
 	"gorm.io/gorm"
 )
 
 type GroupMemberService struct {
 	*BaseService
-	dao *dao.GroupMemberDao
+	dao *repo.GroupMember
 }
 
-func NewGroupMemberService(baseService *BaseService, dao *dao.GroupMemberDao) *GroupMemberService {
+func NewGroupMemberService(baseService *BaseService, dao *repo.GroupMember) *GroupMemberService {
 	return &GroupMemberService{BaseService: baseService, dao: dao}
 }
 
-func (s *GroupMemberService) Dao() *dao.GroupMemberDao {
+func (s *GroupMemberService) Dao() *repo.GroupMember {
 	return s.dao
 }
 

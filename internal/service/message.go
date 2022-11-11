@@ -17,16 +17,16 @@ import (
 	"go-chat/internal/pkg/strutil"
 	"go-chat/internal/pkg/timeutil"
 	"go-chat/internal/repository/cache"
-	"go-chat/internal/repository/dao"
 	"go-chat/internal/repository/model"
+	"go-chat/internal/repository/repo"
 	"gorm.io/gorm"
 )
 
 type MessageService struct {
 	*BaseService
 	forward        *logic.MessageForwardLogic
-	groupMemberDao *dao.GroupMemberDao
-	splitUploadDao *dao.SplitUploadDao
+	groupMemberDao *repo.GroupMember
+	splitUploadDao *repo.SplitUpload
 	fileSystem     *filesystem.Filesystem
 	unreadStorage  *cache.UnreadStorage
 	messageStorage *cache.MessageStorage
@@ -35,7 +35,7 @@ type MessageService struct {
 	Sequence       *cache.Sequence
 }
 
-func NewMessageService(baseService *BaseService, forward *logic.MessageForwardLogic, groupMemberDao *dao.GroupMemberDao, splitUploadDao *dao.SplitUploadDao, fileSystem *filesystem.Filesystem, unreadStorage *cache.UnreadStorage, messageStorage *cache.MessageStorage, sidStorage *cache.ServerStorage, clientStorage *cache.ClientStorage, sequence *cache.Sequence) *MessageService {
+func NewMessageService(baseService *BaseService, forward *logic.MessageForwardLogic, groupMemberDao *repo.GroupMember, splitUploadDao *repo.SplitUpload, fileSystem *filesystem.Filesystem, unreadStorage *cache.UnreadStorage, messageStorage *cache.MessageStorage, sidStorage *cache.ServerStorage, clientStorage *cache.ClientStorage, sequence *cache.Sequence) *MessageService {
 	return &MessageService{BaseService: baseService, forward: forward, groupMemberDao: groupMemberDao, splitUploadDao: splitUploadDao, fileSystem: fileSystem, unreadStorage: unreadStorage, messageStorage: messageStorage, sidStorage: sidStorage, clientStorage: clientStorage, Sequence: sequence}
 }
 

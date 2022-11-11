@@ -6,8 +6,8 @@ import (
 	"go-chat/api/pb/message/v1"
 	"go-chat/internal/http/internal/dto/web"
 	"go-chat/internal/pkg/ichat"
-	"go-chat/internal/repository/dao"
 	"go-chat/internal/repository/model"
+	"go-chat/internal/repository/repo"
 	"go-chat/internal/service/organize"
 	"gorm.io/gorm"
 
@@ -20,7 +20,7 @@ import (
 type Message struct {
 	service            *service.TalkMessageService
 	talkService        *service.TalkService
-	talkRecordsVoteDao *dao.TalkRecordsVoteDao
+	talkRecordsVoteDao *repo.TalkRecordsVote
 	splitUploadService *service.SplitUploadService
 	contactService     *service.ContactService
 	groupMemberService *service.GroupMemberService
@@ -29,7 +29,7 @@ type Message struct {
 	message            *service.MessageService
 }
 
-func NewMessage(service *service.TalkMessageService, talkService *service.TalkService, talkRecordsVoteDao *dao.TalkRecordsVoteDao, splitUploadService *service.SplitUploadService, contactService *service.ContactService, groupMemberService *service.GroupMemberService, organizeService *organize.OrganizeService, auth *service.TalkAuthService, message *service.MessageService) *Message {
+func NewMessage(service *service.TalkMessageService, talkService *service.TalkService, talkRecordsVoteDao *repo.TalkRecordsVote, splitUploadService *service.SplitUploadService, contactService *service.ContactService, groupMemberService *service.GroupMemberService, organizeService *organize.OrganizeService, auth *service.TalkAuthService, message *service.MessageService) *Message {
 	return &Message{service: service, talkService: talkService, talkRecordsVoteDao: talkRecordsVoteDao, splitUploadService: splitUploadService, contactService: contactService, groupMemberService: groupMemberService, organizeService: organizeService, auth: auth, message: message}
 }
 

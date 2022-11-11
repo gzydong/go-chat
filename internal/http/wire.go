@@ -13,9 +13,9 @@ import (
 	"go-chat/internal/logic"
 	"go-chat/internal/provider"
 	"go-chat/internal/repository/cache"
-	"go-chat/internal/repository/dao"
-	note3 "go-chat/internal/repository/dao/note"
-	organize3 "go-chat/internal/repository/dao/organize"
+	"go-chat/internal/repository/repo"
+	note3 "go-chat/internal/repository/repo/note"
+	organize3 "go-chat/internal/repository/repo/organize"
 	"go-chat/internal/service/note"
 	"go-chat/internal/service/organize"
 
@@ -62,24 +62,24 @@ var cacheProviderSet = wire.NewSet(
 )
 
 var daoProviderSet = wire.NewSet(
-	dao.NewBaseDao,
-	dao.NewContactDao,
-	dao.NewGroupMemberDao,
-	dao.NewUserDao,
-	dao.NewGroupDao,
-	dao.NewGroupApply,
-	dao.NewTalkRecordsDao,
-	dao.NewGroupNoticeDao,
-	dao.NewTalkSessionDao,
-	dao.NewEmoticonDao,
-	dao.NewTalkRecordsVoteDao,
-	dao.NewFileSplitUploadDao,
-	note3.NewArticleClassDao,
-	note3.NewArticleAnnexDao,
-	organize3.NewDepartmentDao,
-	organize3.NewOrganizeDao,
-	organize3.NewPositionDao,
-	dao.NewRobotDao,
+	repo.NewBase,
+	repo.NewContact,
+	repo.NewGroupMember,
+	repo.NewUsers,
+	repo.NewGroup,
+	repo.NewGroupApply,
+	repo.NewTalkRecords,
+	repo.NewGroupNotice,
+	repo.NewTalkSession,
+	repo.NewEmoticon,
+	repo.NewTalkRecordsVote,
+	repo.NewFileSplitUpload,
+	note3.NewArticleClass,
+	note3.NewArticleAnnex,
+	organize3.NewDepartment,
+	organize3.NewOrganize,
+	organize3.NewPosition,
+	repo.NewRobot,
 )
 
 var serviceProviderSet = wire.NewSet(

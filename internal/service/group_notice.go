@@ -6,21 +6,21 @@ import (
 
 	"go-chat/internal/entity"
 	"go-chat/internal/pkg/timeutil"
-	"go-chat/internal/repository/dao"
 	"go-chat/internal/repository/model"
+	"go-chat/internal/repository/repo"
 )
 
 type GroupNoticeService struct {
-	dao *dao.GroupNoticeDao
+	dao *repo.GroupNotice
 }
 
-func NewGroupNoticeService(dao *dao.GroupNoticeDao) *GroupNoticeService {
+func NewGroupNoticeService(dao *repo.GroupNotice) *GroupNoticeService {
 	return &GroupNoticeService{
 		dao: dao,
 	}
 }
 
-func (s *GroupNoticeService) Dao() *dao.GroupNoticeDao {
+func (s *GroupNoticeService) Dao() *repo.GroupNotice {
 	return s.dao
 }
 

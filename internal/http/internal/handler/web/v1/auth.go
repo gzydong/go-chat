@@ -9,7 +9,7 @@ import (
 	"go-chat/internal/pkg/ichat"
 	"go-chat/internal/pkg/jwt"
 	"go-chat/internal/repository/cache"
-	"go-chat/internal/repository/dao"
+	"go-chat/internal/repository/repo"
 	"go-chat/internal/service/note"
 
 	"go-chat/config"
@@ -27,11 +27,11 @@ type Auth struct {
 	ipAddressService   *service.IpAddressService
 	talkSessionService *service.TalkSessionService
 	noteClassService   *note.ArticleClassService
-	robotDao           *dao.RobotDao
+	robotDao           *repo.Robot
 	message            *service.MessageService
 }
 
-func NewAuth(config *config.Config, userService *service.UserService, smsService *service.SmsService, session *cache.TokenSessionStorage, redisLock *cache.RedisLock, talkMessageService *service.TalkMessageService, ipAddressService *service.IpAddressService, talkSessionService *service.TalkSessionService, noteClassService *note.ArticleClassService, robotDao *dao.RobotDao, message *service.MessageService) *Auth {
+func NewAuth(config *config.Config, userService *service.UserService, smsService *service.SmsService, session *cache.TokenSessionStorage, redisLock *cache.RedisLock, talkMessageService *service.TalkMessageService, ipAddressService *service.IpAddressService, talkSessionService *service.TalkSessionService, noteClassService *note.ArticleClassService, robotDao *repo.Robot, message *service.MessageService) *Auth {
 	return &Auth{config: config, userService: userService, smsService: smsService, session: session, redisLock: redisLock, talkMessageService: talkMessageService, ipAddressService: ipAddressService, talkSessionService: talkSessionService, noteClassService: noteClassService, robotDao: robotDao, message: message}
 }
 
