@@ -272,8 +272,9 @@ func (s *GroupService) InviteMembers(ctx context.Context, opts *InviteGroupMembe
 	for _, value := range opts.MemberIds {
 		if _, ok := m[value]; !ok {
 			addMembers = append(addMembers, &model.GroupMember{
-				GroupId: opts.GroupId,
-				UserId:  value,
+				GroupId:  opts.GroupId,
+				UserId:   value,
+				JoinTime: time.Now(),
 			})
 		}
 

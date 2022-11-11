@@ -1,15 +1,17 @@
-package jwt
+package middleware
 
 import (
 	"context"
 	"errors"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/gin-gonic/gin"
+	"go-chat/internal/pkg/jwt"
 )
 
-const JSessionConst = "__JWT_SESSION__"
+const JWTSessionConst = "__JWT_SESSION__"
 
 var (
 	ErrorNoLogin = errors.New("请登录后操作! ")
@@ -29,7 +31,7 @@ type JSession struct {
 // Auth 授权中间件
 func Auth(secret string, guard string, store IStore) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		token := GetJwtToken(c)
+		token := QueryToken(c)
 
 		claims, err := verify(guard, secret, token)
 		if err != nil {
@@ -54,7 +56,7 @@ func Auth(secret string, guard string, store IStore) gin.HandlerFunc {
 		}
 
 		// 记录 jwt 相关信息
-		c.Set(JSessionConst, &JSession{
+		c.Set(JWTSessionConst, &JSession{
 			Uid:       uid,
 			Token:     token,
 			ExpiresAt: claims.ExpiresAt.Unix(),
@@ -64,13 +66,26 @@ func Auth(secret string, guard string, store IStore) gin.HandlerFunc {
 	}
 }
 
-func verify(guard string, secret string, token string) (*AuthClaims, error) {
+func QueryToken(c *gin.Context) string {
+
+	token := c.GetHeader("Authorization")
+	token = strings.TrimSpace(strings.TrimPrefix(token, "Bearer"))
+
+	// Headers 中没有授权信息则读取 url 中的 token
+	if token == "" {
+		token = c.DefaultQuery("token", "")
+	}
+
+	return token
+}
+
+func verify(guard string, secret string, token string) (*jwt.AuthClaims, error) {
 
 	if token == "" {
 		return nil, ErrorNoLogin
 	}
 
-	claims, err := ParseToken(token, secret)
+	claims, err := jwt.ParseToken(token, secret)
 	if err != nil {
 		return nil, err
 	}

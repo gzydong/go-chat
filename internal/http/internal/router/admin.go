@@ -4,7 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"go-chat/internal/http/internal/handler/admin"
 	"go-chat/internal/pkg/ichat"
-	"go-chat/internal/pkg/jwt"
+	"go-chat/internal/pkg/ichat/middleware"
 	"go-chat/internal/repository/cache"
 )
 
@@ -12,7 +12,7 @@ import (
 func RegisterAdminRoute(secret string, router *gin.Engine, handler *admin.Handler, session *cache.TokenSessionStorage) {
 
 	// 授权验证中间件
-	authorize := jwt.Auth(secret, "admin", session)
+	authorize := middleware.Auth(secret, "admin", session)
 
 	// v1 接口
 	v1 := router.Group("/admin/v1")

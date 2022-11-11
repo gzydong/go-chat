@@ -8,9 +8,7 @@ package main
 
 import (
 	"context"
-
 	"github.com/google/wire"
-	_ "github.com/urfave/cli/v2"
 	"go-chat/config"
 	"go-chat/internal/http/internal/handler"
 	"go-chat/internal/http/internal/handler/admin"
@@ -25,7 +23,6 @@ import (
 	"go-chat/internal/http/internal/handler/web/v1/talk"
 	"go-chat/internal/http/internal/router"
 	"go-chat/internal/logic"
-	_ "go-chat/internal/pkg/validation"
 	"go-chat/internal/provider"
 	"go-chat/internal/repository/cache"
 	"go-chat/internal/repository/dao"
@@ -34,6 +31,11 @@ import (
 	"go-chat/internal/service"
 	note2 "go-chat/internal/service/note"
 	organize2 "go-chat/internal/service/organize"
+)
+
+import (
+	_ "github.com/urfave/cli/v2"
+	_ "go-chat/internal/pkg/validation"
 )
 
 // Injectors from wire.go:

@@ -6,12 +6,12 @@ import (
 	"github.com/gin-gonic/gin"
 	"go-chat/internal/entity"
 	"go-chat/internal/pkg/ichat"
+	"go-chat/internal/pkg/ichat/middleware"
 	"go-chat/internal/pkg/im"
 	"go-chat/internal/repository/cache"
 
 	"go-chat/config"
 	"go-chat/internal/im_server/internal/handler"
-	"go-chat/internal/pkg/jwt"
 )
 
 // NewRouter 初始化配置路由
@@ -20,7 +20,7 @@ func NewRouter(conf *config.Config, handle *handler.Handler, session *cache.Toke
 	router := gin.Default()
 
 	// 授权验证中间件
-	authorize := jwt.Auth(conf.Jwt.Secret, "api", session)
+	authorize := middleware.Auth(conf.Jwt.Secret, "api", session)
 
 	// 查看客户端连接状态
 	router.GET("/wss/connect/detail", func(ctx *gin.Context) {

@@ -8,7 +8,7 @@ import (
 	"go-chat/config"
 	"go-chat/internal/entity"
 	"go-chat/internal/http/internal/handler"
-	"go-chat/internal/http/internal/middleware"
+	"go-chat/internal/pkg/ichat/middleware"
 	"go-chat/internal/repository/cache"
 )
 
@@ -17,7 +17,7 @@ func NewRouter(conf *config.Config, handler *handler.Handler, session *cache.Tok
 	router := gin.New()
 
 	router.Use(gin.Logger())
-	router.Use(middleware.Cors(conf))
+	router.Use(middleware.Cors(conf.Cors))
 	router.Use(gin.RecoveryWithWriter(gin.DefaultWriter, func(c *gin.Context, err interface{}) {
 
 		fmt.Println(err)

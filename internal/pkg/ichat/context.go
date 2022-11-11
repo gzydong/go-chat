@@ -6,8 +6,8 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"go-chat/internal/pkg/ichat/middleware"
 	"go-chat/internal/pkg/jsonutil"
-	"go-chat/internal/pkg/jwt"
 	"go-chat/internal/pkg/validation"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
@@ -158,14 +158,14 @@ func (c *Context) UserId() int {
 }
 
 // JwtSession 返回登录用户的JSession
-func (c *Context) JwtSession() *jwt.JSession {
+func (c *Context) JwtSession() *middleware.JSession {
 
-	data, isOk := c.Context.Get(jwt.JSessionConst)
+	data, isOk := c.Context.Get(middleware.JWTSessionConst)
 	if !isOk {
 		return nil
 	}
 
-	return data.(*jwt.JSession)
+	return data.(*middleware.JSession)
 }
 
 // IsGuest 是否是游客(未登录状态)

@@ -11,6 +11,7 @@ require (
 	github.com/go-playground/validator/v10 v10.10.0
 	github.com/go-redis/redis/v8 v8.11.3
 	github.com/golang-jwt/jwt/v4 v4.4.2
+	github.com/google/uuid v1.1.2
 	github.com/google/wire v0.5.0
 	github.com/gorilla/websocket v1.5.0
 	github.com/json-iterator/go v1.1.12
@@ -41,7 +42,6 @@ require (
 	github.com/goccy/go-json v0.9.7 // indirect
 	github.com/google/go-querystring v1.0.0 // indirect
 	github.com/google/subcommands v1.0.1 // indirect
-	github.com/google/uuid v1.1.2 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.4 // indirect
 	github.com/leodido/go-urn v1.2.1 // indirect

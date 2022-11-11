@@ -8,7 +8,6 @@ package main
 
 import (
 	"context"
-
 	"github.com/google/wire"
 	"go-chat/config"
 	"go-chat/internal/im_server/internal/event"

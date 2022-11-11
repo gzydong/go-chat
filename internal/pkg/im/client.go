@@ -30,6 +30,7 @@ type ClientInContent struct {
 
 // ClientOutContent 客户端输出的消息体
 type ClientOutContent struct {
+	AckId   string // ACK ID（唯一性）
 	IsAck   bool   // 是否需要 ack 回调
 	Retry   int    // 重试次数
 	Content []byte // 消息内容
@@ -196,9 +197,9 @@ func (c *Client) loopAccept() {
 		}
 
 		switch result.String() {
-		case "heartbeat": // 心跳消息判断
+		case "SendHeartbeat": // 心跳消息判断
 			_ = c.Write(&ClientOutContent{
-				Content: jsonutil.Marshal(&Message{"heartbeat", "pong"}),
+				Content: jsonutil.Marshal(&Message{"SendHeartbeat", "pong"}),
 			})
 		default:
 			// 触发消息回调
@@ -215,9 +216,19 @@ func (c *Client) loopWrite() {
 			break
 		}
 
-		err := c.conn.Write(data.Content)
-		if err != nil {
+		if err := c.conn.Write(data.Content); err != nil {
 			break
+		}
+
+		// 验证是否需要 ack 回调
+		if data.IsAck {
+			ack.add(&AckBufferOption{
+				Channel: c.channel,
+				Cid:     c.Cid(),
+				AckID:   data.AckId,
+				Retry:   data.Retry + 1,
+				Content: data.Content,
+			})
 		}
 	}
 }

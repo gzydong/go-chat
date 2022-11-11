@@ -8,3 +8,23 @@ type Cors struct {
 	Credentials string `json:"credentials" yaml:"credentials"`
 	MaxAge      string `json:"max_age" yaml:"max_age"`
 }
+
+func (c *Cors) GetOrigin() string {
+	return c.Origin
+}
+
+func (c *Cors) GetHeaders() string {
+	return c.Headers
+}
+
+func (c *Cors) GetMethods() string {
+	return c.Methods
+}
+
+func (c *Cors) GetCredentials() string {
+	return c.Credentials
+}
+
+func (c *Cors) GetMaxAge() string {
+	return c.MaxAge
+}
