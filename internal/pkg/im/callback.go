@@ -2,14 +2,14 @@ package im
 
 type ICallback interface {
 	Open(client IClient)
-	Message(client IClient, message []byte)
+	Message(client IClient, msg []byte)
 	Close(client IClient, code int, text string)
 	Destroy(client IClient)
 }
 
 type (
 	OpenCallback         func(client IClient)
-	MessageCallback      func(client IClient, message []byte)
+	MessageCallback      func(client IClient, msg []byte)
 	CloseCallback        func(client IClient, code int, text string)
 	DestroyCallback      func(client IClient)
 	ClientCallbackOption func(callBack *ClientCallback)

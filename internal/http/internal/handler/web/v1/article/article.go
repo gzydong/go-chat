@@ -213,7 +213,7 @@ func (c *Article) Upload(ctx *ichat.Context) error {
 	}
 
 	ext := strutil.FileSuffix(file.Filename)
-	meta := utils.LoadImage(bytes.NewReader(stream))
+	meta := utils.ReadImageMeta(bytes.NewReader(stream))
 
 	filePath := fmt.Sprintf("public/media/image/note/%s/%s", timeutil.DateNumber(), strutil.GenImageName(ext, meta.Width, meta.Height))
 

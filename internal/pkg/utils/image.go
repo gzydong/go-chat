@@ -13,7 +13,8 @@ type ImageMeta struct {
 	Height int
 }
 
-func LoadImage(r io.Reader) *ImageMeta {
+// ReadImageMeta 读取图片媒体信息
+func ReadImageMeta(r io.Reader) *ImageMeta {
 	c, _, _ := image.DecodeConfig(r)
 
 	return &ImageMeta{c.Width, c.Height}

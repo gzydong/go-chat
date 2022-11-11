@@ -9,7 +9,7 @@ import (
 	"go-chat/internal/pkg/im/tcp"
 )
 
-// TcpAdapter Tcp 适配器
+// TcpAdapter TCP 适配器
 type TcpAdapter struct {
 	conn      net.Conn
 	reader    *bufio.Reader

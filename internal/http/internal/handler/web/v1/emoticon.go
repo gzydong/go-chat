@@ -114,7 +114,7 @@ func (c *Emoticon) Upload(ctx *ichat.Context) error {
 		return ctx.BusinessError("上传失败！")
 	}
 
-	meta := utils.LoadImage(bytes.NewReader(stream))
+	meta := utils.ReadImageMeta(bytes.NewReader(stream))
 	ext := strutil.FileSuffix(file.Filename)
 	src := fmt.Sprintf("public/media/image/emoticon/%s/%s", time.Now().Format("20060102"), strutil.GenImageName(ext, meta.Width, meta.Height))
 	if err = c.fileSystem.Default.Write(stream, src); err != nil {

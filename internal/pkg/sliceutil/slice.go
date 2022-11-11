@@ -7,13 +7,14 @@ import (
 )
 
 type IntInterface interface {
-	uint | uint32 | uint64 | int | int32 | int64
+	uint | uint8 | uint16 | uint32 | uint64 | int | int8 | int16 | int32 | int64
 }
 
 type FloatInterface interface {
 	float32 | float64
 }
 
+// Include 检测给定的值是否包含在切片中
 func Include[T IntInterface | string](find T, arr []T) bool {
 	for _, value := range arr {
 		if value == find {
@@ -70,7 +71,7 @@ func Sum[T IntInterface | FloatInterface](arr []T) T {
 	return count
 }
 
-// ToMap 切片转map
+// ToMap 切片转 map
 func ToMap[T interface{}, K int | string](arr []T, fn func(T) K) map[K]T {
 	var m = make(map[K]T)
 
