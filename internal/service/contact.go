@@ -9,15 +9,15 @@ import (
 
 type ContactService struct {
 	*BaseService
-	dao *repo.Contact
+	repo *repo.Contact
 }
 
 func NewContactService(baseService *BaseService, dao *repo.Contact) *ContactService {
-	return &ContactService{BaseService: baseService, dao: dao}
+	return &ContactService{BaseService: baseService, repo: dao}
 }
 
 func (s *ContactService) Dao() repo.IContactDao {
-	return s.dao
+	return s.repo
 }
 
 // EditRemark 编辑联系人备注
@@ -27,7 +27,7 @@ func (s *ContactService) EditRemark(ctx context.Context, uid int, friendId int, 
 
 	err := s.db.Model(&model.Contact{}).Where("user_id = ? and friend_id = ?", uid, friendId).Update("remark", remark).Error
 	if err == nil {
-		_ = s.dao.SetFriendRemark(ctx, uid, friendId, remark)
+		_ = s.repo.SetFriendRemark(ctx, uid, friendId, remark)
 	}
 
 	return err

@@ -9,21 +9,21 @@ import (
 
 type GroupMemberService struct {
 	*BaseService
-	dao *repo.GroupMember
+	repo *repo.GroupMember
 }
 
-func NewGroupMemberService(baseService *BaseService, dao *repo.GroupMember) *GroupMemberService {
-	return &GroupMemberService{BaseService: baseService, dao: dao}
+func NewGroupMemberService(baseService *BaseService, repo *repo.GroupMember) *GroupMemberService {
+	return &GroupMemberService{BaseService: baseService, repo: repo}
 }
 
 func (s *GroupMemberService) Dao() *repo.GroupMember {
-	return s.dao
+	return s.repo
 }
 
 // ChangeGroupNickname 修改群名片
 func (s *GroupMemberService) ChangeGroupNickname(groupId int, userId int, remark string) error {
 
-	_, err := s.dao.BaseUpdate(&model.GroupMember{}, entity.MapStrAny{"group_id": groupId, "user_id": userId}, entity.MapStrAny{"user_card": remark})
+	_, err := s.repo.BaseUpdate(&model.GroupMember{}, entity.MapStrAny{"group_id": groupId, "user_id": userId}, entity.MapStrAny{"user_card": remark})
 
 	return err
 }

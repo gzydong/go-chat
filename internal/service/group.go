@@ -19,17 +19,17 @@ import (
 
 type GroupService struct {
 	*BaseService
-	dao       *repo.Group
+	repo      *repo.Group
 	memberDao *repo.GroupMember
 	relation  *cache.Relation
 }
 
-func NewGroupService(baseService *BaseService, dao *repo.Group, memberDao *repo.GroupMember, relation *cache.Relation) *GroupService {
-	return &GroupService{BaseService: baseService, dao: dao, memberDao: memberDao, relation: relation}
+func NewGroupService(baseService *BaseService, repo *repo.Group, memberDao *repo.GroupMember, relation *cache.Relation) *GroupService {
+	return &GroupService{BaseService: baseService, repo: repo, memberDao: memberDao, relation: relation}
 }
 
 func (s *GroupService) Dao() *repo.Group {
-	return s.dao
+	return s.repo
 }
 
 type CreateGroupOpt struct {
@@ -137,7 +137,7 @@ type UpdateGroupOpt struct {
 }
 
 // Update 更新群信息
-func (s *GroupService) Update(ctx context.Context, opts *UpdateGroupOpt) error {
+func (s *GroupService) Update(_ context.Context, opts *UpdateGroupOpt) error {
 	_, err := s.Dao().BaseUpdate(&model.Group{Id: opts.GroupId}, nil, entity.MapStrAny{
 		"group_name": opts.Name,
 		"avatar":     opts.Avatar,
@@ -148,7 +148,7 @@ func (s *GroupService) Update(ctx context.Context, opts *UpdateGroupOpt) error {
 }
 
 // Dismiss 解散群组[群主权限]
-func (s *GroupService) Dismiss(ctx context.Context, groupId int, uid int) error {
+func (s *GroupService) Dismiss(_ context.Context, groupId int, uid int) error {
 	err := s.db.Transaction(func(tx *gorm.DB) error {
 		if err := tx.Model(&model.Group{Id: groupId, CreatorId: uid}).Updates(&model.Group{
 			IsDismiss: 1,

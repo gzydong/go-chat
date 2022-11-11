@@ -29,19 +29,19 @@ import (
 
 type TalkMessageService struct {
 	*BaseService
-	config             *config.Config
-	unreadTalkCache    *cache.UnreadStorage
-	lastMessage        *cache.MessageStorage
-	talkRecordsVoteDao *repo.TalkRecordsVote
-	groupMemberDao     *repo.GroupMember
-	sidServer          *cache.ServerStorage
-	client             *cache.ClientStorage
-	fileSystem         *filesystem.Filesystem
-	splitUploadDao     *repo.SplitUpload
+	config              *config.Config
+	unreadTalkCache     *cache.UnreadStorage
+	lastMessage         *cache.MessageStorage
+	talkRecordsVoteRepo *repo.TalkRecordsVote
+	groupMemberRepo     *repo.GroupMember
+	sidServer           *cache.ServerStorage
+	client              *cache.ClientStorage
+	fileSystem          *filesystem.Filesystem
+	splitUploadDao      *repo.SplitUpload
 }
 
 func NewTalkMessageService(baseService *BaseService, config *config.Config, unreadTalkCache *cache.UnreadStorage, lastMessage *cache.MessageStorage, talkRecordsVoteDao *repo.TalkRecordsVote, groupMemberDao *repo.GroupMember, sidServer *cache.ServerStorage, client *cache.ClientStorage, fileSystem *filesystem.Filesystem, splitUploadDao *repo.SplitUpload) *TalkMessageService {
-	return &TalkMessageService{BaseService: baseService, config: config, unreadTalkCache: unreadTalkCache, lastMessage: lastMessage, talkRecordsVoteDao: talkRecordsVoteDao, groupMemberDao: groupMemberDao, sidServer: sidServer, client: client, fileSystem: fileSystem, splitUploadDao: splitUploadDao}
+	return &TalkMessageService{BaseService: baseService, config: config, unreadTalkCache: unreadTalkCache, lastMessage: lastMessage, talkRecordsVoteRepo: talkRecordsVoteDao, groupMemberRepo: groupMemberDao, sidServer: sidServer, client: client, fileSystem: fileSystem, splitUploadDao: splitUploadDao}
 }
 
 type SysTextMessageOpt struct {
@@ -320,7 +320,7 @@ func (s *TalkMessageService) SendVoteMessage(ctx context.Context, opts *VoteMess
 		options[fmt.Sprintf("%c", 65+i)] = value
 	}
 
-	num := s.groupMemberDao.CountMemberTotal(opts.ReceiverId)
+	num := s.groupMemberRepo.CountMemberTotal(opts.ReceiverId)
 
 	err = s.db.Transaction(func(tx *gorm.DB) error {
 		if err = s.db.Create(record).Error; err != nil {
@@ -587,8 +587,8 @@ func (s *TalkMessageService) VoteHandle(ctx context.Context, opts *VoteMessageHa
 		return 0, err
 	}
 
-	_, _ = s.talkRecordsVoteDao.SetVoteAnswerUser(ctx, vote.VoteId)
-	_, _ = s.talkRecordsVoteDao.SetVoteStatistics(ctx, vote.VoteId)
+	_, _ = s.talkRecordsVoteRepo.SetVoteAnswerUser(ctx, vote.VoteId)
+	_, _ = s.talkRecordsVoteRepo.SetVoteStatistics(ctx, vote.VoteId)
 
 	return vote.VoteId, nil
 }
@@ -652,7 +652,7 @@ func (s *TalkMessageService) afterHandle(ctx context.Context, record *model.Talk
 	} else if record.TalkType == entity.ChatGroupMode {
 
 		// todo 需要加缓存
-		ids := s.groupMemberDao.GetMemberIds(record.ReceiverId)
+		ids := s.groupMemberRepo.GetMemberIds(record.ReceiverId)
 		for _, uid := range ids {
 
 			if uid == record.UserId {

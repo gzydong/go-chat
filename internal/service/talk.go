@@ -13,11 +13,11 @@ import (
 
 type TalkService struct {
 	*BaseService
-	groupMemberDao *repo.GroupMember
+	groupMemberRepo *repo.GroupMember
 }
 
-func NewTalkService(baseService *BaseService, groupMemberDao *repo.GroupMember) *TalkService {
-	return &TalkService{BaseService: baseService, groupMemberDao: groupMemberDao}
+func NewTalkService(baseService *BaseService, groupMemberRepo *repo.GroupMember) *TalkService {
+	return &TalkService{BaseService: baseService, groupMemberRepo: groupMemberRepo}
 }
 
 type TalkMessageDeleteOpt struct {
@@ -41,7 +41,7 @@ func (s *TalkService) RemoveRecords(ctx context.Context, opts *TalkMessageDelete
 
 		s.db.Model(&model.TalkRecords{}).Where("id in ?", ids).Where("talk_type = ?", entity.ChatPrivateMode).Where(subQuery).Pluck("id", &findIds)
 	} else {
-		if !s.groupMemberDao.IsMember(opts.ReceiverId, opts.UserId, false) {
+		if !s.groupMemberRepo.IsMember(opts.ReceiverId, opts.UserId, false) {
 			return entity.ErrPermissionDenied
 		}
 
@@ -89,7 +89,7 @@ func (s *TalkService) CollectRecord(ctx context.Context, uid int, recordId int) 
 			return entity.ErrPermissionDenied
 		}
 	} else if record.TalkType == entity.ChatGroupMode {
-		if !s.groupMemberDao.IsMember(record.ReceiverId, uid, true) {
+		if !s.groupMemberRepo.IsMember(record.ReceiverId, uid, true) {
 			return entity.ErrPermissionDenied
 		}
 	}

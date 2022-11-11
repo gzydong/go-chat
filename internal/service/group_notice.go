@@ -11,17 +11,17 @@ import (
 )
 
 type GroupNoticeService struct {
-	dao *repo.GroupNotice
+	repo *repo.GroupNotice
 }
 
-func NewGroupNoticeService(dao *repo.GroupNotice) *GroupNoticeService {
+func NewGroupNoticeService(repo *repo.GroupNotice) *GroupNoticeService {
 	return &GroupNoticeService{
-		dao: dao,
+		repo: repo,
 	}
 }
 
 func (s *GroupNoticeService) Dao() *repo.GroupNotice {
-	return s.dao
+	return s.repo
 }
 
 type GroupNoticeEditOpt struct {
@@ -36,7 +36,7 @@ type GroupNoticeEditOpt struct {
 
 // Create 创建群公告
 func (s *GroupNoticeService) Create(ctx context.Context, opts *GroupNoticeEditOpt) error {
-	return s.dao.Db().Create(&model.GroupNotice{
+	return s.repo.Db().Create(&model.GroupNotice{
 		GroupId:      opts.GroupId,
 		CreatorId:    opts.UserId,
 		Title:        opts.Title,
@@ -49,7 +49,7 @@ func (s *GroupNoticeService) Create(ctx context.Context, opts *GroupNoticeEditOp
 
 // Update 更新群公告
 func (s *GroupNoticeService) Update(ctx context.Context, opts *GroupNoticeEditOpt) error {
-	_, err := s.dao.BaseUpdate(&model.GroupNotice{}, entity.MapStrAny{
+	_, err := s.repo.BaseUpdate(&model.GroupNotice{}, entity.MapStrAny{
 		"id":       opts.NoticeId,
 		"group_id": opts.GroupId,
 	}, entity.MapStrAny{
@@ -64,7 +64,7 @@ func (s *GroupNoticeService) Update(ctx context.Context, opts *GroupNoticeEditOp
 }
 
 func (s *GroupNoticeService) Delete(ctx context.Context, groupId, noticeId int) error {
-	_, err := s.dao.BaseUpdate(&model.GroupNotice{}, entity.MapStrAny{
+	_, err := s.repo.BaseUpdate(&model.GroupNotice{}, entity.MapStrAny{
 		"id":       noticeId,
 		"group_id": groupId,
 	}, entity.MapStrAny{

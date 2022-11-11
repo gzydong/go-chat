@@ -24,19 +24,19 @@ import (
 
 type MessageService struct {
 	*BaseService
-	forward        *logic.MessageForwardLogic
-	groupMemberDao *repo.GroupMember
-	splitUploadDao *repo.SplitUpload
-	fileSystem     *filesystem.Filesystem
-	unreadStorage  *cache.UnreadStorage
-	messageStorage *cache.MessageStorage
-	sidStorage     *cache.ServerStorage
-	clientStorage  *cache.ClientStorage
-	Sequence       *cache.Sequence
+	forward         *logic.MessageForwardLogic
+	groupMemberRepo *repo.GroupMember
+	splitUploadRepo *repo.SplitUpload
+	fileSystem      *filesystem.Filesystem
+	unreadStorage   *cache.UnreadStorage
+	messageStorage  *cache.MessageStorage
+	sidStorage      *cache.ServerStorage
+	clientStorage   *cache.ClientStorage
+	Sequence        *cache.Sequence
 }
 
-func NewMessageService(baseService *BaseService, forward *logic.MessageForwardLogic, groupMemberDao *repo.GroupMember, splitUploadDao *repo.SplitUpload, fileSystem *filesystem.Filesystem, unreadStorage *cache.UnreadStorage, messageStorage *cache.MessageStorage, sidStorage *cache.ServerStorage, clientStorage *cache.ClientStorage, sequence *cache.Sequence) *MessageService {
-	return &MessageService{BaseService: baseService, forward: forward, groupMemberDao: groupMemberDao, splitUploadDao: splitUploadDao, fileSystem: fileSystem, unreadStorage: unreadStorage, messageStorage: messageStorage, sidStorage: sidStorage, clientStorage: clientStorage, Sequence: sequence}
+func NewMessageService(baseService *BaseService, forward *logic.MessageForwardLogic, groupMemberRepo *repo.GroupMember, splitUploadRepo *repo.SplitUpload, fileSystem *filesystem.Filesystem, unreadStorage *cache.UnreadStorage, messageStorage *cache.MessageStorage, sidStorage *cache.ServerStorage, clientStorage *cache.ClientStorage, sequence *cache.Sequence) *MessageService {
+	return &MessageService{BaseService: baseService, forward: forward, groupMemberRepo: groupMemberRepo, splitUploadRepo: splitUploadRepo, fileSystem: fileSystem, unreadStorage: unreadStorage, messageStorage: messageStorage, sidStorage: sidStorage, clientStorage: clientStorage, Sequence: sequence}
 }
 
 // SendText 文本消息
@@ -221,7 +221,7 @@ func (m *MessageService) SendVideo(ctx context.Context, uid int, req *message.Vi
 // SendFile 文件消息
 func (m *MessageService) SendFile(ctx context.Context, uid int, req *message.FileMessageRequest) error {
 
-	file, err := m.splitUploadDao.GetFile(uid, req.UploadId)
+	file, err := m.splitUploadRepo.GetFile(uid, req.UploadId)
 	if err != nil {
 		return err
 	}
@@ -335,7 +335,7 @@ func (m *MessageService) SendVote(ctx context.Context, uid int, req *message.Vot
 		options[fmt.Sprintf("%c", 65+i)] = value
 	}
 
-	num := m.groupMemberDao.CountMemberTotal(int(req.Receiver.ReceiverId))
+	num := m.groupMemberRepo.CountMemberTotal(int(req.Receiver.ReceiverId))
 
 	err := m.db.Transaction(func(tx *gorm.DB) error {
 
@@ -545,7 +545,7 @@ func (m *MessageService) afterHandle(ctx context.Context, record *model.TalkReco
 	} else if record.TalkType == entity.ChatGroupMode {
 
 		// todo 需要加缓存
-		ids := m.groupMemberDao.GetMemberIds(record.ReceiverId)
+		ids := m.groupMemberRepo.GetMemberIds(record.ReceiverId)
 		for _, uid := range ids {
 
 			if uid == record.UserId {

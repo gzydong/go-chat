@@ -6,17 +6,17 @@ import (
 	"go-chat/internal/entity"
 	"go-chat/internal/pkg/logger"
 	"go-chat/internal/repository/model"
-	dao2 "go-chat/internal/repository/repo"
+	"go-chat/internal/repository/repo"
 	"go-chat/internal/repository/repo/organize"
 )
 
 type AuthPermissionService struct {
-	contactDao     *dao2.Contact
-	groupMemberDao *dao2.GroupMember
+	contactDao     *repo.Contact
+	groupMemberDao *repo.GroupMember
 	organizeDao    *organize.Organize
 }
 
-func NewAuthPermissionService(contactDao *dao2.Contact, groupMemberDao *dao2.GroupMember, organizeDao *organize.Organize) *AuthPermissionService {
+func NewAuthPermissionService(contactDao *repo.Contact, groupMemberDao *repo.GroupMember, organizeDao *organize.Organize) *AuthPermissionService {
 	return &AuthPermissionService{contactDao: contactDao, groupMemberDao: groupMemberDao, organizeDao: organizeDao}
 }
 

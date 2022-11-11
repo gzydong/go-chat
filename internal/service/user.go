@@ -10,15 +10,15 @@ import (
 )
 
 type UserService struct {
-	dao *repo.Users
+	repo *repo.Users
 }
 
-func NewUserService(userDao *repo.Users) *UserService {
-	return &UserService{dao: userDao}
+func NewUserService(repo *repo.Users) *UserService {
+	return &UserService{repo: repo}
 }
 
 func (s *UserService) Dao() *repo.Users {
-	return s.dao
+	return s.repo
 }
 
 type UserRegisterOpt struct {
@@ -30,12 +30,12 @@ type UserRegisterOpt struct {
 
 // Register 注册用户
 func (s *UserService) Register(opts *UserRegisterOpt) (*model.Users, error) {
-	if s.dao.IsMobileExist(opts.Mobile) {
+	if s.repo.IsMobileExist(opts.Mobile) {
 		return nil, errors.New("账号已存在! ")
 	}
 
 	hash, _ := encrypt.HashPassword(opts.Password)
-	user, err := s.dao.Create(&model.Users{
+	user, err := s.repo.Create(&model.Users{
 		Mobile:   opts.Mobile,
 		Nickname: opts.Nickname,
 		Password: hash,
@@ -50,7 +50,7 @@ func (s *UserService) Register(opts *UserRegisterOpt) (*model.Users, error) {
 
 // Login 登录处理
 func (s *UserService) Login(mobile string, password string) (*model.Users, error) {
-	user, err := s.dao.FindByMobile(mobile)
+	user, err := s.repo.FindByMobile(mobile)
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, errors.New("登录账号不存在! ")
@@ -76,7 +76,7 @@ type UserForgetOpt struct {
 // Forget 账号找回
 func (s *UserService) Forget(opts *UserForgetOpt) (bool, error) {
 
-	user, err := s.dao.FindByMobile(opts.Mobile)
+	user, err := s.repo.FindByMobile(opts.Mobile)
 	if err != nil || user.Id == 0 {
 		return false, errors.New("账号不存在! ")
 	}

@@ -16,15 +16,15 @@ import (
 
 type TalkSessionService struct {
 	*BaseService
-	dao *repo.TalkSession
+	repo *repo.TalkSession
 }
 
-func NewTalkSessionService(base *BaseService, dao *repo.TalkSession) *TalkSessionService {
-	return &TalkSessionService{base, dao}
+func NewTalkSessionService(base *BaseService, repo *repo.TalkSession) *TalkSessionService {
+	return &TalkSessionService{base, repo}
 }
 
 func (s *TalkSessionService) Dao() *repo.TalkSession {
-	return s.dao
+	return s.repo
 }
 
 func (s *TalkSessionService) List(ctx context.Context, uid int) ([]*model.SearchTalkSession, error) {

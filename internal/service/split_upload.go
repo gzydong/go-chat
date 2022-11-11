@@ -38,17 +38,17 @@ type MultipartUploadOpts struct {
 
 type SplitUploadService struct {
 	*BaseService
-	dao        *repo.SplitUpload
+	repo       *repo.SplitUpload
 	conf       *config.Config
 	fileSystem *filesystem.Filesystem
 }
 
-func NewSplitUploadService(baseService *BaseService, dao *repo.SplitUpload, conf *config.Config, fileSystem *filesystem.Filesystem) *SplitUploadService {
-	return &SplitUploadService{BaseService: baseService, dao: dao, conf: conf, fileSystem: fileSystem}
+func NewSplitUploadService(baseService *BaseService, repo *repo.SplitUpload, conf *config.Config, fileSystem *filesystem.Filesystem) *SplitUploadService {
+	return &SplitUploadService{BaseService: baseService, repo: repo, conf: conf, fileSystem: fileSystem}
 }
 
 func (s *SplitUploadService) Dao() *repo.SplitUpload {
-	return s.dao
+	return s.repo
 }
 
 func (s *SplitUploadService) InitiateMultipartUpload(ctx context.Context, params *MultipartInitiateOpts) (*model.SplitUpload, error) {
@@ -140,7 +140,7 @@ func (s *SplitUploadService) MultipartUpload(ctx context.Context, opts *Multipar
 
 // combine
 func (s *SplitUploadService) merge(info *model.SplitUpload) error {
-	items, err := s.dao.GetSplitList(info.UploadId)
+	items, err := s.repo.GetSplitList(info.UploadId)
 	if err != nil {
 		return err
 	}

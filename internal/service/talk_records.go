@@ -39,18 +39,18 @@ type TalkRecordsItem struct {
 
 type TalkRecordsService struct {
 	*BaseService
-	talkVoteCache      *cache.TalkVote
-	talkRecordsVoteDao *repo.TalkRecordsVote
-	groupMemberDao     *repo.GroupMember
-	dao                *repo.TalkRecords
+	talkVoteCache       *cache.TalkVote
+	talkRecordsVoteRepo *repo.TalkRecordsVote
+	groupMemberRepo     *repo.GroupMember
+	repo                *repo.TalkRecords
 }
 
-func NewTalkRecordsService(baseService *BaseService, talkVoteCache *cache.TalkVote, talkRecordsVoteDao *repo.TalkRecordsVote, groupMemberDao *repo.GroupMember, dao *repo.TalkRecords) *TalkRecordsService {
-	return &TalkRecordsService{BaseService: baseService, talkVoteCache: talkVoteCache, talkRecordsVoteDao: talkRecordsVoteDao, groupMemberDao: groupMemberDao, dao: dao}
+func NewTalkRecordsService(baseService *BaseService, talkVoteCache *cache.TalkVote, talkRecordsVoteRepo *repo.TalkRecordsVote, groupMemberRepo *repo.GroupMember, repo *repo.TalkRecords) *TalkRecordsService {
+	return &TalkRecordsService{BaseService: baseService, talkVoteCache: talkVoteCache, talkRecordsVoteRepo: talkRecordsVoteRepo, groupMemberRepo: groupMemberRepo, repo: repo}
 }
 
 func (s *TalkRecordsService) Dao() *repo.TalkRecords {
-	return s.dao
+	return s.repo
 }
 
 type QueryTalkRecordsOpt struct {
@@ -170,7 +170,7 @@ func (s *TalkRecordsService) GetForwardRecords(ctx context.Context, uid int, rec
 			return nil, entity.ErrPermissionDenied
 		}
 	} else if record.TalkType == entity.ChatGroupMode {
-		if !s.groupMemberDao.IsMember(record.ReceiverId, uid, true) {
+		if !s.groupMemberRepo.IsMember(record.ReceiverId, uid, true) {
 			return nil, entity.ErrPermissionDenied
 		}
 	} else {
@@ -369,13 +369,13 @@ func (s *TalkRecordsService) HandleTalkRecords(ctx context.Context, items []*mod
 				}
 
 				users := make([]int, 0)
-				if uids, err := s.talkRecordsVoteDao.GetVoteAnswerUser(ctx, value.Id); err == nil {
+				if uids, err := s.talkRecordsVoteRepo.GetVoteAnswerUser(ctx, value.Id); err == nil {
 					users = uids
 				}
 
 				var statistics interface{}
 
-				if res, err := s.talkRecordsVoteDao.GetVoteStatistics(ctx, value.Id); err != nil {
+				if res, err := s.talkRecordsVoteRepo.GetVoteStatistics(ctx, value.Id); err != nil {
 					statistics = map[string]interface{}{
 						"count":   0,
 						"options": map[string]int{},
