@@ -59,9 +59,9 @@ func (m *TalkCreateResponse) validate(all bool) error {
 
 	// no validation rules for Id
 
-	// no validation rules for talkType
+	// no validation rules for TalkType
 
-	// no validation rules for id
+	// no validation rules for ReceiverId
 
 	// no validation rules for IsTop
 
@@ -321,9 +321,9 @@ func (m *TalkListResponse_Item) validate(all bool) error {
 
 	// no validation rules for Id
 
-	// no validation rules for talkType
+	// no validation rules for TalkType
 
-	// no validation rules for id
+	// no validation rules for ReceiverId
 
 	// no validation rules for IsTop
 

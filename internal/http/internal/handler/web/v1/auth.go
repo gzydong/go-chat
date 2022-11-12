@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"go-chat/api/pb/message/v1"
-	"go-chat/internal/http/internal/dto/web"
+	"go-chat/api/pb/web/v1"
 	"go-chat/internal/pkg/ichat"
 	"go-chat/internal/pkg/jwt"
 	"go-chat/internal/repository/cache"
@@ -74,15 +74,15 @@ func (c *Auth) Login(ctx *ichat.Context) error {
 	return ctx.Success(&web.AuthLoginResponse{
 		Type:        "Bearer",
 		AccessToken: c.token(user.Id),
-		ExpiresIn:   int(c.config.Jwt.ExpiresTime),
+		ExpiresIn:   int32(c.config.Jwt.ExpiresTime),
 	})
 }
 
 // Register 注册接口
 func (c *Auth) Register(ctx *ichat.Context) error {
 
-	params := &web.RegisterRequest{}
-	if err := ctx.Context.ShouldBind(params); err != nil {
+	params := &web.AuthRegisterRequest{}
+	if err := ctx.Context.ShouldBindJSON(params); err != nil {
 		return ctx.InvalidParams(err)
 	}
 
@@ -91,19 +91,18 @@ func (c *Auth) Register(ctx *ichat.Context) error {
 		return ctx.InvalidParams("短信验证码填写错误！")
 	}
 
-	_, err := c.userService.Register(&service.UserRegisterOpt{
+	if _, err := c.userService.Register(&service.UserRegisterOpt{
 		Nickname: params.Nickname,
 		Mobile:   params.Mobile,
 		Password: params.Password,
 		Platform: params.Platform,
-	})
-	if err != nil {
+	}); err != nil {
 		return ctx.BusinessError(err.Error())
 	}
 
 	c.smsService.DeleteSmsCode(ctx.Ctx(), entity.SmsRegisterChannel, params.Mobile)
 
-	return ctx.Success(nil)
+	return ctx.Success(&web.AuthRegisterResponse{})
 }
 
 // Logout 退出登录接口
@@ -122,15 +121,15 @@ func (c *Auth) Refresh(ctx *ichat.Context) error {
 	return ctx.Success(&web.AuthRefreshResponse{
 		Type:        "Bearer",
 		AccessToken: c.token(ctx.UserId()),
-		ExpiresIn:   int(c.config.Jwt.ExpiresTime),
+		ExpiresIn:   int32(c.config.Jwt.ExpiresTime),
 	})
 }
 
 // Forget 账号找回接口
 func (c *Auth) Forget(ctx *ichat.Context) error {
 
-	params := &web.ForgetRequest{}
-	if err := ctx.Context.ShouldBind(params); err != nil {
+	params := &web.AuthForgetRequest{}
+	if err := ctx.Context.ShouldBindJSON(params); err != nil {
 		return ctx.InvalidParams(err)
 	}
 
@@ -149,7 +148,7 @@ func (c *Auth) Forget(ctx *ichat.Context) error {
 
 	c.smsService.DeleteSmsCode(ctx.Ctx(), entity.SmsForgetAccountChannel, params.Mobile)
 
-	return ctx.Success(nil)
+	return ctx.Success(web.AuthForgetResponse{})
 }
 
 func (c *Auth) token(uid int) string {

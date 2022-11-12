@@ -1,0 +1,91 @@
+syntax = "proto3";
+package web;
+
+option go_package = "web/v1;web";
+
+import "tagger/tagger.proto";
+
+// 文章编辑接口请求参数
+message ArticleEditRequest{
+  int32 article_id = 1;
+  int32 class_id = 2;
+  string title = 3 [(tagger.tags) = "binding:\"required\""];
+  string content = 4 [(tagger.tags) = "binding:\"required\""];
+  string md_content = 5 [(tagger.tags) = "binding:\"required\""];
+}
+
+// 文章编辑接口响应参数
+message ArticleEditResponse{
+  int32 id = 1;
+  string title = 2;
+  string abstract = 3;
+  string image = 4;
+}
+
+// 文章详情接口请求参数
+message ArticleDetailRequest{
+  int32 article_id = 1 [(tagger.tags) = "form:\"article_id\" binding:\"required\""];
+}
+
+// 文章详情接口响应参数
+message ArticleDetailResponse{
+
+  message Tag{
+    int32 id = 1;
+  }
+
+  message File{
+    int32 id = 1;
+    string original_name = 2;
+    int32 size = 3;
+    string suffix = 4;
+    string created_at = 5;
+  }
+
+  int32 id = 1;
+  int32 class_id = 2;
+  string title = 3;
+  string content = 4;
+  string md_content = 5;
+  int32 is_asterisk = 6;
+  string created_at = 7;
+  string updated_at = 8;
+  // 标签列表
+  repeated Tag tags = 9;
+  // 附件列表
+  repeated File files = 10;
+}
+
+// 文章列表接口请求参数
+message ArticleListRequest{
+  string keyword = 1 [(tagger.tags) = "form:\"keyword\""];
+  int32 find_type = 2 [(tagger.tags) = "form:\"find_type\""];
+  int32 cid = 3 [(tagger.tags) = "form:\"cid\""];
+  int32 page = 4 [(tagger.tags) = "form:\"page\""];
+}
+
+// 文章列表请求接口响应参数
+message ArticleListResponse{
+  message Item{
+    int32 id = 1;
+    int32 class_id = 2;
+    string tags_id = 3;
+    string title = 4;
+    string class_name = 5;
+    string image = 6;
+    int32 is_asterisk = 7;
+    int32 status = 8;
+    string created_at = 9;
+    string updated_at = 10;
+    string abstract = 11;
+  }
+
+  message Paginate{
+    int32 page = 1;
+    int32 size = 2;
+    int32 total = 3;
+  }
+
+  repeated Item items = 1;
+  Paginate paginate = 2;
+}

@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 
+	web2 "go-chat/api/pb/web/v1"
 	"go-chat/internal/entity"
 	"go-chat/internal/http/internal/dto/web"
 	"go-chat/internal/pkg/ichat"
@@ -30,7 +31,7 @@ func NewArticle(service *note.ArticleService, fileSystem *filesystem.Filesystem,
 // List 文章列表
 func (c *Article) List(ctx *ichat.Context) error {
 
-	params := &web.ArticleListRequest{}
+	params := &web2.ArticleListRequest{}
 	if err := ctx.Context.ShouldBindQuery(params); err != nil {
 		return ctx.InvalidParams(err)
 	}
@@ -38,80 +39,87 @@ func (c *Article) List(ctx *ichat.Context) error {
 	items, err := c.service.List(ctx.Ctx(), &note.ArticleListOpt{
 		UserId:   ctx.UserId(),
 		Keyword:  params.Keyword,
-		FindType: params.FindType,
-		Cid:      params.Cid,
-		Page:     params.Page,
+		FindType: int(params.FindType),
+		Cid:      int(params.Cid),
+		Page:     int(params.Page),
 	})
 	if err != nil {
 		return ctx.BusinessError(err.Error())
 	}
 
-	list := make([]map[string]interface{}, 0)
+	list := make([]*web2.ArticleListResponse_Item, 0)
 	for _, item := range items {
-		list = append(list, map[string]interface{}{
-			"id":          item.Id,
-			"class_id":    item.ClassId,
-			"tags_id":     item.TagsId,
-			"title":       item.Title,
-			"abstract":    item.Abstract,
-			"class_name":  item.ClassName,
-			"image":       item.Image,
-			"is_asterisk": item.IsAsterisk,
-			"status":      item.Status,
-			"created_at":  timeutil.FormatDatetime(item.CreatedAt),
-			"updated_at":  timeutil.FormatDatetime(item.UpdatedAt),
+
+		list = append(list, &web2.ArticleListResponse_Item{
+			Id:         int32(item.Id),
+			ClassId:    int32(item.ClassId),
+			TagsId:     item.TagsId,
+			Title:      item.Title,
+			ClassName:  item.ClassName,
+			Image:      item.Image,
+			IsAsterisk: int32(item.IsAsterisk),
+			Status:     int32(item.Status),
+			CreatedAt:  timeutil.FormatDatetime(item.CreatedAt),
+			UpdatedAt:  timeutil.FormatDatetime(item.UpdatedAt),
+			Abstract:   item.Abstract,
 		})
 	}
 
-	return ctx.Paginate(list, 1, 1000, len(items))
+	return ctx.Success(&web2.ArticleListResponse{
+		Items: list,
+		Paginate: &web2.ArticleListResponse_Paginate{
+			Page:  1,
+			Size:  1000,
+			Total: int32(len(list)),
+		},
+	})
 }
 
 // Detail 文章详情
 func (c *Article) Detail(ctx *ichat.Context) error {
 
-	params := &web.ArticleDetailRequest{}
-	if err := ctx.Context.ShouldBind(params); err != nil {
+	params := &web2.ArticleDetailRequest{}
+	if err := ctx.Context.ShouldBindQuery(params); err != nil {
 		return ctx.InvalidParams(err)
 	}
 
 	uid := ctx.UserId()
 
-	detail, err := c.service.Detail(ctx.Ctx(), uid, params.ArticleId)
+	detail, err := c.service.Detail(ctx.Ctx(), uid, int(params.ArticleId))
 	if err != nil {
 		return ctx.BusinessError("笔记不存在")
 	}
 
-	tags := make([]map[string]interface{}, 0)
-	for _, tagId := range sliceutil.ParseIds(detail.TagsId) {
-		tags = append(tags, map[string]interface{}{"id": tagId})
+	tags := make([]*web2.ArticleDetailResponse_Tag, 0)
+	for _, id := range sliceutil.ParseIds(detail.TagsId) {
+		tags = append(tags, &web2.ArticleDetailResponse_Tag{Id: int32(id)})
 	}
 
-	files := make([]map[string]interface{}, 0)
-	items, err := c.articleAnnexService.Dao().AnnexList(ctx.Context, uid, params.ArticleId)
+	files := make([]*web2.ArticleDetailResponse_File, 0)
+	items, err := c.articleAnnexService.Dao().AnnexList(ctx.Context, uid, int(params.ArticleId))
 	if err == nil {
 		for _, item := range items {
-			files = append(files, map[string]interface{}{
-				"id":            item.Id,
-				"suffix":        item.Suffix,
-				"size":          item.Size,
-				"original_name": item.OriginalName,
-				"created_at":    timeutil.FormatDatetime(item.CreatedAt),
+			files = append(files, &web2.ArticleDetailResponse_File{
+				Id:           int32(item.Id),
+				Suffix:       item.Suffix,
+				Size:         int32(item.Size),
+				OriginalName: item.OriginalName,
+				CreatedAt:    timeutil.FormatDatetime(item.CreatedAt),
 			})
 		}
 	}
 
-	return ctx.Success(entity.H{
-		"id":          detail.Id,
-		"class_id":    detail.ClassId,
-		"title":       detail.Title,
-		"md_content":  detail.MdContent,
-		"content":     detail.Content,
-		"is_asterisk": detail.IsAsterisk,
-		"status":      detail.Status,
-		"created_at":  timeutil.FormatDatetime(detail.CreatedAt),
-		"updated_at":  timeutil.FormatDatetime(detail.UpdatedAt),
-		"tags":        tags,
-		"files":       files,
+	return ctx.Success(&web2.ArticleDetailResponse{
+		Id:         int32(detail.Id),
+		ClassId:    int32(detail.ClassId),
+		Title:      detail.Title,
+		Content:    detail.Content,
+		MdContent:  detail.MdContent,
+		IsAsterisk: int32(detail.IsAsterisk),
+		CreatedAt:  timeutil.FormatDatetime(detail.CreatedAt),
+		UpdatedAt:  timeutil.FormatDatetime(detail.UpdatedAt),
+		Tags:       tags,
+		Files:      files,
 	})
 }
 
@@ -120,7 +128,7 @@ func (c *Article) Edit(ctx *ichat.Context) error {
 
 	var (
 		err    error
-		params = &web.ArticleEditRequest{}
+		params = &web2.ArticleEditRequest{}
 		uid    = ctx.UserId()
 	)
 
@@ -130,15 +138,18 @@ func (c *Article) Edit(ctx *ichat.Context) error {
 
 	opts := &note.ArticleEditOpt{
 		UserId:    uid,
-		ArticleId: params.ArticleId,
-		ClassId:   params.ClassId,
+		ArticleId: int(params.ArticleId),
+		ClassId:   int(params.ClassId),
 		Title:     params.Title,
 		Content:   params.Content,
 		MdContent: params.MdContent,
 	}
 
 	if params.ArticleId == 0 {
-		params.ArticleId, err = c.service.Create(ctx.Ctx(), opts)
+		id, err := c.service.Create(ctx.Ctx(), opts)
+		if err == nil {
+			params.ArticleId = int32(id)
+		}
 	} else {
 		err = c.service.Update(ctx.Ctx(), opts)
 	}
@@ -148,13 +159,15 @@ func (c *Article) Edit(ctx *ichat.Context) error {
 	}
 
 	var info *model.Article
-	_ = c.service.Db().First(&info, params.ArticleId)
+	if err := c.service.Db().First(&info, params.ArticleId).Error; err != nil {
+		return ctx.BusinessError(err.Error())
+	}
 
-	return ctx.Success(entity.H{
-		"id":       info.Id,
-		"image":    info.Image,
-		"abstract": info.Abstract,
-		"title":    info.Title,
+	return ctx.Success(&web2.ArticleEditResponse{
+		Id:       int32(info.Id),
+		Title:    info.Title,
+		Abstract: info.Abstract,
+		Image:    info.Image,
 	})
 }
 
@@ -240,7 +253,7 @@ func (c *Article) Move(ctx *ichat.Context) error {
 }
 
 // Asterisk 标记文章
-func (c Article) Asterisk(ctx *ichat.Context) error {
+func (c *Article) Asterisk(ctx *ichat.Context) error {
 
 	params := &web.ArticleAsteriskRequest{}
 	if err := ctx.Context.ShouldBind(params); err != nil {

@@ -108,9 +108,12 @@ func (c *Context) Success(data interface{}, message ...string) error {
 	if value, ok := data.(proto.Message); ok {
 		bt, _ := MarshalOptions.Marshal(value)
 
-		if err := jsonutil.Decode(string(bt), &resp.Data); err != nil {
+		var data interface{}
+		if err := jsonutil.Decode(string(bt), &data); err != nil {
 			return c.Error(err.Error())
 		}
+
+		resp.Data = data
 	}
 
 	c.Context.Abort()
