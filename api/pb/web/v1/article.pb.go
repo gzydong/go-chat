@@ -471,6 +471,544 @@ func (x *ArticleListResponse) GetPaginate() *ArticleListResponse_Paginate {
 	return nil
 }
 
+// 文章删除接口请求参数
+type ArticleDeleteRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	ArticleId int32 `protobuf:"varint,1,opt,name=article_id,json=articleId,proto3" json:"article_id,omitempty" binding:"required"`
+}
+
+func (x *ArticleDeleteRequest) Reset() {
+	*x = ArticleDeleteRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_web_v1_article_proto_msgTypes[6]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ArticleDeleteRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ArticleDeleteRequest) ProtoMessage() {}
+
+func (x *ArticleDeleteRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_web_v1_article_proto_msgTypes[6]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ArticleDeleteRequest.ProtoReflect.Descriptor instead.
+func (*ArticleDeleteRequest) Descriptor() ([]byte, []int) {
+	return file_web_v1_article_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *ArticleDeleteRequest) GetArticleId() int32 {
+	if x != nil {
+		return x.ArticleId
+	}
+	return 0
+}
+
+// 文章删除接口响应参数
+type ArticleDeleteResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+}
+
+func (x *ArticleDeleteResponse) Reset() {
+	*x = ArticleDeleteResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_web_v1_article_proto_msgTypes[7]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ArticleDeleteResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ArticleDeleteResponse) ProtoMessage() {}
+
+func (x *ArticleDeleteResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_web_v1_article_proto_msgTypes[7]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ArticleDeleteResponse.ProtoReflect.Descriptor instead.
+func (*ArticleDeleteResponse) Descriptor() ([]byte, []int) {
+	return file_web_v1_article_proto_rawDescGZIP(), []int{7}
+}
+
+type ArticleRecoverRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	ArticleId int32 `protobuf:"varint,1,opt,name=article_id,json=articleId,proto3" json:"article_id,omitempty" binding:"required"`
+}
+
+func (x *ArticleRecoverRequest) Reset() {
+	*x = ArticleRecoverRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_web_v1_article_proto_msgTypes[8]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ArticleRecoverRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ArticleRecoverRequest) ProtoMessage() {}
+
+func (x *ArticleRecoverRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_web_v1_article_proto_msgTypes[8]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ArticleRecoverRequest.ProtoReflect.Descriptor instead.
+func (*ArticleRecoverRequest) Descriptor() ([]byte, []int) {
+	return file_web_v1_article_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *ArticleRecoverRequest) GetArticleId() int32 {
+	if x != nil {
+		return x.ArticleId
+	}
+	return 0
+}
+
+type ArticleRecoverResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+}
+
+func (x *ArticleRecoverResponse) Reset() {
+	*x = ArticleRecoverResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_web_v1_article_proto_msgTypes[9]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ArticleRecoverResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ArticleRecoverResponse) ProtoMessage() {}
+
+func (x *ArticleRecoverResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_web_v1_article_proto_msgTypes[9]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ArticleRecoverResponse.ProtoReflect.Descriptor instead.
+func (*ArticleRecoverResponse) Descriptor() ([]byte, []int) {
+	return file_web_v1_article_proto_rawDescGZIP(), []int{9}
+}
+
+// 文章移动分类接口请求参数
+type ArticleMoveRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	ArticleId int32 `protobuf:"varint,1,opt,name=article_id,json=articleId,proto3" json:"article_id,omitempty" binding:"required,gt=0"`
+	ClassId   int32 `protobuf:"varint,2,opt,name=class_id,json=classId,proto3" json:"class_id,omitempty" binding:"required,gt=0"`
+}
+
+func (x *ArticleMoveRequest) Reset() {
+	*x = ArticleMoveRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_web_v1_article_proto_msgTypes[10]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ArticleMoveRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ArticleMoveRequest) ProtoMessage() {}
+
+func (x *ArticleMoveRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_web_v1_article_proto_msgTypes[10]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ArticleMoveRequest.ProtoReflect.Descriptor instead.
+func (*ArticleMoveRequest) Descriptor() ([]byte, []int) {
+	return file_web_v1_article_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *ArticleMoveRequest) GetArticleId() int32 {
+	if x != nil {
+		return x.ArticleId
+	}
+	return 0
+}
+
+func (x *ArticleMoveRequest) GetClassId() int32 {
+	if x != nil {
+		return x.ClassId
+	}
+	return 0
+}
+
+// 文章移动分类接口响应参数
+type ArticleMoveResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+}
+
+func (x *ArticleMoveResponse) Reset() {
+	*x = ArticleMoveResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_web_v1_article_proto_msgTypes[11]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ArticleMoveResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ArticleMoveResponse) ProtoMessage() {}
+
+func (x *ArticleMoveResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_web_v1_article_proto_msgTypes[11]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ArticleMoveResponse.ProtoReflect.Descriptor instead.
+func (*ArticleMoveResponse) Descriptor() ([]byte, []int) {
+	return file_web_v1_article_proto_rawDescGZIP(), []int{11}
+}
+
+type ArticleAsteriskRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	ArticleId int32 `protobuf:"varint,1,opt,name=article_id,json=articleId,proto3" json:"article_id,omitempty" binding:"required,gt=0"`
+	Type      int32 `protobuf:"varint,2,opt,name=type,proto3" json:"type,omitempty" binding:"required,oneof=1 2"`
+}
+
+func (x *ArticleAsteriskRequest) Reset() {
+	*x = ArticleAsteriskRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_web_v1_article_proto_msgTypes[12]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ArticleAsteriskRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ArticleAsteriskRequest) ProtoMessage() {}
+
+func (x *ArticleAsteriskRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_web_v1_article_proto_msgTypes[12]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ArticleAsteriskRequest.ProtoReflect.Descriptor instead.
+func (*ArticleAsteriskRequest) Descriptor() ([]byte, []int) {
+	return file_web_v1_article_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *ArticleAsteriskRequest) GetArticleId() int32 {
+	if x != nil {
+		return x.ArticleId
+	}
+	return 0
+}
+
+func (x *ArticleAsteriskRequest) GetType() int32 {
+	if x != nil {
+		return x.Type
+	}
+	return 0
+}
+
+type ArticleAsteriskResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+}
+
+func (x *ArticleAsteriskResponse) Reset() {
+	*x = ArticleAsteriskResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_web_v1_article_proto_msgTypes[13]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ArticleAsteriskResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ArticleAsteriskResponse) ProtoMessage() {}
+
+func (x *ArticleAsteriskResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_web_v1_article_proto_msgTypes[13]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ArticleAsteriskResponse.ProtoReflect.Descriptor instead.
+func (*ArticleAsteriskResponse) Descriptor() ([]byte, []int) {
+	return file_web_v1_article_proto_rawDescGZIP(), []int{13}
+}
+
+type ArticleTagsRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	ArticleId int32   `protobuf:"varint,1,opt,name=article_id,json=articleId,proto3" json:"article_id,omitempty" binding:"required,gt=0"`
+	Tags      []int32 `protobuf:"varint,2,rep,packed,name=tags,proto3" json:"tags,omitempty"`
+}
+
+func (x *ArticleTagsRequest) Reset() {
+	*x = ArticleTagsRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_web_v1_article_proto_msgTypes[14]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ArticleTagsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ArticleTagsRequest) ProtoMessage() {}
+
+func (x *ArticleTagsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_web_v1_article_proto_msgTypes[14]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ArticleTagsRequest.ProtoReflect.Descriptor instead.
+func (*ArticleTagsRequest) Descriptor() ([]byte, []int) {
+	return file_web_v1_article_proto_rawDescGZIP(), []int{14}
+}
+
+func (x *ArticleTagsRequest) GetArticleId() int32 {
+	if x != nil {
+		return x.ArticleId
+	}
+	return 0
+}
+
+func (x *ArticleTagsRequest) GetTags() []int32 {
+	if x != nil {
+		return x.Tags
+	}
+	return nil
+}
+
+type ArticleTagsResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+}
+
+func (x *ArticleTagsResponse) Reset() {
+	*x = ArticleTagsResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_web_v1_article_proto_msgTypes[15]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ArticleTagsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ArticleTagsResponse) ProtoMessage() {}
+
+func (x *ArticleTagsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_web_v1_article_proto_msgTypes[15]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ArticleTagsResponse.ProtoReflect.Descriptor instead.
+func (*ArticleTagsResponse) Descriptor() ([]byte, []int) {
+	return file_web_v1_article_proto_rawDescGZIP(), []int{15}
+}
+
+type ArticleForeverDeleteRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	ArticleId int32 `protobuf:"varint,1,opt,name=article_id,json=articleId,proto3" json:"article_id,omitempty" binding:"required,gt=0"`
+}
+
+func (x *ArticleForeverDeleteRequest) Reset() {
+	*x = ArticleForeverDeleteRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_web_v1_article_proto_msgTypes[16]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ArticleForeverDeleteRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ArticleForeverDeleteRequest) ProtoMessage() {}
+
+func (x *ArticleForeverDeleteRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_web_v1_article_proto_msgTypes[16]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ArticleForeverDeleteRequest.ProtoReflect.Descriptor instead.
+func (*ArticleForeverDeleteRequest) Descriptor() ([]byte, []int) {
+	return file_web_v1_article_proto_rawDescGZIP(), []int{16}
+}
+
+func (x *ArticleForeverDeleteRequest) GetArticleId() int32 {
+	if x != nil {
+		return x.ArticleId
+	}
+	return 0
+}
+
+type ArticleForeverDeleteResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+}
+
+func (x *ArticleForeverDeleteResponse) Reset() {
+	*x = ArticleForeverDeleteResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_web_v1_article_proto_msgTypes[17]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ArticleForeverDeleteResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ArticleForeverDeleteResponse) ProtoMessage() {}
+
+func (x *ArticleForeverDeleteResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_web_v1_article_proto_msgTypes[17]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ArticleForeverDeleteResponse.ProtoReflect.Descriptor instead.
+func (*ArticleForeverDeleteResponse) Descriptor() ([]byte, []int) {
+	return file_web_v1_article_proto_rawDescGZIP(), []int{17}
+}
+
 type ArticleDetailResponse_Tag struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -482,7 +1020,7 @@ type ArticleDetailResponse_Tag struct {
 func (x *ArticleDetailResponse_Tag) Reset() {
 	*x = ArticleDetailResponse_Tag{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_web_v1_article_proto_msgTypes[6]
+		mi := &file_web_v1_article_proto_msgTypes[18]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -495,7 +1033,7 @@ func (x *ArticleDetailResponse_Tag) String() string {
 func (*ArticleDetailResponse_Tag) ProtoMessage() {}
 
 func (x *ArticleDetailResponse_Tag) ProtoReflect() protoreflect.Message {
-	mi := &file_web_v1_article_proto_msgTypes[6]
+	mi := &file_web_v1_article_proto_msgTypes[18]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -533,7 +1071,7 @@ type ArticleDetailResponse_File struct {
 func (x *ArticleDetailResponse_File) Reset() {
 	*x = ArticleDetailResponse_File{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_web_v1_article_proto_msgTypes[7]
+		mi := &file_web_v1_article_proto_msgTypes[19]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -546,7 +1084,7 @@ func (x *ArticleDetailResponse_File) String() string {
 func (*ArticleDetailResponse_File) ProtoMessage() {}
 
 func (x *ArticleDetailResponse_File) ProtoReflect() protoreflect.Message {
-	mi := &file_web_v1_article_proto_msgTypes[7]
+	mi := &file_web_v1_article_proto_msgTypes[19]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -618,7 +1156,7 @@ type ArticleListResponse_Item struct {
 func (x *ArticleListResponse_Item) Reset() {
 	*x = ArticleListResponse_Item{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_web_v1_article_proto_msgTypes[8]
+		mi := &file_web_v1_article_proto_msgTypes[20]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -631,7 +1169,7 @@ func (x *ArticleListResponse_Item) String() string {
 func (*ArticleListResponse_Item) ProtoMessage() {}
 
 func (x *ArticleListResponse_Item) ProtoReflect() protoreflect.Message {
-	mi := &file_web_v1_article_proto_msgTypes[8]
+	mi := &file_web_v1_article_proto_msgTypes[20]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -737,7 +1275,7 @@ type ArticleListResponse_Paginate struct {
 func (x *ArticleListResponse_Paginate) Reset() {
 	*x = ArticleListResponse_Paginate{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_web_v1_article_proto_msgTypes[9]
+		mi := &file_web_v1_article_proto_msgTypes[21]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -750,7 +1288,7 @@ func (x *ArticleListResponse_Paginate) String() string {
 func (*ArticleListResponse_Paginate) ProtoMessage() {}
 
 func (x *ArticleListResponse_Paginate) ProtoReflect() protoreflect.Message {
-	mi := &file_web_v1_article_proto_msgTypes[9]
+	mi := &file_web_v1_article_proto_msgTypes[21]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -896,9 +1434,58 @@ var file_web_v1_article_proto_rawDesc = []byte{
 	0x12, 0x12, 0x0a, 0x04, 0x70, 0x61, 0x67, 0x65, 0x18, 0x01, 0x20, 0x01, 0x28, 0x05, 0x52, 0x04,
 	0x70, 0x61, 0x67, 0x65, 0x12, 0x12, 0x0a, 0x04, 0x73, 0x69, 0x7a, 0x65, 0x18, 0x02, 0x20, 0x01,
 	0x28, 0x05, 0x52, 0x04, 0x73, 0x69, 0x7a, 0x65, 0x12, 0x14, 0x0a, 0x05, 0x74, 0x6f, 0x74, 0x61,
-	0x6c, 0x18, 0x03, 0x20, 0x01, 0x28, 0x05, 0x52, 0x05, 0x74, 0x6f, 0x74, 0x61, 0x6c, 0x42, 0x0c,
-	0x5a, 0x0a, 0x77, 0x65, 0x62, 0x2f, 0x76, 0x31, 0x3b, 0x77, 0x65, 0x62, 0x62, 0x06, 0x70, 0x72,
-	0x6f, 0x74, 0x6f, 0x33,
+	0x6c, 0x18, 0x03, 0x20, 0x01, 0x28, 0x05, 0x52, 0x05, 0x74, 0x6f, 0x74, 0x61, 0x6c, 0x22, 0x4e,
+	0x0a, 0x14, 0x41, 0x72, 0x74, 0x69, 0x63, 0x6c, 0x65, 0x44, 0x65, 0x6c, 0x65, 0x74, 0x65, 0x52,
+	0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x36, 0x0a, 0x0a, 0x61, 0x72, 0x74, 0x69, 0x63, 0x6c,
+	0x65, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x05, 0x42, 0x17, 0x9a, 0x84, 0x9e, 0x03,
+	0x12, 0x62, 0x69, 0x6e, 0x64, 0x69, 0x6e, 0x67, 0x3a, 0x22, 0x72, 0x65, 0x71, 0x75, 0x69, 0x72,
+	0x65, 0x64, 0x22, 0x52, 0x09, 0x61, 0x72, 0x74, 0x69, 0x63, 0x6c, 0x65, 0x49, 0x64, 0x22, 0x17,
+	0x0a, 0x15, 0x41, 0x72, 0x74, 0x69, 0x63, 0x6c, 0x65, 0x44, 0x65, 0x6c, 0x65, 0x74, 0x65, 0x52,
+	0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x4f, 0x0a, 0x15, 0x41, 0x72, 0x74, 0x69, 0x63,
+	0x6c, 0x65, 0x52, 0x65, 0x63, 0x6f, 0x76, 0x65, 0x72, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74,
+	0x12, 0x36, 0x0a, 0x0a, 0x61, 0x72, 0x74, 0x69, 0x63, 0x6c, 0x65, 0x5f, 0x69, 0x64, 0x18, 0x01,
+	0x20, 0x01, 0x28, 0x05, 0x42, 0x17, 0x9a, 0x84, 0x9e, 0x03, 0x12, 0x62, 0x69, 0x6e, 0x64, 0x69,
+	0x6e, 0x67, 0x3a, 0x22, 0x72, 0x65, 0x71, 0x75, 0x69, 0x72, 0x65, 0x64, 0x22, 0x52, 0x09, 0x61,
+	0x72, 0x74, 0x69, 0x63, 0x6c, 0x65, 0x49, 0x64, 0x22, 0x18, 0x0a, 0x16, 0x41, 0x72, 0x74, 0x69,
+	0x63, 0x6c, 0x65, 0x52, 0x65, 0x63, 0x6f, 0x76, 0x65, 0x72, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e,
+	0x73, 0x65, 0x22, 0x8a, 0x01, 0x0a, 0x12, 0x41, 0x72, 0x74, 0x69, 0x63, 0x6c, 0x65, 0x4d, 0x6f,
+	0x76, 0x65, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x3b, 0x0a, 0x0a, 0x61, 0x72, 0x74,
+	0x69, 0x63, 0x6c, 0x65, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x05, 0x42, 0x1c, 0x9a,
+	0x84, 0x9e, 0x03, 0x17, 0x62, 0x69, 0x6e, 0x64, 0x69, 0x6e, 0x67, 0x3a, 0x22, 0x72, 0x65, 0x71,
+	0x75, 0x69, 0x72, 0x65, 0x64, 0x2c, 0x67, 0x74, 0x3d, 0x30, 0x22, 0x52, 0x09, 0x61, 0x72, 0x74,
+	0x69, 0x63, 0x6c, 0x65, 0x49, 0x64, 0x12, 0x37, 0x0a, 0x08, 0x63, 0x6c, 0x61, 0x73, 0x73, 0x5f,
+	0x69, 0x64, 0x18, 0x02, 0x20, 0x01, 0x28, 0x05, 0x42, 0x1c, 0x9a, 0x84, 0x9e, 0x03, 0x17, 0x62,
+	0x69, 0x6e, 0x64, 0x69, 0x6e, 0x67, 0x3a, 0x22, 0x72, 0x65, 0x71, 0x75, 0x69, 0x72, 0x65, 0x64,
+	0x2c, 0x67, 0x74, 0x3d, 0x30, 0x22, 0x52, 0x07, 0x63, 0x6c, 0x61, 0x73, 0x73, 0x49, 0x64, 0x22,
+	0x15, 0x0a, 0x13, 0x41, 0x72, 0x74, 0x69, 0x63, 0x6c, 0x65, 0x4d, 0x6f, 0x76, 0x65, 0x52, 0x65,
+	0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x8c, 0x01, 0x0a, 0x16, 0x41, 0x72, 0x74, 0x69, 0x63,
+	0x6c, 0x65, 0x41, 0x73, 0x74, 0x65, 0x72, 0x69, 0x73, 0x6b, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73,
+	0x74, 0x12, 0x3b, 0x0a, 0x0a, 0x61, 0x72, 0x74, 0x69, 0x63, 0x6c, 0x65, 0x5f, 0x69, 0x64, 0x18,
+	0x01, 0x20, 0x01, 0x28, 0x05, 0x42, 0x1c, 0x9a, 0x84, 0x9e, 0x03, 0x17, 0x62, 0x69, 0x6e, 0x64,
+	0x69, 0x6e, 0x67, 0x3a, 0x22, 0x72, 0x65, 0x71, 0x75, 0x69, 0x72, 0x65, 0x64, 0x2c, 0x67, 0x74,
+	0x3d, 0x30, 0x22, 0x52, 0x09, 0x61, 0x72, 0x74, 0x69, 0x63, 0x6c, 0x65, 0x49, 0x64, 0x12, 0x35,
+	0x0a, 0x04, 0x74, 0x79, 0x70, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x05, 0x42, 0x21, 0x9a, 0x84,
+	0x9e, 0x03, 0x1c, 0x62, 0x69, 0x6e, 0x64, 0x69, 0x6e, 0x67, 0x3a, 0x22, 0x72, 0x65, 0x71, 0x75,
+	0x69, 0x72, 0x65, 0x64, 0x2c, 0x6f, 0x6e, 0x65, 0x6f, 0x66, 0x3d, 0x31, 0x20, 0x32, 0x22, 0x52,
+	0x04, 0x74, 0x79, 0x70, 0x65, 0x22, 0x19, 0x0a, 0x17, 0x41, 0x72, 0x74, 0x69, 0x63, 0x6c, 0x65,
+	0x41, 0x73, 0x74, 0x65, 0x72, 0x69, 0x73, 0x6b, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65,
+	0x22, 0x65, 0x0a, 0x12, 0x41, 0x72, 0x74, 0x69, 0x63, 0x6c, 0x65, 0x54, 0x61, 0x67, 0x73, 0x52,
+	0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x3b, 0x0a, 0x0a, 0x61, 0x72, 0x74, 0x69, 0x63, 0x6c,
+	0x65, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x05, 0x42, 0x1c, 0x9a, 0x84, 0x9e, 0x03,
+	0x17, 0x62, 0x69, 0x6e, 0x64, 0x69, 0x6e, 0x67, 0x3a, 0x22, 0x72, 0x65, 0x71, 0x75, 0x69, 0x72,
+	0x65, 0x64, 0x2c, 0x67, 0x74, 0x3d, 0x30, 0x22, 0x52, 0x09, 0x61, 0x72, 0x74, 0x69, 0x63, 0x6c,
+	0x65, 0x49, 0x64, 0x12, 0x12, 0x0a, 0x04, 0x74, 0x61, 0x67, 0x73, 0x18, 0x02, 0x20, 0x03, 0x28,
+	0x05, 0x52, 0x04, 0x74, 0x61, 0x67, 0x73, 0x22, 0x15, 0x0a, 0x13, 0x41, 0x72, 0x74, 0x69, 0x63,
+	0x6c, 0x65, 0x54, 0x61, 0x67, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x5a,
+	0x0a, 0x1b, 0x41, 0x72, 0x74, 0x69, 0x63, 0x6c, 0x65, 0x46, 0x6f, 0x72, 0x65, 0x76, 0x65, 0x72,
+	0x44, 0x65, 0x6c, 0x65, 0x74, 0x65, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x3b, 0x0a,
+	0x0a, 0x61, 0x72, 0x74, 0x69, 0x63, 0x6c, 0x65, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28,
+	0x05, 0x42, 0x1c, 0x9a, 0x84, 0x9e, 0x03, 0x17, 0x62, 0x69, 0x6e, 0x64, 0x69, 0x6e, 0x67, 0x3a,
+	0x22, 0x72, 0x65, 0x71, 0x75, 0x69, 0x72, 0x65, 0x64, 0x2c, 0x67, 0x74, 0x3d, 0x30, 0x22, 0x52,
+	0x09, 0x61, 0x72, 0x74, 0x69, 0x63, 0x6c, 0x65, 0x49, 0x64, 0x22, 0x1e, 0x0a, 0x1c, 0x41, 0x72,
+	0x74, 0x69, 0x63, 0x6c, 0x65, 0x46, 0x6f, 0x72, 0x65, 0x76, 0x65, 0x72, 0x44, 0x65, 0x6c, 0x65,
+	0x74, 0x65, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x42, 0x0c, 0x5a, 0x0a, 0x77, 0x65,
+	0x62, 0x2f, 0x76, 0x31, 0x3b, 0x77, 0x65, 0x62, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -913,7 +1500,7 @@ func file_web_v1_article_proto_rawDescGZIP() []byte {
 	return file_web_v1_article_proto_rawDescData
 }
 
-var file_web_v1_article_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
+var file_web_v1_article_proto_msgTypes = make([]protoimpl.MessageInfo, 22)
 var file_web_v1_article_proto_goTypes = []interface{}{
 	(*ArticleEditRequest)(nil),           // 0: web.ArticleEditRequest
 	(*ArticleEditResponse)(nil),          // 1: web.ArticleEditResponse
@@ -921,21 +1508,33 @@ var file_web_v1_article_proto_goTypes = []interface{}{
 	(*ArticleDetailResponse)(nil),        // 3: web.ArticleDetailResponse
 	(*ArticleListRequest)(nil),           // 4: web.ArticleListRequest
 	(*ArticleListResponse)(nil),          // 5: web.ArticleListResponse
-	(*ArticleDetailResponse_Tag)(nil),    // 6: web.ArticleDetailResponse.Tag
-	(*ArticleDetailResponse_File)(nil),   // 7: web.ArticleDetailResponse.File
-	(*ArticleListResponse_Item)(nil),     // 8: web.ArticleListResponse.Item
-	(*ArticleListResponse_Paginate)(nil), // 9: web.ArticleListResponse.Paginate
+	(*ArticleDeleteRequest)(nil),         // 6: web.ArticleDeleteRequest
+	(*ArticleDeleteResponse)(nil),        // 7: web.ArticleDeleteResponse
+	(*ArticleRecoverRequest)(nil),        // 8: web.ArticleRecoverRequest
+	(*ArticleRecoverResponse)(nil),       // 9: web.ArticleRecoverResponse
+	(*ArticleMoveRequest)(nil),           // 10: web.ArticleMoveRequest
+	(*ArticleMoveResponse)(nil),          // 11: web.ArticleMoveResponse
+	(*ArticleAsteriskRequest)(nil),       // 12: web.ArticleAsteriskRequest
+	(*ArticleAsteriskResponse)(nil),      // 13: web.ArticleAsteriskResponse
+	(*ArticleTagsRequest)(nil),           // 14: web.ArticleTagsRequest
+	(*ArticleTagsResponse)(nil),          // 15: web.ArticleTagsResponse
+	(*ArticleForeverDeleteRequest)(nil),  // 16: web.ArticleForeverDeleteRequest
+	(*ArticleForeverDeleteResponse)(nil), // 17: web.ArticleForeverDeleteResponse
+	(*ArticleDetailResponse_Tag)(nil),    // 18: web.ArticleDetailResponse.Tag
+	(*ArticleDetailResponse_File)(nil),   // 19: web.ArticleDetailResponse.File
+	(*ArticleListResponse_Item)(nil),     // 20: web.ArticleListResponse.Item
+	(*ArticleListResponse_Paginate)(nil), // 21: web.ArticleListResponse.Paginate
 }
 var file_web_v1_article_proto_depIdxs = []int32{
-	6, // 0: web.ArticleDetailResponse.tags:type_name -> web.ArticleDetailResponse.Tag
-	7, // 1: web.ArticleDetailResponse.files:type_name -> web.ArticleDetailResponse.File
-	8, // 2: web.ArticleListResponse.items:type_name -> web.ArticleListResponse.Item
-	9, // 3: web.ArticleListResponse.paginate:type_name -> web.ArticleListResponse.Paginate
-	4, // [4:4] is the sub-list for method output_type
-	4, // [4:4] is the sub-list for method input_type
-	4, // [4:4] is the sub-list for extension type_name
-	4, // [4:4] is the sub-list for extension extendee
-	0, // [0:4] is the sub-list for field type_name
+	18, // 0: web.ArticleDetailResponse.tags:type_name -> web.ArticleDetailResponse.Tag
+	19, // 1: web.ArticleDetailResponse.files:type_name -> web.ArticleDetailResponse.File
+	20, // 2: web.ArticleListResponse.items:type_name -> web.ArticleListResponse.Item
+	21, // 3: web.ArticleListResponse.paginate:type_name -> web.ArticleListResponse.Paginate
+	4,  // [4:4] is the sub-list for method output_type
+	4,  // [4:4] is the sub-list for method input_type
+	4,  // [4:4] is the sub-list for extension type_name
+	4,  // [4:4] is the sub-list for extension extendee
+	0,  // [0:4] is the sub-list for field type_name
 }
 
 func init() { file_web_v1_article_proto_init() }
@@ -1017,7 +1616,7 @@ func file_web_v1_article_proto_init() {
 			}
 		}
 		file_web_v1_article_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*ArticleDetailResponse_Tag); i {
+			switch v := v.(*ArticleDeleteRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -1029,7 +1628,7 @@ func file_web_v1_article_proto_init() {
 			}
 		}
 		file_web_v1_article_proto_msgTypes[7].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*ArticleDetailResponse_File); i {
+			switch v := v.(*ArticleDeleteResponse); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -1041,7 +1640,7 @@ func file_web_v1_article_proto_init() {
 			}
 		}
 		file_web_v1_article_proto_msgTypes[8].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*ArticleListResponse_Item); i {
+			switch v := v.(*ArticleRecoverRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -1053,6 +1652,150 @@ func file_web_v1_article_proto_init() {
 			}
 		}
 		file_web_v1_article_proto_msgTypes[9].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*ArticleRecoverResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_web_v1_article_proto_msgTypes[10].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*ArticleMoveRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_web_v1_article_proto_msgTypes[11].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*ArticleMoveResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_web_v1_article_proto_msgTypes[12].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*ArticleAsteriskRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_web_v1_article_proto_msgTypes[13].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*ArticleAsteriskResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_web_v1_article_proto_msgTypes[14].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*ArticleTagsRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_web_v1_article_proto_msgTypes[15].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*ArticleTagsResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_web_v1_article_proto_msgTypes[16].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*ArticleForeverDeleteRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_web_v1_article_proto_msgTypes[17].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*ArticleForeverDeleteResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_web_v1_article_proto_msgTypes[18].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*ArticleDetailResponse_Tag); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_web_v1_article_proto_msgTypes[19].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*ArticleDetailResponse_File); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_web_v1_article_proto_msgTypes[20].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*ArticleListResponse_Item); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_web_v1_article_proto_msgTypes[21].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*ArticleListResponse_Paginate); i {
 			case 0:
 				return &v.state
@@ -1071,7 +1814,7 @@ func file_web_v1_article_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_web_v1_article_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   10,
+			NumMessages:   22,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

@@ -1,0 +1,39 @@
+syntax = "proto3";
+package web;
+
+option go_package = "web/v1;web";
+
+import "tagger/tagger.proto";
+
+// 文章标签列表接口请求参数
+message ArticleTagListRequest{}
+
+// 文章标签列表接口响应参数
+message ArticleTagListResponse{
+  message Item{
+    int32 id = 1;
+    string tag_name = 2;
+    int32 count = 4;
+  }
+
+  repeated Item tags = 1;
+}
+
+// 文章标签编辑接口请求参数
+message ArticleTagEditRequest{
+  int32 tag_id = 1;
+  string tag_name = 2 [(tagger.tags) = "binding:\"required\""];
+}
+
+// 文章标签编辑接口请求参数
+message ArticleTagEditResponse{
+  int32 id = 1;
+}
+
+// 文章标签删除接口请求参数
+message ArticleTagDeleteRequest{
+  int32 tag_id = 1 [(tagger.tags) = "binding:\"required\""];
+}
+
+// 文章标签删除接口响应参数
+message ArticleTagDeleteResponse{}

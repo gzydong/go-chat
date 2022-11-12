@@ -1,0 +1,70 @@
+syntax = "proto3";
+package web;
+
+option go_package = "web/v1;web";
+
+import "tagger/tagger.proto";
+import "web/v1/paginate.proto";
+
+// 文章附件上传接口请求参数
+message ArticleAnnexUploadRequest{
+  int32 article_id = 1 [(tagger.tags) = "form:\"article_id\" binding:\"required\""];
+}
+
+// 文章附件上传接口响应参数
+message ArticleAnnexUploadResponse{
+  int32 id = 1;
+  int32 size = 2;
+  string path = 3;
+  string suffix = 4;
+  string original_name = 5;
+}
+
+// 文章附件删除接口请求参数
+message ArticleAnnexDeleteRequest{
+  int32 annex_id = 1 [(tagger.tags) = "binding:\"required\""];
+}
+
+// 文章附件删除接口响应参数
+message ArticleAnnexDeleteResponse{}
+
+// 文章附件恢复删除接口请求参数
+message ArticleAnnexRecoverRequest{
+  int32 annex_id = 1 [(tagger.tags) = "binding:\"required\""];
+}
+
+// 文章附件恢复删除接口响应参数
+message ArticleAnnexRecoverResponse{}
+
+// 文章附件永久删除接口请求参数
+message ArticleAnnexForeverDeleteRequest{
+  int32 annex_id = 1 [(tagger.tags) = "binding:\"required\""];
+}
+
+// 文章附件永久删除接口响应参数
+message ArticleAnnexForeverDeleteResponse{}
+
+// 文章附件下载接口请求参数
+message ArticleAnnexDownloadRequest{
+  int32 annex_id = 1 [(tagger.tags) = "form:\"annex_id\" binding:\"required\""];
+}
+
+// 文章附件下载接口响应参数
+message ArticleAnnexDownloadResponse{}
+
+// 文章附件回收站列表接口请求参数
+message ArticleAnnexRecoverListRequest{}
+
+// 文章附件回收站列表接口响应参数
+message ArticleAnnexRecoverListResponse{
+  message Item{
+    int32 id = 1;
+    int32 article_id = 2;
+    string title = 3;
+    string original_name = 4;
+    int32 day = 5;
+  }
+
+  repeated Item items = 1;
+  Paginate paginate = 2;
+}

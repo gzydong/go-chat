@@ -70,8 +70,8 @@ build-all:generate lint
 .PHONY: proto
 proto:
 	@if [ -n "$(PROTO_FILES)" ]; then \
-		protoc --proto_path=./third_party \
-		--proto_path=./api/proto \
+		protoc --proto_path=./api/proto \
+		--proto_path=./third_party \
 		--go_out=paths=source_relative:./api/pb/ \
 		--validate_out=paths=source_relative,lang=go:./api/pb/ $(PROTO_FILES) \
 	 && protoc --proto_path=./third_party --proto_path=./api/proto --gotag_out=outdir="./api/pb/":./ $(PROTO_FILES) \

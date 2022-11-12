@@ -1,0 +1,10 @@
+syntax = "proto3";
+package web;
+
+option go_package = "web/v1;web";
+
+message Paginate{
+  int32 page = 1;
+  int32 size = 2;
+  int32 total = 3;
+}

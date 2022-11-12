@@ -1,0 +1,50 @@
+syntax = "proto3";
+package web;
+
+option go_package = "web/v1;web";
+
+import "tagger/tagger.proto";
+import "web/v1/paginate.proto";
+
+// 文章分类列表接口响应参数
+message ArticleClassListResponse{
+  message Item{
+    int32 id = 1;
+    string class_name = 2;
+    int32 is_default = 3;
+    int32 count = 4;
+  }
+
+  repeated Item items = 1;
+
+  Paginate paginate = 2;
+}
+
+
+// 文章分类编辑接口请求参数
+message ArticleClassEditRequest{
+  int32 class_id = 1;
+  string class_name = 2 [(tagger.tags) = "binding:\"required\""];
+}
+
+// 文章分类编辑接口响应参数
+message ArticleClassEditResponse{
+  int32 id = 1;
+}
+
+// 文章分类删除接口请求参数
+message ArticleClassDeleteRequest{
+  int32 class_id = 1 [(tagger.tags) = "binding:\"required\""];
+}
+
+// 文章分类删除接口响应参数
+message ArticleClassDeleteResponse{}
+
+// 文章分类排序接口请求参数
+message ArticleClassSortRequest{
+  int32 class_id = 1 [(tagger.tags) = "binding:\"required\""];
+  int32 sort_type = 2 [(tagger.tags) = "binding:\"required,oneof=1 2\""];
+}
+
+// 文章分类排序接口响应参数
+message ArticleClassSortResponse{}

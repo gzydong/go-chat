@@ -89,3 +89,49 @@ message ArticleListResponse{
   repeated Item items = 1;
   Paginate paginate = 2;
 }
+
+
+// 文章删除接口请求参数
+message ArticleDeleteRequest{
+  int32 article_id = 1 [(tagger.tags) = "binding:\"required\""];
+}
+
+// 文章删除接口响应参数
+message ArticleDeleteResponse{}
+
+message ArticleRecoverRequest{
+  int32 article_id = 1 [(tagger.tags) = "binding:\"required\""];
+}
+
+message ArticleRecoverResponse{}
+
+// 文章移动分类接口请求参数
+message ArticleMoveRequest{
+  int32 article_id = 1 [(tagger.tags) = "binding:\"required,gt=0\""];
+  int32 class_id = 2 [(tagger.tags) = "binding:\"required,gt=0\""];
+}
+
+// 文章移动分类接口响应参数
+message ArticleMoveResponse{}
+
+message ArticleAsteriskRequest{
+  int32 article_id = 1 [(tagger.tags) = "binding:\"required,gt=0\""];
+  int32 type = 2 [(tagger.tags) = "binding:\"required,oneof=1 2\""];
+}
+
+message ArticleAsteriskResponse{}
+
+message ArticleTagsRequest{
+  int32 article_id = 1 [(tagger.tags) = "binding:\"required,gt=0\""];
+  repeated int32 tags = 2;
+}
+
+message ArticleTagsResponse{}
+
+
+message ArticleForeverDeleteRequest{
+  int32 article_id = 1 [(tagger.tags) = "binding:\"required,gt=0\""];
+}
+
+message ArticleForeverDeleteResponse{}
+
