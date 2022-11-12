@@ -17,10 +17,10 @@ func NewPosition(base *repo.Base) *Position {
 	return &Position{Base: base}
 }
 
-func (repo *Position) FindAll() ([]*model.OrganizePost, error) {
+func (p *Position) FindAll() ([]*model.OrganizePost, error) {
 	items := make([]*model.OrganizePost, 0)
 
-	err := repo.Db.Model(model.OrganizePost{}).Where("status = 1").Order("sort asc").Scan(&items).Error
+	err := p.Db.Model(model.OrganizePost{}).Where("status = 1").Order("sort asc").Scan(&items).Error
 	if err != nil {
 		return nil, err
 	}

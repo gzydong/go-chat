@@ -26,60 +26,60 @@ func NewContact(base *Base, cache *cache.ContactRemark, relation *cache.Relation
 	return &Contact{Base: base, cache: cache, relation: relation}
 }
 
-func (repo *Contact) Remarks(ctx context.Context, uid int, fids []int) (map[int]string, error) {
+func (c *Contact) Remarks(ctx context.Context, uid int, fids []int) (map[int]string, error) {
 
-	if !repo.cache.IsExist(ctx, uid) {
-		_ = repo.LoadContactCache(ctx, uid)
+	if !c.cache.IsExist(ctx, uid) {
+		_ = c.LoadContactCache(ctx, uid)
 	}
 
-	return repo.cache.MGet(ctx, uid, fids)
+	return c.cache.MGet(ctx, uid, fids)
 }
 
 // IsFriend 判断是否为好友关系
-func (repo *Contact) IsFriend(ctx context.Context, uid int, friendId int, cache bool) bool {
+func (c *Contact) IsFriend(ctx context.Context, uid int, friendId int, cache bool) bool {
 
-	if cache && repo.relation.IsContactRelation(ctx, uid, friendId) == nil {
+	if cache && c.relation.IsContactRelation(ctx, uid, friendId) == nil {
 		return true
 	}
 
 	sql := `SELECT count(1) from contact where ((user_id = ? and friend_id = ?) or (user_id = ? and friend_id = ?)) and status = 1`
 
 	var count int
-	if err := repo.Db.WithContext(ctx).Raw(sql, uid, friendId, friendId, uid).Scan(&count).Error; err != nil {
+	if err := c.Db.WithContext(ctx).Raw(sql, uid, friendId, friendId, uid).Scan(&count).Error; err != nil {
 		return false
 	}
 
 	if count == 2 {
-		repo.relation.SetContactRelation(ctx, uid, friendId)
+		c.relation.SetContactRelation(ctx, uid, friendId)
 	} else {
-		repo.relation.DelContactRelation(ctx, uid, friendId)
+		c.relation.DelContactRelation(ctx, uid, friendId)
 	}
 
 	return count == 2
 }
 
-func (repo *Contact) GetFriendRemark(ctx context.Context, uid int, friendId int) string {
+func (c *Contact) GetFriendRemark(ctx context.Context, uid int, friendId int) string {
 
-	if repo.cache.IsExist(ctx, uid) {
-		return repo.cache.Get(ctx, uid, friendId)
+	if c.cache.IsExist(ctx, uid) {
+		return c.cache.Get(ctx, uid, friendId)
 	}
 
 	info := &model.Contact{}
-	repo.Db.WithContext(ctx).First(info, "user_id = ? and friend_id = ?", uid, friendId)
+	c.Db.WithContext(ctx).First(info, "user_id = ? and friend_id = ?", uid, friendId)
 
 	return info.Remark
 }
 
-func (repo *Contact) SetFriendRemark(ctx context.Context, uid int, friendId int, remark string) error {
-	return repo.cache.Set(ctx, uid, friendId, remark)
+func (c *Contact) SetFriendRemark(ctx context.Context, uid int, friendId int, remark string) error {
+	return c.cache.Set(ctx, uid, friendId, remark)
 }
 
-func (repo *Contact) LoadContactCache(ctx context.Context, uid int) error {
+func (c *Contact) LoadContactCache(ctx context.Context, uid int) error {
 
 	sql := `SELECT friend_id, remark FROM contact WHERE user_id = ? and status = 1`
 
 	var contacts []*model.Contact
-	if err := repo.Db.WithContext(ctx).Raw(sql, uid).Scan(&contacts).Error; err != nil {
+	if err := c.Db.WithContext(ctx).Raw(sql, uid).Scan(&contacts).Error; err != nil {
 		return err
 	}
 
@@ -90,7 +90,7 @@ func (repo *Contact) LoadContactCache(ctx context.Context, uid int) error {
 		}
 	}
 
-	_ = repo.cache.MSet(ctx, uid, items)
+	_ = c.cache.MSet(ctx, uid, items)
 
 	return nil
 }

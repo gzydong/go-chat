@@ -17,11 +17,11 @@ type IDept interface {
 	FindAll() ([]*model.OrganizeDept, error)
 }
 
-func (repo *Department) FindAll() ([]*model.OrganizeDept, error) {
+func (d *Department) FindAll() ([]*model.OrganizeDept, error) {
 
 	items := make([]*model.OrganizeDept, 0)
 
-	err := repo.Db.Model(model.OrganizeDept{}).Where("is_deleted = 1").Order("parent_id asc,order_num asc").Scan(&items).Error
+	err := d.Db.Model(model.OrganizeDept{}).Where("is_deleted = 1").Order("parent_id asc,order_num asc").Scan(&items).Error
 	if err != nil {
 		return nil, err
 	}

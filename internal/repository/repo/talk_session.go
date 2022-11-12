@@ -12,11 +12,11 @@ func NewTalkSession(base *Base) *TalkSession {
 	return &TalkSession{base}
 }
 
-func (repo *TalkSession) IsDisturb(uid int, receiverId int, talkType int) bool {
+func (t *TalkSession) IsDisturb(uid int, receiverId int, talkType int) bool {
 
 	result := &model.TalkSession{}
 
-	err := repo.Db.Model(&model.TalkSession{}).Select("is_disturb").Where("user_id = ? and receiver_id = ? and talk_type = ?", uid, receiverId, talkType).First(result).Error
+	err := t.Db.Model(&model.TalkSession{}).Select("is_disturb").Where("user_id = ? and receiver_id = ? and talk_type = ?", uid, receiverId, talkType).First(result).Error
 	if err != nil {
 		return false
 	}
@@ -24,10 +24,10 @@ func (repo *TalkSession) IsDisturb(uid int, receiverId int, talkType int) bool {
 	return result.IsDisturb == 1
 }
 
-func (repo *TalkSession) FindBySessionId(uid int, receiverId int, talkType int) int {
+func (t *TalkSession) FindBySessionId(uid int, receiverId int, talkType int) int {
 	result := &model.TalkSession{}
 
-	err := repo.Db.Model(&model.TalkSession{}).Select("id").Where("user_id = ? and receiver_id = ? and talk_type = ?", uid, receiverId, talkType).First(result).Error
+	err := t.Db.Model(&model.TalkSession{}).Select("id").Where("user_id = ? and receiver_id = ? and talk_type = ?", uid, receiverId, talkType).First(result).Error
 	if err != nil {
 		return 0
 	}

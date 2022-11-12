@@ -14,7 +14,7 @@ func NewGroupNotice(base *Base) *GroupNotice {
 	return &GroupNotice{Base: base}
 }
 
-func (repo *GroupNotice) GetListAll(ctx context.Context, groupId int) ([]*model.SearchNoticeItem, error) {
+func (g *GroupNotice) GetListAll(ctx context.Context, groupId int) ([]*model.SearchNoticeItem, error) {
 
 	fields := []string{
 		"group_notice.id",
@@ -30,7 +30,7 @@ func (repo *GroupNotice) GetListAll(ctx context.Context, groupId int) ([]*model.
 		"users.nickname",
 	}
 
-	query := repo.Db.WithContext(ctx).Table("group_notice")
+	query := g.Db.WithContext(ctx).Table("group_notice")
 	query.Joins("left join users on users.id = group_notice.creator_id")
 	query.Where("group_notice.group_id = ? and group_notice.is_delete = ?", groupId, 0)
 	query.Order("group_notice.is_top desc")
@@ -45,10 +45,10 @@ func (repo *GroupNotice) GetListAll(ctx context.Context, groupId int) ([]*model.
 }
 
 // GetLatestNotice 获取最新公告
-func (repo *GroupNotice) GetLatestNotice(ctx context.Context, groupId int) (*model.GroupNotice, error) {
+func (g *GroupNotice) GetLatestNotice(ctx context.Context, groupId int) (*model.GroupNotice, error) {
 	info := &model.GroupNotice{}
 
-	err := repo.Db.WithContext(ctx).Last(info, "group_id = ? and is_delete = ?", groupId, 0).Error
+	err := g.Db.WithContext(ctx).Last(info, "group_id = ? and is_delete = ?", groupId, 0).Error
 	if err != nil {
 		return nil, err
 	}

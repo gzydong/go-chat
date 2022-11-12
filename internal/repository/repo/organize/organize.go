@@ -26,9 +26,9 @@ type UserInfo struct {
 	Position   string `json:"position"`
 }
 
-func (repo *Organize) FindAll() ([]*UserInfo, error) {
+func (o *Organize) FindAll() ([]*UserInfo, error) {
 
-	tx := repo.Db.Table("organize")
+	tx := o.Db.Table("organize")
 	tx.Select([]string{
 		"organize.user_id", "organize.department", "organize.position",
 		"users.nickname", "users.gender",
@@ -44,10 +44,10 @@ func (repo *Organize) FindAll() ([]*UserInfo, error) {
 }
 
 // IsQiyeMember 判断是否是企业成员
-func (repo *Organize) IsQiyeMember(uid ...int) (bool, error) {
+func (o *Organize) IsQiyeMember(uid ...int) (bool, error) {
 
 	var count int64
-	err := repo.Db.Model(model.Organize{}).Where("user_id in ?", uid).Count(&count).Error
+	err := o.Db.Model(model.Organize{}).Where("user_id in ?", uid).Count(&count).Error
 	if err != nil {
 		return false, err
 	}

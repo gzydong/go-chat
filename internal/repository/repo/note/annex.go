@@ -15,20 +15,20 @@ func NewArticleAnnex(baseDao *repo.Base) *ArticleAnnex {
 	return &ArticleAnnex{Base: baseDao}
 }
 
-func (repo *ArticleAnnex) FindById(ctx context.Context, id int) (*model.ArticleAnnex, error) {
+func (a *ArticleAnnex) FindById(ctx context.Context, id int) (*model.ArticleAnnex, error) {
 	item := &model.ArticleAnnex{}
 
-	if err := repo.Db.WithContext(ctx).First(item, id).Error; err != nil {
+	if err := a.Db.WithContext(ctx).First(item, id).Error; err != nil {
 		return nil, err
 	}
 
 	return item, nil
 }
 
-func (repo *ArticleAnnex) AnnexList(ctx context.Context, uid int, articleId int) ([]*model.ArticleAnnex, error) {
+func (a *ArticleAnnex) AnnexList(ctx context.Context, uid int, articleId int) ([]*model.ArticleAnnex, error) {
 	items := make([]*model.ArticleAnnex, 0)
 
-	err := repo.Db.WithContext(ctx).Model(&model.ArticleAnnex{}).Where("user_id = ? and article_id = ? and status = 1", uid, articleId).Scan(&items).Error
+	err := a.Db.WithContext(ctx).Model(&model.ArticleAnnex{}).Where("user_id = ? and article_id = ? and status = 1", uid, articleId).Scan(&items).Error
 	if err != nil {
 		return nil, err
 	}
@@ -36,7 +36,7 @@ func (repo *ArticleAnnex) AnnexList(ctx context.Context, uid int, articleId int)
 	return items, nil
 }
 
-func (repo *ArticleAnnex) RecoverList(ctx context.Context, uid int) ([]*model.RecoverAnnexItem, error) {
+func (a *ArticleAnnex) RecoverList(ctx context.Context, uid int) ([]*model.RecoverAnnexItem, error) {
 
 	fields := []string{
 		"article_annex.id",
@@ -46,7 +46,7 @@ func (repo *ArticleAnnex) RecoverList(ctx context.Context, uid int) ([]*model.Re
 		"article_annex.deleted_at",
 	}
 
-	query := repo.Db.WithContext(ctx).Model(&model.ArticleAnnex{})
+	query := a.Db.WithContext(ctx).Model(&model.ArticleAnnex{})
 	query.Joins("left join article on article.id = article_annex.article_id")
 	query.Where("article_annex.user_id = ? and article_annex.status = ?", uid, 2)
 

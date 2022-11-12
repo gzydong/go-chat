@@ -15,8 +15,8 @@ func NewUsers(base *Base) *Users {
 }
 
 // Create 创建数据
-func (repo *Users) Create(user *model.Users) (*model.Users, error) {
-	if err := repo.Db.Create(user).Error; err != nil {
+func (u *Users) Create(user *model.Users) (*model.Users, error) {
+	if err := u.Db.Create(user).Error; err != nil {
 		return nil, err
 	}
 
@@ -24,7 +24,7 @@ func (repo *Users) Create(user *model.Users) (*model.Users, error) {
 }
 
 // FindById ID查询
-func (repo *Users) FindById(uid int) (*model.Users, error) {
+func (u *Users) FindById(uid int) (*model.Users, error) {
 
 	if uid == 0 {
 		return nil, fmt.Errorf("uid is empty")
@@ -32,7 +32,7 @@ func (repo *Users) FindById(uid int) (*model.Users, error) {
 
 	user := &model.Users{}
 
-	if err := repo.Db.Where(&model.Users{Id: uid}).First(user).Error; err != nil {
+	if err := u.Db.Where(&model.Users{Id: uid}).First(user).Error; err != nil {
 		return nil, err
 	}
 
@@ -40,7 +40,7 @@ func (repo *Users) FindById(uid int) (*model.Users, error) {
 }
 
 // FindByMobile 手机号查询
-func (repo *Users) FindByMobile(mobile string) (*model.Users, error) {
+func (u *Users) FindByMobile(mobile string) (*model.Users, error) {
 
 	if len(mobile) == 0 {
 		return nil, fmt.Errorf("mobile is empty")
@@ -48,7 +48,7 @@ func (repo *Users) FindByMobile(mobile string) (*model.Users, error) {
 
 	user := &model.Users{}
 
-	if err := repo.Db.Where(&model.Users{Mobile: mobile}).First(user).Error; err != nil {
+	if err := u.Db.Where(&model.Users{Mobile: mobile}).First(user).Error; err != nil {
 		return nil, err
 	}
 
@@ -56,7 +56,7 @@ func (repo *Users) FindByMobile(mobile string) (*model.Users, error) {
 }
 
 // IsMobileExist 判断手机号是否存在
-func (repo *Users) IsMobileExist(mobile string) bool {
+func (u *Users) IsMobileExist(mobile string) bool {
 
 	if len(mobile) == 0 {
 		return false
@@ -64,7 +64,7 @@ func (repo *Users) IsMobileExist(mobile string) bool {
 
 	user := &model.Users{}
 
-	rowsAffects := repo.Db.Select("id").Where(&model.Users{Mobile: mobile}).First(user).RowsAffected
+	rowsAffects := u.Db.Select("id").Where(&model.Users{Mobile: mobile}).First(user).RowsAffected
 
 	return rowsAffects != 0
 }

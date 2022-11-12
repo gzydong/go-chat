@@ -15,11 +15,11 @@ func NewTalkRecords(base *Base) *TalkRecords {
 }
 
 // GetChatRecords 查询对话记录
-func (repo *TalkRecords) GetChatRecords() {
+func (t *TalkRecords) GetChatRecords() {
 
 }
 
-func (repo *TalkRecords) SearchChatRecords() {
+func (t *TalkRecords) SearchChatRecords() {
 
 }
 
@@ -28,13 +28,13 @@ type FindFileRecordData struct {
 	FileInfo *model.TalkRecordsFile
 }
 
-func (repo *TalkRecords) FindFileRecord(ctx context.Context, recordId int) (*FindFileRecordData, error) {
+func (t *TalkRecords) FindFileRecord(ctx context.Context, recordId int) (*FindFileRecordData, error) {
 	var (
 		record   *model.TalkRecords
 		fileInfo *model.TalkRecordsFile
 	)
 
-	tx := repo.Db.WithContext(ctx)
+	tx := t.Db.WithContext(ctx)
 
 	if err := tx.First(&record, recordId).Error; err != nil {
 		return nil, err
