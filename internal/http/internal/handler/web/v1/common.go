@@ -1,11 +1,9 @@
 package v1
 
 import (
-	"fmt"
-
+	"go-chat/api/pb/web/v1"
 	"go-chat/config"
 	"go-chat/internal/entity"
-	"go-chat/internal/http/internal/dto/web"
 	"go-chat/internal/pkg/ichat"
 	"go-chat/internal/service"
 )
@@ -23,7 +21,7 @@ func NewCommon(config *config.Config, smsService *service.SmsService, userServic
 // SmsCode 发送短信验证码
 func (c *Common) SmsCode(ctx *ichat.Context) error {
 
-	params := &web.SmsCodeRequest{}
+	params := &web.CommonSendSmsRequest{}
 	if err := ctx.Context.ShouldBind(params); err != nil {
 		return ctx.InvalidParams(err)
 	}
@@ -58,18 +56,16 @@ func (c *Common) SmsCode(ctx *ichat.Context) error {
 		})
 	}
 
-	return ctx.Success(nil)
+	return ctx.Success(&web.CommonSendSmsResponse{})
 }
 
 // EmailCode 发送邮件验证码
 func (c *Common) EmailCode(ctx *ichat.Context) error {
 
-	params := &web.EmailCodeRequest{}
+	params := &web.CommonSendEmailRequest{}
 	if err := ctx.Context.ShouldBind(params); err != nil {
 		return ctx.InvalidParams(err)
 	}
-
-	fmt.Println(params)
 
 	return ctx.Success(nil)
 }

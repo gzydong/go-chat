@@ -1,0 +1,23 @@
+syntax = "proto3";
+package web;
+
+option go_package = "web/v1;web";
+
+import "tagger/tagger.proto";
+
+// 发送短信验证码接口请求参数
+message CommonSendSmsRequest{
+  string mobile = 1 [(tagger.tags) = "binding:\"required,len=11,phone\""];
+  string channel = 2 [(tagger.tags) = "binding:\"required,oneof=login register forget_account change_account\""];
+}
+
+// 发送短信验证码接口响应参数
+message CommonSendSmsResponse{}
+
+// 发送邮件验证码接口请求参数
+message CommonSendEmailRequest{
+  string email = 1 [(tagger.tags) = "binding:\"required\""];
+}
+
+// 发送邮件验证码接口响应参数
+message CommonSendEmailResponse{}
