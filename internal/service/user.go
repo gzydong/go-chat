@@ -84,7 +84,7 @@ func (s *UserService) Forget(opts *UserForgetOpt) (bool, error) {
 	// 生成 hash 密码
 	hash, _ := encrypt.HashPassword(opts.Password)
 
-	err = s.Dao().Db().Model(&model.Users{}).Where("id = ?", user.Id).Update("password", hash).Error
+	err = s.Dao().Db.Model(&model.Users{}).Where("id = ?", user.Id).Update("password", hash).Error
 	if err != nil {
 		return false, err
 	}
@@ -109,7 +109,7 @@ func (s *UserService) UpdatePassword(uid int, oldPassword string, password strin
 		return err
 	}
 
-	err = s.Dao().Db().Model(&model.Users{}).Where("id = ?", user.Id).Update("password", hash).Error
+	err = s.Dao().Db.Model(&model.Users{}).Where("id = ?", user.Id).Update("password", hash).Error
 	if err != nil {
 		return err
 	}

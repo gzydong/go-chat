@@ -10,8 +10,8 @@ type GroupNotice struct {
 	*Base
 }
 
-func NewGroupNotice(baseDao *Base) *GroupNotice {
-	return &GroupNotice{Base: baseDao}
+func NewGroupNotice(base *Base) *GroupNotice {
+	return &GroupNotice{Base: base}
 }
 
 func (repo *GroupNotice) GetListAll(ctx context.Context, groupId int) ([]*model.SearchNoticeItem, error) {
@@ -30,7 +30,7 @@ func (repo *GroupNotice) GetListAll(ctx context.Context, groupId int) ([]*model.
 		"users.nickname",
 	}
 
-	query := repo.Db().Table("group_notice")
+	query := repo.Db.WithContext(ctx).Table("group_notice")
 	query.Joins("left join users on users.id = group_notice.creator_id")
 	query.Where("group_notice.group_id = ? and group_notice.is_delete = ?", groupId, 0)
 	query.Order("group_notice.is_top desc")
@@ -48,7 +48,7 @@ func (repo *GroupNotice) GetListAll(ctx context.Context, groupId int) ([]*model.
 func (repo *GroupNotice) GetLatestNotice(ctx context.Context, groupId int) (*model.GroupNotice, error) {
 	info := &model.GroupNotice{}
 
-	err := repo.Db().Last(info, "group_id = ? and is_delete = ?", groupId, 0).Error
+	err := repo.Db.WithContext(ctx).Last(info, "group_id = ? and is_delete = ?", groupId, 0).Error
 	if err != nil {
 		return nil, err
 	}

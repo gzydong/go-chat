@@ -33,7 +33,7 @@ type ForwardRecord struct {
 // Verify 验证转发消息合法性
 func (m *MessageForwardLogic) Verify(ctx context.Context, uid int, req *message.ForwardMessageRequest) error {
 
-	query := m.db.Model(&model.TalkRecords{})
+	query := m.db.WithContext(ctx).Model(&model.TalkRecords{})
 	query.Where("id in ?", req.MessageIds)
 
 	if req.Receiver.TalkType == entity.ChatPrivateMode {
@@ -90,7 +90,7 @@ func (m *MessageForwardLogic) MultiMergeForward(ctx context.Context, uid int, re
 	}
 
 	str := sliceutil.ToIds(ids)
-	err = m.db.Transaction(func(tx *gorm.DB) error {
+	err = m.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		forwards := make([]*model.TalkRecordsForward, 0, len(receives))
 		records := make([]*model.TalkRecords, 0, len(receives))
 
@@ -170,7 +170,9 @@ func (m *MessageForwardLogic) MultiSplitForward(ctx context.Context, uid int, re
 		})
 	}
 
-	if err := m.db.Model(&model.TalkRecords{}).Where("id IN ?", req.MessageIds).Scan(&records).Error; err != nil {
+	db := m.db.WithContext(ctx)
+
+	if err := db.Model(&model.TalkRecords{}).Where("id IN ?", req.MessageIds).Scan(&records).Error; err != nil {
 		return nil, err
 	}
 
@@ -187,7 +189,7 @@ func (m *MessageForwardLogic) MultiSplitForward(ctx context.Context, uid int, re
 
 	if len(codeIds) > 0 {
 		items := make([]*model.TalkRecordsCode, 0)
-		if err := m.db.Model(&model.TalkRecordsCode{}).Where("record_id in ?", codeIds).Scan(&items).Error; err == nil {
+		if err := db.Model(&model.TalkRecordsCode{}).Where("record_id in ?", codeIds).Scan(&items).Error; err == nil {
 			for i := range items {
 				hashCodes[items[i].RecordId] = items[i]
 			}
@@ -196,14 +198,14 @@ func (m *MessageForwardLogic) MultiSplitForward(ctx context.Context, uid int, re
 
 	if len(fileIds) > 0 {
 		items := make([]*model.TalkRecordsFile, 0)
-		if err := m.db.Model(&model.TalkRecordsFile{}).Where("record_id in ?", fileIds).Scan(&items).Error; err == nil {
+		if err := db.Model(&model.TalkRecordsFile{}).Where("record_id in ?", fileIds).Scan(&items).Error; err == nil {
 			for i := range items {
 				hashFiles[items[i].RecordId] = items[i]
 			}
 		}
 	}
 
-	err := m.db.Transaction(func(tx *gorm.DB) error {
+	err := db.Transaction(func(tx *gorm.DB) error {
 		for _, item := range records {
 			items := make([]*model.TalkRecords, 0, len(receives))
 			files := make([]*model.TalkRecordsFile, 0)
@@ -300,7 +302,7 @@ func (m *MessageForwardLogic) aggregation(ctx context.Context, req *message.Forw
 
 	rows := make([]*forwardItem, 0)
 
-	query := m.db.Table("talk_records")
+	query := m.db.WithContext(ctx).Table("talk_records")
 	query.Joins("left join users on users.id = talk_records.user_id")
 
 	ids := req.MessageIds

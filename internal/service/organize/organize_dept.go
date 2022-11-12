@@ -14,6 +14,6 @@ func NewOrganizeDeptService(baseService *service.BaseService, dao *organize.Depa
 	return &DeptService{BaseService: baseService, dao: dao}
 }
 
-func (s *DeptService) Dao() organize.IDeptDao {
+func (s *DeptService) Dao() organize.IDept {
 	return s.dao
 }

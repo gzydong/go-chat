@@ -10,14 +10,14 @@ type Group struct {
 	*Base
 }
 
-func NewGroup(baseDao *Base) *Group {
-	return &Group{Base: baseDao}
+func NewGroup(base *Base) *Group {
+	return &Group{Base: base}
 }
 
 func (repo *Group) FindById(id int) (*model.Group, error) {
 	info := &model.Group{}
 
-	if err := repo.Db().First(&info, id).Error; err != nil {
+	if err := repo.Db.First(&info, id).Error; err != nil {
 		return nil, err
 	}
 
@@ -26,7 +26,7 @@ func (repo *Group) FindById(id int) (*model.Group, error) {
 
 func (repo *Group) SearchOvertList(ctx context.Context, name string, page, size int) ([]*model.Group, error) {
 
-	tx := repo.Db().Table("group")
+	tx := repo.Db.WithContext(ctx).Table("group")
 
 	if name != "" {
 		tx.Where("group_name LIKE ?", "%"+name+"%")

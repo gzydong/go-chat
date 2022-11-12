@@ -2,15 +2,15 @@ package repo
 
 import (
 	"go-chat/internal/pkg/sliceutil"
-	model2 "go-chat/internal/repository/model"
+	"go-chat/internal/repository/model"
 )
 
-type IEmoticonDao interface {
-	IBaseDao
-	FindById(emoticonId int) (*model2.Emoticon, error)
+type IEmoticon interface {
+	IBase
+	FindById(emoticonId int) (*model.Emoticon, error)
 	GetUserInstallIds(uid int) []int
-	GetSystemEmoticonList() ([]*model2.Emoticon, error)
-	GetDetailsAll(emoticonId int, uid int) ([]*model2.EmoticonItem, error)
+	GetSystemEmoticonList() ([]*model.Emoticon, error)
+	GetDetailsAll(emoticonId int, uid int) ([]*model.EmoticonItem, error)
 }
 
 type Emoticon struct {
@@ -21,20 +21,20 @@ func NewEmoticon(base *Base) *Emoticon {
 	return &Emoticon{Base: base}
 }
 
-func (repo *Emoticon) FindById(id int) (*model2.Emoticon, error) {
-	var data *model2.Emoticon
+func (repo *Emoticon) FindById(id int) (*model.Emoticon, error) {
+	var data *model.Emoticon
 
-	if err := repo.Db().First(&data, id).Error; err != nil {
+	if err := repo.Db.First(&data, id).Error; err != nil {
 		return nil, err
 	}
 
 	return data, nil
 }
 
-func (repo *Emoticon) FindByIds(ids []int) ([]*model2.Emoticon, error) {
+func (repo *Emoticon) FindByIds(ids []int) ([]*model.Emoticon, error) {
 
-	items := make([]*model2.Emoticon, 0)
-	if err := repo.db.Find(&items, ids).Error; err != nil {
+	items := make([]*model.Emoticon, 0)
+	if err := repo.Db.Find(&items, ids).Error; err != nil {
 		return nil, err
 	}
 
@@ -43,9 +43,9 @@ func (repo *Emoticon) FindByIds(ids []int) ([]*model2.Emoticon, error) {
 
 // GetUserInstallIds 获取用户激活的表情包
 func (repo *Emoticon) GetUserInstallIds(uid int) []int {
-	data := &model2.UsersEmoticon{}
+	data := &model.UsersEmoticon{}
 
-	if err := repo.Db().First(data, "user_id = ?", uid).Error; err != nil {
+	if err := repo.Db.First(data, "user_id = ?", uid).Error; err != nil {
 		return []int{}
 	}
 
@@ -53,13 +53,13 @@ func (repo *Emoticon) GetUserInstallIds(uid int) []int {
 }
 
 // GetSystemEmoticonList 获取系统表情包分组列表
-func (repo *Emoticon) GetSystemEmoticonList() ([]*model2.Emoticon, error) {
+func (repo *Emoticon) GetSystemEmoticonList() ([]*model.Emoticon, error) {
 	var (
 		err   error
-		items = make([]*model2.Emoticon, 0)
+		items = make([]*model.Emoticon, 0)
 	)
 
-	err = repo.Db().Model(&model2.Emoticon{}).Where("status = ?", 0).Scan(&items).Error
+	err = repo.Db.Model(&model.Emoticon{}).Where("status = ?", 0).Scan(&items).Error
 	if err != nil {
 		return nil, err
 	}
@@ -68,13 +68,13 @@ func (repo *Emoticon) GetSystemEmoticonList() ([]*model2.Emoticon, error) {
 }
 
 // GetDetailsAll 获取系统表情包分组详情列表
-func (repo *Emoticon) GetDetailsAll(emoticonId, uid int) ([]*model2.EmoticonItem, error) {
+func (repo *Emoticon) GetDetailsAll(emoticonId, uid int) ([]*model.EmoticonItem, error) {
 	var (
 		err   error
-		items = make([]*model2.EmoticonItem, 0)
+		items = make([]*model.EmoticonItem, 0)
 	)
 
-	if err = repo.Db().Model(&model2.EmoticonItem{}).Where("emoticon_id = ? and user_id = ? order by id desc", emoticonId, uid).Scan(&items).Error; err != nil {
+	if err = repo.Db.Model(&model.EmoticonItem{}).Where("emoticon_id = ? and user_id = ? order by id desc", emoticonId, uid).Scan(&items).Error; err != nil {
 		return nil, err
 	}
 

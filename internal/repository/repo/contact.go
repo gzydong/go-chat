@@ -8,8 +8,8 @@ import (
 	"go-chat/internal/repository/model"
 )
 
-type IContactDao interface {
-	IBaseDao
+type IContact interface {
+	IBase
 	IsFriend(ctx context.Context, uid int, friendId int, cache bool) bool
 	GetFriendRemark(ctx context.Context, uid int, friendId int) string
 	SetFriendRemark(ctx context.Context, uid int, friendId int, remark string) error
@@ -22,8 +22,8 @@ type Contact struct {
 	relation *cache.Relation
 }
 
-func NewContact(baseDao *Base, cache *cache.ContactRemark, relation *cache.Relation) *Contact {
-	return &Contact{Base: baseDao, cache: cache, relation: relation}
+func NewContact(base *Base, cache *cache.ContactRemark, relation *cache.Relation) *Contact {
+	return &Contact{Base: base, cache: cache, relation: relation}
 }
 
 func (repo *Contact) Remarks(ctx context.Context, uid int, fids []int) (map[int]string, error) {
@@ -45,7 +45,7 @@ func (repo *Contact) IsFriend(ctx context.Context, uid int, friendId int, cache 
 	sql := `SELECT count(1) from contact where ((user_id = ? and friend_id = ?) or (user_id = ? and friend_id = ?)) and status = 1`
 
 	var count int
-	if err := repo.Db().Raw(sql, uid, friendId, friendId, uid).Scan(&count).Error; err != nil {
+	if err := repo.Db.WithContext(ctx).Raw(sql, uid, friendId, friendId, uid).Scan(&count).Error; err != nil {
 		return false
 	}
 
@@ -65,7 +65,7 @@ func (repo *Contact) GetFriendRemark(ctx context.Context, uid int, friendId int)
 	}
 
 	info := &model.Contact{}
-	repo.db.First(info, "user_id = ? and friend_id = ?", uid, friendId)
+	repo.Db.WithContext(ctx).First(info, "user_id = ? and friend_id = ?", uid, friendId)
 
 	return info.Remark
 }
@@ -79,7 +79,7 @@ func (repo *Contact) LoadContactCache(ctx context.Context, uid int) error {
 	sql := `SELECT friend_id, remark FROM contact WHERE user_id = ? and status = 1`
 
 	var contacts []*model.Contact
-	if err := repo.db.Raw(sql, uid).Scan(&contacts).Error; err != nil {
+	if err := repo.Db.WithContext(ctx).Raw(sql, uid).Scan(&contacts).Error; err != nil {
 		return err
 	}
 

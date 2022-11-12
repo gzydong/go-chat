@@ -10,13 +10,13 @@ type Users struct {
 	*Base
 }
 
-func NewUsers(baseDao *Base) *Users {
-	return &Users{Base: baseDao}
+func NewUsers(base *Base) *Users {
+	return &Users{Base: base}
 }
 
 // Create 创建数据
 func (repo *Users) Create(user *model.Users) (*model.Users, error) {
-	if err := repo.Db().Create(user).Error; err != nil {
+	if err := repo.Db.Create(user).Error; err != nil {
 		return nil, err
 	}
 
@@ -32,7 +32,7 @@ func (repo *Users) FindById(uid int) (*model.Users, error) {
 
 	user := &model.Users{}
 
-	if err := repo.Db().Where(&model.Users{Id: uid}).First(user).Error; err != nil {
+	if err := repo.Db.Where(&model.Users{Id: uid}).First(user).Error; err != nil {
 		return nil, err
 	}
 
@@ -48,7 +48,7 @@ func (repo *Users) FindByMobile(mobile string) (*model.Users, error) {
 
 	user := &model.Users{}
 
-	if err := repo.Db().Where(&model.Users{Mobile: mobile}).First(user).Error; err != nil {
+	if err := repo.Db.Where(&model.Users{Mobile: mobile}).First(user).Error; err != nil {
 		return nil, err
 	}
 
@@ -64,7 +64,7 @@ func (repo *Users) IsMobileExist(mobile string) bool {
 
 	user := &model.Users{}
 
-	rowsAffects := repo.Db().Select("id").Where(&model.Users{Mobile: mobile}).First(user).RowsAffected
+	rowsAffects := repo.Db.Select("id").Where(&model.Users{Mobile: mobile}).First(user).RowsAffected
 
 	return rowsAffects != 0
 }

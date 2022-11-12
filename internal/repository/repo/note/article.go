@@ -8,6 +8,6 @@ type Article struct {
 	*repo.Base
 }
 
-func NewArticle(baseDao *repo.Base) *Article {
-	return &Article{Base: baseDao}
+func NewArticle(base *repo.Base) *Article {
+	return &Article{Base: base}
 }

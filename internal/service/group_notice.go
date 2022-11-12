@@ -36,7 +36,7 @@ type GroupNoticeEditOpt struct {
 
 // Create 创建群公告
 func (s *GroupNoticeService) Create(ctx context.Context, opts *GroupNoticeEditOpt) error {
-	return s.repo.Db().Create(&model.GroupNotice{
+	return s.repo.Db.Create(&model.GroupNotice{
 		GroupId:      opts.GroupId,
 		CreatorId:    opts.UserId,
 		Title:        opts.Title,

@@ -10,8 +10,8 @@ type GroupApply struct {
 	*Base
 }
 
-func NewGroupApply(baseDao *Base) *GroupApply {
-	return &GroupApply{Base: baseDao}
+func NewGroupApply(base *Base) *GroupApply {
+	return &GroupApply{Base: base}
 }
 
 func (repo *GroupApply) List(ctx context.Context, groupId int) ([]*model.GroupApplyList, error) {
@@ -26,7 +26,7 @@ func (repo *GroupApply) List(ctx context.Context, groupId int) ([]*model.GroupAp
 		"users.nickname",
 	}
 
-	query := repo.Db().Table("group_apply")
+	query := repo.Db.WithContext(ctx).Table("group_apply")
 	query.Joins("left join users on users.id = group_apply.user_id")
 	query.Where("group_apply.group_id = ?", groupId)
 	query.Order("group_apply.created_at desc")

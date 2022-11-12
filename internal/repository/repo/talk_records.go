@@ -3,15 +3,15 @@ package repo
 import (
 	"context"
 
-	model2 "go-chat/internal/repository/model"
+	"go-chat/internal/repository/model"
 )
 
 type TalkRecords struct {
 	*Base
 }
 
-func NewTalkRecords(baseDao *Base) *TalkRecords {
-	return &TalkRecords{Base: baseDao}
+func NewTalkRecords(base *Base) *TalkRecords {
+	return &TalkRecords{Base: base}
 }
 
 // GetChatRecords 查询对话记录
@@ -24,21 +24,23 @@ func (repo *TalkRecords) SearchChatRecords() {
 }
 
 type FindFileRecordData struct {
-	Record   *model2.TalkRecords
-	FileInfo *model2.TalkRecordsFile
+	Record   *model.TalkRecords
+	FileInfo *model.TalkRecordsFile
 }
 
 func (repo *TalkRecords) FindFileRecord(ctx context.Context, recordId int) (*FindFileRecordData, error) {
 	var (
-		record   *model2.TalkRecords
-		fileInfo *model2.TalkRecordsFile
+		record   *model.TalkRecords
+		fileInfo *model.TalkRecordsFile
 	)
 
-	if err := repo.db.First(&record, recordId).Error; err != nil {
+	tx := repo.Db.WithContext(ctx)
+
+	if err := tx.First(&record, recordId).Error; err != nil {
 		return nil, err
 	}
 
-	if err := repo.db.First(&fileInfo, "record_id = ?", recordId).Error; err != nil {
+	if err := tx.First(&fileInfo, "record_id = ?", recordId).Error; err != nil {
 		return nil, err
 	}
 

@@ -41,7 +41,7 @@ func (a *AuthPermissionService) IsAuth(ctx context.Context, prem *AuthPermission
 		// 判断群是否解散
 		group := &model.Group{}
 
-		err := a.groupMemberDao.Db().First(group, "id = ?", prem.ReceiverId).Error
+		err := a.groupMemberDao.Db.First(group, "id = ?", prem.ReceiverId).Error
 		if err != nil || group.Id == 0 || group.IsDismiss == 1 {
 			return false
 		}

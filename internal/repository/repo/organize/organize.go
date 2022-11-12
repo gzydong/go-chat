@@ -5,7 +5,7 @@ import (
 	"go-chat/internal/repository/repo"
 )
 
-type IOrganizeDao interface {
+type IOrganize interface {
 	FindAll() ([]*UserInfo, error)
 	IsQiyeMember(uid ...int) (bool, error)
 }
@@ -14,8 +14,8 @@ type Organize struct {
 	*repo.Base
 }
 
-func NewOrganize(baseDao *repo.Base) *Organize {
-	return &Organize{Base: baseDao}
+func NewOrganize(base *repo.Base) *Organize {
+	return &Organize{Base: base}
 }
 
 type UserInfo struct {
@@ -28,7 +28,7 @@ type UserInfo struct {
 
 func (repo *Organize) FindAll() ([]*UserInfo, error) {
 
-	tx := repo.Db().Table("organize")
+	tx := repo.Db.Table("organize")
 	tx.Select([]string{
 		"organize.user_id", "organize.department", "organize.position",
 		"users.nickname", "users.gender",
@@ -47,7 +47,7 @@ func (repo *Organize) FindAll() ([]*UserInfo, error) {
 func (repo *Organize) IsQiyeMember(uid ...int) (bool, error) {
 
 	var count int64
-	err := repo.Db().Model(model.Organize{}).Where("user_id in ?", uid).Count(&count).Error
+	err := repo.Db.Model(model.Organize{}).Where("user_id in ?", uid).Count(&count).Error
 	if err != nil {
 		return false, err
 	}

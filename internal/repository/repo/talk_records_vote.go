@@ -39,7 +39,7 @@ func (repo *TalkRecordsVote) GetVoteAnswerUser(ctx context.Context, vid int) ([]
 func (repo *TalkRecordsVote) SetVoteAnswerUser(ctx context.Context, vid int) ([]int, error) {
 	uids := make([]int, 0)
 
-	err := repo.Db().Table("talk_records_vote_answer").Where("vote_id = ?", vid).Pluck("user_id", &uids).Error
+	err := repo.Db.WithContext(ctx).Table("talk_records_vote_answer").Where("vote_id = ?", vid).Pluck("user_id", &uids).Error
 
 	if err != nil {
 		return nil, err
@@ -71,13 +71,15 @@ func (repo *TalkRecordsVote) SetVoteStatistics(ctx context.Context, vid int) (*V
 		options      = make([]string, 0)
 	)
 
-	if err = repo.Db().Table("talk_records_vote").First(&vote, vid).Error; err != nil {
+	tx := repo.Db.WithContext(ctx)
+
+	if err = tx.Table("talk_records_vote").First(&vote, vid).Error; err != nil {
 		return nil, err
 	}
 
 	_ = jsonutil.Decode(vote.AnswerOption, &answerOption)
 
-	err = repo.Db().Table("talk_records_vote_answer").Where("vote_id = ?", vid).Pluck("option", &options).Error
+	err = tx.Table("talk_records_vote_answer").Where("vote_id = ?", vid).Pluck("option", &options).Error
 	if err != nil {
 		return nil, err
 	}

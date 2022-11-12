@@ -18,7 +18,7 @@ func NewArticleAnnex(baseDao *repo.Base) *ArticleAnnex {
 func (repo *ArticleAnnex) FindById(ctx context.Context, id int) (*model.ArticleAnnex, error) {
 	item := &model.ArticleAnnex{}
 
-	if err := repo.Db().First(item, id).Error; err != nil {
+	if err := repo.Db.WithContext(ctx).First(item, id).Error; err != nil {
 		return nil, err
 	}
 
@@ -28,7 +28,7 @@ func (repo *ArticleAnnex) FindById(ctx context.Context, id int) (*model.ArticleA
 func (repo *ArticleAnnex) AnnexList(ctx context.Context, uid int, articleId int) ([]*model.ArticleAnnex, error) {
 	items := make([]*model.ArticleAnnex, 0)
 
-	err := repo.Db().Model(&model.ArticleAnnex{}).Where("user_id = ? and article_id = ? and status = 1", uid, articleId).Scan(&items).Error
+	err := repo.Db.WithContext(ctx).Model(&model.ArticleAnnex{}).Where("user_id = ? and article_id = ? and status = 1", uid, articleId).Scan(&items).Error
 	if err != nil {
 		return nil, err
 	}
@@ -46,7 +46,7 @@ func (repo *ArticleAnnex) RecoverList(ctx context.Context, uid int) ([]*model.Re
 		"article_annex.deleted_at",
 	}
 
-	query := repo.Db().Model(&model.ArticleAnnex{})
+	query := repo.Db.WithContext(ctx).Model(&model.ArticleAnnex{})
 	query.Joins("left join article on article.id = article_annex.article_id")
 	query.Where("article_annex.user_id = ? and article_annex.status = ?", uid, 2)
 
