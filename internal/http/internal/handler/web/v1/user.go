@@ -1,8 +1,8 @@
 package v1
 
 import (
+	"go-chat/api/pb/web/v1"
 	"go-chat/internal/entity"
-	"go-chat/internal/http/internal/dto/web"
 	"go-chat/internal/pkg/encrypt"
 	"go-chat/internal/pkg/ichat"
 	"go-chat/internal/pkg/timeutil"
@@ -29,12 +29,12 @@ func (u *User) Detail(ctx *ichat.Context) error {
 		return ctx.Error(err.Error())
 	}
 
-	return ctx.Success(&web.GetUserInfoResponse{
-		Id:       user.Id,
+	return ctx.Success(&web.UserDetailResponse{
+		Id:       int32(user.Id),
 		Mobile:   user.Mobile,
 		Nickname: user.Nickname,
 		Avatar:   user.Avatar,
-		Gender:   user.Gender,
+		Gender:   int32(user.Gender),
 		Motto:    user.Motto,
 		Email:    user.Email,
 		Birthday: user.Birthday,
@@ -74,8 +74,8 @@ func (u *User) Setting(ctx *ichat.Context) error {
 // ChangeDetail 修改个人用户信息
 func (u *User) ChangeDetail(ctx *ichat.Context) error {
 
-	params := &web.ChangeUserDetailRequest{}
-	if err := ctx.Context.ShouldBind(params); err != nil {
+	params := &web.UserDetailUpdateRequest{}
+	if err := ctx.Context.ShouldBindJSON(params); err != nil {
 		return ctx.InvalidParams(err)
 	}
 
@@ -101,8 +101,8 @@ func (u *User) ChangeDetail(ctx *ichat.Context) error {
 // ChangePassword 修改密码接口
 func (u *User) ChangePassword(ctx *ichat.Context) error {
 
-	params := &web.ChangeUserPasswordRequest{}
-	if err := ctx.Context.ShouldBind(params); err != nil {
+	params := &web.UserPasswordUpdateRequest{}
+	if err := ctx.Context.ShouldBindJSON(params); err != nil {
 		return ctx.InvalidParams(err)
 	}
 
@@ -122,8 +122,8 @@ func (u *User) ChangePassword(ctx *ichat.Context) error {
 // ChangeMobile 修改手机号接口
 func (u *User) ChangeMobile(ctx *ichat.Context) error {
 
-	params := &web.ChangeUserMobileRequest{}
-	if err := ctx.Context.ShouldBind(params); err != nil {
+	params := &web.UserMobileUpdateRequest{}
+	if err := ctx.Context.ShouldBindJSON(params); err != nil {
 		return ctx.InvalidParams(err)
 	}
 
@@ -158,8 +158,8 @@ func (u *User) ChangeMobile(ctx *ichat.Context) error {
 // ChangeEmail 修改邮箱接口
 func (u *User) ChangeEmail(ctx *ichat.Context) error {
 
-	params := &web.ChangeUserEmailRequest{}
-	if err := ctx.Context.ShouldBind(params); err != nil {
+	params := &web.UserEmailUpdateRequest{}
+	if err := ctx.Context.ShouldBindJSON(params); err != nil {
 		return ctx.InvalidParams(err)
 	}
 

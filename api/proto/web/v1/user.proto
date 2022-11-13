@@ -1,0 +1,95 @@
+syntax = "proto3";
+package web;
+
+option go_package = "web/v1;web";
+
+import "tagger/tagger.proto";
+
+// 登录用户详情接口请求参数
+message UserDetailRequest{}
+
+// 登录用户详情接口响应参数
+message UserDetailResponse{
+  int32 id = 1;
+  string mobile = 2;
+  string nickname = 3;
+  string avatar = 4;
+  int32 gender = 5;
+  string motto = 6;
+  string email = 7;
+  string birthday = 8;
+}
+
+
+// 用户配置信息请求参数
+message UserSettingRequest{}
+
+// 用户配置信息响应参数
+message UserSettingResponse{
+  message UserInfo{
+    int32 uid = 1;
+    int32 nickname = 2;
+    int32 avatar = 3;
+    int32 motto = 4;
+    int32 gender = 5;
+    int32 is_qiye = 6;
+    int32 mobile = 7;
+    int32 email = 8;
+  }
+
+  message ConfigInfo{
+    string theme_mode = 1;
+    string theme_bag_img = 2;
+    string theme_color = 3;
+    string notify_cue_tone = 4;
+    string keyboard_event_notify = 5;
+  }
+
+  UserInfo user_info = 1;
+  ConfigInfo setting = 2;
+}
+
+
+// 用户信息更新接口请求参数
+message UserDetailUpdateRequest{
+  string avatar = 1;
+  string nickname = 2 [(tagger.tags) = "binding:\"required,max=30\""];
+  int32 gender = 3 [(tagger.tags) = "binding:\"oneof=0 1 2\""];
+  string motto = 4 [(tagger.tags) = "binding:\"max=255\""];
+  string birthday = 5 [(tagger.tags) = "binding:\"max=10\""];
+}
+
+// 用户信息更新接口响应参数
+message UserDetailUpdateResponse{}
+
+
+// 用户密码更新接口请求参数
+message UserPasswordUpdateRequest{
+  string old_password = 1 [(tagger.tags) = "binding:\"required\""];
+  string new_password = 2 [(tagger.tags) = "binding:\"required,min=6,max=16\""];
+}
+
+// 用户密码更新接口响应参数
+message UserPasswordUpdateResponse{}
+
+
+// 用户手机号更新接口请求参数
+message UserMobileUpdateRequest{
+  string mobile = 1 [(tagger.tags) = "binding:\"required\""];
+  string password = 2 [(tagger.tags) = "binding:\"required\""];
+  string sms_code = 3 [(tagger.tags) = "binding:\"required,len=6,numeric\""];
+}
+
+// 用户手机号更新接口响应参数
+message UserMobileUpdateResponse{}
+
+
+// 用户邮箱更新接口请求参数
+message UserEmailUpdateRequest{
+  string email = 1 [(tagger.tags) = "binding:\"required\""];
+  string password = 2 [(tagger.tags) = "binding:\"required\""];
+  string sms_code = 3 [(tagger.tags) = "binding:\"required,len=6,numeric\""];
+}
+
+// 用户邮箱更新接口响应参数
+message UserEmailUpdateResponse{}
