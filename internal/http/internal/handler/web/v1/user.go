@@ -50,24 +50,18 @@ func (u *User) Setting(ctx *ichat.Context) error {
 
 	isOk, _ := u.organizeServ.Dao().IsQiyeMember(uid)
 
-	return ctx.Success(entity.H{
-		"user_info": entity.H{
-			"uid":      user.Id,
-			"nickname": user.Nickname,
-			"avatar":   user.Avatar,
-			"motto":    user.Motto,
-			"gender":   user.Gender,
-			"is_qiye":  isOk,
-			"mobile":   user.Mobile,
-			"email":    user.Email,
+	return ctx.Success(&web.UserSettingResponse{
+		UserInfo: &web.UserSettingResponse_UserInfo{
+			Uid:      int32(user.Id),
+			Nickname: user.Nickname,
+			Avatar:   user.Avatar,
+			Motto:    user.Motto,
+			Gender:   int32(user.Gender),
+			IsQiye:   isOk,
+			Mobile:   user.Mobile,
+			Email:    user.Email,
 		},
-		"setting": entity.H{
-			"theme_mode":            "",
-			"theme_bag_img":         "",
-			"theme_color":           "",
-			"notify_cue_tone":       "",
-			"keyboard_event_notify": "",
-		},
+		Setting: &web.UserSettingResponse_ConfigInfo{},
 	})
 }
 

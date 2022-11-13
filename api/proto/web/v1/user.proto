@@ -28,13 +28,13 @@ message UserSettingRequest{}
 message UserSettingResponse{
   message UserInfo{
     int32 uid = 1;
-    int32 nickname = 2;
-    int32 avatar = 3;
-    int32 motto = 4;
+    string nickname = 2;
+    string avatar = 3;
+    string motto = 4;
     int32 gender = 5;
-    int32 is_qiye = 6;
-    int32 mobile = 7;
-    int32 email = 8;
+    bool is_qiye = 6;
+    string mobile = 7;
+    string email = 8;
   }
 
   message ConfigInfo{
