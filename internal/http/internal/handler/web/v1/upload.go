@@ -4,9 +4,8 @@ import (
 	"fmt"
 	"time"
 
+	"go-chat/api/pb/web/v1"
 	"go-chat/config"
-	"go-chat/internal/entity"
-	"go-chat/internal/http/internal/dto/web"
 	"go-chat/internal/pkg/filesystem"
 	"go-chat/internal/pkg/ichat"
 	"go-chat/internal/pkg/strutil"
@@ -38,8 +37,8 @@ func (u *Upload) Avatar(ctx *ichat.Context) error {
 		return ctx.BusinessError("文件上传失败")
 	}
 
-	return ctx.Success(entity.H{
-		"avatar": u.filesystem.Default.PublicUrl(object),
+	return ctx.Success(web.UploadAvatarResponse{
+		Avatar: u.filesystem.Default.PublicUrl(object),
 	})
 }
 
@@ -47,7 +46,7 @@ func (u *Upload) Avatar(ctx *ichat.Context) error {
 func (u *Upload) InitiateMultipart(ctx *ichat.Context) error {
 
 	params := &web.UploadInitiateMultipartRequest{}
-	if err := ctx.Context.ShouldBind(params); err != nil {
+	if err := ctx.Context.ShouldBindJSON(params); err != nil {
 		return ctx.InvalidParams(err)
 	}
 
@@ -60,9 +59,9 @@ func (u *Upload) InitiateMultipart(ctx *ichat.Context) error {
 		return ctx.BusinessError(err.Error())
 	}
 
-	return ctx.Success(entity.H{
-		"upload_id":  info.UploadId,
-		"split_size": 2 << 20,
+	return ctx.Success(web.UploadInitiateMultipartResponse{
+		UploadId:  info.UploadId,
+		SplitSize: 2 << 20,
 	})
 }
 
@@ -82,8 +81,8 @@ func (u *Upload) MultipartUpload(ctx *ichat.Context) error {
 	err = u.service.MultipartUpload(ctx.Ctx(), &service.MultipartUploadOpts{
 		UserId:     ctx.UserId(),
 		UploadId:   params.UploadId,
-		SplitIndex: params.SplitIndex,
-		SplitNum:   params.SplitNum,
+		SplitIndex: int(params.SplitIndex),
+		SplitNum:   int(params.SplitNum),
 		File:       file,
 	})
 	if err != nil {
@@ -91,8 +90,13 @@ func (u *Upload) MultipartUpload(ctx *ichat.Context) error {
 	}
 
 	if params.SplitIndex != params.SplitNum-1 {
-		return ctx.Success(entity.H{"is_merge": false})
+		return ctx.Success(web.UploadMultipartResponse{
+			IsMerge: false,
+		})
 	}
 
-	return ctx.Success(entity.H{"is_merge": true, "upload_id": params.UploadId})
+	return ctx.Success(web.UploadMultipartResponse{
+		UploadId: params.UploadId,
+		IsMerge:  true,
+	})
 }

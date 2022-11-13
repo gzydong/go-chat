@@ -1,0 +1,41 @@
+syntax = "proto3";
+package web;
+
+option go_package = "web/v1;web";
+
+import "tagger/tagger.proto";
+
+// 头像上传接口请求参数
+message UploadAvatarRequest{}
+
+// 头像上传接口响应参数
+message UploadAvatarResponse{
+  string avatar = 1;
+}
+
+
+// 批量上传文件初始化接口请求参数
+message UploadInitiateMultipartRequest{
+  string file_name = 1 [(tagger.tags) = "binding:\"required\""];
+  int64 file_size = 2 [(tagger.tags) = "binding:\"required\""];
+}
+
+// 批量上传文件初始化接口响应参数
+message UploadInitiateMultipartResponse{
+  string upload_id = 1;
+  int32 split_size = 2;
+}
+
+
+// 批量上传文件接口请求参数
+message UploadMultipartRequest{
+  string upload_id = 1 [(tagger.tags) = "form:\"upload_id\" binding:\"required\""];
+  int32 split_index = 2 [(tagger.tags) = "form:\"split_index\" binding:\"min=0\""];
+  int32 split_num = 3 [(tagger.tags) = "form:\"split_num\" binding:\"required,min=1\""];
+}
+
+// 批量上传文件接口请求参数
+message UploadMultipartResponse{
+  string upload_id = 1;
+  bool is_merge = 2;
+}
