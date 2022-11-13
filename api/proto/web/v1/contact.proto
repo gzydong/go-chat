@@ -1,0 +1,82 @@
+syntax = "proto3";
+package web;
+
+option go_package = "web/v1;web";
+
+import "tagger/tagger.proto";
+//import "web/v1/paginate.proto";
+
+// 联系人列表接口请求参数
+message ContactListRequest{}
+
+// 联系人列表接口响应参数
+message ContactListResponse{
+  message Item{
+    // 用户ID
+    int32 id = 1;
+    // 昵称
+    string nickname = 2;
+    // 性别[0:未知;1:男;2:女;]
+    int32 gender = 3;
+    // 座右铭
+    string motto = 4;
+    // 头像
+    string avatar = 5;
+    // 备注
+    string remark = 6;
+    // 是否在线
+    int32 is_online = 7;
+  }
+
+  repeated Item items = 1;
+}
+
+// 联系人删除接口请求参数
+message ContactDeleteRequest{
+  int32 friend_id = 1 [(tagger.tags) = "binding:\"required\""];
+}
+
+// 联系人删除接口响应参数
+message ContactDeleteResponse{}
+
+// 联系人备注修改接口请求参数
+message ContactEditRemarkRequest{
+  int32 friend_id = 1 [(tagger.tags) = "binding:\"required\""];
+  string remark = 2 [(tagger.tags) = "binding:\"required\""];
+}
+
+// 联系人备注修改接口响应参数
+message ContactEditRemarkResponse{}
+
+// 联系人详情接口请求参数
+message ContactDetailRequest{
+  int32 user_id = 1 [(tagger.tags) = "form:\"user_id\" binding:\"required\""];
+}
+
+// 联系人详情接口响应参数
+message ContactDetailResponse{
+  int32 id = 1;
+  string mobile = 2;
+  string nickname = 3;
+  string nickname_remark = 4;
+  string avatar = 5;
+  int32 gender = 6;
+  string motto = 7;
+  int32 friend_apply = 8;
+  int32 friend_status = 9;
+}
+
+// 联系人搜索接口请求参数
+message ContactSearchRequest{
+  string mobile = 2 [(tagger.tags) = "form:\"mobile\" binding:\"required\""];
+}
+
+// 联系人搜索接口响应参数
+message ContactSearchResponse{
+  int32 id = 1;
+  string mobile = 2;
+  string nickname = 3;
+  string avatar = 5;
+  int32 gender = 6;
+  string motto = 7;
+}

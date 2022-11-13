@@ -1,11 +1,10 @@
 package contact
 
 import (
+	"go-chat/api/pb/web/v1"
 	"go-chat/internal/entity"
-	"go-chat/internal/http/internal/dto/web"
 	"go-chat/internal/pkg/ichat"
 	"go-chat/internal/pkg/timeutil"
-
 	"go-chat/internal/service"
 )
 
@@ -36,33 +35,33 @@ func (c *Apply) Create(ctx *ichat.Context) error {
 	}
 
 	uid := ctx.UserId()
-	if !c.contactService.Dao().IsFriend(ctx.Context, uid, params.FriendId, false) {
+	if !c.contactService.Dao().IsFriend(ctx.Context, uid, int(params.FriendId), false) {
 		return ctx.Success(nil)
 	}
 
 	if err := c.service.Create(ctx.Context, &service.ContactApplyCreateOpts{
 		UserId:   ctx.UserId(),
-		Remarks:  params.Remarks,
-		FriendId: params.FriendId,
+		Remarks:  params.Remark,
+		FriendId: int(params.FriendId),
 	}); err != nil {
 		return ctx.BusinessError(err)
 	}
 
-	return ctx.Success(nil)
+	return ctx.Success(&web.ContactApplyCreateResponse{})
 }
 
 // Accept 同意联系人添加申请
 func (c *Apply) Accept(ctx *ichat.Context) error {
 
 	params := &web.ContactApplyAcceptRequest{}
-	if err := ctx.Context.ShouldBind(params); err != nil {
+	if err := ctx.Context.ShouldBindJSON(params); err != nil {
 		return ctx.InvalidParams(err)
 	}
 
 	uid := ctx.UserId()
 	applyInfo, err := c.service.Accept(ctx.Context, &service.ContactApplyAcceptOpts{
-		Remarks: params.Remarks,
-		ApplyId: params.ApplyId,
+		Remarks: params.Remark,
+		ApplyId: int(params.ApplyId),
 		UserId:  uid,
 	})
 
@@ -77,7 +76,7 @@ func (c *Apply) Accept(ctx *ichat.Context) error {
 		Text:       "你们已成为好友，可以开始聊天咯！",
 	})
 
-	return ctx.Success(nil)
+	return ctx.Success(&web.ContactApplyAcceptResponse{})
 }
 
 // Decline 拒绝联系人添加申请
@@ -90,13 +89,13 @@ func (c *Apply) Decline(ctx *ichat.Context) error {
 
 	if err := c.service.Decline(ctx.Context, &service.ContactApplyDeclineOpts{
 		UserId:  ctx.UserId(),
-		Remarks: params.Remarks,
-		ApplyId: params.ApplyId,
+		Remarks: params.Remark,
+		ApplyId: int(params.ApplyId),
 	}); err != nil {
 		return ctx.BusinessError(err)
 	}
 
-	return ctx.Success(nil)
+	return ctx.Success(&web.ContactApplyDeclineResponse{})
 }
 
 // List 获取联系人申请列表
@@ -107,20 +106,27 @@ func (c *Apply) List(ctx *ichat.Context) error {
 		return ctx.Error(err.Error())
 	}
 
-	items := make([]*entity.H, 0)
+	items := make([]*web.ContactApplyListResponse_Item, 0, len(list))
 	for _, item := range list {
-		items = append(items, &entity.H{
-			"id":         item.Id,
-			"user_id":    item.UserId,
-			"friend_id":  item.FriendId,
-			"remark":     item.Remark,
-			"nickname":   item.Nickname,
-			"avatar":     item.Avatar,
-			"created_at": timeutil.FormatDatetime(item.CreatedAt),
+		items = append(items, &web.ContactApplyListResponse_Item{
+			Id:        int32(item.Id),
+			UserId:    int32(item.UserId),
+			FriendId:  int32(item.FriendId),
+			Remark:    item.Remark,
+			Nickname:  item.Nickname,
+			Avatar:    item.Avatar,
+			CreatedAt: timeutil.FormatDatetime(item.CreatedAt),
 		})
 	}
 
 	c.service.ClearApplyUnreadNum(ctx.Context, ctx.UserId())
 
-	return ctx.Paginate(items, 1, 1000, len(items))
+	return ctx.Success(&web.ContactApplyListResponse{
+		Items: items,
+		Paginate: &web.Paginate{
+			Page:  1,
+			Size:  10000,
+			Total: int32(len(items)),
+		},
+	})
 }

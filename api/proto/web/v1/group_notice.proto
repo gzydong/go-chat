@@ -1,0 +1,6 @@
+syntax = "proto3";
+package web;
+
+option go_package = "web/v1;web";
+
+//import "tagger/tagger.proto";
