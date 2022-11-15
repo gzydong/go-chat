@@ -123,10 +123,5 @@ func (c *Apply) List(ctx *ichat.Context) error {
 
 	return ctx.Success(&web.ContactApplyListResponse{
 		Items: items,
-		Paginate: &web.Paginate{
-			Page:  1,
-			Size:  10000,
-			Total: int32(len(items)),
-		},
 	})
 }

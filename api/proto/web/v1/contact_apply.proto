@@ -4,7 +4,6 @@ package web;
 option go_package = "web/v1;web";
 
 import "tagger/tagger.proto";
-import "web/v1/paginate.proto";
 
 // 添加联系人申请接口请求参数
 message ContactApplyCreateRequest{
@@ -49,5 +48,4 @@ message ContactApplyListResponse{
   }
 
   repeated Item items = 1;
-  Paginate paginate = 2;
 }

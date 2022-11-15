@@ -3,4 +3,45 @@ package web;
 
 option go_package = "web/v1;web";
 
-//import "tagger/tagger.proto";
+import "tagger/tagger.proto";
+
+message GroupApplyCreateRequest{
+  int32 group_id = 1 [(tagger.tags) = "binding:\"required\""];
+  string remark = 2 [(tagger.tags) = "binding:\"required\""];
+}
+
+message GroupApplyCreateResponse{}
+
+
+message GroupApplyDeleteRequest{
+  int32 apply_id = 1 [(tagger.tags) = "binding:\"required\""];
+}
+
+message GroupApplyDeleteResponse{}
+
+
+message GroupApplyAgreeRequest{
+  int32 apply_id = 1 [(tagger.tags) = "binding:\"required\""];
+}
+
+message GroupApplyAgreeResponse{}
+
+
+message GroupApplyListRequest{
+  int32 group_id = 1 [(tagger.tags) = "binding:\"required\""];
+}
+
+message GroupApplyListResponse{
+
+  message Item{
+    int32 id = 1;
+    int32 user_id = 2;
+    int32 group_id = 3;
+    string remark = 4;
+    string avatar = 5;
+    string nickname = 6;
+    string created_at = 7;
+  }
+
+  repeated Item items = 1;
+}

@@ -1,8 +1,8 @@
 package group
 
 import (
+	"go-chat/api/pb/web/v1"
 	"go-chat/internal/entity"
-	"go-chat/internal/http/internal/dto/web"
 	"go-chat/internal/pkg/ichat"
 	"go-chat/internal/pkg/logger"
 	"go-chat/internal/pkg/timeutil"
@@ -27,7 +27,7 @@ func (c *Apply) Create(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	err := c.applyServ.Insert(ctx.Ctx(), params.GroupId, ctx.UserId(), params.Remark)
+	err := c.applyServ.Insert(ctx.Ctx(), int(params.GroupId), ctx.UserId(), params.Remark)
 	if err != nil {
 		return ctx.BusinessError("创建群聊失败，请稍后再试！")
 	}
@@ -81,7 +81,7 @@ func (c *Apply) Delete(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	err := c.applyServ.Delete(ctx.Context, params.ApplyId, ctx.UserId())
+	err := c.applyServ.Delete(ctx.Context, int(params.ApplyId), ctx.UserId())
 	if err != nil {
 		return ctx.BusinessError("创建群聊失败，请稍后再试！")
 	}
@@ -96,28 +96,28 @@ func (c *Apply) List(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	if !c.memberServ.Dao().IsLeader(params.GroupId, ctx.UserId()) {
+	if !c.memberServ.Dao().IsLeader(int(params.GroupId), ctx.UserId()) {
 		return ctx.Unauthorized("无权限访问")
 	}
 
-	list, err := c.applyServ.Dao().List(ctx.Ctx(), params.GroupId)
+	list, err := c.applyServ.Dao().List(ctx.Ctx(), int(params.GroupId))
 	if err != nil {
 		logger.Error("[Apply List] 接口异常 err:", err.Error())
 		return ctx.BusinessError("创建群聊失败，请稍后再试！")
 	}
 
-	items := make([]*entity.H, 0)
+	items := make([]*web.GroupApplyListResponse_Item, 0)
 	for _, item := range list {
-		items = append(items, &entity.H{
-			"id":         item.Id,
-			"user_id":    item.UserId,
-			"group_id":   item.GroupId,
-			"remark":     item.Remark,
-			"avatar":     item.Avatar,
-			"nickname":   item.Nickname,
-			"created_at": timeutil.FormatDatetime(item.CreatedAt),
+		items = append(items, &web.GroupApplyListResponse_Item{
+			Id:        int32(item.Id),
+			UserId:    int32(item.UserId),
+			GroupId:   int32(item.GroupId),
+			Remark:    item.Remark,
+			Avatar:    item.Avatar,
+			Nickname:  item.Nickname,
+			CreatedAt: timeutil.FormatDatetime(item.CreatedAt),
 		})
 	}
 
-	return ctx.Success(items)
+	return ctx.Success(&web.GroupApplyListResponse{Items: items})
 }
