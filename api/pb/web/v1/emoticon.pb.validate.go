@@ -35,42 +35,46 @@ var (
 	_ = sort.Sort
 )
 
-// Validate checks the field values on EmoticonCollectListResponse with the
-// rules defined in the proto definition for this message. If any rules are
-// violated, the first error encountered is returned, or nil if there are no violations.
-func (m *EmoticonCollectListResponse) Validate() error {
+// Validate checks the field values on EmoticonListItem with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// first error encountered is returned, or nil if there are no violations.
+func (m *EmoticonListItem) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on EmoticonCollectListResponse with the
-// rules defined in the proto definition for this message. If any rules are
+// ValidateAll checks the field values on EmoticonListItem with the rules
+// defined in the proto definition for this message. If any rules are
 // violated, the result is a list of violation errors wrapped in
-// EmoticonCollectListResponseMultiError, or nil if none found.
-func (m *EmoticonCollectListResponse) ValidateAll() error {
+// EmoticonListItemMultiError, or nil if none found.
+func (m *EmoticonListItem) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *EmoticonCollectListResponse) validate(all bool) error {
+func (m *EmoticonListItem) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
 
 	var errors []error
 
+	// no validation rules for MediaId
+
+	// no validation rules for Src
+
 	if len(errors) > 0 {
-		return EmoticonCollectListResponseMultiError(errors)
+		return EmoticonListItemMultiError(errors)
 	}
 
 	return nil
 }
 
-// EmoticonCollectListResponseMultiError is an error wrapping multiple
-// validation errors returned by EmoticonCollectListResponse.ValidateAll() if
-// the designated constraints aren't met.
-type EmoticonCollectListResponseMultiError []error
+// EmoticonListItemMultiError is an error wrapping multiple validation errors
+// returned by EmoticonListItem.ValidateAll() if the designated constraints
+// aren't met.
+type EmoticonListItemMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m EmoticonCollectListResponseMultiError) Error() string {
+func (m EmoticonListItemMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -79,12 +83,11 @@ func (m EmoticonCollectListResponseMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m EmoticonCollectListResponseMultiError) AllErrors() []error { return m }
+func (m EmoticonListItemMultiError) AllErrors() []error { return m }
 
-// EmoticonCollectListResponseValidationError is the validation error returned
-// by EmoticonCollectListResponse.Validate if the designated constraints
-// aren't met.
-type EmoticonCollectListResponseValidationError struct {
+// EmoticonListItemValidationError is the validation error returned by
+// EmoticonListItem.Validate if the designated constraints aren't met.
+type EmoticonListItemValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -92,24 +95,22 @@ type EmoticonCollectListResponseValidationError struct {
 }
 
 // Field function returns field value.
-func (e EmoticonCollectListResponseValidationError) Field() string { return e.field }
+func (e EmoticonListItemValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e EmoticonCollectListResponseValidationError) Reason() string { return e.reason }
+func (e EmoticonListItemValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e EmoticonCollectListResponseValidationError) Cause() error { return e.cause }
+func (e EmoticonListItemValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e EmoticonCollectListResponseValidationError) Key() bool { return e.key }
+func (e EmoticonListItemValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e EmoticonCollectListResponseValidationError) ErrorName() string {
-	return "EmoticonCollectListResponseValidationError"
-}
+func (e EmoticonListItemValidationError) ErrorName() string { return "EmoticonListItemValidationError" }
 
 // Error satisfies the builtin error interface
-func (e EmoticonCollectListResponseValidationError) Error() string {
+func (e EmoticonListItemValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -121,14 +122,14 @@ func (e EmoticonCollectListResponseValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sEmoticonCollectListResponse.%s: %s%s",
+		"invalid %sEmoticonListItem.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = EmoticonCollectListResponseValidationError{}
+var _ error = EmoticonListItemValidationError{}
 
 var _ interface {
 	Field() string
@@ -136,4 +137,1432 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = EmoticonCollectListResponseValidationError{}
+} = EmoticonListItemValidationError{}
+
+// Validate checks the field values on EmoticonSetSystemRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *EmoticonSetSystemRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on EmoticonSetSystemRequest with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// EmoticonSetSystemRequestMultiError, or nil if none found.
+func (m *EmoticonSetSystemRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *EmoticonSetSystemRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for EmoticonId
+
+	// no validation rules for Type
+
+	if len(errors) > 0 {
+		return EmoticonSetSystemRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// EmoticonSetSystemRequestMultiError is an error wrapping multiple validation
+// errors returned by EmoticonSetSystemRequest.ValidateAll() if the designated
+// constraints aren't met.
+type EmoticonSetSystemRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m EmoticonSetSystemRequestMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m EmoticonSetSystemRequestMultiError) AllErrors() []error { return m }
+
+// EmoticonSetSystemRequestValidationError is the validation error returned by
+// EmoticonSetSystemRequest.Validate if the designated constraints aren't met.
+type EmoticonSetSystemRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e EmoticonSetSystemRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e EmoticonSetSystemRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e EmoticonSetSystemRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e EmoticonSetSystemRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e EmoticonSetSystemRequestValidationError) ErrorName() string {
+	return "EmoticonSetSystemRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e EmoticonSetSystemRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sEmoticonSetSystemRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = EmoticonSetSystemRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = EmoticonSetSystemRequestValidationError{}
+
+// Validate checks the field values on EmoticonSetSystemResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *EmoticonSetSystemResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on EmoticonSetSystemResponse with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// EmoticonSetSystemResponseMultiError, or nil if none found.
+func (m *EmoticonSetSystemResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *EmoticonSetSystemResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for EmoticonId
+
+	// no validation rules for Url
+
+	// no validation rules for Name
+
+	for idx, item := range m.GetList() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, EmoticonSetSystemResponseValidationError{
+						field:  fmt.Sprintf("List[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, EmoticonSetSystemResponseValidationError{
+						field:  fmt.Sprintf("List[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return EmoticonSetSystemResponseValidationError{
+					field:  fmt.Sprintf("List[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	if len(errors) > 0 {
+		return EmoticonSetSystemResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// EmoticonSetSystemResponseMultiError is an error wrapping multiple validation
+// errors returned by EmoticonSetSystemResponse.ValidateAll() if the
+// designated constraints aren't met.
+type EmoticonSetSystemResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m EmoticonSetSystemResponseMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m EmoticonSetSystemResponseMultiError) AllErrors() []error { return m }
+
+// EmoticonSetSystemResponseValidationError is the validation error returned by
+// EmoticonSetSystemResponse.Validate if the designated constraints aren't met.
+type EmoticonSetSystemResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e EmoticonSetSystemResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e EmoticonSetSystemResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e EmoticonSetSystemResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e EmoticonSetSystemResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e EmoticonSetSystemResponseValidationError) ErrorName() string {
+	return "EmoticonSetSystemResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e EmoticonSetSystemResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sEmoticonSetSystemResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = EmoticonSetSystemResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = EmoticonSetSystemResponseValidationError{}
+
+// Validate checks the field values on EmoticonDeleteRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *EmoticonDeleteRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on EmoticonDeleteRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// EmoticonDeleteRequestMultiError, or nil if none found.
+func (m *EmoticonDeleteRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *EmoticonDeleteRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Ids
+
+	if len(errors) > 0 {
+		return EmoticonDeleteRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// EmoticonDeleteRequestMultiError is an error wrapping multiple validation
+// errors returned by EmoticonDeleteRequest.ValidateAll() if the designated
+// constraints aren't met.
+type EmoticonDeleteRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m EmoticonDeleteRequestMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m EmoticonDeleteRequestMultiError) AllErrors() []error { return m }
+
+// EmoticonDeleteRequestValidationError is the validation error returned by
+// EmoticonDeleteRequest.Validate if the designated constraints aren't met.
+type EmoticonDeleteRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e EmoticonDeleteRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e EmoticonDeleteRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e EmoticonDeleteRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e EmoticonDeleteRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e EmoticonDeleteRequestValidationError) ErrorName() string {
+	return "EmoticonDeleteRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e EmoticonDeleteRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sEmoticonDeleteRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = EmoticonDeleteRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = EmoticonDeleteRequestValidationError{}
+
+// Validate checks the field values on EmoticonDeleteResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *EmoticonDeleteResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on EmoticonDeleteResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// EmoticonDeleteResponseMultiError, or nil if none found.
+func (m *EmoticonDeleteResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *EmoticonDeleteResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(errors) > 0 {
+		return EmoticonDeleteResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// EmoticonDeleteResponseMultiError is an error wrapping multiple validation
+// errors returned by EmoticonDeleteResponse.ValidateAll() if the designated
+// constraints aren't met.
+type EmoticonDeleteResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m EmoticonDeleteResponseMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m EmoticonDeleteResponseMultiError) AllErrors() []error { return m }
+
+// EmoticonDeleteResponseValidationError is the validation error returned by
+// EmoticonDeleteResponse.Validate if the designated constraints aren't met.
+type EmoticonDeleteResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e EmoticonDeleteResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e EmoticonDeleteResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e EmoticonDeleteResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e EmoticonDeleteResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e EmoticonDeleteResponseValidationError) ErrorName() string {
+	return "EmoticonDeleteResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e EmoticonDeleteResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sEmoticonDeleteResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = EmoticonDeleteResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = EmoticonDeleteResponseValidationError{}
+
+// Validate checks the field values on EmoticonSysListRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *EmoticonSysListRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on EmoticonSysListRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// EmoticonSysListRequestMultiError, or nil if none found.
+func (m *EmoticonSysListRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *EmoticonSysListRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(errors) > 0 {
+		return EmoticonSysListRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// EmoticonSysListRequestMultiError is an error wrapping multiple validation
+// errors returned by EmoticonSysListRequest.ValidateAll() if the designated
+// constraints aren't met.
+type EmoticonSysListRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m EmoticonSysListRequestMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m EmoticonSysListRequestMultiError) AllErrors() []error { return m }
+
+// EmoticonSysListRequestValidationError is the validation error returned by
+// EmoticonSysListRequest.Validate if the designated constraints aren't met.
+type EmoticonSysListRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e EmoticonSysListRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e EmoticonSysListRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e EmoticonSysListRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e EmoticonSysListRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e EmoticonSysListRequestValidationError) ErrorName() string {
+	return "EmoticonSysListRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e EmoticonSysListRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sEmoticonSysListRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = EmoticonSysListRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = EmoticonSysListRequestValidationError{}
+
+// Validate checks the field values on EmoticonSysListResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *EmoticonSysListResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on EmoticonSysListResponse with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// EmoticonSysListResponseMultiError, or nil if none found.
+func (m *EmoticonSysListResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *EmoticonSysListResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	for idx, item := range m.GetItems() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, EmoticonSysListResponseValidationError{
+						field:  fmt.Sprintf("Items[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, EmoticonSysListResponseValidationError{
+						field:  fmt.Sprintf("Items[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return EmoticonSysListResponseValidationError{
+					field:  fmt.Sprintf("Items[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	if len(errors) > 0 {
+		return EmoticonSysListResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// EmoticonSysListResponseMultiError is an error wrapping multiple validation
+// errors returned by EmoticonSysListResponse.ValidateAll() if the designated
+// constraints aren't met.
+type EmoticonSysListResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m EmoticonSysListResponseMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m EmoticonSysListResponseMultiError) AllErrors() []error { return m }
+
+// EmoticonSysListResponseValidationError is the validation error returned by
+// EmoticonSysListResponse.Validate if the designated constraints aren't met.
+type EmoticonSysListResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e EmoticonSysListResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e EmoticonSysListResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e EmoticonSysListResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e EmoticonSysListResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e EmoticonSysListResponseValidationError) ErrorName() string {
+	return "EmoticonSysListResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e EmoticonSysListResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sEmoticonSysListResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = EmoticonSysListResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = EmoticonSysListResponseValidationError{}
+
+// Validate checks the field values on EmoticonListRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *EmoticonListRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on EmoticonListRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// EmoticonListRequestMultiError, or nil if none found.
+func (m *EmoticonListRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *EmoticonListRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(errors) > 0 {
+		return EmoticonListRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// EmoticonListRequestMultiError is an error wrapping multiple validation
+// errors returned by EmoticonListRequest.ValidateAll() if the designated
+// constraints aren't met.
+type EmoticonListRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m EmoticonListRequestMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m EmoticonListRequestMultiError) AllErrors() []error { return m }
+
+// EmoticonListRequestValidationError is the validation error returned by
+// EmoticonListRequest.Validate if the designated constraints aren't met.
+type EmoticonListRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e EmoticonListRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e EmoticonListRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e EmoticonListRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e EmoticonListRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e EmoticonListRequestValidationError) ErrorName() string {
+	return "EmoticonListRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e EmoticonListRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sEmoticonListRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = EmoticonListRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = EmoticonListRequestValidationError{}
+
+// Validate checks the field values on EmoticonListResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *EmoticonListResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on EmoticonListResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// EmoticonListResponseMultiError, or nil if none found.
+func (m *EmoticonListResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *EmoticonListResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	for idx, item := range m.GetSysEmoticon() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, EmoticonListResponseValidationError{
+						field:  fmt.Sprintf("SysEmoticon[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, EmoticonListResponseValidationError{
+						field:  fmt.Sprintf("SysEmoticon[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return EmoticonListResponseValidationError{
+					field:  fmt.Sprintf("SysEmoticon[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	for idx, item := range m.GetCollectEmoticon() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, EmoticonListResponseValidationError{
+						field:  fmt.Sprintf("CollectEmoticon[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, EmoticonListResponseValidationError{
+						field:  fmt.Sprintf("CollectEmoticon[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return EmoticonListResponseValidationError{
+					field:  fmt.Sprintf("CollectEmoticon[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	if len(errors) > 0 {
+		return EmoticonListResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// EmoticonListResponseMultiError is an error wrapping multiple validation
+// errors returned by EmoticonListResponse.ValidateAll() if the designated
+// constraints aren't met.
+type EmoticonListResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m EmoticonListResponseMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m EmoticonListResponseMultiError) AllErrors() []error { return m }
+
+// EmoticonListResponseValidationError is the validation error returned by
+// EmoticonListResponse.Validate if the designated constraints aren't met.
+type EmoticonListResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e EmoticonListResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e EmoticonListResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e EmoticonListResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e EmoticonListResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e EmoticonListResponseValidationError) ErrorName() string {
+	return "EmoticonListResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e EmoticonListResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sEmoticonListResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = EmoticonListResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = EmoticonListResponseValidationError{}
+
+// Validate checks the field values on EmoticonUploadRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *EmoticonUploadRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on EmoticonUploadRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// EmoticonUploadRequestMultiError, or nil if none found.
+func (m *EmoticonUploadRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *EmoticonUploadRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(errors) > 0 {
+		return EmoticonUploadRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// EmoticonUploadRequestMultiError is an error wrapping multiple validation
+// errors returned by EmoticonUploadRequest.ValidateAll() if the designated
+// constraints aren't met.
+type EmoticonUploadRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m EmoticonUploadRequestMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m EmoticonUploadRequestMultiError) AllErrors() []error { return m }
+
+// EmoticonUploadRequestValidationError is the validation error returned by
+// EmoticonUploadRequest.Validate if the designated constraints aren't met.
+type EmoticonUploadRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e EmoticonUploadRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e EmoticonUploadRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e EmoticonUploadRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e EmoticonUploadRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e EmoticonUploadRequestValidationError) ErrorName() string {
+	return "EmoticonUploadRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e EmoticonUploadRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sEmoticonUploadRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = EmoticonUploadRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = EmoticonUploadRequestValidationError{}
+
+// Validate checks the field values on EmoticonUploadResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *EmoticonUploadResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on EmoticonUploadResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// EmoticonUploadResponseMultiError, or nil if none found.
+func (m *EmoticonUploadResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *EmoticonUploadResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for MediaId
+
+	// no validation rules for Src
+
+	if len(errors) > 0 {
+		return EmoticonUploadResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// EmoticonUploadResponseMultiError is an error wrapping multiple validation
+// errors returned by EmoticonUploadResponse.ValidateAll() if the designated
+// constraints aren't met.
+type EmoticonUploadResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m EmoticonUploadResponseMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m EmoticonUploadResponseMultiError) AllErrors() []error { return m }
+
+// EmoticonUploadResponseValidationError is the validation error returned by
+// EmoticonUploadResponse.Validate if the designated constraints aren't met.
+type EmoticonUploadResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e EmoticonUploadResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e EmoticonUploadResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e EmoticonUploadResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e EmoticonUploadResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e EmoticonUploadResponseValidationError) ErrorName() string {
+	return "EmoticonUploadResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e EmoticonUploadResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sEmoticonUploadResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = EmoticonUploadResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = EmoticonUploadResponseValidationError{}
+
+// Validate checks the field values on EmoticonSysListResponse_Item with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *EmoticonSysListResponse_Item) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on EmoticonSysListResponse_Item with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// EmoticonSysListResponse_ItemMultiError, or nil if none found.
+func (m *EmoticonSysListResponse_Item) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *EmoticonSysListResponse_Item) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Id
+
+	// no validation rules for Name
+
+	// no validation rules for Icon
+
+	// no validation rules for Status
+
+	if len(errors) > 0 {
+		return EmoticonSysListResponse_ItemMultiError(errors)
+	}
+
+	return nil
+}
+
+// EmoticonSysListResponse_ItemMultiError is an error wrapping multiple
+// validation errors returned by EmoticonSysListResponse_Item.ValidateAll() if
+// the designated constraints aren't met.
+type EmoticonSysListResponse_ItemMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m EmoticonSysListResponse_ItemMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m EmoticonSysListResponse_ItemMultiError) AllErrors() []error { return m }
+
+// EmoticonSysListResponse_ItemValidationError is the validation error returned
+// by EmoticonSysListResponse_Item.Validate if the designated constraints
+// aren't met.
+type EmoticonSysListResponse_ItemValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e EmoticonSysListResponse_ItemValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e EmoticonSysListResponse_ItemValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e EmoticonSysListResponse_ItemValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e EmoticonSysListResponse_ItemValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e EmoticonSysListResponse_ItemValidationError) ErrorName() string {
+	return "EmoticonSysListResponse_ItemValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e EmoticonSysListResponse_ItemValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sEmoticonSysListResponse_Item.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = EmoticonSysListResponse_ItemValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = EmoticonSysListResponse_ItemValidationError{}
+
+// Validate checks the field values on EmoticonListResponse_SysEmoticon with
+// the rules defined in the proto definition for this message. If any rules
+// are violated, the first error encountered is returned, or nil if there are
+// no violations.
+func (m *EmoticonListResponse_SysEmoticon) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on EmoticonListResponse_SysEmoticon with
+// the rules defined in the proto definition for this message. If any rules
+// are violated, the result is a list of violation errors wrapped in
+// EmoticonListResponse_SysEmoticonMultiError, or nil if none found.
+func (m *EmoticonListResponse_SysEmoticon) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *EmoticonListResponse_SysEmoticon) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for EmoticonId
+
+	// no validation rules for Url
+
+	// no validation rules for Name
+
+	for idx, item := range m.GetList() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, EmoticonListResponse_SysEmoticonValidationError{
+						field:  fmt.Sprintf("List[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, EmoticonListResponse_SysEmoticonValidationError{
+						field:  fmt.Sprintf("List[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return EmoticonListResponse_SysEmoticonValidationError{
+					field:  fmt.Sprintf("List[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	if len(errors) > 0 {
+		return EmoticonListResponse_SysEmoticonMultiError(errors)
+	}
+
+	return nil
+}
+
+// EmoticonListResponse_SysEmoticonMultiError is an error wrapping multiple
+// validation errors returned by
+// EmoticonListResponse_SysEmoticon.ValidateAll() if the designated
+// constraints aren't met.
+type EmoticonListResponse_SysEmoticonMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m EmoticonListResponse_SysEmoticonMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m EmoticonListResponse_SysEmoticonMultiError) AllErrors() []error { return m }
+
+// EmoticonListResponse_SysEmoticonValidationError is the validation error
+// returned by EmoticonListResponse_SysEmoticon.Validate if the designated
+// constraints aren't met.
+type EmoticonListResponse_SysEmoticonValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e EmoticonListResponse_SysEmoticonValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e EmoticonListResponse_SysEmoticonValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e EmoticonListResponse_SysEmoticonValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e EmoticonListResponse_SysEmoticonValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e EmoticonListResponse_SysEmoticonValidationError) ErrorName() string {
+	return "EmoticonListResponse_SysEmoticonValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e EmoticonListResponse_SysEmoticonValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sEmoticonListResponse_SysEmoticon.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = EmoticonListResponse_SysEmoticonValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = EmoticonListResponse_SysEmoticonValidationError{}

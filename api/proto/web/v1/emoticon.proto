@@ -3,6 +3,87 @@ package web;
 
 option go_package = "web/v1;web";
 
-message EmoticonCollectListResponse{
+import "tagger/tagger.proto";
 
+message EmoticonListItem{
+  int32 media_id = 1;
+  string src = 2;
 }
+
+
+// 添加或移出表情包接口请求参数
+message EmoticonSetSystemRequest{
+  int32 emoticon_id = 1 [(tagger.tags) = "binding:\"required\""];
+  int32 type = 2 [(tagger.tags) = "binding:\"required,oneof=1 2\""];
+}
+
+// 添加或移出表情包接口响应参数
+message EmoticonSetSystemResponse{
+  int32 emoticon_id = 1;
+  string url = 2;
+  string name = 3;
+  repeated EmoticonListItem list = 4;
+}
+
+// 删除表情包接口请求参数
+message EmoticonDeleteRequest{
+  string ids = 1 [(tagger.tags) = "form:\"ids\" binding:\"required,ids\""];
+}
+
+// 删除表情包接口响应参数
+message EmoticonDeleteResponse{}
+
+
+// 系统表情包列表接口请求参数
+message EmoticonSysListRequest{}
+
+// 系统表情包列表接口响应参数
+message EmoticonSysListResponse{
+  message Item{
+    int32 id = 1;
+    string name = 2;
+    string icon = 3;
+    int32 status = 4;
+  }
+
+  repeated Item items = 1;
+}
+
+
+
+// 用户表情包列表接口请求参数
+message EmoticonListRequest{}
+
+// 用户表情包列表接口响应参数
+message EmoticonListResponse{
+  message SysEmoticon{
+    int32 emoticon_id = 1;
+    string url = 2;
+    string name = 3;
+    repeated EmoticonListItem list = 4;
+  }
+
+  repeated SysEmoticon sys_emoticon = 1;
+  repeated EmoticonListItem collect_emoticon = 2;
+}
+
+
+// 表情包上传接口请求参数
+message EmoticonUploadRequest{}
+
+// 表情包上传接口响应参数
+message EmoticonUploadResponse{
+  int32 media_id = 1;
+  string src = 2;
+}
+
+//type EmojiGroup struct {
+//  Label    string                `json:"label"`
+//  Icon     string                `json:"icon"`
+//  Children []*EmojiGroupChildren `json:"children"`
+//}
+//
+//type EmojiGroupChildren struct {
+//  MediaId int    `json:"media_id"`
+//  Src     string `json:"src"`
+//}
