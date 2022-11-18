@@ -161,10 +161,14 @@ func (c *Records) GetForwardRecords(ctx *ichat.Context) error {
 	})
 }
 
+type DownloadChatFileRequest struct {
+	RecordId int `form:"cr_id" json:"cr_id" binding:"required,min=1"`
+}
+
 // Download 聊天文件下载
 func (c *Records) Download(ctx *ichat.Context) error {
 
-	params := &web.DownloadChatFileRequest{}
+	params := &DownloadChatFileRequest{}
 	if err := ctx.Context.ShouldBindQuery(params); err != nil {
 		return ctx.InvalidParams(err)
 	}

@@ -65,7 +65,7 @@ func RegisterWebRoute(secret string, router *gin.Engine, handler *web.Handler, s
 		// 聊天群相关分组
 		userGroup := v1.Group("/group").Use(authorize)
 		{
-			userGroup.GET("/list", ichat.HandlerFunc(handler.V1.Group.Groups))               // 群组列表
+			userGroup.GET("/list", ichat.HandlerFunc(handler.V1.Group.GroupList))            // 群组列表
 			userGroup.GET("/overt/list", ichat.HandlerFunc(handler.V1.Group.OvertList))      // 公开群组列表
 			userGroup.GET("/detail", ichat.HandlerFunc(handler.V1.Group.Detail))             // 群组详情
 			userGroup.POST("/create", ichat.HandlerFunc(handler.V1.Group.Create))            // 创建群组
@@ -78,10 +78,10 @@ func RegisterWebRoute(secret string, router *gin.Engine, handler *web.Handler, s
 			userGroup.POST("/no-speak", ichat.HandlerFunc(handler.V1.Group.NoSpeak))         // 修改禁言状态
 
 			// 群成员相关
-			userGroup.GET("/member/list", ichat.HandlerFunc(handler.V1.Group.Members))             // 群成员列表
-			userGroup.GET("/member/invites", ichat.HandlerFunc(handler.V1.Group.GetInviteFriends)) // 群成员列表
-			userGroup.POST("/member/remove", ichat.HandlerFunc(handler.V1.Group.RemoveMembers))    // 移出指定群成员
-			userGroup.POST("/member/remark", ichat.HandlerFunc(handler.V1.Group.EditRemark))       // 设置群名片
+			userGroup.GET("/member/list", ichat.HandlerFunc(handler.V1.Group.Members))               // 群成员列表
+			userGroup.GET("/member/invites", ichat.HandlerFunc(handler.V1.Group.GetInviteFriends))   // 群成员列表
+			userGroup.POST("/member/remove", ichat.HandlerFunc(handler.V1.Group.RemoveMembers))      // 移出指定群成员
+			userGroup.POST("/member/remark", ichat.HandlerFunc(handler.V1.Group.UpdateMemberRemark)) // 设置群名片
 
 			// 群公告相关
 			userGroup.GET("/notice/list", ichat.HandlerFunc(handler.V1.GroupNotice.List))             // 群公告列表
