@@ -5,8 +5,8 @@ import (
 	"net"
 
 	"go-chat/config"
-	"go-chat/internal/im_server/internal/handler"
-	"go-chat/internal/im_server/internal/process"
+	"go-chat/internal/im_gateway/internal/handler"
+	"go-chat/internal/im_gateway/internal/process"
 	"go-chat/internal/provider"
 )
 

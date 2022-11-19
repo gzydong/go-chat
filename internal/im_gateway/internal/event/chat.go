@@ -8,7 +8,7 @@ import (
 	"github.com/tidwall/gjson"
 	"go-chat/config"
 	"go-chat/internal/entity"
-	"go-chat/internal/im_server/internal/event/chat"
+	"go-chat/internal/im_gateway/internal/event/chat"
 	"go-chat/internal/pkg/im"
 	"go-chat/internal/pkg/jsonutil"
 	"go-chat/internal/repository/cache"
