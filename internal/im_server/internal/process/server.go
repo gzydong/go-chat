@@ -5,7 +5,6 @@ import (
 	"reflect"
 	"sync"
 
-	"go-chat/internal/im_server/internal/process/server"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -17,8 +16,8 @@ type IServer interface {
 
 // SubServers 订阅的服务列表
 type SubServers struct {
-	HealthSubscribe  *server.HealthSubscribe  // 注册健康上报
-	MessageSubscribe *server.MessageSubscribe // 注册消息订阅
+	HealthSubscribe  *HealthSubscribe  // 注册健康上报
+	MessageSubscribe *MessageSubscribe // 注册消息订阅
 }
 
 type Server struct {

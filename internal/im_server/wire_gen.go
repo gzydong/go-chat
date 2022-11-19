@@ -10,12 +10,11 @@ import (
 	"context"
 	"github.com/google/wire"
 	"go-chat/config"
+	"go-chat/internal/im_server/internal/consume"
 	"go-chat/internal/im_server/internal/event"
 	"go-chat/internal/im_server/internal/event/chat"
 	"go-chat/internal/im_server/internal/handler"
 	"go-chat/internal/im_server/internal/process"
-	"go-chat/internal/im_server/internal/process/consume"
-	"go-chat/internal/im_server/internal/process/server"
 	"go-chat/internal/im_server/internal/router"
 	"go-chat/internal/provider"
 	"go-chat/internal/repository/cache"
@@ -49,7 +48,7 @@ func Initialize(ctx context.Context, conf *config.Config) *AppProvider {
 	tokenSessionStorage := cache.NewTokenSessionStorage(client)
 	engine := router.NewRouter(conf, handlerHandler, tokenSessionStorage)
 	websocketServer := provider.NewWebsocketServer(conf, engine)
-	healthSubscribe := server.NewHealthSubscribe(conf, serverStorage)
+	healthSubscribe := process.NewHealthSubscribe(conf, serverStorage)
 	talkVote := cache.NewTalkVote(client)
 	talkRecordsVote := repo.NewTalkRecordsVote(base, talkVote)
 	talkRecords := repo.NewTalkRecords(base)
@@ -59,16 +58,16 @@ func Initialize(ctx context.Context, conf *config.Config) *AppProvider {
 	contactService := service.NewContactService(baseService, contact)
 	chatSubscribe := consume.NewChatSubscribe(conf, clientStorage, roomStorage, talkRecordsService, contactService)
 	exampleSubscribe := consume.NewExampleSubscribe()
-	messageSubscribe := server.NewMessageSubscribe(conf, client, chatSubscribe, exampleSubscribe)
+	messageSubscribe := process.NewMessageSubscribe(conf, client, chatSubscribe, exampleSubscribe)
 	subServers := &process.SubServers{
 		HealthSubscribe:  healthSubscribe,
 		MessageSubscribe: messageSubscribe,
 	}
-	processServer := process.NewServer(subServers)
+	server := process.NewServer(subServers)
 	appProvider := &AppProvider{
 		Config:    conf,
 		Server:    websocketServer,
-		Coroutine: processServer,
+		Coroutine: server,
 		Handler:   handlerHandler,
 	}
 	return appProvider
@@ -76,4 +75,4 @@ func Initialize(ctx context.Context, conf *config.Config) *AppProvider {
 
 // wire.go:
 
-var providerSet = wire.NewSet(provider.NewMySQLClient, provider.NewRedisClient, provider.NewWebsocketServer, router.NewRouter, wire.Struct(new(process.SubServers), "*"), process.NewServer, server.NewHealthSubscribe, server.NewMessageSubscribe, consume.NewChatSubscribe, consume.NewExampleSubscribe, cache.NewTokenSessionStorage, cache.NewSidStorage, cache.NewRedisLock, cache.NewClientStorage, cache.NewRoomStorage, cache.NewTalkVote, cache.NewRelation, cache.NewContactRemark, cache.NewSequence, repo.NewBase, repo.NewTalkRecords, repo.NewTalkRecordsVote, repo.NewGroupMember, repo.NewContact, chat.NewHandler, event.NewChatEvent, event.NewExampleEvent, service.NewBaseService, service.NewTalkRecordsService, service.NewGroupMemberService, service.NewContactService, handler.NewChatChannel, handler.NewExampleChannel, wire.Struct(new(handler.Handler), "*"), wire.Struct(new(AppProvider), "*"))
+var providerSet = wire.NewSet(provider.NewMySQLClient, provider.NewRedisClient, provider.NewWebsocketServer, router.NewRouter, wire.Struct(new(process.SubServers), "*"), process.NewServer, process.NewHealthSubscribe, process.NewMessageSubscribe, consume.NewChatSubscribe, consume.NewExampleSubscribe, cache.NewTokenSessionStorage, cache.NewSidStorage, cache.NewRedisLock, cache.NewClientStorage, cache.NewRoomStorage, cache.NewTalkVote, cache.NewRelation, cache.NewContactRemark, cache.NewSequence, repo.NewBase, repo.NewTalkRecords, repo.NewTalkRecordsVote, repo.NewGroupMember, repo.NewContact, chat.NewHandler, event.NewChatEvent, event.NewExampleEvent, service.NewBaseService, service.NewTalkRecordsService, service.NewGroupMemberService, service.NewContactService, handler.NewChatChannel, handler.NewExampleChannel, wire.Struct(new(handler.Handler), "*"), wire.Struct(new(AppProvider), "*"))

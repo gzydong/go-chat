@@ -7,12 +7,11 @@ import (
 	"context"
 
 	"go-chat/config"
+	consume2 "go-chat/internal/im_server/internal/consume"
 	"go-chat/internal/im_server/internal/event"
 	"go-chat/internal/im_server/internal/event/chat"
 	"go-chat/internal/im_server/internal/handler"
 	"go-chat/internal/im_server/internal/process"
-	"go-chat/internal/im_server/internal/process/consume"
-	"go-chat/internal/im_server/internal/process/server"
 	"go-chat/internal/im_server/internal/router"
 	"go-chat/internal/provider"
 	"go-chat/internal/repository/cache"
@@ -34,10 +33,10 @@ var providerSet = wire.NewSet(
 	// process
 	wire.Struct(new(process.SubServers), "*"),
 	process.NewServer,
-	server.NewHealthSubscribe,
-	server.NewMessageSubscribe,
-	consume.NewChatSubscribe,
-	consume.NewExampleSubscribe,
+	process.NewHealthSubscribe,
+	process.NewMessageSubscribe,
+	consume2.NewChatSubscribe,
+	consume2.NewExampleSubscribe,
 
 	// 缓存
 	cache.NewTokenSessionStorage,
