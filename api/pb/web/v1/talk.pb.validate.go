@@ -35,22 +35,22 @@ var (
 	_ = sort.Sort
 )
 
-// Validate checks the field values on TalkCreateResponse with the rules
-// defined in the proto definition for this message. If any rules are
-// violated, the first error encountered is returned, or nil if there are no violations.
-func (m *TalkCreateResponse) Validate() error {
+// Validate checks the field values on TalkSessionItem with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// first error encountered is returned, or nil if there are no violations.
+func (m *TalkSessionItem) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on TalkCreateResponse with the rules
+// ValidateAll checks the field values on TalkSessionItem with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the result is a list of violation errors wrapped in
-// TalkCreateResponseMultiError, or nil if none found.
-func (m *TalkCreateResponse) ValidateAll() error {
+// TalkSessionItemMultiError, or nil if none found.
+func (m *TalkSessionItem) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *TalkCreateResponse) validate(all bool) error {
+func (m *TalkSessionItem) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -84,19 +84,19 @@ func (m *TalkCreateResponse) validate(all bool) error {
 	// no validation rules for UpdatedAt
 
 	if len(errors) > 0 {
-		return TalkCreateResponseMultiError(errors)
+		return TalkSessionItemMultiError(errors)
 	}
 
 	return nil
 }
 
-// TalkCreateResponseMultiError is an error wrapping multiple validation errors
-// returned by TalkCreateResponse.ValidateAll() if the designated constraints
+// TalkSessionItemMultiError is an error wrapping multiple validation errors
+// returned by TalkSessionItem.ValidateAll() if the designated constraints
 // aren't met.
-type TalkCreateResponseMultiError []error
+type TalkSessionItemMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m TalkCreateResponseMultiError) Error() string {
+func (m TalkSessionItemMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -105,11 +105,11 @@ func (m TalkCreateResponseMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m TalkCreateResponseMultiError) AllErrors() []error { return m }
+func (m TalkSessionItemMultiError) AllErrors() []error { return m }
 
-// TalkCreateResponseValidationError is the validation error returned by
-// TalkCreateResponse.Validate if the designated constraints aren't met.
-type TalkCreateResponseValidationError struct {
+// TalkSessionItemValidationError is the validation error returned by
+// TalkSessionItem.Validate if the designated constraints aren't met.
+type TalkSessionItemValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -117,24 +117,22 @@ type TalkCreateResponseValidationError struct {
 }
 
 // Field function returns field value.
-func (e TalkCreateResponseValidationError) Field() string { return e.field }
+func (e TalkSessionItemValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e TalkCreateResponseValidationError) Reason() string { return e.reason }
+func (e TalkSessionItemValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e TalkCreateResponseValidationError) Cause() error { return e.cause }
+func (e TalkSessionItemValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e TalkCreateResponseValidationError) Key() bool { return e.key }
+func (e TalkSessionItemValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e TalkCreateResponseValidationError) ErrorName() string {
-	return "TalkCreateResponseValidationError"
-}
+func (e TalkSessionItemValidationError) ErrorName() string { return "TalkSessionItemValidationError" }
 
 // Error satisfies the builtin error interface
-func (e TalkCreateResponseValidationError) Error() string {
+func (e TalkSessionItemValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -146,14 +144,14 @@ func (e TalkCreateResponseValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sTalkCreateResponse.%s: %s%s",
+		"invalid %sTalkSessionItem.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = TalkCreateResponseValidationError{}
+var _ error = TalkSessionItemValidationError{}
 
 var _ interface {
 	Field() string
@@ -161,24 +159,984 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = TalkCreateResponseValidationError{}
+} = TalkSessionItemValidationError{}
 
-// Validate checks the field values on TalkListResponse with the rules defined
-// in the proto definition for this message. If any rules are violated, the
-// first error encountered is returned, or nil if there are no violations.
-func (m *TalkListResponse) Validate() error {
+// Validate checks the field values on TalkSessionCreateRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *TalkSessionCreateRequest) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on TalkListResponse with the rules
-// defined in the proto definition for this message. If any rules are
+// ValidateAll checks the field values on TalkSessionCreateRequest with the
+// rules defined in the proto definition for this message. If any rules are
 // violated, the result is a list of violation errors wrapped in
-// TalkListResponseMultiError, or nil if none found.
-func (m *TalkListResponse) ValidateAll() error {
+// TalkSessionCreateRequestMultiError, or nil if none found.
+func (m *TalkSessionCreateRequest) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *TalkListResponse) validate(all bool) error {
+func (m *TalkSessionCreateRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for TalkType
+
+	// no validation rules for ReceiverId
+
+	if len(errors) > 0 {
+		return TalkSessionCreateRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// TalkSessionCreateRequestMultiError is an error wrapping multiple validation
+// errors returned by TalkSessionCreateRequest.ValidateAll() if the designated
+// constraints aren't met.
+type TalkSessionCreateRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m TalkSessionCreateRequestMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m TalkSessionCreateRequestMultiError) AllErrors() []error { return m }
+
+// TalkSessionCreateRequestValidationError is the validation error returned by
+// TalkSessionCreateRequest.Validate if the designated constraints aren't met.
+type TalkSessionCreateRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e TalkSessionCreateRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e TalkSessionCreateRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e TalkSessionCreateRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e TalkSessionCreateRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e TalkSessionCreateRequestValidationError) ErrorName() string {
+	return "TalkSessionCreateRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e TalkSessionCreateRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sTalkSessionCreateRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = TalkSessionCreateRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = TalkSessionCreateRequestValidationError{}
+
+// Validate checks the field values on TalkSessionCreateResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *TalkSessionCreateResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on TalkSessionCreateResponse with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// TalkSessionCreateResponseMultiError, or nil if none found.
+func (m *TalkSessionCreateResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *TalkSessionCreateResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Id
+
+	// no validation rules for TalkType
+
+	// no validation rules for ReceiverId
+
+	// no validation rules for IsTop
+
+	// no validation rules for IsDisturb
+
+	// no validation rules for IsOnline
+
+	// no validation rules for IsRobot
+
+	// no validation rules for Name
+
+	// no validation rules for Avatar
+
+	// no validation rules for RemarkName
+
+	// no validation rules for UnreadNum
+
+	// no validation rules for MsgText
+
+	// no validation rules for UpdatedAt
+
+	if len(errors) > 0 {
+		return TalkSessionCreateResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// TalkSessionCreateResponseMultiError is an error wrapping multiple validation
+// errors returned by TalkSessionCreateResponse.ValidateAll() if the
+// designated constraints aren't met.
+type TalkSessionCreateResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m TalkSessionCreateResponseMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m TalkSessionCreateResponseMultiError) AllErrors() []error { return m }
+
+// TalkSessionCreateResponseValidationError is the validation error returned by
+// TalkSessionCreateResponse.Validate if the designated constraints aren't met.
+type TalkSessionCreateResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e TalkSessionCreateResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e TalkSessionCreateResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e TalkSessionCreateResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e TalkSessionCreateResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e TalkSessionCreateResponseValidationError) ErrorName() string {
+	return "TalkSessionCreateResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e TalkSessionCreateResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sTalkSessionCreateResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = TalkSessionCreateResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = TalkSessionCreateResponseValidationError{}
+
+// Validate checks the field values on TalkSessionDeleteRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *TalkSessionDeleteRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on TalkSessionDeleteRequest with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// TalkSessionDeleteRequestMultiError, or nil if none found.
+func (m *TalkSessionDeleteRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *TalkSessionDeleteRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for ListId
+
+	if len(errors) > 0 {
+		return TalkSessionDeleteRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// TalkSessionDeleteRequestMultiError is an error wrapping multiple validation
+// errors returned by TalkSessionDeleteRequest.ValidateAll() if the designated
+// constraints aren't met.
+type TalkSessionDeleteRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m TalkSessionDeleteRequestMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m TalkSessionDeleteRequestMultiError) AllErrors() []error { return m }
+
+// TalkSessionDeleteRequestValidationError is the validation error returned by
+// TalkSessionDeleteRequest.Validate if the designated constraints aren't met.
+type TalkSessionDeleteRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e TalkSessionDeleteRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e TalkSessionDeleteRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e TalkSessionDeleteRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e TalkSessionDeleteRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e TalkSessionDeleteRequestValidationError) ErrorName() string {
+	return "TalkSessionDeleteRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e TalkSessionDeleteRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sTalkSessionDeleteRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = TalkSessionDeleteRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = TalkSessionDeleteRequestValidationError{}
+
+// Validate checks the field values on TalkSessionDeleteResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *TalkSessionDeleteResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on TalkSessionDeleteResponse with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// TalkSessionDeleteResponseMultiError, or nil if none found.
+func (m *TalkSessionDeleteResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *TalkSessionDeleteResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(errors) > 0 {
+		return TalkSessionDeleteResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// TalkSessionDeleteResponseMultiError is an error wrapping multiple validation
+// errors returned by TalkSessionDeleteResponse.ValidateAll() if the
+// designated constraints aren't met.
+type TalkSessionDeleteResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m TalkSessionDeleteResponseMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m TalkSessionDeleteResponseMultiError) AllErrors() []error { return m }
+
+// TalkSessionDeleteResponseValidationError is the validation error returned by
+// TalkSessionDeleteResponse.Validate if the designated constraints aren't met.
+type TalkSessionDeleteResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e TalkSessionDeleteResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e TalkSessionDeleteResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e TalkSessionDeleteResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e TalkSessionDeleteResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e TalkSessionDeleteResponseValidationError) ErrorName() string {
+	return "TalkSessionDeleteResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e TalkSessionDeleteResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sTalkSessionDeleteResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = TalkSessionDeleteResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = TalkSessionDeleteResponseValidationError{}
+
+// Validate checks the field values on TalkSessionTopRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *TalkSessionTopRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on TalkSessionTopRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// TalkSessionTopRequestMultiError, or nil if none found.
+func (m *TalkSessionTopRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *TalkSessionTopRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for ListId
+
+	// no validation rules for Type
+
+	if len(errors) > 0 {
+		return TalkSessionTopRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// TalkSessionTopRequestMultiError is an error wrapping multiple validation
+// errors returned by TalkSessionTopRequest.ValidateAll() if the designated
+// constraints aren't met.
+type TalkSessionTopRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m TalkSessionTopRequestMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m TalkSessionTopRequestMultiError) AllErrors() []error { return m }
+
+// TalkSessionTopRequestValidationError is the validation error returned by
+// TalkSessionTopRequest.Validate if the designated constraints aren't met.
+type TalkSessionTopRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e TalkSessionTopRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e TalkSessionTopRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e TalkSessionTopRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e TalkSessionTopRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e TalkSessionTopRequestValidationError) ErrorName() string {
+	return "TalkSessionTopRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e TalkSessionTopRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sTalkSessionTopRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = TalkSessionTopRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = TalkSessionTopRequestValidationError{}
+
+// Validate checks the field values on TalkSessionTopResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *TalkSessionTopResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on TalkSessionTopResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// TalkSessionTopResponseMultiError, or nil if none found.
+func (m *TalkSessionTopResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *TalkSessionTopResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(errors) > 0 {
+		return TalkSessionTopResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// TalkSessionTopResponseMultiError is an error wrapping multiple validation
+// errors returned by TalkSessionTopResponse.ValidateAll() if the designated
+// constraints aren't met.
+type TalkSessionTopResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m TalkSessionTopResponseMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m TalkSessionTopResponseMultiError) AllErrors() []error { return m }
+
+// TalkSessionTopResponseValidationError is the validation error returned by
+// TalkSessionTopResponse.Validate if the designated constraints aren't met.
+type TalkSessionTopResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e TalkSessionTopResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e TalkSessionTopResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e TalkSessionTopResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e TalkSessionTopResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e TalkSessionTopResponseValidationError) ErrorName() string {
+	return "TalkSessionTopResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e TalkSessionTopResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sTalkSessionTopResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = TalkSessionTopResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = TalkSessionTopResponseValidationError{}
+
+// Validate checks the field values on TalkSessionDisturbRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *TalkSessionDisturbRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on TalkSessionDisturbRequest with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// TalkSessionDisturbRequestMultiError, or nil if none found.
+func (m *TalkSessionDisturbRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *TalkSessionDisturbRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for TalkType
+
+	// no validation rules for ReceiverId
+
+	// no validation rules for IsDisturb
+
+	if len(errors) > 0 {
+		return TalkSessionDisturbRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// TalkSessionDisturbRequestMultiError is an error wrapping multiple validation
+// errors returned by TalkSessionDisturbRequest.ValidateAll() if the
+// designated constraints aren't met.
+type TalkSessionDisturbRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m TalkSessionDisturbRequestMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m TalkSessionDisturbRequestMultiError) AllErrors() []error { return m }
+
+// TalkSessionDisturbRequestValidationError is the validation error returned by
+// TalkSessionDisturbRequest.Validate if the designated constraints aren't met.
+type TalkSessionDisturbRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e TalkSessionDisturbRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e TalkSessionDisturbRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e TalkSessionDisturbRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e TalkSessionDisturbRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e TalkSessionDisturbRequestValidationError) ErrorName() string {
+	return "TalkSessionDisturbRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e TalkSessionDisturbRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sTalkSessionDisturbRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = TalkSessionDisturbRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = TalkSessionDisturbRequestValidationError{}
+
+// Validate checks the field values on TalkSessionDisturbResponse with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *TalkSessionDisturbResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on TalkSessionDisturbResponse with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// TalkSessionDisturbResponseMultiError, or nil if none found.
+func (m *TalkSessionDisturbResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *TalkSessionDisturbResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(errors) > 0 {
+		return TalkSessionDisturbResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// TalkSessionDisturbResponseMultiError is an error wrapping multiple
+// validation errors returned by TalkSessionDisturbResponse.ValidateAll() if
+// the designated constraints aren't met.
+type TalkSessionDisturbResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m TalkSessionDisturbResponseMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m TalkSessionDisturbResponseMultiError) AllErrors() []error { return m }
+
+// TalkSessionDisturbResponseValidationError is the validation error returned
+// by TalkSessionDisturbResponse.Validate if the designated constraints aren't met.
+type TalkSessionDisturbResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e TalkSessionDisturbResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e TalkSessionDisturbResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e TalkSessionDisturbResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e TalkSessionDisturbResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e TalkSessionDisturbResponseValidationError) ErrorName() string {
+	return "TalkSessionDisturbResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e TalkSessionDisturbResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sTalkSessionDisturbResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = TalkSessionDisturbResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = TalkSessionDisturbResponseValidationError{}
+
+// Validate checks the field values on TalkSessionListRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *TalkSessionListRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on TalkSessionListRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// TalkSessionListRequestMultiError, or nil if none found.
+func (m *TalkSessionListRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *TalkSessionListRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(errors) > 0 {
+		return TalkSessionListRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// TalkSessionListRequestMultiError is an error wrapping multiple validation
+// errors returned by TalkSessionListRequest.ValidateAll() if the designated
+// constraints aren't met.
+type TalkSessionListRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m TalkSessionListRequestMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m TalkSessionListRequestMultiError) AllErrors() []error { return m }
+
+// TalkSessionListRequestValidationError is the validation error returned by
+// TalkSessionListRequest.Validate if the designated constraints aren't met.
+type TalkSessionListRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e TalkSessionListRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e TalkSessionListRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e TalkSessionListRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e TalkSessionListRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e TalkSessionListRequestValidationError) ErrorName() string {
+	return "TalkSessionListRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e TalkSessionListRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sTalkSessionListRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = TalkSessionListRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = TalkSessionListRequestValidationError{}
+
+// Validate checks the field values on TalkSessionListResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *TalkSessionListResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on TalkSessionListResponse with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// TalkSessionListResponseMultiError, or nil if none found.
+func (m *TalkSessionListResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *TalkSessionListResponse) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -192,7 +1150,7 @@ func (m *TalkListResponse) validate(all bool) error {
 			switch v := interface{}(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
-					errors = append(errors, TalkListResponseValidationError{
+					errors = append(errors, TalkSessionListResponseValidationError{
 						field:  fmt.Sprintf("Items[%v]", idx),
 						reason: "embedded message failed validation",
 						cause:  err,
@@ -200,7 +1158,7 @@ func (m *TalkListResponse) validate(all bool) error {
 				}
 			case interface{ Validate() error }:
 				if err := v.Validate(); err != nil {
-					errors = append(errors, TalkListResponseValidationError{
+					errors = append(errors, TalkSessionListResponseValidationError{
 						field:  fmt.Sprintf("Items[%v]", idx),
 						reason: "embedded message failed validation",
 						cause:  err,
@@ -209,7 +1167,7 @@ func (m *TalkListResponse) validate(all bool) error {
 			}
 		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
-				return TalkListResponseValidationError{
+				return TalkSessionListResponseValidationError{
 					field:  fmt.Sprintf("Items[%v]", idx),
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -220,19 +1178,19 @@ func (m *TalkListResponse) validate(all bool) error {
 	}
 
 	if len(errors) > 0 {
-		return TalkListResponseMultiError(errors)
+		return TalkSessionListResponseMultiError(errors)
 	}
 
 	return nil
 }
 
-// TalkListResponseMultiError is an error wrapping multiple validation errors
-// returned by TalkListResponse.ValidateAll() if the designated constraints
-// aren't met.
-type TalkListResponseMultiError []error
+// TalkSessionListResponseMultiError is an error wrapping multiple validation
+// errors returned by TalkSessionListResponse.ValidateAll() if the designated
+// constraints aren't met.
+type TalkSessionListResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m TalkListResponseMultiError) Error() string {
+func (m TalkSessionListResponseMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -241,11 +1199,11 @@ func (m TalkListResponseMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m TalkListResponseMultiError) AllErrors() []error { return m }
+func (m TalkSessionListResponseMultiError) AllErrors() []error { return m }
 
-// TalkListResponseValidationError is the validation error returned by
-// TalkListResponse.Validate if the designated constraints aren't met.
-type TalkListResponseValidationError struct {
+// TalkSessionListResponseValidationError is the validation error returned by
+// TalkSessionListResponse.Validate if the designated constraints aren't met.
+type TalkSessionListResponseValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -253,22 +1211,24 @@ type TalkListResponseValidationError struct {
 }
 
 // Field function returns field value.
-func (e TalkListResponseValidationError) Field() string { return e.field }
+func (e TalkSessionListResponseValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e TalkListResponseValidationError) Reason() string { return e.reason }
+func (e TalkSessionListResponseValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e TalkListResponseValidationError) Cause() error { return e.cause }
+func (e TalkSessionListResponseValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e TalkListResponseValidationError) Key() bool { return e.key }
+func (e TalkSessionListResponseValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e TalkListResponseValidationError) ErrorName() string { return "TalkListResponseValidationError" }
+func (e TalkSessionListResponseValidationError) ErrorName() string {
+	return "TalkSessionListResponseValidationError"
+}
 
 // Error satisfies the builtin error interface
-func (e TalkListResponseValidationError) Error() string {
+func (e TalkSessionListResponseValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -280,14 +1240,14 @@ func (e TalkListResponseValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sTalkListResponse.%s: %s%s",
+		"invalid %sTalkSessionListResponse.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = TalkListResponseValidationError{}
+var _ error = TalkSessionListResponseValidationError{}
 
 var _ interface {
 	Field() string
@@ -295,70 +1255,50 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = TalkListResponseValidationError{}
+} = TalkSessionListResponseValidationError{}
 
-// Validate checks the field values on TalkListResponse_Item with the rules
-// defined in the proto definition for this message. If any rules are
-// violated, the first error encountered is returned, or nil if there are no violations.
-func (m *TalkListResponse_Item) Validate() error {
+// Validate checks the field values on TalkSessionClearUnreadNumRequest with
+// the rules defined in the proto definition for this message. If any rules
+// are violated, the first error encountered is returned, or nil if there are
+// no violations.
+func (m *TalkSessionClearUnreadNumRequest) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on TalkListResponse_Item with the rules
-// defined in the proto definition for this message. If any rules are
-// violated, the result is a list of violation errors wrapped in
-// TalkListResponse_ItemMultiError, or nil if none found.
-func (m *TalkListResponse_Item) ValidateAll() error {
+// ValidateAll checks the field values on TalkSessionClearUnreadNumRequest with
+// the rules defined in the proto definition for this message. If any rules
+// are violated, the result is a list of violation errors wrapped in
+// TalkSessionClearUnreadNumRequestMultiError, or nil if none found.
+func (m *TalkSessionClearUnreadNumRequest) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *TalkListResponse_Item) validate(all bool) error {
+func (m *TalkSessionClearUnreadNumRequest) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
 
 	var errors []error
 
-	// no validation rules for Id
-
 	// no validation rules for TalkType
 
 	// no validation rules for ReceiverId
 
-	// no validation rules for IsTop
-
-	// no validation rules for IsDisturb
-
-	// no validation rules for IsOnline
-
-	// no validation rules for IsRobot
-
-	// no validation rules for Name
-
-	// no validation rules for Avatar
-
-	// no validation rules for RemarkName
-
-	// no validation rules for UnreadNum
-
-	// no validation rules for MsgText
-
-	// no validation rules for UpdatedAt
-
 	if len(errors) > 0 {
-		return TalkListResponse_ItemMultiError(errors)
+		return TalkSessionClearUnreadNumRequestMultiError(errors)
 	}
 
 	return nil
 }
 
-// TalkListResponse_ItemMultiError is an error wrapping multiple validation
-// errors returned by TalkListResponse_Item.ValidateAll() if the designated
+// TalkSessionClearUnreadNumRequestMultiError is an error wrapping multiple
+// validation errors returned by
+// TalkSessionClearUnreadNumRequest.ValidateAll() if the designated
 // constraints aren't met.
-type TalkListResponse_ItemMultiError []error
+type TalkSessionClearUnreadNumRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m TalkListResponse_ItemMultiError) Error() string {
+func (m TalkSessionClearUnreadNumRequestMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -367,11 +1307,12 @@ func (m TalkListResponse_ItemMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m TalkListResponse_ItemMultiError) AllErrors() []error { return m }
+func (m TalkSessionClearUnreadNumRequestMultiError) AllErrors() []error { return m }
 
-// TalkListResponse_ItemValidationError is the validation error returned by
-// TalkListResponse_Item.Validate if the designated constraints aren't met.
-type TalkListResponse_ItemValidationError struct {
+// TalkSessionClearUnreadNumRequestValidationError is the validation error
+// returned by TalkSessionClearUnreadNumRequest.Validate if the designated
+// constraints aren't met.
+type TalkSessionClearUnreadNumRequestValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -379,24 +1320,24 @@ type TalkListResponse_ItemValidationError struct {
 }
 
 // Field function returns field value.
-func (e TalkListResponse_ItemValidationError) Field() string { return e.field }
+func (e TalkSessionClearUnreadNumRequestValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e TalkListResponse_ItemValidationError) Reason() string { return e.reason }
+func (e TalkSessionClearUnreadNumRequestValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e TalkListResponse_ItemValidationError) Cause() error { return e.cause }
+func (e TalkSessionClearUnreadNumRequestValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e TalkListResponse_ItemValidationError) Key() bool { return e.key }
+func (e TalkSessionClearUnreadNumRequestValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e TalkListResponse_ItemValidationError) ErrorName() string {
-	return "TalkListResponse_ItemValidationError"
+func (e TalkSessionClearUnreadNumRequestValidationError) ErrorName() string {
+	return "TalkSessionClearUnreadNumRequestValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e TalkListResponse_ItemValidationError) Error() string {
+func (e TalkSessionClearUnreadNumRequestValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -408,14 +1349,14 @@ func (e TalkListResponse_ItemValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sTalkListResponse_Item.%s: %s%s",
+		"invalid %sTalkSessionClearUnreadNumRequest.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = TalkListResponse_ItemValidationError{}
+var _ error = TalkSessionClearUnreadNumRequestValidationError{}
 
 var _ interface {
 	Field() string
@@ -423,4 +1364,109 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = TalkListResponse_ItemValidationError{}
+} = TalkSessionClearUnreadNumRequestValidationError{}
+
+// Validate checks the field values on TalkSessionClearUnreadNumResponse with
+// the rules defined in the proto definition for this message. If any rules
+// are violated, the first error encountered is returned, or nil if there are
+// no violations.
+func (m *TalkSessionClearUnreadNumResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on TalkSessionClearUnreadNumResponse
+// with the rules defined in the proto definition for this message. If any
+// rules are violated, the result is a list of violation errors wrapped in
+// TalkSessionClearUnreadNumResponseMultiError, or nil if none found.
+func (m *TalkSessionClearUnreadNumResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *TalkSessionClearUnreadNumResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(errors) > 0 {
+		return TalkSessionClearUnreadNumResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// TalkSessionClearUnreadNumResponseMultiError is an error wrapping multiple
+// validation errors returned by
+// TalkSessionClearUnreadNumResponse.ValidateAll() if the designated
+// constraints aren't met.
+type TalkSessionClearUnreadNumResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m TalkSessionClearUnreadNumResponseMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m TalkSessionClearUnreadNumResponseMultiError) AllErrors() []error { return m }
+
+// TalkSessionClearUnreadNumResponseValidationError is the validation error
+// returned by TalkSessionClearUnreadNumResponse.Validate if the designated
+// constraints aren't met.
+type TalkSessionClearUnreadNumResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e TalkSessionClearUnreadNumResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e TalkSessionClearUnreadNumResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e TalkSessionClearUnreadNumResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e TalkSessionClearUnreadNumResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e TalkSessionClearUnreadNumResponseValidationError) ErrorName() string {
+	return "TalkSessionClearUnreadNumResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e TalkSessionClearUnreadNumResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sTalkSessionClearUnreadNumResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = TalkSessionClearUnreadNumResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = TalkSessionClearUnreadNumResponseValidationError{}

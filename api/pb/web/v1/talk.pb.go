@@ -7,6 +7,7 @@
 package web
 
 import (
+	_ "github.com/srikrsna/protoc-gen-gotag/tagger"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
@@ -20,7 +21,8 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-type TalkCreateResponse struct {
+// 会话列表
+type TalkSessionItem struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
@@ -40,8 +42,8 @@ type TalkCreateResponse struct {
 	UpdatedAt  string `protobuf:"bytes,13,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
 }
 
-func (x *TalkCreateResponse) Reset() {
-	*x = TalkCreateResponse{}
+func (x *TalkSessionItem) Reset() {
+	*x = TalkSessionItem{}
 	if protoimpl.UnsafeEnabled {
 		mi := &file_web_v1_talk_proto_msgTypes[0]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -49,13 +51,13 @@ func (x *TalkCreateResponse) Reset() {
 	}
 }
 
-func (x *TalkCreateResponse) String() string {
+func (x *TalkSessionItem) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*TalkCreateResponse) ProtoMessage() {}
+func (*TalkSessionItem) ProtoMessage() {}
 
-func (x *TalkCreateResponse) ProtoReflect() protoreflect.Message {
+func (x *TalkSessionItem) ProtoReflect() protoreflect.Message {
 	mi := &file_web_v1_talk_proto_msgTypes[0]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -67,112 +69,114 @@ func (x *TalkCreateResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use TalkCreateResponse.ProtoReflect.Descriptor instead.
-func (*TalkCreateResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use TalkSessionItem.ProtoReflect.Descriptor instead.
+func (*TalkSessionItem) Descriptor() ([]byte, []int) {
 	return file_web_v1_talk_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *TalkCreateResponse) GetId() int32 {
+func (x *TalkSessionItem) GetId() int32 {
 	if x != nil {
 		return x.Id
 	}
 	return 0
 }
 
-func (x *TalkCreateResponse) GetTalkType() int32 {
+func (x *TalkSessionItem) GetTalkType() int32 {
 	if x != nil {
 		return x.TalkType
 	}
 	return 0
 }
 
-func (x *TalkCreateResponse) GetReceiverId() int32 {
+func (x *TalkSessionItem) GetReceiverId() int32 {
 	if x != nil {
 		return x.ReceiverId
 	}
 	return 0
 }
 
-func (x *TalkCreateResponse) GetIsTop() int32 {
+func (x *TalkSessionItem) GetIsTop() int32 {
 	if x != nil {
 		return x.IsTop
 	}
 	return 0
 }
 
-func (x *TalkCreateResponse) GetIsDisturb() int32 {
+func (x *TalkSessionItem) GetIsDisturb() int32 {
 	if x != nil {
 		return x.IsDisturb
 	}
 	return 0
 }
 
-func (x *TalkCreateResponse) GetIsOnline() int32 {
+func (x *TalkSessionItem) GetIsOnline() int32 {
 	if x != nil {
 		return x.IsOnline
 	}
 	return 0
 }
 
-func (x *TalkCreateResponse) GetIsRobot() int32 {
+func (x *TalkSessionItem) GetIsRobot() int32 {
 	if x != nil {
 		return x.IsRobot
 	}
 	return 0
 }
 
-func (x *TalkCreateResponse) GetName() string {
+func (x *TalkSessionItem) GetName() string {
 	if x != nil {
 		return x.Name
 	}
 	return ""
 }
 
-func (x *TalkCreateResponse) GetAvatar() string {
+func (x *TalkSessionItem) GetAvatar() string {
 	if x != nil {
 		return x.Avatar
 	}
 	return ""
 }
 
-func (x *TalkCreateResponse) GetRemarkName() string {
+func (x *TalkSessionItem) GetRemarkName() string {
 	if x != nil {
 		return x.RemarkName
 	}
 	return ""
 }
 
-func (x *TalkCreateResponse) GetUnreadNum() int32 {
+func (x *TalkSessionItem) GetUnreadNum() int32 {
 	if x != nil {
 		return x.UnreadNum
 	}
 	return 0
 }
 
-func (x *TalkCreateResponse) GetMsgText() string {
+func (x *TalkSessionItem) GetMsgText() string {
 	if x != nil {
 		return x.MsgText
 	}
 	return ""
 }
 
-func (x *TalkCreateResponse) GetUpdatedAt() string {
+func (x *TalkSessionItem) GetUpdatedAt() string {
 	if x != nil {
 		return x.UpdatedAt
 	}
 	return ""
 }
 
-type TalkListResponse struct {
+// 会话创建接口请求参数
+type TalkSessionCreateRequest struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Items []*TalkListResponse_Item `protobuf:"bytes,1,rep,name=items,proto3" json:"items,omitempty"`
+	TalkType   int32 `protobuf:"varint,1,opt,name=talk_type,json=talkType,proto3" json:"talk_type,omitempty" binding:"required,oneof=1 2"`
+	ReceiverId int32 `protobuf:"varint,2,opt,name=receiver_id,json=receiverId,proto3" json:"receiver_id,omitempty" binding:"required"`
 }
 
-func (x *TalkListResponse) Reset() {
-	*x = TalkListResponse{}
+func (x *TalkSessionCreateRequest) Reset() {
+	*x = TalkSessionCreateRequest{}
 	if protoimpl.UnsafeEnabled {
 		mi := &file_web_v1_talk_proto_msgTypes[1]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -180,13 +184,13 @@ func (x *TalkListResponse) Reset() {
 	}
 }
 
-func (x *TalkListResponse) String() string {
+func (x *TalkSessionCreateRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*TalkListResponse) ProtoMessage() {}
+func (*TalkSessionCreateRequest) ProtoMessage() {}
 
-func (x *TalkListResponse) ProtoReflect() protoreflect.Message {
+func (x *TalkSessionCreateRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_web_v1_talk_proto_msgTypes[1]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -198,19 +202,27 @@ func (x *TalkListResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use TalkListResponse.ProtoReflect.Descriptor instead.
-func (*TalkListResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use TalkSessionCreateRequest.ProtoReflect.Descriptor instead.
+func (*TalkSessionCreateRequest) Descriptor() ([]byte, []int) {
 	return file_web_v1_talk_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *TalkListResponse) GetItems() []*TalkListResponse_Item {
+func (x *TalkSessionCreateRequest) GetTalkType() int32 {
 	if x != nil {
-		return x.Items
+		return x.TalkType
 	}
-	return nil
+	return 0
 }
 
-type TalkListResponse_Item struct {
+func (x *TalkSessionCreateRequest) GetReceiverId() int32 {
+	if x != nil {
+		return x.ReceiverId
+	}
+	return 0
+}
+
+// 会话创建接口响应参数
+type TalkSessionCreateResponse struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
@@ -230,8 +242,8 @@ type TalkListResponse_Item struct {
 	UpdatedAt  string `protobuf:"bytes,13,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
 }
 
-func (x *TalkListResponse_Item) Reset() {
-	*x = TalkListResponse_Item{}
+func (x *TalkSessionCreateResponse) Reset() {
+	*x = TalkSessionCreateResponse{}
 	if protoimpl.UnsafeEnabled {
 		mi := &file_web_v1_talk_proto_msgTypes[2]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -239,13 +251,13 @@ func (x *TalkListResponse_Item) Reset() {
 	}
 }
 
-func (x *TalkListResponse_Item) String() string {
+func (x *TalkSessionCreateResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*TalkListResponse_Item) ProtoMessage() {}
+func (*TalkSessionCreateResponse) ProtoMessage() {}
 
-func (x *TalkListResponse_Item) ProtoReflect() protoreflect.Message {
+func (x *TalkSessionCreateResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_web_v1_talk_proto_msgTypes[2]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -257,135 +269,576 @@ func (x *TalkListResponse_Item) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use TalkListResponse_Item.ProtoReflect.Descriptor instead.
-func (*TalkListResponse_Item) Descriptor() ([]byte, []int) {
-	return file_web_v1_talk_proto_rawDescGZIP(), []int{1, 0}
+// Deprecated: Use TalkSessionCreateResponse.ProtoReflect.Descriptor instead.
+func (*TalkSessionCreateResponse) Descriptor() ([]byte, []int) {
+	return file_web_v1_talk_proto_rawDescGZIP(), []int{2}
 }
 
-func (x *TalkListResponse_Item) GetId() int32 {
+func (x *TalkSessionCreateResponse) GetId() int32 {
 	if x != nil {
 		return x.Id
 	}
 	return 0
 }
 
-func (x *TalkListResponse_Item) GetTalkType() int32 {
+func (x *TalkSessionCreateResponse) GetTalkType() int32 {
 	if x != nil {
 		return x.TalkType
 	}
 	return 0
 }
 
-func (x *TalkListResponse_Item) GetReceiverId() int32 {
+func (x *TalkSessionCreateResponse) GetReceiverId() int32 {
 	if x != nil {
 		return x.ReceiverId
 	}
 	return 0
 }
 
-func (x *TalkListResponse_Item) GetIsTop() int32 {
+func (x *TalkSessionCreateResponse) GetIsTop() int32 {
 	if x != nil {
 		return x.IsTop
 	}
 	return 0
 }
 
-func (x *TalkListResponse_Item) GetIsDisturb() int32 {
+func (x *TalkSessionCreateResponse) GetIsDisturb() int32 {
 	if x != nil {
 		return x.IsDisturb
 	}
 	return 0
 }
 
-func (x *TalkListResponse_Item) GetIsOnline() int32 {
+func (x *TalkSessionCreateResponse) GetIsOnline() int32 {
 	if x != nil {
 		return x.IsOnline
 	}
 	return 0
 }
 
-func (x *TalkListResponse_Item) GetIsRobot() int32 {
+func (x *TalkSessionCreateResponse) GetIsRobot() int32 {
 	if x != nil {
 		return x.IsRobot
 	}
 	return 0
 }
 
-func (x *TalkListResponse_Item) GetName() string {
+func (x *TalkSessionCreateResponse) GetName() string {
 	if x != nil {
 		return x.Name
 	}
 	return ""
 }
 
-func (x *TalkListResponse_Item) GetAvatar() string {
+func (x *TalkSessionCreateResponse) GetAvatar() string {
 	if x != nil {
 		return x.Avatar
 	}
 	return ""
 }
 
-func (x *TalkListResponse_Item) GetRemarkName() string {
+func (x *TalkSessionCreateResponse) GetRemarkName() string {
 	if x != nil {
 		return x.RemarkName
 	}
 	return ""
 }
 
-func (x *TalkListResponse_Item) GetUnreadNum() int32 {
+func (x *TalkSessionCreateResponse) GetUnreadNum() int32 {
 	if x != nil {
 		return x.UnreadNum
 	}
 	return 0
 }
 
-func (x *TalkListResponse_Item) GetMsgText() string {
+func (x *TalkSessionCreateResponse) GetMsgText() string {
 	if x != nil {
 		return x.MsgText
 	}
 	return ""
 }
 
-func (x *TalkListResponse_Item) GetUpdatedAt() string {
+func (x *TalkSessionCreateResponse) GetUpdatedAt() string {
 	if x != nil {
 		return x.UpdatedAt
 	}
 	return ""
 }
 
+// 会话删除接口请求参数
+type TalkSessionDeleteRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	ListId int32 `protobuf:"varint,1,opt,name=list_id,json=listId,proto3" json:"list_id,omitempty" binding:"required"`
+}
+
+func (x *TalkSessionDeleteRequest) Reset() {
+	*x = TalkSessionDeleteRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_web_v1_talk_proto_msgTypes[3]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *TalkSessionDeleteRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TalkSessionDeleteRequest) ProtoMessage() {}
+
+func (x *TalkSessionDeleteRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_web_v1_talk_proto_msgTypes[3]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TalkSessionDeleteRequest.ProtoReflect.Descriptor instead.
+func (*TalkSessionDeleteRequest) Descriptor() ([]byte, []int) {
+	return file_web_v1_talk_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *TalkSessionDeleteRequest) GetListId() int32 {
+	if x != nil {
+		return x.ListId
+	}
+	return 0
+}
+
+// 会话删除接口响应参数
+type TalkSessionDeleteResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+}
+
+func (x *TalkSessionDeleteResponse) Reset() {
+	*x = TalkSessionDeleteResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_web_v1_talk_proto_msgTypes[4]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *TalkSessionDeleteResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TalkSessionDeleteResponse) ProtoMessage() {}
+
+func (x *TalkSessionDeleteResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_web_v1_talk_proto_msgTypes[4]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TalkSessionDeleteResponse.ProtoReflect.Descriptor instead.
+func (*TalkSessionDeleteResponse) Descriptor() ([]byte, []int) {
+	return file_web_v1_talk_proto_rawDescGZIP(), []int{4}
+}
+
+// 会话置顶接口请求参数
+type TalkSessionTopRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	ListId int32 `protobuf:"varint,1,opt,name=list_id,json=listId,proto3" json:"list_id,omitempty" binding:"required"`
+	Type   int32 `protobuf:"varint,2,opt,name=type,proto3" json:"type,omitempty" binding:"required,oneof=1 2"`
+}
+
+func (x *TalkSessionTopRequest) Reset() {
+	*x = TalkSessionTopRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_web_v1_talk_proto_msgTypes[5]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *TalkSessionTopRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TalkSessionTopRequest) ProtoMessage() {}
+
+func (x *TalkSessionTopRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_web_v1_talk_proto_msgTypes[5]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TalkSessionTopRequest.ProtoReflect.Descriptor instead.
+func (*TalkSessionTopRequest) Descriptor() ([]byte, []int) {
+	return file_web_v1_talk_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *TalkSessionTopRequest) GetListId() int32 {
+	if x != nil {
+		return x.ListId
+	}
+	return 0
+}
+
+func (x *TalkSessionTopRequest) GetType() int32 {
+	if x != nil {
+		return x.Type
+	}
+	return 0
+}
+
+// 会话置顶接口响应参数
+type TalkSessionTopResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+}
+
+func (x *TalkSessionTopResponse) Reset() {
+	*x = TalkSessionTopResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_web_v1_talk_proto_msgTypes[6]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *TalkSessionTopResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TalkSessionTopResponse) ProtoMessage() {}
+
+func (x *TalkSessionTopResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_web_v1_talk_proto_msgTypes[6]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TalkSessionTopResponse.ProtoReflect.Descriptor instead.
+func (*TalkSessionTopResponse) Descriptor() ([]byte, []int) {
+	return file_web_v1_talk_proto_rawDescGZIP(), []int{6}
+}
+
+// 会话免打扰接口请求参数
+type TalkSessionDisturbRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	TalkType   int32 `protobuf:"varint,1,opt,name=talk_type,json=talkType,proto3" json:"talk_type,omitempty" binding:"required,oneof=1 2"`
+	ReceiverId int32 `protobuf:"varint,2,opt,name=receiver_id,json=receiverId,proto3" json:"receiver_id,omitempty" binding:"required"`
+	IsDisturb  int32 `protobuf:"varint,3,opt,name=is_disturb,json=isDisturb,proto3" json:"is_disturb,omitempty" binding:"oneof=0 1"`
+}
+
+func (x *TalkSessionDisturbRequest) Reset() {
+	*x = TalkSessionDisturbRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_web_v1_talk_proto_msgTypes[7]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *TalkSessionDisturbRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TalkSessionDisturbRequest) ProtoMessage() {}
+
+func (x *TalkSessionDisturbRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_web_v1_talk_proto_msgTypes[7]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TalkSessionDisturbRequest.ProtoReflect.Descriptor instead.
+func (*TalkSessionDisturbRequest) Descriptor() ([]byte, []int) {
+	return file_web_v1_talk_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *TalkSessionDisturbRequest) GetTalkType() int32 {
+	if x != nil {
+		return x.TalkType
+	}
+	return 0
+}
+
+func (x *TalkSessionDisturbRequest) GetReceiverId() int32 {
+	if x != nil {
+		return x.ReceiverId
+	}
+	return 0
+}
+
+func (x *TalkSessionDisturbRequest) GetIsDisturb() int32 {
+	if x != nil {
+		return x.IsDisturb
+	}
+	return 0
+}
+
+// 会话免打扰接口响应参数
+type TalkSessionDisturbResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+}
+
+func (x *TalkSessionDisturbResponse) Reset() {
+	*x = TalkSessionDisturbResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_web_v1_talk_proto_msgTypes[8]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *TalkSessionDisturbResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TalkSessionDisturbResponse) ProtoMessage() {}
+
+func (x *TalkSessionDisturbResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_web_v1_talk_proto_msgTypes[8]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TalkSessionDisturbResponse.ProtoReflect.Descriptor instead.
+func (*TalkSessionDisturbResponse) Descriptor() ([]byte, []int) {
+	return file_web_v1_talk_proto_rawDescGZIP(), []int{8}
+}
+
+// 会话列表接口请求参数
+type TalkSessionListRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+}
+
+func (x *TalkSessionListRequest) Reset() {
+	*x = TalkSessionListRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_web_v1_talk_proto_msgTypes[9]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *TalkSessionListRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TalkSessionListRequest) ProtoMessage() {}
+
+func (x *TalkSessionListRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_web_v1_talk_proto_msgTypes[9]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TalkSessionListRequest.ProtoReflect.Descriptor instead.
+func (*TalkSessionListRequest) Descriptor() ([]byte, []int) {
+	return file_web_v1_talk_proto_rawDescGZIP(), []int{9}
+}
+
+// 会话列表接口响应参数
+type TalkSessionListResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Items []*TalkSessionItem `protobuf:"bytes,1,rep,name=items,proto3" json:"items,omitempty"`
+}
+
+func (x *TalkSessionListResponse) Reset() {
+	*x = TalkSessionListResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_web_v1_talk_proto_msgTypes[10]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *TalkSessionListResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TalkSessionListResponse) ProtoMessage() {}
+
+func (x *TalkSessionListResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_web_v1_talk_proto_msgTypes[10]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TalkSessionListResponse.ProtoReflect.Descriptor instead.
+func (*TalkSessionListResponse) Descriptor() ([]byte, []int) {
+	return file_web_v1_talk_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *TalkSessionListResponse) GetItems() []*TalkSessionItem {
+	if x != nil {
+		return x.Items
+	}
+	return nil
+}
+
+// 会话未读数清除接口请求参数
+type TalkSessionClearUnreadNumRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	TalkType   int32 `protobuf:"varint,1,opt,name=talk_type,json=talkType,proto3" json:"talk_type,omitempty" binding:"required,oneof=1 2"`
+	ReceiverId int32 `protobuf:"varint,2,opt,name=receiver_id,json=receiverId,proto3" json:"receiver_id,omitempty" binding:"required"`
+}
+
+func (x *TalkSessionClearUnreadNumRequest) Reset() {
+	*x = TalkSessionClearUnreadNumRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_web_v1_talk_proto_msgTypes[11]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *TalkSessionClearUnreadNumRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TalkSessionClearUnreadNumRequest) ProtoMessage() {}
+
+func (x *TalkSessionClearUnreadNumRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_web_v1_talk_proto_msgTypes[11]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TalkSessionClearUnreadNumRequest.ProtoReflect.Descriptor instead.
+func (*TalkSessionClearUnreadNumRequest) Descriptor() ([]byte, []int) {
+	return file_web_v1_talk_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *TalkSessionClearUnreadNumRequest) GetTalkType() int32 {
+	if x != nil {
+		return x.TalkType
+	}
+	return 0
+}
+
+func (x *TalkSessionClearUnreadNumRequest) GetReceiverId() int32 {
+	if x != nil {
+		return x.ReceiverId
+	}
+	return 0
+}
+
+// 会话未读数清除接口响应参数
+type TalkSessionClearUnreadNumResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+}
+
+func (x *TalkSessionClearUnreadNumResponse) Reset() {
+	*x = TalkSessionClearUnreadNumResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_web_v1_talk_proto_msgTypes[12]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *TalkSessionClearUnreadNumResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TalkSessionClearUnreadNumResponse) ProtoMessage() {}
+
+func (x *TalkSessionClearUnreadNumResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_web_v1_talk_proto_msgTypes[12]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TalkSessionClearUnreadNumResponse.ProtoReflect.Descriptor instead.
+func (*TalkSessionClearUnreadNumResponse) Descriptor() ([]byte, []int) {
+	return file_web_v1_talk_proto_rawDescGZIP(), []int{12}
+}
+
 var File_web_v1_talk_proto protoreflect.FileDescriptor
 
 var file_web_v1_talk_proto_rawDesc = []byte{
 	0x0a, 0x11, 0x77, 0x65, 0x62, 0x2f, 0x76, 0x31, 0x2f, 0x74, 0x61, 0x6c, 0x6b, 0x2e, 0x70, 0x72,
-	0x6f, 0x74, 0x6f, 0x12, 0x03, 0x77, 0x65, 0x62, 0x22, 0xf6, 0x02, 0x0a, 0x12, 0x54, 0x61, 0x6c,
-	0x6b, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12,
-	0x0e, 0x0a, 0x02, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x05, 0x52, 0x02, 0x69, 0x64, 0x12,
-	0x1b, 0x0a, 0x09, 0x74, 0x61, 0x6c, 0x6b, 0x5f, 0x74, 0x79, 0x70, 0x65, 0x18, 0x02, 0x20, 0x01,
-	0x28, 0x05, 0x52, 0x08, 0x74, 0x61, 0x6c, 0x6b, 0x54, 0x79, 0x70, 0x65, 0x12, 0x1f, 0x0a, 0x0b,
-	0x72, 0x65, 0x63, 0x65, 0x69, 0x76, 0x65, 0x72, 0x5f, 0x69, 0x64, 0x18, 0x03, 0x20, 0x01, 0x28,
-	0x05, 0x52, 0x0a, 0x72, 0x65, 0x63, 0x65, 0x69, 0x76, 0x65, 0x72, 0x49, 0x64, 0x12, 0x15, 0x0a,
-	0x06, 0x69, 0x73, 0x5f, 0x74, 0x6f, 0x70, 0x18, 0x04, 0x20, 0x01, 0x28, 0x05, 0x52, 0x05, 0x69,
-	0x73, 0x54, 0x6f, 0x70, 0x12, 0x1d, 0x0a, 0x0a, 0x69, 0x73, 0x5f, 0x64, 0x69, 0x73, 0x74, 0x75,
-	0x72, 0x62, 0x18, 0x05, 0x20, 0x01, 0x28, 0x05, 0x52, 0x09, 0x69, 0x73, 0x44, 0x69, 0x73, 0x74,
-	0x75, 0x72, 0x62, 0x12, 0x1b, 0x0a, 0x09, 0x69, 0x73, 0x5f, 0x6f, 0x6e, 0x6c, 0x69, 0x6e, 0x65,
-	0x18, 0x06, 0x20, 0x01, 0x28, 0x05, 0x52, 0x08, 0x69, 0x73, 0x4f, 0x6e, 0x6c, 0x69, 0x6e, 0x65,
-	0x12, 0x19, 0x0a, 0x08, 0x69, 0x73, 0x5f, 0x72, 0x6f, 0x62, 0x6f, 0x74, 0x18, 0x07, 0x20, 0x01,
-	0x28, 0x05, 0x52, 0x07, 0x69, 0x73, 0x52, 0x6f, 0x62, 0x6f, 0x74, 0x12, 0x12, 0x0a, 0x04, 0x6e,
-	0x61, 0x6d, 0x65, 0x18, 0x08, 0x20, 0x01, 0x28, 0x09, 0x52, 0x04, 0x6e, 0x61, 0x6d, 0x65, 0x12,
-	0x16, 0x0a, 0x06, 0x61, 0x76, 0x61, 0x74, 0x61, 0x72, 0x18, 0x09, 0x20, 0x01, 0x28, 0x09, 0x52,
-	0x06, 0x61, 0x76, 0x61, 0x74, 0x61, 0x72, 0x12, 0x1f, 0x0a, 0x0b, 0x72, 0x65, 0x6d, 0x61, 0x72,
-	0x6b, 0x5f, 0x6e, 0x61, 0x6d, 0x65, 0x18, 0x0a, 0x20, 0x01, 0x28, 0x09, 0x52, 0x0a, 0x72, 0x65,
-	0x6d, 0x61, 0x72, 0x6b, 0x4e, 0x61, 0x6d, 0x65, 0x12, 0x1d, 0x0a, 0x0a, 0x75, 0x6e, 0x72, 0x65,
-	0x61, 0x64, 0x5f, 0x6e, 0x75, 0x6d, 0x18, 0x0b, 0x20, 0x01, 0x28, 0x05, 0x52, 0x09, 0x75, 0x6e,
-	0x72, 0x65, 0x61, 0x64, 0x4e, 0x75, 0x6d, 0x12, 0x19, 0x0a, 0x08, 0x6d, 0x73, 0x67, 0x5f, 0x74,
-	0x65, 0x78, 0x74, 0x18, 0x0c, 0x20, 0x01, 0x28, 0x09, 0x52, 0x07, 0x6d, 0x73, 0x67, 0x54, 0x65,
-	0x78, 0x74, 0x12, 0x1d, 0x0a, 0x0a, 0x75, 0x70, 0x64, 0x61, 0x74, 0x65, 0x64, 0x5f, 0x61, 0x74,
-	0x18, 0x0d, 0x20, 0x01, 0x28, 0x09, 0x52, 0x09, 0x75, 0x70, 0x64, 0x61, 0x74, 0x65, 0x64, 0x41,
-	0x74, 0x22, 0xaf, 0x03, 0x0a, 0x10, 0x54, 0x61, 0x6c, 0x6b, 0x4c, 0x69, 0x73, 0x74, 0x52, 0x65,
-	0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x30, 0x0a, 0x05, 0x69, 0x74, 0x65, 0x6d, 0x73, 0x18,
-	0x01, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x1a, 0x2e, 0x77, 0x65, 0x62, 0x2e, 0x54, 0x61, 0x6c, 0x6b,
-	0x4c, 0x69, 0x73, 0x74, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x2e, 0x49, 0x74, 0x65,
-	0x6d, 0x52, 0x05, 0x69, 0x74, 0x65, 0x6d, 0x73, 0x1a, 0xe8, 0x02, 0x0a, 0x04, 0x49, 0x74, 0x65,
+	0x6f, 0x74, 0x6f, 0x12, 0x03, 0x77, 0x65, 0x62, 0x1a, 0x13, 0x74, 0x61, 0x67, 0x67, 0x65, 0x72,
+	0x2f, 0x74, 0x61, 0x67, 0x67, 0x65, 0x72, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x22, 0xf3, 0x02,
+	0x0a, 0x0f, 0x54, 0x61, 0x6c, 0x6b, 0x53, 0x65, 0x73, 0x73, 0x69, 0x6f, 0x6e, 0x49, 0x74, 0x65,
 	0x6d, 0x12, 0x0e, 0x0a, 0x02, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x05, 0x52, 0x02, 0x69,
 	0x64, 0x12, 0x1b, 0x0a, 0x09, 0x74, 0x61, 0x6c, 0x6b, 0x5f, 0x74, 0x79, 0x70, 0x65, 0x18, 0x02,
 	0x20, 0x01, 0x28, 0x05, 0x52, 0x08, 0x74, 0x61, 0x6c, 0x6b, 0x54, 0x79, 0x70, 0x65, 0x12, 0x1f,
@@ -408,8 +861,91 @@ var file_web_v1_talk_proto_rawDesc = []byte{
 	0x5f, 0x74, 0x65, 0x78, 0x74, 0x18, 0x0c, 0x20, 0x01, 0x28, 0x09, 0x52, 0x07, 0x6d, 0x73, 0x67,
 	0x54, 0x65, 0x78, 0x74, 0x12, 0x1d, 0x0a, 0x0a, 0x75, 0x70, 0x64, 0x61, 0x74, 0x65, 0x64, 0x5f,
 	0x61, 0x74, 0x18, 0x0d, 0x20, 0x01, 0x28, 0x09, 0x52, 0x09, 0x75, 0x70, 0x64, 0x61, 0x74, 0x65,
-	0x64, 0x41, 0x74, 0x42, 0x0c, 0x5a, 0x0a, 0x77, 0x65, 0x62, 0x2f, 0x76, 0x31, 0x3b, 0x77, 0x65,
-	0x62, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x64, 0x41, 0x74, 0x22, 0x94, 0x01, 0x0a, 0x18, 0x54, 0x61, 0x6c, 0x6b, 0x53, 0x65, 0x73, 0x73,
+	0x69, 0x6f, 0x6e, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74,
+	0x12, 0x3e, 0x0a, 0x09, 0x74, 0x61, 0x6c, 0x6b, 0x5f, 0x74, 0x79, 0x70, 0x65, 0x18, 0x01, 0x20,
+	0x01, 0x28, 0x05, 0x42, 0x21, 0x9a, 0x84, 0x9e, 0x03, 0x1c, 0x62, 0x69, 0x6e, 0x64, 0x69, 0x6e,
+	0x67, 0x3a, 0x22, 0x72, 0x65, 0x71, 0x75, 0x69, 0x72, 0x65, 0x64, 0x2c, 0x6f, 0x6e, 0x65, 0x6f,
+	0x66, 0x3d, 0x31, 0x20, 0x32, 0x22, 0x52, 0x08, 0x74, 0x61, 0x6c, 0x6b, 0x54, 0x79, 0x70, 0x65,
+	0x12, 0x38, 0x0a, 0x0b, 0x72, 0x65, 0x63, 0x65, 0x69, 0x76, 0x65, 0x72, 0x5f, 0x69, 0x64, 0x18,
+	0x02, 0x20, 0x01, 0x28, 0x05, 0x42, 0x17, 0x9a, 0x84, 0x9e, 0x03, 0x12, 0x62, 0x69, 0x6e, 0x64,
+	0x69, 0x6e, 0x67, 0x3a, 0x22, 0x72, 0x65, 0x71, 0x75, 0x69, 0x72, 0x65, 0x64, 0x22, 0x52, 0x0a,
+	0x72, 0x65, 0x63, 0x65, 0x69, 0x76, 0x65, 0x72, 0x49, 0x64, 0x22, 0xfd, 0x02, 0x0a, 0x19, 0x54,
+	0x61, 0x6c, 0x6b, 0x53, 0x65, 0x73, 0x73, 0x69, 0x6f, 0x6e, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65,
+	0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x0e, 0x0a, 0x02, 0x69, 0x64, 0x18, 0x01,
+	0x20, 0x01, 0x28, 0x05, 0x52, 0x02, 0x69, 0x64, 0x12, 0x1b, 0x0a, 0x09, 0x74, 0x61, 0x6c, 0x6b,
+	0x5f, 0x74, 0x79, 0x70, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x05, 0x52, 0x08, 0x74, 0x61, 0x6c,
+	0x6b, 0x54, 0x79, 0x70, 0x65, 0x12, 0x1f, 0x0a, 0x0b, 0x72, 0x65, 0x63, 0x65, 0x69, 0x76, 0x65,
+	0x72, 0x5f, 0x69, 0x64, 0x18, 0x03, 0x20, 0x01, 0x28, 0x05, 0x52, 0x0a, 0x72, 0x65, 0x63, 0x65,
+	0x69, 0x76, 0x65, 0x72, 0x49, 0x64, 0x12, 0x15, 0x0a, 0x06, 0x69, 0x73, 0x5f, 0x74, 0x6f, 0x70,
+	0x18, 0x04, 0x20, 0x01, 0x28, 0x05, 0x52, 0x05, 0x69, 0x73, 0x54, 0x6f, 0x70, 0x12, 0x1d, 0x0a,
+	0x0a, 0x69, 0x73, 0x5f, 0x64, 0x69, 0x73, 0x74, 0x75, 0x72, 0x62, 0x18, 0x05, 0x20, 0x01, 0x28,
+	0x05, 0x52, 0x09, 0x69, 0x73, 0x44, 0x69, 0x73, 0x74, 0x75, 0x72, 0x62, 0x12, 0x1b, 0x0a, 0x09,
+	0x69, 0x73, 0x5f, 0x6f, 0x6e, 0x6c, 0x69, 0x6e, 0x65, 0x18, 0x06, 0x20, 0x01, 0x28, 0x05, 0x52,
+	0x08, 0x69, 0x73, 0x4f, 0x6e, 0x6c, 0x69, 0x6e, 0x65, 0x12, 0x19, 0x0a, 0x08, 0x69, 0x73, 0x5f,
+	0x72, 0x6f, 0x62, 0x6f, 0x74, 0x18, 0x07, 0x20, 0x01, 0x28, 0x05, 0x52, 0x07, 0x69, 0x73, 0x52,
+	0x6f, 0x62, 0x6f, 0x74, 0x12, 0x12, 0x0a, 0x04, 0x6e, 0x61, 0x6d, 0x65, 0x18, 0x08, 0x20, 0x01,
+	0x28, 0x09, 0x52, 0x04, 0x6e, 0x61, 0x6d, 0x65, 0x12, 0x16, 0x0a, 0x06, 0x61, 0x76, 0x61, 0x74,
+	0x61, 0x72, 0x18, 0x09, 0x20, 0x01, 0x28, 0x09, 0x52, 0x06, 0x61, 0x76, 0x61, 0x74, 0x61, 0x72,
+	0x12, 0x1f, 0x0a, 0x0b, 0x72, 0x65, 0x6d, 0x61, 0x72, 0x6b, 0x5f, 0x6e, 0x61, 0x6d, 0x65, 0x18,
+	0x0a, 0x20, 0x01, 0x28, 0x09, 0x52, 0x0a, 0x72, 0x65, 0x6d, 0x61, 0x72, 0x6b, 0x4e, 0x61, 0x6d,
+	0x65, 0x12, 0x1d, 0x0a, 0x0a, 0x75, 0x6e, 0x72, 0x65, 0x61, 0x64, 0x5f, 0x6e, 0x75, 0x6d, 0x18,
+	0x0b, 0x20, 0x01, 0x28, 0x05, 0x52, 0x09, 0x75, 0x6e, 0x72, 0x65, 0x61, 0x64, 0x4e, 0x75, 0x6d,
+	0x12, 0x19, 0x0a, 0x08, 0x6d, 0x73, 0x67, 0x5f, 0x74, 0x65, 0x78, 0x74, 0x18, 0x0c, 0x20, 0x01,
+	0x28, 0x09, 0x52, 0x07, 0x6d, 0x73, 0x67, 0x54, 0x65, 0x78, 0x74, 0x12, 0x1d, 0x0a, 0x0a, 0x75,
+	0x70, 0x64, 0x61, 0x74, 0x65, 0x64, 0x5f, 0x61, 0x74, 0x18, 0x0d, 0x20, 0x01, 0x28, 0x09, 0x52,
+	0x09, 0x75, 0x70, 0x64, 0x61, 0x74, 0x65, 0x64, 0x41, 0x74, 0x22, 0x4c, 0x0a, 0x18, 0x54, 0x61,
+	0x6c, 0x6b, 0x53, 0x65, 0x73, 0x73, 0x69, 0x6f, 0x6e, 0x44, 0x65, 0x6c, 0x65, 0x74, 0x65, 0x52,
+	0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x30, 0x0a, 0x07, 0x6c, 0x69, 0x73, 0x74, 0x5f, 0x69,
+	0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x05, 0x42, 0x17, 0x9a, 0x84, 0x9e, 0x03, 0x12, 0x62, 0x69,
+	0x6e, 0x64, 0x69, 0x6e, 0x67, 0x3a, 0x22, 0x72, 0x65, 0x71, 0x75, 0x69, 0x72, 0x65, 0x64, 0x22,
+	0x52, 0x06, 0x6c, 0x69, 0x73, 0x74, 0x49, 0x64, 0x22, 0x1b, 0x0a, 0x19, 0x54, 0x61, 0x6c, 0x6b,
+	0x53, 0x65, 0x73, 0x73, 0x69, 0x6f, 0x6e, 0x44, 0x65, 0x6c, 0x65, 0x74, 0x65, 0x52, 0x65, 0x73,
+	0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x80, 0x01, 0x0a, 0x15, 0x54, 0x61, 0x6c, 0x6b, 0x53, 0x65,
+	0x73, 0x73, 0x69, 0x6f, 0x6e, 0x54, 0x6f, 0x70, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12,
+	0x30, 0x0a, 0x07, 0x6c, 0x69, 0x73, 0x74, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x05,
+	0x42, 0x17, 0x9a, 0x84, 0x9e, 0x03, 0x12, 0x62, 0x69, 0x6e, 0x64, 0x69, 0x6e, 0x67, 0x3a, 0x22,
+	0x72, 0x65, 0x71, 0x75, 0x69, 0x72, 0x65, 0x64, 0x22, 0x52, 0x06, 0x6c, 0x69, 0x73, 0x74, 0x49,
+	0x64, 0x12, 0x35, 0x0a, 0x04, 0x74, 0x79, 0x70, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x05, 0x42,
+	0x21, 0x9a, 0x84, 0x9e, 0x03, 0x1c, 0x62, 0x69, 0x6e, 0x64, 0x69, 0x6e, 0x67, 0x3a, 0x22, 0x72,
+	0x65, 0x71, 0x75, 0x69, 0x72, 0x65, 0x64, 0x2c, 0x6f, 0x6e, 0x65, 0x6f, 0x66, 0x3d, 0x31, 0x20,
+	0x32, 0x22, 0x52, 0x04, 0x74, 0x79, 0x70, 0x65, 0x22, 0x18, 0x0a, 0x16, 0x54, 0x61, 0x6c, 0x6b,
+	0x53, 0x65, 0x73, 0x73, 0x69, 0x6f, 0x6e, 0x54, 0x6f, 0x70, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e,
+	0x73, 0x65, 0x22, 0xce, 0x01, 0x0a, 0x19, 0x54, 0x61, 0x6c, 0x6b, 0x53, 0x65, 0x73, 0x73, 0x69,
+	0x6f, 0x6e, 0x44, 0x69, 0x73, 0x74, 0x75, 0x72, 0x62, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74,
+	0x12, 0x3e, 0x0a, 0x09, 0x74, 0x61, 0x6c, 0x6b, 0x5f, 0x74, 0x79, 0x70, 0x65, 0x18, 0x01, 0x20,
+	0x01, 0x28, 0x05, 0x42, 0x21, 0x9a, 0x84, 0x9e, 0x03, 0x1c, 0x62, 0x69, 0x6e, 0x64, 0x69, 0x6e,
+	0x67, 0x3a, 0x22, 0x72, 0x65, 0x71, 0x75, 0x69, 0x72, 0x65, 0x64, 0x2c, 0x6f, 0x6e, 0x65, 0x6f,
+	0x66, 0x3d, 0x31, 0x20, 0x32, 0x22, 0x52, 0x08, 0x74, 0x61, 0x6c, 0x6b, 0x54, 0x79, 0x70, 0x65,
+	0x12, 0x38, 0x0a, 0x0b, 0x72, 0x65, 0x63, 0x65, 0x69, 0x76, 0x65, 0x72, 0x5f, 0x69, 0x64, 0x18,
+	0x02, 0x20, 0x01, 0x28, 0x05, 0x42, 0x17, 0x9a, 0x84, 0x9e, 0x03, 0x12, 0x62, 0x69, 0x6e, 0x64,
+	0x69, 0x6e, 0x67, 0x3a, 0x22, 0x72, 0x65, 0x71, 0x75, 0x69, 0x72, 0x65, 0x64, 0x22, 0x52, 0x0a,
+	0x72, 0x65, 0x63, 0x65, 0x69, 0x76, 0x65, 0x72, 0x49, 0x64, 0x12, 0x37, 0x0a, 0x0a, 0x69, 0x73,
+	0x5f, 0x64, 0x69, 0x73, 0x74, 0x75, 0x72, 0x62, 0x18, 0x03, 0x20, 0x01, 0x28, 0x05, 0x42, 0x18,
+	0x9a, 0x84, 0x9e, 0x03, 0x13, 0x62, 0x69, 0x6e, 0x64, 0x69, 0x6e, 0x67, 0x3a, 0x22, 0x6f, 0x6e,
+	0x65, 0x6f, 0x66, 0x3d, 0x30, 0x20, 0x31, 0x22, 0x52, 0x09, 0x69, 0x73, 0x44, 0x69, 0x73, 0x74,
+	0x75, 0x72, 0x62, 0x22, 0x1c, 0x0a, 0x1a, 0x54, 0x61, 0x6c, 0x6b, 0x53, 0x65, 0x73, 0x73, 0x69,
+	0x6f, 0x6e, 0x44, 0x69, 0x73, 0x74, 0x75, 0x72, 0x62, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73,
+	0x65, 0x22, 0x18, 0x0a, 0x16, 0x54, 0x61, 0x6c, 0x6b, 0x53, 0x65, 0x73, 0x73, 0x69, 0x6f, 0x6e,
+	0x4c, 0x69, 0x73, 0x74, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x22, 0x45, 0x0a, 0x17, 0x54,
+	0x61, 0x6c, 0x6b, 0x53, 0x65, 0x73, 0x73, 0x69, 0x6f, 0x6e, 0x4c, 0x69, 0x73, 0x74, 0x52, 0x65,
+	0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x2a, 0x0a, 0x05, 0x69, 0x74, 0x65, 0x6d, 0x73, 0x18,
+	0x01, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x14, 0x2e, 0x77, 0x65, 0x62, 0x2e, 0x54, 0x61, 0x6c, 0x6b,
+	0x53, 0x65, 0x73, 0x73, 0x69, 0x6f, 0x6e, 0x49, 0x74, 0x65, 0x6d, 0x52, 0x05, 0x69, 0x74, 0x65,
+	0x6d, 0x73, 0x22, 0x9c, 0x01, 0x0a, 0x20, 0x54, 0x61, 0x6c, 0x6b, 0x53, 0x65, 0x73, 0x73, 0x69,
+	0x6f, 0x6e, 0x43, 0x6c, 0x65, 0x61, 0x72, 0x55, 0x6e, 0x72, 0x65, 0x61, 0x64, 0x4e, 0x75, 0x6d,
+	0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x3e, 0x0a, 0x09, 0x74, 0x61, 0x6c, 0x6b, 0x5f,
+	0x74, 0x79, 0x70, 0x65, 0x18, 0x01, 0x20, 0x01, 0x28, 0x05, 0x42, 0x21, 0x9a, 0x84, 0x9e, 0x03,
+	0x1c, 0x62, 0x69, 0x6e, 0x64, 0x69, 0x6e, 0x67, 0x3a, 0x22, 0x72, 0x65, 0x71, 0x75, 0x69, 0x72,
+	0x65, 0x64, 0x2c, 0x6f, 0x6e, 0x65, 0x6f, 0x66, 0x3d, 0x31, 0x20, 0x32, 0x22, 0x52, 0x08, 0x74,
+	0x61, 0x6c, 0x6b, 0x54, 0x79, 0x70, 0x65, 0x12, 0x38, 0x0a, 0x0b, 0x72, 0x65, 0x63, 0x65, 0x69,
+	0x76, 0x65, 0x72, 0x5f, 0x69, 0x64, 0x18, 0x02, 0x20, 0x01, 0x28, 0x05, 0x42, 0x17, 0x9a, 0x84,
+	0x9e, 0x03, 0x12, 0x62, 0x69, 0x6e, 0x64, 0x69, 0x6e, 0x67, 0x3a, 0x22, 0x72, 0x65, 0x71, 0x75,
+	0x69, 0x72, 0x65, 0x64, 0x22, 0x52, 0x0a, 0x72, 0x65, 0x63, 0x65, 0x69, 0x76, 0x65, 0x72, 0x49,
+	0x64, 0x22, 0x23, 0x0a, 0x21, 0x54, 0x61, 0x6c, 0x6b, 0x53, 0x65, 0x73, 0x73, 0x69, 0x6f, 0x6e,
+	0x43, 0x6c, 0x65, 0x61, 0x72, 0x55, 0x6e, 0x72, 0x65, 0x61, 0x64, 0x4e, 0x75, 0x6d, 0x52, 0x65,
+	0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x42, 0x0c, 0x5a, 0x0a, 0x77, 0x65, 0x62, 0x2f, 0x76, 0x31,
+	0x3b, 0x77, 0x65, 0x62, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -424,14 +960,24 @@ func file_web_v1_talk_proto_rawDescGZIP() []byte {
 	return file_web_v1_talk_proto_rawDescData
 }
 
-var file_web_v1_talk_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+var file_web_v1_talk_proto_msgTypes = make([]protoimpl.MessageInfo, 13)
 var file_web_v1_talk_proto_goTypes = []interface{}{
-	(*TalkCreateResponse)(nil),    // 0: web.TalkCreateResponse
-	(*TalkListResponse)(nil),      // 1: web.TalkListResponse
-	(*TalkListResponse_Item)(nil), // 2: web.TalkListResponse.Item
+	(*TalkSessionItem)(nil),                   // 0: web.TalkSessionItem
+	(*TalkSessionCreateRequest)(nil),          // 1: web.TalkSessionCreateRequest
+	(*TalkSessionCreateResponse)(nil),         // 2: web.TalkSessionCreateResponse
+	(*TalkSessionDeleteRequest)(nil),          // 3: web.TalkSessionDeleteRequest
+	(*TalkSessionDeleteResponse)(nil),         // 4: web.TalkSessionDeleteResponse
+	(*TalkSessionTopRequest)(nil),             // 5: web.TalkSessionTopRequest
+	(*TalkSessionTopResponse)(nil),            // 6: web.TalkSessionTopResponse
+	(*TalkSessionDisturbRequest)(nil),         // 7: web.TalkSessionDisturbRequest
+	(*TalkSessionDisturbResponse)(nil),        // 8: web.TalkSessionDisturbResponse
+	(*TalkSessionListRequest)(nil),            // 9: web.TalkSessionListRequest
+	(*TalkSessionListResponse)(nil),           // 10: web.TalkSessionListResponse
+	(*TalkSessionClearUnreadNumRequest)(nil),  // 11: web.TalkSessionClearUnreadNumRequest
+	(*TalkSessionClearUnreadNumResponse)(nil), // 12: web.TalkSessionClearUnreadNumResponse
 }
 var file_web_v1_talk_proto_depIdxs = []int32{
-	2, // 0: web.TalkListResponse.items:type_name -> web.TalkListResponse.Item
+	0, // 0: web.TalkSessionListResponse.items:type_name -> web.TalkSessionItem
 	1, // [1:1] is the sub-list for method output_type
 	1, // [1:1] is the sub-list for method input_type
 	1, // [1:1] is the sub-list for extension type_name
@@ -446,7 +992,7 @@ func file_web_v1_talk_proto_init() {
 	}
 	if !protoimpl.UnsafeEnabled {
 		file_web_v1_talk_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*TalkCreateResponse); i {
+			switch v := v.(*TalkSessionItem); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -458,7 +1004,7 @@ func file_web_v1_talk_proto_init() {
 			}
 		}
 		file_web_v1_talk_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*TalkListResponse); i {
+			switch v := v.(*TalkSessionCreateRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -470,7 +1016,127 @@ func file_web_v1_talk_proto_init() {
 			}
 		}
 		file_web_v1_talk_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*TalkListResponse_Item); i {
+			switch v := v.(*TalkSessionCreateResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_web_v1_talk_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*TalkSessionDeleteRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_web_v1_talk_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*TalkSessionDeleteResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_web_v1_talk_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*TalkSessionTopRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_web_v1_talk_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*TalkSessionTopResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_web_v1_talk_proto_msgTypes[7].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*TalkSessionDisturbRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_web_v1_talk_proto_msgTypes[8].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*TalkSessionDisturbResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_web_v1_talk_proto_msgTypes[9].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*TalkSessionListRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_web_v1_talk_proto_msgTypes[10].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*TalkSessionListResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_web_v1_talk_proto_msgTypes[11].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*TalkSessionClearUnreadNumRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_web_v1_talk_proto_msgTypes[12].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*TalkSessionClearUnreadNumResponse); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -488,7 +1154,7 @@ func file_web_v1_talk_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_web_v1_talk_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   3,
+			NumMessages:   13,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
