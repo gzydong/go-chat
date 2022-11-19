@@ -4,7 +4,6 @@ import (
 	"github.com/gin-gonic/gin/binding"
 	"go-chat/api/pb/message/v1"
 	"go-chat/internal/entity"
-	"go-chat/internal/http/internal/dto/web"
 	"go-chat/internal/pkg/ichat"
 	"go-chat/internal/service"
 )
@@ -18,10 +17,21 @@ func NewSendMessage(auth *service.TalkAuthService, message *service.MessageServi
 	return &SendMessage{auth: auth, message: message}
 }
 
+type SendBaseMessageRequest struct {
+	Type     int       `json:"type" binding:"required,gt=0"`
+	Receiver *Receiver `json:"receiver" binding:"required"`
+}
+
+// Receiver 接受者信息
+type Receiver struct {
+	TalkType   int `json:"talk_type" binding:"required,gt=0"`   // 对话类型 1:私聊 2:群聊
+	ReceiverId int `json:"receiver_id" binding:"required,gt=0"` // 好友ID或群ID
+}
+
 // Send 发送消息接口
 func (c *SendMessage) Send(ctx *ichat.Context) error {
 
-	params := &web.SendBaseMessageRequest{}
+	params := &SendBaseMessageRequest{}
 	if err := ctx.Context.ShouldBindBodyWith(params, binding.JSON); err != nil {
 		return ctx.InvalidParams(err)
 	}

@@ -3,7 +3,6 @@ package talk
 import (
 	"net/http"
 
-	"go-chat/internal/http/internal/dto/web"
 	"go-chat/internal/pkg/ichat"
 	"go-chat/internal/pkg/timeutil"
 
@@ -24,10 +23,20 @@ func NewRecords(service *service.TalkRecordsService, groupMemberService *service
 	return &Records{service: service, groupMemberService: groupMemberService, fileSystem: fileSystem, authPermission: authPermission}
 }
 
+type (
+	GetTalkRecordsRequest struct {
+		TalkType   int `form:"talk_type" json:"talk_type" binding:"required,oneof=1 2"`         // 对话类型
+		MsgType    int `form:"msg_type" json:"msg_type" binding:"numeric"`                      // 消息类型
+		ReceiverId int `form:"receiver_id" json:"receiver_id" binding:"required,numeric,min=1"` // 接收者ID
+		RecordId   int `form:"record_id" json:"record_id" binding:"min=0,numeric"`              // 上次查询的最小消息ID
+		Limit      int `form:"limit" json:"limit" binding:"required,numeric,max=100"`           // 数据行数
+	}
+)
+
 // GetRecords 获取会话记录
 func (c *Records) GetRecords(ctx *ichat.Context) error {
 
-	params := &web.GetTalkRecordsRequest{}
+	params := &GetTalkRecordsRequest{}
 	if err := ctx.Context.ShouldBindQuery(params); err != nil {
 		return ctx.InvalidParams(err)
 	}
@@ -85,7 +94,7 @@ func (c *Records) GetRecords(ctx *ichat.Context) error {
 // SearchHistoryRecords 查询下会话记录
 func (c *Records) SearchHistoryRecords(ctx *ichat.Context) error {
 
-	params := &web.GetTalkRecordsRequest{}
+	params := &GetTalkRecordsRequest{}
 	if err := ctx.Context.ShouldBindQuery(params); err != nil {
 		return ctx.InvalidParams(err)
 	}
@@ -143,10 +152,14 @@ func (c *Records) SearchHistoryRecords(ctx *ichat.Context) error {
 	})
 }
 
+type GetForwardTalkRecordRequest struct {
+	RecordId int `form:"record_id" json:"record_id" binding:"min=0,numeric"` // 上次查询的最小消息ID
+}
+
 // GetForwardRecords 获取转发记录
 func (c *Records) GetForwardRecords(ctx *ichat.Context) error {
 
-	params := &web.GetForwardTalkRecordRequest{}
+	params := &GetForwardTalkRecordRequest{}
 	if err := ctx.Context.ShouldBind(params); err != nil {
 		return ctx.InvalidParams(err)
 	}
