@@ -4,6 +4,7 @@ package entity
 const (
 	ChatPrivateMode = 1 // 私信模式
 	ChatGroupMode   = 2 // 群聊模式
+	ChatRoomMode    = 3 // 房间模式
 )
 
 // WebSocket 消息事件枚举
@@ -30,7 +31,7 @@ const (
 	MsgTypeLogin       = 8  // 登录通知
 	MsgTypeGroupInvite = 9  // 入群退群消息
 	MsgTypeLocation    = 10 // 位置消息
-	MsgTypeEmoticon    = 11 // 位置消息
+	MsgTypeEmoticon    = 11 // 表情消息
 )
 
 const (

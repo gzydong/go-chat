@@ -72,80 +72,6 @@ func (s *TalkMessageService) SendSysMessage(ctx context.Context, opts *SysTextMe
 	return nil
 }
 
-type TextMessageOpt struct {
-	UserId     int
-	TalkType   int
-	ReceiverId int
-	Text       string
-}
-
-// SendTextMessage 发送文本消息
-func (s *TalkMessageService) SendTextMessage(ctx context.Context, opts *TextMessageOpt) error {
-	record := &model.TalkRecords{
-		TalkType:   opts.TalkType,
-		MsgType:    entity.MsgTypeText,
-		UserId:     opts.UserId,
-		ReceiverId: opts.ReceiverId,
-		Content:    opts.Text,
-	}
-
-	if err := s.db.Create(record).Error; err != nil {
-		return err
-	}
-
-	s.afterHandle(ctx, record, map[string]string{
-		"text": strutil.MtSubstr(record.Content, 0, 30),
-	})
-
-	return nil
-}
-
-type CodeMessageOpt struct {
-	UserId     int
-	TalkType   int
-	ReceiverId int
-	Lang       string
-	Code       string
-}
-
-// SendCodeMessage 发送代码消息
-func (s *TalkMessageService) SendCodeMessage(ctx context.Context, opts *CodeMessageOpt) error {
-	var (
-		err    error
-		record = &model.TalkRecords{
-			TalkType:   opts.TalkType,
-			MsgType:    entity.MsgTypeCode,
-			UserId:     opts.UserId,
-			ReceiverId: opts.ReceiverId,
-		}
-	)
-
-	err = s.db.Transaction(func(tx *gorm.DB) error {
-		if err = s.db.Create(record).Error; err != nil {
-			return err
-		}
-
-		if err = s.db.Create(&model.TalkRecordsCode{
-			RecordId: record.Id,
-			UserId:   opts.UserId,
-			Lang:     opts.Lang,
-			Code:     opts.Code,
-		}).Error; err != nil {
-			return err
-		}
-
-		return nil
-	})
-
-	if err != nil {
-		return err
-	}
-
-	s.afterHandle(ctx, record, map[string]string{"text": "[代码消息]"})
-
-	return nil
-}
-
 type ImageMessageOpt struct {
 	UserId     int
 	TalkType   int
@@ -281,76 +207,6 @@ func (s *TalkMessageService) SendFileMessage(ctx context.Context, opts *FileMess
 	return nil
 }
 
-type CardMessageOpt struct {
-	UserId     int
-	TalkType   int
-	ReceiverId int
-	ContactId  int
-}
-
-// SendCardMessage 发送用户名片消息
-func (s *TalkMessageService) SendCardMessage(ctx context.Context, opts *CardMessageOpt) error {
-	// todo 发送用户名片消息待开发
-	return nil
-}
-
-type VoteMessageOpt struct {
-	UserId     int
-	ReceiverId int
-	Mode       int
-	Anonymous  int
-	Title      string
-	Options    []string
-}
-
-// SendVoteMessage 发送投票消息
-func (s *TalkMessageService) SendVoteMessage(ctx context.Context, opts *VoteMessageOpt) error {
-	var (
-		err    error
-		record = &model.TalkRecords{
-			TalkType:   entity.ChatGroupMode,
-			MsgType:    entity.MsgTypeVote,
-			UserId:     opts.UserId,
-			ReceiverId: opts.ReceiverId,
-		}
-	)
-
-	options := make(map[string]string)
-	for i, value := range opts.Options {
-		options[fmt.Sprintf("%c", 65+i)] = value
-	}
-
-	num := s.groupMemberRepo.CountMemberTotal(opts.ReceiverId)
-
-	err = s.db.Transaction(func(tx *gorm.DB) error {
-		if err = s.db.Create(record).Error; err != nil {
-			return err
-		}
-
-		if err = s.db.Create(&model.TalkRecordsVote{
-			RecordId:     record.Id,
-			UserId:       opts.UserId,
-			Title:        opts.Title,
-			AnswerMode:   opts.Mode,
-			AnswerOption: jsonutil.Encode(options),
-			AnswerNum:    int(num),
-			IsAnonymous:  opts.Anonymous,
-		}).Error; err != nil {
-			return err
-		}
-
-		return nil
-	})
-
-	if err != nil {
-		return err
-	}
-
-	s.afterHandle(ctx, record, map[string]string{"text": "[投票消息]"})
-
-	return nil
-}
-
 type EmoticonMessageOpt struct {
 	UserId     int
 	TalkType   int
@@ -406,53 +262,6 @@ func (s *TalkMessageService) SendEmoticonMessage(ctx context.Context, opts *Emot
 	}
 
 	s.afterHandle(ctx, record, map[string]string{"text": "[图片消息]"})
-
-	return nil
-}
-
-type LocationMessageOpt struct {
-	UserId     int
-	TalkType   int
-	ReceiverId int
-	Longitude  string
-	Latitude   string
-}
-
-// SendLocationMessage 发送位置消息
-func (s *TalkMessageService) SendLocationMessage(ctx context.Context, opts *LocationMessageOpt) error {
-
-	var (
-		err    error
-		record = &model.TalkRecords{
-			TalkType:   opts.TalkType,
-			MsgType:    entity.MsgTypeLocation,
-			UserId:     opts.UserId,
-			ReceiverId: opts.ReceiverId,
-		}
-	)
-
-	err = s.db.Transaction(func(tx *gorm.DB) error {
-		if err = s.db.Create(record).Error; err != nil {
-			return err
-		}
-
-		if err = s.db.Create(&model.TalkRecordsLocation{
-			RecordId:  record.Id,
-			UserId:    opts.UserId,
-			Longitude: opts.Longitude,
-			Latitude:  opts.Latitude,
-		}).Error; err != nil {
-			return err
-		}
-
-		return nil
-	})
-
-	if err != nil {
-		return err
-	}
-
-	s.afterHandle(ctx, record, map[string]string{"text": "[位置消息]"})
 
 	return nil
 }
@@ -591,53 +400,6 @@ func (s *TalkMessageService) VoteHandle(ctx context.Context, opts *VoteMessageHa
 	_, _ = s.talkRecordsVoteRepo.SetVoteStatistics(ctx, vote.VoteId)
 
 	return vote.VoteId, nil
-}
-
-type LoginMessageOpt struct {
-	UserId   int
-	Ip       string
-	Address  string
-	Platform string
-	Agent    string
-}
-
-// SendLoginMessage 添加登录消息
-func (s *TalkMessageService) SendLoginMessage(ctx context.Context, opts *LoginMessageOpt) error {
-	var (
-		err    error
-		record = &model.TalkRecords{
-			TalkType:   entity.ChatPrivateMode,
-			MsgType:    entity.MsgTypeLogin,
-			UserId:     4257,
-			ReceiverId: opts.UserId,
-		}
-	)
-
-	err = s.db.Transaction(func(tx *gorm.DB) error {
-		if err = s.db.Create(record).Error; err != nil {
-			return err
-		}
-
-		if err = s.db.Create(&model.TalkRecordsLogin{
-			RecordId: record.Id,
-			UserId:   opts.UserId,
-			Ip:       opts.Ip,
-			Platform: opts.Platform,
-			Agent:    opts.Agent,
-			Address:  opts.Address,
-			Reason:   "常用设备登录",
-		}).Error; err != nil {
-			return err
-		}
-
-		return nil
-	})
-
-	if err == nil {
-		s.afterHandle(ctx, record, map[string]string{"text": "[系统通知] 账号登录提醒！"})
-	}
-
-	return err
 }
 
 // 发送消息后置处理

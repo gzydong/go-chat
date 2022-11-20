@@ -99,6 +99,22 @@ func (c *SendMessage) onSendImage(ctx *ichat.Context) error {
 	return ctx.Success(nil)
 }
 
+// 文件消息
+func (c *SendMessage) onSendFile(ctx *ichat.Context) error {
+
+	params := &message.FileMessageRequest{}
+	if err := ctx.Context.ShouldBindBodyWith(params, binding.JSON); err != nil {
+		return ctx.InvalidParams(err)
+	}
+
+	err := c.message.SendFile(ctx.Ctx(), ctx.UserId(), params)
+	if err != nil {
+		return ctx.BusinessError(err.Error())
+	}
+
+	return ctx.Success(nil)
+}
+
 // 代码消息
 func (c *SendMessage) onSendCode(ctx *ichat.Context) error {
 

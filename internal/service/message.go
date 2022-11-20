@@ -57,7 +57,7 @@ func (m *MessageService) SendText(ctx context.Context, uid int, req *message.Tex
 		data.Sequence = m.Sequence.Seq(ctx, uid, int(req.Receiver.ReceiverId))
 	}
 
-	if err := m.db.Create(data).Error; err != nil {
+	if err := m.db.WithContext(ctx).Create(data).Error; err != nil {
 		return err
 	}
 
@@ -90,7 +90,7 @@ func (m *MessageService) SendImage(ctx context.Context, uid int, req *message.Im
 		data.Sequence = m.Sequence.Seq(ctx, uid, int(req.Receiver.ReceiverId))
 	}
 
-	err = m.db.Transaction(func(tx *gorm.DB) error {
+	err = m.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		if err := tx.Create(data).Error; err != nil {
 			return err
 		}
@@ -140,7 +140,7 @@ func (m *MessageService) SendVoice(ctx context.Context, uid int, req *message.Vo
 		data.Sequence = m.Sequence.Seq(ctx, uid, int(req.Receiver.ReceiverId))
 	}
 
-	err = m.db.Transaction(func(tx *gorm.DB) error {
+	err = m.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		if err := tx.Create(data).Error; err != nil {
 			return err
 		}
@@ -190,7 +190,7 @@ func (m *MessageService) SendVideo(ctx context.Context, uid int, req *message.Vi
 		data.Sequence = m.Sequence.Seq(ctx, uid, int(req.Receiver.ReceiverId))
 	}
 
-	err = m.db.Transaction(func(tx *gorm.DB) error {
+	err = m.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		if err := tx.Create(data).Error; err != nil {
 			return err
 		}
@@ -246,7 +246,7 @@ func (m *MessageService) SendFile(ctx context.Context, uid int, req *message.Fil
 		data.Sequence = m.Sequence.Seq(ctx, uid, int(req.Receiver.ReceiverId))
 	}
 
-	err = m.db.Transaction(func(tx *gorm.DB) error {
+	err = m.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 
 		if err = tx.Create(data).Error; err != nil {
 			return err
@@ -291,7 +291,7 @@ func (m *MessageService) SendCode(ctx context.Context, uid int, req *message.Cod
 		data.Sequence = m.Sequence.Seq(ctx, uid, int(req.Receiver.ReceiverId))
 	}
 
-	err := m.db.Transaction(func(tx *gorm.DB) error {
+	err := m.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		if err := tx.Create(data).Error; err != nil {
 			return err
 		}
@@ -337,7 +337,7 @@ func (m *MessageService) SendVote(ctx context.Context, uid int, req *message.Vot
 
 	num := m.groupMemberRepo.CountMemberTotal(int(req.Receiver.ReceiverId))
 
-	err := m.db.Transaction(func(tx *gorm.DB) error {
+	err := m.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 
 		if err := tx.Create(data).Error; err != nil {
 			return err
@@ -389,7 +389,7 @@ func (m *MessageService) SendEmoticon(ctx context.Context, uid int, req *message
 		data.Sequence = m.Sequence.Seq(ctx, uid, int(req.Receiver.ReceiverId))
 	}
 
-	err := m.db.Transaction(func(tx *gorm.DB) error {
+	err := m.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 
 		if err := tx.Create(data).Error; err != nil {
 			return err
@@ -467,7 +467,7 @@ func (m *MessageService) SendLocation(ctx context.Context, uid int, req *message
 		data.Sequence = m.Sequence.Seq(ctx, uid, int(req.Receiver.ReceiverId))
 	}
 
-	err := m.db.Transaction(func(tx *gorm.DB) error {
+	err := m.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 
 		if err := tx.Create(data).Error; err != nil {
 			return err
@@ -491,7 +491,7 @@ func (m *MessageService) SendLocation(ctx context.Context, uid int, req *message
 }
 
 // SendBusinessCard 推送用户名片消息
-func (m *MessageService) SendBusinessCard(ctx context.Context, uid int) error {
+func (m *MessageService) SendBusinessCard(_ context.Context, uid int) error {
 	return nil
 }
 
@@ -507,7 +507,7 @@ func (m *MessageService) SendLogin(ctx context.Context, uid int, req *message.Lo
 		ReceiverId: uid,
 	}
 
-	err := m.db.Transaction(func(tx *gorm.DB) error {
+	err := m.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 
 		if err := tx.Create(data).Error; err != nil {
 			return err

@@ -2,6 +2,7 @@ package adapter
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/gorilla/websocket"
 )
@@ -44,6 +45,12 @@ func (w *WsAdapter) Read() ([]byte, error) {
 }
 
 func (w *WsAdapter) Write(bytes []byte) error {
+
+	err := w.conn.SetWriteDeadline(time.Now().Add(10 * time.Millisecond))
+	if err != nil {
+		return err
+	}
+
 	return w.conn.WriteMessage(websocket.TextMessage, bytes)
 }
 

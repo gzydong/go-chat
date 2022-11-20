@@ -402,13 +402,8 @@ func (c *Message) Card(ctx *ichat.Context) error {
 		return ctx.BusinessError(err.Error())
 	}
 
-	// todo SendCardMessage
-	if err := c.service.SendCardMessage(ctx.Ctx(), &service.CardMessageOpt{
-		UserId:     uid,
-		TalkType:   params.TalkType,
-		ReceiverId: params.ReceiverId,
-		ContactId:  0,
-	}); err != nil {
+	// todo SendBusinessCard
+	if err := c.message.SendBusinessCard(ctx.Ctx(), uid); err != nil {
 		return ctx.BusinessError(err.Error())
 	}
 
