@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"go-chat/internal/pkg/im/tcp"
+	"go-chat/internal/pkg/im/adapter/encoding"
 )
 
 func TestTcpServer_Setup(t1 *testing.T) {
@@ -26,7 +26,7 @@ func conn() {
 	}
 	defer conn.Close()
 
-	data, _ := tcp.Encode(`{"token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJndWFyZCI6ImFwaSIsImV4cCI6MTcwMDExNTk0MiwianRpIjoiMjA1NCJ9.2hg4nkwDMflJJs4kqWuNXiizBdGgkbrTNiIM8l84d6E","channel":"chat"}`)
+	data, _ := encoding.Encode(`{"token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJndWFyZCI6ImFwaSIsImV4cCI6MTcwMDExNTk0MiwianRpIjoiMjA1NCJ9.2hg4nkwDMflJJs4kqWuNXiizBdGgkbrTNiIM8l84d6E","channel":"chat"}`)
 	_, _ = conn.Write(data)
 
 	go func() {
@@ -34,7 +34,7 @@ func conn() {
 			msg := `{"event":"heartbeat","content":"ping"}`
 
 			time.Sleep(5 * time.Second)
-			data, _ := tcp.Encode(msg)
+			data, _ := encoding.Encode(msg)
 			_, _ = conn.Write(data)
 			time.Sleep(10 * time.Second)
 		}

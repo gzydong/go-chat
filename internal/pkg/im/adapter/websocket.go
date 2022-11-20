@@ -31,7 +31,7 @@ func NewWsAdapter(w http.ResponseWriter, r *http.Request) (*WsAdapter, error) {
 }
 
 func (w *WsAdapter) Network() string {
-	return "wss"
+	return WssType
 }
 
 func (w *WsAdapter) Read() ([]byte, error) {

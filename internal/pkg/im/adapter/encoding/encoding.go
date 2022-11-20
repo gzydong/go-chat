@@ -1,4 +1,4 @@
-package tcp
+package encoding
 
 import (
 	"bufio"

@@ -6,7 +6,7 @@ import (
 	"io"
 	"net"
 
-	"go-chat/internal/pkg/im/tcp"
+	"go-chat/internal/pkg/im/adapter/encoding"
 )
 
 // TcpAdapter TCP 适配器
@@ -21,12 +21,12 @@ func NewTcpAdapter(conn net.Conn) (*TcpAdapter, error) {
 }
 
 func (t *TcpAdapter) Network() string {
-	return "tcp"
+	return TcpType
 }
 
 func (t *TcpAdapter) Read() ([]byte, error) {
 
-	msg, err := tcp.Decode(t.reader)
+	msg, err := encoding.Decode(t.reader)
 	if err == io.EOF {
 		if t.hookClose != nil {
 			if err := t.hookClose(1000, "客户端已关闭"); err != nil {
@@ -46,7 +46,7 @@ func (t *TcpAdapter) Read() ([]byte, error) {
 
 func (t *TcpAdapter) Write(bytes []byte) error {
 
-	binaryData, err := tcp.Encode(string(bytes))
+	binaryData, err := encoding.Encode(string(bytes))
 	if err != nil {
 		return err
 	}
