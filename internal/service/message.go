@@ -577,17 +577,29 @@ func (m *MessageService) afterHandle(ctx context.Context, record *model.TalkReco
 
 		// 小于三台服务器则采用全局广播
 		if len(sids) <= 3 {
-			m.rds.Publish(ctx, entity.ImTopicChat, content)
-		} else {
-			for _, sid := range m.sidStorage.All(ctx, 1) {
-				for _, uid := range []int{record.UserId, record.ReceiverId} {
-					if m.clientStorage.IsCurrentServerOnline(ctx, sid, entity.ImChannelChat, strconv.Itoa(uid)) {
-						m.rds.Publish(ctx, fmt.Sprintf(entity.ImTopicChatPrivate, sid), content)
-					}
+			if err := m.rds.Publish(ctx, entity.ImTopicChat, content).Err(); err != nil {
+				logger.Error(fmt.Sprintf("[ALL]消息推送失败 %s", err.Error()))
+			}
+
+			return
+		}
+
+		for _, sid := range m.sidStorage.All(ctx, 1) {
+			for _, uid := range []int{record.UserId, record.ReceiverId} {
+				if !m.clientStorage.IsCurrentServerOnline(ctx, sid, entity.ImChannelChat, strconv.Itoa(uid)) {
+					continue
+				}
+
+				if err := m.rds.Publish(ctx, fmt.Sprintf(entity.ImTopicChatPrivate, sid), content).Err(); err != nil {
+					logger.WithFields(entity.H{
+						"sid": sid,
+					}).Error(fmt.Sprintf("[Private]消息推送失败 %s", err.Error()))
 				}
 			}
 		}
 	} else {
-		m.rds.Publish(ctx, entity.ImTopicChat, content)
+		if err := m.rds.Publish(ctx, entity.ImTopicChat, content).Err(); err != nil {
+			logger.Error(fmt.Sprintf("[ALL]消息推送失败 %s", err.Error()))
+		}
 	}
 }
