@@ -48,7 +48,6 @@ func (c *Article) List(ctx *ichat.Context) error {
 
 	list := make([]*web.ArticleListResponse_Item, 0)
 	for _, item := range items {
-
 		list = append(list, &web.ArticleListResponse_Item{
 			Id:         int32(item.Id),
 			ClassId:    int32(item.ClassId),

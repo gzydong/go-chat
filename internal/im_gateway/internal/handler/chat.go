@@ -41,7 +41,7 @@ func (c *ChatChannel) TcpConn(ctx context.Context, uid int, conn *adapter.TcpAda
 }
 
 func (c *ChatChannel) client(ctx context.Context, uid int, conn im.IConn) {
-	im.NewClient(ctx, conn, &im.ClientOptions{
+	im.NewClient(ctx, conn, &im.ClientOption{
 		Uid:     uid,
 		Channel: im.Session.Chat,
 		Storage: c.storage,

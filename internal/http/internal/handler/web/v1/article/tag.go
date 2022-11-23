@@ -31,9 +31,7 @@ func (c *Tag) List(ctx *ichat.Context) error {
 		})
 	}
 
-	return ctx.Success(&web.ArticleTagListResponse{
-		Tags: items,
-	})
+	return ctx.Success(&web.ArticleTagListResponse{Tags: items})
 }
 
 // Edit 添加或修改标签

@@ -28,7 +28,7 @@ func (c *ExampleChannel) WsConnect(ctx *ichat.Context) error {
 	}
 
 	// 创建客户端
-	im.NewClient(ctx.Ctx(), conn, &im.ClientOptions{
+	im.NewClient(ctx.Ctx(), conn, &im.ClientOption{
 		Channel: im.Session.Example,
 		Uid:     0, // 自行提供用户ID
 	}, im.NewClientCallback(

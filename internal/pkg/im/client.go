@@ -49,7 +49,7 @@ type Client struct {
 	callBack ICallback              // 回调方法
 }
 
-type ClientOptions struct {
+type ClientOption struct {
 	Uid     int      // 用户识别ID
 	Channel *Channel // 渠道信息
 	Storage IStorage // 自定义缓存组件，用于绑定用户与客户端的关系
@@ -57,7 +57,7 @@ type ClientOptions struct {
 }
 
 // NewClient 初始化客户端信息
-func NewClient(ctx context.Context, conn IConn, opt *ClientOptions, callBack ICallback) IClient {
+func NewClient(ctx context.Context, conn IConn, opt *ClientOption, callBack ICallback) IClient {
 
 	if opt.Buffer <= 0 {
 		opt.Buffer = 10
