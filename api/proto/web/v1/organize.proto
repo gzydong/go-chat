@@ -1,0 +1,46 @@
+syntax = "proto3";
+package web;
+
+option go_package = "web/v1;web";
+
+//import "tagger/tagger.proto";
+
+message OrganizeDepartmentListRequest{}
+
+message OrganizeDepartmentListResponse{
+  message Item{
+    int32 dept_id = 1;
+    int32 parent_id = 2;
+    string dept_name = 3;
+    string ancestors = 4;
+  }
+
+  repeated Item items = 1;
+}
+
+
+message OrganizePersonnelListRequest{}
+message OrganizePersonnelListResponse{
+
+  message Position{
+    string code = 1;
+    string name = 2;
+    int32 sort = 3;
+  }
+
+  message Dept{
+    int32 dept_id = 1;
+    string dept_name = 2;
+    string ancestors = 3;
+  }
+
+  message Item{
+    int32 user_id = 1;
+    string nickname = 2;
+    int32 gender = 3;
+    repeated Position position_items = 4;
+    repeated Dept dept_items = 5;
+  }
+
+  repeated Item items = 1;
+}

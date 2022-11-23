@@ -4,7 +4,7 @@ import (
 	"strconv"
 	"strings"
 
-	"go-chat/internal/entity"
+	"go-chat/api/pb/web/v1"
 	"go-chat/internal/pkg/ichat"
 	"go-chat/internal/repository/model"
 	"go-chat/internal/service/organize"
@@ -24,48 +24,32 @@ func (o *Organize) DepartmentList(ctx *ichat.Context) error {
 
 	uid := ctx.UserId()
 	if isOk, _ := o.organizeServ.Dao().IsQiyeMember(uid); !isOk {
-		return ctx.Success(entity.H{
-			"items": []string{},
-		})
+		return ctx.Success(&web.OrganizeDepartmentListResponse{})
 	}
 
-	items, err := o.deptServ.Dao().FindAll()
+	list, err := o.deptServ.Dao().FindAll()
 	if err != nil {
 		return ctx.BusinessError(err.Error())
 	}
 
-	return ctx.Success(entity.H{
-		"items": items,
-	})
-}
+	items := make([]*web.OrganizeDepartmentListResponse_Item, 0, len(list))
+	for _, dept := range list {
+		items = append(items, &web.OrganizeDepartmentListResponse_Item{
+			DeptId:    int32(dept.DeptId),
+			ParentId:  int32(dept.ParentId),
+			DeptName:  dept.DeptName,
+			Ancestors: dept.Ancestors,
+		})
+	}
 
-type UserInfo struct {
-	UserId        int              `json:"user_id"`
-	Nickname      string           `json:"nickname"`
-	Gender        int              `json:"gender"`
-	PositionItems []*PositionItems `json:"position_items" gorm:"-"`
-	DeptItems     []*DeptItems     `json:"dept_items" gorm:"-"`
-}
-
-type DeptItems struct {
-	DeptId    int    `json:"dept_id"`
-	DeptName  string `json:"dept_name"`
-	Ancestors string `json:"ancestors"`
-}
-
-type PositionItems struct {
-	Code string `json:"code"`
-	Name string `json:"name"`
-	Sort int    `json:"sort"`
+	return ctx.Success(&web.OrganizeDepartmentListResponse{Items: items})
 }
 
 func (o *Organize) PersonnelList(ctx *ichat.Context) error {
 
 	uid := ctx.UserId()
 	if isOk, _ := o.organizeServ.Dao().IsQiyeMember(uid); !isOk {
-		return ctx.Success(entity.H{
-			"items": []string{},
-		})
+		return ctx.Success(&web.OrganizePersonnelListResponse{})
 	}
 
 	list, err := o.organizeServ.Dao().FindAll()
@@ -93,21 +77,21 @@ func (o *Organize) PersonnelList(ctx *ichat.Context) error {
 		positionHash[position.PositionId] = position
 	}
 
-	items := make([]*UserInfo, 0)
+	items := make([]*web.OrganizePersonnelListResponse_Item, 0)
 	for _, info := range list {
-		data := &UserInfo{
-			UserId:        info.UserId,
+		data := &web.OrganizePersonnelListResponse_Item{
+			UserId:        int32(info.UserId),
 			Nickname:      info.Nickname,
-			Gender:        info.Gender,
-			PositionItems: make([]*PositionItems, 0),
-			DeptItems:     make([]*DeptItems, 0),
+			Gender:        int32(info.Gender),
+			PositionItems: make([]*web.OrganizePersonnelListResponse_Position, 0),
+			DeptItems:     make([]*web.OrganizePersonnelListResponse_Dept, 0),
 		}
 
 		for _, key := range strings.Split(info.Department, ",") {
 			id, _ := strconv.Atoi(key)
 			if val, ok := deptHash[id]; ok {
-				data.DeptItems = append(data.DeptItems, &DeptItems{
-					DeptId:    val.DeptId,
+				data.DeptItems = append(data.DeptItems, &web.OrganizePersonnelListResponse_Dept{
+					DeptId:    int32(val.DeptId),
 					DeptName:  val.DeptName,
 					Ancestors: val.Ancestors,
 				})
@@ -117,10 +101,10 @@ func (o *Organize) PersonnelList(ctx *ichat.Context) error {
 		for _, key := range strings.Split(info.Position, ",") {
 			id, _ := strconv.Atoi(key)
 			if val, ok := positionHash[id]; ok {
-				data.PositionItems = append(data.PositionItems, &PositionItems{
+				data.PositionItems = append(data.PositionItems, &web.OrganizePersonnelListResponse_Position{
 					Code: val.PostCode,
 					Name: val.PostName,
-					Sort: val.Sort,
+					Sort: int32(val.Sort),
 				})
 			}
 		}
@@ -128,7 +112,5 @@ func (o *Organize) PersonnelList(ctx *ichat.Context) error {
 		items = append(items, data)
 	}
 
-	return ctx.Success(entity.H{
-		"items": items,
-	})
+	return ctx.Success(&web.OrganizePersonnelListResponse{Items: items})
 }
