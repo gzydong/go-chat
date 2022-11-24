@@ -42,7 +42,7 @@ func (c *SendMessage) Send(ctx *ichat.Context) error {
 		UserId:     ctx.UserId(),
 		ReceiverId: params.Receiver.ReceiverId,
 	}); err != nil {
-		return ctx.BusinessError(err.Error())
+		return ctx.ErrorBusiness(err.Error())
 	}
 
 	return c.transfer(ctx, params.Type)
@@ -77,7 +77,7 @@ func (c *SendMessage) onSendText(ctx *ichat.Context) error {
 
 	err := c.message.SendText(ctx.Ctx(), ctx.UserId(), params)
 	if err != nil {
-		return ctx.BusinessError(err.Error())
+		return ctx.ErrorBusiness(err.Error())
 	}
 
 	return ctx.Success(nil)
@@ -93,7 +93,7 @@ func (c *SendMessage) onSendImage(ctx *ichat.Context) error {
 
 	err := c.message.SendImage(ctx.Ctx(), ctx.UserId(), params)
 	if err != nil {
-		return ctx.BusinessError(err.Error())
+		return ctx.ErrorBusiness(err.Error())
 	}
 
 	return ctx.Success(nil)
@@ -109,7 +109,7 @@ func (c *SendMessage) onSendFile(ctx *ichat.Context) error {
 
 	err := c.message.SendFile(ctx.Ctx(), ctx.UserId(), params)
 	if err != nil {
-		return ctx.BusinessError(err.Error())
+		return ctx.ErrorBusiness(err.Error())
 	}
 
 	return ctx.Success(nil)
@@ -125,7 +125,7 @@ func (c *SendMessage) onSendCode(ctx *ichat.Context) error {
 
 	err := c.message.SendCode(ctx.Ctx(), ctx.UserId(), params)
 	if err != nil {
-		return ctx.BusinessError(err.Error())
+		return ctx.ErrorBusiness(err.Error())
 	}
 
 	return ctx.Success(nil)
@@ -141,7 +141,7 @@ func (c *SendMessage) onSendLocation(ctx *ichat.Context) error {
 
 	err := c.message.SendLocation(ctx.Ctx(), ctx.UserId(), params)
 	if err != nil {
-		return ctx.BusinessError(err.Error())
+		return ctx.ErrorBusiness(err.Error())
 	}
 
 	return ctx.Success(nil)
@@ -157,7 +157,7 @@ func (c *SendMessage) onSendForward(ctx *ichat.Context) error {
 
 	err := c.message.SendForward(ctx.Ctx(), ctx.UserId(), params)
 	if err != nil {
-		return ctx.BusinessError(err.Error())
+		return ctx.ErrorBusiness(err.Error())
 	}
 
 	return ctx.Success(nil)
@@ -173,7 +173,7 @@ func (c *SendMessage) onSendEmoticon(ctx *ichat.Context) error {
 
 	err := c.message.SendEmoticon(ctx.Ctx(), ctx.UserId(), params)
 	if err != nil {
-		return ctx.BusinessError(err.Error())
+		return ctx.ErrorBusiness(err.Error())
 	}
 
 	return ctx.Success(nil)
@@ -197,7 +197,7 @@ func (c *SendMessage) onSendVote(ctx *ichat.Context) error {
 
 	err := c.message.SendVote(ctx.Ctx(), ctx.UserId(), params)
 	if err != nil {
-		return ctx.BusinessError(err.Error())
+		return ctx.ErrorBusiness(err.Error())
 	}
 
 	return ctx.Success(nil)

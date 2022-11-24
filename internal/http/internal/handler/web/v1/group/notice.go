@@ -33,7 +33,7 @@ func (c *Notice) CreateAndUpdate(ctx *ichat.Context) error {
 	uid := ctx.UserId()
 
 	if !c.member.Dao().IsLeader(int(params.GroupId), uid) {
-		return ctx.BusinessError("无权限操作")
+		return ctx.ErrorBusiness("无权限操作")
 	}
 
 	if params.NoticeId == 0 {
@@ -60,7 +60,7 @@ func (c *Notice) CreateAndUpdate(ctx *ichat.Context) error {
 	}
 
 	if err != nil {
-		return ctx.BusinessError(err.Error())
+		return ctx.ErrorBusiness(err.Error())
 	}
 
 	return ctx.Success(nil, msg)
@@ -75,7 +75,7 @@ func (c *Notice) Delete(ctx *ichat.Context) error {
 	}
 
 	if err := c.service.Delete(ctx.Context, int(params.GroupId), int(params.NoticeId)); err != nil {
-		return ctx.BusinessError(err.Error())
+		return ctx.ErrorBusiness(err.Error())
 	}
 
 	return ctx.Success(nil, "群公告删除成功！")
@@ -91,7 +91,7 @@ func (c *Notice) List(ctx *ichat.Context) error {
 
 	// 判断是否是群成员
 	if !c.member.Dao().IsMember(int(params.GroupId), ctx.UserId(), true) {
-		return ctx.BusinessError("无获取数据权限！")
+		return ctx.ErrorBusiness("无获取数据权限！")
 	}
 
 	items, _ := c.service.Dao().GetListAll(ctx.Context, int(params.GroupId))

@@ -29,7 +29,7 @@ func (c *Apply) Create(ctx *ichat.Context) error {
 
 	err := c.applyServ.Insert(ctx.Ctx(), int(params.GroupId), ctx.UserId(), params.Remark)
 	if err != nil {
-		return ctx.BusinessError("创建群聊失败，请稍后再试！")
+		return ctx.ErrorBusiness("创建群聊失败，请稍后再试！")
 	}
 
 	// TODO 这里需要推送给群主
@@ -48,11 +48,11 @@ func (c *Apply) Agree(ctx *ichat.Context) error {
 
 	apply := &model.GroupApply{}
 	if err := c.applyServ.Db().First(apply, params.ApplyId).Error; err != nil {
-		return ctx.BusinessError("数据不存在！")
+		return ctx.ErrorBusiness("数据不存在！")
 	}
 
 	if !c.memberServ.Dao().IsLeader(apply.GroupId, uid) {
-		return ctx.Unauthorized("无权限访问")
+		return ctx.Forbidden("无权限访问")
 	}
 
 	if !c.memberServ.Dao().IsMember(apply.GroupId, apply.UserId, false) {
@@ -62,7 +62,7 @@ func (c *Apply) Agree(ctx *ichat.Context) error {
 			MemberIds: []int{apply.UserId},
 		})
 		if err != nil {
-			return ctx.BusinessError("处理失败！")
+			return ctx.ErrorBusiness("处理失败！")
 		}
 	}
 
@@ -83,7 +83,7 @@ func (c *Apply) Delete(ctx *ichat.Context) error {
 
 	err := c.applyServ.Delete(ctx.Context, int(params.ApplyId), ctx.UserId())
 	if err != nil {
-		return ctx.BusinessError("创建群聊失败，请稍后再试！")
+		return ctx.ErrorBusiness("创建群聊失败，请稍后再试！")
 	}
 
 	return ctx.Success(entity.H{})
@@ -97,13 +97,13 @@ func (c *Apply) List(ctx *ichat.Context) error {
 	}
 
 	if !c.memberServ.Dao().IsLeader(int(params.GroupId), ctx.UserId()) {
-		return ctx.Unauthorized("无权限访问")
+		return ctx.Forbidden("无权限访问")
 	}
 
 	list, err := c.applyServ.Dao().List(ctx.Ctx(), int(params.GroupId))
 	if err != nil {
 		logger.Error("[Apply List] 接口异常 err:", err.Error())
-		return ctx.BusinessError("创建群聊失败，请稍后再试！")
+		return ctx.ErrorBusiness("创建群聊失败，请稍后再试！")
 	}
 
 	items := make([]*web.GroupApplyListResponse_Item, 0)

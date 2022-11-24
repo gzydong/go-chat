@@ -29,7 +29,7 @@ func (o *Organize) DepartmentList(ctx *ichat.Context) error {
 
 	list, err := o.deptServ.Dao().FindAll()
 	if err != nil {
-		return ctx.BusinessError(err.Error())
+		return ctx.ErrorBusiness(err.Error())
 	}
 
 	items := make([]*web.OrganizeDepartmentListResponse_Item, 0, len(list))
@@ -54,12 +54,12 @@ func (o *Organize) PersonnelList(ctx *ichat.Context) error {
 
 	list, err := o.organizeServ.Dao().FindAll()
 	if err != nil {
-		return ctx.BusinessError(err.Error())
+		return ctx.ErrorBusiness(err.Error())
 	}
 
 	departments, err := o.deptServ.Dao().FindAll()
 	if err != nil {
-		return ctx.BusinessError(err.Error())
+		return ctx.ErrorBusiness(err.Error())
 	}
 
 	deptHash := make(map[int]*model.OrganizeDept)
@@ -69,7 +69,7 @@ func (o *Organize) PersonnelList(ctx *ichat.Context) error {
 
 	positions, err := o.positionServ.Dao().FindAll()
 	if err != nil {
-		return ctx.BusinessError(err.Error())
+		return ctx.ErrorBusiness(err.Error())
 	}
 
 	positionHash := make(map[int]*model.OrganizePost)

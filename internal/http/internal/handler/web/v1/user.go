@@ -103,11 +103,11 @@ func (u *User) ChangePassword(ctx *ichat.Context) error {
 	uid := ctx.UserId()
 
 	if uid == 2054 || uid == 2055 {
-		return ctx.BusinessError("预览账号不支持修改密码！")
+		return ctx.ErrorBusiness("预览账号不支持修改密码！")
 	}
 
 	if err := u.service.UpdatePassword(ctx.UserId(), params.OldPassword, params.NewPassword); err != nil {
-		return ctx.BusinessError("密码修改失败！")
+		return ctx.ErrorBusiness("密码修改失败！")
 	}
 
 	return ctx.Success(nil, "密码修改成功！")
@@ -124,26 +124,26 @@ func (u *User) ChangeMobile(ctx *ichat.Context) error {
 	uid := ctx.UserId()
 
 	if uid == 2054 || uid == 2055 {
-		return ctx.BusinessError("预览账号不支持修改手机号！")
+		return ctx.ErrorBusiness("预览账号不支持修改手机号！")
 	}
 
 	if !u.smsService.CheckSmsCode(ctx.Ctx(), entity.SmsChangeAccountChannel, params.Mobile, params.SmsCode) {
-		return ctx.BusinessError("短信验证码填写错误！")
+		return ctx.ErrorBusiness("短信验证码填写错误！")
 	}
 
 	user, _ := u.service.Dao().FindById(uid)
 
 	if user.Mobile != params.Mobile {
-		return ctx.BusinessError("手机号与原手机号一致无需修改！")
+		return ctx.ErrorBusiness("手机号与原手机号一致无需修改！")
 	}
 
 	if !encrypt.VerifyPassword(user.Password, params.Password) {
-		return ctx.BusinessError("账号密码填写错误！")
+		return ctx.ErrorBusiness("账号密码填写错误！")
 	}
 
 	_, err := u.service.Dao().BaseUpdate(&model.Users{}, entity.MapStrAny{"id": user.Id}, entity.MapStrAny{"mobile": params.Mobile})
 	if err != nil {
-		return ctx.BusinessError("手机号修改失败！")
+		return ctx.ErrorBusiness("手机号修改失败！")
 	}
 
 	return ctx.Success(nil, "手机号修改成功！")

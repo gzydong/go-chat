@@ -19,7 +19,7 @@ func (c *Tag) List(ctx *ichat.Context) error {
 
 	list, err := c.service.List(ctx.Ctx(), ctx.UserId())
 	if err != nil {
-		return ctx.BusinessError(err)
+		return ctx.ErrorBusiness(err)
 	}
 
 	items := make([]*web.ArticleTagListResponse_Item, 0, len(list))
@@ -57,7 +57,7 @@ func (c *Tag) Edit(ctx *ichat.Context) error {
 	}
 
 	if err != nil {
-		return ctx.BusinessError("笔记标签编辑失败")
+		return ctx.ErrorBusiness("笔记标签编辑失败")
 	}
 
 	return ctx.Success(web.ArticleTagEditResponse{Id: params.TagId})
@@ -73,7 +73,7 @@ func (c *Tag) Delete(ctx *ichat.Context) error {
 
 	err := c.service.Delete(ctx.Ctx(), ctx.UserId(), int(params.TagId))
 	if err != nil {
-		return ctx.BusinessError(err)
+		return ctx.ErrorBusiness(err)
 	}
 
 	return ctx.Success(&web.ArticleTagDeleteResponse{})

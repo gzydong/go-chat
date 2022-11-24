@@ -76,7 +76,7 @@ func (c *Records) GetRecords(ctx *ichat.Context) error {
 	})
 
 	if err != nil {
-		return ctx.BusinessError(err.Error())
+		return ctx.ErrorBusiness(err.Error())
 	}
 
 	rid := 0
@@ -137,7 +137,7 @@ func (c *Records) SearchHistoryRecords(ctx *ichat.Context) error {
 	})
 
 	if err != nil {
-		return ctx.BusinessError(err.Error())
+		return ctx.ErrorBusiness(err.Error())
 	}
 
 	rid := 0
@@ -166,7 +166,7 @@ func (c *Records) GetForwardRecords(ctx *ichat.Context) error {
 
 	records, err := c.service.GetForwardRecords(ctx.Ctx(), ctx.UserId(), int64(params.RecordId))
 	if err != nil {
-		return ctx.BusinessError(err.Error())
+		return ctx.ErrorBusiness(err.Error())
 	}
 
 	return ctx.Success(entity.H{
@@ -188,18 +188,18 @@ func (c *Records) Download(ctx *ichat.Context) error {
 
 	resp, err := c.service.Dao().FindFileRecord(ctx.Ctx(), params.RecordId)
 	if err != nil {
-		return ctx.BusinessError(err.Error())
+		return ctx.ErrorBusiness(err.Error())
 	}
 
 	uid := ctx.UserId()
 	if uid != resp.Record.UserId {
 		if resp.Record.TalkType == entity.ChatPrivateMode {
 			if resp.Record.ReceiverId != uid {
-				return ctx.Unauthorized("无访问权限！")
+				return ctx.Forbidden("无访问权限！")
 			}
 		} else {
 			if !c.groupMemberService.Dao().IsMember(resp.Record.ReceiverId, uid, false) {
-				return ctx.Unauthorized("无访问权限！")
+				return ctx.Forbidden("无访问权限！")
 			}
 		}
 	}
@@ -210,7 +210,7 @@ func (c *Records) Download(ctx *ichat.Context) error {
 	case entity.FileDriveCos:
 		ctx.Context.Redirect(http.StatusFound, c.fileSystem.Cos.PrivateUrl(resp.FileInfo.Path, 60))
 	default:
-		return ctx.BusinessError("未知文件驱动类型")
+		return ctx.ErrorBusiness("未知文件驱动类型")
 	}
 
 	return nil

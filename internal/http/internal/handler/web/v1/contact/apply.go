@@ -44,7 +44,7 @@ func (c *Apply) Create(ctx *ichat.Context) error {
 		Remarks:  params.Remark,
 		FriendId: int(params.FriendId),
 	}); err != nil {
-		return ctx.BusinessError(err)
+		return ctx.ErrorBusiness(err)
 	}
 
 	return ctx.Success(&web.ContactApplyCreateResponse{})
@@ -66,7 +66,7 @@ func (c *Apply) Accept(ctx *ichat.Context) error {
 	})
 
 	if err != nil {
-		return ctx.BusinessError(err)
+		return ctx.ErrorBusiness(err)
 	}
 
 	_ = c.talkMessageService.SendSysMessage(ctx.Context, &service.SysTextMessageOpt{
@@ -92,7 +92,7 @@ func (c *Apply) Decline(ctx *ichat.Context) error {
 		Remarks: params.Remark,
 		ApplyId: int(params.ApplyId),
 	}); err != nil {
-		return ctx.BusinessError(err)
+		return ctx.ErrorBusiness(err)
 	}
 
 	return ctx.Success(&web.ContactApplyDeclineResponse{})

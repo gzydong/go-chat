@@ -33,7 +33,7 @@ func (c *Contact) List(ctx *ichat.Context) error {
 
 	list, err := c.service.List(ctx.Context, ctx.UserId())
 	if err != nil {
-		return ctx.BusinessError(err.Error())
+		return ctx.ErrorBusiness(err.Error())
 	}
 
 	for _, item := range list {
@@ -66,7 +66,7 @@ func (c *Contact) Delete(ctx *ichat.Context) error {
 
 	uid := ctx.UserId()
 	if err := c.service.Delete(ctx.Context, uid, int(params.FriendId)); err != nil {
-		return ctx.BusinessError(err.Error())
+		return ctx.ErrorBusiness(err.Error())
 	}
 
 	// 解除好友关系后需添加一条聊天记录
@@ -80,7 +80,7 @@ func (c *Contact) Delete(ctx *ichat.Context) error {
 	// 删除聊天会话
 	sid := c.talkListService.Dao().FindBySessionId(uid, int(params.FriendId), entity.ChatPrivateMode)
 	if err := c.talkListService.Delete(ctx.Context, ctx.UserId(), sid); err != nil {
-		return ctx.BusinessError(err.Error())
+		return ctx.ErrorBusiness(err.Error())
 	}
 
 	return ctx.Success(&web.ContactDeleteResponse{})
@@ -97,10 +97,10 @@ func (c *Contact) Search(ctx *ichat.Context) error {
 	user, err := c.userService.Dao().FindByMobile(params.Mobile)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return ctx.BusinessError("用户不存在！")
+			return ctx.ErrorBusiness("用户不存在！")
 		}
 
-		return ctx.BusinessError(err.Error())
+		return ctx.ErrorBusiness(err.Error())
 	}
 
 	return ctx.Success(&web.ContactSearchResponse{
@@ -122,7 +122,7 @@ func (c *Contact) EditRemark(ctx *ichat.Context) error {
 	}
 
 	if err := c.service.EditRemark(ctx.Context, ctx.UserId(), int(params.FriendId), params.Remark); err != nil {
-		return ctx.BusinessError(err.Error())
+		return ctx.ErrorBusiness(err.Error())
 	}
 
 	return ctx.Success(&web.ContactEditRemarkResponse{})
@@ -141,10 +141,10 @@ func (c *Contact) Detail(ctx *ichat.Context) error {
 	user, err := c.userService.Dao().FindById(int(params.UserId))
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return ctx.BusinessError("用户不存在！")
+			return ctx.ErrorBusiness("用户不存在！")
 		}
 
-		return ctx.BusinessError(err.Error())
+		return ctx.ErrorBusiness(err.Error())
 	}
 
 	data := web.ContactDetailResponse{

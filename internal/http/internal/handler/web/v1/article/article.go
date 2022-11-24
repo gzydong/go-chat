@@ -43,7 +43,7 @@ func (c *Article) List(ctx *ichat.Context) error {
 		Page:     int(params.Page),
 	})
 	if err != nil {
-		return ctx.BusinessError(err.Error())
+		return ctx.ErrorBusiness(err.Error())
 	}
 
 	list := make([]*web.ArticleListResponse_Item, 0)
@@ -85,7 +85,7 @@ func (c *Article) Detail(ctx *ichat.Context) error {
 
 	detail, err := c.service.Detail(ctx.Ctx(), uid, int(params.ArticleId))
 	if err != nil {
-		return ctx.BusinessError("笔记不存在")
+		return ctx.ErrorBusiness("笔记不存在")
 	}
 
 	tags := make([]*web.ArticleDetailResponse_Tag, 0)
@@ -153,12 +153,12 @@ func (c *Article) Edit(ctx *ichat.Context) error {
 	}
 
 	if err != nil {
-		return ctx.BusinessError(err.Error())
+		return ctx.ErrorBusiness(err.Error())
 	}
 
 	var info *model.Article
 	if err := c.service.Db().First(&info, params.ArticleId).Error; err != nil {
-		return ctx.BusinessError(err.Error())
+		return ctx.ErrorBusiness(err.Error())
 	}
 
 	return ctx.Success(&web.ArticleEditResponse{
@@ -179,7 +179,7 @@ func (c *Article) Delete(ctx *ichat.Context) error {
 
 	err := c.service.UpdateStatus(ctx.Ctx(), ctx.UserId(), int(params.ArticleId), 2)
 	if err != nil {
-		return ctx.BusinessError(err.Error())
+		return ctx.ErrorBusiness(err.Error())
 	}
 
 	return ctx.Success(web.ArticleDeleteResponse{})
@@ -195,7 +195,7 @@ func (c *Article) Recover(ctx *ichat.Context) error {
 
 	err := c.service.UpdateStatus(ctx.Ctx(), ctx.UserId(), int(params.ArticleId), 1)
 	if err != nil {
-		return ctx.BusinessError(err.Error())
+		return ctx.ErrorBusiness(err.Error())
 	}
 
 	return ctx.Success(&web.ArticleRecoverResponse{})
@@ -220,7 +220,7 @@ func (c *Article) Upload(ctx *ichat.Context) error {
 
 	stream, err := filesystem.ReadMultipartStream(file)
 	if err != nil {
-		return ctx.BusinessError("文件上传失败")
+		return ctx.ErrorBusiness("文件上传失败")
 	}
 
 	ext := strutil.FileSuffix(file.Filename)
@@ -229,7 +229,7 @@ func (c *Article) Upload(ctx *ichat.Context) error {
 	filePath := fmt.Sprintf("public/media/image/note/%s/%s", timeutil.DateNumber(), strutil.GenImageName(ext, meta.Width, meta.Height))
 
 	if err := c.fileSystem.Default.Write(stream, filePath); err != nil {
-		return ctx.BusinessError("文件上传失败")
+		return ctx.ErrorBusiness("文件上传失败")
 	}
 
 	return ctx.Success(entity.H{"url": c.fileSystem.Default.PublicUrl(filePath)})
@@ -244,7 +244,7 @@ func (c *Article) Move(ctx *ichat.Context) error {
 	}
 
 	if err := c.service.Move(ctx.Ctx(), ctx.UserId(), int(params.ArticleId), int(params.ClassId)); err != nil {
-		return ctx.BusinessError(err.Error())
+		return ctx.ErrorBusiness(err.Error())
 	}
 
 	return ctx.Success(&web.ArticleMoveResponse{})
@@ -259,7 +259,7 @@ func (c *Article) Asterisk(ctx *ichat.Context) error {
 	}
 
 	if err := c.service.Asterisk(ctx.Ctx(), ctx.UserId(), int(params.ArticleId), int(params.Type)); err != nil {
-		return ctx.BusinessError(err.Error())
+		return ctx.ErrorBusiness(err.Error())
 	}
 
 	return ctx.Success(&web.ArticleAsteriskResponse{})
@@ -274,7 +274,7 @@ func (c *Article) Tag(ctx *ichat.Context) error {
 	}
 
 	if err := c.service.Tag(ctx.Ctx(), ctx.UserId(), int(params.ArticleId), params.Tags); err != nil {
-		return ctx.BusinessError(err.Error())
+		return ctx.ErrorBusiness(err.Error())
 	}
 
 	return ctx.Success(&web.ArticleTagsResponse{})
@@ -289,7 +289,7 @@ func (c *Article) ForeverDelete(ctx *ichat.Context) error {
 	}
 
 	if err := c.service.ForeverDelete(ctx.Ctx(), ctx.UserId(), int(params.ArticleId)); err != nil {
-		return ctx.BusinessError(err.Error())
+		return ctx.ErrorBusiness(err.Error())
 	}
 
 	return ctx.Success(&web.ArticleForeverDeleteResponse{})

@@ -52,12 +52,12 @@ func (c *Session) Create(ctx *ichat.Context) error {
 
 	// 判断对方是否是自己
 	if params.TalkType == entity.ChatPrivateMode && int(params.ReceiverId) == ctx.UserId() {
-		return ctx.BusinessError("创建失败")
+		return ctx.ErrorBusiness("创建失败")
 	}
 
 	key := fmt.Sprintf("talk:list:%d-%d-%d-%s", uid, params.ReceiverId, params.TalkType, agent)
 	if !c.redisLock.Lock(ctx.Ctx(), key, 10) {
-		return ctx.BusinessError("创建失败")
+		return ctx.ErrorBusiness("创建失败")
 	}
 
 	// 暂无权限
@@ -66,7 +66,7 @@ func (c *Session) Create(ctx *ichat.Context) error {
 		UserId:     uid,
 		ReceiverId: int(params.ReceiverId),
 	}) {
-		return ctx.BusinessError("暂无权限！")
+		return ctx.ErrorBusiness("暂无权限！")
 	}
 
 	result, err := c.talkListService.Create(ctx.Ctx(), &service.TalkSessionCreateOpt{
@@ -75,7 +75,7 @@ func (c *Session) Create(ctx *ichat.Context) error {
 		ReceiverId: int(params.ReceiverId),
 	})
 	if err != nil {
-		return ctx.BusinessError(err.Error())
+		return ctx.ErrorBusiness(err.Error())
 	}
 
 	item := &web.TalkSessionItem{
@@ -132,7 +132,7 @@ func (c *Session) Delete(ctx *ichat.Context) error {
 	}
 
 	if err := c.talkListService.Delete(ctx.Context, ctx.UserId(), int(params.ListId)); err != nil {
-		return ctx.BusinessError(err.Error())
+		return ctx.ErrorBusiness(err.Error())
 	}
 
 	return ctx.Success(&web.TalkSessionDeleteResponse{})
@@ -151,7 +151,7 @@ func (c *Session) Top(ctx *ichat.Context) error {
 		Id:     int(params.ListId),
 		Type:   int(params.Type),
 	}); err != nil {
-		return ctx.BusinessError(err.Error())
+		return ctx.ErrorBusiness(err.Error())
 	}
 
 	return ctx.Success(&web.TalkSessionTopResponse{})
@@ -171,7 +171,7 @@ func (c *Session) Disturb(ctx *ichat.Context) error {
 		ReceiverId: int(params.ReceiverId),
 		IsDisturb:  int(params.IsDisturb),
 	}); err != nil {
-		return ctx.BusinessError(err.Error())
+		return ctx.ErrorBusiness(err.Error())
 	}
 
 	return ctx.Success(&web.TalkSessionDisturbResponse{})
@@ -190,7 +190,7 @@ func (c *Session) List(ctx *ichat.Context) error {
 
 	data, err := c.talkListService.List(ctx.Ctx(), uid)
 	if err != nil {
-		return ctx.BusinessError(err.Error())
+		return ctx.ErrorBusiness(err.Error())
 	}
 
 	friends := make([]int, 0)

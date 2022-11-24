@@ -98,7 +98,7 @@ func (c *Message) Text(ctx *ichat.Context) error {
 		UserId:     uid,
 		ReceiverId: params.ReceiverId,
 	}); err != nil {
-		return ctx.BusinessError(err.Error())
+		return ctx.ErrorBusiness(err.Error())
 	}
 
 	if err := c.message.SendText(ctx.Ctx(), uid, &message.TextMessageRequest{
@@ -108,7 +108,7 @@ func (c *Message) Text(ctx *ichat.Context) error {
 			ReceiverId: int32(params.ReceiverId),
 		},
 	}); err != nil {
-		return ctx.BusinessError(err.Error())
+		return ctx.ErrorBusiness(err.Error())
 	}
 
 	return ctx.Success(nil)
@@ -135,7 +135,7 @@ func (c *Message) Code(ctx *ichat.Context) error {
 		UserId:     uid,
 		ReceiverId: params.ReceiverId,
 	}); err != nil {
-		return ctx.BusinessError(err.Error())
+		return ctx.ErrorBusiness(err.Error())
 	}
 
 	if err := c.message.SendCode(ctx.Ctx(), uid, &message.CodeMessageRequest{
@@ -146,7 +146,7 @@ func (c *Message) Code(ctx *ichat.Context) error {
 			ReceiverId: int32(params.ReceiverId),
 		},
 	}); err != nil {
-		return ctx.BusinessError(err.Error())
+		return ctx.ErrorBusiness(err.Error())
 	}
 
 	return ctx.Success(nil)
@@ -185,7 +185,7 @@ func (c *Message) Image(ctx *ichat.Context) error {
 		UserId:     uid,
 		ReceiverId: params.ReceiverId,
 	}); err != nil {
-		return ctx.BusinessError(err.Error())
+		return ctx.ErrorBusiness(err.Error())
 	}
 
 	if err := c.service.SendImageMessage(ctx.Ctx(), &service.ImageMessageOpt{
@@ -194,7 +194,7 @@ func (c *Message) Image(ctx *ichat.Context) error {
 		ReceiverId: params.ReceiverId,
 		File:       file,
 	}); err != nil {
-		return ctx.BusinessError(err.Error())
+		return ctx.ErrorBusiness(err.Error())
 	}
 
 	return ctx.Success(nil)
@@ -220,7 +220,7 @@ func (c *Message) File(ctx *ichat.Context) error {
 		UserId:     uid,
 		ReceiverId: params.ReceiverId,
 	}); err != nil {
-		return ctx.BusinessError(err.Error())
+		return ctx.ErrorBusiness(err.Error())
 	}
 
 	if err := c.service.SendFileMessage(ctx.Ctx(), &service.FileMessageOpt{
@@ -229,7 +229,7 @@ func (c *Message) File(ctx *ichat.Context) error {
 		ReceiverId: params.ReceiverId,
 		UploadId:   params.UploadId,
 	}); err != nil {
-		return ctx.BusinessError(err.Error())
+		return ctx.ErrorBusiness(err.Error())
 	}
 
 	return ctx.Success(nil)
@@ -265,7 +265,7 @@ func (c *Message) Vote(ctx *ichat.Context) error {
 		UserId:     uid,
 		ReceiverId: params.ReceiverId,
 	}); err != nil {
-		return ctx.BusinessError(err.Error())
+		return ctx.ErrorBusiness(err.Error())
 	}
 
 	if err := c.message.SendVote(ctx.Ctx(), uid, &message.VoteMessageRequest{
@@ -278,7 +278,7 @@ func (c *Message) Vote(ctx *ichat.Context) error {
 			ReceiverId: int32(params.ReceiverId),
 		},
 	}); err != nil {
-		return ctx.BusinessError(err.Error())
+		return ctx.ErrorBusiness(err.Error())
 	}
 
 	return ctx.Success(nil)
@@ -304,7 +304,7 @@ func (c *Message) Emoticon(ctx *ichat.Context) error {
 		UserId:     uid,
 		ReceiverId: params.ReceiverId,
 	}); err != nil {
-		return ctx.BusinessError(err.Error())
+		return ctx.ErrorBusiness(err.Error())
 	}
 
 	if err := c.message.SendEmoticon(ctx.Ctx(), uid, &message.EmoticonMessageRequest{
@@ -314,7 +314,7 @@ func (c *Message) Emoticon(ctx *ichat.Context) error {
 			ReceiverId: int32(params.ReceiverId),
 		},
 	}); err != nil {
-		return ctx.BusinessError(err.Error())
+		return ctx.ErrorBusiness(err.Error())
 	}
 
 	return ctx.Success(nil)
@@ -347,7 +347,7 @@ func (c *Message) Forward(ctx *ichat.Context) error {
 		UserId:     uid,
 		ReceiverId: params.ReceiverId,
 	}); err != nil {
-		return ctx.BusinessError(err.Error())
+		return ctx.ErrorBusiness(err.Error())
 	}
 
 	data := &message.ForwardMessageRequest{
@@ -374,7 +374,7 @@ func (c *Message) Forward(ctx *ichat.Context) error {
 	}
 
 	if err := c.message.SendForward(ctx.Ctx(), uid, data); err != nil {
-		return ctx.BusinessError(err.Error())
+		return ctx.ErrorBusiness(err.Error())
 	}
 
 	return ctx.Success(nil)
@@ -399,12 +399,12 @@ func (c *Message) Card(ctx *ichat.Context) error {
 		UserId:     uid,
 		ReceiverId: params.ReceiverId,
 	}); err != nil {
-		return ctx.BusinessError(err.Error())
+		return ctx.ErrorBusiness(err.Error())
 	}
 
 	// todo SendBusinessCard
 	if err := c.message.SendBusinessCard(ctx.Ctx(), uid); err != nil {
-		return ctx.BusinessError(err.Error())
+		return ctx.ErrorBusiness(err.Error())
 	}
 
 	return ctx.Success(nil)
@@ -423,7 +423,7 @@ func (c *Message) Collect(ctx *ichat.Context) error {
 	}
 
 	if err := c.talkService.CollectRecord(ctx.Ctx(), ctx.UserId(), params.RecordId); err != nil {
-		return ctx.BusinessError(err.Error())
+		return ctx.ErrorBusiness(err.Error())
 	}
 
 	return ctx.Success(nil)
@@ -442,7 +442,7 @@ func (c *Message) Revoke(ctx *ichat.Context) error {
 	}
 
 	if err := c.service.SendRevokeRecordMessage(ctx.Ctx(), ctx.UserId(), params.RecordId); err != nil {
-		return ctx.BusinessError(err.Error())
+		return ctx.ErrorBusiness(err.Error())
 	}
 
 	return ctx.Success(nil)
@@ -468,7 +468,7 @@ func (c *Message) Delete(ctx *ichat.Context) error {
 		ReceiverId: params.ReceiverId,
 		RecordIds:  params.RecordIds,
 	}); err != nil {
-		return ctx.BusinessError(err.Error())
+		return ctx.ErrorBusiness(err.Error())
 	}
 
 	return ctx.Success(nil)
@@ -493,7 +493,7 @@ func (c *Message) HandleVote(ctx *ichat.Context) error {
 		Options:  params.Options,
 	})
 	if err != nil {
-		return ctx.BusinessError(err.Error())
+		return ctx.ErrorBusiness(err.Error())
 	}
 
 	res, _ := c.talkRecordsVoteDao.GetVoteStatistics(ctx.Ctx(), vid)
@@ -522,7 +522,7 @@ func (c *Message) Location(ctx *ichat.Context) error {
 		UserId:     uid,
 		ReceiverId: params.ReceiverId,
 	}); err != nil {
-		return ctx.BusinessError(err.Error())
+		return ctx.ErrorBusiness(err.Error())
 	}
 
 	if err := c.message.SendLocation(ctx.Ctx(), uid, &message.LocationMessageRequest{
@@ -534,7 +534,7 @@ func (c *Message) Location(ctx *ichat.Context) error {
 			ReceiverId: int32(params.ReceiverId),
 		},
 	}); err != nil {
-		return ctx.BusinessError(err.Error())
+		return ctx.ErrorBusiness(err.Error())
 	}
 
 	return ctx.Success(nil)

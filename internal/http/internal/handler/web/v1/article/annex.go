@@ -46,7 +46,7 @@ func (c *Annex) Upload(ctx *ichat.Context) error {
 
 	stream, err := filesystem.ReadMultipartStream(file)
 	if err != nil {
-		return ctx.BusinessError("附件上传失败")
+		return ctx.ErrorBusiness("附件上传失败")
 	}
 
 	ext := strutil.FileSuffix(file.Filename)
@@ -54,7 +54,7 @@ func (c *Annex) Upload(ctx *ichat.Context) error {
 	filePath := fmt.Sprintf("private/files/note/%s/%s", timeutil.DateNumber(), strutil.GenFileName(ext))
 
 	if err := c.fileSystem.Default.Write(stream, filePath); err != nil {
-		return ctx.BusinessError("附件上传失败")
+		return ctx.ErrorBusiness("附件上传失败")
 	}
 
 	data := &model.ArticleAnnex{
@@ -72,7 +72,7 @@ func (c *Annex) Upload(ctx *ichat.Context) error {
 	}
 
 	if err := c.service.Create(ctx.Ctx(), data); err != nil {
-		return ctx.BusinessError("附件上传失败")
+		return ctx.ErrorBusiness("附件上传失败")
 	}
 
 	return ctx.Success(&web.ArticleAnnexUploadResponse{
@@ -94,7 +94,7 @@ func (c *Annex) Delete(ctx *ichat.Context) error {
 
 	err := c.service.UpdateStatus(ctx.Ctx(), ctx.UserId(), int(params.AnnexId), 2)
 	if err != nil {
-		return ctx.BusinessError(err.Error())
+		return ctx.ErrorBusiness(err.Error())
 	}
 
 	return ctx.Success(&web.ArticleAnnexDeleteResponse{})
@@ -110,7 +110,7 @@ func (c *Annex) Recover(ctx *ichat.Context) error {
 
 	err := c.service.UpdateStatus(ctx.Ctx(), ctx.UserId(), int(params.AnnexId), 1)
 	if err != nil {
-		return ctx.BusinessError(err.Error())
+		return ctx.ErrorBusiness(err.Error())
 	}
 
 	return ctx.Success(&web.ArticleAnnexRecoverResponse{})
@@ -122,7 +122,7 @@ func (c *Annex) RecoverList(ctx *ichat.Context) error {
 	items, err := c.service.Dao().RecoverList(ctx.Ctx(), ctx.UserId())
 
 	if err != nil {
-		return ctx.BusinessError(err.Error())
+		return ctx.ErrorBusiness(err.Error())
 	}
 
 	data := make([]*web.ArticleAnnexRecoverListResponse_Item, 0)
@@ -158,7 +158,7 @@ func (c *Annex) ForeverDelete(ctx *ichat.Context) error {
 	}
 
 	if err := c.service.ForeverDelete(ctx.Ctx(), ctx.UserId(), int(params.AnnexId)); err != nil {
-		return ctx.BusinessError(err.Error())
+		return ctx.ErrorBusiness(err.Error())
 	}
 
 	return ctx.Success(&web.ArticleAnnexForeverDeleteResponse{})
@@ -174,11 +174,11 @@ func (c *Annex) Download(ctx *ichat.Context) error {
 
 	info, err := c.service.Dao().FindById(ctx.Ctx(), int(params.AnnexId))
 	if err != nil {
-		return ctx.BusinessError(err.Error())
+		return ctx.ErrorBusiness(err.Error())
 	}
 
 	if info.UserId != ctx.UserId() {
-		return ctx.Unauthorized("无权限下载")
+		return ctx.Forbidden("无权限下载")
 	}
 
 	switch info.Drive {
@@ -187,7 +187,7 @@ func (c *Annex) Download(ctx *ichat.Context) error {
 	case entity.FileDriveCos:
 		ctx.Context.Redirect(http.StatusFound, c.fileSystem.Cos.PrivateUrl(info.Path, 60))
 	default:
-		return ctx.BusinessError("未知文件驱动类型")
+		return ctx.ErrorBusiness("未知文件驱动类型")
 	}
 
 	return nil

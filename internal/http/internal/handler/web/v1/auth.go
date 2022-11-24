@@ -45,7 +45,7 @@ func (c *Auth) Login(ctx *ichat.Context) error {
 
 	user, err := c.userService.Login(params.Mobile, params.Password)
 	if err != nil {
-		return ctx.BusinessError(err.Error())
+		return ctx.ErrorBusiness(err.Error())
 	}
 
 	root, _ := c.robotDao.FindLoginRobot()
@@ -97,7 +97,7 @@ func (c *Auth) Register(ctx *ichat.Context) error {
 		Password: params.Password,
 		Platform: params.Platform,
 	}); err != nil {
-		return ctx.BusinessError(err.Error())
+		return ctx.ErrorBusiness(err.Error())
 	}
 
 	c.smsService.DeleteSmsCode(ctx.Ctx(), entity.SmsRegisterChannel, params.Mobile)
@@ -143,7 +143,7 @@ func (c *Auth) Forget(ctx *ichat.Context) error {
 		Password: params.Password,
 		SmsCode:  params.SmsCode,
 	}); err != nil {
-		return ctx.BusinessError(err.Error())
+		return ctx.ErrorBusiness(err.Error())
 	}
 
 	c.smsService.DeleteSmsCode(ctx.Ctx(), entity.SmsForgetAccountChannel, params.Mobile)

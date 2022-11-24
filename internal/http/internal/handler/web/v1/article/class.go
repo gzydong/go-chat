@@ -19,7 +19,7 @@ func (c *Class) List(ctx *ichat.Context) error {
 
 	list, err := c.service.List(ctx.Ctx(), ctx.UserId())
 	if err != nil {
-		return ctx.BusinessError(err.Error())
+		return ctx.ErrorBusiness(err.Error())
 	}
 
 	items := make([]*web.ArticleClassListResponse_Item, 0, len(list))
@@ -65,7 +65,7 @@ func (c *Class) Edit(ctx *ichat.Context) error {
 	}
 
 	if err != nil {
-		return ctx.BusinessError("笔记分类编辑失败")
+		return ctx.ErrorBusiness("笔记分类编辑失败")
 	}
 
 	return ctx.Success(web.ArticleClassEditResponse{
@@ -83,7 +83,7 @@ func (c *Class) Delete(ctx *ichat.Context) error {
 
 	err := c.service.Delete(ctx.Ctx(), ctx.UserId(), int(params.ClassId))
 	if err != nil {
-		return ctx.BusinessError(err.Error())
+		return ctx.ErrorBusiness(err.Error())
 	}
 
 	return ctx.Success(&web.ArticleClassDeleteResponse{})
@@ -99,7 +99,7 @@ func (c *Class) Sort(ctx *ichat.Context) error {
 
 	err := c.service.Sort(ctx.Ctx(), ctx.UserId(), int(params.ClassId), int(params.SortType))
 	if err != nil {
-		return ctx.BusinessError(err.Error())
+		return ctx.ErrorBusiness(err.Error())
 	}
 
 	return ctx.Success(&web.ArticleClassSortResponse{})

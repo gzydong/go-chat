@@ -27,12 +27,24 @@ func New(ctx *gin.Context) *Context {
 	return &Context{ctx}
 }
 
-// Unauthorized 未授权
+// Unauthorized 未认证
 func (c *Context) Unauthorized(message string) error {
 
 	c.Context.Abort()
+	c.Context.JSON(http.StatusUnauthorized, &Response{
+		Code:    http.StatusUnauthorized,
+		Message: message,
+	})
+
+	return nil
+}
+
+// Forbidden 未授权
+func (c *Context) Forbidden(message string) error {
+
+	c.Context.Abort()
 	c.Context.JSON(http.StatusForbidden, &Response{
-		Code:    403,
+		Code:    http.StatusForbidden,
 		Message: message,
 	})
 
@@ -59,8 +71,8 @@ func (c *Context) InvalidParams(message interface{}) error {
 	return nil
 }
 
-// BusinessError 业务错误
-func (c *Context) BusinessError(message interface{}) error {
+// ErrorBusiness 业务错误
+func (c *Context) ErrorBusiness(message interface{}) error {
 
 	resp := &Response{Code: 400, Message: "business error"}
 
@@ -118,25 +130,6 @@ func (c *Context) Success(data interface{}, message ...string) error {
 
 	c.Context.Abort()
 	c.Context.JSON(http.StatusOK, resp)
-
-	return nil
-}
-
-func (c *Context) Paginate(items interface{}, page, size, total int) error {
-
-	c.Context.Abort()
-	c.Context.JSON(http.StatusOK, &Response{
-		Code:    200,
-		Message: "success",
-		Data: map[string]interface{}{
-			"items": items,
-			"paginate": map[string]interface{}{
-				"page":  page,
-				"size":  size,
-				"total": total,
-			},
-		},
-	})
 
 	return nil
 }

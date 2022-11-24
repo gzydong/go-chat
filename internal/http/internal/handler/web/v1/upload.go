@@ -34,7 +34,7 @@ func (u *Upload) Avatar(ctx *ichat.Context) error {
 	object := fmt.Sprintf("public/media/image/avatar/%s/%s", time.Now().Format("20060102"), strutil.GenImageName("png", 200, 200))
 
 	if err := u.filesystem.Default.Write(stream, object); err != nil {
-		return ctx.BusinessError("文件上传失败")
+		return ctx.ErrorBusiness("文件上传失败")
 	}
 
 	return ctx.Success(web.UploadAvatarResponse{
@@ -56,7 +56,7 @@ func (u *Upload) InitiateMultipart(ctx *ichat.Context) error {
 		UserId: ctx.UserId(),
 	})
 	if err != nil {
-		return ctx.BusinessError(err.Error())
+		return ctx.ErrorBusiness(err.Error())
 	}
 
 	return ctx.Success(web.UploadInitiateMultipartResponse{
@@ -86,7 +86,7 @@ func (u *Upload) MultipartUpload(ctx *ichat.Context) error {
 		File:       file,
 	})
 	if err != nil {
-		return ctx.BusinessError(err.Error())
+		return ctx.ErrorBusiness(err.Error())
 	}
 
 	if params.SplitIndex != params.SplitNum-1 {

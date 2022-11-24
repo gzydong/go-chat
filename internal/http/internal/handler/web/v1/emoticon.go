@@ -84,7 +84,7 @@ func (c *Emoticon) DeleteCollect(ctx *ichat.Context) error {
 	}
 
 	if err := c.service.DeleteCollect(ctx.UserId(), sliceutil.ParseIds(params.Ids)); err != nil {
-		return ctx.BusinessError(err.Error())
+		return ctx.ErrorBusiness(err.Error())
 	}
 
 	return ctx.Success(nil)
@@ -109,14 +109,14 @@ func (c *Emoticon) Upload(ctx *ichat.Context) error {
 
 	stream, err := filesystem.ReadMultipartStream(file)
 	if err != nil {
-		return ctx.BusinessError("上传失败！")
+		return ctx.ErrorBusiness("上传失败！")
 	}
 
 	meta := utils.ReadImageMeta(bytes.NewReader(stream))
 	ext := strutil.FileSuffix(file.Filename)
 	src := fmt.Sprintf("public/media/image/emoticon/%s/%s", time.Now().Format("20060102"), strutil.GenImageName(ext, meta.Width, meta.Height))
 	if err = c.fileSystem.Default.Write(stream, src); err != nil {
-		return ctx.BusinessError("上传失败！")
+		return ctx.ErrorBusiness("上传失败！")
 	}
 
 	m := &model.EmoticonItem{
@@ -128,7 +128,7 @@ func (c *Emoticon) Upload(ctx *ichat.Context) error {
 	}
 
 	if err := c.service.Db().Create(m).Error; err != nil {
-		return ctx.BusinessError("上传失败！")
+		return ctx.ErrorBusiness("上传失败！")
 	}
 
 	return ctx.Success(&web.EmoticonUploadResponse{
@@ -143,7 +143,7 @@ func (c *Emoticon) SystemList(ctx *ichat.Context) error {
 	items, err := c.service.Dao().GetSystemEmoticonList()
 
 	if err != nil {
-		return ctx.BusinessError(err.Error())
+		return ctx.ErrorBusiness(err.Error())
 	}
 
 	ids := c.service.Dao().GetUserInstallIds(ctx.UserId())
@@ -175,13 +175,13 @@ func (c *Emoticon) SetSystemEmoticon(ctx *ichat.Context) error {
 	}
 
 	if !c.redisLock.Lock(ctx.Context, key, 5) {
-		return ctx.BusinessError("请求频繁！")
+		return ctx.ErrorBusiness("请求频繁！")
 	}
 	defer c.redisLock.UnLock(ctx.Context, key)
 
 	if params.Type == 2 {
 		if err = c.service.RemoveUserSysEmoticon(uid, int(params.EmoticonId)); err != nil {
-			return ctx.BusinessError(err.Error())
+			return ctx.ErrorBusiness(err.Error())
 		}
 
 		return ctx.Success(nil)
@@ -190,11 +190,11 @@ func (c *Emoticon) SetSystemEmoticon(ctx *ichat.Context) error {
 	// 查询表情包是否存在
 	info, err := c.service.Dao().FindById(int(params.EmoticonId))
 	if err != nil {
-		return ctx.BusinessError(err.Error())
+		return ctx.ErrorBusiness(err.Error())
 	}
 
 	if err := c.service.AddUserSysEmoticon(uid, int(params.EmoticonId)); err != nil {
-		return ctx.BusinessError(err.Error())
+		return ctx.ErrorBusiness(err.Error())
 	}
 
 	items := make([]*web.EmoticonListItem, 0)
