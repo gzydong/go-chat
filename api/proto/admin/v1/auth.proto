@@ -5,6 +5,15 @@ option go_package = "admin/v1;admin";
 
 import "tagger/tagger.proto";
 
+message AccessToken{
+  // Token 类型
+  string type = 1;
+  // token
+  string access_token = 2;
+  // 过期时间
+  int32 expires_in = 3;
+}
+
 // 管理员登录接口请求参数
 message AuthLoginRequest{
   // 登录账号
@@ -18,7 +27,9 @@ message AuthLoginRequest{
 }
 
 // 管理员登录接口请求参数
-message AuthLoginResponse{}
+message AuthLoginResponse{
+  AccessToken auth = 1;
+}
 
 
 // 图形验证接口请求参数

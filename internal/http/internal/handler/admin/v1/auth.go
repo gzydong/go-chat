@@ -1,18 +1,23 @@
 package v1
 
 import (
+	"time"
+
 	"github.com/mojocn/base64Captcha"
 	"go-chat/api/pb/admin/v1"
+	"go-chat/config"
 	"go-chat/internal/pkg/ichat"
+	"go-chat/internal/pkg/jwt"
 	"go-chat/internal/repository/cache"
 )
 
 type Auth struct {
+	config  *config.Config
 	captcha *cache.CaptchaStorage
 }
 
-func NewAuth(captcha *cache.CaptchaStorage) *Auth {
-	return &Auth{captcha: captcha}
+func NewAuth(config *config.Config, captcha *cache.CaptchaStorage) *Auth {
+	return &Auth{config: config, captcha: captcha}
 }
 
 // Login 登录接口
@@ -27,7 +32,23 @@ func (c *Auth) Login(ctx *ichat.Context) error {
 		return ctx.InvalidParams("验证码填写不正确")
 	}
 
-	return ctx.Success(&admin.AuthLoginResponse{})
+	expiresAt := time.Now().Add(12 * time.Hour)
+
+	// 生成登录凭证
+	token := jwt.GenerateToken("admin", c.config.Jwt.Secret, &jwt.Options{
+		ExpiresAt: jwt.NewNumericDate(expiresAt),
+		ID:        "1",
+		Issuer:    "im.admin",
+		IssuedAt:  jwt.NewNumericDate(time.Now()),
+	})
+
+	return ctx.Success(&admin.AuthLoginResponse{
+		Auth: &admin.AccessToken{
+			Type:        "Bearer",
+			AccessToken: token,
+			ExpiresIn:   60 * 60 * 12,
+		},
+	})
 }
 
 // Captcha 图形验证码

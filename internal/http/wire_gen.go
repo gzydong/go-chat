@@ -147,7 +147,7 @@ func Initialize(ctx context.Context, conf *config.Config) *AppProvider {
 	}
 	index := v1_2.NewIndex()
 	captchaStorage := cache.NewCaptchaStorage(client)
-	v1Auth := v1_2.NewAuth(captchaStorage)
+	v1Auth := v1_2.NewAuth(conf, captchaStorage)
 	adminV1 := &admin.V1{
 		Index: index,
 		Auth:  v1Auth,
