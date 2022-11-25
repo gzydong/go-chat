@@ -1,0 +1,51 @@
+syntax = "proto3";
+package admin;
+
+option go_package = "admin/v1;admin";
+
+import "tagger/tagger.proto";
+
+// 管理员登录接口请求参数
+message AuthLoginRequest{
+  // 登录账号
+  string username = 1 [(tagger.tags) = "binding:\"required\""];
+  // 登录密码
+  string password = 2 [(tagger.tags) = "binding:\"required\""];
+  // 图形验证码
+  string captcha = 3 [(tagger.tags) = "binding:\"required\""];
+  // 图形验证码
+  string captcha_voucher = 4 [(tagger.tags) = "binding:\"required\""];
+}
+
+// 管理员登录接口请求参数
+message AuthLoginResponse{}
+
+
+// 图形验证接口请求参数
+message AuthCaptchaRequest{}
+
+// 图形验证接口响应参数
+message AuthCaptchaResponse{
+  // 验证码唯一凭证
+  string voucher = 1;
+  // 验证码图像 base64
+  string captcha = 2;
+}
+
+
+// 管理员注销登录接口请求参数
+message AuthLogoutRequest{}
+
+// 管理员注销登录接口请求参数
+message AuthLogoutResponse{}
+
+// 管理员刷新Token接口请求参数
+message AuthRefreshRequest{}
+
+// 管理员刷新Token接口请求参数
+message AuthRefreshResponse{
+  // 授权 token
+  string token = 1;
+  // 过期时间 单位秒
+  int32 expire_in = 2;
+}

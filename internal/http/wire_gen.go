@@ -146,7 +146,8 @@ func Initialize(ctx context.Context, conf *config.Config) *AppProvider {
 		V1: webV1,
 	}
 	index := v1_2.NewIndex()
-	v1Auth := v1_2.NewAuth()
+	captchaStorage := cache.NewCaptchaStorage(client)
+	v1Auth := v1_2.NewAuth(captchaStorage)
 	adminV1 := &admin.V1{
 		Index: index,
 		Auth:  v1Auth,
@@ -181,7 +182,7 @@ func Initialize(ctx context.Context, conf *config.Config) *AppProvider {
 
 var providerSet = wire.NewSet(provider.NewMySQLClient, provider.NewRedisClient, provider.NewHttpClient, provider.NewEmailClient, provider.NewHttpServer, provider.NewFilesystem, provider.NewRequestClient, router.NewRouter, wire.Struct(new(web.Handler), "*"), wire.Struct(new(admin.Handler), "*"), wire.Struct(new(open.Handler), "*"), wire.Struct(new(handler.Handler), "*"), wire.Struct(new(AppProvider), "*"))
 
-var cacheProviderSet = wire.NewSet(cache.NewTokenSessionStorage, cache.NewSidStorage, cache.NewUnreadStorage, cache.NewRedisLock, cache.NewClientStorage, cache.NewMessageStorage, cache.NewTalkVote, cache.NewRoomStorage, cache.NewRelation, cache.NewSmsCodeCache, cache.NewContactRemark, cache.NewSequence)
+var cacheProviderSet = wire.NewSet(cache.NewTokenSessionStorage, cache.NewSidStorage, cache.NewUnreadStorage, cache.NewRedisLock, cache.NewClientStorage, cache.NewMessageStorage, cache.NewTalkVote, cache.NewRoomStorage, cache.NewRelation, cache.NewSmsCodeCache, cache.NewContactRemark, cache.NewSequence, cache.NewCaptchaStorage)
 
 var daoProviderSet = wire.NewSet(repo.NewBase, repo.NewContact, repo.NewGroupMember, repo.NewUsers, repo.NewGroup, repo.NewGroupApply, repo.NewTalkRecords, repo.NewGroupNotice, repo.NewTalkSession, repo.NewEmoticon, repo.NewTalkRecordsVote, repo.NewFileSplitUpload, note.NewArticleClass, note.NewArticleAnnex, organize.NewDepartment, organize.NewOrganize, organize.NewPosition, repo.NewRobot)
 

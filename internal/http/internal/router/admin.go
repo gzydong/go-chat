@@ -24,16 +24,10 @@ func RegisterAdminRoute(secret string, router *gin.Engine, handler *admin.Handle
 
 		auth := v1.Group("/auth")
 		{
-			auth.GET("/login", ichat.HandlerFunc(handler.V1.Auth.Login))
-			auth.GET("/logout", ichat.HandlerFunc(handler.V1.Auth.Logout))
-			auth.GET("/refresh", authorize, ichat.HandlerFunc(handler.V1.Auth.Refresh))
-		}
-
-		other := v1.Group("/other", authorize)
-		{
-			other.GET("/test", ichat.HandlerFunc(func(ctx *ichat.Context) error {
-				return nil
-			}))
+			auth.POST("/login", ichat.HandlerFunc(handler.V1.Auth.Login))
+			auth.GET("/captcha", ichat.HandlerFunc(handler.V1.Auth.Captcha))
+			auth.GET("/logout", authorize, ichat.HandlerFunc(handler.V1.Auth.Logout))
+			auth.POST("/refresh", authorize, ichat.HandlerFunc(handler.V1.Auth.Refresh))
 		}
 	}
 }

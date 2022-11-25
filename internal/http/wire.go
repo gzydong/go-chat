@@ -59,6 +59,7 @@ var cacheProviderSet = wire.NewSet(
 	cache.NewSmsCodeCache,
 	cache.NewContactRemark,
 	cache.NewSequence,
+	cache.NewCaptchaStorage,
 )
 
 var daoProviderSet = wire.NewSet(

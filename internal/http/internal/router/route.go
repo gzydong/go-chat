@@ -1,7 +1,7 @@
 package router
 
 import (
-	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -19,8 +19,7 @@ func NewRouter(conf *config.Config, handler *handler.Handler, session *cache.Tok
 	router.Use(gin.Logger())
 	router.Use(middleware.Cors(conf.Cors))
 	router.Use(gin.RecoveryWithWriter(gin.DefaultWriter, func(c *gin.Context, err interface{}) {
-
-		fmt.Println(err)
+		log.Println(err)
 
 		c.AbortWithStatusJSON(http.StatusInternalServerError, entity.H{"code": 500, "msg": "系统错误，请重试!!!"})
 	}))
