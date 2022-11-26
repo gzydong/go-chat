@@ -81,6 +81,7 @@ var daoProviderSet = wire.NewSet(
 	organize3.NewOrganize,
 	organize3.NewPosition,
 	repo.NewRobot,
+	repo.NewTest,
 )
 
 var serviceProviderSet = wire.NewSet(

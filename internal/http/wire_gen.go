@@ -147,7 +147,8 @@ func Initialize(ctx context.Context, conf *config.Config) *AppProvider {
 	}
 	index := v1_2.NewIndex()
 	captchaStorage := cache.NewCaptchaStorage(client)
-	v1Auth := v1_2.NewAuth(conf, captchaStorage)
+	test := repo.NewTest(db)
+	v1Auth := v1_2.NewAuth(conf, captchaStorage, test)
 	adminV1 := &admin.V1{
 		Index: index,
 		Auth:  v1Auth,
@@ -184,6 +185,6 @@ var providerSet = wire.NewSet(provider.NewMySQLClient, provider.NewRedisClient, 
 
 var cacheProviderSet = wire.NewSet(cache.NewTokenSessionStorage, cache.NewSidStorage, cache.NewUnreadStorage, cache.NewRedisLock, cache.NewClientStorage, cache.NewMessageStorage, cache.NewTalkVote, cache.NewRoomStorage, cache.NewRelation, cache.NewSmsCodeCache, cache.NewContactRemark, cache.NewSequence, cache.NewCaptchaStorage)
 
-var daoProviderSet = wire.NewSet(repo.NewBase, repo.NewContact, repo.NewGroupMember, repo.NewUsers, repo.NewGroup, repo.NewGroupApply, repo.NewTalkRecords, repo.NewGroupNotice, repo.NewTalkSession, repo.NewEmoticon, repo.NewTalkRecordsVote, repo.NewFileSplitUpload, note.NewArticleClass, note.NewArticleAnnex, organize.NewDepartment, organize.NewOrganize, organize.NewPosition, repo.NewRobot)
+var daoProviderSet = wire.NewSet(repo.NewBase, repo.NewContact, repo.NewGroupMember, repo.NewUsers, repo.NewGroup, repo.NewGroupApply, repo.NewTalkRecords, repo.NewGroupNotice, repo.NewTalkSession, repo.NewEmoticon, repo.NewTalkRecordsVote, repo.NewFileSplitUpload, note.NewArticleClass, note.NewArticleAnnex, organize.NewDepartment, organize.NewOrganize, organize.NewPosition, repo.NewRobot, repo.NewTest)
 
 var serviceProviderSet = wire.NewSet(service.NewBaseService, service.NewUserService, service.NewSmsService, service.NewTalkService, service.NewTalkMessageService, service.NewGroupService, service.NewGroupMemberService, service.NewGroupNoticeService, service.NewGroupApplyService, service.NewTalkSessionService, service.NewEmoticonService, service.NewTalkRecordsService, service.NewContactService, service.NewContactsApplyService, service.NewSplitUploadService, service.NewIpAddressService, service.NewAuthPermissionService, service.NewMessageService, note2.NewArticleService, note2.NewArticleTagService, note2.NewArticleClassService, note2.NewArticleAnnexService, organize2.NewOrganizeDeptService, organize2.NewOrganizeService, organize2.NewPositionService, service.NewTemplateService, service.NewTalkAuthService, logic.NewMessageForwardLogic)

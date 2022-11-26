@@ -1,6 +1,7 @@
 package v1
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/mojocn/base64Captcha"
@@ -9,15 +10,17 @@ import (
 	"go-chat/internal/pkg/ichat"
 	"go-chat/internal/pkg/jwt"
 	"go-chat/internal/repository/cache"
+	"go-chat/internal/repository/repo"
 )
 
 type Auth struct {
 	config  *config.Config
 	captcha *cache.CaptchaStorage
+	test    *repo.Test
 }
 
-func NewAuth(config *config.Config, captcha *cache.CaptchaStorage) *Auth {
-	return &Auth{config: config, captcha: captcha}
+func NewAuth(config *config.Config, captcha *cache.CaptchaStorage, test *repo.Test) *Auth {
+	return &Auth{config: config, captcha: captcha, test: test}
 }
 
 // Login 登录接口
@@ -71,6 +74,38 @@ func (c *Auth) Captcha(ctx *ichat.Context) error {
 func (c *Auth) Logout(ctx *ichat.Context) error {
 
 	// TODO 业务逻辑 ...
+
+	// all, err := c.test.FindAll(ctx.Ctx(), func(db *gorm.DB) {
+	// 	db.Order("id desc").Limit(3)
+	// })
+	// if err != nil {
+	// 	return ctx.Error(err.Error())
+	// }
+	//
+	// for _, m := range all {
+	// 	fmt.Println(m.Id)
+	// 	fmt.Printf("%T \n", m)
+	// }
+	//
+	// data, err := c.test.FindById(ctx.Ctx(), 10)
+	// if err != nil {
+	// 	return ctx.Error(err.Error())
+	// }
+	//
+	// fmt.Println(jsonutil.Encode(data))
+	//
+	// data, err = c.test.FindByWhere(ctx.Ctx(), "user_id = ? and class_id = ?", 4135, 3236)
+	// if err != nil {
+	// 	return ctx.Error(err.Error())
+	// }
+	//
+	// fmt.Println(jsonutil.Encode(data))
+
+	count, err := c.test.Updates(ctx.Ctx(), map[string]interface{}{
+		"is_asterisk": 0,
+	}, "1 = 1")
+
+	fmt.Println(count, err)
 
 	return ctx.Success(nil)
 }

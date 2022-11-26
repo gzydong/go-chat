@@ -26,7 +26,7 @@ func RegisterAdminRoute(secret string, router *gin.Engine, handler *admin.Handle
 		{
 			auth.POST("/login", ichat.HandlerFunc(handler.V1.Auth.Login))
 			auth.GET("/captcha", ichat.HandlerFunc(handler.V1.Auth.Captcha))
-			auth.GET("/logout", authorize, ichat.HandlerFunc(handler.V1.Auth.Logout))
+			auth.GET("/logout", ichat.HandlerFunc(handler.V1.Auth.Logout))
 			auth.POST("/refresh", authorize, ichat.HandlerFunc(handler.V1.Auth.Refresh))
 		}
 	}

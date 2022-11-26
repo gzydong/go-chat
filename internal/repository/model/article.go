@@ -20,6 +20,10 @@ type Article struct {
 	DeletedAt  sql.NullTime `gorm:"column:deleted_at" json:"deleted_at"`                      // 删除时间
 }
 
+func (a Article) TableName() string {
+	return "article"
+}
+
 type ArticleItem struct {
 	Id         int       `gorm:"column:id;primary_key;AUTO_INCREMENT" json:"id"`           // 文章ID
 	UserId     int       `gorm:"column:user_id;NOT NULL" json:"user_id"`                   // 用户ID
