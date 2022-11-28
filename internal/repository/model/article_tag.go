@@ -11,6 +11,10 @@ type ArticleTag struct {
 	UpdatedAt time.Time `gorm:"column:updated_at;NOT NULL" json:"updated_at"`     // 更新时间
 }
 
+func (ArticleTag) TableName() string {
+	return "article_tag"
+}
+
 type TagItem struct {
 	Id      int    `json:"id"`       // 文章分类ID
 	TagName string `json:"tag_name"` // 标签名

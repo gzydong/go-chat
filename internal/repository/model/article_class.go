@@ -12,6 +12,10 @@ type ArticleClass struct {
 	UpdatedAt time.Time `gorm:"column:updated_at;NOT NULL" json:"updated_at"`           // 更新时间
 }
 
+func (ArticleClass) TableName() string {
+	return "article_class"
+}
+
 type ArticleClassItem struct {
 	Id        int    `json:"id"`         // 文章分类ID
 	ClassName string `json:"class_name"` // 分类名

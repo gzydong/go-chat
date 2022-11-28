@@ -20,7 +20,7 @@ type Article struct {
 	DeletedAt  sql.NullTime `gorm:"column:deleted_at" json:"deleted_at"`                      // 删除时间
 }
 
-func (a Article) TableName() string {
+func (Article) TableName() string {
 	return "article"
 }
 

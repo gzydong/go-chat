@@ -1,26 +1,22 @@
 package repo
 
 import (
+	"context"
+
+	"go-chat/internal/pkg/ichat"
 	"go-chat/internal/repository/model"
+	"gorm.io/gorm"
 )
 
 type Robot struct {
-	*Base
+	ichat.Repo[model.Robot]
 }
 
-func NewRobot(base *Base) *Robot {
-	return &Robot{Base: base}
+func NewRobot(db *gorm.DB) *Robot {
+	return &Robot{Repo: ichat.Repo[model.Robot]{Db: db}}
 }
 
-// FindLoginRobot 获取登录机器的信息
-func (r *Robot) FindLoginRobot() (*model.Robot, error) {
-
-	robot := &model.Robot{}
-
-	err := r.Db.Where("type = ? and status = ?", 1, 0).First(robot).Error
-	if err != nil {
-		return nil, err
-	}
-
-	return robot, nil
+// GetLoginRobot 获取登录机器的信息
+func (r *Robot) GetLoginRobot(ctx context.Context) (*model.Robot, error) {
+	return r.FindByWhere(ctx, "type = ? and status = ?", 1, 0)
 }

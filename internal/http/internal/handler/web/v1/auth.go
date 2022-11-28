@@ -27,12 +27,12 @@ type Auth struct {
 	ipAddressService   *service.IpAddressService
 	talkSessionService *service.TalkSessionService
 	noteClassService   *note.ArticleClassService
-	robotDao           *repo.Robot
+	robotRepo          *repo.Robot
 	message            *service.MessageService
 }
 
 func NewAuth(config *config.Config, userService *service.UserService, smsService *service.SmsService, session *cache.TokenSessionStorage, redisLock *cache.RedisLock, talkMessageService *service.TalkMessageService, ipAddressService *service.IpAddressService, talkSessionService *service.TalkSessionService, noteClassService *note.ArticleClassService, robotDao *repo.Robot, message *service.MessageService) *Auth {
-	return &Auth{config: config, userService: userService, smsService: smsService, session: session, redisLock: redisLock, talkMessageService: talkMessageService, ipAddressService: ipAddressService, talkSessionService: talkSessionService, noteClassService: noteClassService, robotDao: robotDao, message: message}
+	return &Auth{config: config, userService: userService, smsService: smsService, session: session, redisLock: redisLock, talkMessageService: talkMessageService, ipAddressService: ipAddressService, talkSessionService: talkSessionService, noteClassService: noteClassService, robotRepo: robotDao, message: message}
 }
 
 // Login 登录接口
@@ -48,7 +48,7 @@ func (c *Auth) Login(ctx *ichat.Context) error {
 		return ctx.ErrorBusiness(err.Error())
 	}
 
-	root, _ := c.robotDao.FindLoginRobot()
+	root, _ := c.robotRepo.GetLoginRobot(ctx.Ctx())
 	if root != nil {
 		ip := ctx.Context.ClientIP()
 

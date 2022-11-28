@@ -13,6 +13,10 @@ type Contact struct {
 	UpdatedAt time.Time `gorm:"column:updated_at;default:CURRENT_TIMESTAMP;NOT NULL" json:"updated_at"` // 更新时间
 }
 
+func (Contact) TableName() string {
+	return "contact"
+}
+
 type ContactListItem struct {
 	Id       int    `gorm:"column:id" json:"id"`                // 用户ID
 	Nickname string `gorm:"column:nickname" json:"nickname"`    // 用户昵称

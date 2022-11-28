@@ -6,3 +6,7 @@ type ArticleDetail struct {
 	MdContent string `gorm:"column:md_content;NOT NULL" json:"md_content"`           // Markdown 内容
 	Content   string `gorm:"column:content;NOT NULL" json:"content"`                 // Markdown 解析HTML内容
 }
+
+func (ArticleDetail) TableName() string {
+	return "article_detail"
+}

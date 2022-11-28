@@ -11,6 +11,10 @@ type ContactApply struct {
 	CreatedAt time.Time `gorm:"column:created_at;NOT NULL" json:"created_at"`         // 申请时间
 }
 
+func (ContactApply) TableName() string {
+	return "contact_apply"
+}
+
 // ApplyItem 用户添加好友申请表
 type ApplyItem struct {
 	Id        int       `gorm:"column:id" json:"id"`                 // 申请ID

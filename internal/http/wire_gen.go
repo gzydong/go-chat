@@ -70,7 +70,7 @@ func Initialize(ctx context.Context, conf *config.Config) *AppProvider {
 	talkSessionService := service.NewTalkSessionService(baseService, talkSession)
 	articleClass := note.NewArticleClass(base)
 	articleClassService := note2.NewArticleClassService(baseService, articleClass)
-	robot := repo.NewRobot(base)
+	robot := repo.NewRobot(db)
 	sequence := cache.NewSequence(client)
 	messageForwardLogic := logic.NewMessageForwardLogic(db, sequence)
 	messageService := service.NewMessageService(baseService, messageForwardLogic, groupMember, splitUpload, filesystem, unreadStorage, messageStorage, serverStorage, clientStorage, sequence)

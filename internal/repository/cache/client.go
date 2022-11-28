@@ -104,11 +104,7 @@ func (w *ClientStorage) GetClientIdFromUid(ctx context.Context, sid, channel, ci
 		return 0, err
 	}
 
-	if value, err := strconv.ParseInt(uid, 10, 64); err != nil {
-		return value, nil
-	} else {
-		return 0, err
-	}
+	return strconv.ParseInt(uid, 10, 64)
 }
 
 func (w *ClientStorage) Bind(ctx context.Context, channel string, clientId int64, uid int) {

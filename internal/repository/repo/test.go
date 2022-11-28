@@ -7,11 +7,11 @@ import (
 )
 
 type Test struct {
-	ichat.Base[model.Article]
+	ichat.Repo[model.Article]
 }
 
 func NewTest(db *gorm.DB) *Test {
-	return &Test{Base: ichat.Base[model.Article]{Db: db}}
+	return &Test{Repo: ichat.Repo[model.Article]{Db: db}}
 }
 
 func (t *Test) name() {}

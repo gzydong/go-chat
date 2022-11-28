@@ -20,6 +20,10 @@ type ArticleAnnex struct {
 	DeletedAt    sql.NullTime `gorm:"column:deleted_at" json:"deleted_at"`                    // 删除时间
 }
 
+func (ArticleAnnex) TableName() string {
+	return "article_annex"
+}
+
 type RecoverAnnexItem struct {
 	Id           int       `json:"id"`            // 文件ID
 	ArticleId    int       `json:"article_id"`    // 笔记ID
