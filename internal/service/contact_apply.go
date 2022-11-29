@@ -76,7 +76,7 @@ func (s *ContactApplyService) Accept(ctx context.Context, opts *ContactApplyAcce
 		return nil, err
 	}
 
-	err = s.db.Transaction(func(tx *gorm.DB) error {
+	err = s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		addFriendFunc := func(uid, fid int, remark string) error {
 			var friends *model.Contact
 
@@ -153,7 +153,7 @@ func (s *ContactApplyService) List(ctx context.Context, uid, page, size int) ([]
 		"contact_apply.created_at",
 	}
 
-	tx := s.db.Debug().Table("contact_apply")
+	tx := s.db.Table("contact_apply")
 	tx.Joins("left join `users` ON `users`.id = contact_apply.user_id")
 	tx.Where("contact_apply.friend_id = ?", uid)
 	tx.Order("contact_apply.id desc")
