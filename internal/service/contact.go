@@ -16,7 +16,7 @@ func NewContactService(baseService *BaseService, dao *repo.Contact) *ContactServ
 	return &ContactService{BaseService: baseService, repo: dao}
 }
 
-func (s *ContactService) Dao() repo.IContact {
+func (s *ContactService) Dao() *repo.Contact {
 	return s.repo
 }
 

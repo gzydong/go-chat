@@ -13,7 +13,7 @@ type Robot struct {
 }
 
 func NewRobot(db *gorm.DB) *Robot {
-	return &Robot{Repo: ichat.Repo[model.Robot]{Db: db}}
+	return &Robot{Repo: ichat.NewRepo[model.Robot](db)}
 }
 
 // GetLoginRobot 获取登录机器的信息

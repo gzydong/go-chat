@@ -15,6 +15,10 @@ type Repo[T ITable] struct {
 	Db    *gorm.DB // 数据库
 }
 
+func NewRepo[T ITable](db *gorm.DB) Repo[T] {
+	return Repo[T]{Db: db}
+}
+
 func (r *Repo[T]) Model(ctx context.Context) *gorm.DB {
 	return r.Db.WithContext(ctx).Model(r.model)
 }

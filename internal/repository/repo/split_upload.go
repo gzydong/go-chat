@@ -13,7 +13,7 @@ type SplitUpload struct {
 }
 
 func NewFileSplitUpload(db *gorm.DB) *SplitUpload {
-	return &SplitUpload{Repo: ichat.Repo[model.SplitUpload]{Db: db}}
+	return &SplitUpload{Repo: ichat.NewRepo[model.SplitUpload](db)}
 }
 
 func (s *SplitUpload) GetSplitList(ctx context.Context, uploadId string) ([]*model.SplitUpload, error) {

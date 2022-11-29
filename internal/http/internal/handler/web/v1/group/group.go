@@ -203,7 +203,7 @@ func (c *Group) Detail(ctx *ichat.Context) error {
 
 	uid := ctx.UserId()
 
-	groupInfo, err := c.service.Dao().FindById(int(params.GroupId))
+	groupInfo, err := c.service.Dao().FindById(ctx.Ctx(), int(params.GroupId))
 	if err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}

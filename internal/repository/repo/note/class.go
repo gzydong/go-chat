@@ -13,7 +13,7 @@ type ArticleClass struct {
 }
 
 func NewArticleClass(db *gorm.DB) *ArticleClass {
-	return &ArticleClass{Repo: ichat.Repo[model.ArticleClass]{Db: db}}
+	return &ArticleClass{Repo: ichat.NewRepo[model.ArticleClass](db)}
 }
 
 func (a *ArticleClass) MaxSort(ctx context.Context, uid int) (int, error) {

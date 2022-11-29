@@ -3,42 +3,27 @@ package repo
 import (
 	"context"
 
+	"go-chat/internal/pkg/ichat"
 	"go-chat/internal/repository/model"
+	"gorm.io/gorm"
 )
 
 type Group struct {
-	*Base
+	ichat.Repo[model.Group]
 }
 
-func NewGroup(base *Base) *Group {
-	return &Group{Base: base}
-}
-
-func (g *Group) FindById(id int) (*model.Group, error) {
-	info := &model.Group{}
-
-	if err := g.Db.First(&info, id).Error; err != nil {
-		return nil, err
-	}
-
-	return info, nil
+func NewGroup(db *gorm.DB) *Group {
+	return &Group{Repo: ichat.NewRepo[model.Group](db)}
 }
 
 func (g *Group) SearchOvertList(ctx context.Context, name string, page, size int) ([]*model.Group, error) {
+	return g.FindAll(ctx, func(db *gorm.DB) {
+		if name != "" {
+			db.Where("group_name LIKE ?", "%"+name+"%")
+		} else {
+			db.Where("is_overt = ?", 1)
+		}
 
-	tx := g.Db.WithContext(ctx).Table("group")
-
-	if name != "" {
-		tx.Where("group_name LIKE ?", "%"+name+"%")
-	} else {
-		tx.Where("is_overt = ?", 1)
-	}
-
-	items := make([]*model.Group, 0)
-	err := tx.Where("is_dismiss = 0").Order("created_at desc").Offset((page - 1) * size).Limit(size).Find(&items).Error
-	if err != nil {
-		return nil, err
-	}
-
-	return items, nil
+		db.Where("is_dismiss = 0").Order("created_at desc").Offset((page - 1) * size).Limit(size)
+	})
 }

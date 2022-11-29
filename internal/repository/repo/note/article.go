@@ -11,5 +11,5 @@ type Article struct {
 }
 
 func NewArticle(db *gorm.DB) *Article {
-	return &Article{Repo: ichat.Repo[model.Article]{Db: db}}
+	return &Article{Repo: ichat.NewRepo[model.Article](db)}
 }

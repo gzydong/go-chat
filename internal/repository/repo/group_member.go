@@ -15,7 +15,7 @@ type GroupMember struct {
 }
 
 func NewGroupMember(db *gorm.DB, relation *cache.Relation) *GroupMember {
-	return &GroupMember{Repo: ichat.Repo[model.GroupMember]{Db: db}, relation: relation}
+	return &GroupMember{Repo: ichat.NewRepo[model.GroupMember](db), relation: relation}
 }
 
 // IsMaster 判断是否是群主

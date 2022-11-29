@@ -4,26 +4,20 @@ import (
 	"context"
 	"fmt"
 
+	"go-chat/internal/pkg/ichat"
 	"go-chat/internal/repository/cache"
 	"go-chat/internal/repository/model"
+	"gorm.io/gorm"
 )
 
-type IContact interface {
-	IBase
-	IsFriend(ctx context.Context, uid int, friendId int, cache bool) bool
-	GetFriendRemark(ctx context.Context, uid int, friendId int) string
-	SetFriendRemark(ctx context.Context, uid int, friendId int, remark string) error
-	Remarks(ctx context.Context, uid int, fids []int) (map[int]string, error)
-}
-
 type Contact struct {
-	*Base
+	ichat.Repo[model.Contact]
 	cache    *cache.ContactRemark
 	relation *cache.Relation
 }
 
-func NewContact(base *Base, cache *cache.ContactRemark, relation *cache.Relation) *Contact {
-	return &Contact{Base: base, cache: cache, relation: relation}
+func NewContact(db *gorm.DB, cache *cache.ContactRemark, relation *cache.Relation) *Contact {
+	return &Contact{Repo: ichat.NewRepo[model.Contact](db), cache: cache, relation: relation}
 }
 
 func (c *Contact) Remarks(ctx context.Context, uid int, fids []int) (map[int]string, error) {
@@ -42,10 +36,8 @@ func (c *Contact) IsFriend(ctx context.Context, uid int, friendId int, cache boo
 		return true
 	}
 
-	sql := `SELECT count(1) from contact where ((user_id = ? and friend_id = ?) or (user_id = ? and friend_id = ?)) and status = 1`
-
-	var count int
-	if err := c.Db.WithContext(ctx).Raw(sql, uid, friendId, friendId, uid).Scan(&count).Error; err != nil {
+	count, err := c.QueryCount(ctx, "((user_id = ? and friend_id = ?) or (user_id = ? and friend_id = ?)) and status = 1", uid, friendId, friendId, uid)
+	if err != nil {
 		return false
 	}
 
@@ -64,8 +56,10 @@ func (c *Contact) GetFriendRemark(ctx context.Context, uid int, friendId int) st
 		return c.cache.Get(ctx, uid, friendId)
 	}
 
-	info := &model.Contact{}
-	c.Db.WithContext(ctx).First(info, "user_id = ? and friend_id = ?", uid, friendId)
+	info, err := c.FindByWhere(ctx, "user_id = ? and friend_id = ?", uid, friendId)
+	if err != nil {
+		return ""
+	}
 
 	return info.Remark
 }
@@ -76,10 +70,11 @@ func (c *Contact) SetFriendRemark(ctx context.Context, uid int, friendId int, re
 
 func (c *Contact) LoadContactCache(ctx context.Context, uid int) error {
 
-	sql := `SELECT friend_id, remark FROM contact WHERE user_id = ? and status = 1`
+	contacts, err := c.FindAll(ctx, func(db *gorm.DB) {
+		db.Where("user_id = ? and status = 1", uid)
+	})
 
-	var contacts []*model.Contact
-	if err := c.Db.WithContext(ctx).Raw(sql, uid).Scan(&contacts).Error; err != nil {
+	if err != nil {
 		return err
 	}
 

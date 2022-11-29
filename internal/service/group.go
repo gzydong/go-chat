@@ -137,8 +137,9 @@ type UpdateGroupOpt struct {
 }
 
 // Update 更新群信息
-func (s *GroupService) Update(_ context.Context, opts *UpdateGroupOpt) error {
-	_, err := s.Dao().BaseUpdate(&model.Group{Id: opts.GroupId}, nil, entity.MapStrAny{
+func (s *GroupService) Update(ctx context.Context, opts *UpdateGroupOpt) error {
+
+	_, err := s.repo.UpdateById(ctx, opts.GroupId, map[string]interface{}{
 		"group_name": opts.Name,
 		"avatar":     opts.Avatar,
 		"profile":    opts.Profile,

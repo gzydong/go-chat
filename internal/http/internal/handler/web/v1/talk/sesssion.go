@@ -95,7 +95,7 @@ func (c *Session) Create(ctx *ichat.Context) error {
 			item.Avatar = user.Avatar
 		}
 	} else if result.TalkType == entity.ChatGroupMode {
-		if group, err := c.groupService.Dao().FindById(int(params.ReceiverId)); err == nil {
+		if group, err := c.groupService.Dao().FindById(ctx.Ctx(), int(params.ReceiverId)); err == nil {
 			item.Name = group.Name
 		}
 	}

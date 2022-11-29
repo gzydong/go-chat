@@ -14,7 +14,7 @@ type Emoticon struct {
 }
 
 func NewEmoticon(db *gorm.DB) *Emoticon {
-	return &Emoticon{Repo: ichat.Repo[model.Emoticon]{Db: db}}
+	return &Emoticon{Repo: ichat.NewRepo[model.Emoticon](db)}
 }
 
 // GetUserInstallIds 获取用户激活的表情包

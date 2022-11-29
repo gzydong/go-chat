@@ -54,7 +54,7 @@ func Initialize(ctx context.Context, conf *config.Config) *AppProvider {
 	talkRecords := repo.NewTalkRecords(base)
 	talkRecordsService := service.NewTalkRecordsService(baseService, talkVote, talkRecordsVote, groupMember, talkRecords)
 	contactRemark := cache.NewContactRemark(client)
-	contact := repo.NewContact(base, contactRemark, relation)
+	contact := repo.NewContact(db, contactRemark, relation)
 	contactService := service.NewContactService(baseService, contact)
 	chatSubscribe := consume.NewChatSubscribe(conf, clientStorage, roomStorage, talkRecordsService, contactService)
 	exampleSubscribe := consume.NewExampleSubscribe()

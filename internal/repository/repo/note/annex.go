@@ -13,7 +13,7 @@ type ArticleAnnex struct {
 }
 
 func NewArticleAnnex(db *gorm.DB) *ArticleAnnex {
-	return &ArticleAnnex{Repo: ichat.Repo[model.ArticleAnnex]{Db: db}}
+	return &ArticleAnnex{Repo: ichat.NewRepo[model.ArticleAnnex](db)}
 }
 
 func (a *ArticleAnnex) AnnexList(ctx context.Context, uid int, articleId int) ([]*model.ArticleAnnex, error) {
