@@ -26,13 +26,13 @@ func (r *Repo[T]) Model(ctx context.Context) *gorm.DB {
 // FindById 根据主键查询单条记录
 func (r *Repo[T]) FindById(ctx context.Context, id int) (*T, error) {
 
-	var data *T
-	err := r.Db.WithContext(ctx).First(&data, id).Error
+	var item *T
+	err := r.Db.WithContext(ctx).First(&item, id).Error
 	if err != nil {
 		return nil, err
 	}
 
-	return data, nil
+	return item, nil
 }
 
 // FindByIds 根据主键查询单条记录
@@ -67,13 +67,13 @@ func (r *Repo[T]) FindAll(ctx context.Context, arg ...func(*gorm.DB)) ([]*T, err
 // FindByWhere 根据条件查询一条数据
 func (r *Repo[T]) FindByWhere(ctx context.Context, where string, args ...interface{}) (*T, error) {
 
-	var data *T
-	err := r.Db.WithContext(ctx).Where(where, args...).First(&data).Error
+	var item *T
+	err := r.Db.WithContext(ctx).Where(where, args...).First(&item).Error
 	if err != nil {
 		return nil, err
 	}
 
-	return data, nil
+	return item, nil
 }
 
 // QueryCount 根据条件统计数据总数

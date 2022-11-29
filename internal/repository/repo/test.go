@@ -13,5 +13,3 @@ type Test struct {
 func NewTest(db *gorm.DB) *Test {
 	return &Test{Repo: ichat.NewRepo[model.Article](db)}
 }
-
-func (t *Test) name() {}
