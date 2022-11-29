@@ -96,7 +96,7 @@ func (s *ArticleClassService) Sort(ctx context.Context, uid, cid, mode int) erro
 	}
 
 	if mode == 1 {
-		maxSort, err := s.dao.MaxSort(uid)
+		maxSort, err := s.dao.MaxSort(ctx, uid)
 		if err != nil {
 			return err
 		}
@@ -121,7 +121,7 @@ func (s *ArticleClassService) Sort(ctx context.Context, uid, cid, mode int) erro
 			return nil
 		})
 	} else {
-		minSort, err := s.dao.MinSort(uid)
+		minSort, err := s.dao.MinSort(ctx, uid)
 		if err != nil {
 			return err
 		}

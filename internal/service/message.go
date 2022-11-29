@@ -221,7 +221,7 @@ func (m *MessageService) SendVideo(ctx context.Context, uid int, req *message.Vi
 // SendFile 文件消息
 func (m *MessageService) SendFile(ctx context.Context, uid int, req *message.FileMessageRequest) error {
 
-	file, err := m.splitUploadRepo.GetFile(uid, req.UploadId)
+	file, err := m.splitUploadRepo.GetFile(ctx, uid, req.UploadId)
 	if err != nil {
 		return err
 	}

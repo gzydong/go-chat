@@ -140,7 +140,7 @@ func (s *SplitUploadService) MultipartUpload(ctx context.Context, opts *Multipar
 
 // combine
 func (s *SplitUploadService) merge(info *model.SplitUpload) error {
-	items, err := s.repo.GetSplitList(info.UploadId)
+	items, err := s.repo.GetSplitList(context.Background(), info.UploadId)
 	if err != nil {
 		return err
 	}

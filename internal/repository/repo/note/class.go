@@ -1,22 +1,25 @@
 package note
 
 import (
+	"context"
+
+	"go-chat/internal/pkg/ichat"
 	"go-chat/internal/repository/model"
-	"go-chat/internal/repository/repo"
+	"gorm.io/gorm"
 )
 
 type ArticleClass struct {
-	*repo.Base
+	ichat.Repo[model.ArticleClass]
 }
 
-func NewArticleClass(base *repo.Base) *ArticleClass {
-	return &ArticleClass{Base: base}
+func NewArticleClass(db *gorm.DB) *ArticleClass {
+	return &ArticleClass{Repo: ichat.Repo[model.ArticleClass]{Db: db}}
 }
 
-func (a *ArticleClass) MaxSort(uid int) (int, error) {
+func (a *ArticleClass) MaxSort(ctx context.Context, uid int) (int, error) {
 	var sort int
 
-	err := a.Db.Model(&model.ArticleClass{}).Select("max(sort)").Where("user_id = ?", uid).Scan(&sort).Error
+	err := a.Model(ctx).Select("max(sort)").Where("user_id = ?", uid).Scan(&sort).Error
 	if err != nil {
 		return 0, err
 	}
@@ -24,10 +27,10 @@ func (a *ArticleClass) MaxSort(uid int) (int, error) {
 	return sort, nil
 }
 
-func (a *ArticleClass) MinSort(uid int) (int, error) {
+func (a *ArticleClass) MinSort(ctx context.Context, uid int) (int, error) {
 	var sort int
 
-	err := a.Db.Model(&model.ArticleClass{}).Select("min(sort)").Where("user_id = ?", uid).Scan(&sort).Error
+	err := a.Model(ctx).Select("min(sort)").Where("user_id = ?", uid).Scan(&sort).Error
 	if err != nil {
 		return 0, err
 	}
@@ -47,7 +50,6 @@ func (a *ArticleClass) GroupCount(uid int) (map[int]int, error) {
 	}
 
 	maps := make(map[int]int)
-
 	for _, item := range items {
 		maps[item.ClassId] = item.Count
 	}

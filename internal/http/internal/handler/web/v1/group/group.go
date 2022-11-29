@@ -238,7 +238,10 @@ func (c *Group) UpdateMemberRemark(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	if err := c.memberService.ChangeGroupNickname(int(params.GroupId), ctx.UserId(), params.VisitCard); err != nil {
+	_, err := c.memberService.Dao().Updates(ctx.Ctx(), map[string]interface{}{
+		"user_card": params.VisitCard,
+	}, "group_id = ? and user_id = ?", params.GroupId, ctx.UserId())
+	if err != nil {
 		return ctx.ErrorBusiness("修改群备注失败！")
 	}
 
@@ -396,7 +399,7 @@ func (c *Group) Handover(ctx *ichat.Context) error {
 		return ctx.ErrorBusiness("暂无权限！")
 	}
 
-	err := c.memberService.Handover(int(params.GroupId), uid, int(params.UserId))
+	err := c.memberService.Handover(ctx.Ctx(), int(params.GroupId), uid, int(params.UserId))
 	if err != nil {
 		return ctx.ErrorBusiness("转让群主失败！")
 	}

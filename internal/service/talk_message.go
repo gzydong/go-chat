@@ -158,7 +158,7 @@ func (s *TalkMessageService) SendFileMessage(ctx context.Context, opts *FileMess
 		}
 	)
 
-	file, err := s.splitUploadDao.GetFile(opts.UserId, opts.UploadId)
+	file, err := s.splitUploadDao.GetFile(ctx, opts.UserId, opts.UploadId)
 	if err != nil {
 		return err
 	}

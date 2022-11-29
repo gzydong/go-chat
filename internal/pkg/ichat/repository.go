@@ -15,6 +15,10 @@ type Repo[T ITable] struct {
 	Db    *gorm.DB // 数据库
 }
 
+func (r *Repo[T]) Model(ctx context.Context) *gorm.DB {
+	return r.Db.WithContext(ctx).Model(r.model)
+}
+
 // FindById 根据主键查询单条记录
 func (r *Repo[T]) FindById(ctx context.Context, id int) (*T, error) {
 
@@ -27,12 +31,23 @@ func (r *Repo[T]) FindById(ctx context.Context, id int) (*T, error) {
 	return data, nil
 }
 
+// FindByIds 根据主键查询单条记录
+func (r *Repo[T]) FindByIds(ctx context.Context, ids []int) ([]*T, error) {
+
+	var items []*T
+	err := r.Db.WithContext(ctx).Find(&items, ids).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return items, nil
+}
+
 // FindAll 查询多条数据
 // 注:仅支持单表
 func (r *Repo[T]) FindAll(ctx context.Context, arg ...func(*gorm.DB)) ([]*T, error) {
 
-	bd := r.Db.WithContext(ctx).Model(r.model)
-
+	bd := r.Model(ctx)
 	for _, fn := range arg {
 		fn(bd)
 	}
@@ -61,7 +76,7 @@ func (r *Repo[T]) FindByWhere(ctx context.Context, where string, args ...interfa
 func (r *Repo[T]) QueryCount(ctx context.Context, where string, args ...interface{}) (int64, error) {
 
 	var count int64
-	err := r.Db.WithContext(ctx).Model(r.model).Where(where, args...).Count(&count).Error
+	err := r.Model(ctx).Where(where, args...).Count(&count).Error
 	if err != nil {
 		return 0, err
 	}
@@ -69,14 +84,26 @@ func (r *Repo[T]) QueryCount(ctx context.Context, where string, args ...interfac
 	return count, nil
 }
 
+// QueryExist 根据条件查询数据是否存在
+func (r *Repo[T]) QueryExist(ctx context.Context, where string, args ...interface{}) (bool, error) {
+
+	var count int64
+	err := r.Model(ctx).Select("1").Where(where, args...).Limit(1).Scan(&count).Error
+	if err != nil {
+		return false, err
+	}
+
+	return count == 1, nil
+}
+
 // UpdateById 根据主键ID更新
 func (r *Repo[T]) UpdateById(ctx context.Context, id interface{}, data map[string]interface{}) (int64, error) {
-	res := r.Db.Debug().WithContext(ctx).Model(r.model).Where("id = ?", id).Updates(data)
+	res := r.Model(ctx).Where("id = ?", id).Updates(data)
 	return res.RowsAffected, res.Error
 }
 
 // Updates 批量更新
 func (r *Repo[T]) Updates(ctx context.Context, data map[string]interface{}, where string, args ...interface{}) (int64, error) {
-	res := r.Db.Debug().WithContext(ctx).Model(r.model).Where(where, args...).Updates(data)
+	res := r.Model(ctx).Where(where, args...).Updates(data)
 	return res.RowsAffected, res.Error
 }

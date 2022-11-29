@@ -1,34 +1,27 @@
 package repo
 
 import (
+	"context"
+
+	"go-chat/internal/pkg/ichat"
 	"go-chat/internal/repository/model"
+	"gorm.io/gorm"
 )
 
 type SplitUpload struct {
-	*Base
+	ichat.Repo[model.SplitUpload]
 }
 
-func NewFileSplitUpload(base *Base) *SplitUpload {
-	return &SplitUpload{Base: base}
+func NewFileSplitUpload(db *gorm.DB) *SplitUpload {
+	return &SplitUpload{Repo: ichat.Repo[model.SplitUpload]{Db: db}}
 }
 
-func (s *SplitUpload) GetSplitList(uploadId string) ([]*model.SplitUpload, error) {
-	items := make([]*model.SplitUpload, 0)
-	err := s.Db.Model(&model.SplitUpload{}).Where("upload_id = ? and type = 2", uploadId).Scan(&items).Error
-	if err != nil {
-		return nil, err
-	}
-
-	return items, nil
+func (s *SplitUpload) GetSplitList(ctx context.Context, uploadId string) ([]*model.SplitUpload, error) {
+	return s.FindAll(ctx, func(db *gorm.DB) {
+		db.Where("upload_id = ? and type = 2", uploadId)
+	})
 }
 
-func (s *SplitUpload) GetFile(uid int, uploadId string) (*model.SplitUpload, error) {
-	item := &model.SplitUpload{}
-
-	err := s.Db.First(item, "user_id = ? and upload_id = ? and type = 1", uid, uploadId).Error
-	if err != nil {
-		return nil, err
-	}
-
-	return item, nil
+func (s *SplitUpload) GetFile(ctx context.Context, uid int, uploadId string) (*model.SplitUpload, error) {
+	return s.FindByWhere(ctx, "user_id = ? and upload_id = ? and type = 1", uid, uploadId)
 }

@@ -1,13 +1,15 @@
 package note
 
 import (
-	"go-chat/internal/repository/repo"
+	"go-chat/internal/pkg/ichat"
+	"go-chat/internal/repository/model"
+	"gorm.io/gorm"
 )
 
 type Article struct {
-	*repo.Base
+	ichat.Repo[model.Article]
 }
 
-func NewArticle(base *repo.Base) *Article {
-	return &Article{Base: base}
+func NewArticle(db *gorm.DB) *Article {
+	return &Article{Repo: ichat.Repo[model.Article]{Db: db}}
 }

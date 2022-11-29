@@ -101,11 +101,18 @@ func (c *Auth) Logout(ctx *ichat.Context) error {
 	//
 	// fmt.Println(jsonutil.Encode(data))
 
-	count, err := c.test.Updates(ctx.Ctx(), map[string]interface{}{
-		"is_asterisk": 0,
-	}, "1 = 1")
+	// count, err := c.test.Updates(ctx.Ctx(), map[string]interface{}{
+	// 	"is_asterisk": 0,
+	// }, "1 = 1")
+	//
+	// fmt.Println(count, err)
 
-	fmt.Println(count, err)
+	isTrue, err := c.test.QueryExist(ctx.Ctx(), "user_id = ?", 2054)
+	if err != nil {
+		return err
+	}
+
+	fmt.Println(isTrue)
 
 	return ctx.Success(nil)
 }

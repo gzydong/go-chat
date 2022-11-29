@@ -3,37 +3,23 @@ package note
 import (
 	"context"
 
+	"go-chat/internal/pkg/ichat"
 	"go-chat/internal/repository/model"
-	"go-chat/internal/repository/repo"
+	"gorm.io/gorm"
 )
 
 type ArticleAnnex struct {
-	*repo.Base
+	ichat.Repo[model.ArticleAnnex]
 }
 
-func NewArticleAnnex(baseDao *repo.Base) *ArticleAnnex {
-	return &ArticleAnnex{Base: baseDao}
-}
-
-func (a *ArticleAnnex) FindById(ctx context.Context, id int) (*model.ArticleAnnex, error) {
-	item := &model.ArticleAnnex{}
-
-	if err := a.Db.WithContext(ctx).First(item, id).Error; err != nil {
-		return nil, err
-	}
-
-	return item, nil
+func NewArticleAnnex(db *gorm.DB) *ArticleAnnex {
+	return &ArticleAnnex{Repo: ichat.Repo[model.ArticleAnnex]{Db: db}}
 }
 
 func (a *ArticleAnnex) AnnexList(ctx context.Context, uid int, articleId int) ([]*model.ArticleAnnex, error) {
-	items := make([]*model.ArticleAnnex, 0)
-
-	err := a.Db.WithContext(ctx).Model(&model.ArticleAnnex{}).Where("user_id = ? and article_id = ? and status = 1", uid, articleId).Scan(&items).Error
-	if err != nil {
-		return nil, err
-	}
-
-	return items, nil
+	return a.FindAll(ctx, func(db *gorm.DB) {
+		db.Where("user_id = ? and article_id = ? and status = 1", uid, articleId)
+	})
 }
 
 func (a *ArticleAnnex) RecoverList(ctx context.Context, uid int) ([]*model.RecoverAnnexItem, error) {

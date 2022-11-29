@@ -18,7 +18,7 @@ type GroupMember struct {
 	UpdatedAt   time.Time `gorm:"column:updated_at;NOT NULL" json:"updated_at"`                 // 更新时间
 }
 
-func (m *GroupMember) TableName() string {
+func (GroupMember) TableName() string {
 	return "group_member"
 }
 

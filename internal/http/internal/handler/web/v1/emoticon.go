@@ -39,7 +39,7 @@ func (c *Emoticon) CollectList(ctx *ichat.Context) error {
 	)
 
 	if ids := c.service.Dao().GetUserInstallIds(uid); len(ids) > 0 {
-		if items, err := c.service.Dao().FindByIds(ids); err == nil {
+		if items, err := c.service.Dao().FindByIds(ctx.Ctx(), ids); err == nil {
 			for _, item := range items {
 				data := &web.EmoticonListResponse_SysEmoticon{
 					EmoticonId: int32(item.Id),
@@ -140,7 +140,7 @@ func (c *Emoticon) Upload(ctx *ichat.Context) error {
 // SystemList 系统表情包列表
 func (c *Emoticon) SystemList(ctx *ichat.Context) error {
 
-	items, err := c.service.Dao().GetSystemEmoticonList()
+	items, err := c.service.Dao().GetSystemEmoticonList(ctx.Ctx())
 
 	if err != nil {
 		return ctx.ErrorBusiness(err.Error())
@@ -188,7 +188,7 @@ func (c *Emoticon) SetSystemEmoticon(ctx *ichat.Context) error {
 	}
 
 	// 查询表情包是否存在
-	info, err := c.service.Dao().FindById(int(params.EmoticonId))
+	info, err := c.service.Dao().FindById(ctx.Ctx(), int(params.EmoticonId))
 	if err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}
