@@ -35,7 +35,6 @@ func NewMySQLClient(conf *config.Config) *gorm.DB {
 		)
 	}
 
-	fmt.Println(conf.MySQL.GetDsn())
 	db, err := gorm.Open(mysql.New(mysql.Config{
 		DSN:                       conf.MySQL.GetDsn(), // DSN data source name
 		DisableDatetimePrecision:  true,                // 禁用 datetime 精度，MySQL 5.6 之前的数据库不支持

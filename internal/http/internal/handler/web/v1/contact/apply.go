@@ -35,7 +35,7 @@ func (c *Apply) Create(ctx *ichat.Context) error {
 	}
 
 	uid := ctx.UserId()
-	if !c.contactService.Dao().IsFriend(ctx.Context, uid, int(params.FriendId), false) {
+	if c.contactService.Dao().IsFriend(ctx.Context, uid, int(params.FriendId), false) {
 		return ctx.Success(nil)
 	}
 

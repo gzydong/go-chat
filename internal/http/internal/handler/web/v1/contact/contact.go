@@ -159,6 +159,7 @@ func (c *Contact) Detail(ctx *ichat.Context) error {
 	}
 
 	if uid != user.Id {
+		data.FriendStatus = 1
 		if c.service.Dao().IsFriend(ctx.Ctx(), uid, user.Id, false) {
 			data.FriendStatus = 2
 			data.NicknameRemark = c.service.Dao().GetFriendRemark(ctx.Ctx(), uid, user.Id)
