@@ -83,7 +83,7 @@ func (c *SendMessage) onSendText(ctx *ichat.Context) error {
 	return ctx.Success(nil)
 }
 
-// 图片消息
+// nolint 图片消息
 func (c *SendMessage) onSendImage(ctx *ichat.Context) error {
 
 	params := &message.ImageMessageRequest{}
@@ -99,7 +99,7 @@ func (c *SendMessage) onSendImage(ctx *ichat.Context) error {
 	return ctx.Success(nil)
 }
 
-// 文件消息
+// nolint 文件消息
 func (c *SendMessage) onSendFile(ctx *ichat.Context) error {
 
 	params := &message.FileMessageRequest{}

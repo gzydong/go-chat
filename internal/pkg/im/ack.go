@@ -31,6 +31,7 @@ func (a *AckBuffer) add(opt *AckBufferOption) {
 	a.node.nodes[a.node.index(opt.Cid)].Store(opt.AckID, opt)
 }
 
+// nolint
 func (a *AckBuffer) del(opt *AckBufferOption) {
 	a.node.nodes[a.node.index(opt.Cid)].Delete(opt.AckID)
 }

@@ -14,6 +14,7 @@ type ITcpClient interface {
 	Close() error
 }
 
+// nolint
 type TcpClient struct {
 	// 服务端地址
 	address string
