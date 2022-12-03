@@ -94,7 +94,7 @@ func (c *Article) Detail(ctx *ichat.Context) error {
 	}
 
 	files := make([]*web.ArticleDetailResponse_File, 0)
-	items, err := c.articleAnnexService.Dao().AnnexList(ctx.Context, uid, int(params.ArticleId))
+	items, err := c.articleAnnexService.Dao().AnnexList(ctx.Ctx(), uid, int(params.ArticleId))
 	if err == nil {
 		for _, item := range items {
 			files = append(files, &web.ArticleDetailResponse_File{

@@ -35,11 +35,11 @@ func (c *Apply) Create(ctx *ichat.Context) error {
 	}
 
 	uid := ctx.UserId()
-	if c.contactService.Dao().IsFriend(ctx.Context, uid, int(params.FriendId), false) {
+	if c.contactService.Dao().IsFriend(ctx.Ctx(), uid, int(params.FriendId), false) {
 		return ctx.Success(nil)
 	}
 
-	if err := c.service.Create(ctx.Context, &service.ContactApplyCreateOpts{
+	if err := c.service.Create(ctx.Ctx(), &service.ContactApplyCreateOpts{
 		UserId:   ctx.UserId(),
 		Remarks:  params.Remark,
 		FriendId: int(params.FriendId),
@@ -59,7 +59,7 @@ func (c *Apply) Accept(ctx *ichat.Context) error {
 	}
 
 	uid := ctx.UserId()
-	applyInfo, err := c.service.Accept(ctx.Context, &service.ContactApplyAcceptOpts{
+	applyInfo, err := c.service.Accept(ctx.Ctx(), &service.ContactApplyAcceptOpts{
 		Remarks: params.Remark,
 		ApplyId: int(params.ApplyId),
 		UserId:  uid,
@@ -69,7 +69,7 @@ func (c *Apply) Accept(ctx *ichat.Context) error {
 		return ctx.ErrorBusiness(err)
 	}
 
-	_ = c.talkMessageService.SendSysMessage(ctx.Context, &service.SysTextMessageOpt{
+	_ = c.talkMessageService.SendSysMessage(ctx.Ctx(), &service.SysTextMessageOpt{
 		UserId:     applyInfo.UserId,
 		TalkType:   entity.ChatPrivateMode,
 		ReceiverId: applyInfo.FriendId,
@@ -87,7 +87,7 @@ func (c *Apply) Decline(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	if err := c.service.Decline(ctx.Context, &service.ContactApplyDeclineOpts{
+	if err := c.service.Decline(ctx.Ctx(), &service.ContactApplyDeclineOpts{
 		UserId:  ctx.UserId(),
 		Remarks: params.Remark,
 		ApplyId: int(params.ApplyId),
@@ -101,7 +101,7 @@ func (c *Apply) Decline(ctx *ichat.Context) error {
 // List 获取联系人申请列表
 func (c *Apply) List(ctx *ichat.Context) error {
 
-	list, err := c.service.List(ctx.Context, ctx.UserId(), 1, 1000)
+	list, err := c.service.List(ctx.Ctx(), ctx.UserId(), 1, 1000)
 	if err != nil {
 		return ctx.Error(err.Error())
 	}
@@ -119,7 +119,7 @@ func (c *Apply) List(ctx *ichat.Context) error {
 		})
 	}
 
-	c.service.ClearApplyUnreadNum(ctx.Context, ctx.UserId())
+	c.service.ClearApplyUnreadNum(ctx.Ctx(), ctx.UserId())
 
 	return ctx.Success(&web.ContactApplyListResponse{
 		Items: items,

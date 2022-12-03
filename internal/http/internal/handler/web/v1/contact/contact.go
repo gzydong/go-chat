@@ -31,13 +31,9 @@ func NewContact(service *service.ContactService, wsClient *cache.ClientStorage, 
 // List 联系人列表
 func (c *Contact) List(ctx *ichat.Context) error {
 
-	list, err := c.service.List(ctx.Context, ctx.UserId())
+	list, err := c.service.List(ctx.Ctx(), ctx.UserId())
 	if err != nil {
 		return ctx.ErrorBusiness(err.Error())
-	}
-
-	for _, item := range list {
-		item.IsOnline = strutil.BoolToInt(c.wsClient.IsOnline(ctx.Context, entity.ImChannelChat, strconv.Itoa(item.Id)))
 	}
 
 	items := make([]*web.ContactListResponse_Item, 0, len(list))
@@ -49,7 +45,7 @@ func (c *Contact) List(ctx *ichat.Context) error {
 			Motto:    item.Motto,
 			Avatar:   item.Avatar,
 			Remark:   item.Remark,
-			IsOnline: int32(strutil.BoolToInt(c.wsClient.IsOnline(ctx.Context, entity.ImChannelChat, strconv.Itoa(item.Id)))),
+			IsOnline: int32(strutil.BoolToInt(c.wsClient.IsOnline(ctx.Ctx(), entity.ImChannelChat, strconv.Itoa(item.Id)))),
 		})
 	}
 
@@ -65,12 +61,12 @@ func (c *Contact) Delete(ctx *ichat.Context) error {
 	}
 
 	uid := ctx.UserId()
-	if err := c.service.Delete(ctx.Context, uid, int(params.FriendId)); err != nil {
+	if err := c.service.Delete(ctx.Ctx(), uid, int(params.FriendId)); err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}
 
 	// 解除好友关系后需添加一条聊天记录
-	_ = c.talkMessageService.SendSysMessage(ctx.Context, &service.SysTextMessageOpt{
+	_ = c.talkMessageService.SendSysMessage(ctx.Ctx(), &service.SysTextMessageOpt{
 		UserId:     uid,
 		TalkType:   entity.ChatPrivateMode,
 		ReceiverId: int(params.FriendId),
@@ -79,7 +75,7 @@ func (c *Contact) Delete(ctx *ichat.Context) error {
 
 	// 删除聊天会话
 	sid := c.talkListService.Dao().FindBySessionId(uid, int(params.FriendId), entity.ChatPrivateMode)
-	if err := c.talkListService.Delete(ctx.Context, ctx.UserId(), sid); err != nil {
+	if err := c.talkListService.Delete(ctx.Ctx(), ctx.UserId(), sid); err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}
 
@@ -121,7 +117,7 @@ func (c *Contact) EditRemark(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	if err := c.service.EditRemark(ctx.Context, ctx.UserId(), int(params.FriendId), params.Remark); err != nil {
+	if err := c.service.EditRemark(ctx.Ctx(), ctx.UserId(), int(params.FriendId), params.Remark); err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}
 

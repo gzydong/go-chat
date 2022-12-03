@@ -174,10 +174,10 @@ func (c *Emoticon) SetSystemEmoticon(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	if !c.redisLock.Lock(ctx.Context, key, 5) {
+	if !c.redisLock.Lock(ctx.Ctx(), key, 5) {
 		return ctx.ErrorBusiness("请求频繁！")
 	}
-	defer c.redisLock.UnLock(ctx.Context, key)
+	defer c.redisLock.UnLock(ctx.Ctx(), key)
 
 	if params.Type == 2 {
 		if err = c.service.RemoveUserSysEmoticon(uid, int(params.EmoticonId)); err != nil {

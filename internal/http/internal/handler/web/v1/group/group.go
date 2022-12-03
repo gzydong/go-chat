@@ -67,7 +67,7 @@ func (c *Group) Dismiss(ctx *ichat.Context) error {
 		return ctx.ErrorBusiness("群组解散失败！")
 	}
 
-	_ = c.messageService.SendSysMessage(ctx.Context, &service.SysTextMessageOpt{
+	_ = c.messageService.SendSysMessage(ctx.Ctx(), &service.SysTextMessageOpt{
 		UserId:     uid,
 		TalkType:   entity.ChatGroupMode,
 		ReceiverId: int(params.GroupId),
@@ -86,11 +86,11 @@ func (c *Group) Invite(ctx *ichat.Context) error {
 	}
 
 	key := fmt.Sprintf("group-join:%d", params.GroupId)
-	if !c.redisLock.Lock(ctx.Context, key, 20) {
+	if !c.redisLock.Lock(ctx.Ctx(), key, 20) {
 		return ctx.ErrorBusiness("网络异常，请稍后再试！")
 	}
 
-	defer c.redisLock.UnLock(ctx.Context, key)
+	defer c.redisLock.UnLock(ctx.Ctx(), key)
 
 	uid := ctx.UserId()
 	uids := sliceutil.Unique(sliceutil.ParseIds(params.Ids))
@@ -103,7 +103,7 @@ func (c *Group) Invite(ctx *ichat.Context) error {
 		return ctx.ErrorBusiness("非群组成员，无权邀请好友！")
 	}
 
-	if err := c.service.InviteMembers(ctx.Context, &service.InviteGroupMembersOpt{
+	if err := c.service.InviteMembers(ctx.Ctx(), &service.InviteGroupMembersOpt{
 		UserId:    uid,
 		GroupId:   int(params.GroupId),
 		MemberIds: uids,
@@ -129,7 +129,7 @@ func (c *Group) SignOut(ctx *ichat.Context) error {
 
 	// 删除聊天会话
 	sid := c.talkListService.Dao().FindBySessionId(uid, int(params.GroupId), entity.ChatGroupMode)
-	_ = c.talkListService.Delete(ctx.Context, ctx.UserId(), sid)
+	_ = c.talkListService.Delete(ctx.Ctx(), ctx.UserId(), sid)
 
 	return ctx.Success(nil)
 }
@@ -156,7 +156,7 @@ func (c *Group) Setting(ctx *ichat.Context) error {
 		return ctx.ErrorBusiness(err.Error())
 	}
 
-	_ = c.messageService.SendSysMessage(ctx.Context, &service.SysTextMessageOpt{
+	_ = c.messageService.SendSysMessage(ctx.Ctx(), &service.SysTextMessageOpt{
 		UserId:     uid,
 		TalkType:   entity.ChatGroupMode,
 		ReceiverId: int(params.GroupId),
@@ -255,7 +255,7 @@ func (c *Group) GetInviteFriends(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	items, err := c.contactService.List(ctx.Context, ctx.UserId())
+	items, err := c.contactService.List(ctx.Ctx(), ctx.UserId())
 	if err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}
@@ -327,7 +327,7 @@ func (c *Group) OvertList(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	list, err := c.service.Dao().SearchOvertList(ctx.Context, params.Name, int(params.Page), 20)
+	list, err := c.service.Dao().SearchOvertList(ctx.Ctx(), params.Name, int(params.Page), 20)
 	if err != nil {
 		return ctx.ErrorBusiness("查询异常！")
 	}

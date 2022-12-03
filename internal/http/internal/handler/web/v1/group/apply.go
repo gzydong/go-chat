@@ -56,7 +56,7 @@ func (c *Apply) Agree(ctx *ichat.Context) error {
 	}
 
 	if !c.memberServ.Dao().IsMember(apply.GroupId, apply.UserId, false) {
-		err := c.groupServ.InviteMembers(ctx.Context, &service.InviteGroupMembersOpt{
+		err := c.groupServ.InviteMembers(ctx.Ctx(), &service.InviteGroupMembersOpt{
 			UserId:    uid,
 			GroupId:   apply.GroupId,
 			MemberIds: []int{apply.UserId},
@@ -81,7 +81,7 @@ func (c *Apply) Delete(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	err := c.applyServ.Delete(ctx.Context, int(params.ApplyId), ctx.UserId())
+	err := c.applyServ.Delete(ctx.Ctx(), int(params.ApplyId), ctx.UserId())
 	if err != nil {
 		return ctx.ErrorBusiness("创建群聊失败，请稍后再试！")
 	}

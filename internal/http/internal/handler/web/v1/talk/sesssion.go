@@ -131,7 +131,7 @@ func (c *Session) Delete(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	if err := c.talkListService.Delete(ctx.Context, ctx.UserId(), int(params.ListId)); err != nil {
+	if err := c.talkListService.Delete(ctx.Ctx(), ctx.UserId(), int(params.ListId)); err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}
 
@@ -146,7 +146,7 @@ func (c *Session) Top(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	if err := c.talkListService.Top(ctx.Context, &service.TalkSessionTopOpt{
+	if err := c.talkListService.Top(ctx.Ctx(), &service.TalkSessionTopOpt{
 		UserId: ctx.UserId(),
 		Id:     int(params.ListId),
 		Type:   int(params.Type),
@@ -165,7 +165,7 @@ func (c *Session) Disturb(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	if err := c.talkListService.Disturb(ctx.Context, &service.TalkSessionDisturbOpt{
+	if err := c.talkListService.Disturb(ctx.Ctx(), &service.TalkSessionDisturbOpt{
 		UserId:     ctx.UserId(),
 		TalkType:   int(params.TalkType),
 		ReceiverId: int(params.ReceiverId),
@@ -225,7 +225,7 @@ func (c *Session) List(ctx *ichat.Context) error {
 			value.Name = item.Nickname
 			value.Avatar = item.UserAvatar
 			value.RemarkName = remarks[item.ReceiverId]
-			value.IsOnline = int32(strutil.BoolToInt(c.wsClient.IsOnline(ctx.Context, entity.ImChannelChat, strconv.Itoa(int(value.ReceiverId)))))
+			value.IsOnline = int32(strutil.BoolToInt(c.wsClient.IsOnline(ctx.Ctx(), entity.ImChannelChat, strconv.Itoa(int(value.ReceiverId)))))
 		} else {
 			value.Name = item.GroupName
 			value.Avatar = item.GroupAvatar

@@ -74,7 +74,7 @@ func (c *Notice) Delete(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	if err := c.service.Delete(ctx.Context, int(params.GroupId), int(params.NoticeId)); err != nil {
+	if err := c.service.Delete(ctx.Ctx(), int(params.GroupId), int(params.NoticeId)); err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}
 
@@ -94,7 +94,7 @@ func (c *Notice) List(ctx *ichat.Context) error {
 		return ctx.ErrorBusiness("无获取数据权限！")
 	}
 
-	items, _ := c.service.Dao().GetListAll(ctx.Context, int(params.GroupId))
+	items, _ := c.service.Dao().GetListAll(ctx.Ctx(), int(params.GroupId))
 
 	rows := make([]*web.GroupNoticeListResponse_Item, 0)
 	for i := 0; i < len(items); i++ {
