@@ -148,7 +148,7 @@ func (c *Auth) Forget(ctx *ichat.Context) error {
 
 	c.smsService.DeleteSmsCode(ctx.Ctx(), entity.SmsForgetAccountChannel, params.Mobile)
 
-	return ctx.Success(web.AuthForgetResponse{})
+	return ctx.Success(&web.AuthForgetResponse{})
 }
 
 func (c *Auth) token(uid int) string {
