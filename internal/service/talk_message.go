@@ -414,7 +414,7 @@ func (s *TalkMessageService) afterHandle(ctx context.Context, record *model.Talk
 	} else if record.TalkType == entity.ChatGroupMode {
 
 		// todo 需要加缓存
-		ids := s.groupMemberRepo.GetMemberIds(record.ReceiverId)
+		ids := s.groupMemberRepo.GetMemberIds(ctx, record.ReceiverId)
 		for _, uid := range ids {
 
 			if uid == record.UserId {

@@ -32,7 +32,7 @@ func (c *Notice) CreateAndUpdate(ctx *ichat.Context) error {
 
 	uid := ctx.UserId()
 
-	if !c.member.Dao().IsLeader(int(params.GroupId), uid) {
+	if !c.member.Dao().IsLeader(ctx.Ctx(), int(params.GroupId), uid) {
 		return ctx.ErrorBusiness("无权限操作")
 	}
 
@@ -90,7 +90,7 @@ func (c *Notice) List(ctx *ichat.Context) error {
 	}
 
 	// 判断是否是群成员
-	if !c.member.Dao().IsMember(int(params.GroupId), ctx.UserId(), true) {
+	if !c.member.Dao().IsMember(ctx.Ctx(), int(params.GroupId), ctx.UserId(), true) {
 		return ctx.ErrorBusiness("无获取数据权限！")
 	}
 

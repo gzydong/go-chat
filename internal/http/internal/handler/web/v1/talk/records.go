@@ -198,7 +198,7 @@ func (c *Records) Download(ctx *ichat.Context) error {
 				return ctx.Forbidden("无访问权限！")
 			}
 		} else {
-			if !c.groupMemberService.Dao().IsMember(resp.Record.ReceiverId, uid, false) {
+			if !c.groupMemberService.Dao().IsMember(ctx.Ctx(), resp.Record.ReceiverId, uid, false) {
 				return ctx.Forbidden("无访问权限！")
 			}
 		}

@@ -260,7 +260,7 @@ func (s *GroupService) InviteMembers(ctx context.Context, opts *InviteGroupMembe
 	)
 
 	m := make(map[int]struct{})
-	for _, value := range s.memberDao.GetMemberIds(opts.GroupId) {
+	for _, value := range s.memberDao.GetMemberIds(ctx, opts.GroupId) {
 		m[value] = struct{}{}
 	}
 

@@ -170,7 +170,7 @@ func (s *TalkRecordsService) GetForwardRecords(ctx context.Context, uid int, rec
 			return nil, entity.ErrPermissionDenied
 		}
 	} else if record.TalkType == entity.ChatGroupMode {
-		if !s.groupMemberRepo.IsMember(record.ReceiverId, uid, true) {
+		if !s.groupMemberRepo.IsMember(ctx, record.ReceiverId, uid, true) {
 			return nil, entity.ErrPermissionDenied
 		}
 	} else {

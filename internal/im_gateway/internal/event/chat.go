@@ -33,7 +33,7 @@ func (d *ChatEvent) OnOpen(client im.IClient) {
 	ctx := context.Background()
 
 	// 1.查询用户群列表
-	ids := d.memberService.Dao().GetUserGroupIds(client.Uid())
+	ids := d.memberService.Dao().GetUserGroupIds(context.Background(), client.Uid())
 
 	// 2.客户端加入群房间
 	for _, id := range ids {
@@ -72,7 +72,7 @@ func (d *ChatEvent) OnClose(client im.IClient, code int, text string) {
 	// 1.判断用户是否是多点登录
 
 	// 2.查询用户群列表
-	ids := d.memberService.Dao().GetUserGroupIds(client.Uid())
+	ids := d.memberService.Dao().GetUserGroupIds(context.Background(), client.Uid())
 
 	// 3.客户端退出群房间
 	for _, id := range ids {

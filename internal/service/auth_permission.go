@@ -46,7 +46,7 @@ func (a *AuthPermissionService) IsAuth(ctx context.Context, prem *AuthPermission
 			return false
 		}
 
-		return a.groupMemberDao.IsMember(prem.ReceiverId, prem.UserId, true)
+		return a.groupMemberDao.IsMember(ctx, prem.ReceiverId, prem.UserId, true)
 	}
 
 	return false

@@ -41,7 +41,7 @@ func (s *TalkService) RemoveRecords(ctx context.Context, opts *TalkMessageDelete
 
 		s.db.Model(&model.TalkRecords{}).Where("id in ?", ids).Where("talk_type = ?", entity.ChatPrivateMode).Where(subQuery).Pluck("id", &findIds)
 	} else {
-		if !s.groupMemberRepo.IsMember(opts.ReceiverId, opts.UserId, false) {
+		if !s.groupMemberRepo.IsMember(ctx, opts.ReceiverId, opts.UserId, false) {
 			return entity.ErrPermissionDenied
 		}
 
@@ -89,7 +89,7 @@ func (s *TalkService) CollectRecord(ctx context.Context, uid int, recordId int) 
 			return entity.ErrPermissionDenied
 		}
 	} else if record.TalkType == entity.ChatGroupMode {
-		if !s.groupMemberRepo.IsMember(record.ReceiverId, uid, true) {
+		if !s.groupMemberRepo.IsMember(ctx, record.ReceiverId, uid, true) {
 			return entity.ErrPermissionDenied
 		}
 	}

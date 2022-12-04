@@ -51,11 +51,11 @@ func (c *Apply) Agree(ctx *ichat.Context) error {
 		return ctx.ErrorBusiness("数据不存在！")
 	}
 
-	if !c.memberServ.Dao().IsLeader(apply.GroupId, uid) {
+	if !c.memberServ.Dao().IsLeader(ctx.Ctx(), apply.GroupId, uid) {
 		return ctx.Forbidden("无权限访问")
 	}
 
-	if !c.memberServ.Dao().IsMember(apply.GroupId, apply.UserId, false) {
+	if !c.memberServ.Dao().IsMember(ctx.Ctx(), apply.GroupId, apply.UserId, false) {
 		err := c.groupServ.InviteMembers(ctx.Ctx(), &service.InviteGroupMembersOpt{
 			UserId:    uid,
 			GroupId:   apply.GroupId,
@@ -96,7 +96,7 @@ func (c *Apply) List(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	if !c.memberServ.Dao().IsLeader(int(params.GroupId), ctx.UserId()) {
+	if !c.memberServ.Dao().IsLeader(ctx.Ctx(), int(params.GroupId), ctx.UserId()) {
 		return ctx.Forbidden("无权限访问")
 	}
 

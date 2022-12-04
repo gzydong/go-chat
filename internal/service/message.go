@@ -335,7 +335,7 @@ func (m *MessageService) SendVote(ctx context.Context, uid int, req *message.Vot
 		options[fmt.Sprintf("%c", 65+i)] = value
 	}
 
-	num := m.groupMemberRepo.CountMemberTotal(int(req.Receiver.ReceiverId))
+	num := m.groupMemberRepo.CountMemberTotal(ctx, int(req.Receiver.ReceiverId))
 
 	err := m.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 
@@ -545,7 +545,7 @@ func (m *MessageService) afterHandle(ctx context.Context, record *model.TalkReco
 	} else if record.TalkType == entity.ChatGroupMode {
 
 		// todo 需要加缓存
-		ids := m.groupMemberRepo.GetMemberIds(record.ReceiverId)
+		ids := m.groupMemberRepo.GetMemberIds(ctx, record.ReceiverId)
 		for _, uid := range ids {
 
 			if uid == record.UserId {

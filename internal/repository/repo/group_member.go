@@ -19,9 +19,9 @@ func NewGroupMember(db *gorm.DB, relation *cache.Relation) *GroupMember {
 }
 
 // IsMaster 判断是否是群主
-func (g *GroupMember) IsMaster(gid, uid int) bool {
+func (g *GroupMember) IsMaster(ctx context.Context, gid, uid int) bool {
 
-	exist, err := g.QueryExist(context.Background(), "group_id = ? and user_id = ? and leader = 2 and is_quit = 0", gid, uid)
+	exist, err := g.QueryExist(ctx, "group_id = ? and user_id = ? and leader = 2 and is_quit = 0", gid, uid)
 	if err != nil {
 		return false
 	}
@@ -30,9 +30,9 @@ func (g *GroupMember) IsMaster(gid, uid int) bool {
 }
 
 // IsLeader 判断是否是群主或管理员
-func (g *GroupMember) IsLeader(gid, uid int) bool {
+func (g *GroupMember) IsLeader(ctx context.Context, gid, uid int) bool {
 
-	exist, err := g.QueryExist(context.Background(), "group_id = ? and user_id = ? and leader in (1,2) and is_quit = 0", gid, uid)
+	exist, err := g.QueryExist(ctx, "group_id = ? and user_id = ? and leader in (1,2) and is_quit = 0", gid, uid)
 	if err != nil {
 		return false
 	}
@@ -41,58 +41,59 @@ func (g *GroupMember) IsLeader(gid, uid int) bool {
 }
 
 // IsMember 检测是属于群成员
-func (g *GroupMember) IsMember(gid, uid int, cache bool) bool {
-	if cache && g.relation.IsGroupRelation(context.Background(), uid, gid) == nil {
+func (g *GroupMember) IsMember(ctx context.Context, gid, uid int, cache bool) bool {
+
+	if cache && g.relation.IsGroupRelation(ctx, uid, gid) == nil {
 		return true
 	}
 
-	exist, err := g.QueryExist(context.Background(), "group_id = ? and user_id = ? and is_quit = 0", gid, uid)
+	exist, err := g.QueryExist(ctx, "group_id = ? and user_id = ? and is_quit = 0", gid, uid)
 	if err != nil {
 		return false
 	}
 
 	if exist {
-		g.relation.SetGroupRelation(context.Background(), uid, gid)
+		g.relation.SetGroupRelation(ctx, uid, gid)
 	}
 
 	return exist
 }
 
 // GetMemberIds 获取所有群成员用户ID
-func (g *GroupMember) GetMemberIds(groupId int) []int {
+func (g *GroupMember) GetMemberIds(ctx context.Context, groupId int) []int {
 
 	var ids []int
-	_ = g.Model(context.Background()).Select("user_id").Where("group_id = ? and is_quit = ?", groupId, 0).Scan(&ids)
+	_ = g.Model(ctx).Select("user_id").Where("group_id = ? and is_quit = ?", groupId, 0).Scan(&ids)
 
 	return ids
 }
 
 // GetUserGroupIds 获取所有群成员ID
-func (g *GroupMember) GetUserGroupIds(uid int) []int {
+func (g *GroupMember) GetUserGroupIds(ctx context.Context, uid int) []int {
 
 	var ids []int
-	_ = g.Model(context.Background()).Where("user_id = ? and is_quit = ?", uid, 0).Pluck("group_id", &ids)
+	_ = g.Model(ctx).Where("user_id = ? and is_quit = ?", uid, 0).Pluck("group_id", &ids)
 
 	return ids
 }
 
 // CountMemberTotal 统计群成员总数
-func (g *GroupMember) CountMemberTotal(gid int) int64 {
-	count, _ := g.QueryCount(context.Background(), "group_id = ? and is_quit = 0", gid)
+func (g *GroupMember) CountMemberTotal(ctx context.Context, gid int) int64 {
+	count, _ := g.QueryCount(ctx, "group_id = ? and is_quit = 0", gid)
 	return count
 }
 
 // GetMemberRemark 获取指定群成员的备注信息
-func (g *GroupMember) GetMemberRemark(groupId int, userId int) string {
+func (g *GroupMember) GetMemberRemark(ctx context.Context, groupId int, userId int) string {
 
 	var remarks string
-	g.Model(context.Background()).Select("user_card").Where("group_id = ? and user_id = ?", groupId, userId).Scan(&remarks)
+	g.Model(ctx).Select("user_card").Where("group_id = ? and user_id = ?", groupId, userId).Scan(&remarks)
 
 	return remarks
 }
 
 // GetMembers 获取群组成员列表
-func (g *GroupMember) GetMembers(groupId int) []*model.MemberItem {
+func (g *GroupMember) GetMembers(ctx context.Context, groupId int) []*model.MemberItem {
 	fields := []string{
 		"group_member.id",
 		"group_member.leader",
@@ -105,7 +106,7 @@ func (g *GroupMember) GetMembers(groupId int) []*model.MemberItem {
 		"users.motto",
 	}
 
-	tx := g.Db.Table("group_member")
+	tx := g.Db.WithContext(ctx).Table("group_member")
 	tx.Joins("left join users on users.id = group_member.user_id")
 	tx.Where("group_member.group_id = ? and group_member.is_quit = ?", groupId, 0)
 	tx.Order("group_member.leader desc")
