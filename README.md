@@ -26,7 +26,7 @@ Lumen IM 是一个网页版即时聊天系统，界面简约、美观、操作�
 1. 下载源码
 
 ```git
-$ git clone git@github.com:gzydong/go-chat.git
+$ git clone https://github.com/gzydong/go-chat.git
 ```
 
 1. 拷贝项目根目录下 config.example.yaml 文件为 config.yaml 并正确配置相关参数

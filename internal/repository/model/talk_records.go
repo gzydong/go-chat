@@ -19,6 +19,10 @@ type TalkRecords struct {
 	UpdatedAt  time.Time `gorm:"column:updated_at;NOT NULL" json:"updated_at"`             // 更新时间
 }
 
+func (TalkRecords) TableName() string {
+	return "talk_records"
+}
+
 type QueryTalkRecordsItem struct {
 	Id         int       `json:"id"`
 	Sequence   int64     `json:"sequence"`

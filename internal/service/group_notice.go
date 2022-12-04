@@ -4,7 +4,6 @@ import (
 	"context"
 	"time"
 
-	"go-chat/internal/entity"
 	"go-chat/internal/pkg/timeutil"
 	"go-chat/internal/repository/model"
 	"go-chat/internal/repository/repo"
@@ -49,28 +48,25 @@ func (s *GroupNoticeService) Create(ctx context.Context, opts *GroupNoticeEditOp
 
 // Update 更新群公告
 func (s *GroupNoticeService) Update(ctx context.Context, opts *GroupNoticeEditOpt) error {
-	_, err := s.repo.BaseUpdate(&model.GroupNotice{}, entity.MapStrAny{
-		"id":       opts.NoticeId,
-		"group_id": opts.GroupId,
-	}, entity.MapStrAny{
+
+	_, err := s.repo.Updates(ctx, map[string]interface{}{
 		"title":      opts.Title,
 		"content":    opts.Content,
 		"is_top":     opts.IsTop,
 		"is_confirm": opts.IsConfirm,
 		"updated_at": time.Now(),
-	})
+	}, "id = ? and group_id = ?", opts.NoticeId, opts.GroupId)
 
 	return err
 }
 
 func (s *GroupNoticeService) Delete(ctx context.Context, groupId, noticeId int) error {
-	_, err := s.repo.BaseUpdate(&model.GroupNotice{}, entity.MapStrAny{
-		"id":       noticeId,
-		"group_id": groupId,
-	}, entity.MapStrAny{
+
+	_, err := s.repo.Updates(ctx, map[string]interface{}{
 		"is_delete":  1,
 		"deleted_at": timeutil.DateTime(),
-	})
+		"updated_at": time.Now(),
+	}, "id = ? and group_id = ?", noticeId, groupId)
 
 	return err
 }

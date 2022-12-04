@@ -23,11 +23,11 @@ func NewOrganize(deptServ *organize.DeptService, organizeServ *organize.Organize
 func (o *Organize) DepartmentList(ctx *ichat.Context) error {
 
 	uid := ctx.UserId()
-	if isOk, _ := o.organizeServ.Dao().IsQiyeMember(uid); !isOk {
+	if isOk, _ := o.organizeServ.Dao().IsQiyeMember(ctx.Ctx(), uid); !isOk {
 		return ctx.Success(&web.OrganizeDepartmentListResponse{})
 	}
 
-	list, err := o.deptServ.Dao().FindAll()
+	list, err := o.deptServ.Dao().List(ctx.Ctx())
 	if err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}
@@ -48,16 +48,16 @@ func (o *Organize) DepartmentList(ctx *ichat.Context) error {
 func (o *Organize) PersonnelList(ctx *ichat.Context) error {
 
 	uid := ctx.UserId()
-	if isOk, _ := o.organizeServ.Dao().IsQiyeMember(uid); !isOk {
+	if isOk, _ := o.organizeServ.Dao().IsQiyeMember(ctx.Ctx(), uid); !isOk {
 		return ctx.Success(&web.OrganizePersonnelListResponse{})
 	}
 
-	list, err := o.organizeServ.Dao().FindAll()
+	list, err := o.organizeServ.Dao().List()
 	if err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}
 
-	departments, err := o.deptServ.Dao().FindAll()
+	departments, err := o.deptServ.Dao().List(ctx.Ctx())
 	if err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}
@@ -67,7 +67,7 @@ func (o *Organize) PersonnelList(ctx *ichat.Context) error {
 		deptHash[department.DeptId] = department
 	}
 
-	positions, err := o.positionServ.Dao().FindAll()
+	positions, err := o.positionServ.Dao().List(ctx.Ctx())
 	if err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}

@@ -3,15 +3,17 @@ package repo
 import (
 	"context"
 
+	"go-chat/internal/pkg/ichat"
 	"go-chat/internal/repository/model"
+	"gorm.io/gorm"
 )
 
 type GroupNotice struct {
-	*Base
+	ichat.Repo[model.GroupNotice]
 }
 
-func NewGroupNotice(base *Base) *GroupNotice {
-	return &GroupNotice{Base: base}
+func NewGroupNotice(db *gorm.DB) *GroupNotice {
+	return &GroupNotice{Repo: ichat.NewRepo[model.GroupNotice](db)}
 }
 
 func (g *GroupNotice) GetListAll(ctx context.Context, groupId int) ([]*model.SearchNoticeItem, error) {

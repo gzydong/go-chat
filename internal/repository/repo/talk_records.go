@@ -3,24 +3,17 @@ package repo
 import (
 	"context"
 
+	"go-chat/internal/pkg/ichat"
 	"go-chat/internal/repository/model"
+	"gorm.io/gorm"
 )
 
 type TalkRecords struct {
-	*Base
+	ichat.Repo[model.TalkRecords]
 }
 
-func NewTalkRecords(base *Base) *TalkRecords {
-	return &TalkRecords{Base: base}
-}
-
-// GetChatRecords 查询对话记录
-func (t *TalkRecords) GetChatRecords() {
-
-}
-
-func (t *TalkRecords) SearchChatRecords() {
-
+func NewTalkRecords(db *gorm.DB) *TalkRecords {
+	return &TalkRecords{Repo: ichat.NewRepo[model.TalkRecords](db)}
 }
 
 type FindFileRecordData struct {

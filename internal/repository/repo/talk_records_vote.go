@@ -3,13 +3,15 @@ package repo
 import (
 	"context"
 
+	"go-chat/internal/pkg/ichat"
 	"go-chat/internal/pkg/jsonutil"
 	"go-chat/internal/repository/cache"
 	"go-chat/internal/repository/model"
+	"gorm.io/gorm"
 )
 
 type TalkRecordsVote struct {
-	*Base
+	ichat.Repo[model.TalkRecordsVote]
 	cache *cache.TalkVote
 }
 
@@ -18,8 +20,8 @@ type VoteStatistics struct {
 	Options map[string]int `json:"options"`
 }
 
-func NewTalkRecordsVote(base *Base, cache *cache.TalkVote) *TalkRecordsVote {
-	return &TalkRecordsVote{Base: base, cache: cache}
+func NewTalkRecordsVote(db *gorm.DB, cache *cache.TalkVote) *TalkRecordsVote {
+	return &TalkRecordsVote{Repo: ichat.NewRepo[model.TalkRecordsVote](db), cache: cache}
 }
 
 func (t *TalkRecordsVote) GetVoteAnswerUser(ctx context.Context, vid int) ([]int, error) {

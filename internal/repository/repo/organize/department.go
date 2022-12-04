@@ -1,30 +1,23 @@
 package organize
 
 import (
+	"context"
+
+	"go-chat/internal/pkg/ichat"
 	"go-chat/internal/repository/model"
-	"go-chat/internal/repository/repo"
+	"gorm.io/gorm"
 )
 
 type Department struct {
-	*repo.Base
+	ichat.Repo[model.OrganizeDept]
 }
 
-func NewDepartment(base *repo.Base) *Department {
-	return &Department{Base: base}
+func NewDepartment(db *gorm.DB) *Department {
+	return &Department{Repo: ichat.NewRepo[model.OrganizeDept](db)}
 }
 
-type IDept interface {
-	FindAll() ([]*model.OrganizeDept, error)
-}
-
-func (d *Department) FindAll() ([]*model.OrganizeDept, error) {
-
-	items := make([]*model.OrganizeDept, 0)
-
-	err := d.Db.Model(model.OrganizeDept{}).Where("is_deleted = 1").Order("parent_id asc,order_num asc").Scan(&items).Error
-	if err != nil {
-		return nil, err
-	}
-
-	return items, nil
+func (d *Department) List(ctx context.Context) ([]*model.OrganizeDept, error) {
+	return d.FindAll(ctx, func(db *gorm.DB) {
+		db.Where("is_deleted = 1").Order("parent_id asc,order_num asc")
+	})
 }

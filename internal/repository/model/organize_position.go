@@ -13,6 +13,6 @@ type OrganizePost struct {
 	UpdatedAt  time.Time `gorm:"column:updated_at;NOT NULL" json:"updated_at"`                     // 更新时间
 }
 
-func (o *OrganizePost) TableName() string {
+func (OrganizePost) TableName() string {
 	return "organize_position"
 }

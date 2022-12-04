@@ -29,7 +29,7 @@ type AuthPermission struct {
 func (a *AuthPermissionService) IsAuth(ctx context.Context, prem *AuthPermission) bool {
 	if prem.TalkType == entity.ChatPrivateMode {
 		// 这里需要判断双方是否都是企业成员，如果是则无需添加好友即可聊天
-		if isOk, err := a.organizeDao.IsQiyeMember(prem.UserId, prem.ReceiverId); err != nil {
+		if isOk, err := a.organizeDao.IsQiyeMember(ctx, prem.UserId, prem.ReceiverId); err != nil {
 			logger.Error("[AuthPermission IsAuth] 查询数据异常 err: ", err)
 			return false
 		} else if isOk {

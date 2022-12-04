@@ -15,6 +15,10 @@ type TalkSession struct {
 	UpdatedAt  time.Time `gorm:"column:updated_at;NOT NULL" json:"updated_at"`             // 更新时间
 }
 
+func (TalkSession) TableName() string {
+	return "talk_session"
+}
+
 type SearchTalkSession struct {
 	Id          int       `json:"id" `
 	TalkType    int       `json:"talk_type" `

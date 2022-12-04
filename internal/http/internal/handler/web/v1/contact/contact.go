@@ -134,7 +134,7 @@ func (c *Contact) Detail(ctx *ichat.Context) error {
 
 	uid := ctx.UserId()
 
-	user, err := c.userService.Dao().FindById(int(params.UserId))
+	user, err := c.userService.Dao().FindById(ctx.Ctx(), int(params.UserId))
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return ctx.ErrorBusiness("用户不存在！")
@@ -160,7 +160,7 @@ func (c *Contact) Detail(ctx *ichat.Context) error {
 			data.FriendStatus = 2
 			data.NicknameRemark = c.service.Dao().GetFriendRemark(ctx.Ctx(), uid, user.Id)
 		} else {
-			isOk, _ := c.organizeService.Dao().IsQiyeMember(uid, user.Id)
+			isOk, _ := c.organizeService.Dao().IsQiyeMember(ctx.Ctx(), uid, user.Id)
 			if isOk {
 				data.FriendStatus = 2
 			}

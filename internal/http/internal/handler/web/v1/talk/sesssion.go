@@ -90,7 +90,7 @@ func (c *Session) Create(ctx *ichat.Context) error {
 		item.UnreadNum = int32(c.unreadTalkCache.Get(ctx.Ctx(), 1, int(params.ReceiverId), uid))
 		item.RemarkName = c.contactService.Dao().GetFriendRemark(ctx.Ctx(), uid, int(params.ReceiverId))
 
-		if user, err := c.userService.Dao().FindById(result.ReceiverId); err == nil {
+		if user, err := c.userService.Dao().FindById(ctx.Ctx(), result.ReceiverId); err == nil {
 			item.Name = user.Nickname
 			item.Avatar = user.Avatar
 		}

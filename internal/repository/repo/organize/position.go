@@ -1,29 +1,23 @@
 package organize
 
 import (
+	"context"
+
+	"go-chat/internal/pkg/ichat"
 	"go-chat/internal/repository/model"
-	"go-chat/internal/repository/repo"
+	"gorm.io/gorm"
 )
 
-type IPosition interface {
-	FindAll() ([]*model.OrganizePost, error)
-}
-
 type Position struct {
-	*repo.Base
+	ichat.Repo[model.OrganizePost]
 }
 
-func NewPosition(base *repo.Base) *Position {
-	return &Position{Base: base}
+func NewPosition(db *gorm.DB) *Position {
+	return &Position{Repo: ichat.NewRepo[model.OrganizePost](db)}
 }
 
-func (p *Position) FindAll() ([]*model.OrganizePost, error) {
-	items := make([]*model.OrganizePost, 0)
-
-	err := p.Db.Model(model.OrganizePost{}).Where("status = 1").Order("sort asc").Scan(&items).Error
-	if err != nil {
-		return nil, err
-	}
-
-	return items, nil
+func (p *Position) List(ctx context.Context) ([]*model.OrganizePost, error) {
+	return p.FindAll(ctx, func(db *gorm.DB) {
+		db.Where("status = 1").Order("sort asc")
+	})
 }

@@ -43,7 +43,7 @@ func (c *Message) authority(ctx *ichat.Context, opt *AuthorityOpts) error {
 
 	if opt.TalkType == entity.ChatPrivateMode {
 		// 这里需要判断双方是否都是企业成员，如果是则无需添加好友即可聊天
-		if isOk, err := c.organizeService.Dao().IsQiyeMember(opt.UserId, opt.ReceiverId); err != nil {
+		if isOk, err := c.organizeService.Dao().IsQiyeMember(ctx.Ctx(), opt.UserId, opt.ReceiverId); err != nil {
 			return errors.New("系统繁忙，请稍后再试！！！")
 		} else if isOk {
 			return nil

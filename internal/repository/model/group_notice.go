@@ -20,6 +20,10 @@ type GroupNotice struct {
 	DeletedAt    sql.NullTime `gorm:"column:deleted_at" json:"deleted_at"`                    // 删除时间
 }
 
+func (GroupNotice) TableName() string {
+	return "group_notice"
+}
+
 type SearchNoticeItem struct {
 	Id           int       `json:"id" grom:"column:id"`
 	CreatorId    int       `json:"creator_id"`

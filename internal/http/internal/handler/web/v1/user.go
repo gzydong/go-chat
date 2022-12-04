@@ -6,7 +6,6 @@ import (
 	"go-chat/internal/pkg/encrypt"
 	"go-chat/internal/pkg/ichat"
 	"go-chat/internal/pkg/timeutil"
-	"go-chat/internal/repository/model"
 	"go-chat/internal/service"
 	"go-chat/internal/service/organize"
 )
@@ -24,7 +23,7 @@ func NewUser(service *service.UserService, smsService *service.SmsService, organ
 // Detail 个人用户信息
 func (u *User) Detail(ctx *ichat.Context) error {
 
-	user, err := u.service.Dao().FindById(ctx.UserId())
+	user, err := u.service.Dao().FindById(ctx.Ctx(), ctx.UserId())
 	if err != nil {
 		return ctx.Error(err.Error())
 	}
@@ -46,9 +45,9 @@ func (u *User) Setting(ctx *ichat.Context) error {
 
 	uid := ctx.UserId()
 
-	user, _ := u.service.Dao().FindById(uid)
+	user, _ := u.service.Dao().FindById(ctx.Ctx(), uid)
 
-	isOk, _ := u.organizeServ.Dao().IsQiyeMember(uid)
+	isOk, _ := u.organizeServ.Dao().IsQiyeMember(ctx.Ctx(), uid)
 
 	return ctx.Success(&web.UserSettingResponse{
 		UserInfo: &web.UserSettingResponse_UserInfo{
@@ -79,15 +78,17 @@ func (u *User) ChangeDetail(ctx *ichat.Context) error {
 		}
 	}
 
-	_, _ = u.service.Dao().BaseUpdate(&model.Users{}, entity.MapStrAny{
-		"id": ctx.UserId(),
-	}, entity.MapStrAny{
+	_, err := u.service.Dao().UpdateById(ctx.Ctx(), ctx.UserId(), map[string]interface{}{
 		"nickname": params.Nickname,
 		"avatar":   params.Avatar,
 		"gender":   params.Gender,
 		"motto":    params.Motto,
 		"birthday": params.Birthday,
 	})
+
+	if err != nil {
+		return ctx.ErrorBusiness("个人信息修改失败！")
+	}
 
 	return ctx.Success(nil, "个人信息修改成功！")
 }
@@ -131,7 +132,7 @@ func (u *User) ChangeMobile(ctx *ichat.Context) error {
 		return ctx.ErrorBusiness("短信验证码填写错误！")
 	}
 
-	user, _ := u.service.Dao().FindById(uid)
+	user, _ := u.service.Dao().FindById(ctx.Ctx(), uid)
 
 	if user.Mobile != params.Mobile {
 		return ctx.ErrorBusiness("手机号与原手机号一致无需修改！")
@@ -141,7 +142,10 @@ func (u *User) ChangeMobile(ctx *ichat.Context) error {
 		return ctx.ErrorBusiness("账号密码填写错误！")
 	}
 
-	_, err := u.service.Dao().BaseUpdate(&model.Users{}, entity.MapStrAny{"id": user.Id}, entity.MapStrAny{"mobile": params.Mobile})
+	_, err := u.service.Dao().UpdateById(ctx.Ctx(), user.Id, map[string]interface{}{
+		"mobile": params.Mobile,
+	})
+
 	if err != nil {
 		return ctx.ErrorBusiness("手机号修改失败！")
 	}

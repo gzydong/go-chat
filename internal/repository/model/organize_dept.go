@@ -17,6 +17,6 @@ type OrganizeDept struct {
 	UpdatedAt time.Time `gorm:"column:updated_at;NOT NULL" json:"updated_at"`             // 更新时间
 }
 
-func (o *OrganizeDept) TableName() string {
+func (OrganizeDept) TableName() string {
 	return "organize_dept"
 }

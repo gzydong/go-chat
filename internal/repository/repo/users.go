@@ -1,38 +1,25 @@
 package repo
 
 import (
+	"context"
 	"fmt"
 
+	"go-chat/internal/pkg/ichat"
 	"go-chat/internal/repository/model"
+	"gorm.io/gorm"
 )
 
 type Users struct {
-	*Base
+	ichat.Repo[model.Users]
 }
 
-func NewUsers(base *Base) *Users {
-	return &Users{Base: base}
+func NewUsers(db *gorm.DB) *Users {
+	return &Users{Repo: ichat.NewRepo[model.Users](db)}
 }
 
 // Create 创建数据
 func (u *Users) Create(user *model.Users) (*model.Users, error) {
 	if err := u.Db.Create(user).Error; err != nil {
-		return nil, err
-	}
-
-	return user, nil
-}
-
-// FindById ID查询
-func (u *Users) FindById(uid int) (*model.Users, error) {
-
-	if uid == 0 {
-		return nil, fmt.Errorf("uid is empty")
-	}
-
-	user := &model.Users{}
-
-	if err := u.Db.Where(&model.Users{Id: uid}).First(user).Error; err != nil {
 		return nil, err
 	}
 
@@ -46,13 +33,7 @@ func (u *Users) FindByMobile(mobile string) (*model.Users, error) {
 		return nil, fmt.Errorf("mobile is empty")
 	}
 
-	user := &model.Users{}
-
-	if err := u.Db.Where(&model.Users{Mobile: mobile}).First(user).Error; err != nil {
-		return nil, err
-	}
-
-	return user, nil
+	return u.FindByWhere(context.Background(), "mobile = ?", mobile)
 }
 
 // IsMobileExist 判断手机号是否存在
@@ -62,9 +43,7 @@ func (u *Users) IsMobileExist(mobile string) bool {
 		return false
 	}
 
-	user := &model.Users{}
+	exist, _ := u.QueryExist(context.Background(), "mobile = ?", mobile)
 
-	rowsAffects := u.Db.Select("id").Where(&model.Users{Mobile: mobile}).First(user).RowsAffected
-
-	return rowsAffects != 0
+	return exist
 }

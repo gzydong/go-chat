@@ -17,6 +17,10 @@ type TalkRecordsVote struct {
 	UpdatedAt    time.Time `gorm:"column:updated_at;NOT NULL" json:"updated_at"`               // 更新时间
 }
 
+func (TalkRecordsVote) TableName() string {
+	return "talk_records_vote"
+}
+
 type QueryVoteModel struct {
 	RecordId     int    `json:"record_id" grom:"comment:消息记录ID"`
 	ReceiverId   int    `json:"receiver_id"`

@@ -1,21 +1,19 @@
 package organize
 
 import (
+	"context"
+
+	"go-chat/internal/pkg/ichat"
 	"go-chat/internal/repository/model"
-	"go-chat/internal/repository/repo"
+	"gorm.io/gorm"
 )
 
-type IOrganize interface {
-	FindAll() ([]*UserInfo, error)
-	IsQiyeMember(uid ...int) (bool, error)
-}
-
 type Organize struct {
-	*repo.Base
+	ichat.Repo[model.Organize]
 }
 
-func NewOrganize(base *repo.Base) *Organize {
-	return &Organize{Base: base}
+func NewOrganize(db *gorm.DB) *Organize {
+	return &Organize{Repo: ichat.NewRepo[model.Organize](db)}
 }
 
 type UserInfo struct {
@@ -26,7 +24,7 @@ type UserInfo struct {
 	Position   string `json:"position"`
 }
 
-func (o *Organize) FindAll() ([]*UserInfo, error) {
+func (o *Organize) List() ([]*UserInfo, error) {
 
 	tx := o.Db.Table("organize")
 	tx.Select([]string{
@@ -44,10 +42,9 @@ func (o *Organize) FindAll() ([]*UserInfo, error) {
 }
 
 // IsQiyeMember 判断是否是企业成员
-func (o *Organize) IsQiyeMember(uid ...int) (bool, error) {
+func (o *Organize) IsQiyeMember(ctx context.Context, uid ...int) (bool, error) {
 
-	var count int64
-	err := o.Db.Model(model.Organize{}).Where("user_id in ?", uid).Count(&count).Error
+	count, err := o.QueryCount(ctx, "user_id in ?", uid)
 	if err != nil {
 		return false, err
 	}

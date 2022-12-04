@@ -14,6 +14,6 @@ func NewPositionService(baseService *service.BaseService, dao *organize.Position
 	return &PositionService{BaseService: baseService, dao: dao}
 }
 
-func (s *PositionService) Dao() organize.IPosition {
+func (s *PositionService) Dao() *organize.Position {
 	return s.dao
 }
