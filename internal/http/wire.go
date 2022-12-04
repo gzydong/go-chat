@@ -63,7 +63,6 @@ var cacheProviderSet = wire.NewSet(
 )
 
 var daoProviderSet = wire.NewSet(
-	repo.NewBase,
 	repo.NewContact,
 	repo.NewGroupMember,
 	repo.NewUsers,
