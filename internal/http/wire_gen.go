@@ -33,11 +33,6 @@ import (
 	organize2 "go-chat/internal/service/organize"
 )
 
-import (
-	_ "github.com/urfave/cli/v2"
-	_ "go-chat/internal/pkg/validation"
-)
-
 // Injectors from wire.go:
 
 func Initialize(ctx context.Context, conf *config.Config) *AppProvider {

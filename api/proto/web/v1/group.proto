@@ -27,7 +27,7 @@ message GroupListResponse{
 message GroupCreateRequest{
   string name = 1 [(tagger.tags) = "binding:\"required\""];
   string ids = 2 [(tagger.tags) = "binding:\"required,ids\""];
-  string avatar = 3 [(tagger.tags) = "binding:\"required\""];
+  string avatar = 3;
 }
 
 // 创建群聊接口响应参数
@@ -83,7 +83,7 @@ message GroupInviteResponse{}
 
 
 message GetInviteFriendsRequest{
-  int32 group_id = 1 [(tagger.tags) = "form:\"group_id\" binding:\"required\""];
+  int32 group_id = 1 [(tagger.tags) = "form:\"group_id\""];
 }
 
 message GetInviteFriendsResponse{}

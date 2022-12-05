@@ -12,10 +12,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/urfave/cli/v2"
-	_ "github.com/urfave/cli/v2"
 	"go-chat/config"
 	"go-chat/internal/pkg/logger"
-	_ "go-chat/internal/pkg/validation"
 	"golang.org/x/sync/errgroup"
 )
 
