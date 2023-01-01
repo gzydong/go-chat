@@ -11,7 +11,7 @@ import (
 	"go-chat/internal/repository/cache"
 
 	"go-chat/config"
-	"go-chat/internal/im_gateway/internal/handler"
+	"go-chat/internal/gateway/internal/handler"
 )
 
 // NewRouter 初始化配置路由

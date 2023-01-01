@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"runtime"
 
 	"github.com/gin-gonic/gin"
 	"go-chat/internal/pkg/ichat/middleware"
@@ -85,6 +86,14 @@ func (c *Context) ErrorBusiness(message interface{}) error {
 		resp.Message = fmt.Sprintf("%v", msg)
 	}
 
+	meta := make(map[string]interface{})
+	_, _, line, ok := runtime.Caller(1)
+	if ok {
+		meta["error_line"] = line
+	}
+
+	resp.Meta = meta
+
 	c.Context.Abort()
 	c.Context.JSON(http.StatusOK, resp)
 
@@ -94,10 +103,17 @@ func (c *Context) ErrorBusiness(message interface{}) error {
 // Error 系统错误
 func (c *Context) Error(error string) error {
 
+	meta := make(map[string]interface{})
+	_, _, line, ok := runtime.Caller(1)
+	if ok {
+		meta["error_line"] = line
+	}
+
 	c.Context.Abort()
 	c.Context.JSON(http.StatusInternalServerError, &Response{
 		Code:    500,
 		Message: error,
+		Meta:    meta,
 	})
 
 	return nil

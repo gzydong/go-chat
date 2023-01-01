@@ -19,6 +19,10 @@ func (c *ClearExpireServer) Spec() string {
 	return "* * * * *"
 }
 
+func (c *ClearExpireServer) Enable() bool {
+	return true
+}
+
 func (c *ClearExpireServer) Handle(ctx context.Context) error {
 
 	for _, sid := range c.storage.All(ctx, 2) {

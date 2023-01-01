@@ -78,6 +78,8 @@ func WithCloseCallback(call CloseCallback) ClientCallbackOption {
 	}
 }
 
+// WithDestroyCallback 连接销毁回调事件
+// TODO 待实现
 func WithDestroyCallback(call DestroyCallback) ClientCallbackOption {
 	return func(callBack *ClientCallback) {
 		callBack.destroy = call

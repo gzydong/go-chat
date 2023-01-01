@@ -21,6 +21,10 @@ func (c *ClearWsCache) Spec() string {
 	return "*/30 * * * *"
 }
 
+func (c *ClearWsCache) Enable() bool {
+	return true
+}
+
 func (c *ClearWsCache) Handle(ctx context.Context) error {
 
 	for _, sid := range c.storage.GetExpireServerAll(ctx) {

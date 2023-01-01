@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"go-chat/internal/im_gateway/internal/event"
+	"go-chat/internal/gateway/internal/event"
 	"go-chat/internal/pkg/ichat"
 	"go-chat/internal/pkg/im"
 	"go-chat/internal/pkg/im/adapter"

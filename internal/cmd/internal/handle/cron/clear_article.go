@@ -25,6 +25,10 @@ func (c *ClearArticle) Spec() string {
 	return "0 1 * * *"
 }
 
+func (c *ClearArticle) Enable() bool {
+	return true
+}
+
 func (c *ClearArticle) Handle(ctx context.Context) error {
 
 	c.clearAnnex()

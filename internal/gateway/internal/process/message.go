@@ -10,7 +10,7 @@ import (
 	"github.com/go-redis/redis/v8"
 	"go-chat/config"
 	"go-chat/internal/entity"
-	"go-chat/internal/im_gateway/internal/consume"
+	"go-chat/internal/gateway/internal/consume"
 	"go-chat/internal/pkg/logger"
 	"go-chat/internal/pkg/worker"
 )

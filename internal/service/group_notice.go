@@ -49,7 +49,7 @@ func (s *GroupNoticeService) Create(ctx context.Context, opts *GroupNoticeEditOp
 // Update 更新群公告
 func (s *GroupNoticeService) Update(ctx context.Context, opts *GroupNoticeEditOpt) error {
 
-	_, err := s.repo.Updates(ctx, map[string]interface{}{
+	_, err := s.repo.UpdateWhere(ctx, map[string]interface{}{
 		"title":      opts.Title,
 		"content":    opts.Content,
 		"is_top":     opts.IsTop,
@@ -62,7 +62,7 @@ func (s *GroupNoticeService) Update(ctx context.Context, opts *GroupNoticeEditOp
 
 func (s *GroupNoticeService) Delete(ctx context.Context, groupId, noticeId int) error {
 
-	_, err := s.repo.Updates(ctx, map[string]interface{}{
+	_, err := s.repo.UpdateWhere(ctx, map[string]interface{}{
 		"is_delete":  1,
 		"deleted_at": timeutil.DateTime(),
 		"updated_at": time.Now(),

@@ -20,6 +20,9 @@ type ICrontab interface {
 	// Spec 配置定时任务规则
 	Spec() string
 
+	// Enable 是否启动
+	Enable() bool
+
 	// Handle 任务执行入口
 	Handle(ctx context.Context) error
 }
@@ -40,6 +43,12 @@ func NewCrontabCommand(handles *Subcommands) Command {
 			c := cron.New()
 
 			for _, job := range toCrontab(handles) {
+
+				// 是否启动运行
+				if !job.Enable() {
+					continue
+				}
+
 				_, err := c.AddFunc(job.Spec(), func() {
 					defer func() {
 						if err := recover(); err != nil {
@@ -49,6 +58,8 @@ func NewCrontabCommand(handles *Subcommands) Command {
 
 					_ = job.Handle(ctx.Context)
 				})
+
+				fmt.Printf("已启动 %T 定时任务 => 任务计划 %s \n", job, job.Spec())
 
 				if err != nil {
 					panic(err)
@@ -83,7 +94,8 @@ func run(cron *cron.Cron, ctx context.Context) error {
 }
 
 func toCrontab(value interface{}) []ICrontab {
-	jobs := make([]ICrontab, 0)
+
+	var jobs []ICrontab
 	elem := reflect.ValueOf(value).Elem()
 	for i := 0; i < elem.NumField(); i++ {
 		if v, ok := elem.Field(i).Interface().(ICrontab); ok {

@@ -25,6 +25,10 @@ func (c *ClearTmpFile) Spec() string {
 	return "20 1 * * *"
 }
 
+func (c *ClearTmpFile) Enable() bool {
+	return true
+}
+
 func (c *ClearTmpFile) Handle(ctx context.Context) error {
 
 	lastId, size := 0, 100

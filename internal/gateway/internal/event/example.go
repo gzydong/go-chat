@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/tidwall/gjson"
-	"go-chat/internal/im_gateway/internal/event/example"
+	"go-chat/internal/gateway/internal/event/example"
 	"go-chat/internal/pkg/im"
 )
 
