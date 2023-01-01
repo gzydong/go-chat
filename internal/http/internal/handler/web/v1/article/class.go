@@ -68,7 +68,7 @@ func (c *Class) Edit(ctx *ichat.Context) error {
 		return ctx.ErrorBusiness("笔记分类编辑失败")
 	}
 
-	return ctx.Success(web.ArticleClassEditResponse{
+	return ctx.Success(&web.ArticleClassEditResponse{
 		Id: params.ClassId,
 	})
 }

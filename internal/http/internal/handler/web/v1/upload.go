@@ -59,7 +59,7 @@ func (u *Upload) InitiateMultipart(ctx *ichat.Context) error {
 		return ctx.ErrorBusiness(err.Error())
 	}
 
-	return ctx.Success(web.UploadInitiateMultipartResponse{
+	return ctx.Success(&web.UploadInitiateMultipartResponse{
 		UploadId:  info.UploadId,
 		SplitSize: 2 << 20,
 	})
@@ -90,12 +90,12 @@ func (u *Upload) MultipartUpload(ctx *ichat.Context) error {
 	}
 
 	if params.SplitIndex != params.SplitNum-1 {
-		return ctx.Success(web.UploadMultipartResponse{
+		return ctx.Success(&web.UploadMultipartResponse{
 			IsMerge: false,
 		})
 	}
 
-	return ctx.Success(web.UploadMultipartResponse{
+	return ctx.Success(&web.UploadMultipartResponse{
 		UploadId: params.UploadId,
 		IsMerge:  true,
 	})

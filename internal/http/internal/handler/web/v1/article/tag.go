@@ -60,7 +60,7 @@ func (c *Tag) Edit(ctx *ichat.Context) error {
 		return ctx.ErrorBusiness("笔记标签编辑失败")
 	}
 
-	return ctx.Success(web.ArticleTagEditResponse{Id: params.TagId})
+	return ctx.Success(&web.ArticleTagEditResponse{Id: params.TagId})
 }
 
 // Delete 删除标签

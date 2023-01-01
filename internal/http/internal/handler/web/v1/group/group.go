@@ -404,7 +404,7 @@ func (c *Group) Handover(ctx *ichat.Context) error {
 		return ctx.ErrorBusiness("转让群主失败！")
 	}
 
-	return ctx.Success(entity.H{})
+	return ctx.Success(nil)
 }
 
 // AssignAdmin 分配管理员
@@ -431,7 +431,7 @@ func (c *Group) AssignAdmin(ctx *ichat.Context) error {
 		return ctx.ErrorBusiness("设置管理员信息失败！")
 	}
 
-	return ctx.Success(entity.H{})
+	return ctx.Success(nil)
 }
 
 // NoSpeak 禁止发言
@@ -457,5 +457,5 @@ func (c *Group) NoSpeak(ctx *ichat.Context) error {
 		return ctx.ErrorBusiness("设置群成员禁言状态失败！")
 	}
 
-	return ctx.Success(entity.H{})
+	return ctx.Success(nil)
 }

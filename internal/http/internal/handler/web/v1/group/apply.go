@@ -2,7 +2,6 @@ package group
 
 import (
 	"go-chat/api/pb/web/v1"
-	"go-chat/internal/entity"
 	"go-chat/internal/pkg/ichat"
 	"go-chat/internal/pkg/logger"
 	"go-chat/internal/pkg/timeutil"
@@ -34,7 +33,7 @@ func (c *Apply) Create(ctx *ichat.Context) error {
 
 	// TODO 这里需要推送给群主
 
-	return ctx.Success(entity.H{})
+	return ctx.Success(nil)
 }
 
 func (c *Apply) Agree(ctx *ichat.Context) error {
@@ -71,7 +70,7 @@ func (c *Apply) Agree(ctx *ichat.Context) error {
 		logger.Error("数据删除失败 err", err.Error())
 	}
 
-	return ctx.Success(entity.H{})
+	return ctx.Success(nil)
 }
 
 func (c *Apply) Delete(ctx *ichat.Context) error {
@@ -86,7 +85,7 @@ func (c *Apply) Delete(ctx *ichat.Context) error {
 		return ctx.ErrorBusiness("创建群聊失败，请稍后再试！")
 	}
 
-	return ctx.Success(entity.H{})
+	return ctx.Success(nil)
 }
 
 func (c *Apply) List(ctx *ichat.Context) error {

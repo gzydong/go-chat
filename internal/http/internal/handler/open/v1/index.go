@@ -21,7 +21,7 @@ func (c *Index) Index(ctx *ichat.Context) error {
 }
 
 func (c *Index) Proto(ctx *ichat.Context) error {
-	return ctx.Success(web.AuthLoginResponse{
+	return ctx.Success(&web.AuthLoginResponse{
 		Type:        "Type",
 		AccessToken: "AccessToken",
 		ExpiresIn:   0,
