@@ -26,8 +26,6 @@ func NewAuth(config *config.Config, captcha *cache.CaptchaStorage, test *repo.Te
 // Login 登录接口
 func (c *Auth) Login(ctx *ichat.Context) error {
 
-	return ctx.ErrorBusiness("0000")
-
 	params := &admin.AuthLoginRequest{}
 	if err := ctx.Context.ShouldBindJSON(params); err != nil {
 		return ctx.InvalidParams(err)
