@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"html"
 	"net/url"
 	"strconv"
 
@@ -48,7 +49,7 @@ func (m *MessageService) SendText(ctx context.Context, uid int, req *message.Tex
 		MsgType:    entity.MsgTypeText,
 		UserId:     uid,
 		ReceiverId: int(req.Receiver.ReceiverId),
-		Content:    req.Content,
+		Content:    html.EscapeString(req.Content),
 	}
 
 	if req.Receiver.TalkType == entity.ChatGroupMode {
