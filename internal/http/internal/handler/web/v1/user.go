@@ -1,6 +1,8 @@
 package v1
 
 import (
+	"strings"
+
 	"go-chat/api/pb/web/v1"
 	"go-chat/internal/entity"
 	"go-chat/internal/pkg/encrypt"
@@ -79,7 +81,7 @@ func (u *User) ChangeDetail(ctx *ichat.Context) error {
 	}
 
 	_, err := u.service.Dao().UpdateById(ctx.Ctx(), ctx.UserId(), map[string]interface{}{
-		"nickname": params.Nickname,
+		"nickname": strings.TrimSpace(strings.Replace(params.Nickname, " ", "", -1)),
 		"avatar":   params.Avatar,
 		"gender":   params.Gender,
 		"motto":    params.Motto,
