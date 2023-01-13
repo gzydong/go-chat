@@ -1,8 +1,9 @@
 package encrypt
 
 import (
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestBase64Decode(t *testing.T) {
@@ -14,9 +15,8 @@ func TestBase64Encode(t *testing.T) {
 }
 
 func TestHashPassword(t *testing.T) {
-	pwd, err := HashPassword("admin123sdgsdsgds")
+	pwd := HashPassword("admin123sdgsdsgds")
 
-	assert.NoError(t, err)
 	assert.Equal(t, true, len(pwd) == 60)
 }
 
@@ -25,9 +25,7 @@ func TestMd5(t *testing.T) {
 }
 
 func TestVerifyPassword(t *testing.T) {
-	pwd, err := HashPassword("admin123")
-
-	assert.NoError(t, err)
+	pwd := HashPassword("admin123")
 
 	assert.Equal(t, true, VerifyPassword(pwd, "admin123"))
 	assert.Equal(t, false, VerifyPassword(pwd, "admin1234453"))

@@ -21,6 +21,13 @@ type Config struct {
 	Log        *Log        `json:"log" yaml:"log"`
 	Filesystem *Filesystem `json:"filesystem" yaml:"filesystem"`
 	Email      *Email      `json:"email" yaml:"email"`
+	Ports      *Ports      `json:"ports" yaml:"ports"`
+}
+
+type Ports struct {
+	Http      int `json:"http" yaml:"http"`
+	Websocket int `json:"websocket" yaml:"websocket"`
+	Tcp       int `json:"tcp" yaml:"tcp"`
 }
 
 func ReadConfig(filename string) *Config {

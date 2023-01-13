@@ -7,7 +7,6 @@
 package main
 
 import (
-	"context"
 	"github.com/google/wire"
 	"go-chat/config"
 	"go-chat/internal/http/internal/handler"
@@ -35,8 +34,8 @@ import (
 
 // Injectors from wire.go:
 
-func Initialize(ctx context.Context, conf *config.Config) *AppProvider {
-	client := provider.NewRedisClient(ctx, conf)
+func Initialize(conf *config.Config) *AppProvider {
+	client := provider.NewRedisClient(conf)
 	smsCodeCache := cache.NewSmsCodeCache(client)
 	smsService := service.NewSmsService(smsCodeCache)
 	db := provider.NewMySQLClient(conf)

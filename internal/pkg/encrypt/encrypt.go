@@ -15,9 +15,9 @@ func Md5(str string) string {
 	return hex.EncodeToString(h.Sum(nil))
 }
 
-func HashPassword(value string) (string, error) {
-	hashedBytes, err := bcrypt.GenerateFromPassword([]byte(value), bcrypt.DefaultCost)
-	return string(hashedBytes), err
+func HashPassword(value string) string {
+	hashedBytes, _ := bcrypt.GenerateFromPassword([]byte(value), bcrypt.DefaultCost)
+	return string(hashedBytes)
 }
 
 // VerifyPassword 验证加密的文本是否与纯文本相同

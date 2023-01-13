@@ -18,7 +18,7 @@ type AppProvider struct {
 }
 
 func NewTcpServer(app *AppProvider) {
-	listener, _ := net.Listen("tcp", "0.0.0.0:9505")
+	listener, _ := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%d", app.Config.Ports.Tcp))
 
 	defer func() {
 		_ = listener.Close()

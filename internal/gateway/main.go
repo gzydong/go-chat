@@ -28,57 +28,51 @@ func main() {
 	cmd.Flags = []cli.Flag{
 		// 配置文件参数
 		&cli.StringFlag{Name: "config", Aliases: []string{"c"}, Value: "./config.yaml", Usage: "配置文件路径", DefaultText: "./config.yaml"},
-
-		&cli.IntFlag{Name: "port", Aliases: []string{"p"}, Value: 9504, Usage: "设置端口号", DefaultText: "9504"},
 	}
 
-	cmd.Action = func(tx *cli.Context) error {
-		ctx, cancel := context.WithCancel(tx.Context)
-		defer cancel()
-
-		eg, groupCtx := errgroup.WithContext(ctx)
-
-		// 初始化 IM 渠道配置
-		im.Initialize(groupCtx, eg)
-
-		// 读取配置文件
-		conf := config.ReadConfig(tx.String("config"))
-
-		// 设置服务端口号
-		conf.SetPort(tx.Int("port"))
-
-		// 设置日志输出
-		logger.SetOutput(conf.GetLogPath(), "logger-ws")
-
-		if !conf.Debug() {
-			gin.SetMode(gin.ReleaseMode)
-		}
-
-		app := Initialize(ctx, conf)
-
-		c := make(chan os.Signal, 1)
-
-		signal.Notify(c, syscall.SIGTERM, syscall.SIGQUIT, syscall.SIGINT)
-
-		// 延时启动守护协程
-		time.AfterFunc(3*time.Second, func() {
-			app.Coroutine.Start(eg, groupCtx)
-		})
-
-		log.Printf("Server ID   :%s", conf.ServerId())
-		log.Printf("Server Pid  :%d", os.Getpid())
-		log.Printf("Websocket Listen Port :%d", conf.App.Port)
-		log.Printf("Tcp Listen Port :%d", 9505)
-
-		go NewTcpServer(app)
-
-		return start(c, eg, groupCtx, cancel, app.Server)
-	}
+	cmd.Action = newApp
 
 	_ = cmd.Run(os.Args)
 }
 
-func start(c chan os.Signal, eg *errgroup.Group, ctx context.Context, cancel context.CancelFunc, server *http.Server) error {
+func newApp(tx *cli.Context) error {
+	eg, groupCtx := errgroup.WithContext(tx.Context)
+
+	// 初始化 IM 渠道配置
+	im.Initialize(groupCtx, eg)
+
+	// 读取配置文件
+	conf := config.ReadConfig(tx.String("config"))
+
+	// 设置日志输出
+	logger.SetOutput(conf.GetLogPath(), "logger-ws")
+
+	if !conf.Debug() {
+		gin.SetMode(gin.ReleaseMode)
+	}
+
+	app := Initialize(conf)
+
+	c := make(chan os.Signal, 1)
+
+	signal.Notify(c, syscall.SIGTERM, syscall.SIGQUIT, syscall.SIGINT)
+
+	// 延时启动守护协程
+	time.AfterFunc(3*time.Second, func() {
+		app.Coroutine.Start(eg, groupCtx)
+	})
+
+	log.Printf("Server ID   :%s", conf.ServerId())
+	log.Printf("Server Pid  :%d", os.Getpid())
+	log.Printf("Websocket Listen Port :%d", conf.Ports.Websocket)
+	log.Printf("Tcp Listen Port :%d", conf.Ports.Tcp)
+
+	go NewTcpServer(app)
+
+	return start(c, eg, groupCtx, app.Server)
+}
+
+func start(c chan os.Signal, eg *errgroup.Group, ctx context.Context, server *http.Server) error {
 
 	eg.Go(func() error {
 		err := server.ListenAndServe()
@@ -91,8 +85,6 @@ func start(c chan os.Signal, eg *errgroup.Group, ctx context.Context, cancel con
 
 	eg.Go(func() error {
 		defer func() {
-			cancel()
-
 			// 等待中断信号以优雅地关闭服务器（设置 5 秒的超时时间）
 			timeCtx, timeCancel := context.WithTimeout(context.Background(), 3*time.Second)
 			defer timeCancel()

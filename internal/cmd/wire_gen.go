@@ -25,7 +25,7 @@ import (
 // Injectors from wire.go:
 
 func Initialize(ctx context.Context, conf *config.Config) *AppProvider {
-	client := provider.NewRedisClient(ctx, conf)
+	client := provider.NewRedisClient(conf)
 	serverStorage := cache.NewSidStorage(client)
 	clearWsCache := cron.NewClearWsCache(serverStorage)
 	db := provider.NewMySQLClient(conf)

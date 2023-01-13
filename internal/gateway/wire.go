@@ -4,8 +4,6 @@
 package main
 
 import (
-	"context"
-
 	"go-chat/config"
 	consume2 "go-chat/internal/gateway/internal/consume"
 	"go-chat/internal/gateway/internal/event"
@@ -74,6 +72,6 @@ var providerSet = wire.NewSet(
 	wire.Struct(new(AppProvider), "*"),
 )
 
-func Initialize(ctx context.Context, conf *config.Config) *AppProvider {
+func Initialize(conf *config.Config) *AppProvider {
 	panic(wire.Build(providerSet))
 }

@@ -7,7 +7,6 @@
 package main
 
 import (
-	"context"
 	"github.com/google/wire"
 	"go-chat/config"
 	"go-chat/internal/gateway/internal/consume"
@@ -24,8 +23,8 @@ import (
 
 // Injectors from wire.go:
 
-func Initialize(ctx context.Context, conf *config.Config) *AppProvider {
-	client := provider.NewRedisClient(ctx, conf)
+func Initialize(conf *config.Config) *AppProvider {
+	client := provider.NewRedisClient(conf)
 	serverStorage := cache.NewSidStorage(client)
 	clientStorage := cache.NewClientStorage(client, conf, serverStorage)
 	roomStorage := cache.NewRoomStorage(client)

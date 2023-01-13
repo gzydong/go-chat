@@ -35,11 +35,10 @@ func (s *UserService) Register(opts *UserRegisterOpt) (*model.Users, error) {
 		return nil, errors.New("账号已存在! ")
 	}
 
-	hash, _ := encrypt.HashPassword(opts.Password)
 	user, err := s.repo.Create(&model.Users{
 		Mobile:   opts.Mobile,
 		Nickname: opts.Nickname,
-		Password: hash,
+		Password: encrypt.HashPassword(opts.Password),
 	})
 
 	if err != nil {
@@ -82,10 +81,9 @@ func (s *UserService) Forget(opts *UserForgetOpt) (bool, error) {
 		return false, errors.New("账号不存在! ")
 	}
 
-	// 生成 hash 密码
-	hash, _ := encrypt.HashPassword(opts.Password)
-
-	err = s.Dao().Db.Model(&model.Users{}).Where("id = ?", user.Id).Update("password", hash).Error
+	err = s.Dao().Db.Model(&model.Users{}).
+		Where("id = ?", user.Id).
+		Update("password", encrypt.HashPassword(opts.Password)).Error
 	if err != nil {
 		return false, err
 	}
@@ -105,12 +103,7 @@ func (s *UserService) UpdatePassword(uid int, oldPassword string, password strin
 		return errors.New("密码验证不正确！")
 	}
 
-	hash, err := encrypt.HashPassword(password)
-	if err != nil {
-		return err
-	}
-
-	err = s.Dao().Db.Model(&model.Users{}).Where("id = ?", user.Id).Update("password", hash).Error
+	err = s.Dao().Db.Model(&model.Users{}).Where("id = ?", user.Id).Update("password", encrypt.HashPassword(password)).Error
 	if err != nil {
 		return err
 	}

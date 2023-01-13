@@ -44,7 +44,7 @@ func (c *Group) Create(ctx *ichat.Context) error {
 		MemberIds: sliceutil.ParseIds(params.GetIds()),
 	})
 	if err != nil {
-		return ctx.ErrorBusiness("创建群聊失败，请稍后再试！")
+		return ctx.ErrorBusiness("创建群聊失败，请稍后再试！" + err.Error())
 	}
 
 	return ctx.Success(&web.GroupCreateResponse{GroupId: int32(gid)})

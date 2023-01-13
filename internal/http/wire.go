@@ -4,8 +4,6 @@
 package main
 
 import (
-	"context"
-
 	"go-chat/config"
 	"go-chat/internal/http/internal/handler/admin"
 	"go-chat/internal/http/internal/handler/open"
@@ -114,7 +112,7 @@ var serviceProviderSet = wire.NewSet(
 	logic.NewMessageForwardLogic,
 )
 
-func Initialize(ctx context.Context, conf *config.Config) *AppProvider {
+func Initialize(conf *config.Config) *AppProvider {
 	panic(
 		wire.Build(
 			providerSet,
