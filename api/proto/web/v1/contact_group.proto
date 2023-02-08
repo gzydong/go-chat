@@ -1,0 +1,39 @@
+syntax = "proto3";
+package web;
+
+option go_package = "web/v1;web";
+
+import "tagger/tagger.proto";
+
+// 添加联系人分组接口请求参数
+message ContactGroupCreateRequest{
+  string name = 1 [(tagger.tags) = "binding:\"required\""];
+  int32 sort = 2 [(tagger.tags) = "binding:\"required\""];
+}
+
+// 添加联系人分组接口响应参数
+message ContactGroupCreateResponse{
+  int32 id = 1;
+}
+
+// 更新联系人分组接口请求参数
+message ContactGroupUpdateRequest{
+  int32 id = 1 [(tagger.tags) = "binding:\"required\""];
+  string name = 2 [(tagger.tags) = "binding:\"required\""];
+  int32 sort = 3 [(tagger.tags) = "binding:\"required\""];
+}
+
+// 更新联系人分组接口响应参数
+message ContactGroupUpdateResponse{
+  int32 id = 1;
+}
+
+// 删除联系人分组接口请求参数
+message ContactGroupDeleteRequest{
+  int32 id = 1 [(tagger.tags) = "binding:\"required\""];
+}
+
+// 删除联系人分组接口响应参数
+message ContactGroupDeleteResponse{
+  int32 id = 1;
+}

@@ -16,6 +16,7 @@ var ProviderSet = wire.NewSet(
 	v1.NewOrganize,
 	contact.NewContact,
 	contact.NewApply,
+	contact.NewGroup,
 	group.NewGroup,
 	group.NewApply,
 	group.NewNotice,

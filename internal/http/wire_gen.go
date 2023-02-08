@@ -103,8 +103,10 @@ func Initialize(conf *config.Config) *AppProvider {
 	groupApplyService := service.NewGroupApplyService(baseService, groupApply)
 	apply := group.NewApply(groupApplyService, groupMemberService, groupService)
 	contactContact := contact.NewContact(contactService, clientStorage, userService, talkSessionService, talkMessageService, organizeService)
-	contactApplyService := service.NewContactsApplyService(baseService)
+	contactApplyService := service.NewContactApplyService(baseService)
 	contactApply := contact.NewApply(contactApplyService, userService, talkMessageService, contactService)
+	contactGroupService := service.NewContactGroupService(baseService)
+	contactGroup := contact.NewGroup(contactGroupService)
 	articleService := note2.NewArticleService(baseService)
 	articleAnnex := note.NewArticleAnnex(db)
 	articleAnnexService := note2.NewArticleAnnexService(baseService, articleAnnex, filesystem)
@@ -115,25 +117,26 @@ func Initialize(conf *config.Config) *AppProvider {
 	tag := article.NewTag(articleTagService)
 	sendMessage := talk.NewSendMessage(talkAuthService, messageService)
 	webV1 := &web.V1{
-		Common:        common,
-		Auth:          auth,
-		User:          user,
-		Organize:      v1Organize,
-		Talk:          session,
-		TalkMessage:   message,
-		TalkRecords:   records,
-		Emoticon:      v1Emoticon,
-		Upload:        upload,
-		Group:         groupGroup,
-		GroupNotice:   notice,
-		GroupApply:    apply,
-		Contact:       contactContact,
-		ContactsApply: contactApply,
-		Article:       articleArticle,
-		ArticleAnnex:  annex,
-		ArticleClass:  class,
-		ArticleTag:    tag,
-		Message:       sendMessage,
+		Common:       common,
+		Auth:         auth,
+		User:         user,
+		Organize:     v1Organize,
+		Talk:         session,
+		TalkMessage:  message,
+		TalkRecords:  records,
+		Emoticon:     v1Emoticon,
+		Upload:       upload,
+		Group:        groupGroup,
+		GroupNotice:  notice,
+		GroupApply:   apply,
+		Contact:      contactContact,
+		ContactApply: contactApply,
+		ContactGroup: contactGroup,
+		Article:      articleArticle,
+		ArticleAnnex: annex,
+		ArticleClass: class,
+		ArticleTag:   tag,
+		Message:      sendMessage,
 	}
 	webHandler := &web.Handler{
 		V1: webV1,
@@ -180,4 +183,4 @@ var cacheProviderSet = wire.NewSet(cache.NewTokenSessionStorage, cache.NewSidSto
 
 var daoProviderSet = wire.NewSet(repo.NewContact, repo.NewGroupMember, repo.NewUsers, repo.NewGroup, repo.NewGroupApply, repo.NewTalkRecords, repo.NewGroupNotice, repo.NewTalkSession, repo.NewEmoticon, repo.NewTalkRecordsVote, repo.NewFileSplitUpload, note.NewArticleClass, note.NewArticleAnnex, organize.NewDepartment, organize.NewOrganize, organize.NewPosition, repo.NewRobot, repo.NewTest)
 
-var serviceProviderSet = wire.NewSet(service.NewBaseService, service.NewUserService, service.NewSmsService, service.NewTalkService, service.NewTalkMessageService, service.NewGroupService, service.NewGroupMemberService, service.NewGroupNoticeService, service.NewGroupApplyService, service.NewTalkSessionService, service.NewEmoticonService, service.NewTalkRecordsService, service.NewContactService, service.NewContactsApplyService, service.NewSplitUploadService, service.NewIpAddressService, service.NewAuthPermissionService, service.NewMessageService, note2.NewArticleService, note2.NewArticleTagService, note2.NewArticleClassService, note2.NewArticleAnnexService, organize2.NewOrganizeDeptService, organize2.NewOrganizeService, organize2.NewPositionService, service.NewTemplateService, service.NewTalkAuthService, logic.NewMessageForwardLogic)
+var serviceProviderSet = wire.NewSet(service.NewBaseService, service.NewUserService, service.NewSmsService, service.NewTalkService, service.NewTalkMessageService, service.NewGroupService, service.NewGroupMemberService, service.NewGroupNoticeService, service.NewGroupApplyService, service.NewTalkSessionService, service.NewEmoticonService, service.NewTalkRecordsService, service.NewContactService, service.NewContactApplyService, service.NewContactGroupService, service.NewSplitUploadService, service.NewIpAddressService, service.NewAuthPermissionService, service.NewMessageService, note2.NewArticleService, note2.NewArticleTagService, note2.NewArticleClassService, note2.NewArticleAnnexService, organize2.NewOrganizeDeptService, organize2.NewOrganizeService, organize2.NewPositionService, service.NewTemplateService, service.NewTalkAuthService, logic.NewMessageForwardLogic)

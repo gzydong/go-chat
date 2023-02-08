@@ -450,6 +450,19 @@ CREATE TABLE `users_emoticon`
     UNIQUE KEY `uk_user_id` (`user_id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8 COMMENT='用户收藏表情包';;
 
+CREATE TABLE `contact_group`
+(
+    `id`         int(11) NOT NULL COMMENT '主键ID',
+    `user_id`    int(11) NOT NULL DEFAULT '0' COMMENT '用户ID',
+    `name`       varchar(50) CHARACTER SET utf8mb4 NOT NULL DEFAULT '' COMMENT '分组名称',
+    `num`        int(11) unsigned NOT NULL DEFAULT '0' COMMENT '好友数',
+    `sort`       int(11) unsigned NOT NULL DEFAULT '0',
+    `created_at` datetime                          NOT NULL COMMENT '创建时间',
+    `updated_at` datetime                          NOT NULL COMMENT '更新时间',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `idx_user_id_name` (`user_id`,`name`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='联系人分组';;
+
 INSERT INTO `users`(`id`, `mobile`, `nickname`, `avatar`, `gender`, `password`, `motto`, `email`, `is_robot`,
                     `created_at`, `updated_at`)
 VALUES (1, '10046798935', '登录助手', '', 0, '$2y$10$4XW5vq07jVoRUJUfGHYDUeHWcPjFDlC7bVwHe9wplv5Ors2dZilau', '', '', 1,

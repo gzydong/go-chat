@@ -86,13 +86,7 @@ func (c *Context) ErrorBusiness(message interface{}) error {
 		resp.Message = fmt.Sprintf("%v", msg)
 	}
 
-	meta := make(map[string]interface{})
-	_, _, line, ok := runtime.Caller(1)
-	if ok {
-		meta["error_line"] = line
-	}
-
-	resp.Meta = meta
+	resp.Meta = initMeta()
 
 	c.Context.Abort()
 	c.Context.JSON(http.StatusOK, resp)
@@ -103,17 +97,11 @@ func (c *Context) ErrorBusiness(message interface{}) error {
 // Error 系统错误
 func (c *Context) Error(error string) error {
 
-	meta := make(map[string]interface{})
-	_, _, line, ok := runtime.Caller(1)
-	if ok {
-		meta["error_line"] = line
-	}
-
 	c.Context.Abort()
 	c.Context.JSON(http.StatusInternalServerError, &Response{
 		Code:    500,
 		Message: error,
-		Meta:    meta,
+		Meta:    initMeta(),
 	})
 
 	return nil
@@ -187,4 +175,14 @@ func (c *Context) IsGuest() bool {
 
 func (c *Context) Ctx() context.Context {
 	return c.Context.Request.Context()
+}
+
+func initMeta() map[string]interface{} {
+	meta := make(map[string]interface{})
+	_, _, line, ok := runtime.Caller(2)
+	if ok {
+		meta["error_line"] = line
+	}
+
+	return meta
 }

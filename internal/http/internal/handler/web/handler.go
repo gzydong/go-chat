@@ -9,25 +9,26 @@ import (
 )
 
 type V1 struct {
-	Common        *v1.Common
-	Auth          *v1.Auth
-	User          *v1.User
-	Organize      *v1.Organize
-	Talk          *talk.Session
-	TalkMessage   *talk.Message
-	TalkRecords   *talk.Records
-	Emoticon      *v1.Emoticon
-	Upload        *v1.Upload
-	Group         *group.Group
-	GroupNotice   *group.Notice
-	GroupApply    *group.Apply
-	Contact       *contact.Contact
-	ContactsApply *contact.Apply
-	Article       *article.Article
-	ArticleAnnex  *article.Annex
-	ArticleClass  *article.Class
-	ArticleTag    *article.Tag
-	Message       *talk.SendMessage
+	Common       *v1.Common
+	Auth         *v1.Auth
+	User         *v1.User
+	Organize     *v1.Organize
+	Talk         *talk.Session
+	TalkMessage  *talk.Message
+	TalkRecords  *talk.Records
+	Emoticon     *v1.Emoticon
+	Upload       *v1.Upload
+	Group        *group.Group
+	GroupNotice  *group.Notice
+	GroupApply   *group.Apply
+	Contact      *contact.Contact
+	ContactApply *contact.Apply
+	ContactGroup *contact.Group
+	Article      *article.Article
+	ArticleAnnex *article.Annex
+	ArticleClass *article.Class
+	ArticleTag   *article.Tag
+	Message      *talk.SendMessage
 }
 
 type Handler struct {

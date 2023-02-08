@@ -34,7 +34,7 @@ type ContactApplyService struct {
 	*BaseService
 }
 
-func NewContactsApplyService(base *BaseService) *ContactApplyService {
+func NewContactApplyService(base *BaseService) *ContactApplyService {
 	return &ContactApplyService{BaseService: base}
 }
 

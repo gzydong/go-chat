@@ -55,11 +55,18 @@ func RegisterWebRoute(secret string, router *gin.Engine, handler *web.Handler, s
 			contact.POST("/edit-remark", ichat.HandlerFunc(handler.V1.Contact.EditRemark)) // 编辑联系人备注
 
 			// 联系人申请相关
-			contact.GET("/apply/records", ichat.HandlerFunc(handler.V1.ContactsApply.List))              // 联系人申请列表
-			contact.POST("/apply/create", ichat.HandlerFunc(handler.V1.ContactsApply.Create))            // 添加联系人申请
-			contact.POST("/apply/accept", ichat.HandlerFunc(handler.V1.ContactsApply.Accept))            // 同意人申请列表
-			contact.POST("/apply/decline", ichat.HandlerFunc(handler.V1.ContactsApply.Decline))          // 拒绝人申请列表
-			contact.GET("/apply/unread-num", ichat.HandlerFunc(handler.V1.ContactsApply.ApplyUnreadNum)) // 联系人申请未读数
+			contact.GET("/apply/records", ichat.HandlerFunc(handler.V1.ContactApply.List))              // 联系人申请列表
+			contact.POST("/apply/create", ichat.HandlerFunc(handler.V1.ContactApply.Create))            // 添加联系人申请
+			contact.POST("/apply/accept", ichat.HandlerFunc(handler.V1.ContactApply.Accept))            // 同意人申请列表
+			contact.POST("/apply/decline", ichat.HandlerFunc(handler.V1.ContactApply.Decline))          // 拒绝人申请列表
+			contact.GET("/apply/unread-num", ichat.HandlerFunc(handler.V1.ContactApply.ApplyUnreadNum)) // 联系人申请未读数
+
+			// 联系人分组
+			contact.GET("/group/list", ichat.HandlerFunc(handler.V1.ContactGroup.List))      // 联系人分组列表
+			contact.POST("/group/create", ichat.HandlerFunc(handler.V1.ContactGroup.Create)) // 联系人分组添加
+			contact.POST("/group/update", ichat.HandlerFunc(handler.V1.ContactGroup.Update)) // 联系人分组更新
+			contact.POST("/group/delete", ichat.HandlerFunc(handler.V1.ContactGroup.Delete)) // 联系人分组删除
+			contact.POST("/group/sort", ichat.HandlerFunc(handler.V1.ContactGroup.Sort))     // 联系人分组排序
 		}
 
 		// 聊天群相关分组
