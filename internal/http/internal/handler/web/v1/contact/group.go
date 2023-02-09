@@ -9,14 +9,50 @@ import (
 
 type Group struct {
 	service *service.ContactGroupService
+	contact *service.ContactService
 }
 
-func NewGroup(service *service.ContactGroupService) *Group {
-	return &Group{service: service}
+func NewGroup(service *service.ContactGroupService, contact *service.ContactService) *Group {
+	return &Group{service: service, contact: contact}
 }
 
 func (c *Group) List(ctx *ichat.Context) error {
-	return nil
+
+	items := make([]*web.ContactGroupListResponse_Item, 0)
+
+	items = append(items, &web.ContactGroupListResponse_Item{
+		Id:    0,
+		Name:  "全部好友",
+		Count: int32(len(c.contact.GetContactIds(ctx.Ctx(), ctx.UserId()))),
+	})
+
+	items = append(items, &web.ContactGroupListResponse_Item{
+		Id:    1,
+		Name:  "同事",
+		Count: 0,
+	})
+
+	items = append(items, &web.ContactGroupListResponse_Item{
+		Id:    2,
+		Name:  "朋友",
+		Count: 0,
+	})
+
+	items = append(items, &web.ContactGroupListResponse_Item{
+		Id:    3,
+		Name:  "家人",
+		Count: 0,
+	})
+
+	items = append(items, &web.ContactGroupListResponse_Item{
+		Id:    4,
+		Name:  "陌生人",
+		Count: 0,
+	})
+
+	return ctx.Success(&web.ContactGroupListResponse{
+		Items: items,
+	})
 }
 
 func (c *Group) Create(ctx *ichat.Context) error {

@@ -4,7 +4,6 @@ package web;
 option go_package = "web/v1;web";
 
 import "tagger/tagger.proto";
-//import "web/v1/paginate.proto";
 
 // 联系人列表接口请求参数
 message ContactListRequest{}
@@ -26,6 +25,8 @@ message ContactListResponse{
     string remark = 6;
     // 是否在线
     int32 is_online = 7;
+    // 联系人分组ID
+    int32 group_id = 8;
   }
 
   repeated Item items = 1;

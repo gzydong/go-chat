@@ -333,6 +333,169 @@ func (x *ContactGroupDeleteResponse) GetId() int32 {
 	return 0
 }
 
+// 联系人分组列表接口请求参数
+type ContactGroupListRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+}
+
+func (x *ContactGroupListRequest) Reset() {
+	*x = ContactGroupListRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_web_v1_contact_group_proto_msgTypes[6]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ContactGroupListRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ContactGroupListRequest) ProtoMessage() {}
+
+func (x *ContactGroupListRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_web_v1_contact_group_proto_msgTypes[6]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ContactGroupListRequest.ProtoReflect.Descriptor instead.
+func (*ContactGroupListRequest) Descriptor() ([]byte, []int) {
+	return file_web_v1_contact_group_proto_rawDescGZIP(), []int{6}
+}
+
+// 联系人分组列表接口响应参数
+type ContactGroupListResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	// 分组列表
+	Items []*ContactGroupListResponse_Item `protobuf:"bytes,1,rep,name=items,proto3" json:"items,omitempty"`
+}
+
+func (x *ContactGroupListResponse) Reset() {
+	*x = ContactGroupListResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_web_v1_contact_group_proto_msgTypes[7]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ContactGroupListResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ContactGroupListResponse) ProtoMessage() {}
+
+func (x *ContactGroupListResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_web_v1_contact_group_proto_msgTypes[7]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ContactGroupListResponse.ProtoReflect.Descriptor instead.
+func (*ContactGroupListResponse) Descriptor() ([]byte, []int) {
+	return file_web_v1_contact_group_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *ContactGroupListResponse) GetItems() []*ContactGroupListResponse_Item {
+	if x != nil {
+		return x.Items
+	}
+	return nil
+}
+
+type ContactGroupListResponse_Item struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	// 分组ID
+	Id int32 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	// 分组名称
+	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	// 联系人数
+	Count int32 `protobuf:"varint,3,opt,name=count,proto3" json:"count,omitempty"`
+	// 分组排序
+	Sort int32 `protobuf:"varint,4,opt,name=sort,proto3" json:"sort,omitempty"`
+}
+
+func (x *ContactGroupListResponse_Item) Reset() {
+	*x = ContactGroupListResponse_Item{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_web_v1_contact_group_proto_msgTypes[8]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ContactGroupListResponse_Item) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ContactGroupListResponse_Item) ProtoMessage() {}
+
+func (x *ContactGroupListResponse_Item) ProtoReflect() protoreflect.Message {
+	mi := &file_web_v1_contact_group_proto_msgTypes[8]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ContactGroupListResponse_Item.ProtoReflect.Descriptor instead.
+func (*ContactGroupListResponse_Item) Descriptor() ([]byte, []int) {
+	return file_web_v1_contact_group_proto_rawDescGZIP(), []int{7, 0}
+}
+
+func (x *ContactGroupListResponse_Item) GetId() int32 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+func (x *ContactGroupListResponse_Item) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *ContactGroupListResponse_Item) GetCount() int32 {
+	if x != nil {
+		return x.Count
+	}
+	return 0
+}
+
+func (x *ContactGroupListResponse_Item) GetSort() int32 {
+	if x != nil {
+		return x.Sort
+	}
+	return 0
+}
+
 var File_web_v1_contact_group_proto protoreflect.FileDescriptor
 
 var file_web_v1_contact_group_proto_rawDesc = []byte{
@@ -369,9 +532,21 @@ var file_web_v1_contact_group_proto_rawDesc = []byte{
 	0x67, 0x3a, 0x22, 0x72, 0x65, 0x71, 0x75, 0x69, 0x72, 0x65, 0x64, 0x22, 0x52, 0x02, 0x69, 0x64,
 	0x22, 0x2c, 0x0a, 0x1a, 0x43, 0x6f, 0x6e, 0x74, 0x61, 0x63, 0x74, 0x47, 0x72, 0x6f, 0x75, 0x70,
 	0x44, 0x65, 0x6c, 0x65, 0x74, 0x65, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x0e,
-	0x0a, 0x02, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x05, 0x52, 0x02, 0x69, 0x64, 0x42, 0x0c,
-	0x5a, 0x0a, 0x77, 0x65, 0x62, 0x2f, 0x76, 0x31, 0x3b, 0x77, 0x65, 0x62, 0x62, 0x06, 0x70, 0x72,
-	0x6f, 0x74, 0x6f, 0x33,
+	0x0a, 0x02, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x05, 0x52, 0x02, 0x69, 0x64, 0x22, 0x19,
+	0x0a, 0x17, 0x43, 0x6f, 0x6e, 0x74, 0x61, 0x63, 0x74, 0x47, 0x72, 0x6f, 0x75, 0x70, 0x4c, 0x69,
+	0x73, 0x74, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x22, 0xaa, 0x01, 0x0a, 0x18, 0x43, 0x6f,
+	0x6e, 0x74, 0x61, 0x63, 0x74, 0x47, 0x72, 0x6f, 0x75, 0x70, 0x4c, 0x69, 0x73, 0x74, 0x52, 0x65,
+	0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x38, 0x0a, 0x05, 0x69, 0x74, 0x65, 0x6d, 0x73, 0x18,
+	0x01, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x22, 0x2e, 0x77, 0x65, 0x62, 0x2e, 0x43, 0x6f, 0x6e, 0x74,
+	0x61, 0x63, 0x74, 0x47, 0x72, 0x6f, 0x75, 0x70, 0x4c, 0x69, 0x73, 0x74, 0x52, 0x65, 0x73, 0x70,
+	0x6f, 0x6e, 0x73, 0x65, 0x2e, 0x49, 0x74, 0x65, 0x6d, 0x52, 0x05, 0x69, 0x74, 0x65, 0x6d, 0x73,
+	0x1a, 0x54, 0x0a, 0x04, 0x49, 0x74, 0x65, 0x6d, 0x12, 0x0e, 0x0a, 0x02, 0x69, 0x64, 0x18, 0x01,
+	0x20, 0x01, 0x28, 0x05, 0x52, 0x02, 0x69, 0x64, 0x12, 0x12, 0x0a, 0x04, 0x6e, 0x61, 0x6d, 0x65,
+	0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x04, 0x6e, 0x61, 0x6d, 0x65, 0x12, 0x14, 0x0a, 0x05,
+	0x63, 0x6f, 0x75, 0x6e, 0x74, 0x18, 0x03, 0x20, 0x01, 0x28, 0x05, 0x52, 0x05, 0x63, 0x6f, 0x75,
+	0x6e, 0x74, 0x12, 0x12, 0x0a, 0x04, 0x73, 0x6f, 0x72, 0x74, 0x18, 0x04, 0x20, 0x01, 0x28, 0x05,
+	0x52, 0x04, 0x73, 0x6f, 0x72, 0x74, 0x42, 0x0c, 0x5a, 0x0a, 0x77, 0x65, 0x62, 0x2f, 0x76, 0x31,
+	0x3b, 0x77, 0x65, 0x62, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -386,21 +561,25 @@ func file_web_v1_contact_group_proto_rawDescGZIP() []byte {
 	return file_web_v1_contact_group_proto_rawDescData
 }
 
-var file_web_v1_contact_group_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
+var file_web_v1_contact_group_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
 var file_web_v1_contact_group_proto_goTypes = []interface{}{
-	(*ContactGroupCreateRequest)(nil),  // 0: web.ContactGroupCreateRequest
-	(*ContactGroupCreateResponse)(nil), // 1: web.ContactGroupCreateResponse
-	(*ContactGroupUpdateRequest)(nil),  // 2: web.ContactGroupUpdateRequest
-	(*ContactGroupUpdateResponse)(nil), // 3: web.ContactGroupUpdateResponse
-	(*ContactGroupDeleteRequest)(nil),  // 4: web.ContactGroupDeleteRequest
-	(*ContactGroupDeleteResponse)(nil), // 5: web.ContactGroupDeleteResponse
+	(*ContactGroupCreateRequest)(nil),     // 0: web.ContactGroupCreateRequest
+	(*ContactGroupCreateResponse)(nil),    // 1: web.ContactGroupCreateResponse
+	(*ContactGroupUpdateRequest)(nil),     // 2: web.ContactGroupUpdateRequest
+	(*ContactGroupUpdateResponse)(nil),    // 3: web.ContactGroupUpdateResponse
+	(*ContactGroupDeleteRequest)(nil),     // 4: web.ContactGroupDeleteRequest
+	(*ContactGroupDeleteResponse)(nil),    // 5: web.ContactGroupDeleteResponse
+	(*ContactGroupListRequest)(nil),       // 6: web.ContactGroupListRequest
+	(*ContactGroupListResponse)(nil),      // 7: web.ContactGroupListResponse
+	(*ContactGroupListResponse_Item)(nil), // 8: web.ContactGroupListResponse.Item
 }
 var file_web_v1_contact_group_proto_depIdxs = []int32{
-	0, // [0:0] is the sub-list for method output_type
-	0, // [0:0] is the sub-list for method input_type
-	0, // [0:0] is the sub-list for extension type_name
-	0, // [0:0] is the sub-list for extension extendee
-	0, // [0:0] is the sub-list for field type_name
+	8, // 0: web.ContactGroupListResponse.items:type_name -> web.ContactGroupListResponse.Item
+	1, // [1:1] is the sub-list for method output_type
+	1, // [1:1] is the sub-list for method input_type
+	1, // [1:1] is the sub-list for extension type_name
+	1, // [1:1] is the sub-list for extension extendee
+	0, // [0:1] is the sub-list for field type_name
 }
 
 func init() { file_web_v1_contact_group_proto_init() }
@@ -481,6 +660,42 @@ func file_web_v1_contact_group_proto_init() {
 				return nil
 			}
 		}
+		file_web_v1_contact_group_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*ContactGroupListRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_web_v1_contact_group_proto_msgTypes[7].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*ContactGroupListResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_web_v1_contact_group_proto_msgTypes[8].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*ContactGroupListResponse_Item); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
@@ -488,7 +703,7 @@ func file_web_v1_contact_group_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_web_v1_contact_group_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   6,
+			NumMessages:   9,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

@@ -106,7 +106,7 @@ func Initialize(conf *config.Config) *AppProvider {
 	contactApplyService := service.NewContactApplyService(baseService)
 	contactApply := contact.NewApply(contactApplyService, userService, talkMessageService, contactService)
 	contactGroupService := service.NewContactGroupService(baseService)
-	contactGroup := contact.NewGroup(contactGroupService)
+	contactGroup := contact.NewGroup(contactGroupService, contactService)
 	articleService := note2.NewArticleService(baseService)
 	articleAnnex := note.NewArticleAnnex(db)
 	articleAnnexService := note2.NewArticleAnnexService(baseService, articleAnnex, filesystem)

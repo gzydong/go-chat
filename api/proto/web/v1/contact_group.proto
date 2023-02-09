@@ -37,3 +37,25 @@ message ContactGroupDeleteRequest{
 message ContactGroupDeleteResponse{
   int32 id = 1;
 }
+
+
+// 联系人分组列表接口请求参数
+message ContactGroupListRequest{}
+
+// 联系人分组列表接口响应参数
+message ContactGroupListResponse{
+
+  message Item{
+    // 分组ID
+    int32 id = 1;
+    // 分组名称
+    string name = 2;
+    // 联系人数
+    int32 count = 3;
+    // 分组排序
+    int32 sort = 4;
+  }
+
+  // 分组列表
+  repeated Item items = 1;
+}

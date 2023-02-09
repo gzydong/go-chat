@@ -1165,6 +1165,8 @@ func (m *ContactListResponse_Item) validate(all bool) error {
 
 	// no validation rules for IsOnline
 
+	// no validation rules for GroupId
+
 	if len(errors) > 0 {
 		return ContactListResponse_ItemMultiError(errors)
 	}
