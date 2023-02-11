@@ -23,14 +23,14 @@ func (s *Sequence) Redis() *redis.Client {
 func (s *Sequence) Name(userId int, receiverId int) string {
 
 	if userId == 0 {
-		return fmt.Sprintf("im:sequence:%d", receiverId)
+		return fmt.Sprintf("im:sequence:msg:%d", receiverId)
 	}
 
 	if receiverId < userId {
 		receiverId, userId = userId, receiverId
 	}
 
-	return fmt.Sprintf("im:sequence:%d_%d", userId, receiverId)
+	return fmt.Sprintf("im:sequence:msg:%d_%d", userId, receiverId)
 }
 
 // Init 初始化发号器
@@ -49,17 +49,12 @@ func (s *Sequence) Get(ctx context.Context, userId int, receiverId int) int64 {
 // BatchGet 批量获取消息时序ID
 func (s *Sequence) BatchGet(ctx context.Context, userId int, receiverId int, num int64) []int64 {
 
-	fmt.Println("BatchGet Before", s.redis.Get(ctx, s.Name(userId, receiverId)).Val())
 	value := s.redis.IncrBy(ctx, s.Name(userId, receiverId), num).Val()
-
-	fmt.Println("BatchGet", value, num)
 
 	items := make([]int64, 0, num)
 	for i := num; i > 0; i-- {
 		items = append(items, int64(value-i+1))
 	}
-
-	fmt.Println("BatchGet items", items)
 
 	return items
 }

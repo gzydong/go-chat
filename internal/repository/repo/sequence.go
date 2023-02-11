@@ -44,6 +44,8 @@ func (s *Sequence) try(ctx context.Context, userId int, receiverId int) {
 		if err := s.cache.Init(ctx, userId, receiverId, seq); err != nil {
 			logger.Error("[Sequence Init] 加载异常 err: ", err.Error())
 		}
+	} else if result == time.Duration(-1) {
+		s.cache.Redis().Expire(ctx, s.cache.Name(userId, receiverId), 12*time.Hour)
 	}
 }
 
