@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"go-chat/internal/entity"
 	"go-chat/internal/pkg/logger"
 	"go-chat/internal/repository/cache"
 	"go-chat/internal/repository/model"
@@ -29,7 +30,7 @@ func (s *Sequence) try(ctx context.Context, userId int, receiverId int) {
 
 		// 检测UserId 是否被设置，未设置则代表群聊
 		if userId == 0 {
-			tx = tx.Where("receiver_id = ?", receiverId)
+			tx = tx.Where("receiver_id = ? and type = ?", receiverId, entity.ChatGroupMode)
 		} else {
 			tx = tx.Where("user_id = ? and receiver_id = ?", userId, receiverId).Or("user_id = ? and receiver_id = ?", receiverId, userId)
 		}
