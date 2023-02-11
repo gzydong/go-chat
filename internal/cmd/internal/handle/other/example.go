@@ -2,9 +2,8 @@ package other
 
 import (
 	"context"
+	"fmt"
 
-	"go-chat/internal/pkg/strutil"
-	"go-chat/internal/repository/model"
 	"gorm.io/gorm"
 )
 
@@ -18,21 +17,7 @@ func NewExampleHandle(db *gorm.DB) *ExampleHandle {
 
 func (e *ExampleHandle) Handle(ctx context.Context) error {
 
-	id := 0
-	for {
-		items := make([]*model.TalkRecords, 0)
-		e.db.Table("talk_records").Where("id > ?", id).Where("msg_id = ''").Order("id asc").Limit(100).Scan(&items)
-
-		for _, item := range items {
-			e.db.Table("talk_records").Where("id = ?", item.Id).UpdateColumn("msg_id", strutil.NewUuid())
-		}
-
-		if len(items) < 100 {
-			break
-		}
-
-		id = items[len(items)-1].Id
-	}
+	fmt.Println("Job ExampleHandle")
 
 	return nil
 }
