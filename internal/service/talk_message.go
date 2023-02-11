@@ -151,6 +151,7 @@ func (s *TalkMessageService) SendFileMessage(ctx context.Context, opts *FileMess
 	var (
 		err    error
 		record = &model.TalkRecords{
+			MsgId:      strutil.NewUuid(),
 			TalkType:   opts.TalkType,
 			MsgType:    entity.MsgTypeFile,
 			UserId:     opts.UserId,
@@ -220,6 +221,7 @@ func (s *TalkMessageService) SendEmoticonMessage(ctx context.Context, opts *Emot
 		err      error
 		emoticon model.EmoticonItem
 		record   = &model.TalkRecords{
+			MsgId:      strutil.NewUuid(),
 			TalkType:   opts.TalkType,
 			MsgType:    entity.MsgTypeFile,
 			UserId:     opts.UserId,
