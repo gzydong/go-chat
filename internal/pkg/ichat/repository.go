@@ -111,3 +111,18 @@ func (r *Repo[T]) UpdateWhere(ctx context.Context, data map[string]interface{}, 
 	res := r.Model(ctx).Where(where, args...).Updates(data)
 	return res.RowsAffected, res.Error
 }
+
+// Create 创建数据
+func (r *Repo[T]) Create(ctx context.Context, data *T) error {
+	return r.Db.WithContext(ctx).Create(data).Error
+}
+
+// BatchCreate 批量创建
+func (r *Repo[T]) BatchCreate(ctx context.Context, data []*T) error {
+	return r.Db.WithContext(ctx).Create(data).Error
+}
+
+// Txx 事物闭包函数
+func (r *Repo[T]) Txx(ctx context.Context, fc func(tx *gorm.DB) error) error {
+	return r.Db.WithContext(ctx).Transaction(fc)
+}

@@ -16,39 +16,29 @@ func NewGroup(service *service.ContactGroupService, contact *service.ContactServ
 	return &Group{service: service, contact: contact}
 }
 
+// List 联系人分组列表
 func (c *Group) List(ctx *ichat.Context) error {
 
+	uid := ctx.UserId()
+
 	items := make([]*web.ContactGroupListResponse_Item, 0)
-
 	items = append(items, &web.ContactGroupListResponse_Item{
-		Id:    0,
 		Name:  "全部好友",
-		Count: int32(len(c.contact.GetContactIds(ctx.Ctx(), ctx.UserId()))),
+		Count: int32(len(c.contact.GetContactIds(ctx.Ctx(), uid))),
 	})
 
-	items = append(items, &web.ContactGroupListResponse_Item{
-		Id:    1,
-		Name:  "同事",
-		Count: 0,
-	})
+	group, err := c.service.GetUserGroup(ctx.Ctx(), uid)
+	if err != nil {
+		return ctx.ErrorBusiness(err.Error())
+	}
 
-	items = append(items, &web.ContactGroupListResponse_Item{
-		Id:    2,
-		Name:  "朋友",
-		Count: 0,
-	})
-
-	items = append(items, &web.ContactGroupListResponse_Item{
-		Id:    3,
-		Name:  "家人",
-		Count: 0,
-	})
-
-	items = append(items, &web.ContactGroupListResponse_Item{
-		Id:    4,
-		Name:  "陌生人",
-		Count: 0,
-	})
+	for _, v := range group {
+		items = append(items, &web.ContactGroupListResponse_Item{
+			Id:    int32(v.Id),
+			Name:  v.Name,
+			Count: int32(v.Num),
+		})
+	}
 
 	return ctx.Success(&web.ContactGroupListResponse{
 		Items: items,
@@ -62,26 +52,71 @@ func (c *Group) Create(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	id, err := c.service.Create(ctx.Ctx(), &model.ContactGroup{
+	data := &model.ContactGroup{
 		UserId: ctx.UserId(),
 		Name:   params.GetName(),
 		Sort:   int(params.GetSort()),
-	})
+	}
+
+	err := c.service.Repo().Create(ctx.Ctx(), data)
 	if err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}
 
-	return ctx.Success(&web.ContactGroupCreateResponse{Id: int32(id)})
+	return ctx.Success(&web.ContactGroupCreateResponse{Id: int32(data.Id)})
 }
 
 func (c *Group) Update(ctx *ichat.Context) error {
-	return nil
+
+	params := &web.ContactGroupUpdateRequest{}
+	if err := ctx.Context.ShouldBind(params); err != nil {
+		return ctx.InvalidParams(err)
+	}
+
+	_, err := c.service.Repo().UpdateWhere(ctx.Ctx(), map[string]interface{}{
+		"name": params.Name,
+		"sort": params.Sort,
+	}, "id = ? and user_id = ?", params.Id, ctx.UserId())
+	if err != nil {
+		return ctx.ErrorBusiness(err.Error())
+	}
+
+	return ctx.Success(&web.ContactGroupUpdateResponse{Id: params.Id})
 }
 
 func (c *Group) Delete(ctx *ichat.Context) error {
-	return nil
+
+	params := &web.ContactGroupDeleteRequest{}
+	if err := ctx.Context.ShouldBind(params); err != nil {
+		return ctx.InvalidParams(err)
+	}
+
+	err := c.service.Delete(ctx.Ctx(), int(params.Id), ctx.UserId())
+	if err != nil {
+		return ctx.ErrorBusiness(err.Error())
+	}
+
+	return ctx.Success(&web.ContactGroupDeleteResponse{Id: params.Id})
 }
 
 func (c *Group) Sort(ctx *ichat.Context) error {
-	return nil
+	params := &web.ContactGroupSortRequest{}
+	if err := ctx.Context.ShouldBind(params); err != nil {
+		return ctx.InvalidParams(err)
+	}
+
+	items := make([]*model.ContactGroup, 0, len(params.GetItems()))
+	for _, item := range params.GetItems() {
+		items = append(items, &model.ContactGroup{
+			Id:   int(item.Id),
+			Sort: int(item.Sort),
+		})
+	}
+
+	err := c.service.Sort(ctx.Ctx(), ctx.UserId(), items)
+	if err != nil {
+		return ctx.ErrorBusiness(err.Error())
+	}
+
+	return ctx.Success(&web.ContactGroupSortResponse{})
 }

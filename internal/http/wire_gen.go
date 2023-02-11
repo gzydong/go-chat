@@ -65,8 +65,9 @@ func Initialize(conf *config.Config) *AppProvider {
 	articleClassService := note2.NewArticleClassService(baseService, articleClass)
 	robot := repo.NewRobot(db)
 	sequence := cache.NewSequence(client)
-	messageForwardLogic := logic.NewMessageForwardLogic(db, sequence)
-	messageService := service.NewMessageService(baseService, messageForwardLogic, groupMember, splitUpload, filesystem, unreadStorage, messageStorage, serverStorage, clientStorage, sequence)
+	repoSequence := repo.NewSequence(db, sequence)
+	messageForwardLogic := logic.NewMessageForwardLogic(db, repoSequence)
+	messageService := service.NewMessageService(baseService, messageForwardLogic, groupMember, splitUpload, filesystem, unreadStorage, messageStorage, serverStorage, clientStorage, repoSequence)
 	auth := v1.NewAuth(conf, userService, smsService, tokenSessionStorage, redisLock, talkMessageService, ipAddressService, talkSessionService, articleClassService, robot, messageService)
 	organizeOrganize := organize.NewOrganize(db)
 	organizeService := organize2.NewOrganizeService(baseService, organizeOrganize)
@@ -105,8 +106,9 @@ func Initialize(conf *config.Config) *AppProvider {
 	contactContact := contact.NewContact(contactService, clientStorage, userService, talkSessionService, talkMessageService, organizeService)
 	contactApplyService := service.NewContactApplyService(baseService)
 	contactApply := contact.NewApply(contactApplyService, userService, talkMessageService, contactService)
-	contactGroupService := service.NewContactGroupService(baseService)
-	contactGroup := contact.NewGroup(contactGroupService, contactService)
+	contactGroup := repo.NewContactGroup(db)
+	contactGroupService := service.NewContactGroupService(baseService, contactGroup)
+	group2 := contact.NewGroup(contactGroupService, contactService)
 	articleService := note2.NewArticleService(baseService)
 	articleAnnex := note.NewArticleAnnex(db)
 	articleAnnexService := note2.NewArticleAnnexService(baseService, articleAnnex, filesystem)
@@ -131,7 +133,7 @@ func Initialize(conf *config.Config) *AppProvider {
 		GroupApply:   apply,
 		Contact:      contactContact,
 		ContactApply: contactApply,
-		ContactGroup: contactGroup,
+		ContactGroup: group2,
 		Article:      articleArticle,
 		ArticleAnnex: annex,
 		ArticleClass: class,
@@ -181,6 +183,6 @@ var providerSet = wire.NewSet(provider.NewMySQLClient, provider.NewRedisClient, 
 
 var cacheProviderSet = wire.NewSet(cache.NewTokenSessionStorage, cache.NewSidStorage, cache.NewUnreadStorage, cache.NewRedisLock, cache.NewClientStorage, cache.NewMessageStorage, cache.NewTalkVote, cache.NewRoomStorage, cache.NewRelation, cache.NewSmsCodeCache, cache.NewContactRemark, cache.NewSequence, cache.NewCaptchaStorage)
 
-var daoProviderSet = wire.NewSet(repo.NewContact, repo.NewGroupMember, repo.NewUsers, repo.NewGroup, repo.NewGroupApply, repo.NewTalkRecords, repo.NewGroupNotice, repo.NewTalkSession, repo.NewEmoticon, repo.NewTalkRecordsVote, repo.NewFileSplitUpload, note.NewArticleClass, note.NewArticleAnnex, organize.NewDepartment, organize.NewOrganize, organize.NewPosition, repo.NewRobot, repo.NewTest)
+var daoProviderSet = wire.NewSet(repo.NewContact, repo.NewContactGroup, repo.NewGroupMember, repo.NewUsers, repo.NewGroup, repo.NewGroupApply, repo.NewTalkRecords, repo.NewGroupNotice, repo.NewTalkSession, repo.NewEmoticon, repo.NewTalkRecordsVote, repo.NewFileSplitUpload, note.NewArticleClass, note.NewArticleAnnex, organize.NewDepartment, organize.NewOrganize, organize.NewPosition, repo.NewRobot, repo.NewTest, repo.NewSequence)
 
 var serviceProviderSet = wire.NewSet(service.NewBaseService, service.NewUserService, service.NewSmsService, service.NewTalkService, service.NewTalkMessageService, service.NewGroupService, service.NewGroupMemberService, service.NewGroupNoticeService, service.NewGroupApplyService, service.NewTalkSessionService, service.NewEmoticonService, service.NewTalkRecordsService, service.NewContactService, service.NewContactApplyService, service.NewContactGroupService, service.NewSplitUploadService, service.NewIpAddressService, service.NewAuthPermissionService, service.NewMessageService, note2.NewArticleService, note2.NewArticleTagService, note2.NewArticleClassService, note2.NewArticleAnnexService, organize2.NewOrganizeDeptService, organize2.NewOrganizeService, organize2.NewPositionService, service.NewTemplateService, service.NewTalkAuthService, logic.NewMessageForwardLogic)

@@ -53,6 +53,7 @@ func (s *ContactService) List(ctx context.Context, uid int) ([]*model.ContactLis
 		"users.motto",
 		"users.gender",
 		"contact.remark",
+		"contact.group_id",
 	})
 	tx.Joins("inner join `users` ON `users`.id = contact.friend_id")
 	tx.Where("contact.user_id = ? and contact.status = ?", uid, 1)

@@ -33,10 +33,10 @@ type MessageService struct {
 	messageStorage  *cache.MessageStorage
 	sidStorage      *cache.ServerStorage
 	clientStorage   *cache.ClientStorage
-	Sequence        *cache.Sequence
+	Sequence        *repo.Sequence
 }
 
-func NewMessageService(baseService *BaseService, forward *logic.MessageForwardLogic, groupMemberRepo *repo.GroupMember, splitUploadRepo *repo.SplitUpload, fileSystem *filesystem.Filesystem, unreadStorage *cache.UnreadStorage, messageStorage *cache.MessageStorage, sidStorage *cache.ServerStorage, clientStorage *cache.ClientStorage, sequence *cache.Sequence) *MessageService {
+func NewMessageService(baseService *BaseService, forward *logic.MessageForwardLogic, groupMemberRepo *repo.GroupMember, splitUploadRepo *repo.SplitUpload, fileSystem *filesystem.Filesystem, unreadStorage *cache.UnreadStorage, messageStorage *cache.MessageStorage, sidStorage *cache.ServerStorage, clientStorage *cache.ClientStorage, sequence *repo.Sequence) *MessageService {
 	return &MessageService{BaseService: baseService, forward: forward, groupMemberRepo: groupMemberRepo, splitUploadRepo: splitUploadRepo, fileSystem: fileSystem, unreadStorage: unreadStorage, messageStorage: messageStorage, sidStorage: sidStorage, clientStorage: clientStorage, Sequence: sequence}
 }
 
@@ -53,9 +53,9 @@ func (m *MessageService) SendText(ctx context.Context, uid int, req *message.Tex
 	}
 
 	if req.Receiver.TalkType == entity.ChatGroupMode {
-		data.Sequence = m.Sequence.Seq(ctx, 0, int(req.Receiver.ReceiverId))
+		data.Sequence = m.Sequence.Get(ctx, 0, int(req.Receiver.ReceiverId))
 	} else {
-		data.Sequence = m.Sequence.Seq(ctx, uid, int(req.Receiver.ReceiverId))
+		data.Sequence = m.Sequence.Get(ctx, uid, int(req.Receiver.ReceiverId))
 	}
 
 	if err := m.db.WithContext(ctx).Create(data).Error; err != nil {
@@ -86,9 +86,9 @@ func (m *MessageService) SendImage(ctx context.Context, uid int, req *message.Im
 	}
 
 	if req.Receiver.TalkType == entity.ChatGroupMode {
-		data.Sequence = m.Sequence.Seq(ctx, 0, int(req.Receiver.ReceiverId))
+		data.Sequence = m.Sequence.Get(ctx, 0, int(req.Receiver.ReceiverId))
 	} else {
-		data.Sequence = m.Sequence.Seq(ctx, uid, int(req.Receiver.ReceiverId))
+		data.Sequence = m.Sequence.Get(ctx, uid, int(req.Receiver.ReceiverId))
 	}
 
 	err = m.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
@@ -136,9 +136,9 @@ func (m *MessageService) SendVoice(ctx context.Context, uid int, req *message.Vo
 	}
 
 	if req.Receiver.TalkType == entity.ChatGroupMode {
-		data.Sequence = m.Sequence.Seq(ctx, 0, int(req.Receiver.ReceiverId))
+		data.Sequence = m.Sequence.Get(ctx, 0, int(req.Receiver.ReceiverId))
 	} else {
-		data.Sequence = m.Sequence.Seq(ctx, uid, int(req.Receiver.ReceiverId))
+		data.Sequence = m.Sequence.Get(ctx, uid, int(req.Receiver.ReceiverId))
 	}
 
 	err = m.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
@@ -186,9 +186,9 @@ func (m *MessageService) SendVideo(ctx context.Context, uid int, req *message.Vi
 	}
 
 	if req.Receiver.TalkType == entity.ChatGroupMode {
-		data.Sequence = m.Sequence.Seq(ctx, 0, int(req.Receiver.ReceiverId))
+		data.Sequence = m.Sequence.Get(ctx, 0, int(req.Receiver.ReceiverId))
 	} else {
-		data.Sequence = m.Sequence.Seq(ctx, uid, int(req.Receiver.ReceiverId))
+		data.Sequence = m.Sequence.Get(ctx, uid, int(req.Receiver.ReceiverId))
 	}
 
 	err = m.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
@@ -242,9 +242,9 @@ func (m *MessageService) SendFile(ctx context.Context, uid int, req *message.Fil
 	}
 
 	if req.Receiver.TalkType == entity.ChatGroupMode {
-		data.Sequence = m.Sequence.Seq(ctx, 0, int(req.Receiver.ReceiverId))
+		data.Sequence = m.Sequence.Get(ctx, 0, int(req.Receiver.ReceiverId))
 	} else {
-		data.Sequence = m.Sequence.Seq(ctx, uid, int(req.Receiver.ReceiverId))
+		data.Sequence = m.Sequence.Get(ctx, uid, int(req.Receiver.ReceiverId))
 	}
 
 	err = m.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
@@ -287,9 +287,9 @@ func (m *MessageService) SendCode(ctx context.Context, uid int, req *message.Cod
 	}
 
 	if req.Receiver.TalkType == entity.ChatGroupMode {
-		data.Sequence = m.Sequence.Seq(ctx, 0, int(req.Receiver.ReceiverId))
+		data.Sequence = m.Sequence.Get(ctx, 0, int(req.Receiver.ReceiverId))
 	} else {
-		data.Sequence = m.Sequence.Seq(ctx, uid, int(req.Receiver.ReceiverId))
+		data.Sequence = m.Sequence.Get(ctx, uid, int(req.Receiver.ReceiverId))
 	}
 
 	err := m.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
@@ -326,9 +326,9 @@ func (m *MessageService) SendVote(ctx context.Context, uid int, req *message.Vot
 	}
 
 	if req.Receiver.TalkType == entity.ChatGroupMode {
-		data.Sequence = m.Sequence.Seq(ctx, 0, int(req.Receiver.ReceiverId))
+		data.Sequence = m.Sequence.Get(ctx, 0, int(req.Receiver.ReceiverId))
 	} else {
-		data.Sequence = m.Sequence.Seq(ctx, uid, int(req.Receiver.ReceiverId))
+		data.Sequence = m.Sequence.Get(ctx, uid, int(req.Receiver.ReceiverId))
 	}
 
 	options := make(map[string]string)
@@ -385,9 +385,9 @@ func (m *MessageService) SendEmoticon(ctx context.Context, uid int, req *message
 	}
 
 	if req.Receiver.TalkType == entity.ChatGroupMode {
-		data.Sequence = m.Sequence.Seq(ctx, 0, int(req.Receiver.ReceiverId))
+		data.Sequence = m.Sequence.Get(ctx, 0, int(req.Receiver.ReceiverId))
 	} else {
-		data.Sequence = m.Sequence.Seq(ctx, uid, int(req.Receiver.ReceiverId))
+		data.Sequence = m.Sequence.Get(ctx, uid, int(req.Receiver.ReceiverId))
 	}
 
 	err := m.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
@@ -463,9 +463,9 @@ func (m *MessageService) SendLocation(ctx context.Context, uid int, req *message
 	}
 
 	if req.Receiver.TalkType == entity.ChatGroupMode {
-		data.Sequence = m.Sequence.Seq(ctx, 0, int(req.Receiver.ReceiverId))
+		data.Sequence = m.Sequence.Get(ctx, 0, int(req.Receiver.ReceiverId))
 	} else {
-		data.Sequence = m.Sequence.Seq(ctx, uid, int(req.Receiver.ReceiverId))
+		data.Sequence = m.Sequence.Get(ctx, uid, int(req.Receiver.ReceiverId))
 	}
 
 	err := m.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
@@ -501,7 +501,7 @@ func (m *MessageService) SendLogin(ctx context.Context, uid int, req *message.Lo
 
 	data := &model.TalkRecords{
 		MsgId:      strutil.NewUuid(),
-		Sequence:   m.Sequence.Seq(ctx, 4257, uid),
+		Sequence:   m.Sequence.Get(ctx, 4257, uid),
 		TalkType:   entity.ChatPrivateMode,
 		MsgType:    entity.MsgTypeLogin,
 		UserId:     4257, // 机器人ID

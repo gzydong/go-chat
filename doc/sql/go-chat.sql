@@ -77,6 +77,7 @@ CREATE TABLE `contact`
     `friend_id`  int(11) unsigned NOT NULL DEFAULT '0' COMMENT '好友id',
     `remark`     varchar(20) NOT NULL DEFAULT '' COMMENT '好友的备注',
     `status`     tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '好友状态 [0:否;1:是]',
+    `group_id`   int(11) unsigned NOT NULL DEFAULT '0' COMMENT '联系人分组ID',
     `created_at` datetime    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `updated_at` datetime    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     PRIMARY KEY (`id`),
@@ -280,8 +281,8 @@ CREATE TABLE `talk_records`
     `is_read`     tinyint(4) unsigned NOT NULL DEFAULT '0' COMMENT '是否已读[0:否;1:是;]',
     `quote_id`    int(11) unsigned NOT NULL DEFAULT '0' COMMENT '引用消息ID',
     `content`     text CHARACTER SET utf8mb4 COMMENT '文本消息 {@nickname@}',
-    `created_at`  datetime     NOT NULL COMMENT '创建时间',
-    `updated_at`  datetime     NOT NULL COMMENT '更新时间',
+    `created_at`  datetime NOT NULL COMMENT '创建时间',
+    `updated_at`  datetime NOT NULL COMMENT '更新时间',
     PRIMARY KEY (`id`),
     KEY           `idx_user_id_receiver_id` (`user_id`,`receiver_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=211754 DEFAULT CHARSET=utf8 COMMENT='用户聊天记录表';;
@@ -452,7 +453,7 @@ CREATE TABLE `users_emoticon`
 
 CREATE TABLE `contact_group`
 (
-    `id`         int(11) NOT NULL COMMENT '主键ID',
+    `id`         int(11) NOT NULL AUTO_INCREMENT COMMENT '主键ID',
     `user_id`    int(11) NOT NULL DEFAULT '0' COMMENT '用户ID',
     `name`       varchar(50) CHARACTER SET utf8mb4 NOT NULL DEFAULT '' COMMENT '分组名称',
     `num`        int(11) unsigned NOT NULL DEFAULT '0' COMMENT '好友数',

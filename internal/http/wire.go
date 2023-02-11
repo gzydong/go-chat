@@ -62,6 +62,7 @@ var cacheProviderSet = wire.NewSet(
 
 var daoProviderSet = wire.NewSet(
 	repo.NewContact,
+	repo.NewContactGroup,
 	repo.NewGroupMember,
 	repo.NewUsers,
 	repo.NewGroup,
@@ -79,6 +80,7 @@ var daoProviderSet = wire.NewSet(
 	organize3.NewPosition,
 	repo.NewRobot,
 	repo.NewTest,
+	repo.NewSequence,
 )
 
 var serviceProviderSet = wire.NewSet(

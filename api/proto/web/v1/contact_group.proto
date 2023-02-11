@@ -38,6 +38,21 @@ message ContactGroupDeleteResponse{
   int32 id = 1;
 }
 
+// 删除联系人分组接口请求参数
+message ContactGroupSortRequest{
+
+  message Item{
+    int32 id = 1 [(tagger.tags) = "binding:\"required\""];
+    int32 sort = 2 [(tagger.tags) = "binding:\"required\""];
+  }
+
+  repeated Item items = 1 [(tagger.tags) = "binding:\"required\""];
+}
+
+// 删除联系人分组接口响应参数
+message ContactGroupSortResponse{}
+
+
 
 // 联系人分组列表接口请求参数
 message ContactGroupListRequest{}

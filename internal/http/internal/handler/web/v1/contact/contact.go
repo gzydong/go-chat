@@ -46,7 +46,7 @@ func (c *Contact) List(ctx *ichat.Context) error {
 			Avatar:   item.Avatar,
 			Remark:   item.Remark,
 			IsOnline: int32(strutil.BoolToInt(c.wsClient.IsOnline(ctx.Ctx(), entity.ImChannelChat, strconv.Itoa(item.Id)))),
-			GroupId:  0,
+			GroupId:  int32(item.GroupId),
 		})
 	}
 

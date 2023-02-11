@@ -10,17 +10,17 @@ import (
 	"go-chat/internal/pkg/jsonutil"
 	"go-chat/internal/pkg/sliceutil"
 	"go-chat/internal/pkg/strutil"
-	"go-chat/internal/repository/cache"
 	"go-chat/internal/repository/model"
+	"go-chat/internal/repository/repo"
 	"gorm.io/gorm"
 )
 
 type MessageForwardLogic struct {
 	db       *gorm.DB
-	sequence *cache.Sequence
+	sequence *repo.Sequence
 }
 
-func NewMessageForwardLogic(db *gorm.DB, sequence *cache.Sequence) *MessageForwardLogic {
+func NewMessageForwardLogic(db *gorm.DB, sequence *repo.Sequence) *MessageForwardLogic {
 	return &MessageForwardLogic{db: db, sequence: sequence}
 }
 
@@ -95,7 +95,6 @@ func (m *MessageForwardLogic) MultiMergeForward(ctx context.Context, uid int, re
 		records := make([]*model.TalkRecords, 0, len(receives))
 
 		for _, item := range receives {
-
 			data := &model.TalkRecords{
 				MsgId:      strutil.NewUuid(),
 				TalkType:   item["type"],
@@ -105,9 +104,9 @@ func (m *MessageForwardLogic) MultiMergeForward(ctx context.Context, uid int, re
 			}
 
 			if data.TalkType == entity.ChatGroupMode {
-				data.Sequence = m.sequence.Seq(ctx, 0, data.ReceiverId)
+				data.Sequence = m.sequence.Get(ctx, 0, data.ReceiverId)
 			} else {
-				data.Sequence = m.sequence.Seq(ctx, uid, data.ReceiverId)
+				data.Sequence = m.sequence.Get(ctx, uid, data.ReceiverId)
 			}
 
 			records = append(records, data)
@@ -206,12 +205,24 @@ func (m *MessageForwardLogic) MultiSplitForward(ctx context.Context, uid int, re
 	}
 
 	err := db.Transaction(func(tx *gorm.DB) error {
-		for _, item := range records {
+
+		for _, v := range receives {
+			var sequences []int64
+			if v["type"] == entity.ChatGroupMode {
+				sequences = m.sequence.BatchGet(ctx, 0, v["id"], int64(len(records)))
+			} else {
+				sequences = m.sequence.BatchGet(ctx, uid, v["id"], int64(len(records)))
+			}
+
 			items := make([]*model.TalkRecords, 0, len(receives))
 			files := make([]*model.TalkRecordsFile, 0)
 			codes := make([]*model.TalkRecordsCode, 0)
 
-			for _, v := range receives {
+			recordsHash := make(map[int]*model.TalkRecords)
+
+			for i, item := range records {
+				recordsHash[i] = item
+
 				data := &model.TalkRecords{
 					MsgId:      strutil.NewUuid(),
 					TalkType:   v["type"],
@@ -219,12 +230,7 @@ func (m *MessageForwardLogic) MultiSplitForward(ctx context.Context, uid int, re
 					UserId:     uid,
 					ReceiverId: v["id"],
 					Content:    item.Content,
-				}
-
-				if data.TalkType == entity.ChatGroupMode {
-					data.Sequence = m.sequence.Seq(ctx, 0, data.ReceiverId)
-				} else {
-					data.Sequence = m.sequence.Seq(ctx, uid, data.ReceiverId)
+					Sequence:   sequences[i],
 				}
 
 				items = append(items, data)
@@ -234,16 +240,18 @@ func (m *MessageForwardLogic) MultiSplitForward(ctx context.Context, uid int, re
 				return err
 			}
 
-			for _, record := range items {
+			for i, record := range items {
 				arr = append(arr, &ForwardRecord{
 					RecordId:   record.Id,
 					ReceiverId: record.ReceiverId,
 					TalkType:   record.TalkType,
 				})
 
+				oldRecord := recordsHash[i]
+
 				switch record.MsgType {
 				case entity.MsgTypeFile:
-					if file, ok := hashFiles[item.Id]; ok {
+					if file, ok := hashFiles[oldRecord.Id]; ok {
 						files = append(files, &model.TalkRecordsFile{
 							RecordId:     record.Id,
 							UserId:       uid,
@@ -257,7 +265,7 @@ func (m *MessageForwardLogic) MultiSplitForward(ctx context.Context, uid int, re
 						})
 					}
 				case entity.MsgTypeCode:
-					if code, ok := hashCodes[item.Id]; ok {
+					if code, ok := hashCodes[oldRecord.Id]; ok {
 						codes = append(codes, &model.TalkRecordsCode{
 							RecordId: record.Id,
 							UserId:   uid,

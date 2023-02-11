@@ -25,4 +25,5 @@ type ContactListItem struct {
 	Avatar   string `grom:"column:avatar" json:"avatar" `       // 好友头像
 	Remark   string `gorm:"column:remark" json:"friend_remark"` // 好友的备注
 	IsOnline int    `json:"is_online"`                          // 是否在线
+	GroupId  int    `gorm:"column:group_id" json:"group_id"`    // 联系人分组
 }
