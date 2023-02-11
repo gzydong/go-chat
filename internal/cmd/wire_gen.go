@@ -42,7 +42,7 @@ func Initialize(ctx context.Context, conf *config.Config) *AppProvider {
 	cronCommand := cron2.NewCrontabCommand(subcommands)
 	queueSubcommands := &queue.Subcommands{}
 	queueCommand := queue.NewQueueCommand(queueSubcommands)
-	exampleHandle := other.NewExampleHandle()
+	exampleHandle := other.NewExampleHandle(db)
 	exampleCommand := other2.NewExampleCommand(exampleHandle)
 	migrateCommand := other2.NewMigrateCommand(db)
 	otherSubcommands := &other2.Subcommands{
