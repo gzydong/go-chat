@@ -3,6 +3,7 @@ package contact
 import (
 	"go-chat/api/pb/web/v1"
 	"go-chat/internal/pkg/ichat"
+	"go-chat/internal/pkg/timeutil"
 	"go-chat/internal/repository/model"
 	"go-chat/internal/service"
 )
@@ -73,12 +74,17 @@ func (c *Group) Update(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	_, err := c.service.Repo().UpdateWhere(ctx.Ctx(), map[string]interface{}{
-		"name": params.Name,
-		"sort": params.Sort,
+	affected, err := c.service.Repo().UpdateWhere(ctx.Ctx(), map[string]interface{}{
+		"name":       params.Name,
+		"sort":       params.Sort,
+		"updated_at": timeutil.DateTime(),
 	}, "id = ? and user_id = ?", params.Id, ctx.UserId())
 	if err != nil {
 		return ctx.ErrorBusiness(err.Error())
+	}
+
+	if affected == 0 {
+		return ctx.ErrorBusiness("数据不存在")
 	}
 
 	return ctx.Success(&web.ContactGroupUpdateResponse{Id: params.Id})

@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"errors"
 
 	"go-chat/internal/repository/model"
 	"go-chat/internal/repository/repo"
@@ -26,6 +27,10 @@ func (c *ContactGroupService) Delete(ctx context.Context, id int, uid int) error
 		res := tx.Delete(&model.ContactGroup{}, "id = ? and user_id = ?", id, uid)
 		if err := res.Error; err != nil {
 			return err
+		}
+
+		if res.RowsAffected == 0 {
+			return errors.New("数据不存在")
 		}
 
 		res = tx.Table(model.Contact{}.TableName()).Where("user_id = ? and group_id = ?", uid, id).UpdateColumn("group_id", 0)
