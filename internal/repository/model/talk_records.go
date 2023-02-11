@@ -25,6 +25,7 @@ func (TalkRecords) TableName() string {
 
 type QueryTalkRecordsItem struct {
 	Id         int       `json:"id"`
+	MsgId      string    `json:"msg_id"`
 	Sequence   int64     `json:"sequence"`
 	TalkType   int       `json:"talk_type"`
 	MsgType    int       `json:"msg_type"`
