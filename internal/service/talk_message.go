@@ -109,6 +109,8 @@ func (s *TalkMessageService) SendImageMessage(ctx context.Context, opts *ImageMe
 
 	err = s.db.Transaction(func(tx *gorm.DB) error {
 		if err = s.db.Create(record).Error; err != nil {
+
+			fmt.Println(err.Error())
 			return err
 		}
 
