@@ -84,6 +84,7 @@ func (s *TalkMessageService) SendImageMessage(ctx context.Context, opts *ImageMe
 	var (
 		err    error
 		record = &model.TalkRecords{
+			MsgId:      strutil.NewUuid(),
 			TalkType:   opts.TalkType,
 			MsgType:    entity.MsgTypeFile,
 			UserId:     opts.UserId,

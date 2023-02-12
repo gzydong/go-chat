@@ -16,14 +16,14 @@ func NewRedisLock(rds *redis.Client) *RedisLock {
 	return &RedisLock{rds}
 }
 
-// key 获取锁名
-func (lock *RedisLock) key(name string) string {
-	return fmt.Sprintf("redis-lock:%s", name)
+// name 获取锁名
+func (lock *RedisLock) name(name string) string {
+	return fmt.Sprintf("redis:lock:%s", name)
 }
 
 // Lock 获取 redis 锁
 func (lock *RedisLock) Lock(ctx context.Context, name string, expire int) bool {
-	return lock.rds.SetNX(ctx, lock.key(name), 1, time.Duration(expire)*time.Second).Val()
+	return lock.rds.SetNX(ctx, lock.name(name), 1, time.Duration(expire)*time.Second).Val()
 }
 
 // UnLock 释放 redis 锁
@@ -35,5 +35,5 @@ func (lock *RedisLock) UnLock(ctx context.Context, name string) bool {
 		return false
 	end`
 
-	return lock.rds.Eval(ctx, script, []string{lock.key(name)}, 1).Err() == nil
+	return lock.rds.Eval(ctx, script, []string{lock.name(name)}, 1).Err() == nil
 }

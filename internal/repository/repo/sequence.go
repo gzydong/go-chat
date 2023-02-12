@@ -26,7 +26,7 @@ func (s *Sequence) try(ctx context.Context, userId int, receiverId int) {
 	// 当数据不存在时需要从数据库中加载
 	// 这里可能存在并发问题，但会话间 Sequence ID 并发情况下从复也几乎是能忍受的
 	if result == time.Duration(-2) {
-		tx := s.db.WithContext(ctx).Table(model.TalkRecords{}.TableName())
+		tx := s.db.WithContext(ctx).Model(&model.TalkRecords{})
 
 		// 检测UserId 是否被设置，未设置则代表群聊
 		if userId == 0 {

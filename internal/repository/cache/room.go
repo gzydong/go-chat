@@ -32,11 +32,11 @@ func (r *RoomStorage) key(opts *RoomOption) string {
 }
 
 // Add 添加房间成员
-func (r *RoomStorage) Add(ctx context.Context, opts *RoomOption) error {
+func (r *RoomStorage) Add(ctx context.Context, opt *RoomOption) error {
 
-	key := r.key(opts)
+	key := r.key(opt)
 
-	err := r.rds.SAdd(ctx, key, opts.Cid).Err()
+	err := r.rds.SAdd(ctx, key, opt.Cid).Err()
 	if err == nil {
 		r.rds.Expire(ctx, key, time.Hour*24*7)
 	}
@@ -44,9 +44,34 @@ func (r *RoomStorage) Add(ctx context.Context, opts *RoomOption) error {
 	return err
 }
 
+func (r *RoomStorage) BatchAdd(ctx context.Context, opts []*RoomOption) error {
+
+	pipeline := r.rds.Pipeline()
+	for _, opt := range opts {
+		key := r.key(opt)
+		if err := pipeline.SAdd(ctx, key, opt.Cid).Err(); err == nil {
+			pipeline.Expire(ctx, key, time.Hour*24*7)
+		}
+	}
+
+	_, err := pipeline.Exec(ctx)
+	return err
+}
+
 // Del 删除房间成员
 func (r *RoomStorage) Del(ctx context.Context, opts *RoomOption) error {
 	return r.rds.SRem(ctx, r.key(opts), opts.Cid).Err()
+}
+
+func (r *RoomStorage) BatchDel(ctx context.Context, opts []*RoomOption) error {
+
+	pipeline := r.rds.Pipeline()
+	for _, opt := range opts {
+		pipeline.SRem(ctx, r.key(opt), opt.Cid)
+	}
+
+	_, err := pipeline.Exec(ctx)
+	return err
 }
 
 // All 获取所有房间成员
