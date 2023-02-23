@@ -72,7 +72,7 @@ func Sum[T IntInterface | FloatInterface](arr []T) T {
 }
 
 // ToMap 切片转 map
-func ToMap[T interface{}, K int | string](arr []T, fn func(T) K) map[K]T {
+func ToMap[T any, K int | string](arr []T, fn func(T) K) map[K]T {
 	var m = make(map[K]T)
 
 	for _, t := range arr {

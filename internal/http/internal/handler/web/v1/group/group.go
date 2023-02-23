@@ -238,7 +238,7 @@ func (c *Group) UpdateMemberRemark(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	_, err := c.memberService.Dao().UpdateWhere(ctx.Ctx(), map[string]interface{}{
+	_, err := c.memberService.Dao().UpdateWhere(ctx.Ctx(), map[string]any{
 		"user_card": params.VisitCard,
 	}, "group_id = ? and user_id = ?", params.GroupId, ctx.UserId())
 	if err != nil {

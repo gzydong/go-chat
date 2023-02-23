@@ -34,7 +34,7 @@ func TestSum(t *testing.T) {
 func TestToMap(t *testing.T) {
 	type Data struct {
 		key   string
-		value interface{}
+		value any
 	}
 
 	items := make([]*Data, 0)

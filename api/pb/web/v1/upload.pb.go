@@ -403,7 +403,7 @@ func file_web_v1_upload_proto_rawDescGZIP() []byte {
 }
 
 var file_web_v1_upload_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
-var file_web_v1_upload_proto_goTypes = []interface{}{
+var file_web_v1_upload_proto_goTypes = []any{
 	(*UploadAvatarRequest)(nil),             // 0: web.UploadAvatarRequest
 	(*UploadAvatarResponse)(nil),            // 1: web.UploadAvatarResponse
 	(*UploadInitiateMultipartRequest)(nil),  // 2: web.UploadInitiateMultipartRequest
@@ -425,7 +425,7 @@ func file_web_v1_upload_proto_init() {
 		return
 	}
 	if !protoimpl.UnsafeEnabled {
-		file_web_v1_upload_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
+		file_web_v1_upload_proto_msgTypes[0].Exporter = func(v any, i int) any {
 			switch v := v.(*UploadAvatarRequest); i {
 			case 0:
 				return &v.state
@@ -437,7 +437,7 @@ func file_web_v1_upload_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_upload_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
+		file_web_v1_upload_proto_msgTypes[1].Exporter = func(v any, i int) any {
 			switch v := v.(*UploadAvatarResponse); i {
 			case 0:
 				return &v.state
@@ -449,7 +449,7 @@ func file_web_v1_upload_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_upload_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
+		file_web_v1_upload_proto_msgTypes[2].Exporter = func(v any, i int) any {
 			switch v := v.(*UploadInitiateMultipartRequest); i {
 			case 0:
 				return &v.state
@@ -461,7 +461,7 @@ func file_web_v1_upload_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_upload_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
+		file_web_v1_upload_proto_msgTypes[3].Exporter = func(v any, i int) any {
 			switch v := v.(*UploadInitiateMultipartResponse); i {
 			case 0:
 				return &v.state
@@ -473,7 +473,7 @@ func file_web_v1_upload_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_upload_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
+		file_web_v1_upload_proto_msgTypes[4].Exporter = func(v any, i int) any {
 			switch v := v.(*UploadMultipartRequest); i {
 			case 0:
 				return &v.state
@@ -485,7 +485,7 @@ func file_web_v1_upload_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_upload_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
+		file_web_v1_upload_proto_msgTypes[5].Exporter = func(v any, i int) any {
 			switch v := v.(*UploadMultipartResponse); i {
 			case 0:
 				return &v.state

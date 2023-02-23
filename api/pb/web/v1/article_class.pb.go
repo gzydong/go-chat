@@ -501,7 +501,7 @@ func file_web_v1_article_class_proto_rawDescGZIP() []byte {
 }
 
 var file_web_v1_article_class_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
-var file_web_v1_article_class_proto_goTypes = []interface{}{
+var file_web_v1_article_class_proto_goTypes = []any{
 	(*ArticleClassListResponse)(nil),      // 0: web.ArticleClassListResponse
 	(*ArticleClassEditRequest)(nil),       // 1: web.ArticleClassEditRequest
 	(*ArticleClassEditResponse)(nil),      // 2: web.ArticleClassEditResponse
@@ -529,7 +529,7 @@ func file_web_v1_article_class_proto_init() {
 	}
 	file_web_v1_paginate_proto_init()
 	if !protoimpl.UnsafeEnabled {
-		file_web_v1_article_class_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
+		file_web_v1_article_class_proto_msgTypes[0].Exporter = func(v any, i int) any {
 			switch v := v.(*ArticleClassListResponse); i {
 			case 0:
 				return &v.state
@@ -541,7 +541,7 @@ func file_web_v1_article_class_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_article_class_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
+		file_web_v1_article_class_proto_msgTypes[1].Exporter = func(v any, i int) any {
 			switch v := v.(*ArticleClassEditRequest); i {
 			case 0:
 				return &v.state
@@ -553,7 +553,7 @@ func file_web_v1_article_class_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_article_class_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
+		file_web_v1_article_class_proto_msgTypes[2].Exporter = func(v any, i int) any {
 			switch v := v.(*ArticleClassEditResponse); i {
 			case 0:
 				return &v.state
@@ -565,7 +565,7 @@ func file_web_v1_article_class_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_article_class_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
+		file_web_v1_article_class_proto_msgTypes[3].Exporter = func(v any, i int) any {
 			switch v := v.(*ArticleClassDeleteRequest); i {
 			case 0:
 				return &v.state
@@ -577,7 +577,7 @@ func file_web_v1_article_class_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_article_class_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
+		file_web_v1_article_class_proto_msgTypes[4].Exporter = func(v any, i int) any {
 			switch v := v.(*ArticleClassDeleteResponse); i {
 			case 0:
 				return &v.state
@@ -589,7 +589,7 @@ func file_web_v1_article_class_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_article_class_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
+		file_web_v1_article_class_proto_msgTypes[5].Exporter = func(v any, i int) any {
 			switch v := v.(*ArticleClassSortRequest); i {
 			case 0:
 				return &v.state
@@ -601,7 +601,7 @@ func file_web_v1_article_class_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_article_class_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
+		file_web_v1_article_class_proto_msgTypes[6].Exporter = func(v any, i int) any {
 			switch v := v.(*ArticleClassSortResponse); i {
 			case 0:
 				return &v.state
@@ -613,7 +613,7 @@ func file_web_v1_article_class_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_article_class_proto_msgTypes[7].Exporter = func(v interface{}, i int) interface{} {
+		file_web_v1_article_class_proto_msgTypes[7].Exporter = func(v any, i int) any {
 			switch v := v.(*ArticleClassListResponse_Item); i {
 			case 0:
 				return &v.state

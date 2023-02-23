@@ -56,7 +56,7 @@ func (s *ArticleClassService) Create(ctx context.Context, uid int, name string) 
 	}
 
 	err := s.Db().Transaction(func(tx *gorm.DB) error {
-		if err := tx.Model(&model.ArticleClass{}).Where("user_id = ?", uid).Updates(map[string]interface{}{
+		if err := tx.Model(&model.ArticleClass{}).Where("user_id = ?", uid).Updates(map[string]any{
 			"sort": gorm.Expr("sort + 1"),
 		}).Error; err != nil {
 			return err
@@ -106,13 +106,13 @@ func (s *ArticleClassService) Sort(ctx context.Context, uid, cid, mode int) erro
 		}
 
 		return s.Db().Transaction(func(tx *gorm.DB) error {
-			if err := tx.Model(&model.ArticleClass{}).Where("user_id = ? and sort = ?", uid, item.Sort+1).Updates(map[string]interface{}{
+			if err := tx.Model(&model.ArticleClass{}).Where("user_id = ? and sort = ?", uid, item.Sort+1).Updates(map[string]any{
 				"sort": gorm.Expr("sort - 1"),
 			}).Error; err != nil {
 				return err
 			}
 
-			if err := tx.Model(&model.ArticleClass{}).Where("id = ? and user_id = ?", cid, uid).Updates(map[string]interface{}{
+			if err := tx.Model(&model.ArticleClass{}).Where("id = ? and user_id = ?", cid, uid).Updates(map[string]any{
 				"sort": gorm.Expr("sort + 1"),
 			}).Error; err != nil {
 				return err
@@ -131,13 +131,13 @@ func (s *ArticleClassService) Sort(ctx context.Context, uid, cid, mode int) erro
 		}
 
 		return s.Db().Transaction(func(tx *gorm.DB) error {
-			if err := tx.Model(&model.ArticleClass{}).Where("user_id = ? and sort = ?", uid, item.Sort-1).Updates(map[string]interface{}{
+			if err := tx.Model(&model.ArticleClass{}).Where("user_id = ? and sort = ?", uid, item.Sort-1).Updates(map[string]any{
 				"sort": gorm.Expr("sort + 1"),
 			}).Error; err != nil {
 				return err
 			}
 
-			if err := tx.Model(&model.ArticleClass{}).Where("id = ? and user_id = ?", cid, uid).Updates(map[string]interface{}{
+			if err := tx.Model(&model.ArticleClass{}).Where("id = ? and user_id = ?", cid, uid).Updates(map[string]any{
 				"sort": gorm.Expr("sort - 1"),
 			}).Error; err != nil {
 				return err

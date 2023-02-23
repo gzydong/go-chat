@@ -78,7 +78,7 @@ func (c *Contact) LoadContactCache(ctx context.Context, uid int) error {
 		return err
 	}
 
-	items := make(map[string]interface{})
+	items := make(map[string]any)
 	for _, value := range contacts {
 		if len(value.Remark) > 0 {
 			items[fmt.Sprintf("%d", value.FriendId)] = value.Remark

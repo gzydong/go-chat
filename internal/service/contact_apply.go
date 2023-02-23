@@ -50,9 +50,9 @@ func (s *ContactApplyService) Create(ctx context.Context, opts *ContactApplyCrea
 		return err
 	}
 
-	body := map[string]interface{}{
+	body := map[string]any{
 		"event": entity.EventContactApply,
-		"data": jsonutil.Encode(map[string]interface{}{
+		"data": jsonutil.Encode(map[string]any{
 			"apply_id": int64(apply.Id),
 			"type":     1,
 		}),
@@ -126,9 +126,9 @@ func (s *ContactApplyService) Decline(ctx context.Context, opts *ContactApplyDec
 	err := s.db.Delete(&model.ContactApply{}, "id = ? and friend_id = ?", opts.ApplyId, opts.UserId).Error
 
 	if err == nil {
-		body := map[string]interface{}{
+		body := map[string]any{
 			"event": entity.EventContactApply,
-			"data": jsonutil.Encode(map[string]interface{}{
+			"data": jsonutil.Encode(map[string]any{
 				"apply_id": int64(opts.ApplyId),
 				"type":     2,
 			}),

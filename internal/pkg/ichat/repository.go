@@ -65,7 +65,7 @@ func (r *Repo[T]) FindAll(ctx context.Context, arg ...func(*gorm.DB)) ([]*T, err
 }
 
 // FindByWhere 根据条件查询一条数据
-func (r *Repo[T]) FindByWhere(ctx context.Context, where string, args ...interface{}) (*T, error) {
+func (r *Repo[T]) FindByWhere(ctx context.Context, where string, args ...any) (*T, error) {
 
 	var item *T
 	err := r.Db.WithContext(ctx).Where(where, args...).First(&item).Error
@@ -77,7 +77,7 @@ func (r *Repo[T]) FindByWhere(ctx context.Context, where string, args ...interfa
 }
 
 // QueryCount 根据条件统计数据总数
-func (r *Repo[T]) QueryCount(ctx context.Context, where string, args ...interface{}) (int64, error) {
+func (r *Repo[T]) QueryCount(ctx context.Context, where string, args ...any) (int64, error) {
 
 	var count int64
 	err := r.Model(ctx).Where(where, args...).Count(&count).Error
@@ -89,7 +89,7 @@ func (r *Repo[T]) QueryCount(ctx context.Context, where string, args ...interfac
 }
 
 // QueryExist 根据条件查询数据是否存在
-func (r *Repo[T]) QueryExist(ctx context.Context, where string, args ...interface{}) (bool, error) {
+func (r *Repo[T]) QueryExist(ctx context.Context, where string, args ...any) (bool, error) {
 
 	var count int64
 	err := r.Model(ctx).Select("1").Where(where, args...).Limit(1).Scan(&count).Error
@@ -101,13 +101,13 @@ func (r *Repo[T]) QueryExist(ctx context.Context, where string, args ...interfac
 }
 
 // UpdateById 根据主键ID更新
-func (r *Repo[T]) UpdateById(ctx context.Context, id interface{}, data map[string]interface{}) (int64, error) {
+func (r *Repo[T]) UpdateById(ctx context.Context, id any, data map[string]any) (int64, error) {
 	res := r.Model(ctx).Where("id = ?", id).Updates(data)
 	return res.RowsAffected, res.Error
 }
 
 // UpdateWhere 批量更新
-func (r *Repo[T]) UpdateWhere(ctx context.Context, data map[string]interface{}, where string, args ...interface{}) (int64, error) {
+func (r *Repo[T]) UpdateWhere(ctx context.Context, data map[string]any, where string, args ...any) (int64, error) {
 	res := r.Model(ctx).Where(where, args...).Updates(data)
 	return res.RowsAffected, res.Error
 }

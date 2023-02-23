@@ -1932,7 +1932,7 @@ func file_web_v1_group_proto_rawDescGZIP() []byte {
 }
 
 var file_web_v1_group_proto_msgTypes = make([]protoimpl.MessageInfo, 32)
-var file_web_v1_group_proto_goTypes = []interface{}{
+var file_web_v1_group_proto_goTypes = []any{
 	(*GroupListRequest)(nil),            // 0: web.GroupListRequest
 	(*GroupListResponse)(nil),           // 1: web.GroupListResponse
 	(*GroupCreateRequest)(nil),          // 2: web.GroupCreateRequest
@@ -1982,7 +1982,7 @@ func file_web_v1_group_proto_init() {
 		return
 	}
 	if !protoimpl.UnsafeEnabled {
-		file_web_v1_group_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
+		file_web_v1_group_proto_msgTypes[0].Exporter = func(v any, i int) any {
 			switch v := v.(*GroupListRequest); i {
 			case 0:
 				return &v.state
@@ -1994,7 +1994,7 @@ func file_web_v1_group_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_group_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
+		file_web_v1_group_proto_msgTypes[1].Exporter = func(v any, i int) any {
 			switch v := v.(*GroupListResponse); i {
 			case 0:
 				return &v.state
@@ -2006,7 +2006,7 @@ func file_web_v1_group_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_group_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
+		file_web_v1_group_proto_msgTypes[2].Exporter = func(v any, i int) any {
 			switch v := v.(*GroupCreateRequest); i {
 			case 0:
 				return &v.state
@@ -2018,7 +2018,7 @@ func file_web_v1_group_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_group_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
+		file_web_v1_group_proto_msgTypes[3].Exporter = func(v any, i int) any {
 			switch v := v.(*GroupCreateResponse); i {
 			case 0:
 				return &v.state
@@ -2030,7 +2030,7 @@ func file_web_v1_group_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_group_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
+		file_web_v1_group_proto_msgTypes[4].Exporter = func(v any, i int) any {
 			switch v := v.(*GroupDetailRequest); i {
 			case 0:
 				return &v.state
@@ -2042,7 +2042,7 @@ func file_web_v1_group_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_group_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
+		file_web_v1_group_proto_msgTypes[5].Exporter = func(v any, i int) any {
 			switch v := v.(*GroupDetailResponse); i {
 			case 0:
 				return &v.state
@@ -2054,7 +2054,7 @@ func file_web_v1_group_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_group_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
+		file_web_v1_group_proto_msgTypes[6].Exporter = func(v any, i int) any {
 			switch v := v.(*GroupMemberListRequest); i {
 			case 0:
 				return &v.state
@@ -2066,7 +2066,7 @@ func file_web_v1_group_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_group_proto_msgTypes[7].Exporter = func(v interface{}, i int) interface{} {
+		file_web_v1_group_proto_msgTypes[7].Exporter = func(v any, i int) any {
 			switch v := v.(*GroupMemberListResponse); i {
 			case 0:
 				return &v.state
@@ -2078,7 +2078,7 @@ func file_web_v1_group_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_group_proto_msgTypes[8].Exporter = func(v interface{}, i int) interface{} {
+		file_web_v1_group_proto_msgTypes[8].Exporter = func(v any, i int) any {
 			switch v := v.(*GroupDismissRequest); i {
 			case 0:
 				return &v.state
@@ -2090,7 +2090,7 @@ func file_web_v1_group_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_group_proto_msgTypes[9].Exporter = func(v interface{}, i int) interface{} {
+		file_web_v1_group_proto_msgTypes[9].Exporter = func(v any, i int) any {
 			switch v := v.(*GroupDismissResponse); i {
 			case 0:
 				return &v.state
@@ -2102,7 +2102,7 @@ func file_web_v1_group_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_group_proto_msgTypes[10].Exporter = func(v interface{}, i int) interface{} {
+		file_web_v1_group_proto_msgTypes[10].Exporter = func(v any, i int) any {
 			switch v := v.(*GroupInviteRequest); i {
 			case 0:
 				return &v.state
@@ -2114,7 +2114,7 @@ func file_web_v1_group_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_group_proto_msgTypes[11].Exporter = func(v interface{}, i int) interface{} {
+		file_web_v1_group_proto_msgTypes[11].Exporter = func(v any, i int) any {
 			switch v := v.(*GroupInviteResponse); i {
 			case 0:
 				return &v.state
@@ -2126,7 +2126,7 @@ func file_web_v1_group_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_group_proto_msgTypes[12].Exporter = func(v interface{}, i int) interface{} {
+		file_web_v1_group_proto_msgTypes[12].Exporter = func(v any, i int) any {
 			switch v := v.(*GetInviteFriendsRequest); i {
 			case 0:
 				return &v.state
@@ -2138,7 +2138,7 @@ func file_web_v1_group_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_group_proto_msgTypes[13].Exporter = func(v interface{}, i int) interface{} {
+		file_web_v1_group_proto_msgTypes[13].Exporter = func(v any, i int) any {
 			switch v := v.(*GetInviteFriendsResponse); i {
 			case 0:
 				return &v.state
@@ -2150,7 +2150,7 @@ func file_web_v1_group_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_group_proto_msgTypes[14].Exporter = func(v interface{}, i int) interface{} {
+		file_web_v1_group_proto_msgTypes[14].Exporter = func(v any, i int) any {
 			switch v := v.(*GroupSecedeRequest); i {
 			case 0:
 				return &v.state
@@ -2162,7 +2162,7 @@ func file_web_v1_group_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_group_proto_msgTypes[15].Exporter = func(v interface{}, i int) interface{} {
+		file_web_v1_group_proto_msgTypes[15].Exporter = func(v any, i int) any {
 			switch v := v.(*GroupSecedeResponse); i {
 			case 0:
 				return &v.state
@@ -2174,7 +2174,7 @@ func file_web_v1_group_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_group_proto_msgTypes[16].Exporter = func(v interface{}, i int) interface{} {
+		file_web_v1_group_proto_msgTypes[16].Exporter = func(v any, i int) any {
 			switch v := v.(*GroupSettingRequest); i {
 			case 0:
 				return &v.state
@@ -2186,7 +2186,7 @@ func file_web_v1_group_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_group_proto_msgTypes[17].Exporter = func(v interface{}, i int) interface{} {
+		file_web_v1_group_proto_msgTypes[17].Exporter = func(v any, i int) any {
 			switch v := v.(*GroupSettingResponse); i {
 			case 0:
 				return &v.state
@@ -2198,7 +2198,7 @@ func file_web_v1_group_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_group_proto_msgTypes[18].Exporter = func(v interface{}, i int) interface{} {
+		file_web_v1_group_proto_msgTypes[18].Exporter = func(v any, i int) any {
 			switch v := v.(*GroupRemarkUpdateRequest); i {
 			case 0:
 				return &v.state
@@ -2210,7 +2210,7 @@ func file_web_v1_group_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_group_proto_msgTypes[19].Exporter = func(v interface{}, i int) interface{} {
+		file_web_v1_group_proto_msgTypes[19].Exporter = func(v any, i int) any {
 			switch v := v.(*GroupRemarkUpdateResponse); i {
 			case 0:
 				return &v.state
@@ -2222,7 +2222,7 @@ func file_web_v1_group_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_group_proto_msgTypes[20].Exporter = func(v interface{}, i int) interface{} {
+		file_web_v1_group_proto_msgTypes[20].Exporter = func(v any, i int) any {
 			switch v := v.(*GroupRemoveMemberRequest); i {
 			case 0:
 				return &v.state
@@ -2234,7 +2234,7 @@ func file_web_v1_group_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_group_proto_msgTypes[21].Exporter = func(v interface{}, i int) interface{} {
+		file_web_v1_group_proto_msgTypes[21].Exporter = func(v any, i int) any {
 			switch v := v.(*GroupRemoveMemberResponse); i {
 			case 0:
 				return &v.state
@@ -2246,7 +2246,7 @@ func file_web_v1_group_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_group_proto_msgTypes[22].Exporter = func(v interface{}, i int) interface{} {
+		file_web_v1_group_proto_msgTypes[22].Exporter = func(v any, i int) any {
 			switch v := v.(*GroupOvertListRequest); i {
 			case 0:
 				return &v.state
@@ -2258,7 +2258,7 @@ func file_web_v1_group_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_group_proto_msgTypes[23].Exporter = func(v interface{}, i int) interface{} {
+		file_web_v1_group_proto_msgTypes[23].Exporter = func(v any, i int) any {
 			switch v := v.(*GroupOvertListResponse); i {
 			case 0:
 				return &v.state
@@ -2270,7 +2270,7 @@ func file_web_v1_group_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_group_proto_msgTypes[24].Exporter = func(v interface{}, i int) interface{} {
+		file_web_v1_group_proto_msgTypes[24].Exporter = func(v any, i int) any {
 			switch v := v.(*GroupHandoverRequest); i {
 			case 0:
 				return &v.state
@@ -2282,7 +2282,7 @@ func file_web_v1_group_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_group_proto_msgTypes[25].Exporter = func(v interface{}, i int) interface{} {
+		file_web_v1_group_proto_msgTypes[25].Exporter = func(v any, i int) any {
 			switch v := v.(*GroupHandoverResponse); i {
 			case 0:
 				return &v.state
@@ -2294,7 +2294,7 @@ func file_web_v1_group_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_group_proto_msgTypes[26].Exporter = func(v interface{}, i int) interface{} {
+		file_web_v1_group_proto_msgTypes[26].Exporter = func(v any, i int) any {
 			switch v := v.(*GroupAssignAdminRequest); i {
 			case 0:
 				return &v.state
@@ -2306,7 +2306,7 @@ func file_web_v1_group_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_group_proto_msgTypes[27].Exporter = func(v interface{}, i int) interface{} {
+		file_web_v1_group_proto_msgTypes[27].Exporter = func(v any, i int) any {
 			switch v := v.(*GroupAssignAdminResponse); i {
 			case 0:
 				return &v.state
@@ -2318,7 +2318,7 @@ func file_web_v1_group_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_group_proto_msgTypes[28].Exporter = func(v interface{}, i int) interface{} {
+		file_web_v1_group_proto_msgTypes[28].Exporter = func(v any, i int) any {
 			switch v := v.(*GroupNoSpeakRequest); i {
 			case 0:
 				return &v.state
@@ -2330,7 +2330,7 @@ func file_web_v1_group_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_group_proto_msgTypes[29].Exporter = func(v interface{}, i int) interface{} {
+		file_web_v1_group_proto_msgTypes[29].Exporter = func(v any, i int) any {
 			switch v := v.(*GroupNoSpeakResponse); i {
 			case 0:
 				return &v.state
@@ -2342,7 +2342,7 @@ func file_web_v1_group_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_group_proto_msgTypes[30].Exporter = func(v interface{}, i int) interface{} {
+		file_web_v1_group_proto_msgTypes[30].Exporter = func(v any, i int) any {
 			switch v := v.(*GroupListResponse_Item); i {
 			case 0:
 				return &v.state
@@ -2354,7 +2354,7 @@ func file_web_v1_group_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_group_proto_msgTypes[31].Exporter = func(v interface{}, i int) interface{} {
+		file_web_v1_group_proto_msgTypes[31].Exporter = func(v any, i int) any {
 			switch v := v.(*GroupOvertListResponse_Item); i {
 			case 0:
 				return &v.state

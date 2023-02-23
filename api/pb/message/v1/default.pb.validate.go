@@ -60,7 +60,7 @@ func (m *KeyboardMessage) validate(all bool) error {
 	// no validation rules for Event
 
 	if all {
-		switch v := interface{}(m.GetData()).(type) {
+		switch v := any(m.GetData()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, KeyboardMessageValidationError{
@@ -78,7 +78,7 @@ func (m *KeyboardMessage) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetData()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetData()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return KeyboardMessageValidationError{
 				field:  "Data",

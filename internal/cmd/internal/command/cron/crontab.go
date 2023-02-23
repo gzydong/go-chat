@@ -93,7 +93,7 @@ func run(cron *cron.Cron, ctx context.Context) error {
 	return nil
 }
 
-func toCrontab(value interface{}) []ICrontab {
+func toCrontab(value any) []ICrontab {
 
 	var jobs []ICrontab
 	elem := reflect.ValueOf(value).Elem()

@@ -800,7 +800,7 @@ func file_web_v1_emoticon_proto_rawDescGZIP() []byte {
 }
 
 var file_web_v1_emoticon_proto_msgTypes = make([]protoimpl.MessageInfo, 13)
-var file_web_v1_emoticon_proto_goTypes = []interface{}{
+var file_web_v1_emoticon_proto_goTypes = []any{
 	(*EmoticonListItem)(nil),                 // 0: web.EmoticonListItem
 	(*EmoticonSetSystemRequest)(nil),         // 1: web.EmoticonSetSystemRequest
 	(*EmoticonSetSystemResponse)(nil),        // 2: web.EmoticonSetSystemResponse
@@ -834,7 +834,7 @@ func file_web_v1_emoticon_proto_init() {
 		return
 	}
 	if !protoimpl.UnsafeEnabled {
-		file_web_v1_emoticon_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
+		file_web_v1_emoticon_proto_msgTypes[0].Exporter = func(v any, i int) any {
 			switch v := v.(*EmoticonListItem); i {
 			case 0:
 				return &v.state
@@ -846,7 +846,7 @@ func file_web_v1_emoticon_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_emoticon_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
+		file_web_v1_emoticon_proto_msgTypes[1].Exporter = func(v any, i int) any {
 			switch v := v.(*EmoticonSetSystemRequest); i {
 			case 0:
 				return &v.state
@@ -858,7 +858,7 @@ func file_web_v1_emoticon_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_emoticon_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
+		file_web_v1_emoticon_proto_msgTypes[2].Exporter = func(v any, i int) any {
 			switch v := v.(*EmoticonSetSystemResponse); i {
 			case 0:
 				return &v.state
@@ -870,7 +870,7 @@ func file_web_v1_emoticon_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_emoticon_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
+		file_web_v1_emoticon_proto_msgTypes[3].Exporter = func(v any, i int) any {
 			switch v := v.(*EmoticonDeleteRequest); i {
 			case 0:
 				return &v.state
@@ -882,7 +882,7 @@ func file_web_v1_emoticon_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_emoticon_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
+		file_web_v1_emoticon_proto_msgTypes[4].Exporter = func(v any, i int) any {
 			switch v := v.(*EmoticonDeleteResponse); i {
 			case 0:
 				return &v.state
@@ -894,7 +894,7 @@ func file_web_v1_emoticon_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_emoticon_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
+		file_web_v1_emoticon_proto_msgTypes[5].Exporter = func(v any, i int) any {
 			switch v := v.(*EmoticonSysListRequest); i {
 			case 0:
 				return &v.state
@@ -906,7 +906,7 @@ func file_web_v1_emoticon_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_emoticon_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
+		file_web_v1_emoticon_proto_msgTypes[6].Exporter = func(v any, i int) any {
 			switch v := v.(*EmoticonSysListResponse); i {
 			case 0:
 				return &v.state
@@ -918,7 +918,7 @@ func file_web_v1_emoticon_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_emoticon_proto_msgTypes[7].Exporter = func(v interface{}, i int) interface{} {
+		file_web_v1_emoticon_proto_msgTypes[7].Exporter = func(v any, i int) any {
 			switch v := v.(*EmoticonListRequest); i {
 			case 0:
 				return &v.state
@@ -930,7 +930,7 @@ func file_web_v1_emoticon_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_emoticon_proto_msgTypes[8].Exporter = func(v interface{}, i int) interface{} {
+		file_web_v1_emoticon_proto_msgTypes[8].Exporter = func(v any, i int) any {
 			switch v := v.(*EmoticonListResponse); i {
 			case 0:
 				return &v.state
@@ -942,7 +942,7 @@ func file_web_v1_emoticon_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_emoticon_proto_msgTypes[9].Exporter = func(v interface{}, i int) interface{} {
+		file_web_v1_emoticon_proto_msgTypes[9].Exporter = func(v any, i int) any {
 			switch v := v.(*EmoticonUploadRequest); i {
 			case 0:
 				return &v.state
@@ -954,7 +954,7 @@ func file_web_v1_emoticon_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_emoticon_proto_msgTypes[10].Exporter = func(v interface{}, i int) interface{} {
+		file_web_v1_emoticon_proto_msgTypes[10].Exporter = func(v any, i int) any {
 			switch v := v.(*EmoticonUploadResponse); i {
 			case 0:
 				return &v.state
@@ -966,7 +966,7 @@ func file_web_v1_emoticon_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_emoticon_proto_msgTypes[11].Exporter = func(v interface{}, i int) interface{} {
+		file_web_v1_emoticon_proto_msgTypes[11].Exporter = func(v any, i int) any {
 			switch v := v.(*EmoticonSysListResponse_Item); i {
 			case 0:
 				return &v.state
@@ -978,7 +978,7 @@ func file_web_v1_emoticon_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_emoticon_proto_msgTypes[12].Exporter = func(v interface{}, i int) interface{} {
+		file_web_v1_emoticon_proto_msgTypes[12].Exporter = func(v any, i int) any {
 			switch v := v.(*EmoticonListResponse_SysEmoticon); i {
 			case 0:
 				return &v.state

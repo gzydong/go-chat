@@ -2,6 +2,7 @@ package talk
 
 import (
 	"net/http"
+	"time"
 
 	"go-chat/internal/pkg/ichat"
 	"go-chat/internal/pkg/timeutil"
@@ -209,7 +210,7 @@ func (c *Records) Download(ctx *ichat.Context) error {
 	case entity.FileDriveLocal:
 		ctx.Context.FileAttachment(c.fileSystem.Local.Path(resp.FileInfo.Path), resp.FileInfo.OriginalName)
 	case entity.FileDriveCos:
-		ctx.Context.Redirect(http.StatusFound, c.fileSystem.Cos.PrivateUrl(resp.FileInfo.Path, 60))
+		ctx.Context.Redirect(http.StatusFound, c.fileSystem.Cos.PrivateUrl(resp.FileInfo.Path, 60*time.Second))
 	default:
 		return ctx.ErrorBusiness("未知文件驱动类型")
 	}

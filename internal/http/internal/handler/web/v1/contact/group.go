@@ -74,7 +74,7 @@ func (c *Group) Update(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	affected, err := c.service.Repo().UpdateWhere(ctx.Ctx(), map[string]interface{}{
+	affected, err := c.service.Repo().UpdateWhere(ctx.Ctx(), map[string]any{
 		"name":       params.Name,
 		"sort":       params.Sort,
 		"updated_at": timeutil.DateTime(),

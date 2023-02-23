@@ -53,7 +53,7 @@ func (n *Node) exist(cid int64) bool {
 // each 遍历所有客户端
 func (n *Node) each(fn func(c *Client)) {
 	for _, node := range n.nodes {
-		node.Range(func(key, value interface{}) bool {
+		node.Range(func(key, value any) bool {
 			if client, ok := value.(*Client); ok {
 				fn(client)
 			}

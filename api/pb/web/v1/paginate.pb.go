@@ -109,7 +109,7 @@ func file_web_v1_paginate_proto_rawDescGZIP() []byte {
 }
 
 var file_web_v1_paginate_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
-var file_web_v1_paginate_proto_goTypes = []interface{}{
+var file_web_v1_paginate_proto_goTypes = []any{
 	(*Paginate)(nil), // 0: web.Paginate
 }
 var file_web_v1_paginate_proto_depIdxs = []int32{
@@ -126,7 +126,7 @@ func file_web_v1_paginate_proto_init() {
 		return
 	}
 	if !protoimpl.UnsafeEnabled {
-		file_web_v1_paginate_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
+		file_web_v1_paginate_proto_msgTypes[0].Exporter = func(v any, i int) any {
 			switch v := v.(*Paginate); i {
 			case 0:
 				return &v.state

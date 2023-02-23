@@ -39,38 +39,38 @@ func SetOutput(dir string, name string) {
 	out.SetOutput(src)
 }
 
-func WithFields(fields map[string]interface{}) *logrus.Entry {
+func WithFields(fields map[string]any) *logrus.Entry {
 	return out.WithFields(logrus.Fields(fields))
 }
 
-func Info(args ...interface{}) {
+func Info(args ...any) {
 	out.Info(args...)
 }
 
-func Infoln(args ...interface{}) {
+func Infoln(args ...any) {
 	out.Infoln(args...)
 }
 
-func Infof(format string, args ...interface{}) {
+func Infof(format string, args ...any) {
 	out.Infof(format, args...)
 }
 
-func Warn(args ...interface{}) {
+func Warn(args ...any) {
 	out.Warn(args...)
 }
 
-func Warnf(format string, args ...interface{}) {
+func Warnf(format string, args ...any) {
 	out.Warnf(format, args...)
 }
 
-func Error(args ...interface{}) {
+func Error(args ...any) {
 	out.Error(args...)
 }
 
-func Errorf(format string, args ...interface{}) {
+func Errorf(format string, args ...any) {
 	out.Errorf(format, args...)
 }
 
-func Panic(args ...interface{}) {
+func Panic(args ...any) {
 	out.Panic(args...)
 }

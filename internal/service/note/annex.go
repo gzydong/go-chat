@@ -31,7 +31,7 @@ func (s *ArticleAnnexService) Create(ctx context.Context, data *model.ArticleAnn
 // UpdateStatus 更新附件状态
 func (s *ArticleAnnexService) UpdateStatus(ctx context.Context, uid int, id int, status int) error {
 
-	data := map[string]interface{}{
+	data := map[string]any{
 		"status": status,
 	}
 

@@ -15,27 +15,27 @@ import (
 )
 
 type TalkRecordsItem struct {
-	Id         int         `json:"id"`
-	Sequence   int         `json:"sequence"`
-	MsgId      string      `json:"msg_id"`
-	TalkType   int         `json:"talk_type"`
-	MsgType    int         `json:"msg_type"`
-	UserId     int         `json:"user_id"`
-	ReceiverId int         `json:"receiver_id"`
-	Nickname   string      `json:"nickname"`
-	Avatar     string      `json:"avatar"`
-	IsRevoke   int         `json:"is_revoke"`
-	IsMark     int         `json:"is_mark"`
-	IsRead     int         `json:"is_read"`
-	Content    string      `json:"content,omitempty"`
-	File       interface{} `json:"file,omitempty"`
-	CodeBlock  interface{} `json:"code_block,omitempty"`
-	Forward    interface{} `json:"forward,omitempty"`
-	Invite     interface{} `json:"invite,omitempty"`
-	Vote       interface{} `json:"vote,omitempty"`
-	Login      interface{} `json:"login,omitempty"`
-	Location   interface{} `json:"location,omitempty"`
-	CreatedAt  string      `json:"created_at"`
+	Id         int    `json:"id"`
+	Sequence   int    `json:"sequence"`
+	MsgId      string `json:"msg_id"`
+	TalkType   int    `json:"talk_type"`
+	MsgType    int    `json:"msg_type"`
+	UserId     int    `json:"user_id"`
+	ReceiverId int    `json:"receiver_id"`
+	Nickname   string `json:"nickname"`
+	Avatar     string `json:"avatar"`
+	IsRevoke   int    `json:"is_revoke"`
+	IsMark     int    `json:"is_mark"`
+	IsRead     int    `json:"is_read"`
+	Content    string `json:"content,omitempty"`
+	File       any    `json:"file,omitempty"`
+	CodeBlock  any    `json:"code_block,omitempty"`
+	Forward    any    `json:"forward,omitempty"`
+	Invite     any    `json:"invite,omitempty"`
+	Vote       any    `json:"vote,omitempty"`
+	Login      any    `json:"login,omitempty"`
+	Location   any    `json:"location,omitempty"`
+	CreatedAt  string `json:"created_at"`
 }
 
 type TalkRecordsService struct {
@@ -337,11 +337,11 @@ func (s *TalkRecordsService) HandleTalkRecords(ctx context.Context, items []*mod
 			}
 		case entity.MsgTypeForward:
 			if value, ok := hashForwards[item.Id]; ok {
-				list := make([]map[string]interface{}, 0)
+				list := make([]map[string]any, 0)
 
 				_ = jsonutil.Decode(value.Text, &list)
 
-				data.Forward = map[string]interface{}{
+				data.Forward = map[string]any{
 					"num":  len(sliceutil.ParseIds(value.RecordsId)),
 					"list": list,
 				}
@@ -352,8 +352,8 @@ func (s *TalkRecordsService) HandleTalkRecords(ctx context.Context, items []*mod
 			}
 		case entity.MsgTypeVote:
 			if value, ok := hashVotes[item.Id]; ok {
-				options := make(map[string]interface{})
-				opts := make([]interface{}, 0)
+				options := make(map[string]any)
+				opts := make([]any, 0)
 
 				if err := jsonutil.Decode(value.AnswerOption, &options); err == nil {
 					arr := make([]string, 0, len(options))
@@ -364,7 +364,7 @@ func (s *TalkRecordsService) HandleTalkRecords(ctx context.Context, items []*mod
 					sort.Strings(arr)
 
 					for _, v := range arr {
-						opts = append(opts, map[string]interface{}{
+						opts = append(opts, map[string]any{
 							"key":   v,
 							"value": options[v],
 						})
@@ -376,10 +376,10 @@ func (s *TalkRecordsService) HandleTalkRecords(ctx context.Context, items []*mod
 					users = uids
 				}
 
-				var statistics interface{}
+				var statistics any
 
 				if res, err := s.talkRecordsVoteRepo.GetVoteStatistics(ctx, value.Id); err != nil {
-					statistics = map[string]interface{}{
+					statistics = map[string]any{
 						"count":   0,
 						"options": map[string]int{},
 					}
@@ -387,8 +387,8 @@ func (s *TalkRecordsService) HandleTalkRecords(ctx context.Context, items []*mod
 					statistics = res
 				}
 
-				data.Vote = map[string]interface{}{
-					"detail": map[string]interface{}{
+				data.Vote = map[string]any{
+					"detail": map[string]any{
 						"id":            value.Id,
 						"record_id":     value.RecordId,
 						"title":         value.Title,
@@ -406,7 +406,7 @@ func (s *TalkRecordsService) HandleTalkRecords(ctx context.Context, items []*mod
 		case entity.MsgTypeFriendApply:
 		case entity.MsgTypeLogin:
 			if value, ok := hashLogins[item.Id]; ok {
-				data.Login = map[string]interface{}{
+				data.Login = map[string]any{
 					"address":    value.Address,
 					"agent":      value.Agent,
 					"created_at": value.CreatedAt.Format(timeutil.DatetimeFormat),
@@ -417,7 +417,7 @@ func (s *TalkRecordsService) HandleTalkRecords(ctx context.Context, items []*mod
 			}
 		case entity.MsgTypeGroupInvite:
 			if value, ok := hashInvites[item.Id]; ok {
-				operateUser := map[string]interface{}{
+				operateUser := map[string]any{
 					"id":       value.OperateUserId,
 					"nickname": "",
 				}
@@ -427,14 +427,14 @@ func (s *TalkRecordsService) HandleTalkRecords(ctx context.Context, items []*mod
 					operateUser["nickname"] = user.Nickname
 				}
 
-				m := map[string]interface{}{
+				m := map[string]any{
 					"type":         value.Type,
 					"operate_user": operateUser,
-					"users":        map[string]interface{}{},
+					"users":        map[string]any{},
 				}
 
 				if value.Type == 1 || value.Type == 3 {
-					var results []map[string]interface{}
+					var results []map[string]any
 					s.db.Model(&model.Users{}).Select("id", "nickname").Where("id in ?", sliceutil.ParseIds(value.UserIds)).Scan(&results)
 					m["users"] = results
 				} else {

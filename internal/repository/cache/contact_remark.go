@@ -59,7 +59,7 @@ func (c *ContactRemark) IsExist(ctx context.Context, uid int) bool {
 }
 
 // MSet 批量设置备注
-func (c *ContactRemark) MSet(ctx context.Context, uid int, values map[string]interface{}) error {
+func (c *ContactRemark) MSet(ctx context.Context, uid int, values map[string]any) error {
 
 	c.rds.HSet(ctx, c.name(uid), values)
 	c.rds.Expire(ctx, c.name(uid), time.Hour*24)

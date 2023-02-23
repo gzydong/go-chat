@@ -123,13 +123,13 @@ func (c *CosFilesystem) PublicUrl(filePath string) string {
 	return c.client.Object.GetObjectURL(filePath).String()
 }
 
-func (c *CosFilesystem) PrivateUrl(filePath string, timeout int) string {
+func (c *CosFilesystem) PrivateUrl(filePath string, timeout time.Duration) string {
 	result, err := c.client.Object.GetPresignedURL(
 		context.Background(),
 		http.MethodGet, filePath,
 		c.conf.Filesystem.Cos.SecretId,
 		c.conf.Filesystem.Cos.SecretKey,
-		time.Second*time.Duration(timeout),
+		timeout,
 		nil,
 	)
 

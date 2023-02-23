@@ -166,7 +166,7 @@ func (m *TextMessageRequest) validate(all bool) error {
 	// no validation rules for Content
 
 	if all {
-		switch v := interface{}(m.GetMention()).(type) {
+		switch v := any(m.GetMention()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, TextMessageRequestValidationError{
@@ -184,7 +184,7 @@ func (m *TextMessageRequest) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetMention()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetMention()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return TextMessageRequestValidationError{
 				field:  "Mention",
@@ -195,7 +195,7 @@ func (m *TextMessageRequest) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetReceiver()).(type) {
+		switch v := any(m.GetReceiver()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, TextMessageRequestValidationError{
@@ -213,7 +213,7 @@ func (m *TextMessageRequest) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetReceiver()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetReceiver()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return TextMessageRequestValidationError{
 				field:  "Receiver",
@@ -336,7 +336,7 @@ func (m *ImageMessageRequest) validate(all bool) error {
 	// no validation rules for Size
 
 	if all {
-		switch v := interface{}(m.GetReceiver()).(type) {
+		switch v := any(m.GetReceiver()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, ImageMessageRequestValidationError{
@@ -354,7 +354,7 @@ func (m *ImageMessageRequest) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetReceiver()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetReceiver()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return ImageMessageRequestValidationError{
 				field:  "Receiver",
@@ -475,7 +475,7 @@ func (m *VoiceMessageRequest) validate(all bool) error {
 	// no validation rules for Size
 
 	if all {
-		switch v := interface{}(m.GetReceiver()).(type) {
+		switch v := any(m.GetReceiver()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, VoiceMessageRequestValidationError{
@@ -493,7 +493,7 @@ func (m *VoiceMessageRequest) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetReceiver()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetReceiver()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return VoiceMessageRequestValidationError{
 				field:  "Receiver",
@@ -614,7 +614,7 @@ func (m *VideoMessageRequest) validate(all bool) error {
 	// no validation rules for Size
 
 	if all {
-		switch v := interface{}(m.GetReceiver()).(type) {
+		switch v := any(m.GetReceiver()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, VideoMessageRequestValidationError{
@@ -632,7 +632,7 @@ func (m *VideoMessageRequest) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetReceiver()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetReceiver()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return VideoMessageRequestValidationError{
 				field:  "Receiver",
@@ -749,7 +749,7 @@ func (m *FileMessageRequest) validate(all bool) error {
 	// no validation rules for UploadId
 
 	if all {
-		switch v := interface{}(m.GetReceiver()).(type) {
+		switch v := any(m.GetReceiver()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, FileMessageRequestValidationError{
@@ -767,7 +767,7 @@ func (m *FileMessageRequest) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetReceiver()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetReceiver()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return FileMessageRequestValidationError{
 				field:  "Receiver",
@@ -886,7 +886,7 @@ func (m *CodeMessageRequest) validate(all bool) error {
 	// no validation rules for Code
 
 	if all {
-		switch v := interface{}(m.GetReceiver()).(type) {
+		switch v := any(m.GetReceiver()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, CodeMessageRequestValidationError{
@@ -904,7 +904,7 @@ func (m *CodeMessageRequest) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetReceiver()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetReceiver()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return CodeMessageRequestValidationError{
 				field:  "Receiver",
@@ -1025,7 +1025,7 @@ func (m *LocationMessageRequest) validate(all bool) error {
 	// no validation rules for Description
 
 	if all {
-		switch v := interface{}(m.GetReceiver()).(type) {
+		switch v := any(m.GetReceiver()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, LocationMessageRequestValidationError{
@@ -1043,7 +1043,7 @@ func (m *LocationMessageRequest) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetReceiver()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetReceiver()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return LocationMessageRequestValidationError{
 				field:  "Receiver",
@@ -1160,7 +1160,7 @@ func (m *ForwardMessageRequest) validate(all bool) error {
 	// no validation rules for Mode
 
 	if all {
-		switch v := interface{}(m.GetReceiver()).(type) {
+		switch v := any(m.GetReceiver()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, ForwardMessageRequestValidationError{
@@ -1178,7 +1178,7 @@ func (m *ForwardMessageRequest) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetReceiver()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetReceiver()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return ForwardMessageRequestValidationError{
 				field:  "Receiver",
@@ -1299,7 +1299,7 @@ func (m *VoteMessageRequest) validate(all bool) error {
 	// no validation rules for Anonymous
 
 	if all {
-		switch v := interface{}(m.GetReceiver()).(type) {
+		switch v := any(m.GetReceiver()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, VoteMessageRequestValidationError{
@@ -1317,7 +1317,7 @@ func (m *VoteMessageRequest) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetReceiver()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetReceiver()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return VoteMessageRequestValidationError{
 				field:  "Receiver",
@@ -1546,7 +1546,7 @@ func (m *EmoticonMessageRequest) validate(all bool) error {
 	// no validation rules for EmoticonId
 
 	if all {
-		switch v := interface{}(m.GetReceiver()).(type) {
+		switch v := any(m.GetReceiver()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, EmoticonMessageRequestValidationError{
@@ -1564,7 +1564,7 @@ func (m *EmoticonMessageRequest) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetReceiver()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetReceiver()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return EmoticonMessageRequestValidationError{
 				field:  "Receiver",

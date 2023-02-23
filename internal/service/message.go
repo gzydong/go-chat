@@ -562,9 +562,9 @@ func (m *MessageService) afterHandle(ctx context.Context, record *model.TalkReco
 		Datetime: timeutil.DateTime(),
 	})
 
-	content := jsonutil.Encode(map[string]interface{}{
+	content := jsonutil.Encode(map[string]any{
 		"event": entity.EventTalk,
-		"data": jsonutil.Encode(map[string]interface{}{
+		"data": jsonutil.Encode(map[string]any{
 			"sender_id":   record.UserId,
 			"receiver_id": record.ReceiverId,
 			"talk_type":   record.TalkType,

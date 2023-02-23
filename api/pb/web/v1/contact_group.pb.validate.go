@@ -691,7 +691,7 @@ func (m *ContactGroupSortRequest) validate(all bool) error {
 		_, _ = idx, item
 
 		if all {
-			switch v := interface{}(item).(type) {
+			switch v := any(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, ContactGroupSortRequestValidationError{
@@ -709,7 +709,7 @@ func (m *ContactGroupSortRequest) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		} else if v, ok := any(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return ContactGroupSortRequestValidationError{
 					field:  fmt.Sprintf("Items[%v]", idx),
@@ -1031,7 +1031,7 @@ func (m *ContactGroupListResponse) validate(all bool) error {
 		_, _ = idx, item
 
 		if all {
-			switch v := interface{}(item).(type) {
+			switch v := any(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, ContactGroupListResponseValidationError{
@@ -1049,7 +1049,7 @@ func (m *ContactGroupListResponse) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		} else if v, ok := any(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return ContactGroupListResponseValidationError{
 					field:  fmt.Sprintf("Items[%v]", idx),

@@ -25,8 +25,16 @@ func (h *Handler) Init() {
 	h.handlers = make(map[string]func(ctx context.Context, client im.IClient, data []byte))
 
 	// 注册自定义绑定事件
-	h.handlers[entity.EventTalkKeyboard] = h.OnKeyboard
+	h.handlers[entity.EventTalkKeyboard] = h.OnKeyboardMessage
 	h.handlers[entity.EventTalkRead] = h.OnReadMessage
+
+	// 聊天消息
+	h.handlers["event.talk.text.message"] = h.OnTextMessage
+	h.handlers["event.talk.image.message"] = h.OnImageMessage
+	h.handlers["event.talk.file.message"] = h.OnFileMessage
+	h.handlers["event.talk.code.message"] = h.OnCodeMessage
+	h.handlers["event.talk.location.message"] = h.OnLocationMessage
+	h.handlers["event.talk.vote.message"] = h.OnVoteMessage
 }
 
 func (h *Handler) Call(ctx context.Context, client im.IClient, event string, data []byte) {

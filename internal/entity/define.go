@@ -1,7 +1,7 @@
 package entity
 
-type H map[string]interface{}
+type H map[string]any
 
 // MapStrAny 数据定义
-type MapStrAny map[string]interface{}
-type MapIntAny map[int]interface{}
+type MapStrAny map[string]any
+type MapIntAny map[int]any

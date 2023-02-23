@@ -21,7 +21,7 @@ type TalkReadMessage struct {
 func (h *Handler) OnReadMessage(ctx context.Context, client im.IClient, data []byte) {
 
 	var m *TalkReadMessage
-	if err := jsonutil.Unmarshal(data, &m); err != nil {
+	if err := jsonutil.Decode(data, &m); err != nil {
 		return
 	}
 

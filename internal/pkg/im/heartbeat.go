@@ -62,7 +62,7 @@ func (h *heartbeat) check() {
 
 			ctime := time.Now().Unix()
 
-			node.Range(func(key, value interface{}) bool {
+			node.Range(func(key, value any) bool {
 				c := value.(*Client)
 
 				interval := int(ctime - c.lastTime)

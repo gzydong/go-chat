@@ -2,8 +2,8 @@ package im
 
 // Message 客户端交互的消息体
 type Message struct {
-	Event   string      `json:"event"`   // 事件名称
-	Content interface{} `json:"content"` // 消息内容
+	Event   string `json:"event"`   // 事件名称
+	Content any    `json:"content"` // 消息内容
 }
 
 // SenderContent 推送的消息
@@ -52,6 +52,18 @@ func (s *SenderContent) IsBroadcast() bool {
 }
 
 // GetMessage 获取消息内容
-func (s *SenderContent) GetMessage() interface{} {
+func (s *SenderContent) GetMessage() any {
 	return s.message
+}
+
+// SenderBody 推送消息主体
+type SenderBody struct {
+	// 消息确认ID
+	AckId string `json:"ack_id,omitempty"`
+	// 消息ID
+	MsgId string `json:"msg_id,omitempty"`
+	// 事件类型
+	Event string `json:"event,omitempty"`
+	// 事件主体信息
+	Body any `json:"body,omitempty"`
 }

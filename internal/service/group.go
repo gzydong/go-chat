@@ -116,9 +116,9 @@ func (s *GroupService) Create(ctx context.Context, opts *CreateGroupOpt) (int, e
 	})
 
 	// 广播网关将在线的用户加入房间
-	body := map[string]interface{}{
+	body := map[string]any{
 		"event": entity.EventTalkJoinGroup,
-		"data": jsonutil.Encode(map[string]interface{}{
+		"data": jsonutil.Encode(map[string]any{
 			"group_id": group.Id,
 			"uids":     mids,
 		}),
@@ -139,7 +139,7 @@ type UpdateGroupOpt struct {
 // Update 更新群信息
 func (s *GroupService) Update(ctx context.Context, opts *UpdateGroupOpt) error {
 
-	_, err := s.repo.UpdateById(ctx, opts.GroupId, map[string]interface{}{
+	_, err := s.repo.UpdateById(ctx, opts.GroupId, map[string]any{
 		"group_name": opts.Name,
 		"avatar":     opts.Avatar,
 		"profile":    opts.Profile,
@@ -221,18 +221,18 @@ func (s *GroupService) Secede(ctx context.Context, groupId int, uid int) error {
 
 	s.relation.DelGroupRelation(ctx, uid, groupId)
 
-	s.rds.Publish(ctx, entity.ImTopicChat, jsonutil.Encode(map[string]interface{}{
+	s.rds.Publish(ctx, entity.ImTopicChat, jsonutil.Encode(map[string]any{
 		"event": entity.EventTalkJoinGroup,
-		"data": jsonutil.Encode(map[string]interface{}{
+		"data": jsonutil.Encode(map[string]any{
 			"type":     2,
 			"group_id": groupId,
 			"uids":     []int{uid},
 		}),
 	}))
 
-	s.rds.Publish(ctx, entity.ImTopicChat, jsonutil.Encode(map[string]interface{}{
+	s.rds.Publish(ctx, entity.ImTopicChat, jsonutil.Encode(map[string]any{
 		"event": entity.EventTalk,
-		"data": jsonutil.Encode(map[string]interface{}{
+		"data": jsonutil.Encode(map[string]any{
 			"sender_id":   record.UserId,
 			"receiver_id": record.ReceiverId,
 			"talk_type":   record.TalkType,
@@ -318,7 +318,7 @@ func (s *GroupService) InviteMembers(ctx context.Context, opts *InviteGroupMembe
 
 		// 更新用户的对话列表
 		if len(updateTalkList) > 0 {
-			tx.Model(&model.TalkSession{}).Where("id in ?", updateTalkList).Updates(map[string]interface{}{
+			tx.Model(&model.TalkSession{}).Where("id in ?", updateTalkList).Updates(map[string]any{
 				"is_delete":  0,
 				"created_at": timeutil.DateTime(),
 			})
@@ -345,18 +345,18 @@ func (s *GroupService) InviteMembers(ctx context.Context, opts *InviteGroupMembe
 	}
 
 	// 广播网关将在线的用户加入房间
-	s.rds.Publish(ctx, entity.ImTopicChat, jsonutil.Encode(map[string]interface{}{
+	s.rds.Publish(ctx, entity.ImTopicChat, jsonutil.Encode(map[string]any{
 		"event": entity.EventTalkJoinGroup,
-		"data": jsonutil.Encode(map[string]interface{}{
+		"data": jsonutil.Encode(map[string]any{
 			"type":     1,
 			"group_id": opts.GroupId,
 			"uids":     opts.MemberIds,
 		}),
 	}))
 
-	s.rds.Publish(ctx, entity.ImTopicChat, jsonutil.Encode(map[string]interface{}{
+	s.rds.Publish(ctx, entity.ImTopicChat, jsonutil.Encode(map[string]any{
 		"event": entity.EventTalk,
-		"data": jsonutil.Encode(map[string]interface{}{
+		"data": jsonutil.Encode(map[string]any{
 			"sender_id":   record.UserId,
 			"receiver_id": record.ReceiverId,
 			"talk_type":   record.TalkType,
@@ -392,7 +392,7 @@ func (s *GroupService) RemoveMembers(ctx context.Context, opts *RemoveMembersOpt
 	}
 
 	err := s.Db().Transaction(func(tx *gorm.DB) error {
-		err := tx.Model(&model.GroupMember{}).Where("group_id = ? and user_id in ? and is_quit = 0", opts.GroupId, opts.MemberIds).Updates(map[string]interface{}{
+		err := tx.Model(&model.GroupMember{}).Where("group_id = ? and user_id in ? and is_quit = 0", opts.GroupId, opts.MemberIds).Updates(map[string]any{
 			"is_quit":    1,
 			"deleted_at": time.Now(),
 		}).Error
@@ -423,18 +423,18 @@ func (s *GroupService) RemoveMembers(ctx context.Context, opts *RemoveMembersOpt
 
 	s.relation.BatchDelGroupRelation(ctx, opts.MemberIds, opts.GroupId)
 
-	s.rds.Publish(ctx, entity.ImTopicChat, jsonutil.Encode(map[string]interface{}{
+	s.rds.Publish(ctx, entity.ImTopicChat, jsonutil.Encode(map[string]any{
 		"event": entity.EventTalkJoinGroup,
-		"data": jsonutil.Encode(map[string]interface{}{
+		"data": jsonutil.Encode(map[string]any{
 			"type":     2,
 			"group_id": opts.GroupId,
 			"uids":     opts.MemberIds,
 		}),
 	}))
 
-	s.rds.Publish(ctx, entity.ImTopicChat, jsonutil.Encode(map[string]interface{}{
+	s.rds.Publish(ctx, entity.ImTopicChat, jsonutil.Encode(map[string]any{
 		"event": entity.EventTalk,
-		"data": jsonutil.Encode(map[string]interface{}{
+		"data": jsonutil.Encode(map[string]any{
 			"sender_id":   int64(record.UserId),
 			"receiver_id": int64(record.ReceiverId),
 			"talk_type":   record.TalkType,

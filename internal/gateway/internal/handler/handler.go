@@ -80,7 +80,7 @@ func (h *Handler) auth(connect net.Conn, data chan *AuthConn) {
 	}
 
 	detail := &Authorize{}
-	if err := jsonutil.Unmarshal(read, detail); err != nil {
+	if err := jsonutil.Decode(read, detail); err != nil {
 		return
 	}
 

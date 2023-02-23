@@ -412,7 +412,7 @@ func file_web_v1_article_tag_proto_rawDescGZIP() []byte {
 }
 
 var file_web_v1_article_tag_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
-var file_web_v1_article_tag_proto_goTypes = []interface{}{
+var file_web_v1_article_tag_proto_goTypes = []any{
 	(*ArticleTagListRequest)(nil),       // 0: web.ArticleTagListRequest
 	(*ArticleTagListResponse)(nil),      // 1: web.ArticleTagListResponse
 	(*ArticleTagEditRequest)(nil),       // 2: web.ArticleTagEditRequest
@@ -436,7 +436,7 @@ func file_web_v1_article_tag_proto_init() {
 		return
 	}
 	if !protoimpl.UnsafeEnabled {
-		file_web_v1_article_tag_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
+		file_web_v1_article_tag_proto_msgTypes[0].Exporter = func(v any, i int) any {
 			switch v := v.(*ArticleTagListRequest); i {
 			case 0:
 				return &v.state
@@ -448,7 +448,7 @@ func file_web_v1_article_tag_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_article_tag_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
+		file_web_v1_article_tag_proto_msgTypes[1].Exporter = func(v any, i int) any {
 			switch v := v.(*ArticleTagListResponse); i {
 			case 0:
 				return &v.state
@@ -460,7 +460,7 @@ func file_web_v1_article_tag_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_article_tag_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
+		file_web_v1_article_tag_proto_msgTypes[2].Exporter = func(v any, i int) any {
 			switch v := v.(*ArticleTagEditRequest); i {
 			case 0:
 				return &v.state
@@ -472,7 +472,7 @@ func file_web_v1_article_tag_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_article_tag_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
+		file_web_v1_article_tag_proto_msgTypes[3].Exporter = func(v any, i int) any {
 			switch v := v.(*ArticleTagEditResponse); i {
 			case 0:
 				return &v.state
@@ -484,7 +484,7 @@ func file_web_v1_article_tag_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_article_tag_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
+		file_web_v1_article_tag_proto_msgTypes[4].Exporter = func(v any, i int) any {
 			switch v := v.(*ArticleTagDeleteRequest); i {
 			case 0:
 				return &v.state
@@ -496,7 +496,7 @@ func file_web_v1_article_tag_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_article_tag_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
+		file_web_v1_article_tag_proto_msgTypes[5].Exporter = func(v any, i int) any {
 			switch v := v.(*ArticleTagDeleteResponse); i {
 			case 0:
 				return &v.state
@@ -508,7 +508,7 @@ func file_web_v1_article_tag_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_article_tag_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
+		file_web_v1_article_tag_proto_msgTypes[6].Exporter = func(v any, i int) any {
 			switch v := v.(*ArticleTagListResponse_Item); i {
 			case 0:
 				return &v.state

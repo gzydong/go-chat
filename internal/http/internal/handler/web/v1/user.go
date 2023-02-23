@@ -80,7 +80,7 @@ func (u *User) ChangeDetail(ctx *ichat.Context) error {
 		}
 	}
 
-	_, err := u.service.Dao().UpdateById(ctx.Ctx(), ctx.UserId(), map[string]interface{}{
+	_, err := u.service.Dao().UpdateById(ctx.Ctx(), ctx.UserId(), map[string]any{
 		"nickname": strings.TrimSpace(strings.Replace(params.Nickname, " ", "", -1)),
 		"avatar":   params.Avatar,
 		"gender":   params.Gender,
@@ -144,7 +144,7 @@ func (u *User) ChangeMobile(ctx *ichat.Context) error {
 		return ctx.ErrorBusiness("账号密码填写错误！")
 	}
 
-	_, err := u.service.Dao().UpdateById(ctx.Ctx(), user.Id, map[string]interface{}{
+	_, err := u.service.Dao().UpdateById(ctx.Ctx(), user.Id, map[string]any{
 		"mobile": params.Mobile,
 	})
 

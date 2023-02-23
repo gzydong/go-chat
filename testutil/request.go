@@ -72,7 +72,7 @@ func (r *TestRequest) Form(values *url.Values) (*TestResponse, error) {
 	return r.Post(FormContentType, strings.NewReader(values.Encode()))
 }
 
-func (r *TestRequest) JSON(data interface{}) (*TestResponse, error) {
+func (r *TestRequest) JSON(data any) (*TestResponse, error) {
 	var body []byte
 	switch data := data.(type) {
 	case []byte:
@@ -184,7 +184,7 @@ func (r *TestResponse) GetJson() gjson.Result {
 	return gjson.ParseBytes(r.GetBody())
 }
 
-func indentJson(data interface{}) string {
+func indentJson(data any) string {
 	v, _ := json.MarshalIndent(data, "", "\t")
 	return string(v)
 }

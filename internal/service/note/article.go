@@ -200,7 +200,7 @@ func (s *ArticleService) Move(ctx context.Context, uid, articleId, classId int) 
 
 // UpdateStatus 修改笔记状态
 func (s *ArticleService) UpdateStatus(ctx context.Context, uid int, articleId int, status int) error {
-	data := map[string]interface{}{
+	data := map[string]any{
 		"status": status,
 	}
 

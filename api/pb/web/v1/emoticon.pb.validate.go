@@ -277,7 +277,7 @@ func (m *EmoticonSetSystemResponse) validate(all bool) error {
 		_, _ = idx, item
 
 		if all {
-			switch v := interface{}(item).(type) {
+			switch v := any(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, EmoticonSetSystemResponseValidationError{
@@ -295,7 +295,7 @@ func (m *EmoticonSetSystemResponse) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		} else if v, ok := any(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return EmoticonSetSystemResponseValidationError{
 					field:  fmt.Sprintf("List[%v]", idx),
@@ -721,7 +721,7 @@ func (m *EmoticonSysListResponse) validate(all bool) error {
 		_, _ = idx, item
 
 		if all {
-			switch v := interface{}(item).(type) {
+			switch v := any(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, EmoticonSysListResponseValidationError{
@@ -739,7 +739,7 @@ func (m *EmoticonSysListResponse) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		} else if v, ok := any(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return EmoticonSysListResponseValidationError{
 					field:  fmt.Sprintf("Items[%v]", idx),
@@ -959,7 +959,7 @@ func (m *EmoticonListResponse) validate(all bool) error {
 		_, _ = idx, item
 
 		if all {
-			switch v := interface{}(item).(type) {
+			switch v := any(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, EmoticonListResponseValidationError{
@@ -977,7 +977,7 @@ func (m *EmoticonListResponse) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		} else if v, ok := any(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return EmoticonListResponseValidationError{
 					field:  fmt.Sprintf("SysEmoticon[%v]", idx),
@@ -993,7 +993,7 @@ func (m *EmoticonListResponse) validate(all bool) error {
 		_, _ = idx, item
 
 		if all {
-			switch v := interface{}(item).(type) {
+			switch v := any(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, EmoticonListResponseValidationError{
@@ -1011,7 +1011,7 @@ func (m *EmoticonListResponse) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		} else if v, ok := any(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return EmoticonListResponseValidationError{
 					field:  fmt.Sprintf("CollectEmoticon[%v]", idx),
@@ -1455,7 +1455,7 @@ func (m *EmoticonListResponse_SysEmoticon) validate(all bool) error {
 		_, _ = idx, item
 
 		if all {
-			switch v := interface{}(item).(type) {
+			switch v := any(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, EmoticonListResponse_SysEmoticonValidationError{
@@ -1473,7 +1473,7 @@ func (m *EmoticonListResponse_SysEmoticon) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		} else if v, ok := any(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return EmoticonListResponse_SysEmoticonValidationError{
 					field:  fmt.Sprintf("List[%v]", idx),

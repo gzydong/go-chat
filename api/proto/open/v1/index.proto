@@ -1,0 +1,13 @@
+syntax = "proto3";
+package web;
+
+option go_package = "open/v1;open";
+
+import "tagger/tagger.proto";
+
+// 分配管理员接口请求参数
+message IndexRequest{
+  int32 group_id = 1 [(tagger.tags) = "binding:\"required\""];
+  int32 user_id = 2 [(tagger.tags) = "binding:\"required\""];
+  int32 mode = 3 [(tagger.tags) = "binding:\"required,oneof=1 2\""];
+}

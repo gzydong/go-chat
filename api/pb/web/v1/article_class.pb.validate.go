@@ -61,7 +61,7 @@ func (m *ArticleClassListResponse) validate(all bool) error {
 		_, _ = idx, item
 
 		if all {
-			switch v := interface{}(item).(type) {
+			switch v := any(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, ArticleClassListResponseValidationError{
@@ -79,7 +79,7 @@ func (m *ArticleClassListResponse) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		} else if v, ok := any(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return ArticleClassListResponseValidationError{
 					field:  fmt.Sprintf("Items[%v]", idx),
@@ -92,7 +92,7 @@ func (m *ArticleClassListResponse) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetPaginate()).(type) {
+		switch v := any(m.GetPaginate()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, ArticleClassListResponseValidationError{
@@ -110,7 +110,7 @@ func (m *ArticleClassListResponse) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetPaginate()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetPaginate()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return ArticleClassListResponseValidationError{
 				field:  "Paginate",

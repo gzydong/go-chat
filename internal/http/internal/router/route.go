@@ -16,13 +16,13 @@ import (
 func NewRouter(conf *config.Config, handler *handler.Handler, session *cache.TokenSessionStorage) *gin.Engine {
 	router := gin.New()
 
-	router.Use(gin.Logger())
-	router.Use(middleware.Cors(conf.Cors))
-	router.Use(gin.RecoveryWithWriter(gin.DefaultWriter, func(c *gin.Context, err interface{}) {
+	router.Use(gin.RecoveryWithWriter(gin.DefaultWriter, func(c *gin.Context, err any) {
 		log.Println(err)
 
 		c.AbortWithStatusJSON(http.StatusInternalServerError, entity.H{"code": 500, "msg": "系统错误，请重试!!!"})
 	}))
+	router.Use(middleware.Cors(conf.Cors))
+	router.Use(middleware.AccessLog())
 
 	router.GET("/", func(c *gin.Context) {
 		c.JSON(200, entity.H{"code": 200, "message": "hello world"})

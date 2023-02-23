@@ -324,9 +324,9 @@ func (m *MessageForwardLogic) aggregation(ctx context.Context, req *message.Forw
 		return "", err
 	}
 
-	data := make([]map[string]interface{}, 0)
+	data := make([]map[string]any, 0)
 	for _, row := range rows {
-		item := map[string]interface{}{}
+		item := map[string]any{}
 
 		switch row.MsgType {
 		case entity.MsgTypeText:

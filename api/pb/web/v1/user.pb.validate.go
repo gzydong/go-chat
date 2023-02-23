@@ -380,7 +380,7 @@ func (m *UserSettingResponse) validate(all bool) error {
 	var errors []error
 
 	if all {
-		switch v := interface{}(m.GetUserInfo()).(type) {
+		switch v := any(m.GetUserInfo()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, UserSettingResponseValidationError{
@@ -398,7 +398,7 @@ func (m *UserSettingResponse) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetUserInfo()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetUserInfo()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return UserSettingResponseValidationError{
 				field:  "UserInfo",
@@ -409,7 +409,7 @@ func (m *UserSettingResponse) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetSetting()).(type) {
+		switch v := any(m.GetSetting()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, UserSettingResponseValidationError{
@@ -427,7 +427,7 @@ func (m *UserSettingResponse) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetSetting()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetSetting()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return UserSettingResponseValidationError{
 				field:  "Setting",

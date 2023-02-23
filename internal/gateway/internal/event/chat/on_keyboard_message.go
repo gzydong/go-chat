@@ -17,8 +17,8 @@ type KeyboardMessage struct {
 	} `json:"data"`
 }
 
-// OnKeyboard 键盘输入事件
-func (h *Handler) OnKeyboard(ctx context.Context, _ im.IClient, data []byte) {
+// OnKeyboardMessage 键盘输入事件
+func (h *Handler) OnKeyboardMessage(ctx context.Context, _ im.IClient, data []byte) {
 
 	var m *KeyboardMessage
 	if err := json.Unmarshal(data, &m); err != nil {

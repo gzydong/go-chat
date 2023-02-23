@@ -69,7 +69,7 @@ func (t *TalkRecordsVote) SetVoteStatistics(ctx context.Context, vid int) (*Vote
 	var (
 		err          error
 		vote         *model.TalkRecordsVote
-		answerOption map[string]interface{}
+		answerOption map[string]any
 		options      = make([]string, 0)
 	)
 

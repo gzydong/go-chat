@@ -106,7 +106,7 @@ func (s *TalkSessionService) Create(ctx context.Context, opts *TalkSessionCreate
 
 // Delete 删除会话
 func (s *TalkSessionService) Delete(ctx context.Context, uid int, id int) error {
-	return s.db.Model(&model.TalkSession{}).Where("id = ? and user_id = ?", id, uid).Updates(map[string]interface{}{
+	return s.db.Model(&model.TalkSession{}).Where("id = ? and user_id = ?", id, uid).Updates(map[string]any{
 		"is_delete":  1,
 		"updated_at": time.Now(),
 	}).Error
@@ -128,7 +128,7 @@ func (s *TalkSessionService) Top(ctx context.Context, opts *TalkSessionTopOpt) e
 	}
 
 	err := s.db.Model(&model.TalkSession{}).Where("id = ? and user_id = ?", opts.Id, opts.UserId).
-		Updates(map[string]interface{}{
+		Updates(map[string]any{
 			"is_top":     isTop,
 			"updated_at": time.Now(),
 		}).Error
@@ -147,7 +147,7 @@ type TalkSessionDisturbOpt struct {
 func (s *TalkSessionService) Disturb(ctx context.Context, opts *TalkSessionDisturbOpt) error {
 	err := s.db.Model(&model.TalkSession{}).
 		Where("user_id = ? and receiver_id = ? and talk_type = ?", opts.UserId, opts.ReceiverId, opts.TalkType).
-		Updates(map[string]interface{}{
+		Updates(map[string]any{
 			"is_disturb": opts.IsDisturb,
 			"updated_at": time.Now(),
 		}).Error

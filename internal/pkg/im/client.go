@@ -142,7 +142,7 @@ func (c *Client) heartbeat() {
 	_ = c.Write(&ClientOutContent{
 		Content: jsonutil.Marshal(&Message{
 			Event: "connect",
-			Content: map[string]interface{}{
+			Content: map[string]any{
 				"ping_interval": heartbeatInterval,
 				"ping_timeout":  heartbeatTimeout,
 			},
@@ -197,10 +197,24 @@ func (c *Client) loopAccept() {
 		}
 
 		switch result.String() {
-		case "heartbeat": // 心跳消息判断
+		// 心跳消息判断
+		case "heartbeat":
 			_ = c.Write(&ClientOutContent{
 				Content: jsonutil.Marshal(&Message{"heartbeat", "pong"}),
 			})
+
+		// 客户端 ACK 处理
+		case "event.ack":
+			// res := gjson.GetBytes(message, "ack")
+			// if !res.Exists() {
+			// 	continue
+			// }
+			//
+			// ack.del(&AckBufferOption{
+			// 	Channel: c.channel,
+			// 	Cid:     c.Cid(),
+			// 	AckID:   res.String(),
+			// })
 		default:
 			// 触发消息回调
 			c.callBack.Message(c, message)

@@ -296,9 +296,9 @@ func (s *TalkMessageService) SendRevokeRecordMessage(ctx context.Context, uid in
 		return err
 	}
 
-	body := map[string]interface{}{
+	body := map[string]any{
 		"event": entity.EventTalkRevoke,
-		"data": jsonutil.Encode(map[string]interface{}{
+		"data": jsonutil.Encode(map[string]any{
 			"record_id": record.Id,
 		}),
 	}
@@ -354,7 +354,7 @@ func (s *TalkMessageService) VoteHandle(ctx context.Context, opts *VoteMessageHa
 	options := strings.Split(opts.Options, ",")
 	sort.Strings(options)
 
-	var answerOptions map[string]interface{}
+	var answerOptions map[string]any
 	if err = jsonutil.Decode(vote.AnswerOption, &answerOptions); err != nil {
 		return 0, err
 	}
@@ -381,7 +381,7 @@ func (s *TalkMessageService) VoteHandle(ctx context.Context, opts *VoteMessageHa
 	}
 
 	err = s.db.Transaction(func(tx *gorm.DB) error {
-		if err = tx.Table("talk_records_vote").Where("id = ?", vote.VoteId).Updates(map[string]interface{}{
+		if err = tx.Table("talk_records_vote").Where("id = ?", vote.VoteId).Updates(map[string]any{
 			"answered_num": gorm.Expr("answered_num + 1"),
 			"status":       gorm.Expr("if(answered_num >= answer_num, 1, 0)"),
 		}).Error; err != nil {
@@ -433,9 +433,9 @@ func (s *TalkMessageService) afterHandle(ctx context.Context, record *model.Talk
 		Datetime: timeutil.DateTime(),
 	})
 
-	content := jsonutil.Encode(map[string]interface{}{
+	content := jsonutil.Encode(map[string]any{
 		"event": entity.EventTalk,
-		"data": jsonutil.Encode(map[string]interface{}{
+		"data": jsonutil.Encode(map[string]any{
 			"sender_id":   record.UserId,
 			"receiver_id": record.ReceiverId,
 			"talk_type":   record.TalkType,
