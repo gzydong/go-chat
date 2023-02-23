@@ -4,12 +4,12 @@ import (
 	"net/http"
 	"time"
 
-	"go-chat/internal/pkg/ichat"
-	"go-chat/internal/pkg/timeutil"
-
 	"go-chat/internal/entity"
 	"go-chat/internal/pkg/filesystem"
+	"go-chat/internal/pkg/ichat"
 	"go-chat/internal/pkg/sliceutil"
+	"go-chat/internal/pkg/strutil"
+	"go-chat/internal/pkg/timeutil"
 	"go-chat/internal/service"
 )
 
@@ -54,7 +54,7 @@ func (c *Records) GetRecords(ctx *ichat.Context) error {
 				"content":     "暂无权限查看群消息",
 				"created_at":  timeutil.DateTime(),
 				"id":          1,
-				"msg_id":      "xxxx-xxxx-xxxx-xxxx",
+				"msg_id":      strutil.NewUuid(),
 				"msg_type":    0,
 				"receiver_id": params.ReceiverId,
 				"talk_type":   params.TalkType,

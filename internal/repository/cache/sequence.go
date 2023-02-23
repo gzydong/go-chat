@@ -33,8 +33,8 @@ func (s *Sequence) Name(userId int, receiverId int) string {
 	return fmt.Sprintf("im:sequence:msg:%d_%d", userId, receiverId)
 }
 
-// Init 初始化发号器
-func (s *Sequence) Init(ctx context.Context, userId int, receiverId int, value int64) error {
+// Set 初始化发号器
+func (s *Sequence) Set(ctx context.Context, userId int, receiverId int, value int64) error {
 	return s.redis.SetEX(ctx, s.Name(userId, receiverId), value, 12*time.Hour).Err()
 }
 

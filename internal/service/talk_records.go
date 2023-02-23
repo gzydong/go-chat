@@ -36,6 +36,8 @@ type TalkRecordsItem struct {
 	Login      any    `json:"login,omitempty"`
 	Location   any    `json:"location,omitempty"`
 	CreatedAt  string `json:"created_at"`
+	// 额外参数
+	Extra any `json:"extra"`
 }
 
 type TalkRecordsService struct {
@@ -326,12 +328,14 @@ func (s *TalkRecordsService) HandleTalkRecords(ctx context.Context, items []*mod
 			IsRead:     item.IsRead,
 			Content:    item.Content,
 			CreatedAt:  timeutil.FormatDatetime(item.CreatedAt),
+			Extra:      make(map[string]any),
 		}
 
 		switch item.MsgType {
 		case entity.MsgTypeFile:
 			if value, ok := hashFiles[item.Id]; ok {
 				data.File = value
+				data.Extra = value
 			} else {
 				logger.Warnf("文件消息信息不存在[%d]", item.Id)
 			}
@@ -345,10 +349,16 @@ func (s *TalkRecordsService) HandleTalkRecords(ctx context.Context, items []*mod
 					"num":  len(sliceutil.ParseIds(value.RecordsId)),
 					"list": list,
 				}
+
+				data.Extra = map[string]any{
+					"num":  len(sliceutil.ParseIds(value.RecordsId)),
+					"list": list,
+				}
 			}
 		case entity.MsgTypeCode:
 			if value, ok := hashCodes[item.Id]; ok {
 				data.CodeBlock = value
+				data.Extra = value
 			}
 		case entity.MsgTypeVote:
 			if value, ok := hashVotes[item.Id]; ok {

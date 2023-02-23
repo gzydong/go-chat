@@ -1213,7 +1213,7 @@ func (m *ArticleAnnexRecoverListResponse) validate(all bool) error {
 		_, _ = idx, item
 
 		if all {
-			switch v := any(item).(type) {
+			switch v := interface{}(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, ArticleAnnexRecoverListResponseValidationError{
@@ -1231,7 +1231,7 @@ func (m *ArticleAnnexRecoverListResponse) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := any(item).(interface{ Validate() error }); ok {
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return ArticleAnnexRecoverListResponseValidationError{
 					field:  fmt.Sprintf("Items[%v]", idx),
@@ -1244,7 +1244,7 @@ func (m *ArticleAnnexRecoverListResponse) validate(all bool) error {
 	}
 
 	if all {
-		switch v := any(m.GetPaginate()).(type) {
+		switch v := interface{}(m.GetPaginate()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, ArticleAnnexRecoverListResponseValidationError{
@@ -1262,7 +1262,7 @@ func (m *ArticleAnnexRecoverListResponse) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := any(m.GetPaginate()).(interface{ Validate() error }); ok {
+	} else if v, ok := interface{}(m.GetPaginate()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return ArticleAnnexRecoverListResponseValidationError{
 				field:  "Paginate",

@@ -794,7 +794,7 @@ func file_web_v1_contact_proto_rawDescGZIP() []byte {
 }
 
 var file_web_v1_contact_proto_msgTypes = make([]protoimpl.MessageInfo, 11)
-var file_web_v1_contact_proto_goTypes = []any{
+var file_web_v1_contact_proto_goTypes = []interface{}{
 	(*ContactListRequest)(nil),        // 0: web.ContactListRequest
 	(*ContactListResponse)(nil),       // 1: web.ContactListResponse
 	(*ContactDeleteRequest)(nil),      // 2: web.ContactDeleteRequest
@@ -822,7 +822,7 @@ func file_web_v1_contact_proto_init() {
 		return
 	}
 	if !protoimpl.UnsafeEnabled {
-		file_web_v1_contact_proto_msgTypes[0].Exporter = func(v any, i int) any {
+		file_web_v1_contact_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*ContactListRequest); i {
 			case 0:
 				return &v.state
@@ -834,7 +834,7 @@ func file_web_v1_contact_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_contact_proto_msgTypes[1].Exporter = func(v any, i int) any {
+		file_web_v1_contact_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*ContactListResponse); i {
 			case 0:
 				return &v.state
@@ -846,7 +846,7 @@ func file_web_v1_contact_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_contact_proto_msgTypes[2].Exporter = func(v any, i int) any {
+		file_web_v1_contact_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*ContactDeleteRequest); i {
 			case 0:
 				return &v.state
@@ -858,7 +858,7 @@ func file_web_v1_contact_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_contact_proto_msgTypes[3].Exporter = func(v any, i int) any {
+		file_web_v1_contact_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*ContactDeleteResponse); i {
 			case 0:
 				return &v.state
@@ -870,7 +870,7 @@ func file_web_v1_contact_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_contact_proto_msgTypes[4].Exporter = func(v any, i int) any {
+		file_web_v1_contact_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*ContactEditRemarkRequest); i {
 			case 0:
 				return &v.state
@@ -882,7 +882,7 @@ func file_web_v1_contact_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_contact_proto_msgTypes[5].Exporter = func(v any, i int) any {
+		file_web_v1_contact_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*ContactEditRemarkResponse); i {
 			case 0:
 				return &v.state
@@ -894,7 +894,7 @@ func file_web_v1_contact_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_contact_proto_msgTypes[6].Exporter = func(v any, i int) any {
+		file_web_v1_contact_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*ContactDetailRequest); i {
 			case 0:
 				return &v.state
@@ -906,7 +906,7 @@ func file_web_v1_contact_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_contact_proto_msgTypes[7].Exporter = func(v any, i int) any {
+		file_web_v1_contact_proto_msgTypes[7].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*ContactDetailResponse); i {
 			case 0:
 				return &v.state
@@ -918,7 +918,7 @@ func file_web_v1_contact_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_contact_proto_msgTypes[8].Exporter = func(v any, i int) any {
+		file_web_v1_contact_proto_msgTypes[8].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*ContactSearchRequest); i {
 			case 0:
 				return &v.state
@@ -930,7 +930,7 @@ func file_web_v1_contact_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_contact_proto_msgTypes[9].Exporter = func(v any, i int) any {
+		file_web_v1_contact_proto_msgTypes[9].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*ContactSearchResponse); i {
 			case 0:
 				return &v.state
@@ -942,7 +942,7 @@ func file_web_v1_contact_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_contact_proto_msgTypes[10].Exporter = func(v any, i int) any {
+		file_web_v1_contact_proto_msgTypes[10].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*ContactListResponse_Item); i {
 			case 0:
 				return &v.state

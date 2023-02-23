@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package web;
+
+//import "tagger/tagger.proto";
+import "google/protobuf/any.proto";
+
+option go_package = "web/v1;web";
+
+
+// 会话记录
+message TalkRecordItem{
+  int32 id = 1;
+  int32 talk_type = 2;
+  int32 receiver_id = 3;
+  int32 is_top = 4;
+  int32 is_disturb = 5;
+  int32 is_online = 6;
+  int32 is_robot = 7;
+  string name = 8;
+  string avatar = 9;
+  string remark_name = 10;
+  int32 unread_num = 11;
+  string msg_text = 12;
+  string updated_at = 13;
+  google.protobuf.Any extra = 14;
+}

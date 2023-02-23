@@ -560,7 +560,7 @@ func file_web_v1_contact_apply_proto_rawDescGZIP() []byte {
 }
 
 var file_web_v1_contact_apply_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
-var file_web_v1_contact_apply_proto_goTypes = []any{
+var file_web_v1_contact_apply_proto_goTypes = []interface{}{
 	(*ContactApplyCreateRequest)(nil),     // 0: web.ContactApplyCreateRequest
 	(*ContactApplyCreateResponse)(nil),    // 1: web.ContactApplyCreateResponse
 	(*ContactApplyAcceptRequest)(nil),     // 2: web.ContactApplyAcceptRequest
@@ -586,7 +586,7 @@ func file_web_v1_contact_apply_proto_init() {
 		return
 	}
 	if !protoimpl.UnsafeEnabled {
-		file_web_v1_contact_apply_proto_msgTypes[0].Exporter = func(v any, i int) any {
+		file_web_v1_contact_apply_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*ContactApplyCreateRequest); i {
 			case 0:
 				return &v.state
@@ -598,7 +598,7 @@ func file_web_v1_contact_apply_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_contact_apply_proto_msgTypes[1].Exporter = func(v any, i int) any {
+		file_web_v1_contact_apply_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*ContactApplyCreateResponse); i {
 			case 0:
 				return &v.state
@@ -610,7 +610,7 @@ func file_web_v1_contact_apply_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_contact_apply_proto_msgTypes[2].Exporter = func(v any, i int) any {
+		file_web_v1_contact_apply_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*ContactApplyAcceptRequest); i {
 			case 0:
 				return &v.state
@@ -622,7 +622,7 @@ func file_web_v1_contact_apply_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_contact_apply_proto_msgTypes[3].Exporter = func(v any, i int) any {
+		file_web_v1_contact_apply_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*ContactApplyAcceptResponse); i {
 			case 0:
 				return &v.state
@@ -634,7 +634,7 @@ func file_web_v1_contact_apply_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_contact_apply_proto_msgTypes[4].Exporter = func(v any, i int) any {
+		file_web_v1_contact_apply_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*ContactApplyDeclineRequest); i {
 			case 0:
 				return &v.state
@@ -646,7 +646,7 @@ func file_web_v1_contact_apply_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_contact_apply_proto_msgTypes[5].Exporter = func(v any, i int) any {
+		file_web_v1_contact_apply_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*ContactApplyDeclineResponse); i {
 			case 0:
 				return &v.state
@@ -658,7 +658,7 @@ func file_web_v1_contact_apply_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_contact_apply_proto_msgTypes[6].Exporter = func(v any, i int) any {
+		file_web_v1_contact_apply_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*ContactApplyListRequest); i {
 			case 0:
 				return &v.state
@@ -670,7 +670,7 @@ func file_web_v1_contact_apply_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_contact_apply_proto_msgTypes[7].Exporter = func(v any, i int) any {
+		file_web_v1_contact_apply_proto_msgTypes[7].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*ContactApplyListResponse); i {
 			case 0:
 				return &v.state
@@ -682,7 +682,7 @@ func file_web_v1_contact_apply_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_contact_apply_proto_msgTypes[8].Exporter = func(v any, i int) any {
+		file_web_v1_contact_apply_proto_msgTypes[8].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*ContactApplyListResponse_Item); i {
 			case 0:
 				return &v.state

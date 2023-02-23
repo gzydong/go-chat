@@ -1170,7 +1170,7 @@ func file_message_v1_message_proto_rawDescGZIP() []byte {
 }
 
 var file_message_v1_message_proto_msgTypes = make([]protoimpl.MessageInfo, 13)
-var file_message_v1_message_proto_goTypes = []any{
+var file_message_v1_message_proto_goTypes = []interface{}{
 	(*MessageReceiver)(nil),            // 0: message.MessageReceiver
 	(*TextMessageRequest)(nil),         // 1: message.TextMessageRequest
 	(*ImageMessageRequest)(nil),        // 2: message.ImageMessageRequest
@@ -1210,7 +1210,7 @@ func file_message_v1_message_proto_init() {
 		return
 	}
 	if !protoimpl.UnsafeEnabled {
-		file_message_v1_message_proto_msgTypes[0].Exporter = func(v any, i int) any {
+		file_message_v1_message_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*MessageReceiver); i {
 			case 0:
 				return &v.state
@@ -1222,7 +1222,7 @@ func file_message_v1_message_proto_init() {
 				return nil
 			}
 		}
-		file_message_v1_message_proto_msgTypes[1].Exporter = func(v any, i int) any {
+		file_message_v1_message_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*TextMessageRequest); i {
 			case 0:
 				return &v.state
@@ -1234,7 +1234,7 @@ func file_message_v1_message_proto_init() {
 				return nil
 			}
 		}
-		file_message_v1_message_proto_msgTypes[2].Exporter = func(v any, i int) any {
+		file_message_v1_message_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*ImageMessageRequest); i {
 			case 0:
 				return &v.state
@@ -1246,7 +1246,7 @@ func file_message_v1_message_proto_init() {
 				return nil
 			}
 		}
-		file_message_v1_message_proto_msgTypes[3].Exporter = func(v any, i int) any {
+		file_message_v1_message_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*VoiceMessageRequest); i {
 			case 0:
 				return &v.state
@@ -1258,7 +1258,7 @@ func file_message_v1_message_proto_init() {
 				return nil
 			}
 		}
-		file_message_v1_message_proto_msgTypes[4].Exporter = func(v any, i int) any {
+		file_message_v1_message_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*VideoMessageRequest); i {
 			case 0:
 				return &v.state
@@ -1270,7 +1270,7 @@ func file_message_v1_message_proto_init() {
 				return nil
 			}
 		}
-		file_message_v1_message_proto_msgTypes[5].Exporter = func(v any, i int) any {
+		file_message_v1_message_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*FileMessageRequest); i {
 			case 0:
 				return &v.state
@@ -1282,7 +1282,7 @@ func file_message_v1_message_proto_init() {
 				return nil
 			}
 		}
-		file_message_v1_message_proto_msgTypes[6].Exporter = func(v any, i int) any {
+		file_message_v1_message_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*CodeMessageRequest); i {
 			case 0:
 				return &v.state
@@ -1294,7 +1294,7 @@ func file_message_v1_message_proto_init() {
 				return nil
 			}
 		}
-		file_message_v1_message_proto_msgTypes[7].Exporter = func(v any, i int) any {
+		file_message_v1_message_proto_msgTypes[7].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*LocationMessageRequest); i {
 			case 0:
 				return &v.state
@@ -1306,7 +1306,7 @@ func file_message_v1_message_proto_init() {
 				return nil
 			}
 		}
-		file_message_v1_message_proto_msgTypes[8].Exporter = func(v any, i int) any {
+		file_message_v1_message_proto_msgTypes[8].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*ForwardMessageRequest); i {
 			case 0:
 				return &v.state
@@ -1318,7 +1318,7 @@ func file_message_v1_message_proto_init() {
 				return nil
 			}
 		}
-		file_message_v1_message_proto_msgTypes[9].Exporter = func(v any, i int) any {
+		file_message_v1_message_proto_msgTypes[9].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*VoteMessageRequest); i {
 			case 0:
 				return &v.state
@@ -1330,7 +1330,7 @@ func file_message_v1_message_proto_init() {
 				return nil
 			}
 		}
-		file_message_v1_message_proto_msgTypes[10].Exporter = func(v any, i int) any {
+		file_message_v1_message_proto_msgTypes[10].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*LoginMessageRequest); i {
 			case 0:
 				return &v.state
@@ -1342,7 +1342,7 @@ func file_message_v1_message_proto_init() {
 				return nil
 			}
 		}
-		file_message_v1_message_proto_msgTypes[11].Exporter = func(v any, i int) any {
+		file_message_v1_message_proto_msgTypes[11].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*EmoticonMessageRequest); i {
 			case 0:
 				return &v.state
@@ -1354,7 +1354,7 @@ func file_message_v1_message_proto_init() {
 				return nil
 			}
 		}
-		file_message_v1_message_proto_msgTypes[12].Exporter = func(v any, i int) any {
+		file_message_v1_message_proto_msgTypes[12].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*TextMessageRequest_Mention); i {
 			case 0:
 				return &v.state

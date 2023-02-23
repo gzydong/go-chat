@@ -546,7 +546,7 @@ func file_admin_v1_auth_proto_rawDescGZIP() []byte {
 }
 
 var file_admin_v1_auth_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
-var file_admin_v1_auth_proto_goTypes = []any{
+var file_admin_v1_auth_proto_goTypes = []interface{}{
 	(*AccessToken)(nil),         // 0: admin.AccessToken
 	(*AuthLoginRequest)(nil),    // 1: admin.AuthLoginRequest
 	(*AuthLoginResponse)(nil),   // 2: admin.AuthLoginResponse
@@ -572,7 +572,7 @@ func file_admin_v1_auth_proto_init() {
 		return
 	}
 	if !protoimpl.UnsafeEnabled {
-		file_admin_v1_auth_proto_msgTypes[0].Exporter = func(v any, i int) any {
+		file_admin_v1_auth_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*AccessToken); i {
 			case 0:
 				return &v.state
@@ -584,7 +584,7 @@ func file_admin_v1_auth_proto_init() {
 				return nil
 			}
 		}
-		file_admin_v1_auth_proto_msgTypes[1].Exporter = func(v any, i int) any {
+		file_admin_v1_auth_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*AuthLoginRequest); i {
 			case 0:
 				return &v.state
@@ -596,7 +596,7 @@ func file_admin_v1_auth_proto_init() {
 				return nil
 			}
 		}
-		file_admin_v1_auth_proto_msgTypes[2].Exporter = func(v any, i int) any {
+		file_admin_v1_auth_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*AuthLoginResponse); i {
 			case 0:
 				return &v.state
@@ -608,7 +608,7 @@ func file_admin_v1_auth_proto_init() {
 				return nil
 			}
 		}
-		file_admin_v1_auth_proto_msgTypes[3].Exporter = func(v any, i int) any {
+		file_admin_v1_auth_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*AuthCaptchaRequest); i {
 			case 0:
 				return &v.state
@@ -620,7 +620,7 @@ func file_admin_v1_auth_proto_init() {
 				return nil
 			}
 		}
-		file_admin_v1_auth_proto_msgTypes[4].Exporter = func(v any, i int) any {
+		file_admin_v1_auth_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*AuthCaptchaResponse); i {
 			case 0:
 				return &v.state
@@ -632,7 +632,7 @@ func file_admin_v1_auth_proto_init() {
 				return nil
 			}
 		}
-		file_admin_v1_auth_proto_msgTypes[5].Exporter = func(v any, i int) any {
+		file_admin_v1_auth_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*AuthLogoutRequest); i {
 			case 0:
 				return &v.state
@@ -644,7 +644,7 @@ func file_admin_v1_auth_proto_init() {
 				return nil
 			}
 		}
-		file_admin_v1_auth_proto_msgTypes[6].Exporter = func(v any, i int) any {
+		file_admin_v1_auth_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*AuthLogoutResponse); i {
 			case 0:
 				return &v.state
@@ -656,7 +656,7 @@ func file_admin_v1_auth_proto_init() {
 				return nil
 			}
 		}
-		file_admin_v1_auth_proto_msgTypes[7].Exporter = func(v any, i int) any {
+		file_admin_v1_auth_proto_msgTypes[7].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*AuthRefreshRequest); i {
 			case 0:
 				return &v.state
@@ -668,7 +668,7 @@ func file_admin_v1_auth_proto_init() {
 				return nil
 			}
 		}
-		file_admin_v1_auth_proto_msgTypes[8].Exporter = func(v any, i int) any {
+		file_admin_v1_auth_proto_msgTypes[8].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*AuthRefreshResponse); i {
 			case 0:
 				return &v.state

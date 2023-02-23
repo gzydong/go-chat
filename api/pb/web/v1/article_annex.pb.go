@@ -761,7 +761,7 @@ func file_web_v1_article_annex_proto_rawDescGZIP() []byte {
 }
 
 var file_web_v1_article_annex_proto_msgTypes = make([]protoimpl.MessageInfo, 13)
-var file_web_v1_article_annex_proto_goTypes = []any{
+var file_web_v1_article_annex_proto_goTypes = []interface{}{
 	(*ArticleAnnexUploadRequest)(nil),            // 0: web.ArticleAnnexUploadRequest
 	(*ArticleAnnexUploadResponse)(nil),           // 1: web.ArticleAnnexUploadResponse
 	(*ArticleAnnexDeleteRequest)(nil),            // 2: web.ArticleAnnexDeleteRequest
@@ -794,7 +794,7 @@ func file_web_v1_article_annex_proto_init() {
 	}
 	file_web_v1_paginate_proto_init()
 	if !protoimpl.UnsafeEnabled {
-		file_web_v1_article_annex_proto_msgTypes[0].Exporter = func(v any, i int) any {
+		file_web_v1_article_annex_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*ArticleAnnexUploadRequest); i {
 			case 0:
 				return &v.state
@@ -806,7 +806,7 @@ func file_web_v1_article_annex_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_article_annex_proto_msgTypes[1].Exporter = func(v any, i int) any {
+		file_web_v1_article_annex_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*ArticleAnnexUploadResponse); i {
 			case 0:
 				return &v.state
@@ -818,7 +818,7 @@ func file_web_v1_article_annex_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_article_annex_proto_msgTypes[2].Exporter = func(v any, i int) any {
+		file_web_v1_article_annex_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*ArticleAnnexDeleteRequest); i {
 			case 0:
 				return &v.state
@@ -830,7 +830,7 @@ func file_web_v1_article_annex_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_article_annex_proto_msgTypes[3].Exporter = func(v any, i int) any {
+		file_web_v1_article_annex_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*ArticleAnnexDeleteResponse); i {
 			case 0:
 				return &v.state
@@ -842,7 +842,7 @@ func file_web_v1_article_annex_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_article_annex_proto_msgTypes[4].Exporter = func(v any, i int) any {
+		file_web_v1_article_annex_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*ArticleAnnexRecoverRequest); i {
 			case 0:
 				return &v.state
@@ -854,7 +854,7 @@ func file_web_v1_article_annex_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_article_annex_proto_msgTypes[5].Exporter = func(v any, i int) any {
+		file_web_v1_article_annex_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*ArticleAnnexRecoverResponse); i {
 			case 0:
 				return &v.state
@@ -866,7 +866,7 @@ func file_web_v1_article_annex_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_article_annex_proto_msgTypes[6].Exporter = func(v any, i int) any {
+		file_web_v1_article_annex_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*ArticleAnnexForeverDeleteRequest); i {
 			case 0:
 				return &v.state
@@ -878,7 +878,7 @@ func file_web_v1_article_annex_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_article_annex_proto_msgTypes[7].Exporter = func(v any, i int) any {
+		file_web_v1_article_annex_proto_msgTypes[7].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*ArticleAnnexForeverDeleteResponse); i {
 			case 0:
 				return &v.state
@@ -890,7 +890,7 @@ func file_web_v1_article_annex_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_article_annex_proto_msgTypes[8].Exporter = func(v any, i int) any {
+		file_web_v1_article_annex_proto_msgTypes[8].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*ArticleAnnexDownloadRequest); i {
 			case 0:
 				return &v.state
@@ -902,7 +902,7 @@ func file_web_v1_article_annex_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_article_annex_proto_msgTypes[9].Exporter = func(v any, i int) any {
+		file_web_v1_article_annex_proto_msgTypes[9].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*ArticleAnnexDownloadResponse); i {
 			case 0:
 				return &v.state
@@ -914,7 +914,7 @@ func file_web_v1_article_annex_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_article_annex_proto_msgTypes[10].Exporter = func(v any, i int) any {
+		file_web_v1_article_annex_proto_msgTypes[10].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*ArticleAnnexRecoverListRequest); i {
 			case 0:
 				return &v.state
@@ -926,7 +926,7 @@ func file_web_v1_article_annex_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_article_annex_proto_msgTypes[11].Exporter = func(v any, i int) any {
+		file_web_v1_article_annex_proto_msgTypes[11].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*ArticleAnnexRecoverListResponse); i {
 			case 0:
 				return &v.state
@@ -938,7 +938,7 @@ func file_web_v1_article_annex_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_article_annex_proto_msgTypes[12].Exporter = func(v any, i int) any {
+		file_web_v1_article_annex_proto_msgTypes[12].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*ArticleAnnexRecoverListResponse_Item); i {
 			case 0:
 				return &v.state

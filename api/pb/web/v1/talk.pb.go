@@ -961,7 +961,7 @@ func file_web_v1_talk_proto_rawDescGZIP() []byte {
 }
 
 var file_web_v1_talk_proto_msgTypes = make([]protoimpl.MessageInfo, 13)
-var file_web_v1_talk_proto_goTypes = []any{
+var file_web_v1_talk_proto_goTypes = []interface{}{
 	(*TalkSessionItem)(nil),                   // 0: web.TalkSessionItem
 	(*TalkSessionCreateRequest)(nil),          // 1: web.TalkSessionCreateRequest
 	(*TalkSessionCreateResponse)(nil),         // 2: web.TalkSessionCreateResponse
@@ -991,7 +991,7 @@ func file_web_v1_talk_proto_init() {
 		return
 	}
 	if !protoimpl.UnsafeEnabled {
-		file_web_v1_talk_proto_msgTypes[0].Exporter = func(v any, i int) any {
+		file_web_v1_talk_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*TalkSessionItem); i {
 			case 0:
 				return &v.state
@@ -1003,7 +1003,7 @@ func file_web_v1_talk_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_talk_proto_msgTypes[1].Exporter = func(v any, i int) any {
+		file_web_v1_talk_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*TalkSessionCreateRequest); i {
 			case 0:
 				return &v.state
@@ -1015,7 +1015,7 @@ func file_web_v1_talk_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_talk_proto_msgTypes[2].Exporter = func(v any, i int) any {
+		file_web_v1_talk_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*TalkSessionCreateResponse); i {
 			case 0:
 				return &v.state
@@ -1027,7 +1027,7 @@ func file_web_v1_talk_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_talk_proto_msgTypes[3].Exporter = func(v any, i int) any {
+		file_web_v1_talk_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*TalkSessionDeleteRequest); i {
 			case 0:
 				return &v.state
@@ -1039,7 +1039,7 @@ func file_web_v1_talk_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_talk_proto_msgTypes[4].Exporter = func(v any, i int) any {
+		file_web_v1_talk_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*TalkSessionDeleteResponse); i {
 			case 0:
 				return &v.state
@@ -1051,7 +1051,7 @@ func file_web_v1_talk_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_talk_proto_msgTypes[5].Exporter = func(v any, i int) any {
+		file_web_v1_talk_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*TalkSessionTopRequest); i {
 			case 0:
 				return &v.state
@@ -1063,7 +1063,7 @@ func file_web_v1_talk_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_talk_proto_msgTypes[6].Exporter = func(v any, i int) any {
+		file_web_v1_talk_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*TalkSessionTopResponse); i {
 			case 0:
 				return &v.state
@@ -1075,7 +1075,7 @@ func file_web_v1_talk_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_talk_proto_msgTypes[7].Exporter = func(v any, i int) any {
+		file_web_v1_talk_proto_msgTypes[7].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*TalkSessionDisturbRequest); i {
 			case 0:
 				return &v.state
@@ -1087,7 +1087,7 @@ func file_web_v1_talk_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_talk_proto_msgTypes[8].Exporter = func(v any, i int) any {
+		file_web_v1_talk_proto_msgTypes[8].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*TalkSessionDisturbResponse); i {
 			case 0:
 				return &v.state
@@ -1099,7 +1099,7 @@ func file_web_v1_talk_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_talk_proto_msgTypes[9].Exporter = func(v any, i int) any {
+		file_web_v1_talk_proto_msgTypes[9].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*TalkSessionListRequest); i {
 			case 0:
 				return &v.state
@@ -1111,7 +1111,7 @@ func file_web_v1_talk_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_talk_proto_msgTypes[10].Exporter = func(v any, i int) any {
+		file_web_v1_talk_proto_msgTypes[10].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*TalkSessionListResponse); i {
 			case 0:
 				return &v.state
@@ -1123,7 +1123,7 @@ func file_web_v1_talk_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_talk_proto_msgTypes[11].Exporter = func(v any, i int) any {
+		file_web_v1_talk_proto_msgTypes[11].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*TalkSessionClearUnreadNumRequest); i {
 			case 0:
 				return &v.state
@@ -1135,7 +1135,7 @@ func file_web_v1_talk_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_talk_proto_msgTypes[12].Exporter = func(v any, i int) any {
+		file_web_v1_talk_proto_msgTypes[12].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*TalkSessionClearUnreadNumResponse); i {
 			case 0:
 				return &v.state

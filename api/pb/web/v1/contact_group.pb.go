@@ -719,7 +719,7 @@ func file_web_v1_contact_group_proto_rawDescGZIP() []byte {
 }
 
 var file_web_v1_contact_group_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
-var file_web_v1_contact_group_proto_goTypes = []any{
+var file_web_v1_contact_group_proto_goTypes = []interface{}{
 	(*ContactGroupCreateRequest)(nil),     // 0: web.ContactGroupCreateRequest
 	(*ContactGroupCreateResponse)(nil),    // 1: web.ContactGroupCreateResponse
 	(*ContactGroupUpdateRequest)(nil),     // 2: web.ContactGroupUpdateRequest
@@ -749,7 +749,7 @@ func file_web_v1_contact_group_proto_init() {
 		return
 	}
 	if !protoimpl.UnsafeEnabled {
-		file_web_v1_contact_group_proto_msgTypes[0].Exporter = func(v any, i int) any {
+		file_web_v1_contact_group_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*ContactGroupCreateRequest); i {
 			case 0:
 				return &v.state
@@ -761,7 +761,7 @@ func file_web_v1_contact_group_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_contact_group_proto_msgTypes[1].Exporter = func(v any, i int) any {
+		file_web_v1_contact_group_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*ContactGroupCreateResponse); i {
 			case 0:
 				return &v.state
@@ -773,7 +773,7 @@ func file_web_v1_contact_group_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_contact_group_proto_msgTypes[2].Exporter = func(v any, i int) any {
+		file_web_v1_contact_group_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*ContactGroupUpdateRequest); i {
 			case 0:
 				return &v.state
@@ -785,7 +785,7 @@ func file_web_v1_contact_group_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_contact_group_proto_msgTypes[3].Exporter = func(v any, i int) any {
+		file_web_v1_contact_group_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*ContactGroupUpdateResponse); i {
 			case 0:
 				return &v.state
@@ -797,7 +797,7 @@ func file_web_v1_contact_group_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_contact_group_proto_msgTypes[4].Exporter = func(v any, i int) any {
+		file_web_v1_contact_group_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*ContactGroupDeleteRequest); i {
 			case 0:
 				return &v.state
@@ -809,7 +809,7 @@ func file_web_v1_contact_group_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_contact_group_proto_msgTypes[5].Exporter = func(v any, i int) any {
+		file_web_v1_contact_group_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*ContactGroupDeleteResponse); i {
 			case 0:
 				return &v.state
@@ -821,7 +821,7 @@ func file_web_v1_contact_group_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_contact_group_proto_msgTypes[6].Exporter = func(v any, i int) any {
+		file_web_v1_contact_group_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*ContactGroupSortRequest); i {
 			case 0:
 				return &v.state
@@ -833,7 +833,7 @@ func file_web_v1_contact_group_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_contact_group_proto_msgTypes[7].Exporter = func(v any, i int) any {
+		file_web_v1_contact_group_proto_msgTypes[7].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*ContactGroupSortResponse); i {
 			case 0:
 				return &v.state
@@ -845,7 +845,7 @@ func file_web_v1_contact_group_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_contact_group_proto_msgTypes[8].Exporter = func(v any, i int) any {
+		file_web_v1_contact_group_proto_msgTypes[8].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*ContactGroupListRequest); i {
 			case 0:
 				return &v.state
@@ -857,7 +857,7 @@ func file_web_v1_contact_group_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_contact_group_proto_msgTypes[9].Exporter = func(v any, i int) any {
+		file_web_v1_contact_group_proto_msgTypes[9].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*ContactGroupListResponse); i {
 			case 0:
 				return &v.state
@@ -869,7 +869,7 @@ func file_web_v1_contact_group_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_contact_group_proto_msgTypes[10].Exporter = func(v any, i int) any {
+		file_web_v1_contact_group_proto_msgTypes[10].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*ContactGroupSortRequest_Item); i {
 			case 0:
 				return &v.state
@@ -881,7 +881,7 @@ func file_web_v1_contact_group_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_contact_group_proto_msgTypes[11].Exporter = func(v any, i int) any {
+		file_web_v1_contact_group_proto_msgTypes[11].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*ContactGroupListResponse_Item); i {
 			case 0:
 				return &v.state

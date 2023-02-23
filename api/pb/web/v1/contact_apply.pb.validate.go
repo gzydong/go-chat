@@ -788,7 +788,7 @@ func (m *ContactApplyListResponse) validate(all bool) error {
 		_, _ = idx, item
 
 		if all {
-			switch v := any(item).(type) {
+			switch v := interface{}(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, ContactApplyListResponseValidationError{
@@ -806,7 +806,7 @@ func (m *ContactApplyListResponse) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := any(item).(interface{ Validate() error }); ok {
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return ContactApplyListResponseValidationError{
 					field:  fmt.Sprintf("Items[%v]", idx),

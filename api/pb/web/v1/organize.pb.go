@@ -537,7 +537,7 @@ func file_web_v1_organize_proto_rawDescGZIP() []byte {
 }
 
 var file_web_v1_organize_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
-var file_web_v1_organize_proto_goTypes = []any{
+var file_web_v1_organize_proto_goTypes = []interface{}{
 	(*OrganizeDepartmentListRequest)(nil),          // 0: web.OrganizeDepartmentListRequest
 	(*OrganizeDepartmentListResponse)(nil),         // 1: web.OrganizeDepartmentListResponse
 	(*OrganizePersonnelListRequest)(nil),           // 2: web.OrganizePersonnelListRequest
@@ -565,7 +565,7 @@ func file_web_v1_organize_proto_init() {
 		return
 	}
 	if !protoimpl.UnsafeEnabled {
-		file_web_v1_organize_proto_msgTypes[0].Exporter = func(v any, i int) any {
+		file_web_v1_organize_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*OrganizeDepartmentListRequest); i {
 			case 0:
 				return &v.state
@@ -577,7 +577,7 @@ func file_web_v1_organize_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_organize_proto_msgTypes[1].Exporter = func(v any, i int) any {
+		file_web_v1_organize_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*OrganizeDepartmentListResponse); i {
 			case 0:
 				return &v.state
@@ -589,7 +589,7 @@ func file_web_v1_organize_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_organize_proto_msgTypes[2].Exporter = func(v any, i int) any {
+		file_web_v1_organize_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*OrganizePersonnelListRequest); i {
 			case 0:
 				return &v.state
@@ -601,7 +601,7 @@ func file_web_v1_organize_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_organize_proto_msgTypes[3].Exporter = func(v any, i int) any {
+		file_web_v1_organize_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*OrganizePersonnelListResponse); i {
 			case 0:
 				return &v.state
@@ -613,7 +613,7 @@ func file_web_v1_organize_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_organize_proto_msgTypes[4].Exporter = func(v any, i int) any {
+		file_web_v1_organize_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*OrganizeDepartmentListResponse_Item); i {
 			case 0:
 				return &v.state
@@ -625,7 +625,7 @@ func file_web_v1_organize_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_organize_proto_msgTypes[5].Exporter = func(v any, i int) any {
+		file_web_v1_organize_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*OrganizePersonnelListResponse_Position); i {
 			case 0:
 				return &v.state
@@ -637,7 +637,7 @@ func file_web_v1_organize_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_organize_proto_msgTypes[6].Exporter = func(v any, i int) any {
+		file_web_v1_organize_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*OrganizePersonnelListResponse_Dept); i {
 			case 0:
 				return &v.state
@@ -649,7 +649,7 @@ func file_web_v1_organize_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_organize_proto_msgTypes[7].Exporter = func(v any, i int) any {
+		file_web_v1_organize_proto_msgTypes[7].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*OrganizePersonnelListResponse_Item); i {
 			case 0:
 				return &v.state

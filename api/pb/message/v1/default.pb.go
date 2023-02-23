@@ -164,7 +164,7 @@ func file_message_v1_default_proto_rawDescGZIP() []byte {
 }
 
 var file_message_v1_default_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
-var file_message_v1_default_proto_goTypes = []any{
+var file_message_v1_default_proto_goTypes = []interface{}{
 	(*KeyboardMessage)(nil),      // 0: message.KeyboardMessage
 	(*KeyboardMessage_Data)(nil), // 1: message.KeyboardMessage.Data
 }
@@ -183,7 +183,7 @@ func file_message_v1_default_proto_init() {
 		return
 	}
 	if !protoimpl.UnsafeEnabled {
-		file_message_v1_default_proto_msgTypes[0].Exporter = func(v any, i int) any {
+		file_message_v1_default_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*KeyboardMessage); i {
 			case 0:
 				return &v.state
@@ -195,7 +195,7 @@ func file_message_v1_default_proto_init() {
 				return nil
 			}
 		}
-		file_message_v1_default_proto_msgTypes[1].Exporter = func(v any, i int) any {
+		file_message_v1_default_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*KeyboardMessage_Data); i {
 			case 0:
 				return &v.state

@@ -164,7 +164,7 @@ func (m *OrganizeDepartmentListResponse) validate(all bool) error {
 		_, _ = idx, item
 
 		if all {
-			switch v := any(item).(type) {
+			switch v := interface{}(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, OrganizeDepartmentListResponseValidationError{
@@ -182,7 +182,7 @@ func (m *OrganizeDepartmentListResponse) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := any(item).(interface{ Validate() error }); ok {
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return OrganizeDepartmentListResponseValidationError{
 					field:  fmt.Sprintf("Items[%v]", idx),
@@ -404,7 +404,7 @@ func (m *OrganizePersonnelListResponse) validate(all bool) error {
 		_, _ = idx, item
 
 		if all {
-			switch v := any(item).(type) {
+			switch v := interface{}(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, OrganizePersonnelListResponseValidationError{
@@ -422,7 +422,7 @@ func (m *OrganizePersonnelListResponse) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := any(item).(interface{ Validate() error }); ok {
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return OrganizePersonnelListResponseValidationError{
 					field:  fmt.Sprintf("Items[%v]", idx),
@@ -884,7 +884,7 @@ func (m *OrganizePersonnelListResponse_Item) validate(all bool) error {
 		_, _ = idx, item
 
 		if all {
-			switch v := any(item).(type) {
+			switch v := interface{}(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, OrganizePersonnelListResponse_ItemValidationError{
@@ -902,7 +902,7 @@ func (m *OrganizePersonnelListResponse_Item) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := any(item).(interface{ Validate() error }); ok {
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return OrganizePersonnelListResponse_ItemValidationError{
 					field:  fmt.Sprintf("PositionItems[%v]", idx),
@@ -918,7 +918,7 @@ func (m *OrganizePersonnelListResponse_Item) validate(all bool) error {
 		_, _ = idx, item
 
 		if all {
-			switch v := any(item).(type) {
+			switch v := interface{}(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, OrganizePersonnelListResponse_ItemValidationError{
@@ -936,7 +936,7 @@ func (m *OrganizePersonnelListResponse_Item) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := any(item).(interface{ Validate() error }); ok {
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return OrganizePersonnelListResponse_ItemValidationError{
 					field:  fmt.Sprintf("DeptItems[%v]", idx),

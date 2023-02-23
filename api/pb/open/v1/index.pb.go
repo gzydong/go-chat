@@ -119,7 +119,7 @@ func file_open_v1_index_proto_rawDescGZIP() []byte {
 }
 
 var file_open_v1_index_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
-var file_open_v1_index_proto_goTypes = []any{
+var file_open_v1_index_proto_goTypes = []interface{}{
 	(*IndexRequest)(nil), // 0: web.IndexRequest
 }
 var file_open_v1_index_proto_depIdxs = []int32{
@@ -136,7 +136,7 @@ func file_open_v1_index_proto_init() {
 		return
 	}
 	if !protoimpl.UnsafeEnabled {
-		file_open_v1_index_proto_msgTypes[0].Exporter = func(v any, i int) any {
+		file_open_v1_index_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*IndexRequest); i {
 			case 0:
 				return &v.state

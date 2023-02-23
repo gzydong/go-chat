@@ -271,7 +271,7 @@ func (m *AuthLoginResponse) validate(all bool) error {
 	var errors []error
 
 	if all {
-		switch v := any(m.GetAuth()).(type) {
+		switch v := interface{}(m.GetAuth()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, AuthLoginResponseValidationError{
@@ -289,7 +289,7 @@ func (m *AuthLoginResponse) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := any(m.GetAuth()).(interface{ Validate() error }); ok {
+	} else if v, ok := interface{}(m.GetAuth()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return AuthLoginResponseValidationError{
 				field:  "Auth",
