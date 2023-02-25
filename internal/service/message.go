@@ -8,6 +8,7 @@ import (
 	"net/url"
 	"strconv"
 
+	"github.com/sirupsen/logrus"
 	"go-chat/api/pb/message/v1"
 	"go-chat/internal/entity"
 	"go-chat/internal/logic"
@@ -250,8 +251,14 @@ func (m *MessageService) SendFile(ctx context.Context, uid int, req *message.Fil
 	}
 
 	filePath := fmt.Sprintf("private/files/talks/%s/%s.%s", timeutil.DateNumber(), encrypt.Md5(strutil.Random(16)), file.FileExt)
+	uri := ""
+	if entity.GetMediaType(file.FileExt) <= 3 {
+		filePath = fmt.Sprintf("public/media/%s/%s.%s", timeutil.DateNumber(), encrypt.Md5(strutil.Random(16)), file.FileExt)
+		uri = m.fileSystem.Default.PublicUrl(filePath)
+	}
+
 	if err := m.fileSystem.Default.Copy(file.Path, filePath); err != nil {
-		logger.Error("文件拷贝失败 err: ", err.Error())
+		logrus.Error("文件拷贝失败 err: ", err.Error())
 		return err
 	}
 
@@ -278,6 +285,7 @@ func (m *MessageService) SendFile(ctx context.Context, uid int, req *message.Fil
 			Suffix:       file.FileExt,
 			Size:         int(file.FileSize),
 			Path:         filePath,
+			Url:          uri,
 		})
 
 		if err = tx.Create(data).Error; err != nil {
@@ -288,12 +296,13 @@ func (m *MessageService) SendFile(ctx context.Context, uid int, req *message.Fil
 			RecordId:     data.Id,
 			UserId:       uid,
 			Source:       1,
-			Type:         entity.MediaFileOther,
+			Type:         entity.GetMediaType(file.FileExt),
 			Drive:        file.Drive,
 			OriginalName: file.OriginalName,
 			Suffix:       file.FileExt,
 			Size:         int(file.FileSize),
 			Path:         filePath,
+			Url:          uri,
 		}
 
 		return tx.Create(data).Error
