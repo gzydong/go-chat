@@ -54,7 +54,7 @@ func (c *Records) GetRecords(ctx *ichat.Context) error {
 				"content":     "暂无权限查看群消息",
 				"created_at":  timeutil.DateTime(),
 				"id":          1,
-				"msg_id":      strutil.NewUuid(),
+				"msg_id":      strutil.NewMsgId(),
 				"msg_type":    0,
 				"receiver_id": params.ReceiverId,
 				"talk_type":   params.TalkType,

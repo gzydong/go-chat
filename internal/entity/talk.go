@@ -103,8 +103,8 @@ type TalkRecord struct {
 }
 
 type TalkRecordText struct {
-	All  int   `json:"all"`
-	Uids []int `json:"uids"`
+	All  int   `json:"all"`  // 是否@所有成员 0:否 1:是
+	Uids []int `json:"uids"` // @成员列表
 }
 
 type TalkRecordCode struct {
@@ -143,5 +143,14 @@ type TalkRecordVote struct {
 }
 
 type TalkRecordForward struct {
-	Records []int `json:"records"`
+	Records []map[string]any `json:"records"`
+}
+
+type TalkRecordLogin struct {
+	IpAddress string `json:"ip"`
+	Address   string `json:"address"`
+	Agent     string `json:"agent"`
+	CreatedAt string `json:"created_at"`
+	Platform  string `json:"platform"`
+	Reason    string `json:"reason"`
 }

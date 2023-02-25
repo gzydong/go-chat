@@ -96,7 +96,7 @@ func (m *MessageForwardLogic) MultiMergeForward(ctx context.Context, uid int, re
 
 		for _, item := range receives {
 			data := &model.TalkRecords{
-				MsgId:      strutil.NewUuid(),
+				MsgId:      strutil.NewMsgId(),
 				TalkType:   item["type"],
 				MsgType:    entity.MsgTypeForward,
 				UserId:     uid,
@@ -224,7 +224,7 @@ func (m *MessageForwardLogic) MultiSplitForward(ctx context.Context, uid int, re
 				recordsHash[i] = item
 
 				data := &model.TalkRecords{
-					MsgId:      strutil.NewUuid(),
+					MsgId:      strutil.NewMsgId(),
 					TalkType:   v["type"],
 					MsgType:    item.MsgType,
 					UserId:     uid,

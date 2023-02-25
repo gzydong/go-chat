@@ -30,7 +30,7 @@ func (h *Handler) OnTextMessage(ctx context.Context, client im.IClient, data []b
 	fmt.Println("[TextMessage] 新消息 ", string(data))
 
 	_ = client.Write(&im.ClientOutContent{
-		AckId: strutil.NewUuid(),
+		AckId: strutil.NewMsgId(),
 		IsAck: false,
 		Retry: 0,
 		Content: []byte(jsonutil.Encode(map[string]any{

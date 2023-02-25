@@ -59,7 +59,7 @@ func (c *Apply) Accept(ctx *ichat.Context) error {
 	}
 
 	uid := ctx.UserId()
-	applyInfo, err := c.service.Accept(ctx.Ctx(), &service.ContactApplyAcceptOpts{
+	applyInfo, err := c.service.Accept(ctx.Ctx(), &service.ContactApplyAcceptOpt{
 		Remarks: params.Remark,
 		ApplyId: int(params.ApplyId),
 		UserId:  uid,
@@ -87,7 +87,7 @@ func (c *Apply) Decline(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	if err := c.service.Decline(ctx.Ctx(), &service.ContactApplyDeclineOpts{
+	if err := c.service.Decline(ctx.Ctx(), &service.ContactApplyDeclineOpt{
 		UserId:  ctx.UserId(),
 		Remarks: params.Remark,
 		ApplyId: int(params.ApplyId),

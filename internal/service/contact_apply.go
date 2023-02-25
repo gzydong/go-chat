@@ -18,13 +18,13 @@ type ContactApplyCreateOpts struct {
 	FriendId int
 }
 
-type ContactApplyAcceptOpts struct {
+type ContactApplyAcceptOpt struct {
 	UserId  int
 	Remarks string
 	ApplyId int
 }
 
-type ContactApplyDeclineOpts struct {
+type ContactApplyDeclineOpt struct {
 	UserId  int
 	Remarks string
 	ApplyId int
@@ -66,7 +66,7 @@ func (s *ContactApplyService) Create(ctx context.Context, opts *ContactApplyCrea
 }
 
 // Accept 同意好友申请
-func (s *ContactApplyService) Accept(ctx context.Context, opts *ContactApplyAcceptOpts) (*model.ContactApply, error) {
+func (s *ContactApplyService) Accept(ctx context.Context, opts *ContactApplyAcceptOpt) (*model.ContactApply, error) {
 	var (
 		err       error
 		applyInfo *model.ContactApply
@@ -122,7 +122,7 @@ func (s *ContactApplyService) Accept(ctx context.Context, opts *ContactApplyAcce
 }
 
 // Decline 拒绝好友申请
-func (s *ContactApplyService) Decline(ctx context.Context, opts *ContactApplyDeclineOpts) error {
+func (s *ContactApplyService) Decline(ctx context.Context, opts *ContactApplyDeclineOpt) error {
 	err := s.db.Delete(&model.ContactApply{}, "id = ? and friend_id = ?", opts.ApplyId, opts.UserId).Error
 
 	if err == nil {
