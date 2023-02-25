@@ -223,11 +223,12 @@ func (c *Message) File(ctx *ichat.Context) error {
 		return ctx.ErrorBusiness(err.Error())
 	}
 
-	if err := c.service.SendFileMessage(ctx.Ctx(), &service.FileMessageOpt{
-		UserId:     uid,
-		TalkType:   params.TalkType,
-		ReceiverId: params.ReceiverId,
-		UploadId:   params.UploadId,
+	if err := c.message.SendFile(ctx.Ctx(), uid, &message.FileMessageRequest{
+		UploadId: params.UploadId,
+		Receiver: &message.MessageReceiver{
+			TalkType:   int32(params.TalkType),
+			ReceiverId: int32(params.ReceiverId),
+		},
 	}); err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}

@@ -48,6 +48,7 @@ func (c *Auth) Login(ctx *ichat.Context) error {
 		return ctx.ErrorBusiness(err.Error())
 	}
 
+	// TODO 这里需需要异步处理
 	root, _ := c.robotRepo.GetLoginRobot(ctx.Ctx())
 	if root != nil {
 		ip := ctx.Context.ClientIP()

@@ -30,8 +30,9 @@ type TalkRecordExtraCode struct {
 }
 
 type TalkRecordExtraLocation struct {
-	Longitude string `json:"longitude"`
-	Latitude  string `json:"latitude"`
+	Longitude   string `json:"longitude"`
+	Latitude    string `json:"latitude"`
+	Description string `json:"description"`
 }
 
 type TalkRecordExtraForward struct {
@@ -56,6 +57,16 @@ type TalkRecordExtraContact struct {
 	Action int    `json:"action"`  // 操作方式 1联系人申请 2被申请人处理结果
 	UserId int    `json:"user_id"` // 联系人ID
 	Remark string `json:"remark"`  // 申请备注
+}
+
+type TalkRecordExtraFile struct {
+	Type         int    `json:"type"`
+	Drive        int    `json:"drive"`
+	Suffix       string `json:"suffix"`
+	Size         int    `json:"size"`
+	Path         string `json:"path"`
+	Url          string `json:"url"`
+	OriginalName string `json:"original_name"`
 }
 
 type TalkRecordExtraGroupJoin struct {

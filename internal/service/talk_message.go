@@ -11,7 +11,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/sirupsen/logrus"
 	"go-chat/internal/repository/cache"
 	"go-chat/internal/repository/model"
 	"go-chat/internal/repository/repo"
@@ -19,7 +18,6 @@ import (
 
 	"go-chat/config"
 	"go-chat/internal/entity"
-	"go-chat/internal/pkg/encrypt"
 	"go-chat/internal/pkg/filesystem"
 	"go-chat/internal/pkg/jsonutil"
 	"go-chat/internal/pkg/strutil"
@@ -38,10 +36,11 @@ type TalkMessageService struct {
 	client              *cache.ClientStorage
 	fileSystem          *filesystem.Filesystem
 	splitUploadDao      *repo.SplitUpload
+	sequence            *repo.Sequence
 }
 
-func NewTalkMessageService(baseService *BaseService, config *config.Config, unreadTalkCache *cache.UnreadStorage, lastMessage *cache.MessageStorage, talkRecordsVoteDao *repo.TalkRecordsVote, groupMemberDao *repo.GroupMember, sidServer *cache.ServerStorage, client *cache.ClientStorage, fileSystem *filesystem.Filesystem, splitUploadDao *repo.SplitUpload) *TalkMessageService {
-	return &TalkMessageService{BaseService: baseService, config: config, unreadTalkCache: unreadTalkCache, lastMessage: lastMessage, talkRecordsVoteRepo: talkRecordsVoteDao, groupMemberRepo: groupMemberDao, sidServer: sidServer, client: client, fileSystem: fileSystem, splitUploadDao: splitUploadDao}
+func NewTalkMessageService(baseService *BaseService, config *config.Config, unreadTalkCache *cache.UnreadStorage, lastMessage *cache.MessageStorage, talkRecordsVoteRepo *repo.TalkRecordsVote, groupMemberRepo *repo.GroupMember, sidServer *cache.ServerStorage, client *cache.ClientStorage, fileSystem *filesystem.Filesystem, splitUploadDao *repo.SplitUpload, sequence *repo.Sequence) *TalkMessageService {
+	return &TalkMessageService{BaseService: baseService, config: config, unreadTalkCache: unreadTalkCache, lastMessage: lastMessage, talkRecordsVoteRepo: talkRecordsVoteRepo, groupMemberRepo: groupMemberRepo, sidServer: sidServer, client: client, fileSystem: fileSystem, splitUploadDao: splitUploadDao, sequence: sequence}
 }
 
 type SysTextMessageOpt struct {
@@ -52,13 +51,14 @@ type SysTextMessageOpt struct {
 }
 
 // SendSysMessage 发送文本消息
-func (s *TalkMessageService) SendSysMessage(ctx context.Context, opts *SysTextMessageOpt) error {
+func (s *TalkMessageService) SendSysMessage(ctx context.Context, opt *SysTextMessageOpt) error {
 	record := &model.TalkRecords{
-		TalkType:   opts.TalkType,
+		TalkType:   opt.TalkType,
 		MsgType:    entity.MsgTypeSystemText,
-		UserId:     opts.UserId,
-		ReceiverId: opts.ReceiverId,
-		Content:    opts.Text,
+		UserId:     opt.UserId,
+		ReceiverId: opt.ReceiverId,
+		Content:    opt.Text,
+		Sequence:   s.sequence.Get(ctx, opt.UserId, opt.ReceiverId),
 	}
 
 	if err := s.db.Debug().Create(record).Error; err != nil {
@@ -80,24 +80,25 @@ type ImageMessageOpt struct {
 }
 
 // SendImageMessage 发送图片消息
-func (s *TalkMessageService) SendImageMessage(ctx context.Context, opts *ImageMessageOpt) error {
+func (s *TalkMessageService) SendImageMessage(ctx context.Context, opt *ImageMessageOpt) error {
 	var (
 		err    error
 		record = &model.TalkRecords{
 			MsgId:      strutil.NewMsgId(),
-			TalkType:   opts.TalkType,
+			TalkType:   opt.TalkType,
 			MsgType:    entity.MsgTypeFile,
-			UserId:     opts.UserId,
-			ReceiverId: opts.ReceiverId,
+			UserId:     opt.UserId,
+			ReceiverId: opt.ReceiverId,
+			Sequence:   s.sequence.Get(ctx, opt.UserId, opt.ReceiverId),
 		}
 	)
 
-	stream, err := filesystem.ReadMultipartStream(opts.File)
+	stream, err := filesystem.ReadMultipartStream(opt.File)
 	if err != nil {
 		return err
 	}
 
-	ext := strutil.FileSuffix(opts.File.Filename)
+	ext := strutil.FileSuffix(opt.File.Filename)
 
 	meta := utils.ReadImageMeta(bytes.NewReader(stream))
 
@@ -114,13 +115,13 @@ func (s *TalkMessageService) SendImageMessage(ctx context.Context, opts *ImageMe
 
 		if err = s.db.Create(&model.TalkRecordsFile{
 			RecordId:     record.Id,
-			UserId:       opts.UserId,
+			UserId:       opt.UserId,
 			Source:       1,
 			Type:         entity.GetMediaType(ext),
 			Drive:        entity.FileDriveMode(s.fileSystem.Driver()),
-			OriginalName: opts.File.Filename,
+			OriginalName: opt.File.Filename,
 			Suffix:       ext,
-			Size:         int(opts.File.Size),
+			Size:         int(opt.File.Size),
 			Path:         filePath,
 			Url:          s.fileSystem.Default.PublicUrl(filePath),
 		}).Error; err != nil {
@@ -139,134 +140,11 @@ func (s *TalkMessageService) SendImageMessage(ctx context.Context, opts *ImageMe
 	return nil
 }
 
-type FileMessageOpt struct {
-	UserId     int
-	TalkType   int
-	ReceiverId int
-	UploadId   string
-}
-
-// SendFileMessage 发送文件消息
-func (s *TalkMessageService) SendFileMessage(ctx context.Context, opts *FileMessageOpt) error {
-
-	var (
-		err    error
-		record = &model.TalkRecords{
-			MsgId:      strutil.NewMsgId(),
-			TalkType:   opts.TalkType,
-			MsgType:    entity.MsgTypeFile,
-			UserId:     opts.UserId,
-			ReceiverId: opts.ReceiverId,
-		}
-	)
-
-	file, err := s.splitUploadDao.GetFile(ctx, opts.UserId, opts.UploadId)
-	if err != nil {
-		return err
-	}
-
-	filePath := fmt.Sprintf("private/files/talks/%s/%s.%s", timeutil.DateNumber(), encrypt.Md5(strutil.Random(16)), file.FileExt)
-	url := ""
-	if entity.GetMediaType(file.FileExt) <= 3 {
-		filePath = fmt.Sprintf("public/media/%s/%s.%s", timeutil.DateNumber(), encrypt.Md5(strutil.Random(16)), file.FileExt)
-		url = s.fileSystem.Default.PublicUrl(filePath)
-	}
-
-	if err := s.fileSystem.Default.Copy(file.Path, filePath); err != nil {
-		logrus.Error("文件拷贝失败 err: ", err.Error())
-		return err
-	}
-
-	err = s.db.Transaction(func(tx *gorm.DB) error {
-		if err = s.db.Create(record).Error; err != nil {
-			return err
-		}
-
-		if err = s.db.Create(&model.TalkRecordsFile{
-			RecordId:     record.Id,
-			UserId:       opts.UserId,
-			Source:       1,
-			Type:         entity.GetMediaType(file.FileExt),
-			Drive:        file.Drive,
-			OriginalName: file.OriginalName,
-			Suffix:       file.FileExt,
-			Size:         int(file.FileSize),
-			Path:         filePath,
-			Url:          url,
-		}).Error; err != nil {
-			return err
-		}
-
-		return nil
-	})
-
-	if err != nil {
-		return err
-	}
-
-	s.afterHandle(ctx, record, map[string]string{"text": "[文件消息]"})
-
-	return nil
-}
-
 type EmoticonMessageOpt struct {
 	UserId     int
 	TalkType   int
 	ReceiverId int
 	EmoticonId int
-}
-
-// SendEmoticonMessage 发送表情包消息
-func (s *TalkMessageService) SendEmoticonMessage(ctx context.Context, opts *EmoticonMessageOpt) error {
-	var (
-		err      error
-		emoticon model.EmoticonItem
-		record   = &model.TalkRecords{
-			MsgId:      strutil.NewMsgId(),
-			TalkType:   opts.TalkType,
-			MsgType:    entity.MsgTypeFile,
-			UserId:     opts.UserId,
-			ReceiverId: opts.ReceiverId,
-		}
-	)
-
-	if err = s.db.Model(&model.EmoticonItem{}).Where("id = ?", opts.EmoticonId).First(&emoticon).Error; err != nil {
-		return err
-	}
-
-	if emoticon.UserId > 0 && emoticon.UserId != opts.UserId {
-		return errors.New("表情包不存在！")
-	}
-
-	err = s.db.Transaction(func(tx *gorm.DB) error {
-		if err = s.db.Create(record).Error; err != nil {
-			return err
-		}
-
-		if err = s.db.Create(&model.TalkRecordsFile{
-			RecordId:     record.Id,
-			UserId:       opts.UserId,
-			Source:       2,
-			Type:         entity.GetMediaType(emoticon.FileSuffix),
-			OriginalName: "图片表情",
-			Suffix:       emoticon.FileSuffix,
-			Size:         emoticon.FileSize,
-			Path:         emoticon.Url,
-			Url:          emoticon.Url,
-		}).Error; err != nil {
-			return err
-		}
-
-		return nil
-	})
-
-	if err != nil {
-		return err
-	}
-
-	s.afterHandle(ctx, record, map[string]string{"text": "[图片消息]"})
-
-	return nil
 }
 
 // SendRevokeRecordMessage 撤销推送消息

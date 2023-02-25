@@ -92,6 +92,17 @@ func (m *MessageService) SendImage(ctx context.Context, uid int, req *message.Im
 	}
 
 	err = m.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+
+		data.Extra = jsonutil.Encode(&model.TalkRecordExtraFile{
+			Type:         entity.MediaFileImage,
+			Drive:        entity.FileDriveMode("local"),
+			OriginalName: "图片名称",
+			Suffix:       strutil.FileSuffix(req.Url),
+			Size:         int(req.Size),
+			Path:         parse.Path,
+			Url:          req.Url,
+		})
+
 		if err := tx.Create(data).Error; err != nil {
 			return err
 		}
@@ -192,6 +203,17 @@ func (m *MessageService) SendVideo(ctx context.Context, uid int, req *message.Vi
 	}
 
 	err = m.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+
+		data.Extra = jsonutil.Encode(&model.TalkRecordExtraFile{
+			Type:         entity.MediaFileVideo,
+			Drive:        entity.FileDriveMode("local"),
+			OriginalName: "语音文件",
+			Suffix:       strutil.FileSuffix(req.Url),
+			Size:         int(req.Size),
+			Path:         parse.Path,
+			Url:          req.Url,
+		})
+
 		if err := tx.Create(data).Error; err != nil {
 			return err
 		}
@@ -249,6 +271,15 @@ func (m *MessageService) SendFile(ctx context.Context, uid int, req *message.Fil
 
 	err = m.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 
+		data.Extra = jsonutil.Encode(&model.TalkRecordExtraFile{
+			Type:         entity.MediaFileOther,
+			Drive:        file.Drive,
+			OriginalName: file.OriginalName,
+			Suffix:       file.FileExt,
+			Size:         int(file.FileSize),
+			Path:         filePath,
+		})
+
 		if err = tx.Create(data).Error; err != nil {
 			return err
 		}
@@ -293,6 +324,12 @@ func (m *MessageService) SendCode(ctx context.Context, uid int, req *message.Cod
 	}
 
 	err := m.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+
+		data.Extra = jsonutil.Encode(&model.TalkRecordExtraCode{
+			Lang: req.Lang,
+			Code: req.Code,
+		})
+
 		if err := tx.Create(data).Error; err != nil {
 			return err
 		}
@@ -392,6 +429,15 @@ func (m *MessageService) SendEmoticon(ctx context.Context, uid int, req *message
 
 	err := m.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 
+		data.Extra = jsonutil.Encode(&model.TalkRecordExtraFile{
+			Type:         entity.GetMediaType(emoticon.FileSuffix),
+			OriginalName: "图片表情",
+			Suffix:       emoticon.FileSuffix,
+			Size:         emoticon.FileSize,
+			Path:         emoticon.Url,
+			Url:          emoticon.Url,
+		})
+
 		if err := tx.Create(data).Error; err != nil {
 			return err
 		}
@@ -470,6 +516,11 @@ func (m *MessageService) SendLocation(ctx context.Context, uid int, req *message
 
 	err := m.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 
+		data.Extra = jsonutil.Encode(&model.TalkRecordExtraLocation{
+			Longitude: req.Longitude,
+			Latitude:  req.Latitude,
+		})
+
 		if err := tx.Create(data).Error; err != nil {
 			return err
 		}
@@ -509,6 +560,14 @@ func (m *MessageService) SendLogin(ctx context.Context, uid int, req *message.Lo
 	}
 
 	err := m.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+
+		data.Extra = jsonutil.Encode(&model.TalkRecordExtraLogin{
+			IpAddress: req.Ip,
+			Platform:  req.Platform,
+			Agent:     req.Agent,
+			Address:   req.Address,
+			Reason:    req.Reason,
+		})
 
 		if err := tx.Create(data).Error; err != nil {
 			return err
