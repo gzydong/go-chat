@@ -28,7 +28,6 @@ func (s *Sequence) try(ctx context.Context, userId int, receiverId int) error {
 	result := s.cache.Redis().TTL(ctx, s.cache.Name(userId, receiverId)).Val()
 
 	// 当数据不存在时需要从数据库中加载
-	// 这里可能存在并发问题，但会话间 Sequence ID 并发情况下从复也几乎是能忍受的
 	if result == time.Duration(-2) {
 		isTrue := s.cache.Redis().SetNX(ctx, fmt.Sprintf("%s_lock", s.cache.Name(userId, receiverId)), 1, 10*time.Second).Val()
 		if !isTrue {
