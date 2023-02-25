@@ -2,6 +2,7 @@ package chat
 
 import (
 	"context"
+	"log"
 
 	"go-chat/internal/entity"
 	"go-chat/internal/pkg/im"
@@ -22,6 +23,7 @@ func (h *Handler) OnReadMessage(ctx context.Context, client im.IClient, data []b
 
 	var m *TalkReadMessage
 	if err := jsonutil.Decode(data, &m); err != nil {
+		log.Println("Chat OnReadMessage Err: ", err)
 		return
 	}
 

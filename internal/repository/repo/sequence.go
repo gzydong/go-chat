@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log"
 	"time"
 
 	"go-chat/internal/entity"
@@ -56,7 +57,7 @@ func (s *Sequence) try(ctx context.Context, userId int, receiverId int) error {
 			logger.Error("[Sequence Set] 加载异常 err: ", err.Error())
 			return err
 		}
-	} else if result == time.Duration(-1) {
+	} else if result < time.Hour {
 		s.cache.Redis().Expire(ctx, s.cache.Name(userId, receiverId), 12*time.Hour)
 	}
 
@@ -66,9 +67,11 @@ func (s *Sequence) try(ctx context.Context, userId int, receiverId int) error {
 // Get 获取会话间的时序ID
 func (s *Sequence) Get(ctx context.Context, userId int, receiverId int) int64 {
 
-	_ = utils.Retry(3, 500*time.Millisecond, func() error {
+	if err := utils.Retry(5, 100*time.Millisecond, func() error {
 		return s.try(ctx, userId, receiverId)
-	})
+	}); err != nil {
+		log.Println("Sequence Get Err :", err.Error())
+	}
 
 	return s.cache.Get(ctx, userId, receiverId)
 }
@@ -76,9 +79,11 @@ func (s *Sequence) Get(ctx context.Context, userId int, receiverId int) int64 {
 // BatchGet 批量获取会话间的时序ID
 func (s *Sequence) BatchGet(ctx context.Context, userId int, receiverId int, num int64) []int64 {
 
-	_ = utils.Retry(3, 500*time.Millisecond, func() error {
+	if err := utils.Retry(5, 100*time.Millisecond, func() error {
 		return s.try(ctx, userId, receiverId)
-	})
+	}); err != nil {
+		log.Println("Sequence BatchGet Err :", err.Error())
+	}
 
 	return s.cache.BatchGet(ctx, userId, receiverId, num)
 }

@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 
 	"go-chat/api/pb/message/v1"
 	"go-chat/internal/pkg/im"
@@ -20,6 +21,7 @@ func (h *Handler) OnLocationMessage(ctx context.Context, _ im.IClient, data []by
 
 	var m *LocationMessageMessage
 	if err := json.Unmarshal(data, &m); err != nil {
+		log.Println("Chat OnLocationMessage Err: ", err)
 		return
 	}
 

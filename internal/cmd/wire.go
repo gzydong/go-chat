@@ -18,6 +18,7 @@ import (
 	"go-chat/internal/pkg/filesystem"
 	"go-chat/internal/provider"
 	"go-chat/internal/repository/cache"
+	"go-chat/internal/repository/repo"
 )
 
 var providerSet = wire.NewSet(
@@ -32,6 +33,9 @@ var providerSet = wire.NewSet(
 
 	// cache
 	cache.NewSidStorage,
+	cache.NewSequence,
+
+	repo.NewSequence,
 
 	// Crontab 命令行
 	cron.NewCrontabCommand,

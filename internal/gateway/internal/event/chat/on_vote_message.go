@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 
 	"go-chat/api/pb/message/v1"
 	"go-chat/internal/pkg/im"
@@ -20,6 +21,7 @@ func (h *Handler) OnVoteMessage(ctx context.Context, _ im.IClient, data []byte) 
 
 	var m *VoteMessage
 	if err := json.Unmarshal(data, &m); err != nil {
+		log.Println("Chat OnVoteMessage Err: ", err)
 		return
 	}
 

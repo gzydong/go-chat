@@ -14,6 +14,7 @@ type IClient interface {
 	Uid() int                           // 客户端关联用户ID
 	Close(code int, text string)        // 关闭客户端
 	Write(data *ClientOutContent) error // 写入数据
+	ChannelName() string
 }
 
 type IStorage interface {
@@ -96,6 +97,11 @@ func NewClient(ctx context.Context, conn IConn, opt *ClientOption, callBack ICal
 	health.addClient(client)
 
 	return client.initialize()
+}
+
+// ChannelName Channel Name
+func (c *Client) ChannelName() string {
+	return c.channel.Name()
 }
 
 // Cid 获取客户端ID

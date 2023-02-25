@@ -1,5 +1,7 @@
 package im
 
+import "github.com/sirupsen/logrus"
+
 type ICallback interface {
 	Open(client IClient)
 	Message(client IClient, msg []byte)
@@ -35,18 +37,36 @@ func NewClientCallback(opts ...ClientCallbackOption) ICallback {
 
 func (c *ClientCallback) Open(client IClient) {
 	if c.open != nil {
+		defer func() {
+			if err := recover(); err != nil {
+				logrus.Println("Call Open Err: ", client.Uid(), client.Cid(), client.ChannelName(), err)
+			}
+		}()
+
 		c.open(client)
 	}
 }
 
 func (c *ClientCallback) Message(client IClient, message []byte) {
 	if c.message != nil {
+		defer func() {
+			if err := recover(); err != nil {
+				logrus.Println("Call Message Err: ", client.Uid(), client.Cid(), client.ChannelName(), err)
+			}
+		}()
+
 		c.message(client, message)
 	}
 }
 
 func (c *ClientCallback) Close(client IClient, code int, text string) {
 	if c.close != nil {
+		defer func() {
+			if err := recover(); err != nil {
+				logrus.Println("Call Close Err: ", client.Uid(), client.Cid(), client.ChannelName(), err)
+			}
+		}()
+
 		c.close(client, code, text)
 	}
 }

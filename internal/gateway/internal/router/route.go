@@ -1,6 +1,7 @@
 package router
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -17,7 +18,12 @@ import (
 // NewRouter 初始化配置路由
 func NewRouter(conf *config.Config, handle *handler.Handler, session *cache.TokenSessionStorage) *gin.Engine {
 
-	router := gin.Default()
+	router := gin.New()
+	router.Use(gin.RecoveryWithWriter(gin.DefaultWriter, func(c *gin.Context, err any) {
+		log.Println(err)
+
+		c.AbortWithStatusJSON(http.StatusInternalServerError, entity.H{"code": 500, "msg": "系统错误，请重试!!!"})
+	}))
 
 	// 授权验证中间件
 	authorize := middleware.Auth(conf.Jwt.Secret, "api", session)

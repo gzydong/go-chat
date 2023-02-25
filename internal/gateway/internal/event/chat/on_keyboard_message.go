@@ -3,6 +3,7 @@ package chat
 import (
 	"context"
 	"encoding/json"
+	"log"
 
 	"go-chat/internal/entity"
 	"go-chat/internal/pkg/im"
@@ -22,6 +23,7 @@ func (h *Handler) OnKeyboardMessage(ctx context.Context, _ im.IClient, data []by
 
 	var m *KeyboardMessage
 	if err := json.Unmarshal(data, &m); err != nil {
+		log.Println("Chat OnKeyboardMessage Err: ", err)
 		return
 	}
 

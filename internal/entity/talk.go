@@ -84,3 +84,64 @@ type Message struct {
 	MsgType uint   // 事件类型
 	Content string // 主体消息
 }
+
+type TalkRecord struct {
+	MsgId      string `json:"msg_id"`
+	Sequence   int    `json:"sequence"`
+	TalkType   int    `json:"talk_type"`
+	MsgType    int    `json:"msg_type"`
+	UserId     int    `json:"user_id"`
+	ReceiverId int    `json:"receiver_id"`
+	Nickname   string `json:"nickname"`
+	Avatar     string `json:"avatar"`
+	IsRevoke   int    `json:"is_revoke"`
+	IsMark     int    `json:"is_mark"`
+	IsRead     int    `json:"is_read"`
+	Content    string `json:"content"`
+	Extra      any    `json:"extra"`
+	DateTime   string `json:"datetime"`
+}
+
+type TalkRecordText struct {
+	All  int   `json:"all"`
+	Uids []int `json:"uids"`
+}
+
+type TalkRecordCode struct {
+	Lang string `json:"lang"`
+	Code string `json:"code"`
+}
+
+type TalkRecordFile struct {
+	Type         string `json:"type"`
+	Drive        string `json:"drive"`
+	Suffix       string `json:"suffix"`
+	Size         string `json:"size"`
+	Path         string `json:"path"`
+	Url          string `json:"url"`
+	OriginalName string `json:"original_name"`
+}
+
+type TalkRecordLocation struct {
+	Longitude string `json:"longitude"`
+	Latitude  string `json:"latitude"`
+}
+
+type TalkRecordVote struct {
+	Title        string `json:"title"`
+	AnswerMode   int    `json:"answer_mode"`
+	AnswerOption int    `json:"answer_option"`
+	AnswerNum    int    `json:"answer_num"`
+	AnsweredNum  int    `json:"answered_num"`
+	IsAnonymous  int    `json:"is_anonymous"`
+	Status       int    `json:"status"`
+	Statistics   struct {
+		Count   int            `json:"count"`
+		Options map[string]int `json:"options"`
+	} `json:"statistics"`
+	VoteUsers []int `json:"vote_users"`
+}
+
+type TalkRecordForward struct {
+	Records []int `json:"records"`
+}

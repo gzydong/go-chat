@@ -2,7 +2,11 @@ package testutil
 
 import (
 	"fmt"
+	"io/ioutil"
+	"log"
 	"net"
+	"net/http"
+	"strings"
 	"testing"
 	"time"
 
@@ -41,4 +45,35 @@ func conn() {
 	}()
 
 	time.Sleep(1000 * time.Second)
+}
+
+func TestName(t *testing.T) {
+
+	for i := 0; i < 100; i++ {
+
+		index := i
+		go func() {
+			client := &http.Client{}
+			var data = strings.NewReader(fmt.Sprintf(`talk_type=1&receiver_id=2055&text=%d那几款撒那看你哪款手机那`, index))
+			req, err := http.NewRequest("POST", "http://127.0.0.1:9503/api/v1/talk/message/text", data)
+			if err != nil {
+				log.Fatal(err)
+			}
+			req.Header.Set("User-Agent", "Apipost client Runtime/+https://www.apipost.cn/")
+			req.Header.Set("Authorization", "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJndWFyZCI6ImFwaSIsImlzcyI6Imx1bWVuLWltIiwiZXhwIjoxNzA0MjI2MzQxLCJpYXQiOjE2NjgyMjYzNDEsImp0aSI6IjIwNTQifQ.m9a6zPy7dBSsVyUsR6IKQVRUAzb9R1vW-R2Jb9yOcT8")
+			req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+			resp, err := client.Do(req)
+			if err != nil {
+				log.Fatal(err)
+			}
+			bodyText, err := ioutil.ReadAll(resp.Body)
+			if err != nil {
+				log.Fatal(err)
+			}
+			fmt.Printf("%s\n", bodyText)
+		}()
+	}
+
+	time.Sleep(10 * time.Second)
+
 }
