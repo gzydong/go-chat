@@ -84,6 +84,15 @@ func (m *MessageService) SendImage(ctx context.Context, uid int, req *message.Im
 		MsgType:    entity.MsgTypeFile,
 		UserId:     uid,
 		ReceiverId: int(req.Receiver.ReceiverId),
+		Extra: jsonutil.Encode(&model.TalkRecordExtraFile{
+			Type:         entity.MediaFileImage,
+			Drive:        entity.FileDriveMode("local"),
+			OriginalName: "图片名称",
+			Suffix:       strutil.FileSuffix(req.Url),
+			Size:         int(req.Size),
+			Path:         parse.Path,
+			Url:          req.Url,
+		}),
 	}
 
 	if req.Receiver.TalkType == entity.ChatGroupMode {
@@ -92,38 +101,7 @@ func (m *MessageService) SendImage(ctx context.Context, uid int, req *message.Im
 		data.Sequence = m.Sequence.Get(ctx, uid, int(req.Receiver.ReceiverId))
 	}
 
-	err = m.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
-
-		data.Extra = jsonutil.Encode(&model.TalkRecordExtraFile{
-			Type:         entity.MediaFileImage,
-			Drive:        entity.FileDriveMode("local"),
-			OriginalName: "图片名称",
-			Suffix:       strutil.FileSuffix(req.Url),
-			Size:         int(req.Size),
-			Path:         parse.Path,
-			Url:          req.Url,
-		})
-
-		if err := tx.Create(data).Error; err != nil {
-			return err
-		}
-
-		file := &model.TalkRecordsFile{
-			RecordId:     data.Id,
-			UserId:       uid,
-			Source:       1,
-			Type:         entity.MediaFileImage,
-			Drive:        entity.FileDriveMode("local"),
-			OriginalName: "图片名称",
-			Suffix:       strutil.FileSuffix(req.Url),
-			Size:         int(req.Size),
-			Path:         parse.Path,
-			Url:          req.Url,
-		}
-
-		return tx.Create(file).Error
-	})
-
+	err = m.db.WithContext(ctx).Create(data).Error
 	if err == nil {
 		m.afterHandle(ctx, data, map[string]string{"text": "[图片消息]"})
 	}
@@ -145,6 +123,15 @@ func (m *MessageService) SendVoice(ctx context.Context, uid int, req *message.Vo
 		MsgType:    entity.MsgTypeFile,
 		UserId:     uid,
 		ReceiverId: int(req.Receiver.ReceiverId),
+		Extra: jsonutil.Encode(&model.TalkRecordExtraFile{
+			Type:         entity.MediaFileAudio,
+			Drive:        entity.FileDriveMode("local"),
+			OriginalName: "语音文件",
+			Suffix:       strutil.FileSuffix(req.Url),
+			Size:         int(req.Size),
+			Path:         parse.Path,
+			Url:          req.Url,
+		}),
 	}
 
 	if req.Receiver.TalkType == entity.ChatGroupMode {
@@ -153,27 +140,7 @@ func (m *MessageService) SendVoice(ctx context.Context, uid int, req *message.Vo
 		data.Sequence = m.Sequence.Get(ctx, uid, int(req.Receiver.ReceiverId))
 	}
 
-	err = m.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
-		if err := tx.Create(data).Error; err != nil {
-			return err
-		}
-
-		file := &model.TalkRecordsFile{
-			RecordId:     data.Id,
-			UserId:       uid,
-			Source:       1,
-			Type:         entity.MediaFileAudio,
-			Drive:        entity.FileDriveMode("local"),
-			OriginalName: "语音文件",
-			Suffix:       strutil.FileSuffix(req.Url),
-			Size:         int(req.Size),
-			Path:         parse.Path,
-			Url:          req.Url,
-		}
-
-		return tx.Create(file).Error
-	})
-
+	err = m.db.WithContext(ctx).Create(data).Error
 	if err == nil {
 		m.afterHandle(ctx, data, map[string]string{"text": "[语音消息]"})
 	}
@@ -195,6 +162,15 @@ func (m *MessageService) SendVideo(ctx context.Context, uid int, req *message.Vi
 		MsgType:    entity.MsgTypeFile,
 		UserId:     uid,
 		ReceiverId: int(req.Receiver.ReceiverId),
+		Extra: jsonutil.Encode(&model.TalkRecordExtraFile{
+			Type:         entity.MediaFileVideo,
+			Drive:        entity.FileDriveMode("local"),
+			OriginalName: "语音文件",
+			Suffix:       strutil.FileSuffix(req.Url),
+			Size:         int(req.Size),
+			Path:         parse.Path,
+			Url:          req.Url,
+		}),
 	}
 
 	if req.Receiver.TalkType == entity.ChatGroupMode {
@@ -203,40 +179,9 @@ func (m *MessageService) SendVideo(ctx context.Context, uid int, req *message.Vi
 		data.Sequence = m.Sequence.Get(ctx, uid, int(req.Receiver.ReceiverId))
 	}
 
-	err = m.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
-
-		data.Extra = jsonutil.Encode(&model.TalkRecordExtraFile{
-			Type:         entity.MediaFileVideo,
-			Drive:        entity.FileDriveMode("local"),
-			OriginalName: "语音文件",
-			Suffix:       strutil.FileSuffix(req.Url),
-			Size:         int(req.Size),
-			Path:         parse.Path,
-			Url:          req.Url,
-		})
-
-		if err := tx.Create(data).Error; err != nil {
-			return err
-		}
-
-		file := &model.TalkRecordsFile{
-			RecordId:     data.Id,
-			UserId:       uid,
-			Source:       1,
-			Type:         entity.MediaFileVideo,
-			Drive:        entity.FileDriveMode("local"),
-			OriginalName: "语音文件",
-			Suffix:       strutil.FileSuffix(req.Url),
-			Size:         int(req.Size),
-			Path:         parse.Path,
-			Url:          req.Url,
-		}
-
-		return tx.Create(file).Error
-	})
-
+	err = m.db.WithContext(ctx).Create(data).Error
 	if err == nil {
-		m.afterHandle(ctx, data, map[string]string{"text": "[视频文件消息]"})
+		m.afterHandle(ctx, data, map[string]string{"text": "[文件消息]"})
 	}
 
 	return err
@@ -268,6 +213,15 @@ func (m *MessageService) SendFile(ctx context.Context, uid int, req *message.Fil
 		MsgType:    entity.MsgTypeFile,
 		UserId:     uid,
 		ReceiverId: int(req.Receiver.ReceiverId),
+		Extra: jsonutil.Encode(&model.TalkRecordExtraFile{
+			Type:         entity.GetMediaType(file.FileExt),
+			Drive:        file.Drive,
+			OriginalName: file.OriginalName,
+			Suffix:       file.FileExt,
+			Size:         int(file.FileSize),
+			Path:         filePath,
+			Url:          uri,
+		}),
 	}
 
 	if req.Receiver.TalkType == entity.ChatGroupMode {
@@ -276,38 +230,7 @@ func (m *MessageService) SendFile(ctx context.Context, uid int, req *message.Fil
 		data.Sequence = m.Sequence.Get(ctx, uid, int(req.Receiver.ReceiverId))
 	}
 
-	err = m.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
-
-		data.Extra = jsonutil.Encode(&model.TalkRecordExtraFile{
-			Type:         entity.MediaFileOther,
-			Drive:        file.Drive,
-			OriginalName: file.OriginalName,
-			Suffix:       file.FileExt,
-			Size:         int(file.FileSize),
-			Path:         filePath,
-			Url:          uri,
-		})
-
-		if err = tx.Create(data).Error; err != nil {
-			return err
-		}
-
-		data := &model.TalkRecordsFile{
-			RecordId:     data.Id,
-			UserId:       uid,
-			Source:       1,
-			Type:         entity.GetMediaType(file.FileExt),
-			Drive:        file.Drive,
-			OriginalName: file.OriginalName,
-			Suffix:       file.FileExt,
-			Size:         int(file.FileSize),
-			Path:         filePath,
-			Url:          uri,
-		}
-
-		return tx.Create(data).Error
-	})
-
+	err = m.db.WithContext(ctx).Create(data).Error
 	if err == nil {
 		m.afterHandle(ctx, data, map[string]string{"text": "[文件消息]"})
 	}
@@ -324,6 +247,10 @@ func (m *MessageService) SendCode(ctx context.Context, uid int, req *message.Cod
 		MsgType:    entity.MsgTypeCode,
 		UserId:     uid,
 		ReceiverId: int(req.Receiver.ReceiverId),
+		Extra: jsonutil.Encode(&model.TalkRecordExtraCode{
+			Lang: req.Lang,
+			Code: req.Code,
+		}),
 	}
 
 	if req.Receiver.TalkType == entity.ChatGroupMode {
@@ -332,27 +259,7 @@ func (m *MessageService) SendCode(ctx context.Context, uid int, req *message.Cod
 		data.Sequence = m.Sequence.Get(ctx, uid, int(req.Receiver.ReceiverId))
 	}
 
-	err := m.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
-
-		data.Extra = jsonutil.Encode(&model.TalkRecordExtraCode{
-			Lang: req.Lang,
-			Code: req.Code,
-		})
-
-		if err := tx.Create(data).Error; err != nil {
-			return err
-		}
-
-		data := &model.TalkRecordsCode{
-			RecordId: data.Id,
-			UserId:   uid,
-			Lang:     req.Lang,
-			Code:     req.Code,
-		}
-
-		return tx.Create(data).Error
-	})
-
+	err := m.db.WithContext(ctx).Create(data).Error
 	if err == nil {
 		m.afterHandle(ctx, data, map[string]string{"text": "[代码消息]"})
 	}
@@ -390,7 +297,7 @@ func (m *MessageService) SendVote(ctx context.Context, uid int, req *message.Vot
 			return err
 		}
 
-		data := &model.TalkRecordsVote{
+		return tx.Create(&model.TalkRecordsVote{
 			RecordId:     data.Id,
 			UserId:       uid,
 			Title:        req.Title,
@@ -398,9 +305,7 @@ func (m *MessageService) SendVote(ctx context.Context, uid int, req *message.Vot
 			AnswerOption: jsonutil.Encode(options),
 			AnswerNum:    int(num),
 			IsAnonymous:  int(req.Anonymous),
-		}
-
-		return tx.Create(data).Error
+		}).Error
 	})
 
 	if err == nil {
@@ -428,6 +333,14 @@ func (m *MessageService) SendEmoticon(ctx context.Context, uid int, req *message
 		MsgType:    entity.MsgTypeFile,
 		UserId:     uid,
 		ReceiverId: int(req.Receiver.ReceiverId),
+		Extra: jsonutil.Encode(&model.TalkRecordExtraFile{
+			Type:         entity.GetMediaType(emoticon.FileSuffix),
+			OriginalName: "图片表情",
+			Suffix:       emoticon.FileSuffix,
+			Size:         emoticon.FileSize,
+			Path:         emoticon.Url,
+			Url:          emoticon.Url,
+		}),
 	}
 
 	if req.Receiver.TalkType == entity.ChatGroupMode {
@@ -436,40 +349,9 @@ func (m *MessageService) SendEmoticon(ctx context.Context, uid int, req *message
 		data.Sequence = m.Sequence.Get(ctx, uid, int(req.Receiver.ReceiverId))
 	}
 
-	err := m.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
-
-		data.Extra = jsonutil.Encode(&model.TalkRecordExtraFile{
-			Type:         entity.GetMediaType(emoticon.FileSuffix),
-			OriginalName: "图片表情",
-			Suffix:       emoticon.FileSuffix,
-			Size:         emoticon.FileSize,
-			Path:         emoticon.Url,
-			Url:          emoticon.Url,
-		})
-
-		if err := tx.Create(data).Error; err != nil {
-			return err
-		}
-
-		if err := tx.Create(&model.TalkRecordsFile{
-			RecordId:     data.Id,
-			UserId:       uid,
-			Source:       2,
-			Type:         entity.GetMediaType(emoticon.FileSuffix),
-			OriginalName: "图片表情",
-			Suffix:       emoticon.FileSuffix,
-			Size:         emoticon.FileSize,
-			Path:         emoticon.Url,
-			Url:          emoticon.Url,
-		}).Error; err != nil {
-			return err
-		}
-
-		return nil
-	})
-
+	err := m.db.WithContext(ctx).Create(data).Error
 	if err == nil {
-		m.afterHandle(ctx, data, map[string]string{"text": "[表情包消息]"})
+		m.afterHandle(ctx, data, map[string]string{"text": "[表情包]"})
 	}
 
 	return err
@@ -515,6 +397,10 @@ func (m *MessageService) SendLocation(ctx context.Context, uid int, req *message
 		MsgType:    entity.MsgTypeLocation,
 		UserId:     uid,
 		ReceiverId: int(req.Receiver.ReceiverId),
+		Extra: jsonutil.Encode(&model.TalkRecordExtraLocation{
+			Longitude: req.Longitude,
+			Latitude:  req.Latitude,
+		}),
 	}
 
 	if req.Receiver.TalkType == entity.ChatGroupMode {
@@ -523,27 +409,7 @@ func (m *MessageService) SendLocation(ctx context.Context, uid int, req *message
 		data.Sequence = m.Sequence.Get(ctx, uid, int(req.Receiver.ReceiverId))
 	}
 
-	err := m.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
-
-		data.Extra = jsonutil.Encode(&model.TalkRecordExtraLocation{
-			Longitude: req.Longitude,
-			Latitude:  req.Latitude,
-		})
-
-		if err := tx.Create(data).Error; err != nil {
-			return err
-		}
-
-		data := &model.TalkRecordsLocation{
-			RecordId:  data.Id,
-			UserId:    uid,
-			Longitude: req.Longitude,
-			Latitude:  req.Latitude,
-		}
-
-		return tx.Create(data).Error
-	})
-
+	err := m.db.WithContext(ctx).Create(data).Error
 	if err == nil {
 		m.afterHandle(ctx, data, map[string]string{"text": "[位置消息]"})
 	}
@@ -552,8 +418,8 @@ func (m *MessageService) SendLocation(ctx context.Context, uid int, req *message
 }
 
 // SendBusinessCard 推送用户名片消息
-func (m *MessageService) SendBusinessCard(_ context.Context, uid int) error {
-	return nil
+func (m *MessageService) SendBusinessCard(ctx context.Context, uid int) error {
+	panic("SendBusinessCard")
 }
 
 // SendLogin 推送用户登录消息
@@ -566,35 +432,17 @@ func (m *MessageService) SendLogin(ctx context.Context, uid int, req *message.Lo
 		MsgType:    entity.MsgTypeLogin,
 		UserId:     4257, // 机器人ID
 		ReceiverId: uid,
-	}
-
-	err := m.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
-
-		data.Extra = jsonutil.Encode(&model.TalkRecordExtraLogin{
+		Extra: jsonutil.Encode(&model.TalkRecordExtraLogin{
 			IpAddress: req.Ip,
 			Platform:  req.Platform,
 			Agent:     req.Agent,
 			Address:   req.Address,
 			Reason:    req.Reason,
-		})
+			Datetime:  timeutil.DateTime(),
+		}),
+	}
 
-		if err := tx.Create(data).Error; err != nil {
-			return err
-		}
-
-		data := &model.TalkRecordsLogin{
-			RecordId: data.Id,
-			UserId:   uid,
-			Ip:       req.Ip,
-			Platform: req.Platform,
-			Agent:    req.Agent,
-			Address:  req.Address,
-			Reason:   req.Reason,
-		}
-
-		return tx.Create(data).Error
-	})
-
+	err := m.db.WithContext(ctx).Create(data).Error
 	if err == nil {
 		m.afterHandle(ctx, data, map[string]string{"text": "[登录消息]"})
 	}

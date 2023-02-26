@@ -8,7 +8,6 @@ import (
 	"go-chat/api/pb/message/v1"
 	"go-chat/internal/entity"
 	"go-chat/internal/pkg/jsonutil"
-	"go-chat/internal/pkg/sliceutil"
 	"go-chat/internal/pkg/strutil"
 	"go-chat/internal/repository/model"
 	"go-chat/internal/repository/repo"
@@ -79,7 +78,7 @@ func (m *MessageForwardLogic) MultiMergeForward(ctx context.Context, uid int, re
 		})
 	}
 
-	text, err := m.aggregation(ctx, req)
+	tmpRecords, err := m.aggregation(ctx, req)
 	if err != nil {
 		return nil, err
 	}
@@ -89,9 +88,12 @@ func (m *MessageForwardLogic) MultiMergeForward(ctx context.Context, uid int, re
 		ids = append(ids, int(id))
 	}
 
-	str := sliceutil.ToIds(ids)
+	extra := jsonutil.Encode(model.TalkRecordExtraForward{
+		MsgIds:  ids,
+		Records: tmpRecords,
+	})
+
 	err = m.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
-		forwards := make([]*model.TalkRecordsForward, 0, len(receives))
 		records := make([]*model.TalkRecords, 0, len(receives))
 
 		for _, item := range receives {
@@ -101,6 +103,7 @@ func (m *MessageForwardLogic) MultiMergeForward(ctx context.Context, uid int, re
 				MsgType:    entity.MsgTypeForward,
 				UserId:     uid,
 				ReceiverId: item["id"],
+				Extra:      extra,
 			}
 
 			if data.TalkType == entity.ChatGroupMode {
@@ -117,22 +120,11 @@ func (m *MessageForwardLogic) MultiMergeForward(ctx context.Context, uid int, re
 		}
 
 		for _, record := range records {
-			forwards = append(forwards, &model.TalkRecordsForward{
-				RecordId:  record.Id,
-				UserId:    record.UserId,
-				RecordsId: str,
-				Text:      text,
-			})
-
 			arr = append(arr, &ForwardRecord{
 				RecordId:   record.Id,
 				ReceiverId: record.ReceiverId,
 				TalkType:   record.TalkType,
 			})
-		}
-
-		if err := tx.Create(&forwards).Error; err != nil {
-			return err
 		}
 
 		return nil
@@ -306,7 +298,7 @@ type forwardItem struct {
 }
 
 // 聚合转发数据
-func (m *MessageForwardLogic) aggregation(ctx context.Context, req *message.ForwardMessageRequest) (string, error) {
+func (m *MessageForwardLogic) aggregation(ctx context.Context, req *message.ForwardMessageRequest) ([]map[string]any, error) {
 
 	rows := make([]*forwardItem, 0)
 
@@ -321,7 +313,7 @@ func (m *MessageForwardLogic) aggregation(ctx context.Context, req *message.Forw
 	query.Where("talk_records.id in ?", ids)
 
 	if err := query.Limit(3).Scan(&rows).Error; err != nil {
-		return "", err
+		return nil, err
 	}
 
 	data := make([]map[string]any, 0)
@@ -344,5 +336,5 @@ func (m *MessageForwardLogic) aggregation(ctx context.Context, req *message.Forw
 		data = append(data, item)
 	}
 
-	return jsonutil.Encode(data), nil
+	return data, nil
 }

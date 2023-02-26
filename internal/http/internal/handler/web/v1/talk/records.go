@@ -7,9 +7,11 @@ import (
 	"go-chat/internal/entity"
 	"go-chat/internal/pkg/filesystem"
 	"go-chat/internal/pkg/ichat"
+	"go-chat/internal/pkg/jsonutil"
 	"go-chat/internal/pkg/sliceutil"
 	"go-chat/internal/pkg/strutil"
 	"go-chat/internal/pkg/timeutil"
+	"go-chat/internal/repository/model"
 	"go-chat/internal/service"
 )
 
@@ -83,7 +85,7 @@ func (c *Records) GetRecords(ctx *ichat.Context) error {
 
 	rid := 0
 	if length := len(records); length > 0 {
-		rid = records[length-1].Id
+		rid = records[length-1].Sequence
 	}
 
 	return ctx.Success(entity.H{
@@ -144,7 +146,7 @@ func (c *Records) SearchHistoryRecords(ctx *ichat.Context) error {
 
 	rid := 0
 	if length := len(records); length > 0 {
-		rid = records[length-1].Id
+		rid = records[length-1].Sequence
 	}
 
 	return ctx.Success(entity.H{
@@ -188,29 +190,34 @@ func (c *Records) Download(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	resp, err := c.service.Dao().FindFileRecord(ctx.Ctx(), params.RecordId)
+	record, err := c.service.Dao().FindById(ctx.Ctx(), params.RecordId)
 	if err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}
 
 	uid := ctx.UserId()
-	if uid != resp.Record.UserId {
-		if resp.Record.TalkType == entity.ChatPrivateMode {
-			if resp.Record.ReceiverId != uid {
+	if uid != record.UserId {
+		if record.TalkType == entity.ChatPrivateMode {
+			if record.ReceiverId != uid {
 				return ctx.Forbidden("无访问权限！")
 			}
 		} else {
-			if !c.groupMemberService.Dao().IsMember(ctx.Ctx(), resp.Record.ReceiverId, uid, false) {
+			if !c.groupMemberService.Dao().IsMember(ctx.Ctx(), record.ReceiverId, uid, false) {
 				return ctx.Forbidden("无访问权限！")
 			}
 		}
 	}
 
-	switch resp.FileInfo.Drive {
+	var fileInfo model.TalkRecordExtraFile
+	if err := jsonutil.Decode(record.Extra, &fileInfo); err != nil {
+		return ctx.ErrorBusiness(err.Error())
+	}
+
+	switch fileInfo.Drive {
 	case entity.FileDriveLocal:
-		ctx.Context.FileAttachment(c.fileSystem.Local.Path(resp.FileInfo.Path), resp.FileInfo.OriginalName)
+		ctx.Context.FileAttachment(c.fileSystem.Local.Path(fileInfo.Path), fileInfo.OriginalName)
 	case entity.FileDriveCos:
-		ctx.Context.Redirect(http.StatusFound, c.fileSystem.Cos.PrivateUrl(resp.FileInfo.Path, 60*time.Second))
+		ctx.Context.Redirect(http.StatusFound, c.fileSystem.Cos.PrivateUrl(fileInfo.Path, 60*time.Second))
 	default:
 		return ctx.ErrorBusiness("未知文件驱动类型")
 	}

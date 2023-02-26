@@ -1,11 +1,9 @@
 package service
 
 import (
-	"bytes"
 	"context"
 	"errors"
 	"fmt"
-	"mime/multipart"
 	"sort"
 	"strconv"
 	"strings"
@@ -22,7 +20,6 @@ import (
 	"go-chat/internal/pkg/jsonutil"
 	"go-chat/internal/pkg/strutil"
 	"go-chat/internal/pkg/timeutil"
-	"go-chat/internal/pkg/utils"
 )
 
 type TalkMessageService struct {
@@ -53,6 +50,7 @@ type SysTextMessageOpt struct {
 // SendSysMessage 发送文本消息
 func (s *TalkMessageService) SendSysMessage(ctx context.Context, opt *SysTextMessageOpt) error {
 	record := &model.TalkRecords{
+		MsgId:      strutil.NewMsgId(),
 		TalkType:   opt.TalkType,
 		MsgType:    entity.MsgTypeSystemText,
 		UserId:     opt.UserId,
@@ -61,7 +59,7 @@ func (s *TalkMessageService) SendSysMessage(ctx context.Context, opt *SysTextMes
 		Sequence:   s.sequence.Get(ctx, opt.UserId, opt.ReceiverId),
 	}
 
-	if err := s.db.Debug().Create(record).Error; err != nil {
+	if err := s.db.Create(record).Error; err != nil {
 		return err
 	}
 
@@ -70,81 +68,6 @@ func (s *TalkMessageService) SendSysMessage(ctx context.Context, opt *SysTextMes
 	})
 
 	return nil
-}
-
-type ImageMessageOpt struct {
-	UserId     int
-	TalkType   int
-	ReceiverId int
-	File       *multipart.FileHeader
-}
-
-// SendImageMessage 发送图片消息
-func (s *TalkMessageService) SendImageMessage(ctx context.Context, opt *ImageMessageOpt) error {
-	var (
-		err    error
-		record = &model.TalkRecords{
-			MsgId:      strutil.NewMsgId(),
-			TalkType:   opt.TalkType,
-			MsgType:    entity.MsgTypeFile,
-			UserId:     opt.UserId,
-			ReceiverId: opt.ReceiverId,
-			Sequence:   s.sequence.Get(ctx, opt.UserId, opt.ReceiverId),
-		}
-	)
-
-	stream, err := filesystem.ReadMultipartStream(opt.File)
-	if err != nil {
-		return err
-	}
-
-	ext := strutil.FileSuffix(opt.File.Filename)
-
-	meta := utils.ReadImageMeta(bytes.NewReader(stream))
-
-	filePath := fmt.Sprintf("public/media/image/talk/%s/%s", timeutil.DateNumber(), strutil.GenImageName(ext, meta.Width, meta.Height))
-
-	if err := s.fileSystem.Default.Write(stream, filePath); err != nil {
-		return err
-	}
-
-	err = s.db.Transaction(func(tx *gorm.DB) error {
-		if err = s.db.Create(record).Error; err != nil {
-			return err
-		}
-
-		if err = s.db.Create(&model.TalkRecordsFile{
-			RecordId:     record.Id,
-			UserId:       opt.UserId,
-			Source:       1,
-			Type:         entity.GetMediaType(ext),
-			Drive:        entity.FileDriveMode(s.fileSystem.Driver()),
-			OriginalName: opt.File.Filename,
-			Suffix:       ext,
-			Size:         int(opt.File.Size),
-			Path:         filePath,
-			Url:          s.fileSystem.Default.PublicUrl(filePath),
-		}).Error; err != nil {
-			return err
-		}
-
-		return nil
-	})
-
-	if err != nil {
-		return err
-	}
-
-	s.afterHandle(ctx, record, map[string]string{"text": "[图片消息]"})
-
-	return nil
-}
-
-type EmoticonMessageOpt struct {
-	UserId     int
-	TalkType   int
-	ReceiverId int
-	EmoticonId int
 }
 
 // SendRevokeRecordMessage 撤销推送消息

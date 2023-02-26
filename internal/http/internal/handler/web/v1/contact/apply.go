@@ -1,6 +1,8 @@
 package contact
 
 import (
+	"fmt"
+
 	"go-chat/api/pb/web/v1"
 	"go-chat/internal/entity"
 	"go-chat/internal/pkg/ichat"
@@ -69,12 +71,16 @@ func (c *Apply) Accept(ctx *ichat.Context) error {
 		return ctx.ErrorBusiness(err)
 	}
 
-	_ = c.talkMessageService.SendSysMessage(ctx.Ctx(), &service.SysTextMessageOpt{
+	err = c.talkMessageService.SendSysMessage(ctx.Ctx(), &service.SysTextMessageOpt{
 		UserId:     applyInfo.UserId,
 		TalkType:   entity.ChatPrivateMode,
 		ReceiverId: applyInfo.FriendId,
 		Text:       "你们已成为好友，可以开始聊天咯！",
 	})
+
+	if err != nil {
+		fmt.Println("Apply Accept Err", err.Error())
+	}
 
 	return ctx.Success(&web.ContactApplyAcceptResponse{})
 }

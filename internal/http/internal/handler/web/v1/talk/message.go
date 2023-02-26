@@ -1,10 +1,15 @@
 package talk
 
 import (
+	"bytes"
 	"errors"
+	"fmt"
 
 	"go-chat/api/pb/message/v1"
+	"go-chat/internal/pkg/filesystem"
 	"go-chat/internal/pkg/ichat"
+	"go-chat/internal/pkg/timeutil"
+	"go-chat/internal/pkg/utils"
 	"go-chat/internal/repository/model"
 	"go-chat/internal/repository/repo"
 	"go-chat/internal/service/organize"
@@ -26,10 +31,11 @@ type Message struct {
 	organizeService    *organize.OrganizeService
 	auth               *service.TalkAuthService
 	message            *service.MessageService
+	filesystem         *filesystem.Filesystem
 }
 
-func NewMessage(service *service.TalkMessageService, talkService *service.TalkService, talkRecordsVoteDao *repo.TalkRecordsVote, splitUploadService *service.SplitUploadService, contactService *service.ContactService, groupMemberService *service.GroupMemberService, organizeService *organize.OrganizeService, auth *service.TalkAuthService, message *service.MessageService) *Message {
-	return &Message{service: service, talkService: talkService, talkRecordsVoteDao: talkRecordsVoteDao, splitUploadService: splitUploadService, contactService: contactService, groupMemberService: groupMemberService, organizeService: organizeService, auth: auth, message: message}
+func NewMessage(service *service.TalkMessageService, talkService *service.TalkService, talkRecordsVoteDao *repo.TalkRecordsVote, splitUploadService *service.SplitUploadService, contactService *service.ContactService, groupMemberService *service.GroupMemberService, organizeService *organize.OrganizeService, auth *service.TalkAuthService, message *service.MessageService, filesystem *filesystem.Filesystem) *Message {
+	return &Message{service: service, talkService: talkService, talkRecordsVoteDao: talkRecordsVoteDao, splitUploadService: splitUploadService, contactService: contactService, groupMemberService: groupMemberService, organizeService: organizeService, auth: auth, message: message, filesystem: filesystem}
 }
 
 type AuthorityOpts struct {
@@ -188,11 +194,30 @@ func (c *Message) Image(ctx *ichat.Context) error {
 		return ctx.ErrorBusiness(err.Error())
 	}
 
-	if err := c.service.SendImageMessage(ctx.Ctx(), &service.ImageMessageOpt{
-		UserId:     uid,
-		TalkType:   params.TalkType,
-		ReceiverId: params.ReceiverId,
-		File:       file,
+	stream, err := filesystem.ReadMultipartStream(file)
+	if err != nil {
+		return err
+	}
+
+	ext := strutil.FileSuffix(file.Filename)
+
+	meta := utils.ReadImageMeta(bytes.NewReader(stream))
+
+	filePath := fmt.Sprintf("public/media/image/talk/%s/%s", timeutil.DateNumber(), strutil.GenImageName(ext, meta.Width, meta.Height))
+
+	if err := c.filesystem.Default.Write(stream, filePath); err != nil {
+		return err
+	}
+
+	if err := c.message.SendImage(ctx.Ctx(), ctx.UserId(), &message.ImageMessageRequest{
+		Url:    c.filesystem.Default.PublicUrl(filePath),
+		Width:  int32(meta.Width),
+		Height: int32(meta.Height),
+		Size:   int32(file.Size),
+		Receiver: &message.MessageReceiver{
+			TalkType:   int32(params.TalkType),
+			ReceiverId: int32(params.ReceiverId),
+		},
 	}); err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}

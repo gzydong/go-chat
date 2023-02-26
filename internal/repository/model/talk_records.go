@@ -44,7 +44,7 @@ type TalkRecordExtraLogin struct {
 	IpAddress string `json:"ip"`
 	Address   string `json:"address"`
 	Agent     string `json:"agent"`
-	CreatedAt string `json:"created_at"`
+	Datetime  string `json:"datetime"`
 	Platform  string `json:"platform"`
 	Reason    string `json:"reason"`
 }
@@ -70,25 +70,7 @@ type TalkRecordExtraFile struct {
 }
 
 type TalkRecordExtraGroupJoin struct {
-	Action   int   `json:"action"`  // 操作方式 1邀请入群 2自动退群 3管理员踢人
-	Operator int   `json:"user_id"` // 操作人
-	Uids     []int `json:"uids"`    // 被操作人
-}
-
-type QueryTalkRecordsItem struct {
-	Id         int       `json:"id"`
-	MsgId      string    `json:"msg_id"`
-	Sequence   int64     `json:"sequence"`
-	TalkType   int       `json:"talk_type"`
-	MsgType    int       `json:"msg_type"`
-	UserId     int       `json:"user_id"`
-	ReceiverId int       `json:"receiver_id"`
-	IsRevoke   int       `json:"is_revoke"`
-	IsMark     int       `json:"is_mark"`
-	IsRead     int       `json:"is_read"`
-	QuoteId    int       `json:"quote_id"`
-	Content    string    `json:"content"`
-	CreatedAt  time.Time `json:"created_at"`
-	Nickname   string    `json:"nickname"`
-	Avatar     string    `json:"avatar"`
+	Action   int              `json:"action"`   // 操作方式 1邀请入群 2管理员踢人 3自动退群
+	Operator map[string]any   `json:"operator"` // 操作人
+	Members  []map[string]any `json:"members"`  // 被操作人
 }

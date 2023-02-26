@@ -2,7 +2,7 @@ package testutil
 
 import (
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"net"
 	"net/http"
@@ -66,7 +66,7 @@ func TestName(t *testing.T) {
 			if err != nil {
 				log.Fatal(err)
 			}
-			bodyText, err := ioutil.ReadAll(resp.Body)
+			bodyText, err := io.ReadAll(resp.Body)
 			if err != nil {
 				log.Fatal(err)
 			}

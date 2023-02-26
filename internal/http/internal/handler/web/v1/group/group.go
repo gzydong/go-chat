@@ -108,7 +108,7 @@ func (c *Group) Invite(ctx *ichat.Context) error {
 		GroupId:   int(params.GroupId),
 		MemberIds: uids,
 	}); err != nil {
-		return ctx.ErrorBusiness("邀请好友加入群聊失败！")
+		return ctx.ErrorBusiness("邀请好友加入群聊失败！" + err.Error())
 	}
 
 	return ctx.Success(&web.GroupInviteResponse{})
