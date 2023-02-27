@@ -287,11 +287,11 @@ func (c *Group) GroupList(ctx *ichat.Context) error {
 	}
 
 	resp := &web.GroupListResponse{
-		Rows: make([]*web.GroupListResponse_Item, 0, len(items)),
+		Items: make([]*web.GroupListResponse_Item, 0, len(items)),
 	}
 
 	for _, item := range items {
-		resp.Rows = append(resp.Rows, &web.GroupListResponse_Item{
+		resp.Items = append(resp.Items, &web.GroupListResponse_Item{
 			Id:        int32(item.Id),
 			GroupName: item.GroupName,
 			Avatar:    item.Avatar,

@@ -51,8 +51,8 @@ func (c *Records) GetRecords(ctx *ichat.Context) error {
 			UserId:     uid,
 			ReceiverId: params.ReceiverId,
 		}) {
-			rows := make([]entity.H, 0)
-			rows = append(rows, entity.H{
+			items := make([]entity.H, 0)
+			items = append(items, entity.H{
 				"content":     "暂无权限查看群消息",
 				"created_at":  timeutil.DateTime(),
 				"id":          1,
@@ -66,7 +66,7 @@ func (c *Records) GetRecords(ctx *ichat.Context) error {
 			return ctx.Success(entity.H{
 				"limit":     params.Limit,
 				"record_id": 0,
-				"rows":      rows,
+				"items":     items,
 			})
 		}
 	}
@@ -91,7 +91,7 @@ func (c *Records) GetRecords(ctx *ichat.Context) error {
 	return ctx.Success(entity.H{
 		"limit":     params.Limit,
 		"record_id": rid,
-		"rows":      records,
+		"items":     records,
 	})
 }
 
@@ -114,7 +114,7 @@ func (c *Records) SearchHistoryRecords(ctx *ichat.Context) error {
 			return ctx.Success(entity.H{
 				"limit":     params.Limit,
 				"record_id": 0,
-				"rows":      make([]entity.H, 0),
+				"items":     make([]entity.H, 0),
 			})
 		}
 	}
@@ -152,7 +152,7 @@ func (c *Records) SearchHistoryRecords(ctx *ichat.Context) error {
 	return ctx.Success(entity.H{
 		"limit":     params.Limit,
 		"record_id": rid,
-		"rows":      records,
+		"items":     records,
 	})
 }
 
@@ -174,7 +174,7 @@ func (c *Records) GetForwardRecords(ctx *ichat.Context) error {
 	}
 
 	return ctx.Success(entity.H{
-		"rows": records,
+		"items": records,
 	})
 }
 

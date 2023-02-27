@@ -28,7 +28,6 @@ func (c *ClearWsCache) Enable() bool {
 func (c *ClearWsCache) Handle(ctx context.Context) error {
 
 	for _, sid := range c.storage.GetExpireServerAll(ctx) {
-
 		iter := c.storage.Redis().Scan(ctx, 0, fmt.Sprintf("ws:%s:*", sid), 100).Iterator()
 
 		for iter.Next(ctx) {

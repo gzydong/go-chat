@@ -94,25 +94,28 @@ func (c *Notice) List(ctx *ichat.Context) error {
 		return ctx.ErrorBusiness("无获取数据权限！")
 	}
 
-	items, _ := c.service.Dao().GetListAll(ctx.Ctx(), int(params.GroupId))
+	all, err := c.service.Dao().GetListAll(ctx.Ctx(), int(params.GroupId))
+	if err != nil {
+		return ctx.ErrorBusiness(err.Error())
+	}
 
-	rows := make([]*web.GroupNoticeListResponse_Item, 0)
-	for i := 0; i < len(items); i++ {
-		rows = append(rows, &web.GroupNoticeListResponse_Item{
-			Id:           int32(items[i].Id),
-			Title:        items[i].Title,
-			Content:      items[i].Content,
-			IsTop:        int32(items[i].IsTop),
-			IsConfirm:    int32(items[i].IsConfirm),
-			ConfirmUsers: items[i].ConfirmUsers,
-			Avatar:       items[i].Avatar,
-			CreatorId:    int32(items[i].CreatorId),
-			CreatedAt:    timeutil.FormatDatetime(items[i].CreatedAt),
-			UpdatedAt:    timeutil.FormatDatetime(items[i].UpdatedAt),
+	items := make([]*web.GroupNoticeListResponse_Item, 0)
+	for i := 0; i < len(all); i++ {
+		items = append(items, &web.GroupNoticeListResponse_Item{
+			Id:           int32(all[i].Id),
+			Title:        all[i].Title,
+			Content:      all[i].Content,
+			IsTop:        int32(all[i].IsTop),
+			IsConfirm:    int32(all[i].IsConfirm),
+			ConfirmUsers: all[i].ConfirmUsers,
+			Avatar:       all[i].Avatar,
+			CreatorId:    int32(all[i].CreatorId),
+			CreatedAt:    timeutil.FormatDatetime(all[i].CreatedAt),
+			UpdatedAt:    timeutil.FormatDatetime(all[i].UpdatedAt),
 		})
 	}
 
 	return ctx.Success(&web.GroupNoticeListResponse{
-		Items: rows,
+		Items: items,
 	})
 }
