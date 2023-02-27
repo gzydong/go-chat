@@ -22,6 +22,7 @@ type Config struct {
 	Filesystem *Filesystem `json:"filesystem" yaml:"filesystem"`
 	Email      *Email      `json:"email" yaml:"email"`
 	Ports      *Ports      `json:"ports" yaml:"ports"`
+	Nsq        *Nsq        `json:"nsq" yaml:"nsq"`
 }
 
 type Ports struct {

@@ -1,7 +1,6 @@
 package adapter
 
 import (
-	"bufio"
 	"fmt"
 	"io"
 	"net"
@@ -12,12 +11,11 @@ import (
 // TcpAdapter TCP 适配器
 type TcpAdapter struct {
 	conn      net.Conn
-	reader    *bufio.Reader
 	hookClose func(code int, text string) error
 }
 
 func NewTcpAdapter(conn net.Conn) (*TcpAdapter, error) {
-	return &TcpAdapter{conn: conn, reader: bufio.NewReader(conn)}, nil
+	return &TcpAdapter{conn: conn}, nil
 }
 
 func (t *TcpAdapter) Network() string {
@@ -26,7 +24,8 @@ func (t *TcpAdapter) Network() string {
 
 func (t *TcpAdapter) Read() ([]byte, error) {
 
-	msg, err := encoding.Decode(t.reader)
+	msg, err := encoding.NewDecode(t.conn)
+
 	if err == io.EOF {
 		if t.hookClose != nil {
 			if err := t.hookClose(1000, "客户端已关闭"); err != nil {
@@ -41,12 +40,12 @@ func (t *TcpAdapter) Read() ([]byte, error) {
 		return nil, fmt.Errorf("decode msg failed, err: %s", err.Error())
 	}
 
-	return []byte(msg), nil
+	return msg, nil
 }
 
 func (t *TcpAdapter) Write(bytes []byte) error {
 
-	binaryData, err := encoding.Encode(string(bytes))
+	binaryData, err := encoding.NewEncode(bytes)
 	if err != nil {
 		return err
 	}

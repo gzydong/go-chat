@@ -22,7 +22,7 @@ func NewRouter(conf *config.Config, handler *handler.Handler, session *cache.Tok
 		c.AbortWithStatusJSON(http.StatusInternalServerError, entity.H{"code": 500, "msg": "系统错误，请重试!!!"})
 	}))
 	router.Use(middleware.Cors(conf.Cors))
-	router.Use(middleware.AccessLog())
+	// router.Use(middleware.AccessLog())
 
 	router.GET("/", func(c *gin.Context) {
 		c.JSON(200, entity.H{"code": 200, "message": "hello world"})
