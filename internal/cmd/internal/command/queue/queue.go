@@ -2,6 +2,7 @@ package queue
 
 import (
 	"github.com/urfave/cli/v2"
+	"go-chat/internal/cmd/internal/handle/queue"
 	"go-chat/internal/pkg/cmdutil"
 )
 
@@ -9,6 +10,7 @@ type Command *cli.Command
 
 // Subcommands 注册子命令
 type Subcommands struct {
+	LoginHandle *queue.LoginHandle
 }
 
 func NewQueueCommand(subcommands *Subcommands) Command {
