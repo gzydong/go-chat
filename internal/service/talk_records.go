@@ -26,17 +26,9 @@ type TalkRecordsItem struct {
 	IsRevoke   int    `json:"is_revoke"`
 	IsMark     int    `json:"is_mark"`
 	IsRead     int    `json:"is_read"`
-	Content    string `json:"content,omitempty"`
-	File       any    `json:"file,omitempty"`
-	CodeBlock  any    `json:"code_block,omitempty"`
-	Forward    any    `json:"forward,omitempty"`
-	Invite     any    `json:"invite,omitempty"`
-	Vote       any    `json:"vote,omitempty"`
-	Login      any    `json:"login,omitempty"`
-	Location   any    `json:"location,omitempty"`
+	Content    string `json:"content"`
 	CreatedAt  string `json:"created_at"`
-	// 额外参数
-	Extra any `json:"extra"`
+	Extra      any    `json:"extra"` // 额外参数
 }
 
 type TalkRecordsService struct {
@@ -152,6 +144,7 @@ func (s *TalkRecordsService) GetTalkRecord(ctx context.Context, recordId int64) 
 		item   *QueryTalkRecordsItem
 		fields = []string{
 			"talk_records.id",
+			"talk_records.msg_id",
 			"talk_records.sequence",
 			"talk_records.talk_type",
 			"talk_records.msg_type",
@@ -210,6 +203,8 @@ func (s *TalkRecordsService) GetForwardRecords(ctx context.Context, uid int, rec
 		items  = make([]*QueryTalkRecordsItem, 0)
 		fields = []string{
 			"talk_records.id",
+			"talk_records.msg_id",
+			"talk_records.sequence",
 			"talk_records.talk_type",
 			"talk_records.msg_type",
 			"talk_records.user_id",
@@ -238,8 +233,7 @@ func (s *TalkRecordsService) GetForwardRecords(ctx context.Context, uid int, rec
 
 func (s *TalkRecordsService) HandleTalkRecords(ctx context.Context, items []*QueryTalkRecordsItem) ([]*TalkRecordsItem, error) {
 	var (
-		votes []int
-
+		votes     []int
 		voteItems []*model.TalkRecordsVote
 	)
 
@@ -318,7 +312,7 @@ func (s *TalkRecordsService) HandleTalkRecords(ctx context.Context, items []*Que
 					statistics = res
 				}
 
-				data.Vote = map[string]any{
+				data.Extra = map[string]any{
 					"detail": map[string]any{
 						"id":            value.Id,
 						"record_id":     value.RecordId,

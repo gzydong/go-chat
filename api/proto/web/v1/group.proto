@@ -19,7 +19,7 @@ message GroupListResponse{
     int32 is_disturb = 6;
   }
 
-  repeated Item rows = 1;
+  repeated Item items = 1;
 }
 
 

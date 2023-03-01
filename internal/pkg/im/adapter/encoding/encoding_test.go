@@ -30,7 +30,3 @@ func TestEncode(t *testing.T) {
 		fmt.Println(string(data))
 	}
 }
-
-func TestName(t *testing.T) {
-	NewEncode([]byte("NewEncode"))
-}
