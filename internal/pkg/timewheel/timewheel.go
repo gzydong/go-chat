@@ -66,8 +66,8 @@ type Handler func(*TimeWheel, any)
 
 // TimeWheel 分层时间轮
 // 第一层秒  0 ~ 59
-// 第一场分  0 ~ 59
-// 第一场时  0 ~ 23
+// 第二层分  0 ~ 59
+// 第三场时  0 ~ 23
 // @see https://blog.csdn.net/daocaokafei/article/details/126456817
 type TimeWheel struct {
 	wheel     []*wheel
