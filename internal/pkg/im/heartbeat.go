@@ -27,7 +27,7 @@ func init() {
 }
 
 func (h *heartbeat) addClient(c *Client) {
-	_ = h.timeWheel.Add(c, time.Duration(heartbeatTimeout)*time.Second)
+	_ = h.timeWheel.Add(c, time.Duration(heartbeatInterval)*time.Second)
 }
 
 func (h *heartbeat) delClient(c *Client) {
