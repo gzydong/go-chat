@@ -222,7 +222,6 @@ func (c *Client) loopAccept() {
 // 循环推送客户端信息
 func (c *Client) loopWrite() {
 	for data := range c.outChan {
-
 		if c.isClosed {
 			break
 		}
@@ -233,8 +232,6 @@ func (c *Client) loopWrite() {
 			break
 		}
 	}
-
-	fmt.Println(fmt.Sprintf("Client loopWrite %d", c.cid))
 }
 
 // 初始化连接

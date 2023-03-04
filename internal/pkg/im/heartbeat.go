@@ -2,6 +2,7 @@ package im
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"go-chat/internal/pkg/jsonutil"
@@ -17,16 +18,16 @@ var health *heartbeat
 
 // 客户端心跳管理
 type heartbeat struct {
-	timeWheel *timewheel.TimeWheel
+	timeWheel *timewheel.SimpleTimeWheel
 }
 
 func init() {
 	health = &heartbeat{}
-	health.timeWheel = timewheel.NewTimeWheel(health.handle)
+	health.timeWheel = timewheel.NewSimpleTimeWheel(1*time.Second, 100, health.handle)
 }
 
 func (h *heartbeat) addClient(c *Client) {
-	_ = h.timeWheel.Add(c, 30*time.Second)
+	_ = h.timeWheel.Add(c, time.Duration(heartbeatTimeout)*time.Second)
 }
 
 func (h *heartbeat) delClient(c *Client) {
@@ -35,14 +36,20 @@ func (h *heartbeat) delClient(c *Client) {
 
 func (h *heartbeat) Start(ctx context.Context) error {
 
-	defer h.timeWheel.Stop()
+	go h.timeWheel.Start()
 
-	h.timeWheel.Start()
-
-	return nil
+	for {
+		select {
+		case <-ctx.Done():
+			h.timeWheel.Stop()
+			return errors.New("heartbeat stop")
+		default:
+			time.Sleep(3 * time.Second)
+		}
+	}
 }
 
-func (h *heartbeat) handle(timeWheel *timewheel.TimeWheel, value any) {
+func (h *heartbeat) handle(timeWheel *timewheel.SimpleTimeWheel, value any) {
 	c, ok := value.(*Client)
 	if !ok {
 		return
@@ -53,7 +60,6 @@ func (h *heartbeat) handle(timeWheel *timewheel.TimeWheel, value any) {
 	interval := int(ctime - c.lastTime)
 	if interval > heartbeatTimeout {
 		c.Close(2000, "心跳检测超时，连接自动关闭")
-		return
 	} else if interval > heartbeatInterval {
 		// 超过心跳间隔时间则主动推送一次消息
 		_ = c.Write(&ClientOutContent{
