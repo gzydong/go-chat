@@ -42,7 +42,8 @@ func NewCrontabCommand(handles *Subcommands) Command {
 		Action: func(ctx *cli.Context) error {
 			c := cron.New()
 
-			for _, job := range toCrontab(handles) {
+			for _, exec := range toCrontab(handles) {
+				job := exec
 
 				// 是否启动运行
 				if !job.Enable() {
