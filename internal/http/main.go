@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -49,16 +50,21 @@ func main() {
 		log.Printf("HTTP Listen Port :%d", conf.Ports.Http)
 		log.Printf("HTTP Server Pid  :%d", os.Getpid())
 
-		return run(c, eg, groupCtx, app.Server)
+		return run(c, eg, groupCtx, app)
 	}
 
 	_ = cmd.Run(os.Args)
 }
 
-func run(c chan os.Signal, eg *errgroup.Group, ctx context.Context, server *http.Server) error {
+func run(c chan os.Signal, eg *errgroup.Group, ctx context.Context, app *AppProvider) error {
+
+	server := &http.Server{
+		Addr:    fmt.Sprintf(":%d", app.Config.Ports.Http),
+		Handler: app.Engine,
+	}
+
 	// 启动 http 服务
 	eg.Go(func() error {
-
 		err := server.ListenAndServe()
 		if err != nil && err != http.ErrServerClosed {
 			log.Fatalf("HTTP Server Listen Err: %s", err)

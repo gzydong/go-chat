@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net"
 
+	"github.com/gin-gonic/gin"
 	"go-chat/config"
 	"go-chat/internal/gateway/internal/handler"
 	"go-chat/internal/gateway/internal/process"
@@ -12,7 +13,7 @@ import (
 
 type AppProvider struct {
 	Config    *config.Config
-	Server    provider.WebsocketServer
+	Engine    *gin.Engine
 	Coroutine *process.Server
 	Handler   *handler.Handler
 	Providers *provider.Providers

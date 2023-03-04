@@ -54,7 +54,6 @@ func Initialize(conf *config.Config) *AppProvider {
 	}
 	tokenSessionStorage := cache.NewTokenSessionStorage(client)
 	engine := router.NewRouter(conf, handlerHandler, tokenSessionStorage)
-	websocketServer := provider.NewWebsocketServer(conf, engine)
 	healthSubscribe := process.NewHealthSubscribe(conf, serverStorage)
 	talkVote := cache.NewTalkVote(client)
 	talkRecordsVote := repo.NewTalkRecordsVote(db, talkVote)
@@ -75,7 +74,7 @@ func Initialize(conf *config.Config) *AppProvider {
 	providers := provider.NewProviders(emailClient)
 	appProvider := &AppProvider{
 		Config:    conf,
-		Server:    websocketServer,
+		Engine:    engine,
 		Coroutine: server,
 		Handler:   handlerHandler,
 		Providers: providers,
@@ -85,4 +84,4 @@ func Initialize(conf *config.Config) *AppProvider {
 
 // wire.go:
 
-var providerSet = wire.NewSet(provider.NewMySQLClient, provider.NewRedisClient, provider.NewWebsocketServer, provider.NewFilesystem, provider.NewEmailClient, provider.NewProviders, router.NewRouter, wire.Struct(new(process.SubServers), "*"), process.NewServer, process.NewHealthSubscribe, process.NewMessageSubscribe, consume.NewChatSubscribe, consume.NewExampleSubscribe, cache.NewTokenSessionStorage, cache.NewSidStorage, cache.NewRedisLock, cache.NewClientStorage, cache.NewRoomStorage, cache.NewTalkVote, cache.NewRelation, cache.NewContactRemark, cache.NewSequence, cache.NewUnreadStorage, cache.NewMessageStorage, repo.NewTalkRecords, repo.NewTalkRecordsVote, repo.NewGroupMember, repo.NewContact, repo.NewFileSplitUpload, repo.NewSequence, logic.NewMessageForwardLogic, chat.NewHandler, event.NewChatEvent, event.NewExampleEvent, service.NewBaseService, service.NewTalkRecordsService, service.NewGroupMemberService, service.NewContactService, service.NewMessageService, handler.NewChatChannel, handler.NewExampleChannel, wire.Struct(new(handler.Handler), "*"), wire.Struct(new(AppProvider), "*"))
+var providerSet = wire.NewSet(provider.NewMySQLClient, provider.NewRedisClient, provider.NewFilesystem, provider.NewEmailClient, provider.NewProviders, router.NewRouter, wire.Struct(new(process.SubServers), "*"), process.NewServer, process.NewHealthSubscribe, process.NewMessageSubscribe, consume.NewChatSubscribe, consume.NewExampleSubscribe, cache.NewTokenSessionStorage, cache.NewSidStorage, cache.NewRedisLock, cache.NewClientStorage, cache.NewRoomStorage, cache.NewTalkVote, cache.NewRelation, cache.NewContactRemark, cache.NewSequence, cache.NewUnreadStorage, cache.NewMessageStorage, repo.NewTalkRecords, repo.NewTalkRecordsVote, repo.NewGroupMember, repo.NewContact, repo.NewFileSplitUpload, repo.NewSequence, logic.NewMessageForwardLogic, chat.NewHandler, event.NewChatEvent, event.NewExampleEvent, service.NewBaseService, service.NewTalkRecordsService, service.NewGroupMemberService, service.NewContactService, service.NewMessageService, handler.NewChatChannel, handler.NewExampleChannel, wire.Struct(new(handler.Handler), "*"), wire.Struct(new(AppProvider), "*"))

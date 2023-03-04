@@ -1,11 +1,11 @@
 package main
 
 import (
+	"github.com/gin-gonic/gin"
 	"go-chat/config"
-	"go-chat/internal/provider"
 )
 
 type AppProvider struct {
 	Config *config.Config
-	Server provider.HttpServer
+	Engine *gin.Engine
 }

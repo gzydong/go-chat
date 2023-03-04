@@ -80,10 +80,15 @@ func newApp(tx *cli.Context) error {
 
 	go NewTcpServer(app)
 
-	return start(c, eg, groupCtx, app.Server)
+	return start(c, eg, groupCtx, app)
 }
 
-func start(c chan os.Signal, eg *errgroup.Group, ctx context.Context, server *http.Server) error {
+func start(c chan os.Signal, eg *errgroup.Group, ctx context.Context, app *AppProvider) error {
+
+	server := &http.Server{
+		Addr:    fmt.Sprintf(":%d", app.Config.Ports.Websocket),
+		Handler: app.Engine,
+	}
 
 	eg.Go(func() error {
 		err := server.ListenAndServe()

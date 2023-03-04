@@ -29,7 +29,6 @@ var providerSet = wire.NewSet(
 	provider.NewRedisClient,
 	provider.NewHttpClient,
 	provider.NewEmailClient,
-	provider.NewHttpServer,
 	provider.NewFilesystem,
 	provider.NewRequestClient,
 

@@ -24,7 +24,6 @@ var providerSet = wire.NewSet(
 	// 基础服务
 	provider.NewMySQLClient,
 	provider.NewRedisClient,
-	provider.NewWebsocketServer,
 	provider.NewFilesystem,
 	provider.NewEmailClient,
 	provider.NewProviders,
