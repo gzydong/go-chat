@@ -15,6 +15,7 @@ type AppProvider struct {
 	Server    provider.WebsocketServer
 	Coroutine *process.Server
 	Handler   *handler.Handler
+	Providers *provider.Providers
 }
 
 func NewTcpServer(app *AppProvider) {

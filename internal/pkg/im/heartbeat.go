@@ -55,9 +55,7 @@ func (h *heartbeat) handle(timeWheel *timewheel.SimpleTimeWheel, value any) {
 		return
 	}
 
-	ctime := time.Now().Unix()
-
-	interval := int(ctime - c.lastTime)
+	interval := int(time.Now().Unix() - c.lastTime)
 	if interval > heartbeatTimeout {
 		c.Close(2000, "心跳检测超时，连接自动关闭")
 	} else if interval > heartbeatInterval {

@@ -21,13 +21,13 @@ type session struct {
 	// 可自行注册其它渠道...
 }
 
-func Initialize(ctx context.Context, eg *errgroup.Group) {
+func Initialize(ctx context.Context, eg *errgroup.Group, fn func(name string)) {
 	once.Do(func() {
-		initialize(ctx, eg)
+		initialize(ctx, eg, fn)
 	})
 }
 
-func initialize(ctx context.Context, eg *errgroup.Group) {
+func initialize(ctx context.Context, eg *errgroup.Group, fn func(name string)) {
 	Session = &session{
 		Chat:    NewChannel("chat", NewNode(10), make(chan *SenderContent, 5<<20)),
 		Example: NewChannel("example", NewNode(1), make(chan *SenderContent, 100)),
@@ -36,14 +36,17 @@ func initialize(ctx context.Context, eg *errgroup.Group) {
 	// 延时启动守护协程
 	time.AfterFunc(5*time.Second, func() {
 		eg.Go(func() error {
+			defer fn("chat exit")
 			return health.Start(ctx)
 		})
 
 		eg.Go(func() error {
+			defer fn("chat exit")
 			return Session.Chat.Start(ctx)
 		})
 
 		eg.Go(func() error {
+			defer fn("example exit")
 			return Session.Example.Start(ctx)
 		})
 	})

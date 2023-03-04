@@ -26,6 +26,8 @@ var providerSet = wire.NewSet(
 	provider.NewRedisClient,
 	provider.NewWebsocketServer,
 	provider.NewFilesystem,
+	provider.NewEmailClient,
+	provider.NewProviders,
 
 	// 路由
 	router.NewRouter,

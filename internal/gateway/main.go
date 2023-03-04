@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -13,6 +14,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/urfave/cli/v2"
 	"go-chat/config"
+	"go-chat/internal/pkg/email"
 	"go-chat/internal/pkg/im"
 	"go-chat/internal/pkg/logger"
 	"golang.org/x/sync/errgroup"
@@ -38,9 +40,6 @@ func main() {
 func newApp(tx *cli.Context) error {
 	eg, groupCtx := errgroup.WithContext(tx.Context)
 
-	// 初始化 IM 渠道配置
-	im.Initialize(groupCtx, eg)
-
 	// 读取配置文件
 	conf := config.ReadConfig(tx.String("config"))
 
@@ -52,6 +51,16 @@ func newApp(tx *cli.Context) error {
 	}
 
 	app := Initialize(conf)
+
+	// 初始化 IM 渠道配置
+	im.Initialize(groupCtx, eg, func(name string) {
+		emailClient := app.Providers.EmailClient
+		_ = emailClient.SendMail(&email.Option{
+			To:      []string{"837215079@qq.com"},
+			Subject: "守护进程异常",
+			Body:    fmt.Sprintf("守护进程异常[%s]", name),
+		})
+	})
 
 	c := make(chan os.Signal, 1)
 
