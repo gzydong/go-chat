@@ -54,12 +54,13 @@ func (h *heartbeat) handle(timeWheel *timewheel.SimpleTimeWheel, value any) {
 	interval := int(time.Now().Unix() - c.lastTime)
 	if interval > heartbeatTimeout {
 		c.Close(2000, "心跳检测超时，连接自动关闭")
+		return
 	} else if interval > heartbeatInterval {
 		// 超过心跳间隔时间则主动推送一次消息
 		_ = c.Write(&ClientOutContent{
 			Content: jsonutil.Marshal(&Message{"heartbeat", "ping"}),
 		})
-
-		_ = timeWheel.Add(c, time.Duration(heartbeatInterval)*time.Second)
 	}
+
+	_ = timeWheel.Add(c, time.Duration(heartbeatInterval)*time.Second)
 }
