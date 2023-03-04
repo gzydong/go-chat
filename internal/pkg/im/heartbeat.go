@@ -38,15 +38,11 @@ func (h *heartbeat) Start(ctx context.Context) error {
 
 	go h.timeWheel.Start()
 
-	for {
-		select {
-		case <-ctx.Done():
-			h.timeWheel.Stop()
-			return errors.New("heartbeat stop")
-		default:
-			time.Sleep(3 * time.Second)
-		}
-	}
+	<-ctx.Done()
+
+	h.timeWheel.Stop()
+
+	return errors.New("heartbeat exit")
 }
 
 func (h *heartbeat) handle(timeWheel *timewheel.SimpleTimeWheel, value any) {

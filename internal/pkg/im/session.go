@@ -2,6 +2,7 @@ package im
 
 import (
 	"context"
+	"fmt"
 	"sync"
 	"time"
 
@@ -36,7 +37,11 @@ func initialize(ctx context.Context, eg *errgroup.Group, fn func(name string)) {
 	// 延时启动守护协程
 	time.AfterFunc(5*time.Second, func() {
 		eg.Go(func() error {
-			defer fn("health exit")
+			defer func() {
+				fn("health exit")
+
+				fmt.Println("health exit -----")
+			}()
 			return health.Start(ctx)
 		})
 

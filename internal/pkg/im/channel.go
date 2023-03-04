@@ -84,6 +84,8 @@ func (c *Channel) Start(ctx context.Context) error {
 
 	for {
 		select {
+		case <-ctx.Done():
+			return fmt.Errorf("channel exit %s", c.name)
 		case body, ok := <-c.outChan:
 			if !ok {
 				return fmt.Errorf(fmt.Sprintf("loopPush 退出 %s", c.Name()))

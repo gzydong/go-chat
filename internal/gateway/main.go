@@ -55,11 +55,13 @@ func newApp(tx *cli.Context) error {
 	// 初始化 IM 渠道配置
 	im.Initialize(groupCtx, eg, func(name string) {
 		emailClient := app.Providers.EmailClient
-		_ = emailClient.SendMail(&email.Option{
-			To:      []string{"837215079@qq.com"},
-			Subject: fmt.Sprintf("[%s]守护进程异常", conf.App.Env),
-			Body:    fmt.Sprintf("守护进程异常[%s]", name),
-		})
+		if conf.App.Env == "prod" {
+			_ = emailClient.SendMail(&email.Option{
+				To:      []string{"837215079@qq.com"},
+				Subject: fmt.Sprintf("[%s]守护进程异常", conf.App.Env),
+				Body:    fmt.Sprintf("守护进程异常[%s]", name),
+			})
+		}
 	})
 
 	c := make(chan os.Signal, 1)

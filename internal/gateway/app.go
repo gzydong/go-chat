@@ -38,6 +38,7 @@ func NewTcpServer(app *AppProvider) {
 		}
 
 		fmt.Println("RemoteAddr===>", conn.RemoteAddr())
+
 		// TCP 分发
 		go app.Handler.Dispatch(conn)
 	}
