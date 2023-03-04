@@ -57,7 +57,7 @@ func newApp(tx *cli.Context) error {
 		emailClient := app.Providers.EmailClient
 		_ = emailClient.SendMail(&email.Option{
 			To:      []string{"837215079@qq.com"},
-			Subject: "守护进程异常",
+			Subject: fmt.Sprintf("[%s]守护进程异常", conf.App.Env),
 			Body:    fmt.Sprintf("守护进程异常[%s]", name),
 		})
 	})
