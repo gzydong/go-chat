@@ -65,7 +65,6 @@ type Handler func(*TimeWheel, any)
 // 第二层分  0 ~ 59
 // 第三场时  0 ~ 23
 // @see https://blog.csdn.net/daocaokafei/article/details/126456817
-// @see https://github.com/ouqiang/timewheel
 type TimeWheel struct {
 	circle    []*circle
 	onTick    Handler
