@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"go-chat/internal/pkg/jsonutil"
-	"go-chat/internal/pkg/worker"
+	"go-chat/internal/pkg/timewheel"
 )
 
 const (
@@ -17,68 +17,49 @@ var health *heartbeat
 
 // 客户端心跳管理
 type heartbeat struct {
-	node *Node
+	timeWheel *timewheel.TimeWheel
 }
 
 func init() {
-	health = &heartbeat{node: NewNode(10)}
+	health = &heartbeat{}
+	health.timeWheel = timewheel.NewTimeWheel(health.handle)
 }
 
 func (h *heartbeat) addClient(c *Client) {
-	h.node.add(c)
+	_ = h.timeWheel.Add(c, 30*time.Second)
 }
 
 func (h *heartbeat) delClient(c *Client) {
-	h.node.del(c)
+	h.timeWheel.Remove(c)
 }
 
 func (h *heartbeat) Start(ctx context.Context) error {
 
-	timer := time.NewTimer(heartbeatInterval * time.Second)
+	defer h.timeWheel.Stop()
 
-	defer timer.Stop()
+	h.timeWheel.Start()
 
-	for {
-		select {
-		case <-ctx.Done():
-			return nil
-		case <-timer.C:
-
-			h.check()
-
-			timer.Reset(heartbeatInterval * time.Second)
-		}
-	}
+	return nil
 }
 
-func (h *heartbeat) check() {
-
-	work := worker.NewTask(10)
-
-	for _, v := range h.node.nodes {
-		node := v
-
-		work.Do(func() {
-
-			ctime := time.Now().Unix()
-
-			node.Range(func(key, value any) bool {
-				c := value.(*Client)
-
-				interval := int(ctime - c.lastTime)
-				if interval > heartbeatTimeout {
-					c.Close(2000, "心跳检测超时，连接自动关闭")
-				} else if interval > heartbeatInterval {
-					// 超过心跳间隔时间则主动推送一次消息
-					_ = c.Write(&ClientOutContent{
-						Content: jsonutil.Marshal(&Message{"SendHeartbeat", "ping"}),
-					})
-				}
-
-				return true
-			})
-		})
+func (h *heartbeat) handle(timeWheel *timewheel.TimeWheel, value any) {
+	c, ok := value.(*Client)
+	if !ok {
+		return
 	}
 
-	work.Wait()
+	ctime := time.Now().Unix()
+
+	interval := int(ctime - c.lastTime)
+	if interval > heartbeatTimeout {
+		c.Close(2000, "心跳检测超时，连接自动关闭")
+		return
+	} else if interval > heartbeatInterval {
+		// 超过心跳间隔时间则主动推送一次消息
+		_ = c.Write(&ClientOutContent{
+			Content: jsonutil.Marshal(&Message{"heartbeat", "ping"}),
+		})
+
+		_ = timeWheel.Add(c, time.Duration(heartbeatInterval)*time.Second)
+	}
 }

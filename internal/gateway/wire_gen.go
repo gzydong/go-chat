@@ -15,6 +15,7 @@ import (
 	"go-chat/internal/gateway/internal/handler"
 	"go-chat/internal/gateway/internal/process"
 	"go-chat/internal/gateway/internal/router"
+	"go-chat/internal/logic"
 	"go-chat/internal/provider"
 	"go-chat/internal/repository/cache"
 	"go-chat/internal/repository/repo"
@@ -33,7 +34,15 @@ func Initialize(conf *config.Config) *AppProvider {
 	relation := cache.NewRelation(client)
 	groupMember := repo.NewGroupMember(db, relation)
 	groupMemberService := service.NewGroupMemberService(baseService, groupMember)
-	chatHandler := chat.NewHandler(client, groupMemberService)
+	sequence := cache.NewSequence(client)
+	repoSequence := repo.NewSequence(db, sequence)
+	messageForwardLogic := logic.NewMessageForwardLogic(db, repoSequence)
+	splitUpload := repo.NewFileSplitUpload(db)
+	filesystem := provider.NewFilesystem(conf)
+	unreadStorage := cache.NewUnreadStorage(client)
+	messageStorage := cache.NewMessageStorage(client)
+	messageService := service.NewMessageService(baseService, messageForwardLogic, groupMember, splitUpload, filesystem, unreadStorage, messageStorage, serverStorage, clientStorage, repoSequence)
+	chatHandler := chat.NewHandler(client, groupMemberService, messageService)
 	chatEvent := event.NewChatEvent(client, conf, roomStorage, groupMemberService, chatHandler)
 	chatChannel := handler.NewChatChannel(clientStorage, chatEvent)
 	exampleEvent := event.NewExampleEvent()
@@ -73,4 +82,4 @@ func Initialize(conf *config.Config) *AppProvider {
 
 // wire.go:
 
-var providerSet = wire.NewSet(provider.NewMySQLClient, provider.NewRedisClient, provider.NewWebsocketServer, router.NewRouter, wire.Struct(new(process.SubServers), "*"), process.NewServer, process.NewHealthSubscribe, process.NewMessageSubscribe, consume.NewChatSubscribe, consume.NewExampleSubscribe, cache.NewTokenSessionStorage, cache.NewSidStorage, cache.NewRedisLock, cache.NewClientStorage, cache.NewRoomStorage, cache.NewTalkVote, cache.NewRelation, cache.NewContactRemark, cache.NewSequence, repo.NewTalkRecords, repo.NewTalkRecordsVote, repo.NewGroupMember, repo.NewContact, chat.NewHandler, event.NewChatEvent, event.NewExampleEvent, service.NewBaseService, service.NewTalkRecordsService, service.NewGroupMemberService, service.NewContactService, handler.NewChatChannel, handler.NewExampleChannel, wire.Struct(new(handler.Handler), "*"), wire.Struct(new(AppProvider), "*"))
+var providerSet = wire.NewSet(provider.NewMySQLClient, provider.NewRedisClient, provider.NewWebsocketServer, provider.NewFilesystem, router.NewRouter, wire.Struct(new(process.SubServers), "*"), process.NewServer, process.NewHealthSubscribe, process.NewMessageSubscribe, consume.NewChatSubscribe, consume.NewExampleSubscribe, cache.NewTokenSessionStorage, cache.NewSidStorage, cache.NewRedisLock, cache.NewClientStorage, cache.NewRoomStorage, cache.NewTalkVote, cache.NewRelation, cache.NewContactRemark, cache.NewSequence, cache.NewUnreadStorage, cache.NewMessageStorage, repo.NewTalkRecords, repo.NewTalkRecordsVote, repo.NewGroupMember, repo.NewContact, repo.NewFileSplitUpload, repo.NewSequence, logic.NewMessageForwardLogic, chat.NewHandler, event.NewChatEvent, event.NewExampleEvent, service.NewBaseService, service.NewTalkRecordsService, service.NewGroupMemberService, service.NewContactService, service.NewMessageService, handler.NewChatChannel, handler.NewExampleChannel, wire.Struct(new(handler.Handler), "*"), wire.Struct(new(AppProvider), "*"))

@@ -18,7 +18,12 @@ type AppProvider struct {
 }
 
 func NewTcpServer(app *AppProvider) {
-	listener, _ := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%d", app.Config.Ports.Tcp))
+	listener, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%d", app.Config.Ports.Tcp))
+
+	if err != nil {
+		panic(err)
+		return
+	}
 
 	defer func() {
 		_ = listener.Close()
@@ -31,6 +36,7 @@ func NewTcpServer(app *AppProvider) {
 			continue
 		}
 
+		fmt.Println("RemoteAddr===>", conn.RemoteAddr())
 		// TCP 分发
 		go app.Handler.Dispatch(conn)
 	}

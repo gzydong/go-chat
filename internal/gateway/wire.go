@@ -11,6 +11,7 @@ import (
 	"go-chat/internal/gateway/internal/handler"
 	"go-chat/internal/gateway/internal/process"
 	"go-chat/internal/gateway/internal/router"
+	"go-chat/internal/logic"
 	"go-chat/internal/provider"
 	"go-chat/internal/repository/cache"
 	"go-chat/internal/repository/repo"
@@ -24,6 +25,7 @@ var providerSet = wire.NewSet(
 	provider.NewMySQLClient,
 	provider.NewRedisClient,
 	provider.NewWebsocketServer,
+	provider.NewFilesystem,
 
 	// 路由
 	router.NewRouter,
@@ -46,12 +48,18 @@ var providerSet = wire.NewSet(
 	cache.NewRelation,
 	cache.NewContactRemark,
 	cache.NewSequence,
+	cache.NewUnreadStorage,
+	cache.NewMessageStorage,
 
 	// dao 数据层
 	repo.NewTalkRecords,
 	repo.NewTalkRecordsVote,
 	repo.NewGroupMember,
 	repo.NewContact,
+	repo.NewFileSplitUpload,
+	repo.NewSequence,
+
+	logic.NewMessageForwardLogic,
 
 	chat.NewHandler,
 
@@ -63,6 +71,7 @@ var providerSet = wire.NewSet(
 	service.NewTalkRecordsService,
 	service.NewGroupMemberService,
 	service.NewContactService,
+	service.NewMessageService,
 
 	// handle
 	handler.NewChatChannel,

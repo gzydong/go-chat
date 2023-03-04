@@ -26,9 +26,15 @@ func TestNewTimeWheel(t *testing.T) {
 	go obj.Start()
 
 	tt := time.Now()
-	for i := 0; i < 96400; i++ {
+	for i := 0; i < 1000; i++ {
 		// _ = obj.Add(&Conn{lastTime: time.Now().Add(time.Duration(i) * time.Second)}, time.Duration(i)*time.Second)
-		obj.Add(&Conn{lastTime: time.Now().Add(time.Duration(i) * time.Second)}, time.Duration(i)*time.Second)
+		go func(i int) {
+			cn := &Conn{lastTime: time.Now().Add(time.Duration(10) * time.Second)}
+			obj.Add(cn, time.Duration(10)*time.Second)
+			// time.Sleep(3 * time.Second)
+			// obj.Remove(cn)
+		}(i)
+
 	}
 
 	fmt.Println(time.Since(tt))

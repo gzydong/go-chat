@@ -3,13 +3,10 @@ package chat
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"log"
 
 	"go-chat/api/pb/message/v1"
 	"go-chat/internal/pkg/im"
-	"go-chat/internal/pkg/jsonutil"
-	"go-chat/internal/pkg/strutil"
 )
 
 type TextMessage struct {
@@ -27,15 +24,23 @@ func (h *Handler) OnTextMessage(ctx context.Context, client im.IClient, data []b
 		return
 	}
 
-	fmt.Println("[TextMessage] 新消息 ", string(data))
+	// fmt.Println("[TextMessage] 新消息 ", string(data))
 
-	_ = client.Write(&im.ClientOutContent{
-		AckId: strutil.NewMsgId(),
-		IsAck: false,
-		Retry: 0,
-		Content: []byte(jsonutil.Encode(map[string]any{
-			"event":  "ack",
-			"ack_id": m.MsgId,
-		})),
+	h.message.SendText(ctx, client.Uid(), &message.TextMessageRequest{
+		Content: m.Body.Content,
+		Receiver: &message.MessageReceiver{
+			TalkType:   m.Body.Receiver.TalkType,
+			ReceiverId: m.Body.Receiver.ReceiverId,
+		},
 	})
+
+	// _ = client.Write(&im.ClientOutContent{
+	// 	AckId: strutil.NewMsgId(),
+	// 	IsAck: false,
+	// 	Retry: 0,
+	// 	Content: []byte(jsonutil.Encode(map[string]any{
+	// 		"event":  "ack",
+	// 		"ack_id": m.MsgId,
+	// 	})),
+	// })
 }

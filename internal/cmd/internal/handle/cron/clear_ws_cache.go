@@ -18,7 +18,7 @@ func NewClearWsCache(storage *cache.ServerStorage) *ClearWsCache {
 // Spec 配置定时任务规则
 // 每隔30分钟处理 websocket 缓存
 func (c *ClearWsCache) Spec() string {
-	return "*/30 * * * *"
+	return "* * * * *"
 }
 
 func (c *ClearWsCache) Enable() bool {

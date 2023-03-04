@@ -6,59 +6,55 @@ import (
 	"log"
 	"sync"
 	"time"
-)
 
-const (
-	WheelSecond = 60
-	WheelMinute = 60
-	WheelHour   = 24
+	"github.com/sourcegraph/conc/pool"
 )
 
 type element struct {
-	task   any   // 任务信息
+	value  any   // 任务信息
 	expire int64 // 过期时间
 }
 
 type slot struct {
-	id       int              // 轮次ID
-	elements map[any]*element // 成员列表
+	id       int       // 轮次ID
+	elements *sync.Map // 成员列表
 }
 
 func newSlot(id int) *slot {
 	s := &slot{id: id}
-	s.elements = make(map[any]*element)
+	s.elements = &sync.Map{}
 	return s
 }
 
 func (s *slot) add(el *element) {
-	s.elements[el.task] = el
+	s.elements.LoadOrStore(el.value, el)
 }
 
-func (s *slot) remove(task any) {
-	delete(s.elements, task)
+func (s *slot) remove(value any) {
+	s.elements.Delete(value)
 }
 
 // 时间轮环
-type wheel struct {
-	wheelIndex       int // 时间轮环ID
-	currentTickIndex int // 当前插槽Index
-	ticker           *time.Ticker
-	slot             []*slot // 插槽列表
+type circle struct {
+	index     int          // 轮环ID
+	tickIndex int          // 当前插槽
+	ticker    *time.Ticker // 计时器
+	slot      []*slot      // 插槽列表
 }
 
-func newWheel(wheelIndex int, slotNum int, ticker *time.Ticker) *wheel {
-	wheel := &wheel{
-		wheelIndex:       wheelIndex,
-		currentTickIndex: 0,
-		ticker:           ticker,
-		slot:             make([]*slot, 0),
+func newCircle(index int, numSlots int, ticker *time.Ticker) *circle {
+	c := &circle{
+		index:     index,
+		tickIndex: 0,
+		ticker:    ticker,
+		slot:      make([]*slot, 0, numSlots),
 	}
 
-	for i := 0; i < slotNum; i++ {
-		wheel.slot = append(wheel.slot, newSlot(i))
+	for i := 0; i < numSlots; i++ {
+		c.slot = append(c.slot, newSlot(i))
 	}
 
-	return wheel
+	return c
 }
 
 // Handler 处理函数
@@ -69,29 +65,29 @@ type Handler func(*TimeWheel, any)
 // 第二层分  0 ~ 59
 // 第三场时  0 ~ 23
 // @see https://blog.csdn.net/daocaokafei/article/details/126456817
+// @see https://github.com/ouqiang/timewheel
 type TimeWheel struct {
-	wheel     []*wheel
-	lock      sync.RWMutex
-	indicator map[any]*slot
+	circle    []*circle
 	onTick    Handler
 	taskChan  chan any
 	quitChan  chan any
+	indicator *sync.Map
 }
 
 func NewTimeWheel(handler Handler) *TimeWheel {
 
 	timeWheel := &TimeWheel{
-		taskChan:  make(chan any),
+		taskChan:  make(chan any, 100),
 		quitChan:  make(chan any),
-		indicator: make(map[any]*slot, 0),
+		indicator: &sync.Map{},
 		onTick:    handler,
 	}
 
 	// 初始化时间轮
-	timeWheel.wheel = []*wheel{
-		newWheel(0, 60, time.NewTicker(time.Second)), // 秒-时间环
-		newWheel(1, 60, time.NewTicker(time.Minute)), // 分-时间环
-		newWheel(2, 24, time.NewTicker(time.Hour)),   // 时-时间环
+	timeWheel.circle = []*circle{
+		newCircle(0, 60, time.NewTicker(time.Second)),
+		newCircle(1, 60, time.NewTicker(time.Minute)),
+		newCircle(2, 24, time.NewTicker(time.Hour)),
 	}
 
 	return timeWheel
@@ -102,9 +98,10 @@ func (t *TimeWheel) Start() {
 	defer fmt.Println("TimeWheel Stop")
 
 	// 协程启动3个时间分层轮
-	for i := range t.wheel {
-		wheel := t.wheel[i]
-		go t.runTimeWheel(wheel.wheelIndex, wheel.ticker)
+	for _, c := range t.circle {
+		go func(c *circle) {
+			t.runTimeWheel(c)
+		}(c)
 	}
 
 	for {
@@ -117,26 +114,21 @@ func (t *TimeWheel) Start() {
 				continue
 			}
 
-			// 根据任务的过期时间，计算任务所在的时间轮及时间轮插槽位
-			currentWheelIndex, currentTickIndex := t.getWheelIndex(el)
+			circleIndex, slotIndex := t.getCircleAndSlot(el)
 
-			// 过去插槽节点
-			wheelSlot := t.wheel[currentWheelIndex].slot[currentTickIndex]
-
-			t.lock.Lock()
-			wheelSlot.add(el)
-			t.indicator[el.task] = wheelSlot
-			t.lock.Unlock()
+			circleSlot := t.circle[circleIndex].slot[slotIndex]
+			circleSlot.add(el)
+			t.indicator.Store(el.value, circleSlot)
 		}
 	}
 }
 
-func (t *TimeWheel) getWheelIndex(el *element) (int, int64) {
+func (t *TimeWheel) getCircleAndSlot(el *element) (int, int64) {
 
 	var (
-		currentWheelIndex int
-		currentTickIndex  int64
-		remainingTime     = el.expire - time.Now().Unix()
+		circleIndex   int
+		slotIndex     int64
+		remainingTime = int(el.expire - time.Now().Unix())
 	)
 
 	if remainingTime <= 0 {
@@ -144,81 +136,67 @@ func (t *TimeWheel) getWheelIndex(el *element) (int, int64) {
 	}
 
 	if remainingTime < 60 {
-		// 加入秒时间轮
-		currentWheelIndex = 0
-		currentTickIndex = int64(t.getCurrentTickIndex(0)) + remainingTime
-
-		if currentTickIndex >= WheelSecond {
-			currentTickIndex = currentTickIndex - WheelSecond
-		}
+		circleIndex = 0
+		slotIndex = int64((t.getCurrentTickIndex(0) + remainingTime) % 60)
 	} else if int(remainingTime/60) < 60 {
-		// 加入分时间轮
-		currentWheelIndex = 1
-		currentTickIndex = int64(t.getCurrentTickIndex(1)) + (remainingTime / 60) - 1
-
-		if currentTickIndex >= WheelMinute {
-			currentTickIndex = currentTickIndex - WheelMinute
-		}
+		circleIndex = 1
+		slotIndex = int64((t.getCurrentTickIndex(1) + remainingTime/60) % 60)
 	} else {
-		// 加入时时间轮
-		currentWheelIndex = 2
-		currentTickIndex = int64(t.getCurrentTickIndex(2)) + (remainingTime / (60 * 60)) - 1
-
-		if currentTickIndex >= WheelHour {
-			currentTickIndex = currentTickIndex - WheelHour
-		}
+		circleIndex = 2
+		slotIndex = int64((t.getCurrentTickIndex(1) + remainingTime/3600) % 60)
 	}
 
-	fmt.Printf("加入任务信息 过期时间:%s 当前剩余时间:%ds 加入时间轮:%d 槽位:%d \n",
-		time.Now().Add(time.Duration(remainingTime)*time.Second).Format("2006-01-02 15:04:05"),
-		remainingTime,
-		currentWheelIndex,
-		currentTickIndex,
-	)
+	// fmt.Printf("加入任务信息 过期时间:%s 当前剩余时间:%ds 加入时间轮:%d 槽位:%d \n",
+	// 	time.Now().Add(time.Duration(remainingTime)*time.Second).Format("2006-01-02 15:04:05"),
+	// 	remainingTime,
+	// 	circleIndex,
+	// 	slotIndex,
+	// )
 
-	return currentWheelIndex, currentTickIndex
+	return circleIndex, slotIndex
 }
 
-func (t *TimeWheel) runTimeWheel(wheelIndex int, ticker *time.Ticker) {
+func (t *TimeWheel) runTimeWheel(circle *circle) {
 
-	defer fmt.Printf("[%d]RunTimeWheel Stop\n", wheelIndex)
+	defer fmt.Printf("[%d]RunTimeWheel Stop\n", circle.index)
+
+	worker := pool.New().WithMaxGoroutines(10)
 
 	for {
 		select {
 		case <-t.quitChan:
-			ticker.Stop()
+			circle.ticker.Stop()
 			return
-		case <-ticker.C:
-			// 取出对应的时间轮信息
-			timeWheel := t.wheel[wheelIndex]
+		case <-circle.ticker.C:
 
-			currentTickIndex := timeWheel.currentTickIndex
+			tickIndex := circle.tickIndex
 
-			// 累增当前index
-			timeWheel.currentTickIndex++
-			if timeWheel.currentTickIndex >= len(timeWheel.slot) {
-				timeWheel.currentTickIndex = 0
+			circle.tickIndex++
+			if circle.tickIndex >= len(circle.slot) {
+				circle.tickIndex = 0
 			}
 
-			wheelSlot := timeWheel.slot[currentTickIndex]
-			for _, v := range wheelSlot.elements {
+			circleSlot := circle.slot[tickIndex]
 
-				t.lock.Lock()
-				wheelSlot.remove(v.task)
-				delete(t.indicator, v)
-				t.lock.Unlock()
+			circleSlot.elements.Range(func(_, value any) bool {
+				if el, ok := value.(*element); ok {
+					t.indicator.Delete(el.value)
+					circleSlot.remove(el.value)
 
-				if v.expire <= time.Now().Unix() {
-					t.onTick(t, v.task)
-				} else {
-					second := v.expire - time.Now().Unix()
-					if err := t.Add(v.task, time.Duration(second)*time.Second); err != nil {
-						log.Printf("分级别时间轮降级为妙级别时间轮失败 err:%s", err.Error())
-					}
-
-					// fmt.Printf("此任务需要降级处理: %d remainingTime: %d \n", v.expire, second)
+					worker.Go(func() {
+						if el.expire <= time.Now().Unix() {
+							t.onTick(t, el.value)
+						} else {
+							second := el.expire - time.Now().Unix()
+							if err := t.Add(el.value, time.Duration(second)*time.Second); err != nil {
+								log.Printf("时间轮降级失败 err:%s", err.Error())
+							}
+						}
+					})
 				}
-			}
+
+				return true
+			})
 		}
 	}
 }
@@ -235,21 +213,20 @@ func (t *TimeWheel) Add(task any, delay time.Duration) error {
 		return errors.New("max delay 24 hour")
 	}
 
-	// fmt.Println("创建时间:", time.Now().Format("2006-01-02 15:04:05"), "过期时间:", time.Now().Add(delay).Format("2006-01-02 15:04:05"))
-	t.taskChan <- &element{task: task, expire: time.Now().Add(delay).Unix()}
+	t.taskChan <- &element{value: task, expire: time.Now().Add(delay).Unix()}
 
 	return nil
 }
 
 func (t *TimeWheel) Remove(task any) {
-	if slot, ok := t.indicator[task]; ok {
-		t.lock.Lock()
-		slot.remove(task)
-		delete(t.indicator, task)
-		t.lock.Unlock()
+	if value, ok := t.indicator.Load(task); ok {
+		if slot, ok := value.(*slot); ok {
+			slot.remove(task)
+			t.indicator.Delete(task)
+		}
 	}
 }
 
-func (t *TimeWheel) getCurrentTickIndex(wheelIndex int) int {
-	return t.wheel[wheelIndex].currentTickIndex
+func (t *TimeWheel) getCurrentTickIndex(circleIndex int) int {
+	return t.circle[circleIndex].tickIndex
 }

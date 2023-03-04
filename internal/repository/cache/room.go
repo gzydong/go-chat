@@ -28,7 +28,7 @@ func NewRoomStorage(rds *redis.Client) *RoomStorage {
 
 // 获取房间名 [ws:sid:room:房间类型:房间号]
 func (r *RoomStorage) key(opts *RoomOption) string {
-	return fmt.Sprintf("ws:%s:r:%s:%s", opts.Sid, opts.RoomType, opts.Number)
+	return fmt.Sprintf("ws:%s:%s:%s", opts.Sid, opts.RoomType, opts.Number)
 }
 
 // Add 添加房间成员

@@ -101,6 +101,7 @@ func (s *ChatSubscribe) onConsumeTalk(body string) {
 	}
 
 	if len(cids) == 0 {
+		logger.Error("[ChatSubscribe] cids=0 err: ")
 		return
 	}
 

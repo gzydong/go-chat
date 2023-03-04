@@ -4,11 +4,11 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"sync"
 	"sync/atomic"
 	"time"
 
-	"go-chat/internal/pkg/worker"
+	"github.com/sourcegraph/conc/pool"
+	"go-chat/internal/pkg/logger"
 )
 
 type IChannel interface {
@@ -18,15 +18,14 @@ type IChannel interface {
 
 // Channel 渠道管理（多渠道划分，实现不同业务之间隔离）
 type Channel struct {
-	name          string              // 渠道名称
-	count         int64               // 客户端连接数
-	node          *Node               // 客户端列表【客户端ID取余拆分，降低 map 长度】
-	outChan       chan *SenderContent // 消息发送通道
-	broadcastChan chan *SenderContent // 广播消息
+	name    string              // 渠道名称
+	count   int64               // 客户端连接数
+	node    *Node               // 客户端列表【客户端ID取余拆分，降低 map 长度】
+	outChan chan *SenderContent // 消息发送通道
 }
 
 func NewChannel(name string, node *Node, outChan chan *SenderContent) *Channel {
-	return &Channel{name: name, node: node, outChan: outChan, broadcastChan: make(chan *SenderContent, 100)}
+	return &Channel{name: name, node: node, outChan: outChan}
 }
 
 // Name 获取渠道名称
@@ -46,23 +45,12 @@ func (c *Channel) Client(cid int64) (*Client, bool) {
 
 // Write 推送消息到消费通道
 func (c *Channel) Write(msg *SenderContent) {
-
-	if msg.IsBroadcast() {
-		select {
-		case c.broadcastChan <- msg:
-			break
-		case <-time.After(3 * time.Second):
-			fmt.Printf("[%s] Channel broadcastChan 写入消息超时,管道长度：%d \n", c.name, len(c.outChan))
-			break
-		}
-	} else {
-		select {
-		case c.outChan <- msg:
-			break
-		case <-time.After(3 * time.Second):
-			fmt.Printf("[%s] Channel OutChan 写入消息超时,管道长度：%d \n", c.name, len(c.outChan))
-			break
-		}
+	select {
+	case c.outChan <- msg:
+		break
+	case <-time.After(3 * time.Second):
+		fmt.Printf("[%s] Channel OutChan 写入消息超时,管道长度：%d \n", c.name, len(c.outChan))
+		break
 	}
 }
 
@@ -84,74 +72,39 @@ func (c *Channel) delClient(client *Client) {
 	atomic.AddInt64(&c.count, -1)
 }
 
-// 推送客户端数据
-func (c *Channel) loopPush(ctx context.Context, sw *sync.WaitGroup) {
+// Start 渠道消费协程
+func (c *Channel) Start(ctx context.Context) error {
 
-	work := worker.NewTask(50)
-	defer sw.Done()
+	work := pool.New().WithMaxGoroutines(10)
+
+	defer func() {
+		fmt.Println(fmt.Errorf(fmt.Sprintf("loopPush 退出 %s", c.Name())))
+		logger.Error(fmt.Sprintf("loopPush 退出 %s", c.Name()))
+	}()
 
 	for {
 		select {
-		case <-ctx.Done():
-			work.Wait()
-			return
-
 		case body, ok := <-c.outChan:
-			if ok {
-				bodyContent := body
+			if !ok {
+				return fmt.Errorf(fmt.Sprintf("loopPush 退出 %s", c.Name()))
+			}
 
-				work.Do(func() {
-					content, _ := json.Marshal(bodyContent.GetMessage())
+			bodyContent := body
+			content, _ := json.Marshal(bodyContent.GetMessage())
 
+			work.Go(func() {
+				if bodyContent.IsBroadcast() {
+					c.node.each(func(client *Client) {
+						_ = client.Write(&ClientOutContent{Content: content})
+					})
+				} else {
 					for _, cid := range bodyContent.receives {
 						if client, ok := c.Client(cid); ok {
 							_ = client.Write(&ClientOutContent{Content: content})
 						}
 					}
-				})
-			}
+				}
+			})
 		}
 	}
-}
-
-// 广播推送
-func (c *Channel) loopBroadcast(ctx context.Context, sw *sync.WaitGroup) {
-
-	work := worker.NewTask(10)
-	defer sw.Done()
-
-	for {
-		select {
-		case <-ctx.Done():
-			work.Wait()
-			return
-
-		case body, ok := <-c.broadcastChan:
-			if ok {
-				bodyContent := body
-
-				work.Do(func() {
-					content, _ := json.Marshal(bodyContent.GetMessage())
-
-					c.node.each(func(client *Client) {
-						_ = client.Write(&ClientOutContent{Content: content})
-					})
-				})
-			}
-		}
-	}
-}
-
-// Start 渠道消费协程
-func (c *Channel) Start(ctx context.Context) error {
-
-	sw := &sync.WaitGroup{}
-	sw.Add(2)
-
-	go c.loopPush(ctx, sw)
-	go c.loopBroadcast(ctx, sw)
-
-	sw.Wait()
-
-	return nil
 }
