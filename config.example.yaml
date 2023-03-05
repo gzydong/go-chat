@@ -1,8 +1,8 @@
 # 项目配置信息
 app:
-  app_name: LumenIM
+  env: dev
   debug: false
-  juhe_key: "836a9c3fxxxd902fbc5"
+  juhe_key: "xxxxxxx"
 
 # 日志配置
 log:
@@ -11,8 +11,7 @@ log:
 
 # Redis 相关配置
 redis:
-  host: 127.0.0.1
-  port: 6379
+  host: 127.0.0.1:6379
   auth: xxxxx
   database: 0
 

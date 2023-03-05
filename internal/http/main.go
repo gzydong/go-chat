@@ -47,7 +47,7 @@ func main() {
 		c := make(chan os.Signal, 1)
 		signal.Notify(c, syscall.SIGTERM, syscall.SIGQUIT, syscall.SIGINT)
 
-		log.Printf("HTTP Listen Port :%d", conf.Ports.Http)
+		log.Printf("HTTP Listen Port :%d", conf.Server.Http)
 		log.Printf("HTTP Server Pid  :%d", os.Getpid())
 
 		return run(c, eg, groupCtx, app)
@@ -59,7 +59,7 @@ func main() {
 func run(c chan os.Signal, eg *errgroup.Group, ctx context.Context, app *AppProvider) error {
 
 	server := &http.Server{
-		Addr:    fmt.Sprintf(":%d", app.Config.Ports.Http),
+		Addr:    fmt.Sprintf(":%d", app.Config.Server.Http),
 		Handler: app.Engine,
 	}
 

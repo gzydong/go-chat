@@ -75,8 +75,8 @@ func newApp(tx *cli.Context) error {
 
 	log.Printf("Server ID   :%s", conf.ServerId())
 	log.Printf("Server Pid  :%d", os.Getpid())
-	log.Printf("Websocket Listen Port :%d", conf.Ports.Websocket)
-	log.Printf("Tcp Listen Port :%d", conf.Ports.Tcp)
+	log.Printf("Websocket Listen Port :%d", conf.Server.Websocket)
+	log.Printf("Tcp Listen Port :%d", conf.Server.Tcp)
 
 	go NewTcpServer(app)
 
@@ -86,7 +86,7 @@ func newApp(tx *cli.Context) error {
 func start(c chan os.Signal, eg *errgroup.Group, ctx context.Context, app *AppProvider) error {
 
 	server := &http.Server{
-		Addr:    fmt.Sprintf(":%d", app.Config.Ports.Websocket),
+		Addr:    fmt.Sprintf(":%d", app.Config.Server.Websocket),
 		Handler: app.Engine,
 	}
 

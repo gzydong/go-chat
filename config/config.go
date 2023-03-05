@@ -21,11 +21,11 @@ type Config struct {
 	Log        *Log        `json:"log" yaml:"log"`
 	Filesystem *Filesystem `json:"filesystem" yaml:"filesystem"`
 	Email      *Email      `json:"email" yaml:"email"`
-	Ports      *Ports      `json:"ports" yaml:"ports"`
+	Server     *Server     `json:"server" yaml:"server"`
 	Nsq        *Nsq        `json:"nsq" yaml:"nsq"`
 }
 
-type Ports struct {
+type Server struct {
 	Http      int `json:"http" yaml:"http"`
 	Websocket int `json:"websocket" yaml:"websocket"`
 	Tcp       int `json:"tcp" yaml:"tcp"`
@@ -56,10 +56,6 @@ func (c *Config) ServerId() string {
 // Debug 调试模式
 func (c *Config) Debug() bool {
 	return c.App.Debug
-}
-
-func (c *Config) SetPort(port int) {
-	c.App.Port = port
 }
 
 func (c *Config) GetLogPath() string {

@@ -20,7 +20,7 @@ type AppProvider struct {
 }
 
 func NewTcpServer(app *AppProvider) {
-	listener, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%d", app.Config.Ports.Tcp))
+	listener, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%d", app.Config.Server.Tcp))
 
 	if err != nil {
 		panic(err)
