@@ -93,45 +93,36 @@ func (m *MessageForwardLogic) MultiMergeForward(ctx context.Context, uid int, re
 		Records: tmpRecords,
 	})
 
-	err = m.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
-		records := make([]*model.TalkRecords, 0, len(receives))
-
-		for _, item := range receives {
-			data := &model.TalkRecords{
-				MsgId:      strutil.NewMsgId(),
-				TalkType:   item["type"],
-				MsgType:    entity.MsgTypeForward,
-				UserId:     uid,
-				ReceiverId: item["id"],
-				Extra:      extra,
-			}
-
-			if data.TalkType == entity.ChatGroupMode {
-				data.Sequence = m.sequence.Get(ctx, 0, data.ReceiverId)
-			} else {
-				data.Sequence = m.sequence.Get(ctx, uid, data.ReceiverId)
-			}
-
-			records = append(records, data)
+	records := make([]*model.TalkRecords, 0, len(receives))
+	for _, item := range receives {
+		data := &model.TalkRecords{
+			MsgId:      strutil.NewMsgId(),
+			TalkType:   item["type"],
+			MsgType:    entity.MsgTypeForward,
+			UserId:     uid,
+			ReceiverId: item["id"],
+			Extra:      extra,
 		}
 
-		if err := tx.Create(records).Error; err != nil {
-			return err
+		if data.TalkType == entity.ChatGroupMode {
+			data.Sequence = m.sequence.Get(ctx, 0, data.ReceiverId)
+		} else {
+			data.Sequence = m.sequence.Get(ctx, uid, data.ReceiverId)
 		}
 
-		for _, record := range records {
-			arr = append(arr, &ForwardRecord{
-				RecordId:   record.Id,
-				ReceiverId: record.ReceiverId,
-				TalkType:   record.TalkType,
-			})
-		}
+		records = append(records, data)
+	}
 
-		return nil
-	})
-
-	if err != nil {
+	if err := m.db.Create(records).Error; err != nil {
 		return nil, err
+	}
+
+	for _, record := range records {
+		arr = append(arr, &ForwardRecord{
+			RecordId:   record.Id,
+			ReceiverId: record.ReceiverId,
+			TalkType:   record.TalkType,
+		})
 	}
 
 	return arr, nil
