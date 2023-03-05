@@ -39,19 +39,6 @@ var providerSet = wire.NewSet(
 	consume2.NewChatSubscribe,
 	consume2.NewExampleSubscribe,
 
-	// 缓存
-	cache.NewTokenSessionStorage,
-	cache.NewSidStorage,
-	cache.NewRedisLock,
-	cache.NewClientStorage,
-	cache.NewRoomStorage,
-	cache.NewTalkVote,
-	cache.NewRelation,
-	cache.NewContactRemark,
-	cache.NewSequence,
-	cache.NewUnreadStorage,
-	cache.NewMessageStorage,
-
 	// dao 数据层
 	repo.NewTalkRecords,
 	repo.NewTalkRecordsVote,
@@ -83,5 +70,5 @@ var providerSet = wire.NewSet(
 )
 
 func Initialize(conf *config.Config) *AppProvider {
-	panic(wire.Build(providerSet))
+	panic(wire.Build(providerSet, cache.ProviderSet))
 }

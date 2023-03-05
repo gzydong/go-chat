@@ -127,7 +127,5 @@ func (c *Apply) List(ctx *ichat.Context) error {
 
 	c.service.ClearApplyUnreadNum(ctx.Ctx(), ctx.UserId())
 
-	return ctx.Success(&web.ContactApplyListResponse{
-		Items: items,
-	})
+	return ctx.Success(&web.ContactApplyListResponse{Items: items})
 }
