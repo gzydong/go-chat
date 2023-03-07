@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -13,6 +14,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/urfave/cli/v2"
 	"go-chat/config"
+	"go-chat/internal/pkg/email"
 	"go-chat/internal/pkg/im"
 	"go-chat/internal/pkg/logger"
 	"golang.org/x/sync/errgroup"
@@ -38,9 +40,6 @@ func main() {
 func newApp(tx *cli.Context) error {
 	eg, groupCtx := errgroup.WithContext(tx.Context)
 
-	// 初始化 IM 渠道配置
-	im.Initialize(groupCtx, eg)
-
 	// 读取配置文件
 	conf := config.ReadConfig(tx.String("config"))
 
@@ -53,6 +52,18 @@ func newApp(tx *cli.Context) error {
 
 	app := Initialize(conf)
 
+	// 初始化 IM 渠道配置
+	im.Initialize(groupCtx, eg, func(name string) {
+		emailClient := app.Providers.EmailClient
+		if conf.App.Env == "prod" {
+			_ = emailClient.SendMail(&email.Option{
+				To:      []string{"837215079@qq.com"},
+				Subject: fmt.Sprintf("[%s]守护进程异常", conf.App.Env),
+				Body:    fmt.Sprintf("守护进程异常[%s]", name),
+			})
+		}
+	})
+
 	c := make(chan os.Signal, 1)
 
 	signal.Notify(c, syscall.SIGTERM, syscall.SIGQUIT, syscall.SIGINT)
@@ -64,15 +75,20 @@ func newApp(tx *cli.Context) error {
 
 	log.Printf("Server ID   :%s", conf.ServerId())
 	log.Printf("Server Pid  :%d", os.Getpid())
-	log.Printf("Websocket Listen Port :%d", conf.Ports.Websocket)
-	log.Printf("Tcp Listen Port :%d", conf.Ports.Tcp)
+	log.Printf("Websocket Listen Port :%d", conf.Server.Websocket)
+	log.Printf("Tcp Listen Port :%d", conf.Server.Tcp)
 
 	go NewTcpServer(app)
 
-	return start(c, eg, groupCtx, app.Server)
+	return start(c, eg, groupCtx, app)
 }
 
-func start(c chan os.Signal, eg *errgroup.Group, ctx context.Context, server *http.Server) error {
+func start(c chan os.Signal, eg *errgroup.Group, ctx context.Context, app *AppProvider) error {
+
+	server := &http.Server{
+		Addr:    fmt.Sprintf(":%d", app.Config.Server.Websocket),
+		Handler: app.Engine,
+	}
 
 	eg.Go(func() error {
 		err := server.ListenAndServe()

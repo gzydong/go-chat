@@ -8,11 +8,11 @@ import (
 	"time"
 
 	"github.com/go-redis/redis/v8"
+	"github.com/sourcegraph/conc/pool"
 	"go-chat/config"
 	"go-chat/internal/entity"
 	"go-chat/internal/gateway/internal/consume"
 	"go-chat/internal/pkg/logger"
-	"go-chat/internal/pkg/worker"
 )
 
 type MessageSubscribe struct {
@@ -53,11 +53,11 @@ func (m *MessageSubscribe) subscribe(ctx context.Context, topic []string, consum
 	sub := m.redis.Subscribe(ctx, topic...)
 	defer sub.Close()
 
-	w := worker.NewWorker(10, 10)
+	worker := pool.New().WithMaxGoroutines(10)
 
 	// 订阅 redis 消息
 	for msg := range sub.Channel(redis.WithChannelHealthCheckInterval(30 * time.Second)) {
-		w.Do(func() {
+		worker.Go(func() {
 			var message *SubscribeContent
 			if err := json.Unmarshal([]byte(msg.Payload), &message); err != nil {
 				logger.Warnf("订阅消息格式错误 Err: %s \n", err.Error())
@@ -69,5 +69,5 @@ func (m *MessageSubscribe) subscribe(ctx context.Context, topic []string, consum
 		})
 	}
 
-	w.Wait()
+	worker.Wait()
 }

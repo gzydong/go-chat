@@ -41,9 +41,7 @@ func (c *Group) List(ctx *ichat.Context) error {
 		})
 	}
 
-	return ctx.Success(&web.ContactGroupListResponse{
-		Items: items,
-	})
+	return ctx.Success(&web.ContactGroupListResponse{Items: items})
 }
 
 func (c *Group) Create(ctx *ichat.Context) error {

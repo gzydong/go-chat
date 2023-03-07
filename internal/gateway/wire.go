@@ -11,6 +11,7 @@ import (
 	"go-chat/internal/gateway/internal/handler"
 	"go-chat/internal/gateway/internal/process"
 	"go-chat/internal/gateway/internal/router"
+	"go-chat/internal/logic"
 	"go-chat/internal/provider"
 	"go-chat/internal/repository/cache"
 	"go-chat/internal/repository/repo"
@@ -23,7 +24,9 @@ var providerSet = wire.NewSet(
 	// 基础服务
 	provider.NewMySQLClient,
 	provider.NewRedisClient,
-	provider.NewWebsocketServer,
+	provider.NewFilesystem,
+	provider.NewEmailClient,
+	provider.NewProviders,
 
 	// 路由
 	router.NewRouter,
@@ -36,22 +39,15 @@ var providerSet = wire.NewSet(
 	consume2.NewChatSubscribe,
 	consume2.NewExampleSubscribe,
 
-	// 缓存
-	cache.NewTokenSessionStorage,
-	cache.NewSidStorage,
-	cache.NewRedisLock,
-	cache.NewClientStorage,
-	cache.NewRoomStorage,
-	cache.NewTalkVote,
-	cache.NewRelation,
-	cache.NewContactRemark,
-	cache.NewSequence,
-
 	// dao 数据层
 	repo.NewTalkRecords,
 	repo.NewTalkRecordsVote,
 	repo.NewGroupMember,
 	repo.NewContact,
+	repo.NewFileSplitUpload,
+	repo.NewSequence,
+
+	logic.NewMessageForwardLogic,
 
 	chat.NewHandler,
 
@@ -63,6 +59,7 @@ var providerSet = wire.NewSet(
 	service.NewTalkRecordsService,
 	service.NewGroupMemberService,
 	service.NewContactService,
+	service.NewMessageService,
 
 	// handle
 	handler.NewChatChannel,
@@ -73,5 +70,5 @@ var providerSet = wire.NewSet(
 )
 
 func Initialize(conf *config.Config) *AppProvider {
-	panic(wire.Build(providerSet))
+	panic(wire.Build(providerSet, cache.ProviderSet))
 }

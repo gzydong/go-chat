@@ -29,7 +29,6 @@ var providerSet = wire.NewSet(
 	provider.NewRedisClient,
 	provider.NewHttpClient,
 	provider.NewEmailClient,
-	provider.NewHttpServer,
 	provider.NewFilesystem,
 	provider.NewRequestClient,
 
@@ -42,22 +41,6 @@ var providerSet = wire.NewSet(
 
 	// AppProvider
 	wire.Struct(new(AppProvider), "*"),
-)
-
-var cacheProviderSet = wire.NewSet(
-	cache.NewTokenSessionStorage,
-	cache.NewSidStorage,
-	cache.NewUnreadStorage,
-	cache.NewRedisLock,
-	cache.NewClientStorage,
-	cache.NewMessageStorage,
-	cache.NewTalkVote,
-	cache.NewRoomStorage,
-	cache.NewRelation,
-	cache.NewSmsCodeCache,
-	cache.NewContactRemark,
-	cache.NewSequence,
-	cache.NewCaptchaStorage,
 )
 
 var daoProviderSet = wire.NewSet(
@@ -119,7 +102,7 @@ func Initialize(conf *config.Config) *AppProvider {
 	panic(
 		wire.Build(
 			providerSet,
-			cacheProviderSet,   // 注入 Cache 依赖
+			cache.ProviderSet,  // 注入 Cache 依赖
 			daoProviderSet,     // 注入 Dao 依赖
 			serviceProviderSet, // 注入 Service 依赖
 			web.ProviderSet,    // 注入 Web Handler 依赖

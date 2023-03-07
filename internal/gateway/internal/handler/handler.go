@@ -42,6 +42,8 @@ func (h *Handler) Dispatch(conn net.Conn) {
 		}
 	}()
 
+	fmt.Println(conn.RemoteAddr())
+
 	go h.auth(conn, ch)
 
 	fmt.Println(conn.RemoteAddr(), "开始认证==>>>", time.Now().Unix())

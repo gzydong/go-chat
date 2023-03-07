@@ -7,6 +7,7 @@ import (
 
 	"github.com/tidwall/gjson"
 	"go-chat/internal/pkg/jsonutil"
+	"go-chat/internal/pkg/logger"
 )
 
 type IClient interface {
@@ -211,16 +212,6 @@ func (c *Client) loopAccept() {
 
 		// 客户端 ACK 处理
 		case "event.ack":
-			// res := gjson.GetBytes(message, "ack")
-			// if !res.Exists() {
-			// 	continue
-			// }
-			//
-			// ack.del(&AckBufferOption{
-			// 	Channel: c.channel,
-			// 	Cid:     c.Cid(),
-			// 	AckID:   res.String(),
-			// })
 		default:
 			// 触发消息回调
 			c.callBack.Message(c, message)
@@ -231,24 +222,14 @@ func (c *Client) loopAccept() {
 // 循环推送客户端信息
 func (c *Client) loopWrite() {
 	for data := range c.outChan {
-
 		if c.isClosed {
 			break
 		}
 
 		if err := c.conn.Write(data.Content); err != nil {
+			fmt.Println(fmt.Sprintf("%d[%d]客户端数据写入失败 Err: %s", c.cid, c.uid, err.Error()))
+			logger.Errorf("%d[%d]客户端数据写入失败 Err: %s", c.cid, c.uid, err.Error())
 			break
-		}
-
-		// 验证是否需要 ack 回调
-		if data.IsAck {
-			ack.add(&AckBufferOption{
-				Channel: c.channel,
-				Cid:     c.Cid(),
-				AckID:   data.AckId,
-				Retry:   data.Retry + 1,
-				Content: data.Content,
-			})
 		}
 	}
 }

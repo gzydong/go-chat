@@ -42,14 +42,10 @@ func NewCrontabCommand(handles *Subcommands) Command {
 		Action: func(ctx *cli.Context) error {
 			c := cron.New()
 
-			for _, job := range toCrontab(handles) {
+			for _, exec := range toCrontab(handles) {
+				job := exec
 
-				// 是否启动运行
-				if !job.Enable() {
-					continue
-				}
-
-				_, err := c.AddFunc(job.Spec(), func() {
+				_, _ = c.AddFunc(job.Spec(), func() {
 					defer func() {
 						if err := recover(); err != nil {
 							fmt.Printf("Crontab Err: %v \n", err)
@@ -60,10 +56,6 @@ func NewCrontabCommand(handles *Subcommands) Command {
 				})
 
 				fmt.Printf("已启动 %T 定时任务 => 任务计划 %s \n", job, job.Spec())
-
-				if err != nil {
-					panic(err)
-				}
 			}
 
 			log.Println("Crontab 定时任务已启动...")
@@ -99,7 +91,9 @@ func toCrontab(value any) []ICrontab {
 	elem := reflect.ValueOf(value).Elem()
 	for i := 0; i < elem.NumField(); i++ {
 		if v, ok := elem.Field(i).Interface().(ICrontab); ok {
-			jobs = append(jobs, v)
+			if v.Enable() {
+				jobs = append(jobs, v)
+			}
 		}
 	}
 

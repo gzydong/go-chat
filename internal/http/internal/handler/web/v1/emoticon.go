@@ -69,7 +69,6 @@ func (c *Emoticon) CollectList(ctx *ichat.Context) error {
 				Src:     item.Url,
 			})
 		}
-
 	}
 
 	return ctx.Success(resp)

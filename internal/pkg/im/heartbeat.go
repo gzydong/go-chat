@@ -2,10 +2,11 @@ package im
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"go-chat/internal/pkg/jsonutil"
-	"go-chat/internal/pkg/worker"
+	"go-chat/internal/pkg/timewheel"
 )
 
 const (
@@ -17,68 +18,51 @@ var health *heartbeat
 
 // 客户端心跳管理
 type heartbeat struct {
-	node *Node
+	timeWheel *timewheel.SimpleTimeWheel
 }
 
 func init() {
-	health = &heartbeat{node: NewNode(10)}
+	health = &heartbeat{}
+	health.timeWheel = timewheel.NewSimpleTimeWheel(1*time.Second, 100, health.handle)
 }
 
 func (h *heartbeat) addClient(c *Client) {
-	h.node.add(c)
+	_ = h.timeWheel.Add(c, time.Duration(heartbeatInterval)*time.Second)
 }
 
 func (h *heartbeat) delClient(c *Client) {
-	h.node.del(c)
+	h.timeWheel.Remove(c)
 }
 
 func (h *heartbeat) Start(ctx context.Context) error {
 
-	timer := time.NewTimer(heartbeatInterval * time.Second)
+	go h.timeWheel.Start()
 
-	defer timer.Stop()
+	<-ctx.Done()
 
-	for {
-		select {
-		case <-ctx.Done():
-			return nil
-		case <-timer.C:
+	h.timeWheel.Stop()
 
-			h.check()
-
-			timer.Reset(heartbeatInterval * time.Second)
-		}
-	}
+	return errors.New("heartbeat exit")
 }
 
-func (h *heartbeat) check() {
+func (h *heartbeat) handle(timeWheel *timewheel.SimpleTimeWheel, value any) {
+	c, ok := value.(*Client)
+	if !ok {
+		return
+	}
 
-	work := worker.NewTask(10)
+	interval := int(time.Now().Unix() - c.lastTime)
+	if interval > heartbeatTimeout {
+		c.Close(2000, "心跳检测超时，连接自动关闭")
+		return
+	}
 
-	for _, v := range h.node.nodes {
-		node := v
-
-		work.Do(func() {
-
-			ctime := time.Now().Unix()
-
-			node.Range(func(key, value any) bool {
-				c := value.(*Client)
-
-				interval := int(ctime - c.lastTime)
-				if interval > heartbeatTimeout {
-					c.Close(2000, "心跳检测超时，连接自动关闭")
-				} else if interval > heartbeatInterval {
-					// 超过心跳间隔时间则主动推送一次消息
-					_ = c.Write(&ClientOutContent{
-						Content: jsonutil.Marshal(&Message{"SendHeartbeat", "ping"}),
-					})
-				}
-
-				return true
-			})
+	// 超过心跳间隔时间则主动推送一次消息
+	if interval > heartbeatInterval {
+		_ = c.Write(&ClientOutContent{
+			Content: jsonutil.Marshal(&Message{"heartbeat", "ping"}),
 		})
 	}
 
-	work.Wait()
+	_ = timeWheel.Add(c, time.Duration(heartbeatInterval)*time.Second)
 }

@@ -12,7 +12,7 @@ import (
 func NewRedisClient(conf *config.Config) *redis.Client {
 
 	client := redis.NewClient(&redis.Options{
-		Addr:        fmt.Sprintf("%s:%d", conf.Redis.Host, conf.Redis.Port),
+		Addr:        conf.Redis.Host,
 		Password:    conf.Redis.Auth,
 		DB:          conf.Redis.Database,
 		ReadTimeout: -1,

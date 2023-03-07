@@ -5,7 +5,14 @@ import (
 	"encoding/binary"
 	"fmt"
 	"io"
+	"sync"
 )
+
+var bufferPool = sync.Pool{
+	New: func() interface{} {
+		return &bytes.Buffer{}
+	},
+}
 
 // NewEncode 将消息编码
 //
@@ -16,7 +23,7 @@ import (
 //	    size       data
 func NewEncode(data []byte) ([]byte, error) {
 
-	var buf = bytes.NewBuffer(nil)
+	buf := bufferPool.Get().(*bytes.Buffer)
 
 	// 写入消息头
 	// 读取消息的长度，转换成int32类型（占4个字节）
@@ -30,7 +37,11 @@ func NewEncode(data []byte) ([]byte, error) {
 		return nil, err
 	}
 
-	return buf.Bytes(), nil
+	buffer := buf.Bytes()
+	buf.Reset()
+	bufferPool.Put(buf)
+
+	return buffer, nil
 }
 
 // NewDecode 从缓冲区里读取数据

@@ -2,6 +2,7 @@ package chat
 
 import (
 	"context"
+	"log"
 
 	"github.com/go-redis/redis/v8"
 	"go-chat/internal/entity"
@@ -14,10 +15,11 @@ type Handler struct {
 	redis         *redis.Client
 	memberService *service.GroupMemberService
 	handlers      map[string]func(ctx context.Context, client im.IClient, data []byte)
+	message       *service.MessageService
 }
 
-func NewHandler(redis *redis.Client, memberService *service.GroupMemberService) *Handler {
-	return &Handler{redis: redis, memberService: memberService}
+func NewHandler(redis *redis.Client, memberService *service.GroupMemberService, message *service.MessageService) *Handler {
+	return &Handler{redis: redis, memberService: memberService, message: message}
 }
 
 func (h *Handler) Init() {
@@ -46,6 +48,7 @@ func (h *Handler) Call(ctx context.Context, client im.IClient, event string, dat
 	if call, ok := h.handlers[event]; ok {
 		call(ctx, client, data)
 	} else {
+		log.Printf("Chat Event: [%s]未注册回调事件\n", event)
 		logger.Warnf("Chat Event: [%s]未注册回调事件\n", event)
 	}
 }
