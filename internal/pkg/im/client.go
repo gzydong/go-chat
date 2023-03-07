@@ -3,11 +3,12 @@ package im
 import (
 	"context"
 	"fmt"
+	"log"
+	"sync/atomic"
 	"time"
 
 	"github.com/tidwall/gjson"
 	"go-chat/internal/pkg/jsonutil"
-	"go-chat/internal/pkg/logger"
 )
 
 type IClient interface {
@@ -45,10 +46,10 @@ type Client struct {
 	uid      int                    // 用户ID
 	lastTime int64                  // 客户端最后心跳时间/心跳检测
 	channel  *Channel               // 渠道分组
-	isClosed bool                   // 客户端是否关闭连接
-	outChan  chan *ClientOutContent // 发送通道
+	closed   int32                  // 客户端是否关闭连接
 	storage  IStorage               // 缓存服务
 	callBack ICallback              // 回调方法
+	outChan  chan *ClientOutContent // 发送通道
 }
 
 type ClientOption struct {
@@ -66,7 +67,7 @@ func NewClient(ctx context.Context, conn IConn, opt *ClientOption, callBack ICal
 	}
 
 	if callBack == nil {
-		panic("callBack nil")
+		panic("callBack is nil")
 	}
 
 	client := &Client{
@@ -117,24 +118,24 @@ func (c *Client) Uid() int {
 
 // Close 关闭客户端连接
 func (c *Client) Close(code int, message string) {
-	defer func() {
-		_ = c.conn.Close()
-	}()
+	defer c.conn.Close()
 
 	// 触发客户端关闭回调事件
-	_ = c.close(code, message)
+	if err := c.close(code, message); err != nil {
+		log.Printf("[%s-%d-%d] client close err: %s \n", c.channel.Name(), c.cid, c.uid, err.Error())
+	}
 }
 
 // Write 客户端写入数据
 func (c *Client) Write(data *ClientOutContent) error {
 
-	if c.isClosed {
+	if atomic.LoadInt32(&c.closed) == 1 {
 		return fmt.Errorf("connection closed")
 	}
 
 	defer func() {
 		if err := recover(); err != nil {
-			fmt.Printf("client write err :%v \n", err)
+			log.Printf("[%s-%d-%d] client write err: %v \n", c.channel.Name(), c.cid, c.uid, err)
 		}
 	}()
 
@@ -160,15 +161,15 @@ func (c *Client) heartbeat() {
 // 关闭回调
 func (c *Client) close(code int, text string) error {
 
-	if !c.isClosed {
-		c.isClosed = true
-		close(c.outChan) // 关闭通道
-
-		// 触发连接关闭回调
-		c.callBack.Close(c, code, text)
+	if !atomic.CompareAndSwapInt32(&c.closed, 0, 1) {
+		return nil
 	}
 
-	// 解绑关联
+	close(c.outChan)
+
+	// 触发连接关闭回调
+	c.callBack.Close(c, code, text)
+
 	if c.storage != nil {
 		c.storage.UnBind(context.Background(), c.channel.name, c.cid)
 	}
@@ -184,53 +185,53 @@ func (c *Client) close(code int, text string) error {
 
 // 循环接收客户端推送信息
 func (c *Client) loopAccept() {
-	defer func() {
-		_ = c.conn.Close()
-	}()
+	defer c.conn.Close()
 
 	for {
-		// 读取客户端中的数据
-		message, err := c.conn.Read()
+		data, err := c.conn.Read()
 		if err != nil {
 			return
 		}
 
-		// 更新最后心跳时间
 		c.lastTime = time.Now().Unix()
 
-		result := gjson.GetBytes(message, "event")
-		if !result.Exists() {
-			continue
-		}
-
-		switch result.String() {
-		// 心跳消息判断
-		case "heartbeat":
-			_ = c.Write(&ClientOutContent{
-				Content: jsonutil.Marshal(&Message{"heartbeat", "pong"}),
-			})
-
-		// 客户端 ACK 处理
-		case "event.ack":
-		default:
-			// 触发消息回调
-			c.callBack.Message(c, message)
-		}
+		c.message(data)
 	}
 }
 
 // 循环推送客户端信息
 func (c *Client) loopWrite() {
 	for data := range c.outChan {
-		if c.isClosed {
+		if atomic.LoadInt32(&c.closed) == 1 {
 			break
 		}
 
 		if err := c.conn.Write(data.Content); err != nil {
-			fmt.Println(fmt.Sprintf("%d[%d]客户端数据写入失败 Err: %s", c.cid, c.uid, err.Error()))
-			logger.Errorf("%d[%d]客户端数据写入失败 Err: %s", c.cid, c.uid, err.Error())
+			log.Printf("[%s-%d-%d] client push write err: %v \n", c.channel.Name(), c.cid, c.uid, err)
 			break
 		}
+	}
+}
+
+func (c *Client) message(data []byte) {
+
+	res := gjson.GetBytes(data, "event")
+	if !res.Exists() {
+		return
+	}
+
+	switch res.String() {
+	// 心跳消息判断
+	case "heartbeat":
+		_ = c.Write(&ClientOutContent{
+			Content: jsonutil.Marshal(&Message{"heartbeat", "pong"}),
+		})
+
+	// 客户端 ACK 处理
+	case "event.ack":
+	default:
+		// 触发消息回调
+		c.callBack.Message(c, data)
 	}
 }
 

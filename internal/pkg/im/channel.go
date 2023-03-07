@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"sync/atomic"
 	"time"
 
@@ -78,7 +79,7 @@ func (c *Channel) Start(ctx context.Context) error {
 	work := pool.New().WithMaxGoroutines(10)
 
 	defer func() {
-		fmt.Println(fmt.Errorf(fmt.Sprintf("loopPush 退出 %s", c.Name())))
+		log.Println(fmt.Errorf(fmt.Sprintf("loopPush 退出 %s", c.Name())))
 		logger.Error(fmt.Sprintf("loopPush 退出 %s", c.Name()))
 	}()
 
