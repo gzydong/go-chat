@@ -11,17 +11,17 @@ type WsAdapter struct {
 	conn *websocket.Conn
 }
 
+var defaultUpGrader = websocket.Upgrader{
+	ReadBufferSize:  1024,
+	WriteBufferSize: 1024,
+	CheckOrigin: func(r *http.Request) bool {
+		return true
+	},
+}
+
 func NewWsAdapter(w http.ResponseWriter, r *http.Request) (*WsAdapter, error) {
 
-	upGrader := websocket.Upgrader{
-		ReadBufferSize:  1024 * 2, // 指定读缓存区大小
-		WriteBufferSize: 1024 * 2, // 指定写缓存区大小
-		CheckOrigin: func(r *http.Request) bool {
-			return true
-		},
-	}
-
-	conn, err := upGrader.Upgrade(w, r, nil)
+	conn, err := defaultUpGrader.Upgrade(w, r, w.Header())
 	if err != nil {
 		return nil, err
 	}

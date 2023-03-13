@@ -59,7 +59,7 @@ func (h *Handler) Dispatch(conn net.Conn) {
 		fmt.Println(conn.RemoteAddr(), "认证成功==>>>", time.Now().Unix())
 
 		if info.Channel == entity.ImChannelChat {
-			h.Chat.TcpConn(context.Background(), info.Uid, info.conn)
+			_ = h.Chat.NewClient(context.Background(), info.Uid, info.conn)
 		}
 	}
 }

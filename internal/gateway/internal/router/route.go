@@ -37,8 +37,8 @@ func NewRouter(conf *config.Config, handle *handler.Handler, session *cache.Toke
 		})
 	})
 
-	router.GET("/wss/default.io", authorize, ichat.HandlerFunc(handle.Chat.WsConn))
-	router.GET("/wss/example.io", authorize, ichat.HandlerFunc(handle.Example.WsConnect))
+	router.GET("/wss/default.io", authorize, ichat.HandlerFunc(handle.Chat.Conn))
+	router.GET("/wss/example.io", authorize, ichat.HandlerFunc(handle.Example.Conn))
 
 	router.GET("/", func(c *gin.Context) {
 		c.JSON(http.StatusOK, entity.H{"ok": "success"})

@@ -11,8 +11,9 @@ import (
 )
 
 type element struct {
-	value  any   // 任务信息
-	expire int64 // 过期时间
+	key    string // 任务key
+	value  any    // 任务信息
+	expire int64  // 过期时间
 }
 
 type slot struct {
@@ -27,11 +28,11 @@ func newSlot(id int) *slot {
 }
 
 func (s *slot) add(el *element) {
-	s.elements.LoadOrStore(el.value, el)
+	s.elements.LoadOrStore(el.key, el)
 }
 
-func (s *slot) remove(value any) {
-	s.elements.Delete(value)
+func (s *slot) remove(key any) {
+	s.elements.Delete(key)
 }
 
 // 时间轮环

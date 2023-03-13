@@ -3,6 +3,7 @@ package im
 import (
 	"context"
 	"errors"
+	"strconv"
 	"time"
 
 	"go-chat/internal/pkg/jsonutil"
@@ -27,11 +28,11 @@ func init() {
 }
 
 func (h *heartbeat) addClient(c *Client) {
-	_ = h.timeWheel.Add(c, time.Duration(heartbeatInterval)*time.Second)
+	_ = h.timeWheel.Add(strconv.FormatInt(c.cid, 10), c, time.Duration(heartbeatInterval)*time.Second)
 }
 
 func (h *heartbeat) delClient(c *Client) {
-	h.timeWheel.Remove(c)
+	h.timeWheel.Remove(strconv.FormatInt(c.cid, 10))
 }
 
 func (h *heartbeat) Start(ctx context.Context) error {
@@ -45,9 +46,13 @@ func (h *heartbeat) Start(ctx context.Context) error {
 	return errors.New("heartbeat exit")
 }
 
-func (h *heartbeat) handle(timeWheel *timewheel.SimpleTimeWheel, value any) {
+func (h *heartbeat) handle(timeWheel *timewheel.SimpleTimeWheel, key string, value any) {
 	c, ok := value.(*Client)
 	if !ok {
+		return
+	}
+
+	if c.Closed() {
 		return
 	}
 
@@ -64,5 +69,5 @@ func (h *heartbeat) handle(timeWheel *timewheel.SimpleTimeWheel, value any) {
 		})
 	}
 
-	_ = timeWheel.Add(c, time.Duration(heartbeatInterval)*time.Second)
+	_ = timeWheel.Add(strconv.FormatInt(c.cid, 10), c, time.Duration(heartbeatInterval)*time.Second)
 }

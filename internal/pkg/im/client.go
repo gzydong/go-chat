@@ -60,7 +60,7 @@ type ClientOption struct {
 }
 
 // NewClient 初始化客户端信息
-func NewClient(ctx context.Context, conn IConn, opt *ClientOption, callBack ICallback) IClient {
+func NewClient(ctx context.Context, conn IConn, opt *ClientOption, callBack ICallback) error {
 
 	if opt.Buffer <= 0 {
 		opt.Buffer = 10
@@ -126,6 +126,10 @@ func (c *Client) Close(code int, message string) {
 	}
 }
 
+func (c *Client) Closed() bool {
+	return atomic.LoadInt32(&c.closed) == 1
+}
+
 // Write 客户端写入数据
 func (c *Client) Write(data *ClientOutContent) error {
 
@@ -184,13 +188,13 @@ func (c *Client) close(code int, text string) error {
 }
 
 // 循环接收客户端推送信息
-func (c *Client) loopAccept() {
+func (c *Client) loopAccept() error {
 	defer c.conn.Close()
 
 	for {
 		data, err := c.conn.Read()
 		if err != nil {
-			return
+			return err
 		}
 
 		c.lastTime = time.Now().Unix()
@@ -236,15 +240,12 @@ func (c *Client) message(data []byte) {
 }
 
 // 初始化连接
-func (c *Client) initialize() *Client {
+func (c *Client) initialize() error {
 	// 推送心跳检测配置
 	c.heartbeat()
-
-	// 启动协程处理接收信息
-	go c.loopAccept()
 
 	// 启动协程处理推送信息
 	go c.loopWrite()
 
-	return c
+	return c.loopAccept()
 }

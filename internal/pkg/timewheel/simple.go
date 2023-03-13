@@ -21,7 +21,7 @@ type SimpleTimeWheel struct {
 }
 
 // SimpleHandler 处理函数
-type SimpleHandler func(*SimpleTimeWheel, any)
+type SimpleHandler func(*SimpleTimeWheel, string, any)
 
 func NewSimpleTimeWheel(delay time.Duration, numSlot int, handler SimpleHandler) *SimpleTimeWheel {
 	timeWheel := &SimpleTimeWheel{
@@ -57,7 +57,7 @@ func (t *SimpleTimeWheel) Start() {
 
 			circleSlot := t.slot[t.getCircleAndSlot(el)]
 			circleSlot.add(el)
-			t.indicator.Store(el.value, circleSlot)
+			t.indicator.Store(el.key, circleSlot)
 		}
 	}
 }
@@ -90,15 +90,15 @@ func (t *SimpleTimeWheel) run() {
 					return true
 				}
 
-				t.indicator.Delete(el.value)
-				slot.remove(el.value)
+				t.indicator.Delete(el.key)
+				slot.remove(el.key)
 
 				worker.Go(func() {
 					if el.expire <= time.Now().Unix() {
-						t.onTick(t, el.value)
+						t.onTick(t, el.key, el.value)
 					} else {
 						second := el.expire - time.Now().Unix()
-						if err := t.Add(el.value, time.Duration(second)*time.Second); err != nil {
+						if err := t.Add(el.key, el.value, time.Duration(second)*time.Second); err != nil {
 							log.Printf("时间轮降级失败 err:%s", err.Error())
 						}
 					}
@@ -111,18 +111,18 @@ func (t *SimpleTimeWheel) run() {
 }
 
 // Add 添加任务
-func (t *SimpleTimeWheel) Add(task any, delay time.Duration) error {
+func (t *SimpleTimeWheel) Add(key string, task any, delay time.Duration) error {
 
-	t.taskChan <- &element{value: task, expire: time.Now().Add(delay).Unix()}
+	t.taskChan <- &element{key: key, value: task, expire: time.Now().Add(delay).Unix()}
 
 	return nil
 }
 
-func (t *SimpleTimeWheel) Remove(task any) {
-	if value, ok := t.indicator.Load(task); ok {
+func (t *SimpleTimeWheel) Remove(key string) {
+	if value, ok := t.indicator.Load(key); ok {
 		if slot, ok := value.(*slot); ok {
-			slot.remove(task)
-			t.indicator.Delete(task)
+			slot.remove(key)
+			t.indicator.Delete(key)
 		}
 	}
 }
