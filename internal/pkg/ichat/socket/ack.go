@@ -48,7 +48,7 @@ func (a *AckBuffer) remove(ackKey string) {
 	a.timeWheel.Remove(ackKey)
 }
 
-func (a *AckBuffer) handle(timeWheel *timewheel.SimpleTimeWheel, key string, value any) {
+func (a *AckBuffer) handle(_ *timewheel.SimpleTimeWheel, key string, value any) {
 	buffer, ok := value.(*AckBufferBody)
 	if !ok {
 		return
