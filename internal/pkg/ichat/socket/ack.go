@@ -1,7 +1,8 @@
 package socket
 
 import (
-	"fmt"
+	"context"
+	"errors"
 	"time"
 
 	"go-chat/internal/pkg/timewheel"
@@ -16,15 +17,27 @@ type AckBuffer struct {
 }
 
 type AckBufferBody struct {
-	Cid  int64  `json:"cid"`
-	Uid  int64  `json:"uid"`
-	Ch   string `json:"ch"`
-	Body []byte `json:"body"`
+	Cid   int64  `json:"cid"`
+	Uid   int64  `json:"uid"`
+	Ch    string `json:"ch"`
+	Retry int    `json:"retry"`
+	Body  []byte `json:"body"`
 }
 
 func init() {
 	ack = &AckBuffer{}
 	ack.timeWheel = timewheel.NewSimpleTimeWheel(1*time.Second, 30, ack.handle)
+}
+
+func (a *AckBuffer) Start(ctx context.Context) error {
+
+	go a.timeWheel.Start()
+
+	<-ctx.Done()
+
+	a.timeWheel.Stop()
+
+	return errors.New("AckBuffer exit")
 }
 
 func (a *AckBuffer) add(ackKey string, value *AckBufferBody) {
@@ -41,6 +54,20 @@ func (a *AckBuffer) handle(timeWheel *timewheel.SimpleTimeWheel, key string, val
 		return
 	}
 
-	// TODO: 重发消息，需要检测客户端是否已断开，如果已断开则不需要重发
-	fmt.Println(buffer)
+	// 重发消息，需要检测客户端是否已断开，如果已断开则不需要重发
+	client, ok := Session.Chat.Client(buffer.Cid)
+	if !ok {
+		return
+	}
+
+	if int64(client.uid) != buffer.Uid {
+		return
+	}
+
+	client.Write(&ClientOutContent{
+		AckId:   key,
+		IsAck:   true,
+		Retry:   buffer.Retry,
+		Content: buffer.Body,
+	})
 }

@@ -41,6 +41,11 @@ func initialize(ctx context.Context, eg *errgroup.Group, fn func(name string)) {
 		})
 
 		eg.Go(func() error {
+			defer fn("ack exit")
+			return ack.Start(ctx)
+		})
+
+		eg.Go(func() error {
 			defer fn("chat exit")
 			return Session.Chat.Start(ctx)
 		})

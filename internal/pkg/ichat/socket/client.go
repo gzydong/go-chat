@@ -175,13 +175,13 @@ func (c *Client) close(code int, text string) error {
 }
 
 // 循环接收客户端推送信息
-func (c *Client) loopAccept() error {
+func (c *Client) loopAccept() {
 	defer c.conn.Close()
 
 	for {
 		data, err := c.conn.Read()
 		if err != nil {
-			return err
+			break
 		}
 
 		c.lastTime = time.Now().Unix()
@@ -200,6 +200,16 @@ func (c *Client) loopWrite() {
 		if err := c.conn.Write(data.Content); err != nil {
 			log.Printf("[%s-%d-%d] client push write err: %v \n", c.channel.Name(), c.cid, c.uid, err)
 			break
+		}
+
+		if data.IsAck && data.Retry > 0 {
+			ack.add(data.AckId, &AckBufferBody{
+				Cid:   c.cid,
+				Uid:   int64(c.uid),
+				Ch:    c.channel.name,
+				Retry: data.Retry - 1,
+				Body:  data.Content,
+			})
 		}
 	}
 }
@@ -220,6 +230,7 @@ func (c *Client) message(data []byte) {
 
 	// 客户端 ACK 处理
 	case "event.ack":
+		// ack.remove("")
 	default:
 		// 触发消息回调
 		c.callBack.Message(c, data)

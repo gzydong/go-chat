@@ -7,10 +7,12 @@ import (
 
 	"go-chat/api/pb/message/v1"
 	"go-chat/internal/pkg/ichat/socket"
+	"go-chat/internal/pkg/jsonutil"
 )
 
 type TextMessage struct {
 	MsgId string                     `json:"msg_id"`
+	AckId string                     `json:"ack_id"`
 	Event string                     `json:"event"`
 	Body  message.TextMessageRequest `json:"body"`
 }
@@ -24,9 +26,7 @@ func (h *Handler) OnTextMessage(ctx context.Context, client socket.IClient, data
 		return
 	}
 
-	// fmt.Println("[TextMessage] 新消息 ", string(data))
-
-	h.message.SendText(ctx, client.Uid(), &message.TextMessageRequest{
+	err := h.message.SendText(ctx, client.Uid(), &message.TextMessageRequest{
 		Content: m.Body.Content,
 		Receiver: &message.MessageReceiver{
 			TalkType:   m.Body.Receiver.TalkType,
@@ -34,13 +34,20 @@ func (h *Handler) OnTextMessage(ctx context.Context, client socket.IClient, data
 		},
 	})
 
-	// _ = client.Write(&im.ClientOutContent{
-	// 	AckId: strutil.NewMsgId(),
-	// 	IsAck: false,
-	// 	Retry: 0,
-	// 	Content: []byte(jsonutil.Encode(map[string]any{
-	// 		"event":  "ack",
-	// 		"ack_id": m.MsgId,
-	// 	})),
-	// })
+	if err != nil {
+		log.Printf("Chat OnTextMessage err: %s", err.Error())
+		return
+	}
+
+	err = client.Write(&socket.ClientOutContent{
+		Content: []byte(jsonutil.Encode(map[string]any{
+			"event":  "ack",
+			"ack_id": m.AckId,
+		})),
+	})
+
+	if err != nil {
+		log.Printf("Chat OnTextMessage ack err: %s", err.Error())
+		return
+	}
 }

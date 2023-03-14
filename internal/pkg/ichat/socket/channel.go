@@ -11,6 +11,7 @@ import (
 
 	cmap "github.com/orcaman/concurrent-map/v2"
 	"github.com/sourcegraph/conc/pool"
+	"go-chat/internal/pkg/strutil"
 )
 
 type IChannel interface {
@@ -104,7 +105,7 @@ func (c *Channel) Start(ctx context.Context) error {
 				} else {
 					for _, cid := range bodyContent.receives {
 						if client, ok := c.Client(cid); ok {
-							_ = client.Write(&ClientOutContent{Content: content})
+							_ = client.Write(&ClientOutContent{Content: content, IsAck: false, AckId: strutil.NewUuid(), Retry: 5})
 						}
 					}
 				}
