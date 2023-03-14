@@ -47,9 +47,15 @@ func (u *User) Setting(ctx *ichat.Context) error {
 
 	uid := ctx.UserId()
 
-	user, _ := u.service.Dao().FindById(ctx.Ctx(), uid)
+	user, err := u.service.Dao().FindById(ctx.Ctx(), uid)
+	if err != nil {
+		return ctx.Error(err.Error())
+	}
 
-	isOk, _ := u.organizeServ.Dao().IsQiyeMember(ctx.Ctx(), uid)
+	isOk, err := u.organizeServ.Dao().IsQiyeMember(ctx.Ctx(), uid)
+	if err != nil {
+		return ctx.Error(err.Error())
+	}
 
 	return ctx.Success(&web.UserSettingResponse{
 		UserInfo: &web.UserSettingResponse_UserInfo{
@@ -104,7 +110,6 @@ func (u *User) ChangePassword(ctx *ichat.Context) error {
 	}
 
 	uid := ctx.UserId()
-
 	if uid == 2054 || uid == 2055 {
 		return ctx.ErrorBusiness("预览账号不支持修改密码！")
 	}
@@ -125,7 +130,6 @@ func (u *User) ChangeMobile(ctx *ichat.Context) error {
 	}
 
 	uid := ctx.UserId()
-
 	if uid == 2054 || uid == 2055 {
 		return ctx.ErrorBusiness("预览账号不支持修改手机号！")
 	}

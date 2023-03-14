@@ -3,6 +3,7 @@ package cache
 import (
 	"context"
 	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/go-redis/redis/v8"
@@ -29,12 +30,20 @@ func (c *ContactRemark) MGet(ctx context.Context, uid int, fids []int) (map[int]
 
 	values := make([]string, 0, len(fids))
 	for _, value := range fids {
-		values = append(values, fmt.Sprintf("%d", value))
+		values = append(values, strconv.Itoa(value))
 	}
 
-	items := c.rds.HMGet(ctx, c.name(uid), values...).Val()
-
 	remarks := make(map[int]string)
+
+	items, err := c.rds.HMGet(ctx, c.name(uid), values...).Result()
+	if err != nil {
+		return nil, err
+	}
+
+	if len(items) == 0 {
+		return remarks, nil
+	}
+
 	for k, v := range fids {
 		if items[k] != nil {
 			remarks[v] = items[k].(string)

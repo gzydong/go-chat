@@ -29,8 +29,8 @@ func Initialize(ctx context.Context, eg *errgroup.Group, fn func(name string)) {
 
 func initialize(ctx context.Context, eg *errgroup.Group, fn func(name string)) {
 	Session = &session{
-		Chat:    NewChannel("chat", NewNode(10), make(chan *SenderContent, 5<<20)),
-		Example: NewChannel("example", NewNode(1), make(chan *SenderContent, 100)),
+		Chat:    NewChannel("chat", make(chan *SenderContent, 5<<20)),
+		Example: NewChannel("example", make(chan *SenderContent, 100)),
 	}
 
 	// 延时启动守护协程

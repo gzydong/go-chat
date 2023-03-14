@@ -98,7 +98,7 @@ func NewClient(ctx context.Context, conn IConn, opt *ClientOption, callBack ICal
 	// 注册心跳管理
 	health.addClient(client)
 
-	return client.initialize()
+	return client.init()
 }
 
 // ChannelName Channel Name
@@ -133,7 +133,7 @@ func (c *Client) Closed() bool {
 // Write 客户端写入数据
 func (c *Client) Write(data *ClientOutContent) error {
 
-	if atomic.LoadInt32(&c.closed) == 1 {
+	if c.Closed() {
 		return fmt.Errorf("connection closed")
 	}
 
@@ -147,19 +147,6 @@ func (c *Client) Write(data *ClientOutContent) error {
 	c.outChan <- data
 
 	return nil
-}
-
-// 推送心跳检测配置
-func (c *Client) heartbeat() {
-	_ = c.Write(&ClientOutContent{
-		Content: jsonutil.Marshal(&Message{
-			Event: "connect",
-			Content: map[string]any{
-				"ping_interval": heartbeatInterval,
-				"ping_timeout":  heartbeatTimeout,
-			},
-		}),
-	})
 }
 
 // 关闭回调
@@ -206,7 +193,7 @@ func (c *Client) loopAccept() error {
 // 循环推送客户端信息
 func (c *Client) loopWrite() {
 	for data := range c.outChan {
-		if atomic.LoadInt32(&c.closed) == 1 {
+		if c.Closed() {
 			break
 		}
 
@@ -219,14 +206,14 @@ func (c *Client) loopWrite() {
 
 func (c *Client) message(data []byte) {
 
-	res := gjson.GetBytes(data, "event")
-	if !res.Exists() {
+	event := gjson.GetBytes(data, "event").String()
+	if len(event) == 0 {
 		return
 	}
 
-	switch res.String() {
+	switch event {
 	// 心跳消息判断
-	case "heartbeat":
+	case "heartbeat", "event.heartbeat":
 		_ = c.Write(&ClientOutContent{
 			Content: jsonutil.Marshal(&Message{"heartbeat", "pong"}),
 		})
@@ -240,12 +227,23 @@ func (c *Client) message(data []byte) {
 }
 
 // 初始化连接
-func (c *Client) initialize() error {
+func (c *Client) init() error {
+
 	// 推送心跳检测配置
-	c.heartbeat()
+	_ = c.Write(&ClientOutContent{
+		Content: jsonutil.Marshal(&Message{
+			Event: "connect",
+			Content: map[string]any{
+				"ping_interval": heartbeatInterval,
+				"ping_timeout":  heartbeatTimeout,
+			},
+		}),
+	})
 
 	// 启动协程处理推送信息
 	go c.loopWrite()
 
-	return c.loopAccept()
+	go c.loopAccept()
+
+	return nil
 }
