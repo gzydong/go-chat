@@ -6,7 +6,7 @@ import (
 
 	"github.com/go-redis/redis/v8"
 	"go-chat/internal/entity"
-	"go-chat/internal/pkg/im"
+	"go-chat/internal/pkg/ichat/socket"
 	"go-chat/internal/pkg/logger"
 	"go-chat/internal/service"
 )
@@ -14,7 +14,7 @@ import (
 type Handler struct {
 	redis         *redis.Client
 	memberService *service.GroupMemberService
-	handlers      map[string]func(ctx context.Context, client im.IClient, data []byte)
+	handlers      map[string]func(ctx context.Context, client socket.IClient, data []byte)
 	message       *service.MessageService
 }
 
@@ -24,7 +24,7 @@ func NewHandler(redis *redis.Client, memberService *service.GroupMemberService, 
 
 func (h *Handler) Init() {
 
-	h.handlers = make(map[string]func(ctx context.Context, client im.IClient, data []byte))
+	h.handlers = make(map[string]func(ctx context.Context, client socket.IClient, data []byte))
 
 	// 注册自定义绑定事件
 	h.handlers[entity.EventTalkKeyboard] = h.OnKeyboardMessage
@@ -39,7 +39,7 @@ func (h *Handler) Init() {
 	h.handlers["event.talk.vote.message"] = h.OnVoteMessage
 }
 
-func (h *Handler) Call(ctx context.Context, client im.IClient, event string, data []byte) {
+func (h *Handler) Call(ctx context.Context, client socket.IClient, event string, data []byte) {
 
 	if h.handlers == nil {
 		h.Init()

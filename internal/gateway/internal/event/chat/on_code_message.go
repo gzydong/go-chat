@@ -7,7 +7,7 @@ import (
 	"log"
 
 	"go-chat/api/pb/message/v1"
-	"go-chat/internal/pkg/im"
+	"go-chat/internal/pkg/ichat/socket"
 )
 
 type CodeMessage struct {
@@ -17,7 +17,7 @@ type CodeMessage struct {
 }
 
 // OnCodeMessage 代码消息
-func (h *Handler) OnCodeMessage(ctx context.Context, _ im.IClient, data []byte) {
+func (h *Handler) OnCodeMessage(ctx context.Context, _ socket.IClient, data []byte) {
 
 	var m *CodeMessage
 	if err := json.Unmarshal(data, &m); err != nil {

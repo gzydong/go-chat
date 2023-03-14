@@ -6,7 +6,7 @@ import (
 	"log"
 
 	"go-chat/api/pb/message/v1"
-	"go-chat/internal/pkg/im"
+	"go-chat/internal/pkg/ichat/socket"
 )
 
 type TextMessage struct {
@@ -16,7 +16,7 @@ type TextMessage struct {
 }
 
 // OnTextMessage 文本消息
-func (h *Handler) OnTextMessage(ctx context.Context, client im.IClient, data []byte) {
+func (h *Handler) OnTextMessage(ctx context.Context, client socket.IClient, data []byte) {
 
 	var m *TextMessage
 	if err := json.Unmarshal(data, &m); err != nil {

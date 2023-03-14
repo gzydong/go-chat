@@ -7,7 +7,7 @@ import (
 	"log"
 
 	"go-chat/api/pb/message/v1"
-	"go-chat/internal/pkg/im"
+	"go-chat/internal/pkg/ichat/socket"
 )
 
 type ImageMessage struct {
@@ -17,7 +17,7 @@ type ImageMessage struct {
 }
 
 // OnImageMessage 图片消息
-func (h *Handler) OnImageMessage(ctx context.Context, _ im.IClient, data []byte) {
+func (h *Handler) OnImageMessage(ctx context.Context, _ socket.IClient, data []byte) {
 
 	var m *ImageMessage
 	if err := json.Unmarshal(data, &m); err != nil {

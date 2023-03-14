@@ -10,7 +10,7 @@ import (
 	"github.com/tidwall/gjson"
 	"go-chat/config"
 	"go-chat/internal/entity"
-	"go-chat/internal/pkg/im/adapter"
+	"go-chat/internal/pkg/ichat/socket/adapter"
 	"go-chat/internal/pkg/jsonutil"
 	"go-chat/internal/pkg/jwt"
 	"go-chat/internal/pkg/logger"

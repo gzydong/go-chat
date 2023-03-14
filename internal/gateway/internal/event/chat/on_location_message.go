@@ -7,7 +7,7 @@ import (
 	"log"
 
 	"go-chat/api/pb/message/v1"
-	"go-chat/internal/pkg/im"
+	"go-chat/internal/pkg/ichat/socket"
 )
 
 type LocationMessageMessage struct {
@@ -17,7 +17,7 @@ type LocationMessageMessage struct {
 }
 
 // OnLocationMessage 位置消息
-func (h *Handler) OnLocationMessage(ctx context.Context, _ im.IClient, data []byte) {
+func (h *Handler) OnLocationMessage(ctx context.Context, _ socket.IClient, data []byte) {
 
 	var m *LocationMessageMessage
 	if err := json.Unmarshal(data, &m); err != nil {

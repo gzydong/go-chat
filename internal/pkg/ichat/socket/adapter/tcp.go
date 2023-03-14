@@ -5,7 +5,7 @@ import (
 	"io"
 	"net"
 
-	"go-chat/internal/pkg/im/adapter/encoding"
+	"go-chat/internal/pkg/ichat/socket/adapter/encoding"
 )
 
 // TcpAdapter TCP 适配器

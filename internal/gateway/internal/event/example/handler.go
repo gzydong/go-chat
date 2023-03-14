@@ -3,23 +3,23 @@ package example
 import (
 	"context"
 
-	"go-chat/internal/pkg/im"
+	"go-chat/internal/pkg/ichat/socket"
 	"go-chat/internal/pkg/logger"
 )
 
 type Handler struct {
-	handlers map[string]func(ctx context.Context, client im.IClient, data []byte)
+	handlers map[string]func(ctx context.Context, client socket.IClient, data []byte)
 }
 
 func (h *Handler) Init() {
 
-	h.handlers = make(map[string]func(ctx context.Context, client im.IClient, data []byte))
+	h.handlers = make(map[string]func(ctx context.Context, client socket.IClient, data []byte))
 
 	// 注册自定义绑定事件
 	// h.handlers[entity.EventTalkKeyboard] = h.OnKeyboardMessage
 }
 
-func (h *Handler) Call(ctx context.Context, client im.IClient, event string, data []byte) {
+func (h *Handler) Call(ctx context.Context, client socket.IClient, event string, data []byte) {
 
 	if h.handlers == nil {
 		h.Init()

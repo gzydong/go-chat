@@ -7,7 +7,7 @@ import (
 	"log"
 
 	"go-chat/api/pb/message/v1"
-	"go-chat/internal/pkg/im"
+	"go-chat/internal/pkg/ichat/socket"
 )
 
 type VoteMessage struct {
@@ -17,7 +17,7 @@ type VoteMessage struct {
 }
 
 // OnVoteMessage 文本消息
-func (h *Handler) OnVoteMessage(ctx context.Context, _ im.IClient, data []byte) {
+func (h *Handler) OnVoteMessage(ctx context.Context, _ socket.IClient, data []byte) {
 
 	var m *VoteMessage
 	if err := json.Unmarshal(data, &m); err != nil {

@@ -10,7 +10,7 @@ import (
 	"go-chat/config"
 	"go-chat/internal/entity"
 	"go-chat/internal/gateway/internal/event/chat"
-	"go-chat/internal/pkg/im"
+	"go-chat/internal/pkg/ichat/socket"
 	"go-chat/internal/pkg/jsonutil"
 	"go-chat/internal/repository/cache"
 	"go-chat/internal/service"
@@ -29,7 +29,7 @@ func NewChatEvent(redis *redis.Client, config *config.Config, roomStorage *cache
 }
 
 // OnOpen 连接成功回调事件
-func (d *ChatEvent) OnOpen(client im.IClient) {
+func (d *ChatEvent) OnOpen(client socket.IClient) {
 
 	ctx := context.Background()
 
@@ -40,7 +40,7 @@ func (d *ChatEvent) OnOpen(client im.IClient) {
 	rooms := make([]*cache.RoomOption, 0, len(ids))
 	for _, id := range ids {
 		rooms = append(rooms, &cache.RoomOption{
-			Channel:  im.Session.Chat.Name(),
+			Channel:  socket.Session.Chat.Name(),
 			RoomType: entity.RoomImGroup,
 			Number:   strconv.Itoa(id),
 			Sid:      d.config.ServerId(),
@@ -63,7 +63,7 @@ func (d *ChatEvent) OnOpen(client im.IClient) {
 }
 
 // OnMessage 消息回调事件
-func (d *ChatEvent) OnMessage(client im.IClient, message []byte) {
+func (d *ChatEvent) OnMessage(client socket.IClient, message []byte) {
 
 	// 获取事件名
 	event := gjson.GetBytes(message, "event").String()
@@ -74,7 +74,7 @@ func (d *ChatEvent) OnMessage(client im.IClient, message []byte) {
 }
 
 // OnClose 连接关闭回调事件
-func (d *ChatEvent) OnClose(client im.IClient, code int, text string) {
+func (d *ChatEvent) OnClose(client socket.IClient, code int, text string) {
 	// 1.判断用户是否是多点登录
 
 	ctx := context.Background()
@@ -86,7 +86,7 @@ func (d *ChatEvent) OnClose(client im.IClient, code int, text string) {
 	rooms := make([]*cache.RoomOption, 0, len(ids))
 	for _, id := range ids {
 		rooms = append(rooms, &cache.RoomOption{
-			Channel:  im.Session.Chat.Name(),
+			Channel:  socket.Session.Chat.Name(),
 			RoomType: entity.RoomImGroup,
 			Number:   strconv.Itoa(id),
 			Sid:      d.config.ServerId(),

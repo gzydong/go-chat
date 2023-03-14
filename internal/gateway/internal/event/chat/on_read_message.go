@@ -5,7 +5,7 @@ import (
 	"log"
 
 	"go-chat/internal/entity"
-	"go-chat/internal/pkg/im"
+	"go-chat/internal/pkg/ichat/socket"
 	"go-chat/internal/pkg/jsonutil"
 	"go-chat/internal/repository/model"
 )
@@ -19,7 +19,7 @@ type TalkReadMessage struct {
 }
 
 // OnReadMessage 消息已读事件
-func (h *Handler) OnReadMessage(ctx context.Context, client im.IClient, data []byte) {
+func (h *Handler) OnReadMessage(ctx context.Context, client socket.IClient, data []byte) {
 
 	var m *TalkReadMessage
 	if err := jsonutil.Decode(data, &m); err != nil {

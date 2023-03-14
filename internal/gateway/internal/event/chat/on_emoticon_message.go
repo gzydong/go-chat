@@ -7,7 +7,7 @@ import (
 	"log"
 
 	"go-chat/api/pb/message/v1"
-	"go-chat/internal/pkg/im"
+	"go-chat/internal/pkg/ichat/socket"
 )
 
 type EmoticonMessage struct {
@@ -17,7 +17,7 @@ type EmoticonMessage struct {
 }
 
 // OnEmoticonMessage 表情包消息
-func (h *Handler) OnEmoticonMessage(ctx context.Context, _ im.IClient, data []byte) {
+func (h *Handler) OnEmoticonMessage(ctx context.Context, _ socket.IClient, data []byte) {
 
 	var m *EmoticonMessage
 	if err := json.Unmarshal(data, &m); err != nil {

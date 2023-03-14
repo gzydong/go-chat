@@ -15,7 +15,7 @@ import (
 	"github.com/urfave/cli/v2"
 	"go-chat/config"
 	"go-chat/internal/pkg/email"
-	"go-chat/internal/pkg/im"
+	"go-chat/internal/pkg/ichat/socket"
 	"go-chat/internal/pkg/logger"
 	"golang.org/x/sync/errgroup"
 )
@@ -53,7 +53,7 @@ func newApp(tx *cli.Context) error {
 	app := Initialize(conf)
 
 	// 初始化 IM 渠道配置
-	im.Initialize(groupCtx, eg, func(name string) {
+	socket.Initialize(groupCtx, eg, func(name string) {
 		emailClient := app.Providers.EmailClient
 		if conf.App.Env == "prod" {
 			_ = emailClient.SendMail(&email.Option{

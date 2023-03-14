@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"go-chat/internal/pkg/im/adapter/encoding"
+	"go-chat/internal/pkg/ichat/socket/adapter/encoding"
 	"go-chat/internal/pkg/jsonutil"
 	"go-chat/internal/pkg/logger"
 	"go-chat/internal/pkg/strutil"

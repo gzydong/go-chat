@@ -1,4 +1,4 @@
-package im
+package socket
 
 // Message 客户端交互的消息体
 type Message struct {

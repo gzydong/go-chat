@@ -6,7 +6,7 @@ import (
 
 	"github.com/tidwall/gjson"
 	"go-chat/internal/gateway/internal/event/example"
-	"go-chat/internal/pkg/im"
+	"go-chat/internal/pkg/ichat/socket"
 )
 
 type ExampleEvent struct {
@@ -17,11 +17,11 @@ func NewExampleEvent() *ExampleEvent {
 	return &ExampleEvent{}
 }
 
-func (e *ExampleEvent) OnOpen(client im.IClient) {
+func (e *ExampleEvent) OnOpen(client socket.IClient) {
 	fmt.Printf("客户端[%d] 已连接\n", client.Cid())
 }
 
-func (e *ExampleEvent) OnMessage(client im.IClient, message []byte) {
+func (e *ExampleEvent) OnMessage(client socket.IClient, message []byte) {
 
 	fmt.Println("接收消息===>>>", message)
 
@@ -32,6 +32,6 @@ func (e *ExampleEvent) OnMessage(client im.IClient, message []byte) {
 	}
 }
 
-func (e *ExampleEvent) OnClose(client im.IClient, code int, text string) {
+func (e *ExampleEvent) OnClose(client socket.IClient, code int, text string) {
 	fmt.Printf("客户端[%d] 已关闭连接，关闭提示【%d】%s \n", client.Cid(), code, text)
 }

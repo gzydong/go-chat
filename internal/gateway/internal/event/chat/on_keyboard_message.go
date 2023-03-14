@@ -6,7 +6,7 @@ import (
 	"log"
 
 	"go-chat/internal/entity"
-	"go-chat/internal/pkg/im"
+	"go-chat/internal/pkg/ichat/socket"
 	"go-chat/internal/pkg/jsonutil"
 )
 
@@ -19,7 +19,7 @@ type KeyboardMessage struct {
 }
 
 // OnKeyboardMessage 键盘输入事件
-func (h *Handler) OnKeyboardMessage(ctx context.Context, _ im.IClient, data []byte) {
+func (h *Handler) OnKeyboardMessage(ctx context.Context, _ socket.IClient, data []byte) {
 
 	var m *KeyboardMessage
 	if err := json.Unmarshal(data, &m); err != nil {

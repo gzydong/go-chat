@@ -1,4 +1,4 @@
-package im
+package socket
 
 import "sync/atomic"
 

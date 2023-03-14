@@ -6,8 +6,8 @@ import (
 
 	"go-chat/internal/gateway/internal/event"
 	"go-chat/internal/pkg/ichat"
-	"go-chat/internal/pkg/im"
-	"go-chat/internal/pkg/im/adapter"
+	"go-chat/internal/pkg/ichat/socket"
+	"go-chat/internal/pkg/ichat/socket/adapter"
 	"go-chat/internal/repository/cache"
 )
 
@@ -32,18 +32,18 @@ func (c *ChatChannel) Conn(ctx *ichat.Context) error {
 	return c.NewClient(ctx.Ctx(), ctx.UserId(), conn)
 }
 
-func (c *ChatChannel) NewClient(ctx context.Context, uid int, conn im.IConn) error {
-	return im.NewClient(ctx, conn, &im.ClientOption{
+func (c *ChatChannel) NewClient(ctx context.Context, uid int, conn socket.IConn) error {
+	return socket.NewClient(ctx, conn, &socket.ClientOption{
 		Uid:     uid,
-		Channel: im.Session.Chat,
+		Channel: socket.Session.Chat,
 		Storage: c.storage,
 		Buffer:  10,
-	}, im.NewClientCallback(
+	}, socket.NewClientCallback(
 		// 连接成功回调事件
-		im.WithOpenCallback(c.event.OnOpen),
+		socket.WithOpenCallback(c.event.OnOpen),
 		// 接收消息回调
-		im.WithMessageCallback(c.event.OnMessage),
+		socket.WithMessageCallback(c.event.OnMessage),
 		// 关闭连接回调
-		im.WithCloseCallback(c.event.OnClose),
+		socket.WithCloseCallback(c.event.OnClose),
 	))
 }

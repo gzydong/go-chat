@@ -7,7 +7,7 @@ import (
 	"log"
 
 	"go-chat/api/pb/message/v1"
-	"go-chat/internal/pkg/im"
+	"go-chat/internal/pkg/ichat/socket"
 )
 
 type FileMessage struct {
@@ -17,7 +17,7 @@ type FileMessage struct {
 }
 
 // OnFileMessage 文本消息
-func (h *Handler) OnFileMessage(ctx context.Context, _ im.IClient, data []byte) {
+func (h *Handler) OnFileMessage(ctx context.Context, _ socket.IClient, data []byte) {
 
 	var m *FileMessage
 	if err := json.Unmarshal(data, &m); err != nil {

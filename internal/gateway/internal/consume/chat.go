@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"strconv"
 
+	"go-chat/internal/pkg/ichat/socket"
 	"go-chat/internal/pkg/logger"
 	"go-chat/internal/pkg/timeutil"
 	"go-chat/internal/repository/cache"
@@ -13,7 +14,6 @@ import (
 
 	"go-chat/config"
 	"go-chat/internal/entity"
-	"go-chat/internal/pkg/im"
 	"go-chat/internal/pkg/jsonutil"
 	"go-chat/internal/service"
 )
@@ -79,13 +79,13 @@ func (s *ChatSubscribe) onConsumeTalk(body string) {
 	cids := make([]int64, 0)
 	if msg.TalkType == entity.ChatPrivateMode {
 		for _, val := range [2]int64{msg.SenderID, msg.ReceiverID} {
-			ids := s.clientStorage.GetUidFromClientIds(ctx, s.config.ServerId(), im.Session.Chat.Name(), strconv.Itoa(int(val)))
+			ids := s.clientStorage.GetUidFromClientIds(ctx, s.config.ServerId(), socket.Session.Chat.Name(), strconv.Itoa(int(val)))
 
 			cids = append(cids, ids...)
 		}
 	} else if msg.TalkType == entity.ChatGroupMode {
 		ids := s.roomStorage.All(ctx, &cache.RoomOption{
-			Channel:  im.Session.Chat.Name(),
+			Channel:  socket.Session.Chat.Name(),
 			RoomType: entity.RoomImGroup,
 			Number:   strconv.Itoa(int(msg.ReceiverID)),
 			Sid:      s.config.ServerId(),
@@ -105,9 +105,9 @@ func (s *ChatSubscribe) onConsumeTalk(body string) {
 		return
 	}
 
-	c := im.NewSenderContent()
+	c := socket.NewSenderContent()
 	c.SetReceive(cids...)
-	c.SetMessage(&im.Message{
+	c.SetMessage(&socket.Message{
 		Event: entity.EventTalk,
 		Content: entity.MapStrAny{
 			"sender_id":   msg.SenderID,
@@ -117,7 +117,7 @@ func (s *ChatSubscribe) onConsumeTalk(body string) {
 		},
 	})
 
-	im.Session.Chat.Write(c)
+	socket.Session.Chat.Write(c)
 }
 
 // onConsumeTalkKeyboard 键盘输入事件消息
@@ -132,15 +132,15 @@ func (s *ChatSubscribe) onConsumeTalkKeyboard(body string) {
 		return
 	}
 
-	cids := s.clientStorage.GetUidFromClientIds(context.Background(), s.config.ServerId(), im.Session.Chat.Name(), strconv.Itoa(msg.ReceiverID))
+	cids := s.clientStorage.GetUidFromClientIds(context.Background(), s.config.ServerId(), socket.Session.Chat.Name(), strconv.Itoa(msg.ReceiverID))
 
 	if len(cids) == 0 {
 		return
 	}
 
-	c := im.NewSenderContent()
+	c := socket.NewSenderContent()
 	c.SetReceive(cids...)
-	c.SetMessage(&im.Message{
+	c.SetMessage(&socket.Message{
 		Event: entity.EventTalkKeyboard,
 		Content: entity.MapStrAny{
 			"sender_id":   msg.SenderID,
@@ -148,7 +148,7 @@ func (s *ChatSubscribe) onConsumeTalkKeyboard(body string) {
 		},
 	})
 
-	im.Session.Chat.Write(c)
+	socket.Session.Chat.Write(c)
 }
 
 // onConsumeLogin 用户上线或下线消息
@@ -169,7 +169,7 @@ func (s *ChatSubscribe) onConsumeLogin(body string) {
 	uids := s.contactService.GetContactIds(ctx, msg.UserID)
 	sid := s.config.ServerId()
 	for _, uid := range uids {
-		ids := s.clientStorage.GetUidFromClientIds(ctx, sid, im.Session.Chat.Name(), fmt.Sprintf("%d", uid))
+		ids := s.clientStorage.GetUidFromClientIds(ctx, sid, socket.Session.Chat.Name(), fmt.Sprintf("%d", uid))
 
 		cids = append(cids, ids...)
 	}
@@ -178,14 +178,14 @@ func (s *ChatSubscribe) onConsumeLogin(body string) {
 		return
 	}
 
-	c := im.NewSenderContent()
+	c := socket.NewSenderContent()
 	c.SetReceive(cids...)
-	c.SetMessage(&im.Message{
+	c.SetMessage(&socket.Message{
 		Event:   entity.EventOnlineStatus,
 		Content: msg,
 	})
 
-	im.Session.Chat.Write(c)
+	socket.Session.Chat.Write(c)
 }
 
 // onConsumeTalkRevoke 撤销聊天消息
@@ -210,12 +210,12 @@ func (s *ChatSubscribe) onConsumeTalkRevoke(body string) {
 	cids := make([]int64, 0)
 	if record.TalkType == entity.ChatPrivateMode {
 		for _, uid := range [2]int{record.UserId, record.ReceiverId} {
-			ids := s.clientStorage.GetUidFromClientIds(ctx, s.config.ServerId(), im.Session.Chat.Name(), strconv.Itoa(uid))
+			ids := s.clientStorage.GetUidFromClientIds(ctx, s.config.ServerId(), socket.Session.Chat.Name(), strconv.Itoa(uid))
 			cids = append(cids, ids...)
 		}
 	} else if record.TalkType == entity.ChatGroupMode {
 		cids = s.roomStorage.All(ctx, &cache.RoomOption{
-			Channel:  im.Session.Chat.Name(),
+			Channel:  socket.Session.Chat.Name(),
 			RoomType: entity.RoomImGroup,
 			Number:   strconv.Itoa(record.ReceiverId),
 			Sid:      s.config.ServerId(),
@@ -226,9 +226,9 @@ func (s *ChatSubscribe) onConsumeTalkRevoke(body string) {
 		return
 	}
 
-	c := im.NewSenderContent()
+	c := socket.NewSenderContent()
 	c.SetReceive(cids...)
-	c.SetMessage(&im.Message{
+	c.SetMessage(&socket.Message{
 		Event: entity.EventTalkRevoke,
 		Content: entity.MapStrAny{
 			"talk_type":   record.TalkType,
@@ -238,7 +238,7 @@ func (s *ChatSubscribe) onConsumeTalkRevoke(body string) {
 		},
 	})
 
-	im.Session.Chat.Write(c)
+	socket.Session.Chat.Write(c)
 }
 
 // nolint onConsumeContactApply 好友申请消息
@@ -261,7 +261,7 @@ func (s *ChatSubscribe) onConsumeContactApply(body string) {
 		return
 	}
 
-	cids := s.clientStorage.GetUidFromClientIds(ctx, s.config.ServerId(), im.Session.Chat.Name(), strconv.Itoa(apply.FriendId))
+	cids := s.clientStorage.GetUidFromClientIds(ctx, s.config.ServerId(), socket.Session.Chat.Name(), strconv.Itoa(apply.FriendId))
 	if len(cids) == 0 {
 		return
 	}
@@ -281,14 +281,14 @@ func (s *ChatSubscribe) onConsumeContactApply(body string) {
 		"created_at": timeutil.FormatDatetime(apply.CreatedAt),
 	}
 
-	c := im.NewSenderContent()
+	c := socket.NewSenderContent()
 	c.SetReceive(cids...)
-	c.SetMessage(&im.Message{
+	c.SetMessage(&socket.Message{
 		Event:   entity.EventContactApply,
 		Content: data,
 	})
 
-	im.Session.Chat.Write(c)
+	socket.Session.Chat.Write(c)
 }
 
 // onConsumeTalkJoinGroup 加入群房间
@@ -309,11 +309,11 @@ func (s *ChatSubscribe) onConsumeTalkJoinGroup(body string) {
 	}
 
 	for _, uid := range data.Uids {
-		cids := s.clientStorage.GetUidFromClientIds(ctx, sid, im.Session.Chat.Name(), strconv.Itoa(uid))
+		cids := s.clientStorage.GetUidFromClientIds(ctx, sid, socket.Session.Chat.Name(), strconv.Itoa(uid))
 
 		for _, cid := range cids {
 			opts := &cache.RoomOption{
-				Channel:  im.Session.Chat.Name(),
+				Channel:  socket.Session.Chat.Name(),
 				RoomType: entity.RoomImGroup,
 				Number:   strconv.Itoa(data.Gid),
 				Sid:      s.config.ServerId(),
@@ -346,11 +346,11 @@ func (s *ChatSubscribe) onConsumeTalkRead(body string) {
 		return
 	}
 
-	cids := s.clientStorage.GetUidFromClientIds(ctx, sid, im.Session.Chat.Name(), fmt.Sprintf("%d", data.ReceiverId))
+	cids := s.clientStorage.GetUidFromClientIds(ctx, sid, socket.Session.Chat.Name(), fmt.Sprintf("%d", data.ReceiverId))
 
-	c := im.NewSenderContent()
+	c := socket.NewSenderContent()
 	c.SetReceive(cids...)
-	c.SetMessage(&im.Message{
+	c.SetMessage(&socket.Message{
 		Event: entity.EventTalkRead,
 		Content: entity.MapStrAny{
 			"sender_id":   data.SenderId,
@@ -359,5 +359,5 @@ func (s *ChatSubscribe) onConsumeTalkRead(body string) {
 		},
 	})
 
-	im.Session.Chat.Write(c)
+	socket.Session.Chat.Write(c)
 }
