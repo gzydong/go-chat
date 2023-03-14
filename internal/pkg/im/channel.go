@@ -8,6 +8,7 @@ import (
 	"sync/atomic"
 	"time"
 
+	cmap "github.com/orcaman/concurrent-map/v2"
 	"github.com/sourcegraph/conc/pool"
 	"go-chat/internal/pkg/logger"
 )
@@ -19,9 +20,10 @@ type IChannel interface {
 
 // Channel 渠道管理（多渠道划分，实现不同业务之间隔离）
 type Channel struct {
-	name    string              // 渠道名称
-	count   int64               // 客户端连接数
-	node    *Node               // 客户端列表【客户端ID取余拆分，降低 map 长度】
+	name    string // 渠道名称
+	count   int64  // 客户端连接数
+	node    *Node  // 客户端列表【客户端ID取余拆分，降低 map 长度】
+	cmap    *cmap.ConcurrentMap[int64, *Client]
 	outChan chan *SenderContent // 消息发送通道
 }
 
@@ -41,7 +43,7 @@ func (c *Channel) Count() int64 {
 
 // Client 获取客户端
 func (c *Channel) Client(cid int64) (*Client, bool) {
-	return c.node.get(cid)
+	return c.cmap.Get(cid)
 }
 
 // Write 推送消息到消费通道
@@ -57,18 +59,19 @@ func (c *Channel) Write(msg *SenderContent) {
 
 // addClient 添加客户端
 func (c *Channel) addClient(client *Client) {
-	c.node.add(client)
+	c.cmap.Set(client.cid, client)
 
 	atomic.AddInt64(&c.count, 1)
 }
 
 // delClient 删除客户端
 func (c *Channel) delClient(client *Client) {
-	if !c.node.exist(client.cid) {
+
+	if !c.cmap.Has(client.cid) {
 		return
 	}
 
-	c.node.del(client)
+	c.cmap.Remove(client.cid)
 
 	atomic.AddInt64(&c.count, -1)
 }
@@ -97,8 +100,8 @@ func (c *Channel) Start(ctx context.Context) error {
 
 			work.Go(func() {
 				if bodyContent.IsBroadcast() {
-					c.node.each(func(client *Client) {
-						_ = client.Write(&ClientOutContent{Content: content})
+					c.cmap.IterCb(func(key int64, value *Client) {
+						_ = value.Write(&ClientOutContent{Content: content})
 					})
 				} else {
 					for _, cid := range bodyContent.receives {
