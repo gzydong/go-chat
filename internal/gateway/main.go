@@ -127,7 +127,6 @@ func start(c chan os.Signal, eg *errgroup.Group, ctx context.Context, app *AppPr
 		log.Fatalf("Server forced to shutdown: %s", err)
 	}
 
-	time.Sleep(3 * time.Second)
 	log.Println("Server exiting")
 
 	return nil
