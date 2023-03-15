@@ -3,6 +3,7 @@ package socket
 import (
 	"context"
 	"errors"
+	"log"
 	"time"
 
 	"go-chat/internal/pkg/timewheel"
@@ -44,6 +45,7 @@ func (a *AckBuffer) add(ackKey string, value *AckBufferBody) {
 	_ = a.timeWheel.Add(ackKey, value, time.Duration(5)*time.Second)
 }
 
+// nolint
 func (a *AckBuffer) remove(ackKey string) {
 	a.timeWheel.Remove(ackKey)
 }
@@ -64,10 +66,12 @@ func (a *AckBuffer) handle(_ *timewheel.SimpleTimeWheel, key string, value any) 
 		return
 	}
 
-	client.Write(&ClientOutContent{
+	err := client.Write(&ClientOutContent{
 		AckId:   key,
 		IsAck:   true,
 		Retry:   buffer.Retry,
 		Content: buffer.Body,
 	})
+
+	log.Println("ack retry: ", buffer.Retry, " err: ", err)
 }

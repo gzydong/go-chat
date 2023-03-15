@@ -2,7 +2,7 @@ package repo
 
 import (
 	"context"
-	"fmt"
+	"strconv"
 
 	"go-chat/internal/pkg/ichat"
 	"go-chat/internal/repository/cache"
@@ -81,7 +81,7 @@ func (c *Contact) LoadContactCache(ctx context.Context, uid int) error {
 	items := make(map[string]any)
 	for _, value := range contacts {
 		if len(value.Remark) > 0 {
-			items[fmt.Sprintf("%d", value.FriendId)] = value.Remark
+			items[strconv.Itoa(value.FriendId)] = value.Remark
 		}
 	}
 

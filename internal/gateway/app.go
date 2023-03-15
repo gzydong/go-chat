@@ -24,7 +24,6 @@ func NewTcpServer(app *AppProvider) {
 
 	if err != nil {
 		panic(err)
-		return
 	}
 
 	defer func() {

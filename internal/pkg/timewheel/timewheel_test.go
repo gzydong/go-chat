@@ -12,6 +12,7 @@ type Conn struct {
 	lastTime time.Time
 }
 
+// nolint
 func TestNewTimeWheel(t *testing.T) {
 
 	var num int

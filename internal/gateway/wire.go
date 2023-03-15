@@ -5,7 +5,7 @@ package main
 
 import (
 	"go-chat/config"
-	consume2 "go-chat/internal/gateway/internal/consume"
+	"go-chat/internal/gateway/internal/consume"
 	"go-chat/internal/gateway/internal/event"
 	"go-chat/internal/gateway/internal/event/chat"
 	"go-chat/internal/gateway/internal/handler"
@@ -36,8 +36,8 @@ var providerSet = wire.NewSet(
 	process.NewServer,
 	process.NewHealthSubscribe,
 	process.NewMessageSubscribe,
-	consume2.NewChatSubscribe,
-	consume2.NewExampleSubscribe,
+	// consume.NewChatSubscribe,
+	// consume.NewExampleSubscribe,
 
 	// dao 数据层
 	repo.NewTalkRecords,
@@ -70,5 +70,5 @@ var providerSet = wire.NewSet(
 )
 
 func Initialize(conf *config.Config) *AppProvider {
-	panic(wire.Build(providerSet, cache.ProviderSet))
+	panic(wire.Build(providerSet, cache.ProviderSet, consume.ProviderSet))
 }

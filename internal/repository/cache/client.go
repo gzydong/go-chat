@@ -108,9 +108,9 @@ func (w *ClientStorage) GetClientIdFromUid(ctx context.Context, sid, channel, ci
 }
 
 func (w *ClientStorage) Bind(ctx context.Context, channel string, clientId int64, uid int) {
-	w.Set(ctx, channel, fmt.Sprintf("%d", clientId), uid)
+	w.Set(ctx, channel, strconv.FormatInt(clientId, 10), uid)
 }
 
 func (w *ClientStorage) UnBind(ctx context.Context, channel string, clientId int64) {
-	w.Del(ctx, channel, fmt.Sprintf("%d", clientId))
+	w.Del(ctx, channel, strconv.FormatInt(clientId, 10))
 }

@@ -105,6 +105,7 @@ func TestTcp_Client(t1 *testing.T) {
 	time.Sleep(50 * time.Minute)
 }
 
+// nolint
 func TestTcp_Client2(t1 *testing.T) {
 	go func() {
 		conn, err := net.Dial("tcp", "127.0.0.1:9505")

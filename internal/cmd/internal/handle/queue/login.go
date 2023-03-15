@@ -39,7 +39,7 @@ func (e *LoginHandle) Handle(ctx context.Context) error {
 		return err
 	}
 
-	ch := make(chan os.Signal)        // 定义一个信号的通道
+	ch := make(chan os.Signal, 1)     // 定义一个信号的通道
 	signal.Notify(ch, syscall.SIGINT) // 转发键盘中断信号到c
 	<-ch                              // 阻塞
 
