@@ -18,12 +18,9 @@ type ConsumeContactApply struct {
 }
 
 // nolint onConsumeContactApply 好友申请消息
-func (h *Handler) onConsumeContactApply(body []byte) {
-	var (
-		msg ConsumeContactApply
-		ctx = context.Background()
-	)
+func (h *Handler) onConsumeContactApply(ctx context.Context, body []byte) {
 
+	var msg ConsumeContactApply
 	if err := json.Unmarshal(body, &msg); err != nil {
 		logger.Error("[ChatSubscribe] onConsumeContactApply Unmarshal err: ", err.Error())
 		return

@@ -10,6 +10,8 @@ import (
 	"github.com/google/wire"
 	"go-chat/config"
 	"go-chat/internal/gateway/internal/consume"
+	chat2 "go-chat/internal/gateway/internal/consume/chat"
+	"go-chat/internal/gateway/internal/consume/example"
 	"go-chat/internal/gateway/internal/event"
 	"go-chat/internal/gateway/internal/event/chat"
 	"go-chat/internal/gateway/internal/handler"
@@ -62,8 +64,10 @@ func Initialize(conf *config.Config) *AppProvider {
 	contactRemark := cache.NewContactRemark(client)
 	contact := repo.NewContact(db, contactRemark, relation)
 	contactService := service.NewContactService(baseService, contact)
-	chatSubscribe := consume.NewChatSubscribe(conf, clientStorage, roomStorage, talkRecordsService, contactService)
-	exampleSubscribe := consume.NewExampleSubscribe()
+	handler2 := chat2.NewHandler(conf, clientStorage, roomStorage, talkRecordsService, contactService)
+	chatSubscribe := consume.NewChatSubscribe(handler2)
+	exampleHandler := example.NewHandler()
+	exampleSubscribe := consume.NewExampleSubscribe(exampleHandler)
 	messageSubscribe := process.NewMessageSubscribe(conf, client, chatSubscribe, exampleSubscribe)
 	subServers := &process.SubServers{
 		HealthSubscribe:  healthSubscribe,
@@ -84,4 +88,4 @@ func Initialize(conf *config.Config) *AppProvider {
 
 // wire.go:
 
-var providerSet = wire.NewSet(provider.NewMySQLClient, provider.NewRedisClient, provider.NewFilesystem, provider.NewEmailClient, provider.NewProviders, router.NewRouter, wire.Struct(new(process.SubServers), "*"), process.NewServer, process.NewHealthSubscribe, process.NewMessageSubscribe, repo.NewTalkRecords, repo.NewTalkRecordsVote, repo.NewGroupMember, repo.NewContact, repo.NewFileSplitUpload, repo.NewSequence, logic.NewMessageForwardLogic, chat.NewHandler, event.NewChatEvent, event.NewExampleEvent, service.NewBaseService, service.NewTalkRecordsService, service.NewGroupMemberService, service.NewContactService, service.NewMessageService, handler.NewChatChannel, handler.NewExampleChannel, wire.Struct(new(handler.Handler), "*"), wire.Struct(new(AppProvider), "*"))
+var providerSet = wire.NewSet(provider.NewMySQLClient, provider.NewRedisClient, provider.NewFilesystem, provider.NewEmailClient, provider.NewProviders, router.NewRouter, wire.Struct(new(process.SubServers), "*"), process.NewServer, process.NewHealthSubscribe, process.NewMessageSubscribe, repo.NewTalkRecords, repo.NewTalkRecordsVote, repo.NewGroupMember, repo.NewContact, repo.NewFileSplitUpload, repo.NewSequence, logic.NewMessageForwardLogic, service.NewBaseService, service.NewTalkRecordsService, service.NewGroupMemberService, service.NewContactService, service.NewMessageService, wire.Struct(new(handler.Handler), "*"), wire.Struct(new(AppProvider), "*"))

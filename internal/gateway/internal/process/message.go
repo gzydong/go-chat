@@ -12,7 +12,6 @@ import (
 	"go-chat/config"
 	"go-chat/internal/entity"
 	"go-chat/internal/gateway/internal/consume"
-	"go-chat/internal/pkg/logger"
 )
 
 type MessageSubscribe struct {
@@ -49,22 +48,21 @@ type SubscribeContent struct {
 }
 
 func (m *MessageSubscribe) subscribe(ctx context.Context, topic []string, consume IConsume) {
-	// 订阅通道
+
 	sub := m.redis.Subscribe(ctx, topic...)
 	defer sub.Close()
 
 	worker := pool.New().WithMaxGoroutines(10)
 
 	// 订阅 redis 消息
-	for msg := range sub.Channel(redis.WithChannelHealthCheckInterval(30 * time.Second)) {
+	for msg := range sub.Channel(redis.WithChannelHealthCheckInterval(15 * time.Second)) {
 		worker.Go(func() {
 			var message *SubscribeContent
 			if err := json.Unmarshal([]byte(msg.Payload), &message); err != nil {
-				logger.Warnf("订阅消息格式错误 Err: %s \n", err.Error())
+				log.Println("SubscribeContent Err: ", err.Error())
 				return
 			}
 
-			// 触发回调方法
 			consume.Call(message.Event, message.Data)
 		})
 	}

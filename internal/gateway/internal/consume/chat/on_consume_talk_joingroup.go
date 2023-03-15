@@ -18,9 +18,8 @@ type ConsumeTalkJoinGroup struct {
 }
 
 // onConsumeTalkJoinGroup 加入群房间
-func (h *Handler) onConsumeTalkJoinGroup(body []byte) {
+func (h *Handler) onConsumeTalkJoinGroup(ctx context.Context, body []byte) {
 	var (
-		ctx  = context.Background()
 		sid  = h.config.ServerId()
 		data ConsumeTalkJoinGroup
 	)

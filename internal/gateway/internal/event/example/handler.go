@@ -11,6 +11,10 @@ type Handler struct {
 	handlers map[string]func(ctx context.Context, client socket.IClient, data []byte)
 }
 
+func NewHandler() *Handler {
+	return &Handler{}
+}
+
 func (h *Handler) Init() {
 
 	h.handlers = make(map[string]func(ctx context.Context, client socket.IClient, data []byte))

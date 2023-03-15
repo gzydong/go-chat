@@ -17,9 +17,8 @@ type ConsumeTalkRead struct {
 }
 
 // onConsumeTalkRead 消息已读事件
-func (h *Handler) onConsumeTalkRead(body []byte) {
+func (h *Handler) onConsumeTalkRead(ctx context.Context, body []byte) {
 	var (
-		ctx  = context.Background()
 		sid  = h.config.ServerId()
 		data ConsumeTalkRead
 	)

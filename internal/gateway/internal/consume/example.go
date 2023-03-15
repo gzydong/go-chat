@@ -1,32 +1,20 @@
 package consume
 
 import (
-	"go-chat/internal/pkg/logger"
+	"context"
+
+	"go-chat/internal/gateway/internal/consume/example"
 )
 
 type ExampleSubscribe struct {
-	handlers map[string]onConsumeFunc
+	handler *example.Handler
 }
 
-func NewExampleSubscribe() *ExampleSubscribe {
-	return &ExampleSubscribe{}
-}
-
-// Events 注册事件
-func (s *ExampleSubscribe) init() {
-	s.handlers = make(map[string]onConsumeFunc)
+func NewExampleSubscribe(handler *example.Handler) *ExampleSubscribe {
+	return &ExampleSubscribe{handler: handler}
 }
 
 // Call 触发回调事件
 func (s *ExampleSubscribe) Call(event string, data string) {
-
-	if s.handlers == nil {
-		s.init()
-	}
-
-	if f, ok := s.handlers[event]; ok {
-		f(data)
-	} else {
-		logger.Warnf("ExampleSubscribe Event: [%s]未注册回调方法\n", event)
-	}
+	s.handler.Call(context.Background(), event, []byte(data))
 }

@@ -16,15 +16,14 @@ type ConsumeLogin struct {
 }
 
 // onConsumeLogin 用户上线或下线消息
-func (h *Handler) onConsumeLogin(body []byte) {
-	var msg ConsumeLogin
+func (h *Handler) onConsumeLogin(ctx context.Context, body []byte) {
 
+	var msg ConsumeLogin
 	if err := json.Unmarshal(body, &msg); err != nil {
 		logger.Error("[ChatSubscribe] onConsumeLogin Unmarshal err: ", err.Error())
 		return
 	}
 
-	ctx := context.Background()
 	cids := make([]int64, 0)
 
 	uids := h.contactService.GetContactIds(ctx, msg.UserID)

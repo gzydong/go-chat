@@ -19,15 +19,13 @@ type ConsumeTalk struct {
 }
 
 // onConsumeTalk 聊天消息事件
-func (h *Handler) onConsumeTalk(body []byte) {
-	var msg ConsumeTalk
+func (h *Handler) onConsumeTalk(ctx context.Context, body []byte) {
 
+	var msg ConsumeTalk
 	if err := json.Unmarshal(body, &msg); err != nil {
 		logger.Error("[ChatSubscribe] onConsumeTalk Unmarshal err: ", err.Error())
 		return
 	}
-
-	ctx := context.Background()
 
 	cids := make([]int64, 0)
 	if msg.TalkType == entity.ChatPrivateMode {

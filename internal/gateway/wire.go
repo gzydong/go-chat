@@ -7,7 +7,6 @@ import (
 	"go-chat/config"
 	"go-chat/internal/gateway/internal/consume"
 	"go-chat/internal/gateway/internal/event"
-	"go-chat/internal/gateway/internal/event/chat"
 	"go-chat/internal/gateway/internal/handler"
 	"go-chat/internal/gateway/internal/process"
 	"go-chat/internal/gateway/internal/router"
@@ -36,10 +35,8 @@ var providerSet = wire.NewSet(
 	process.NewServer,
 	process.NewHealthSubscribe,
 	process.NewMessageSubscribe,
-	// consume.NewChatSubscribe,
-	// consume.NewExampleSubscribe,
 
-	// dao 数据层
+	// 数据层
 	repo.NewTalkRecords,
 	repo.NewTalkRecordsVote,
 	repo.NewGroupMember,
@@ -49,11 +46,6 @@ var providerSet = wire.NewSet(
 
 	logic.NewMessageForwardLogic,
 
-	chat.NewHandler,
-
-	event.NewChatEvent,
-	event.NewExampleEvent,
-
 	// 服务
 	service.NewBaseService,
 	service.NewTalkRecordsService,
@@ -61,14 +53,10 @@ var providerSet = wire.NewSet(
 	service.NewContactService,
 	service.NewMessageService,
 
-	// handle
-	handler.NewChatChannel,
-	handler.NewExampleChannel,
-
 	wire.Struct(new(handler.Handler), "*"),
 	wire.Struct(new(AppProvider), "*"),
 )
 
 func Initialize(conf *config.Config) *AppProvider {
-	panic(wire.Build(providerSet, cache.ProviderSet, consume.ProviderSet))
+	panic(wire.Build(providerSet, cache.ProviderSet, handler.ProviderSet, event.ProviderSet, consume.ProviderSet))
 }

@@ -17,11 +17,10 @@ type ConsumeTalkRevoke struct {
 }
 
 // onConsumeTalkRevoke 撤销聊天消息
-func (h *Handler) onConsumeTalkRevoke(body []byte) {
+func (h *Handler) onConsumeTalkRevoke(ctx context.Context, body []byte) {
 	var (
 		msg    ConsumeTalkRevoke
 		record *model.TalkRecords
-		ctx    = context.Background()
 	)
 
 	if err := json.Unmarshal(body, &msg); err != nil {

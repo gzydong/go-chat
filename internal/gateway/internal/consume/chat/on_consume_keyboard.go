@@ -16,7 +16,7 @@ type ConsumeTalkKeyboard struct {
 }
 
 // onConsumeTalkKeyboard 键盘输入事件消息
-func (h *Handler) onConsumeTalkKeyboard(body []byte) {
+func (h *Handler) onConsumeTalkKeyboard(ctx context.Context, body []byte) {
 	var msg ConsumeTalkKeyboard
 
 	if err := json.Unmarshal(body, &msg); err != nil {

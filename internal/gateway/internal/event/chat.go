@@ -3,6 +3,7 @@ package event
 import (
 	"context"
 	"fmt"
+	"log"
 	"strconv"
 
 	"github.com/go-redis/redis/v8"
@@ -49,7 +50,7 @@ func (d *ChatEvent) OnOpen(client socket.IClient) {
 	}
 
 	if err := d.roomStorage.BatchAdd(ctx, rooms); err != nil {
-		fmt.Println("加入群聊失败", err.Error())
+		log.Println("加入群聊失败", err.Error())
 	}
 
 	// 推送上线消息
