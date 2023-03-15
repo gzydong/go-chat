@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net"
 
 	"github.com/gin-gonic/gin"
@@ -20,8 +21,8 @@ type AppProvider struct {
 }
 
 func NewTcpServer(app *AppProvider) {
-	listener, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%d", app.Config.Server.Tcp))
 
+	listener, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%d", app.Config.Server.Tcp))
 	if err != nil {
 		panic(err)
 	}
@@ -33,11 +34,9 @@ func NewTcpServer(app *AppProvider) {
 	for {
 		conn, err := listener.Accept()
 		if err != nil {
-			fmt.Println("accept failed, err:", err)
+			log.Println("accept failed err:", err)
 			continue
 		}
-
-		fmt.Println("RemoteAddr===>", conn.RemoteAddr())
 
 		// TCP 分发
 		go app.Handler.Dispatch(conn)
