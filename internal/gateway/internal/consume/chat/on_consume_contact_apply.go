@@ -17,16 +17,16 @@ type ConsumeContactApply struct {
 	Type    int `json:"type"`
 }
 
-// nolint onConsumeContactApply 好友申请消息
+// 好友申请消息
 func (h *Handler) onConsumeContactApply(ctx context.Context, body []byte) {
 
-	var msg ConsumeContactApply
+	var msg *ConsumeContactApply
 	if err := json.Unmarshal(body, &msg); err != nil {
 		logger.Error("[ChatSubscribe] onConsumeContactApply Unmarshal err: ", err.Error())
 		return
 	}
 
-	apply := &model.ContactApply{}
+	var apply *model.ContactApply
 	if err := h.contactService.Db().First(&apply, msg.ApplyId).Error; err != nil {
 		return
 	}
@@ -36,7 +36,7 @@ func (h *Handler) onConsumeContactApply(ctx context.Context, body []byte) {
 		return
 	}
 
-	user := &model.Users{}
+	var user *model.Users
 	if err := h.contactService.Db().First(&user, apply.FriendId).Error; err != nil {
 		return
 	}

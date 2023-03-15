@@ -83,6 +83,8 @@ func newApp(tx *cli.Context) error {
 	return start(c, eg, groupCtx, app)
 }
 
+var ErrServerClosed = errors.New("shutting down server")
+
 func start(c chan os.Signal, eg *errgroup.Group, ctx context.Context, app *AppProvider) error {
 
 	server := &http.Server{
@@ -91,16 +93,17 @@ func start(c chan os.Signal, eg *errgroup.Group, ctx context.Context, app *AppPr
 	}
 
 	eg.Go(func() error {
-		err := server.ListenAndServe()
-		if err != nil && err != http.ErrServerClosed {
-			log.Fatalf("Websocket Listen Err: %s", err)
+		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			return err
 		}
 
-		return err
+		return nil
 	})
 
-	eg.Go(func() error {
+	eg.Go(func() (err error) {
 		defer func() {
+			log.Println("Shutting down server...")
+
 			// 等待中断信号以优雅地关闭服务器（设置 5 秒的超时时间）
 			timeCtx, timeCancel := context.WithTimeout(context.Background(), 3*time.Second)
 			defer timeCancel()
@@ -108,6 +111,8 @@ func start(c chan os.Signal, eg *errgroup.Group, ctx context.Context, app *AppPr
 			if err := server.Shutdown(timeCtx); err != nil {
 				log.Printf("Websocket Shutdown Err: %s \n", err)
 			}
+
+			err = ErrServerClosed
 		}()
 
 		select {
@@ -118,11 +123,12 @@ func start(c chan os.Signal, eg *errgroup.Group, ctx context.Context, app *AppPr
 		}
 	})
 
-	if err := eg.Wait(); err != nil && !errors.Is(err, context.Canceled) {
-		time.Sleep(3 * time.Second)
+	if err := eg.Wait(); err != nil && !errors.Is(err, context.Canceled) && !errors.Is(err, ErrServerClosed) {
+		log.Fatalf("Server forced to shutdown: %s", err)
 	}
 
-	log.Fatal("IM Server Shutdown")
+	time.Sleep(3 * time.Second)
+	log.Println("Server exiting")
 
 	return nil
 }

@@ -15,17 +15,16 @@ type ConsumeTalkKeyboard struct {
 	ReceiverID int `json:"receiver_id"`
 }
 
-// onConsumeTalkKeyboard 键盘输入事件消息
+// 键盘输入事件消息
 func (h *Handler) onConsumeTalkKeyboard(ctx context.Context, body []byte) {
-	var msg ConsumeTalkKeyboard
 
+	var msg *ConsumeTalkKeyboard
 	if err := json.Unmarshal(body, &msg); err != nil {
 		logger.Error("[ChatSubscribe] onConsumeTalkKeyboard Unmarshal err: ", err.Error())
 		return
 	}
 
-	cids := h.clientStorage.GetUidFromClientIds(context.Background(), h.config.ServerId(), socket.Session.Chat.Name(), strconv.Itoa(msg.ReceiverID))
-
+	cids := h.clientStorage.GetUidFromClientIds(ctx, h.config.ServerId(), socket.Session.Chat.Name(), strconv.Itoa(msg.ReceiverID))
 	if len(cids) == 0 {
 		return
 	}

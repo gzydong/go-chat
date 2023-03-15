@@ -15,10 +15,10 @@ type ConsumeLogin struct {
 	UserID int `json:"user_id"`
 }
 
-// onConsumeLogin 用户上线或下线消息
+// 用户上线或下线消息
 func (h *Handler) onConsumeLogin(ctx context.Context, body []byte) {
 
-	var msg ConsumeLogin
+	var msg *ConsumeLogin
 	if err := json.Unmarshal(body, &msg); err != nil {
 		logger.Error("[ChatSubscribe] onConsumeLogin Unmarshal err: ", err.Error())
 		return

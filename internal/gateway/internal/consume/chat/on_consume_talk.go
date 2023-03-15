@@ -18,10 +18,10 @@ type ConsumeTalk struct {
 	RecordID   int64 `json:"record_id"`
 }
 
-// onConsumeTalk 聊天消息事件
+// 聊天消息事件
 func (h *Handler) onConsumeTalk(ctx context.Context, body []byte) {
 
-	var msg ConsumeTalk
+	var msg *ConsumeTalk
 	if err := json.Unmarshal(body, &msg); err != nil {
 		logger.Error("[ChatSubscribe] onConsumeTalk Unmarshal err: ", err.Error())
 		return
@@ -47,12 +47,10 @@ func (h *Handler) onConsumeTalk(ctx context.Context, body []byte) {
 
 	data, err := h.recordsService.GetTalkRecord(ctx, msg.RecordID)
 	if err != nil {
-		logger.Error("[ChatSubscribe] 读取对话记录失败 err: ", err.Error())
 		return
 	}
 
 	if len(cids) == 0 {
-		logger.Error("[ChatSubscribe] cids=0 err: ")
 		return
 	}
 

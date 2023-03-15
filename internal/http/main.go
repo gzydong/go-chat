@@ -67,16 +67,18 @@ func run(c chan os.Signal, eg *errgroup.Group, ctx context.Context, app *AppProv
 	eg.Go(func() error {
 		err := server.ListenAndServe()
 		if err != nil && err != http.ErrServerClosed {
-			log.Fatalf("HTTP Server Listen Err: %s", err)
+			return err
 		}
 
-		return err
+		return nil
 	})
 
 	eg.Go(func() error {
 		defer func() {
+			log.Println("Shutting down server...")
+
 			// 等待中断信号以优雅地关闭服务器（设置 5 秒的超时时间）
-			timeCtx, timeCancel := context.WithTimeout(context.Background(), 5*time.Second)
+			timeCtx, timeCancel := context.WithTimeout(context.Background(), 3*time.Second)
 			defer timeCancel()
 
 			if err := server.Shutdown(timeCtx); err != nil {
@@ -93,10 +95,11 @@ func run(c chan os.Signal, eg *errgroup.Group, ctx context.Context, app *AppProv
 	})
 
 	if err := eg.Wait(); err != nil && !errors.Is(err, context.Canceled) {
-		log.Fatalf("Error: %s", err)
+		log.Fatalf("HTTP Server forced to shutdown: %s", err)
 	}
 
-	log.Fatal("HTTP Server Shutdown")
+	time.Sleep(3 * time.Second)
+	log.Println("Server exiting")
 
 	return nil
 }

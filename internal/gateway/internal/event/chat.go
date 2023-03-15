@@ -2,7 +2,6 @@ package event
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"strconv"
 
@@ -76,9 +75,10 @@ func (d *ChatEvent) OnMessage(client socket.IClient, message []byte) {
 
 // OnClose 连接关闭回调事件
 func (d *ChatEvent) OnClose(client socket.IClient, code int, text string) {
-	// 1.判断用户是否是多点登录
 
 	ctx := context.Background()
+
+	// 1.判断用户是否是多点登录
 
 	// 2.查询用户群列表
 	ids := d.memberService.Dao().GetUserGroupIds(ctx, client.Uid())
@@ -96,7 +96,7 @@ func (d *ChatEvent) OnClose(client socket.IClient, code int, text string) {
 	}
 
 	if err := d.roomStorage.BatchDel(ctx, rooms); err != nil {
-		fmt.Println("退出群聊失败", err.Error())
+		log.Println("退出群聊失败", err.Error())
 	}
 
 	// 推送下线消息

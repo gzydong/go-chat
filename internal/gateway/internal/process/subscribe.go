@@ -52,7 +52,7 @@ func (m *MessageSubscribe) subscribe(ctx context.Context, topic []string, consum
 	sub := m.redis.Subscribe(ctx, topic...)
 	defer sub.Close()
 
-	worker := pool.New().WithMaxGoroutines(10)
+	worker := pool.New().WithMaxGoroutines(24)
 
 	// 订阅 redis 消息
 	for msg := range sub.Channel(redis.WithChannelHealthCheckInterval(15 * time.Second)) {
