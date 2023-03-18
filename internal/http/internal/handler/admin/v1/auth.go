@@ -1,7 +1,6 @@
 package v1
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/mojocn/base64Captcha"
@@ -26,7 +25,7 @@ func NewAuth(config *config.Config, captcha *cache.CaptchaStorage, test *repo.Te
 // Login 登录接口
 func (c *Auth) Login(ctx *ichat.Context) error {
 
-	params := &admin.AuthLoginRequest{}
+	var params *admin.AuthLoginRequest
 	if err := ctx.Context.ShouldBindJSON(params); err != nil {
 		return ctx.InvalidParams(err)
 	}
@@ -74,45 +73,6 @@ func (c *Auth) Captcha(ctx *ichat.Context) error {
 func (c *Auth) Logout(ctx *ichat.Context) error {
 
 	// TODO 业务逻辑 ...
-
-	// all, err := c.test.FindAll(ctx.Ctx(), func(db *gorm.DB) {
-	// 	db.Order("id desc").Limit(3)
-	// })
-	// if err != nil {
-	// 	return ctx.Error(err.Error())
-	// }
-	//
-	// for _, m := range all {
-	// 	fmt.Println(m.Id)
-	// 	fmt.Printf("%T \n", m)
-	// }
-	//
-	// data, err := c.test.FindById(ctx.Ctx(), 10)
-	// if err != nil {
-	// 	return ctx.Error(err.Error())
-	// }
-	//
-	// fmt.Println(jsonutil.Encode(data))
-	//
-	// data, err = c.test.FindByWhere(ctx.Ctx(), "user_id = ? and class_id = ?", 4135, 3236)
-	// if err != nil {
-	// 	return ctx.Error(err.Error())
-	// }
-	//
-	// fmt.Println(jsonutil.Encode(data))
-
-	// count, err := c.test.UpdateWhere(ctx.Ctx(), map[string]interface{}{
-	// 	"is_asterisk": 0,
-	// }, "1 = 1")
-	//
-	// fmt.Println(count, err)
-
-	isTrue, err := c.test.QueryExist(ctx.Ctx(), "user_id = ?", 2054)
-	if err != nil {
-		return err
-	}
-
-	fmt.Println(isTrue)
 
 	return ctx.Success(nil)
 }

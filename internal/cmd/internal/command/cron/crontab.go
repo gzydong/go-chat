@@ -2,7 +2,6 @@ package cron
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"os"
 	"os/signal"
@@ -48,14 +47,14 @@ func NewCrontabCommand(handles *Subcommands) Command {
 				_, _ = c.AddFunc(job.Spec(), func() {
 					defer func() {
 						if err := recover(); err != nil {
-							fmt.Printf("Crontab Err: %v \n", err)
+							log.Printf("Crontab Err: %v \n", err)
 						}
 					}()
 
 					_ = job.Handle(ctx.Context)
 				})
 
-				fmt.Printf("已启动 %T 定时任务 => 任务计划 %s \n", job, job.Spec())
+				log.Printf("已启动 %T 定时任务 => 任务计划 %s \n", job, job.Spec())
 			}
 
 			log.Println("Crontab 定时任务已启动...")
@@ -79,7 +78,6 @@ func run(cron *cron.Cron, ctx context.Context) error {
 		cron.Stop()
 	}
 
-	fmt.Println()
 	log.Println("Crontab 定时任务已关闭")
 
 	return nil

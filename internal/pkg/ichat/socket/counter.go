@@ -6,15 +6,15 @@ import "sync/atomic"
 var Counter = &counter{}
 
 type counter struct {
-	number uint64 // 当前号码牌
+	number uint64
 }
 
 // GenID 获取自增ID
-func (gen *counter) GenID() int64 {
-	return int64(atomic.AddUint64(&gen.number, 1))
+func (c *counter) GenID() int64 {
+	return int64(atomic.AddUint64(&c.number, 1))
 }
 
 // GetMaxID 获取当前最大自增ID
-func (gen *counter) GetMaxID() int64 {
-	return int64(atomic.LoadUint64(&gen.number))
+func (c *counter) GetMaxID() int64 {
+	return int64(atomic.LoadUint64(&c.number))
 }

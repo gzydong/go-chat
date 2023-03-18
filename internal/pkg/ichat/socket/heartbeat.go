@@ -69,5 +69,5 @@ func (h *heartbeat) handle(timeWheel *timewheel.SimpleTimeWheel, key string, val
 		})
 	}
 
-	_ = timeWheel.Add(strconv.FormatInt(c.cid, 10), c, time.Duration(heartbeatInterval)*time.Second)
+	_ = timeWheel.Add(key, c, time.Duration(heartbeatInterval)*time.Second)
 }

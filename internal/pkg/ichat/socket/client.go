@@ -139,7 +139,7 @@ func (c *Client) Write(data *ClientOutContent) error {
 
 	defer func() {
 		if err := recover(); err != nil {
-			log.Printf("[%s-%d-%d] client write err: %v \n", c.channel.Name(), c.cid, c.uid, err)
+			log.Printf("[ERROR] [%s-%d-%d] client write err: %v \n", c.channel.Name(), c.cid, c.uid, err)
 		}
 	}()
 
@@ -198,7 +198,7 @@ func (c *Client) loopWrite() {
 		}
 
 		if err := c.conn.Write(data.Content); err != nil {
-			log.Printf("[%s-%d-%d] client push write err: %v \n", c.channel.Name(), c.cid, c.uid, err)
+			log.Printf("[ERROR] [%s-%d-%d] client push write err: %v \n", c.channel.Name(), c.cid, c.uid, err)
 			break
 		}
 

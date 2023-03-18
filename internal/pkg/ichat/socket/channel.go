@@ -43,7 +43,7 @@ func (c *Channel) Count() int64 {
 
 // Client 获取客户端
 func (c *Channel) Client(cid int64) (*Client, bool) {
-	return c.node.Get(strconv.Itoa(int(cid)))
+	return c.node.Get(strconv.FormatInt(cid, 10))
 }
 
 // Write 推送消息到消费通道
@@ -52,14 +52,14 @@ func (c *Channel) Write(msg *SenderContent) {
 	case c.outChan <- msg:
 		break
 	case <-time.After(3 * time.Second):
-		log.Printf("[%s] Channel OutChan 写入消息超时,管道长度：%d \n", c.name, len(c.outChan))
+		log.Printf("[ERROR] [%s] Channel OutChan 写入消息超时,管道长度：%d \n", c.name, len(c.outChan))
 		break
 	}
 }
 
 // addClient 添加客户端
 func (c *Channel) addClient(client *Client) {
-	c.node.Set(strconv.Itoa(int(client.cid)), client)
+	c.node.Set(strconv.FormatInt(client.cid, 10), client)
 
 	atomic.AddInt64(&c.count, 1)
 }
@@ -67,7 +67,7 @@ func (c *Channel) addClient(client *Client) {
 // delClient 删除客户端
 func (c *Channel) delClient(client *Client) {
 
-	cid := strconv.Itoa(int(client.cid))
+	cid := strconv.FormatInt(client.cid, 10)
 
 	if !c.node.Has(cid) {
 		return
