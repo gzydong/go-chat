@@ -26,6 +26,14 @@ func (h *Handler) OnTextMessage(ctx context.Context, client socket.IClient, data
 		return
 	}
 
+	if m.Body.GetContent() == "" {
+		return
+	}
+
+	if m.Body.GetReceiver() == nil {
+		return
+	}
+
 	err := h.message.SendText(ctx, client.Uid(), &message.TextMessageRequest{
 		Content: m.Body.Content,
 		Receiver: &message.MessageReceiver{
