@@ -6,7 +6,6 @@ import (
 	"strconv"
 	"time"
 
-	"go-chat/internal/pkg/jsonutil"
 	"go-chat/internal/pkg/timewheel"
 )
 
@@ -64,8 +63,9 @@ func (h *heartbeat) handle(timeWheel *timewheel.SimpleTimeWheel, key string, val
 
 	// 超过心跳间隔时间则主动推送一次消息
 	if interval > heartbeatInterval {
-		_ = c.Write(&ClientOutContent{
-			Content: jsonutil.Marshal(&Message{"heartbeat", "ping"}),
+		_ = c.Write(&ClientResponse{
+			Event: "heartbeat",
+			Body:  "ping",
 		})
 	}
 

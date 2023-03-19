@@ -8,6 +8,7 @@ type Message struct {
 
 // SenderContent 推送的消息
 type SenderContent struct {
+	IsAck     bool
 	broadcast bool     // 是否广播消息
 	exclude   []int64  // 排除的用户(预留)
 	receives  []int64  // 推送的用户

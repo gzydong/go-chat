@@ -18,11 +18,10 @@ type AckBuffer struct {
 }
 
 type AckBufferBody struct {
-	Cid   int64  `json:"cid"`
-	Uid   int64  `json:"uid"`
-	Ch    string `json:"ch"`
-	Retry int    `json:"retry"`
-	Body  []byte `json:"body"`
+	Cid   int64
+	Uid   int64
+	Ch    string
+	Value *ClientResponse
 }
 
 func init() {
@@ -66,12 +65,8 @@ func (a *AckBuffer) handle(_ *timewheel.SimpleTimeWheel, key string, value any) 
 		return
 	}
 
-	err := client.Write(&ClientOutContent{
-		AckId:   key,
-		IsAck:   true,
-		Retry:   buffer.Retry,
-		Content: buffer.Body,
-	})
-
-	log.Println("ack retry: ", buffer.Retry, " err: ", err)
+	err := client.Write(buffer.Value)
+	if err != nil {
+		log.Println("AckBuffer ack err: ", err)
+	}
 }

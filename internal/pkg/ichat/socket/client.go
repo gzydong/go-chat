@@ -12,10 +12,10 @@ import (
 )
 
 type IClient interface {
-	Cid() int64                         // 客户端ID
-	Uid() int                           // 客户端关联用户ID
-	Close(code int, text string)        // 关闭客户端
-	Write(data *ClientOutContent) error // 写入数据
+	Cid() int64                       // 客户端ID
+	Uid() int                         // 客户端关联用户ID
+	Close(code int, text string)      // 关闭客户端
+	Write(data *ClientResponse) error // 写入数据
 	ChannelName() string
 }
 
@@ -24,32 +24,25 @@ type IStorage interface {
 	UnBind(ctx context.Context, channel string, cid int64)
 }
 
-// ClientInContent 客户端接收消息体
-type ClientInContent struct {
-	IsAck   bool   // 是否需要 ack 回调
-	Event   string // 消息事件
-	Content []byte // 消息内容
-}
-
-// ClientOutContent 客户端输出的消息体
-type ClientOutContent struct {
-	AckId   string // ACK ID（唯一性）
-	IsAck   bool   // 是否需要 ack 回调
-	Retry   int    // 重试次数
-	Content []byte // 消息内容
+type ClientResponse struct {
+	IsAck bool   `json:"-"`                 // 是否需要 ack 回调
+	Retry int    `json:"-"`                 // 重试次数（0 默认不重试）
+	AckId string `json:"ack_id,omitempty"`  // ACK ID
+	Event string `json:"event"`             // 事件名
+	Body  any    `json:"content,omitempty"` // 事件内容
 }
 
 // Client WebSocket 客户端连接信息
 type Client struct {
-	conn     IConn                  // 客户端连接
-	cid      int64                  // 客户端ID/客户端唯一标识
-	uid      int                    // 用户ID
-	lastTime int64                  // 客户端最后心跳时间/心跳检测
-	channel  *Channel               // 渠道分组
-	closed   int32                  // 客户端是否关闭连接
-	storage  IStorage               // 缓存服务
-	callBack ICallback              // 回调方法
-	outChan  chan *ClientOutContent // 发送通道
+	conn     IConn                // 客户端连接
+	cid      int64                // 客户端ID/客户端唯一标识
+	uid      int                  // 用户ID
+	lastTime int64                // 客户端最后心跳时间/心跳检测
+	channel  *Channel             // 渠道分组
+	closed   int32                // 客户端是否关闭连接
+	storage  IStorage             // 缓存服务
+	callBack ICallback            // 回调方法
+	outChan  chan *ClientResponse // 发送通道
 }
 
 type ClientOption struct {
@@ -77,7 +70,7 @@ func NewClient(ctx context.Context, conn IConn, opt *ClientOption, callBack ICal
 		uid:      opt.Uid,
 		channel:  opt.Channel,
 		storage:  opt.Storage,
-		outChan:  make(chan *ClientOutContent, opt.Buffer),
+		outChan:  make(chan *ClientResponse, opt.Buffer),
 		callBack: callBack,
 	}
 
@@ -131,7 +124,7 @@ func (c *Client) Closed() bool {
 }
 
 // Write 客户端写入数据
-func (c *Client) Write(data *ClientOutContent) error {
+func (c *Client) Write(data *ClientResponse) error {
 
 	if c.Closed() {
 		return fmt.Errorf("connection closed")
@@ -139,7 +132,7 @@ func (c *Client) Write(data *ClientOutContent) error {
 
 	defer func() {
 		if err := recover(); err != nil {
-			log.Printf("[ERROR] [%s-%d-%d] client write err: %v \n", c.channel.Name(), c.cid, c.uid, err)
+			log.Printf("[ERROR] [%s-%d-%d] chan write err: %v \n", c.channel.Name(), c.cid, c.uid, err)
 		}
 	}()
 
@@ -193,22 +186,23 @@ func (c *Client) loopAccept() {
 // 循环推送客户端信息
 func (c *Client) loopWrite() {
 	for data := range c.outChan {
+
 		if c.Closed() {
 			break
 		}
 
-		if err := c.conn.Write(data.Content); err != nil {
-			log.Printf("[ERROR] [%s-%d-%d] client push write err: %v \n", c.channel.Name(), c.cid, c.uid, err)
+		if err := c.conn.Write(jsonutil.Marshal(data)); err != nil {
+			log.Printf("[ERROR] [%s-%d-%d] client write err: %v \n", c.channel.Name(), c.cid, c.uid, err)
 			break
 		}
 
 		if data.IsAck && data.Retry > 0 {
+			data.Retry--
 			ack.add(data.AckId, &AckBufferBody{
 				Cid:   c.cid,
 				Uid:   int64(c.uid),
 				Ch:    c.channel.name,
-				Retry: data.Retry - 1,
-				Body:  data.Content,
+				Value: data,
 			})
 		}
 	}
@@ -222,15 +216,15 @@ func (c *Client) message(data []byte) {
 	}
 
 	switch event {
-	// 心跳消息判断
 	case "heartbeat", "event.heartbeat":
-		_ = c.Write(&ClientOutContent{
-			Content: jsonutil.Marshal(&Message{"heartbeat", "pong"}),
-		})
-
-	// 客户端 ACK 处理
+		// 心跳消息判断
+		_ = c.Write(&ClientResponse{Event: "heartbeat", Body: "pong"})
 	case "event.ack":
-		// ack.remove("")
+		// 客户端 ACK 处理
+		ackId := gjson.GetBytes(data, "ack_id").String()
+		if len(ackId) > 0 {
+			ack.remove(ackId)
+		}
 	default:
 		// 触发消息回调
 		c.callBack.Message(c, data)
@@ -241,15 +235,10 @@ func (c *Client) message(data []byte) {
 func (c *Client) init() error {
 
 	// 推送心跳检测配置
-	_ = c.Write(&ClientOutContent{
-		Content: jsonutil.Marshal(&Message{
-			Event: "connect",
-			Content: map[string]any{
-				"ping_interval": heartbeatInterval,
-				"ping_timeout":  heartbeatTimeout,
-			},
-		}),
-	})
+	_ = c.Write(&ClientResponse{Event: "connect", Body: map[string]any{
+		"ping_interval": heartbeatInterval,
+		"ping_timeout":  heartbeatTimeout,
+	}})
 
 	// 启动协程处理推送信息
 	go c.loopWrite()

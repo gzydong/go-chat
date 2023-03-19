@@ -2,7 +2,6 @@ package socket
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"log"
 	"strconv"
@@ -95,17 +94,37 @@ func (c *Channel) Start(ctx context.Context) error {
 			}
 
 			bodyContent := body
-			content, _ := json.Marshal(bodyContent.GetMessage())
-
 			work.Go(func() {
 				if bodyContent.IsBroadcast() {
-					c.node.IterCb(func(key string, value *Client) {
-						_ = value.Write(&ClientOutContent{Content: content})
+					c.node.IterCb(func(_ string, value *Client) {
+						response := &ClientResponse{
+							IsAck: bodyContent.IsAck,
+							Event: bodyContent.message.Event,
+							Body:  bodyContent.message.Content,
+						}
+
+						if bodyContent.IsAck {
+							response.AckId = strutil.NewUuid()
+							response.Retry = 3
+						}
+
+						_ = value.Write(response)
 					})
 				} else {
 					for _, cid := range bodyContent.receives {
 						if client, ok := c.Client(cid); ok {
-							_ = client.Write(&ClientOutContent{Content: content, IsAck: false, AckId: strutil.NewUuid(), Retry: 5})
+							response := &ClientResponse{
+								IsAck: bodyContent.IsAck,
+								Event: bodyContent.message.Event,
+								Body:  bodyContent.message.Content,
+							}
+
+							if bodyContent.IsAck {
+								response.AckId = strutil.NewUuid()
+								response.Retry = 3
+							}
+
+							_ = client.Write(response)
 						}
 					}
 				}

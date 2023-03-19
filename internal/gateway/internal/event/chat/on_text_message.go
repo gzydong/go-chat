@@ -7,7 +7,6 @@ import (
 
 	"go-chat/api/pb/message/v1"
 	"go-chat/internal/pkg/ichat/socket"
-	"go-chat/internal/pkg/jsonutil"
 )
 
 type TextMessage struct {
@@ -47,11 +46,9 @@ func (h *Handler) OnTextMessage(ctx context.Context, client socket.IClient, data
 		return
 	}
 
-	err = client.Write(&socket.ClientOutContent{
-		Content: []byte(jsonutil.Encode(map[string]any{
-			"event":  "ack",
-			"ack_id": m.AckId,
-		})),
+	err = client.Write(&socket.ClientResponse{
+		AckId: m.AckId,
+		Event: "ack",
 	})
 
 	if err != nil {
