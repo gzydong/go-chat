@@ -56,15 +56,3 @@ func (s *SenderContent) IsBroadcast() bool {
 func (s *SenderContent) GetMessage() any {
 	return s.message
 }
-
-// SenderBody 推送消息主体
-type SenderBody struct {
-	// 消息确认ID
-	AckId string `json:"ack_id,omitempty"`
-	// 消息ID
-	MsgId string `json:"msg_id,omitempty"`
-	// 事件类型
-	Event string `json:"event,omitempty"`
-	// 事件主体信息
-	Body any `json:"body,omitempty"`
-}

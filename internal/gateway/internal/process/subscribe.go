@@ -12,6 +12,7 @@ import (
 	"go-chat/config"
 	"go-chat/internal/entity"
 	"go-chat/internal/gateway/internal/consume"
+	"go-chat/internal/pkg/utils"
 )
 
 type MessageSubscribe struct {
@@ -62,6 +63,12 @@ func (m *MessageSubscribe) subscribe(ctx context.Context, topic []string, consum
 				log.Println("SubscribeContent Err: ", err.Error())
 				return
 			}
+
+			defer func() {
+				if err := recover(); err != nil {
+					log.Println("MessageSubscribe Call Err: ", utils.PanicTrace(err))
+				}
+			}()
 
 			consume.Call(message.Event, message.Data)
 		})
