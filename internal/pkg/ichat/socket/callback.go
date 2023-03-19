@@ -2,6 +2,8 @@ package socket
 
 import (
 	"log"
+
+	"go-chat/internal/pkg/utils"
 )
 
 type ICallback interface {
@@ -45,7 +47,7 @@ func (c *ClientCallback) Open(client IClient) {
 
 	defer func() {
 		if err := recover(); err != nil {
-			log.Println("Call Open Err: ", client.Uid(), client.Cid(), client.ChannelName(), err)
+			log.Println("Call Open Err: ", client.Uid(), client.Cid(), client.ChannelName(), utils.PanicTrace(err))
 		}
 	}()
 
@@ -60,7 +62,7 @@ func (c *ClientCallback) Message(client IClient, message []byte) {
 
 	defer func() {
 		if err := recover(); err != nil {
-			log.Println("Call Message Err: ", client.Uid(), client.Cid(), client.ChannelName(), err)
+			log.Println("Call Message Err: ", client.Uid(), client.Cid(), client.ChannelName(), utils.PanicTrace(err))
 		}
 	}()
 
@@ -74,7 +76,7 @@ func (c *ClientCallback) Close(client IClient, code int, text string) {
 
 	defer func() {
 		if err := recover(); err != nil {
-			log.Println("Call Close Err: ", client.Uid(), client.Cid(), client.ChannelName(), err)
+			log.Println("Call Close Err: ", client.Uid(), client.Cid(), client.ChannelName(), utils.PanicTrace(err))
 		}
 	}()
 

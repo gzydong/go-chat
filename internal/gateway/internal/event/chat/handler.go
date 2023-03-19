@@ -5,6 +5,7 @@ import (
 	"log"
 
 	"github.com/go-redis/redis/v8"
+	"github.com/tidwall/gjson"
 	"go-chat/internal/entity"
 	"go-chat/internal/pkg/ichat/socket"
 	"go-chat/internal/service"
@@ -28,14 +29,11 @@ func (h *Handler) init() {
 	// 注册自定义绑定事件
 	h.handlers[entity.EventTalkKeyboard] = h.OnKeyboardMessage
 	h.handlers[entity.EventTalkRead] = h.OnReadMessage
-
-	// 聊天消息
-	h.handlers["event.talk.text.message"] = h.OnTextMessage
-	h.handlers["event.talk.image.message"] = h.OnImageMessage
-	h.handlers["event.talk.file.message"] = h.OnFileMessage
-	h.handlers["event.talk.code.message"] = h.OnCodeMessage
-	h.handlers["event.talk.location.message"] = h.OnLocationMessage
-	h.handlers["event.talk.vote.message"] = h.OnVoteMessage
+	h.handlers["im.message.publish"] = h.onTransferMessage
+	h.handlers["im.message.revoke"] = h.onRevokeMessage
+	h.handlers["im.message.delete"] = h.onDeleteMessage
+	h.handlers["im.message.read"] = h.OnReadMessage
+	h.handlers["im.message.keyboard"] = h.OnKeyboardMessage
 }
 
 func (h *Handler) Call(ctx context.Context, client socket.IClient, event string, data []byte) {
@@ -48,5 +46,18 @@ func (h *Handler) Call(ctx context.Context, client socket.IClient, event string,
 		call(ctx, client, data)
 	} else {
 		log.Printf("Chat Event: [%s]未注册回调事件\n", event)
+	}
+}
+
+func (h *Handler) onTransferMessage(ctx context.Context, client socket.IClient, data []byte) {
+
+	// 消息类型
+	msType := gjson.GetBytes(data, "body.type").Int()
+
+	switch msType {
+	case 1:
+		h.OnTextMessage(ctx, client, data)
+	default:
+		log.Printf("Chat Event im.message.publish 未知的消息类型[%d]", msType)
 	}
 }
