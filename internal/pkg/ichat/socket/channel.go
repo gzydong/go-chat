@@ -22,7 +22,7 @@ type IChannel interface {
 type Channel struct {
 	name    string                              // 渠道名称
 	count   int64                               // 客户端连接数
-	node    cmap.ConcurrentMap[string, *Client] // 客户端列表【客户端ID取余拆分，降低 map 长度】
+	node    cmap.ConcurrentMap[string, *Client] // 客户端列表
 	outChan chan *SenderContent                 // 消息发送通道
 }
 
@@ -82,53 +82,47 @@ func (c *Channel) Start(ctx context.Context) error {
 
 	work := pool.New().WithMaxGoroutines(10)
 
-	defer log.Println(fmt.Errorf("loopPush 退出 %s", c.Name()))
+	defer log.Println(fmt.Errorf("channel exit :%s", c.Name()))
 
 	for {
 		select {
 		case <-ctx.Done():
-			return fmt.Errorf("channel exit %s", c.name)
-		case body, ok := <-c.outChan:
+			return fmt.Errorf("channel exit :%s", c.Name())
+		case val, ok := <-c.outChan:
 			if !ok {
-				return fmt.Errorf("loopPush 退出 %s", c.Name())
+				return fmt.Errorf("channel exit :%s", c.Name())
 			}
 
-			bodyContent := body
+			data := val
+
 			work.Go(func() {
-				if bodyContent.IsBroadcast() {
-					c.node.IterCb(func(_ string, value *Client) {
-						response := &ClientResponse{
-							IsAck: bodyContent.IsAck,
-							Event: bodyContent.message.Event,
-							Body:  bodyContent.message.Content,
-						}
-
-						if bodyContent.IsAck {
-							response.AckId = strutil.NewUuid()
-							response.Retry = 3
-						}
-
-						_ = value.Write(response)
+				if data.IsBroadcast() {
+					c.node.IterCb(func(_ string, client *Client) {
+						c.send(data, client)
 					})
 				} else {
-					for _, cid := range bodyContent.receives {
+					for _, cid := range data.receives {
 						if client, ok := c.Client(cid); ok {
-							response := &ClientResponse{
-								IsAck: bodyContent.IsAck,
-								Event: bodyContent.message.Event,
-								Body:  bodyContent.message.Content,
-							}
-
-							if bodyContent.IsAck {
-								response.AckId = strutil.NewUuid()
-								response.Retry = 3
-							}
-
-							_ = client.Write(response)
+							c.send(data, client)
 						}
 					}
 				}
 			})
 		}
 	}
+}
+
+func (c *Channel) send(data *SenderContent, value *Client) {
+	response := &ClientResponse{
+		IsAck: data.IsAck,
+		Event: data.message.Event,
+		Body:  data.message.Content,
+	}
+
+	if data.IsAck {
+		response.AckId = strutil.NewUuid()
+		response.Retry = 3
+	}
+
+	_ = value.Write(response)
 }

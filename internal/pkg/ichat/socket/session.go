@@ -18,7 +18,13 @@ type session struct {
 	Chat    *Channel // 默认分组
 	Example *Channel // 案例分组
 
+	channels map[string]*Channel
 	// 可自行注册其它渠道...
+}
+
+func (s *session) Channel(name string) (*Channel, bool) {
+	val, ok := s.channels[name]
+	return val, ok
 }
 
 func Initialize(ctx context.Context, eg *errgroup.Group, fn func(name string)) {
@@ -29,9 +35,13 @@ func Initialize(ctx context.Context, eg *errgroup.Group, fn func(name string)) {
 
 func initialize(ctx context.Context, eg *errgroup.Group, fn func(name string)) {
 	Session = &session{
-		Chat:    NewChannel("chat", make(chan *SenderContent, 5<<20)),
-		Example: NewChannel("example", make(chan *SenderContent, 100)),
+		Chat:     NewChannel("chat", make(chan *SenderContent, 5<<20)),
+		Example:  NewChannel("example", make(chan *SenderContent, 100)),
+		channels: map[string]*Channel{},
 	}
+
+	Session.channels["chat"] = Session.Chat
+	Session.channels["example"] = Session.Example
 
 	// 延时启动守护协程
 	time.AfterFunc(5*time.Second, func() {

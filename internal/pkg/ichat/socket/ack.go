@@ -55,8 +55,13 @@ func (a *AckBuffer) handle(_ *timewheel.SimpleTimeWheel, key string, value any) 
 		return
 	}
 
+	ch, ok := Session.Channel(buffer.Ch)
+	if !ok {
+		return
+	}
+
 	// 重发消息，需要检测客户端是否已断开，如果已断开则不需要重发
-	client, ok := Session.Chat.Client(buffer.Cid)
+	client, ok := ch.Client(buffer.Cid)
 	if !ok {
 		return
 	}
