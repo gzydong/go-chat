@@ -49,33 +49,29 @@ func (a *AckBuffer) remove(ackKey string) {
 	a.timeWheel.Remove(ackKey)
 }
 
-func (a *AckBuffer) handle(_ *timewheel.SimpleTimeWheel, key string, value any) {
-	buffer, ok := value.(*AckBufferBody)
+func (a *AckBuffer) handle(_ *timewheel.SimpleTimeWheel, _ string, value any) {
+
+	buf, ok := value.(*AckBufferBody)
 	if !ok {
 		return
 	}
 
-	ch, ok := Session.Channel(buffer.Ch)
+	ch, ok := Session.Channel(buf.Ch)
 	if !ok {
 		return
 	}
 
 	// 重发消息，需要检测客户端是否已断开，如果已断开则不需要重发
-	client, ok := ch.Client(buffer.Cid)
+	client, ok := ch.Client(buf.Cid)
 	if !ok {
 		return
 	}
 
-	if client.Closed() {
+	if client.Closed() || int64(client.uid) != buf.Uid {
 		return
 	}
 
-	if int64(client.uid) != buffer.Uid {
-		return
-	}
-
-	err := client.Write(buffer.Value)
-	if err != nil {
+	if err := client.Write(buf.Value); err != nil {
 		log.Println("AckBuffer ack err: ", err)
 	}
 }
