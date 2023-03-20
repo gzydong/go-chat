@@ -66,6 +66,10 @@ func (a *AckBuffer) handle(_ *timewheel.SimpleTimeWheel, key string, value any) 
 		return
 	}
 
+	if client.Closed() {
+		return
+	}
+
 	if int64(client.uid) != buffer.Uid {
 		return
 	}
