@@ -47,7 +47,7 @@ func (h *Handler) OnTextMessage(ctx context.Context, client socket.IClient, data
 	}
 
 	err = client.Write(&socket.ClientResponse{
-		AckId: m.AckId,
+		Sid:   m.AckId,
 		Event: "ack",
 	})
 

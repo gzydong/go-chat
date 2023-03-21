@@ -2,22 +2,17 @@ package talk
 
 import (
 	"bytes"
-	"errors"
 	"fmt"
 
 	"go-chat/api/pb/message/v1"
+	"go-chat/internal/entity"
 	"go-chat/internal/pkg/filesystem"
 	"go-chat/internal/pkg/ichat"
-	"go-chat/internal/pkg/timeutil"
-	"go-chat/internal/pkg/utils"
-	"go-chat/internal/repository/model"
-	"go-chat/internal/repository/repo"
-	"go-chat/internal/service/organize"
-	"gorm.io/gorm"
-
-	"go-chat/internal/entity"
 	"go-chat/internal/pkg/sliceutil"
 	"go-chat/internal/pkg/strutil"
+	"go-chat/internal/pkg/timeutil"
+	"go-chat/internal/pkg/utils"
+	"go-chat/internal/repository/repo"
 	"go-chat/internal/service"
 )
 
@@ -26,62 +21,19 @@ type Message struct {
 	talkService        *service.TalkService
 	talkRecordsVoteDao *repo.TalkRecordsVote
 	splitUploadService *service.SplitUploadService
-	contactService     *service.ContactService
-	groupMemberService *service.GroupMemberService
-	organizeService    *organize.OrganizeService
 	auth               *service.TalkAuthService
 	message            *service.MessageService
 	filesystem         *filesystem.Filesystem
 }
 
-func NewMessage(service *service.TalkMessageService, talkService *service.TalkService, talkRecordsVoteDao *repo.TalkRecordsVote, splitUploadService *service.SplitUploadService, contactService *service.ContactService, groupMemberService *service.GroupMemberService, organizeService *organize.OrganizeService, auth *service.TalkAuthService, message *service.MessageService, filesystem *filesystem.Filesystem) *Message {
-	return &Message{service: service, talkService: talkService, talkRecordsVoteDao: talkRecordsVoteDao, splitUploadService: splitUploadService, contactService: contactService, groupMemberService: groupMemberService, organizeService: organizeService, auth: auth, message: message, filesystem: filesystem}
+func NewMessage(service *service.TalkMessageService, talkService *service.TalkService, talkRecordsVoteDao *repo.TalkRecordsVote, splitUploadService *service.SplitUploadService, auth *service.TalkAuthService, message *service.MessageService, filesystem *filesystem.Filesystem) *Message {
+	return &Message{service: service, talkService: talkService, talkRecordsVoteDao: talkRecordsVoteDao, splitUploadService: splitUploadService, auth: auth, message: message, filesystem: filesystem}
 }
 
 type AuthorityOpts struct {
 	TalkType   int // 对话类型
 	UserId     int // 发送者ID
 	ReceiverId int // 接收者ID
-}
-
-// 权限验证
-func (c *Message) authority(ctx *ichat.Context, opt *AuthorityOpts) error {
-
-	if opt.TalkType == entity.ChatPrivateMode {
-		// 这里需要判断双方是否都是企业成员，如果是则无需添加好友即可聊天
-		if isOk, err := c.organizeService.Dao().IsQiyeMember(ctx.Ctx(), opt.UserId, opt.ReceiverId); err != nil {
-			return errors.New("系统繁忙，请稍后再试！！！")
-		} else if isOk {
-			return nil
-		}
-
-		isOk := c.contactService.Dao().IsFriend(ctx.Ctx(), opt.UserId, opt.ReceiverId, false)
-		if isOk {
-			return nil
-		}
-
-		return errors.New("暂无权限发送消息！")
-	} else {
-		groupMemberInfo := &model.GroupMember{}
-		err := c.groupMemberService.Db().First(groupMemberInfo, "group_id = ? and user_id = ?", opt.ReceiverId, opt.UserId).Error
-		if err != nil {
-			if err == gorm.ErrRecordNotFound {
-				return errors.New("暂无权限发送消息！")
-			}
-
-			return errors.New("系统繁忙，请稍后再试！！！")
-		}
-
-		if groupMemberInfo.IsQuit == 1 {
-			return errors.New("暂无权限发送消息！")
-		}
-
-		if groupMemberInfo.IsMute == 1 {
-			return errors.New("已被群主或管理员禁言！")
-		}
-	}
-
-	return nil
 }
 
 type TextMessageRequest struct {
@@ -99,7 +51,9 @@ func (c *Message) Text(ctx *ichat.Context) error {
 	}
 
 	uid := ctx.UserId()
-	if err := c.authority(ctx, &AuthorityOpts{
+
+	// 权限验证
+	if err := c.auth.IsAuth(ctx.Ctx(), &service.TalkAuthOption{
 		TalkType:   params.TalkType,
 		UserId:     uid,
 		ReceiverId: params.ReceiverId,
@@ -136,7 +90,9 @@ func (c *Message) Code(ctx *ichat.Context) error {
 	}
 
 	uid := ctx.UserId()
-	if err := c.authority(ctx, &AuthorityOpts{
+
+	// 权限验证
+	if err := c.auth.IsAuth(ctx.Ctx(), &service.TalkAuthOption{
 		TalkType:   params.TalkType,
 		UserId:     uid,
 		ReceiverId: params.ReceiverId,
@@ -185,10 +141,10 @@ func (c *Message) Image(ctx *ichat.Context) error {
 		return ctx.InvalidParams("上传文件大小不能超过5M！")
 	}
 
-	uid := ctx.UserId()
-	if err := c.authority(ctx, &AuthorityOpts{
+	// 权限验证
+	if err := c.auth.IsAuth(ctx.Ctx(), &service.TalkAuthOption{
 		TalkType:   params.TalkType,
-		UserId:     uid,
+		UserId:     ctx.UserId(),
 		ReceiverId: params.ReceiverId,
 	}); err != nil {
 		return ctx.ErrorBusiness(err.Error())
@@ -240,7 +196,9 @@ func (c *Message) File(ctx *ichat.Context) error {
 	}
 
 	uid := ctx.UserId()
-	if err := c.authority(ctx, &AuthorityOpts{
+
+	// 权限验证
+	if err := c.auth.IsAuth(ctx.Ctx(), &service.TalkAuthOption{
 		TalkType:   params.TalkType,
 		UserId:     uid,
 		ReceiverId: params.ReceiverId,
@@ -286,7 +244,9 @@ func (c *Message) Vote(ctx *ichat.Context) error {
 	}
 
 	uid := ctx.UserId()
-	if err := c.authority(ctx, &AuthorityOpts{
+
+	// 权限验证
+	if err := c.auth.IsAuth(ctx.Ctx(), &service.TalkAuthOption{
 		TalkType:   entity.ChatGroupMode,
 		UserId:     uid,
 		ReceiverId: params.ReceiverId,
@@ -325,7 +285,8 @@ func (c *Message) Emoticon(ctx *ichat.Context) error {
 	}
 
 	uid := ctx.UserId()
-	if err := c.authority(ctx, &AuthorityOpts{
+
+	if err := c.auth.IsAuth(ctx.Ctx(), &service.TalkAuthOption{
 		TalkType:   params.TalkType,
 		UserId:     uid,
 		ReceiverId: params.ReceiverId,
@@ -368,9 +329,10 @@ func (c *Message) Forward(ctx *ichat.Context) error {
 	}
 
 	uid := ctx.UserId()
-	if err := c.authority(ctx, &AuthorityOpts{
+
+	if err := c.auth.IsAuth(ctx.Ctx(), &service.TalkAuthOption{
 		TalkType:   params.TalkType,
-		UserId:     uid,
+		UserId:     ctx.UserId(),
 		ReceiverId: params.ReceiverId,
 	}); err != nil {
 		return ctx.ErrorBusiness(err.Error())
@@ -420,7 +382,8 @@ func (c *Message) Card(ctx *ichat.Context) error {
 	}
 
 	uid := ctx.UserId()
-	if err := c.authority(ctx, &AuthorityOpts{
+
+	if err := c.auth.IsAuth(ctx.Ctx(), &service.TalkAuthOption{
 		TalkType:   params.TalkType,
 		UserId:     uid,
 		ReceiverId: params.ReceiverId,
@@ -543,7 +506,8 @@ func (c *Message) Location(ctx *ichat.Context) error {
 	}
 
 	uid := ctx.UserId()
-	if err := c.authority(ctx, &AuthorityOpts{
+
+	if err := c.auth.IsAuth(ctx.Ctx(), &service.TalkAuthOption{
 		TalkType:   params.TalkType,
 		UserId:     uid,
 		ReceiverId: params.ReceiverId,

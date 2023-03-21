@@ -27,7 +27,7 @@ type IStorage interface {
 type ClientResponse struct {
 	IsAck   bool   `json:"-"`                 // 是否需要 ack 回调
 	Retry   int    `json:"-"`                 // 重试次数（0 默认不重试）
-	AckId   string `json:"ack_id,omitempty"`  // ACK ID
+	Sid     string `json:"sid,omitempty"`     // ACK ID
 	Event   string `json:"event"`             // 事件名
 	Content any    `json:"content,omitempty"` // 事件内容
 }
@@ -60,7 +60,7 @@ func NewClient(ctx context.Context, conn IConn, opt *ClientOption, callBack ICal
 	}
 
 	if callBack == nil {
-		panic("callBack is nil")
+		panic("call is nil")
 	}
 
 	client := &Client{
@@ -198,7 +198,7 @@ func (c *Client) loopWrite() {
 
 		if data.IsAck && data.Retry > 0 {
 			data.Retry--
-			ack.add(data.AckId, &AckBufferBody{
+			ack.add(data.Sid, &AckBufferBody{
 				Cid:   c.cid,
 				Uid:   int64(c.uid),
 				Ch:    c.channel.name,
@@ -223,8 +223,9 @@ func (c *Client) message(data []byte) {
 	switch event {
 	case "ping": // 心跳消息
 		_ = c.Write(&ClientResponse{Event: "pong"})
+	case "pong":
 	case "ack": // ACK回执
-		ackId := gjson.GetBytes(data, "ack_id").String()
+		ackId := gjson.GetBytes(data, "sid").String()
 		if len(ackId) > 0 {
 			ack.remove(ackId)
 		}

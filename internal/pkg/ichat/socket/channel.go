@@ -124,7 +124,7 @@ func (c *Channel) write(data *SenderContent, value *Client) {
 	}
 
 	if data.IsAck {
-		response.AckId = strutil.NewUuid()
+		response.Sid = strutil.NewMsgId()
 		response.Retry = 3
 	}
 

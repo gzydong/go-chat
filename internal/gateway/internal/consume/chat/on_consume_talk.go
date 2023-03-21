@@ -56,6 +56,7 @@ func (h *Handler) onConsumeTalk(ctx context.Context, body []byte) {
 
 	c := socket.NewSenderContent()
 	c.SetReceive(cids...)
+	c.IsAck = true
 	c.SetMessage(&socket.Message{
 		Event: entity.EventTalk,
 		Content: entity.MapStrAny{
