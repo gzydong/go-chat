@@ -63,10 +63,7 @@ func (h *heartbeat) handle(timeWheel *timewheel.SimpleTimeWheel, key string, val
 
 	// 超过心跳间隔时间则主动推送一次消息
 	if interval > heartbeatInterval {
-		_ = c.Write(&ClientResponse{
-			Event: "heartbeat",
-			Body:  "ping",
-		})
+		_ = c.Write(&ClientResponse{Event: "ping"})
 	}
 
 	_ = timeWheel.Add(key, c, time.Duration(heartbeatInterval)*time.Second)

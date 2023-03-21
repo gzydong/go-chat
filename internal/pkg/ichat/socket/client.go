@@ -25,11 +25,11 @@ type IStorage interface {
 }
 
 type ClientResponse struct {
-	IsAck bool   `json:"-"`                 // 是否需要 ack 回调
-	Retry int    `json:"-"`                 // 重试次数（0 默认不重试）
-	AckId string `json:"ack_id,omitempty"`  // ACK ID
-	Event string `json:"event"`             // 事件名
-	Body  any    `json:"content,omitempty"` // 事件内容
+	IsAck   bool   `json:"-"`                 // 是否需要 ack 回调
+	Retry   int    `json:"-"`                 // 重试次数（0 默认不重试）
+	AckId   string `json:"ack_id,omitempty"`  // ACK ID
+	Event   string `json:"event"`             // 事件名
+	Content any    `json:"content,omitempty"` // 事件内容
 }
 
 // Client WebSocket 客户端连接信息
@@ -210,23 +210,25 @@ func (c *Client) loopWrite() {
 
 func (c *Client) message(data []byte) {
 
+	if !gjson.ValidBytes(data) {
+		return
+	}
+
 	event := gjson.GetBytes(data, "event").String()
+
 	if len(event) == 0 {
 		return
 	}
 
 	switch event {
-	case "heartbeat", "event.heartbeat":
-		// 心跳消息判断
-		_ = c.Write(&ClientResponse{Event: "heartbeat", Body: "pong"})
-	case "event.ack":
-		// 客户端 ACK 处理
+	case "ping": // 心跳消息
+		_ = c.Write(&ClientResponse{Event: "pong"})
+	case "ack": // ACK回执
 		ackId := gjson.GetBytes(data, "ack_id").String()
 		if len(ackId) > 0 {
 			ack.remove(ackId)
 		}
-	default:
-		// 触发消息回调
+	default: // 触发消息回调
 		c.callBack.Message(c, data)
 	}
 }
@@ -235,10 +237,13 @@ func (c *Client) message(data []byte) {
 func (c *Client) init() error {
 
 	// 推送心跳检测配置
-	_ = c.Write(&ClientResponse{Event: "connect", Body: map[string]any{
-		"ping_interval": heartbeatInterval,
-		"ping_timeout":  heartbeatTimeout,
-	}})
+	_ = c.Write(&ClientResponse{
+		Event: "connect",
+		Content: map[string]any{
+			"ping_interval": heartbeatInterval,
+			"ping_timeout":  heartbeatTimeout,
+		}},
+	)
 
 	// 启动协程处理推送信息
 	go c.loopWrite()

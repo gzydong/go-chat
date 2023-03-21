@@ -47,10 +47,14 @@ func (c *Channel) Client(cid int64) (*Client, bool) {
 
 // Write 推送消息到消费通道
 func (c *Channel) Write(msg *SenderContent) {
+
+	timer := time.NewTimer(3 * time.Second)
+	defer timer.Stop()
+
 	select {
 	case c.outChan <- msg:
 		break
-	case <-time.After(3 * time.Second):
+	case <-timer.C:
 		log.Printf("[ERROR] [%s] Channel OutChan 写入消息超时,管道长度：%d \n", c.name, len(c.outChan))
 		break
 	}
@@ -98,12 +102,12 @@ func (c *Channel) Start(ctx context.Context) error {
 			work.Go(func() {
 				if data.IsBroadcast() {
 					c.node.IterCb(func(_ string, client *Client) {
-						c.send(data, client)
+						c.write(data, client)
 					})
 				} else {
 					for _, cid := range data.receives {
 						if client, ok := c.Client(cid); ok {
-							c.send(data, client)
+							c.write(data, client)
 						}
 					}
 				}
@@ -112,11 +116,11 @@ func (c *Channel) Start(ctx context.Context) error {
 	}
 }
 
-func (c *Channel) send(data *SenderContent, value *Client) {
+func (c *Channel) write(data *SenderContent, value *Client) {
 	response := &ClientResponse{
-		IsAck: data.IsAck,
-		Event: data.message.Event,
-		Body:  data.message.Content,
+		IsAck:   data.IsAck,
+		Event:   data.message.Event,
+		Content: data.message.Content,
 	}
 
 	if data.IsAck {
