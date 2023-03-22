@@ -7,6 +7,7 @@ import (
 
 	"go-chat/internal/pkg/ichat/socket"
 	"go-chat/internal/pkg/logger"
+	"go-chat/internal/pkg/sliceutil"
 )
 
 type ConsumeLogin struct {
@@ -26,10 +27,12 @@ func (h *Handler) onConsumeLogin(ctx context.Context, body []byte) {
 	cids := make([]int64, 0)
 
 	uids := h.contactService.GetContactIds(ctx, msg.UserID)
-	sid := h.config.ServerId()
-	for _, uid := range uids {
-		ids := h.clientStorage.GetUidFromClientIds(ctx, sid, socket.Session.Chat.Name(), strconv.FormatInt(uid, 10))
 
+	mids, _ := h.organize.GetMemberIds(ctx)
+
+	sid := h.config.ServerId()
+	for _, uid := range sliceutil.Unique(append(uids, mids...)) {
+		ids := h.clientStorage.GetUidFromClientIds(ctx, sid, socket.Session.Chat.Name(), strconv.FormatInt(uid, 10))
 		cids = append(cids, ids...)
 	}
 

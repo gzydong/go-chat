@@ -14,6 +14,7 @@ import (
 	"go-chat/internal/provider"
 	"go-chat/internal/repository/cache"
 	"go-chat/internal/repository/repo"
+	"go-chat/internal/repository/repo/organize"
 	"go-chat/internal/service"
 
 	"github.com/google/wire"
@@ -43,6 +44,7 @@ var providerSet = wire.NewSet(
 	repo.NewContact,
 	repo.NewFileSplitUpload,
 	repo.NewSequence,
+	organize.NewOrganize,
 
 	logic.NewMessageForwardLogic,
 

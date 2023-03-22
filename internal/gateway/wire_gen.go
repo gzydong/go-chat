@@ -21,6 +21,7 @@ import (
 	"go-chat/internal/provider"
 	"go-chat/internal/repository/cache"
 	"go-chat/internal/repository/repo"
+	"go-chat/internal/repository/repo/organize"
 	"go-chat/internal/service"
 )
 
@@ -64,7 +65,8 @@ func Initialize(conf *config.Config) *AppProvider {
 	contactRemark := cache.NewContactRemark(client)
 	contact := repo.NewContact(db, contactRemark, relation)
 	contactService := service.NewContactService(baseService, contact)
-	handler2 := chat2.NewHandler(conf, clientStorage, roomStorage, talkRecordsService, contactService)
+	organizeOrganize := organize.NewOrganize(db)
+	handler2 := chat2.NewHandler(conf, clientStorage, roomStorage, talkRecordsService, contactService, organizeOrganize)
 	chatSubscribe := consume.NewChatSubscribe(handler2)
 	exampleHandler := example.NewHandler()
 	exampleSubscribe := consume.NewExampleSubscribe(exampleHandler)
@@ -88,4 +90,4 @@ func Initialize(conf *config.Config) *AppProvider {
 
 // wire.go:
 
-var providerSet = wire.NewSet(provider.NewMySQLClient, provider.NewRedisClient, provider.NewFilesystem, provider.NewEmailClient, provider.NewProviders, router.NewRouter, wire.Struct(new(process.SubServers), "*"), process.NewServer, process.NewHealthSubscribe, process.NewMessageSubscribe, repo.NewTalkRecords, repo.NewTalkRecordsVote, repo.NewGroupMember, repo.NewContact, repo.NewFileSplitUpload, repo.NewSequence, logic.NewMessageForwardLogic, service.NewBaseService, service.NewTalkRecordsService, service.NewGroupMemberService, service.NewContactService, service.NewMessageService, wire.Struct(new(handler.Handler), "*"), wire.Struct(new(AppProvider), "*"))
+var providerSet = wire.NewSet(provider.NewMySQLClient, provider.NewRedisClient, provider.NewFilesystem, provider.NewEmailClient, provider.NewProviders, router.NewRouter, wire.Struct(new(process.SubServers), "*"), process.NewServer, process.NewHealthSubscribe, process.NewMessageSubscribe, repo.NewTalkRecords, repo.NewTalkRecordsVote, repo.NewGroupMember, repo.NewContact, repo.NewFileSplitUpload, repo.NewSequence, organize.NewOrganize, logic.NewMessageForwardLogic, service.NewBaseService, service.NewTalkRecordsService, service.NewGroupMemberService, service.NewContactService, service.NewMessageService, wire.Struct(new(handler.Handler), "*"), wire.Struct(new(AppProvider), "*"))

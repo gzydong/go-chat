@@ -7,6 +7,7 @@ import (
 	"go-chat/config"
 	"go-chat/internal/entity"
 	"go-chat/internal/repository/cache"
+	"go-chat/internal/repository/repo/organize"
 	"go-chat/internal/service"
 )
 
@@ -18,10 +19,11 @@ type Handler struct {
 	roomStorage    *cache.RoomStorage
 	recordsService *service.TalkRecordsService
 	contactService *service.ContactService
+	organize       *organize.Organize
 }
 
-func NewHandler(config *config.Config, clientStorage *cache.ClientStorage, roomStorage *cache.RoomStorage, recordsService *service.TalkRecordsService, contactService *service.ContactService) *Handler {
-	return &Handler{config: config, clientStorage: clientStorage, roomStorage: roomStorage, recordsService: recordsService, contactService: contactService}
+func NewHandler(config *config.Config, clientStorage *cache.ClientStorage, roomStorage *cache.RoomStorage, recordsService *service.TalkRecordsService, contactService *service.ContactService, organize *organize.Organize) *Handler {
+	return &Handler{config: config, clientStorage: clientStorage, roomStorage: roomStorage, recordsService: recordsService, contactService: contactService, organize: organize}
 }
 
 func (h *Handler) init() {
