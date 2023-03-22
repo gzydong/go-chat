@@ -30,7 +30,7 @@ func (h *Handler) onConsumeTalkRead(ctx context.Context, body []byte) {
 	c := socket.NewSenderContent()
 	c.SetReceive(cids...)
 	c.SetMessage(&socket.Message{
-		Event: entity.EventTalkRead,
+		Event: "im.message.read",
 		Content: entity.MapStrAny{
 			"sender_id":   data.SenderId,
 			"receiver_id": data.ReceiverId,

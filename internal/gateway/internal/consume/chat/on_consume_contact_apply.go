@@ -54,7 +54,7 @@ func (h *Handler) onConsumeContactApply(ctx context.Context, body []byte) {
 	c := socket.NewSenderContent()
 	c.SetReceive(cids...)
 	c.SetMessage(&socket.Message{
-		Event:   entity.EventContactApply,
+		Event:   "im.contact.apply",
 		Content: data,
 	})
 

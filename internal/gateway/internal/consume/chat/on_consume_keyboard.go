@@ -32,7 +32,7 @@ func (h *Handler) onConsumeTalkKeyboard(ctx context.Context, body []byte) {
 	c := socket.NewSenderContent()
 	c.SetReceive(cids...)
 	c.SetMessage(&socket.Message{
-		Event: entity.EventTalkKeyboard,
+		Event: "im.message.keyboard",
 		Content: entity.MapStrAny{
 			"sender_id":   msg.SenderID,
 			"receiver_id": msg.ReceiverID,

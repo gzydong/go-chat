@@ -6,7 +6,6 @@ import (
 
 	"github.com/go-redis/redis/v8"
 	"github.com/tidwall/gjson"
-	"go-chat/internal/entity"
 	"go-chat/internal/pkg/ichat/socket"
 	"go-chat/internal/service"
 )
@@ -27,8 +26,6 @@ func (h *Handler) init() {
 	h.handlers = make(map[string]func(ctx context.Context, client socket.IClient, data []byte))
 
 	// 注册自定义绑定事件
-	h.handlers[entity.EventTalkKeyboard] = h.OnKeyboardMessage
-	h.handlers[entity.EventTalkRead] = h.OnReadMessage
 	h.handlers["im.message.publish"] = h.onTransferMessage
 	h.handlers["im.message.revoke"] = h.onRevokeMessage
 	h.handlers["im.message.delete"] = h.onDeleteMessage
@@ -52,7 +49,7 @@ func (h *Handler) Call(ctx context.Context, client socket.IClient, event string,
 func (h *Handler) onTransferMessage(ctx context.Context, client socket.IClient, data []byte) {
 
 	// 消息类型
-	msType := gjson.GetBytes(data, "body.type").Int()
+	msType := gjson.GetBytes(data, "content.type").Int()
 
 	switch msType {
 	case 1:

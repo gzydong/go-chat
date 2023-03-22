@@ -11,9 +11,9 @@ import (
 )
 
 type CodeMessage struct {
-	MsgId string                     `json:"msg_id"`
-	Event string                     `json:"event"`
-	Body  message.CodeMessageRequest `json:"body"`
+	MsgId   string                     `json:"msg_id"`
+	Event   string                     `json:"event"`
+	Content message.CodeMessageRequest `json:"content"`
 }
 
 // OnCodeMessage 代码消息

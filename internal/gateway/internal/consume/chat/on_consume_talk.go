@@ -58,7 +58,7 @@ func (h *Handler) onConsumeTalk(ctx context.Context, body []byte) {
 	c.SetReceive(cids...)
 	c.IsAck = true
 	c.SetMessage(&socket.Message{
-		Event: entity.EventTalk,
+		Event: "im.message",
 		Content: entity.MapStrAny{
 			"sender_id":   msg.SenderID,
 			"receiver_id": msg.ReceiverID,

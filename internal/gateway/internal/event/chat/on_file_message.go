@@ -11,9 +11,9 @@ import (
 )
 
 type FileMessage struct {
-	MsgId string                      `json:"msg_id"`
-	Event string                      `json:"event"`
-	Body  message.ImageMessageRequest `json:"body"`
+	MsgId   string                      `json:"msg_id"`
+	Event   string                      `json:"event"`
+	Content message.ImageMessageRequest `json:"content"`
 }
 
 // OnFileMessage 文本消息

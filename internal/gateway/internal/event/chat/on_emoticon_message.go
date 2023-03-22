@@ -11,9 +11,9 @@ import (
 )
 
 type EmoticonMessage struct {
-	MsgId string                         `json:"msg_id"`
-	Event string                         `json:"event"`
-	Body  message.EmoticonMessageRequest `json:"body"`
+	MsgId   string                         `json:"msg_id"`
+	Event   string                         `json:"event"`
+	Content message.EmoticonMessageRequest `json:"content"`
 }
 
 // OnEmoticonMessage 表情包消息

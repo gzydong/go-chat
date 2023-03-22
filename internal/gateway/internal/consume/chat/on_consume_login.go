@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"strconv"
 
-	"go-chat/internal/entity"
 	"go-chat/internal/pkg/ichat/socket"
 	"go-chat/internal/pkg/logger"
 )
@@ -41,7 +40,7 @@ func (h *Handler) onConsumeLogin(ctx context.Context, body []byte) {
 	c := socket.NewSenderContent()
 	c.SetReceive(cids...)
 	c.SetMessage(&socket.Message{
-		Event:   entity.EventOnlineStatus,
+		Event:   "im.contact.status",
 		Content: msg,
 	})
 

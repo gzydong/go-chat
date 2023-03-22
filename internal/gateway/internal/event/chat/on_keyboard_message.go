@@ -11,11 +11,11 @@ import (
 )
 
 type KeyboardMessage struct {
-	Event string `json:"event"`
-	Data  struct {
+	Event   string `json:"event"`
+	Content struct {
 		SenderID   int `json:"sender_id"`
 		ReceiverID int `json:"receiver_id"`
-	} `json:"data"`
+	} `json:"content"`
 }
 
 // OnKeyboardMessage 键盘输入事件
@@ -30,8 +30,8 @@ func (h *Handler) OnKeyboardMessage(ctx context.Context, _ socket.IClient, data 
 	h.redis.Publish(ctx, entity.ImTopicChat, jsonutil.Encode(entity.MapStrAny{
 		"event": entity.EventTalkKeyboard,
 		"data": jsonutil.Encode(entity.MapStrAny{
-			"sender_id":   m.Data.SenderID,
-			"receiver_id": m.Data.ReceiverID,
+			"sender_id":   m.Content.SenderID,
+			"receiver_id": m.Content.ReceiverID,
 		}),
 	}))
 }

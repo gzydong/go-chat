@@ -10,10 +10,10 @@ import (
 )
 
 type TextMessage struct {
-	MsgId string                     `json:"msg_id"`
-	AckId string                     `json:"ack_id"`
-	Event string                     `json:"event"`
-	Body  message.TextMessageRequest `json:"body"`
+	MsgId   string                     `json:"msg_id"`
+	AckId   string                     `json:"ack_id"`
+	Event   string                     `json:"event"`
+	Content message.TextMessageRequest `json:"content"`
 }
 
 // OnTextMessage 文本消息
@@ -25,19 +25,19 @@ func (h *Handler) OnTextMessage(ctx context.Context, client socket.IClient, data
 		return
 	}
 
-	if m.Body.GetContent() == "" {
+	if m.Content.GetContent() == "" {
 		return
 	}
 
-	if m.Body.GetReceiver() == nil {
+	if m.Content.GetReceiver() == nil {
 		return
 	}
 
 	err := h.message.SendText(ctx, client.Uid(), &message.TextMessageRequest{
-		Content: m.Body.Content,
+		Content: m.Content.Content,
 		Receiver: &message.MessageReceiver{
-			TalkType:   m.Body.Receiver.TalkType,
-			ReceiverId: m.Body.Receiver.ReceiverId,
+			TalkType:   m.Content.Receiver.TalkType,
+			ReceiverId: m.Content.Receiver.ReceiverId,
 		},
 	})
 
