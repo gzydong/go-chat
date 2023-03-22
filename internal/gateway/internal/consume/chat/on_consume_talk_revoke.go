@@ -50,6 +50,7 @@ func (h *Handler) onConsumeTalkRevoke(ctx context.Context, body []byte) {
 	}
 
 	c := socket.NewSenderContent()
+	c.IsAck = true
 	c.SetReceive(cids...)
 	c.SetMessage(&socket.Message{
 		Event: "im.message.revoke",

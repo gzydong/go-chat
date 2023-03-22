@@ -28,6 +28,7 @@ func (h *Handler) onConsumeTalkRead(ctx context.Context, body []byte) {
 	cids := h.clientStorage.GetUidFromClientIds(ctx, h.config.ServerId(), socket.Session.Chat.Name(), strconv.Itoa(data.ReceiverId))
 
 	c := socket.NewSenderContent()
+	c.IsAck = true
 	c.SetReceive(cids...)
 	c.SetMessage(&socket.Message{
 		Event: "im.message.read",
