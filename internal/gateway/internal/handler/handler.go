@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"context"
 	"fmt"
 	"net"
 	"strconv"
@@ -59,7 +58,7 @@ func (h *Handler) Dispatch(conn net.Conn) {
 		fmt.Println(conn.RemoteAddr(), "认证成功==>>>", time.Now().Unix())
 
 		if info.Channel == entity.ImChannelChat {
-			_ = h.Chat.NewClient(context.Background(), info.Uid, info.conn)
+			_ = h.Chat.NewClient(info.Uid, info.conn)
 		}
 	}
 }

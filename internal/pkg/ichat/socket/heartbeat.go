@@ -18,20 +18,12 @@ var health *heartbeat
 
 // 客户端心跳管理
 type heartbeat struct {
-	timeWheel *timewheel.SimpleTimeWheel
+	timeWheel *timewheel.SimpleTimeWheel[*Client]
 }
 
 func init() {
 	health = &heartbeat{}
-	health.timeWheel = timewheel.NewSimpleTimeWheel(1*time.Second, 100, health.handle)
-}
-
-func (h *heartbeat) addClient(c *Client) {
-	_ = h.timeWheel.Add(strconv.FormatInt(c.cid, 10), c, time.Duration(heartbeatInterval)*time.Second)
-}
-
-func (h *heartbeat) delClient(c *Client) {
-	h.timeWheel.Remove(strconv.FormatInt(c.cid, 10))
+	health.timeWheel = timewheel.NewSimpleTimeWheel[*Client](1*time.Second, 100, health.handle)
 }
 
 func (h *heartbeat) Start(ctx context.Context) error {
@@ -45,11 +37,15 @@ func (h *heartbeat) Start(ctx context.Context) error {
 	return errors.New("heartbeat exit")
 }
 
-func (h *heartbeat) handle(timeWheel *timewheel.SimpleTimeWheel, key string, value any) {
-	c, ok := value.(*Client)
-	if !ok {
-		return
-	}
+func (h *heartbeat) insert(c *Client) {
+	_ = h.timeWheel.Add(strconv.FormatInt(c.cid, 10), c, time.Duration(heartbeatInterval)*time.Second)
+}
+
+func (h *heartbeat) delete(c *Client) {
+	h.timeWheel.Remove(strconv.FormatInt(c.cid, 10))
+}
+
+func (h *heartbeat) handle(timeWheel *timewheel.SimpleTimeWheel[*Client], key string, c *Client) {
 
 	if c.Closed() {
 		return

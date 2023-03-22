@@ -14,10 +14,10 @@ var ack *AckBuffer
 
 // AckBuffer Ack 确认缓冲区
 type AckBuffer struct {
-	timeWheel *timewheel.SimpleTimeWheel
+	timeWheel *timewheel.SimpleTimeWheel[*AckBufferContent]
 }
 
-type AckBufferBody struct {
+type AckBufferContent struct {
 	Cid   int64
 	Uid   int64
 	Ch    string
@@ -26,7 +26,7 @@ type AckBufferBody struct {
 
 func init() {
 	ack = &AckBuffer{}
-	ack.timeWheel = timewheel.NewSimpleTimeWheel(1*time.Second, 30, ack.handle)
+	ack.timeWheel = timewheel.NewSimpleTimeWheel[*AckBufferContent](1*time.Second, 30, ack.handle)
 }
 
 func (a *AckBuffer) Start(ctx context.Context) error {
@@ -37,41 +37,34 @@ func (a *AckBuffer) Start(ctx context.Context) error {
 
 	a.timeWheel.Stop()
 
-	return errors.New("AckBuffer exit")
+	return errors.New("ack service stopped")
 }
 
-func (a *AckBuffer) add(ackKey string, value *AckBufferBody) {
+func (a *AckBuffer) insert(ackKey string, value *AckBufferContent) {
 	_ = a.timeWheel.Add(ackKey, value, time.Duration(5)*time.Second)
 }
 
-// nolint
-func (a *AckBuffer) remove(ackKey string) {
+func (a *AckBuffer) delete(ackKey string) {
 	a.timeWheel.Remove(ackKey)
 }
 
-func (a *AckBuffer) handle(_ *timewheel.SimpleTimeWheel, _ string, value any) {
+func (a *AckBuffer) handle(_ *timewheel.SimpleTimeWheel[*AckBufferContent], _ string, bufferContent *AckBufferContent) {
 
-	buf, ok := value.(*AckBufferBody)
+	ch, ok := Session.Channel(bufferContent.Ch)
 	if !ok {
 		return
 	}
 
-	ch, ok := Session.Channel(buf.Ch)
+	client, ok := ch.Client(bufferContent.Cid)
 	if !ok {
 		return
 	}
 
-	// 重发消息，需要检测客户端是否已断开，如果已断开则不需要重发
-	client, ok := ch.Client(buf.Cid)
-	if !ok {
+	if client.Closed() || int64(client.uid) != bufferContent.Uid {
 		return
 	}
 
-	if client.Closed() || int64(client.uid) != buf.Uid {
-		return
-	}
-
-	if err := client.Write(buf.Value); err != nil {
-		log.Println("AckBuffer ack err: ", err)
+	if err := client.Write(bufferContent.Value); err != nil {
+		log.Println("ack err: ", err)
 	}
 }

@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"context"
 	"log"
 
 	"go-chat/internal/gateway/internal/event"
@@ -29,17 +28,17 @@ func (c *ChatChannel) Conn(ctx *ichat.Context) error {
 		return err
 	}
 
-	return c.NewClient(ctx.Ctx(), ctx.UserId(), conn)
+	return c.NewClient(ctx.UserId(), conn)
 }
 
-func (c *ChatChannel) NewClient(ctx context.Context, uid int, conn socket.IConn) error {
-	return socket.NewClient(ctx, conn, &socket.ClientOption{
+func (c *ChatChannel) NewClient(uid int, conn socket.IConn) error {
+	return socket.NewClient(conn, &socket.ClientOption{
 		Uid:     uid,
 		Channel: socket.Session.Chat,
 		Storage: c.storage,
 		Buffer:  10,
-	}, socket.NewClientCallback(
-		// 连接成功回调事件
+	}, socket.NewClientEvent(
+		// 连接成功回调
 		socket.WithOpenCallback(c.event.OnOpen),
 		// 接收消息回调
 		socket.WithMessageCallback(c.event.OnMessage),

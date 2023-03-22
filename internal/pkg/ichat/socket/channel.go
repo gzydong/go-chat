@@ -60,41 +60,22 @@ func (c *Channel) Write(msg *SenderContent) {
 	}
 }
 
-// addClient 添加客户端
-func (c *Channel) addClient(client *Client) {
-	c.node.Set(strconv.FormatInt(client.cid, 10), client)
-
-	atomic.AddInt64(&c.count, 1)
-}
-
-// delClient 删除客户端
-func (c *Channel) delClient(client *Client) {
-
-	cid := strconv.FormatInt(client.cid, 10)
-
-	if !c.node.Has(cid) {
-		return
-	}
-
-	c.node.Remove(cid)
-
-	atomic.AddInt64(&c.count, -1)
-}
-
-// Start 渠道消费协程
+// Start 渠道消费开启
 func (c *Channel) Start(ctx context.Context) error {
 
 	work := pool.New().WithMaxGoroutines(10)
 
-	defer log.Println(fmt.Errorf("channel exit :%s", c.Name()))
+	err := fmt.Errorf("channel exit :%s", c.Name())
+
+	defer log.Println(err)
 
 	for {
 		select {
 		case <-ctx.Done():
-			return fmt.Errorf("channel exit :%s", c.Name())
+			return err
 		case val, ok := <-c.outChan:
 			if !ok {
-				return fmt.Errorf("channel exit :%s", c.Name())
+				return err
 			}
 
 			data := val
@@ -129,4 +110,25 @@ func (c *Channel) write(data *SenderContent, value *Client) {
 	}
 
 	_ = value.Write(response)
+}
+
+// addClient 添加客户端
+func (c *Channel) addClient(client *Client) {
+	c.node.Set(strconv.FormatInt(client.cid, 10), client)
+
+	atomic.AddInt64(&c.count, 1)
+}
+
+// delClient 删除客户端
+func (c *Channel) delClient(client *Client) {
+
+	cid := strconv.FormatInt(client.cid, 10)
+
+	if !c.node.Has(cid) {
+		return
+	}
+
+	c.node.Remove(cid)
+
+	atomic.AddInt64(&c.count, -1)
 }

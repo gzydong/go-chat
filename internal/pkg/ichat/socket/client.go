@@ -41,7 +41,7 @@ type Client struct {
 	channel  *Channel             // 渠道分组
 	closed   int32                // 客户端是否关闭连接
 	storage  IStorage             // 缓存服务
-	callBack ICallback            // 回调方法
+	event    IEvent               // 回调方法
 	outChan  chan *ClientResponse // 发送通道
 }
 
@@ -53,14 +53,14 @@ type ClientOption struct {
 }
 
 // NewClient 初始化客户端信息
-func NewClient(ctx context.Context, conn IConn, opt *ClientOption, callBack ICallback) error {
+func NewClient(conn IConn, opt *ClientOption, event IEvent) error {
 
 	if opt.Buffer <= 0 {
 		opt.Buffer = 10
 	}
 
-	if callBack == nil {
-		panic("call is nil")
+	if event == nil {
+		panic("event is nil")
 	}
 
 	client := &Client{
@@ -71,7 +71,7 @@ func NewClient(ctx context.Context, conn IConn, opt *ClientOption, callBack ICal
 		channel:  opt.Channel,
 		storage:  opt.Storage,
 		outChan:  make(chan *ClientResponse, opt.Buffer),
-		callBack: callBack,
+		event:    event,
 	}
 
 	// 设置客户端连接关闭回调事件
@@ -79,17 +79,17 @@ func NewClient(ctx context.Context, conn IConn, opt *ClientOption, callBack ICal
 
 	// 绑定客户端映射关系
 	if client.storage != nil {
-		client.storage.Bind(ctx, client.channel.name, client.cid, client.uid)
+		client.storage.Bind(context.TODO(), client.channel.name, client.cid, client.uid)
 	}
 
 	// 注册客户端
 	client.channel.addClient(client)
 
 	// 触发自定义的 Open 事件
-	client.callBack.Open(client)
+	client.event.Open(client)
 
 	// 注册心跳管理
-	health.addClient(client)
+	health.insert(client)
 
 	return client.init()
 }
@@ -151,18 +151,14 @@ func (c *Client) close(code int, text string) error {
 
 	close(c.outChan)
 
-	// 触发连接关闭回调
-	c.callBack.Close(c, code, text)
+	c.event.Close(c, code, text)
 
 	if c.storage != nil {
-		c.storage.UnBind(context.Background(), c.channel.name, c.cid)
+		c.storage.UnBind(context.TODO(), c.channel.name, c.cid)
 	}
 
-	// 渠道分组移除客户端
+	health.delete(c)
 	c.channel.delClient(c)
-
-	// 心跳管理移除客户端
-	health.delClient(c)
 
 	return nil
 }
@@ -198,7 +194,7 @@ func (c *Client) loopWrite() {
 
 		if data.IsAck && data.Retry > 0 {
 			data.Retry--
-			ack.add(data.Sid, &AckBufferBody{
+			ack.insert(data.Sid, &AckBufferContent{
 				Cid:   c.cid,
 				Uid:   int64(c.uid),
 				Ch:    c.channel.name,
@@ -227,10 +223,10 @@ func (c *Client) message(data []byte) {
 	case "ack": // ACK回执
 		ackId := gjson.GetBytes(data, "sid").String()
 		if len(ackId) > 0 {
-			ack.remove(ackId)
+			ack.delete(ackId)
 		}
 	default: // 触发消息回调
-		c.callBack.Message(c, data)
+		c.event.Message(c, data)
 	}
 }
 

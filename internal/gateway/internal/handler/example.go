@@ -28,11 +28,11 @@ func (c *ExampleChannel) Conn(ctx *ichat.Context) error {
 		return err
 	}
 
-	return socket.NewClient(ctx.Ctx(), conn, &socket.ClientOption{
+	return socket.NewClient(conn, &socket.ClientOption{
 		Channel: socket.Session.Example,
 		Uid:     0,
-	}, socket.NewClientCallback(
-		// 连接成功回调事件
+	}, socket.NewClientEvent(
+		// 连接成功回调
 		socket.WithOpenCallback(c.event.OnOpen),
 		// 接收消息回调
 		socket.WithMessageCallback(c.event.OnMessage),

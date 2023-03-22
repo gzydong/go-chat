@@ -8,22 +8,22 @@ import (
 )
 
 // SimpleTimeWheel 简单时间轮
-type SimpleTimeWheel struct {
+type SimpleTimeWheel[T any] struct {
 	interval  time.Duration
 	ticker    *time.Ticker
 	slot      []cmap.ConcurrentMap[string, *element]
 	indicator cmap.ConcurrentMap[string, int]
 	tickIndex int
-	onTick    SimpleHandler
+	onTick    SimpleHandler[T]
 	taskChan  chan *element
 	quitChan  chan struct{}
 }
 
 // SimpleHandler 处理函数
-type SimpleHandler func(*SimpleTimeWheel, string, any)
+type SimpleHandler[T any] func(*SimpleTimeWheel[T], string, T)
 
-func NewSimpleTimeWheel(delay time.Duration, numSlot int, handler SimpleHandler) *SimpleTimeWheel {
-	timeWheel := &SimpleTimeWheel{
+func NewSimpleTimeWheel[T any](delay time.Duration, numSlot int, handler SimpleHandler[T]) *SimpleTimeWheel[T] {
+	timeWheel := &SimpleTimeWheel[T]{
 		taskChan:  make(chan *element, 100),
 		quitChan:  make(chan struct{}),
 		indicator: cmap.New[int](),
@@ -40,7 +40,7 @@ func NewSimpleTimeWheel(delay time.Duration, numSlot int, handler SimpleHandler)
 }
 
 // Start 启动时间轮任务
-func (t *SimpleTimeWheel) Start() {
+func (t *SimpleTimeWheel[T]) Start() {
 
 	go t.run()
 
@@ -58,11 +58,11 @@ func (t *SimpleTimeWheel) Start() {
 	}
 }
 
-func (t *SimpleTimeWheel) Stop() {
+func (t *SimpleTimeWheel[T]) Stop() {
 	close(t.quitChan)
 }
 
-func (t *SimpleTimeWheel) run() {
+func (t *SimpleTimeWheel[T]) run() {
 
 	worker := pool.New().WithMaxGoroutines(10)
 
@@ -88,7 +88,7 @@ func (t *SimpleTimeWheel) run() {
 
 				worker.Go(func() {
 					if el.expire <= time.Now().Unix() {
-						t.onTick(t, el.key, el.value)
+						t.onTick(t, el.key, el.value.(T))
 					} else {
 						second := el.expire - time.Now().Unix()
 						_ = t.Add(el.key, el.value, time.Duration(second)*time.Second)
@@ -100,21 +100,21 @@ func (t *SimpleTimeWheel) run() {
 }
 
 // Add 添加任务
-func (t *SimpleTimeWheel) Add(key string, task any, delay time.Duration) error {
+func (t *SimpleTimeWheel[T]) Add(key string, task any, delay time.Duration) error {
 
 	t.taskChan <- &element{key: key, value: task, expire: time.Now().Add(delay).Unix()}
 
 	return nil
 }
 
-func (t *SimpleTimeWheel) Remove(key string) {
+func (t *SimpleTimeWheel[T]) Remove(key string) {
 	if value, ok := t.indicator.Get(key); ok {
 		t.slot[value].Remove(key)
 		t.indicator.Remove(key)
 	}
 }
 
-func (t *SimpleTimeWheel) getCircleAndSlot(el *element) int {
+func (t *SimpleTimeWheel[T]) getCircleAndSlot(el *element) int {
 
 	remainingTime := int(el.expire - time.Now().Unix())
 	if remainingTime <= 0 {
