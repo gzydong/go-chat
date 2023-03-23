@@ -10,6 +10,7 @@ import (
 
 	cmap "github.com/orcaman/concurrent-map/v2"
 	"github.com/sourcegraph/conc/pool"
+	"go-chat/internal/pkg/jsonutil"
 	"go-chat/internal/pkg/strutil"
 )
 
@@ -83,6 +84,8 @@ func (c *Channel) Start(ctx context.Context) error {
 			}
 
 			data := val
+
+			fmt.Println("Channel outChan       ===>", jsonutil.Encode(data.message))
 
 			work.Go(func() {
 				if data.IsBroadcast() {

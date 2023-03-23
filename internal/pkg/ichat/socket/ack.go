@@ -4,19 +4,12 @@ import (
 	"context"
 	"errors"
 	"log"
-	"sync"
 	"time"
 
 	"go-chat/internal/pkg/timewheel"
 )
 
 var ack *AckBuffer
-
-var bufferContentPool = sync.Pool{
-	New: func() any {
-		return &AckBufferContent{}
-	},
-}
 
 // AckBuffer Ack 确认缓冲区
 type AckBuffer struct {
@@ -56,11 +49,6 @@ func (a *AckBuffer) delete(ackKey string) {
 
 func (a *AckBuffer) handle(_ *timewheel.SimpleTimeWheel[*AckBufferContent], _ string, bufferContent *AckBufferContent) {
 
-	defer func() {
-		bufferContent.reset()
-		bufferContentPool.Put(bufferContent)
-	}()
-
 	ch, ok := Session.Channel(bufferContent.channel)
 	if !ok {
 		return
@@ -78,11 +66,4 @@ func (a *AckBuffer) handle(_ *timewheel.SimpleTimeWheel[*AckBufferContent], _ st
 	if err := client.Write(bufferContent.response); err != nil {
 		log.Println("ack err: ", err)
 	}
-}
-
-func (a *AckBufferContent) reset() {
-	a.cid = 0
-	a.uid = 0
-	a.channel = ""
-	a.response = nil
 }

@@ -70,6 +70,8 @@ func (m *MessageSubscribe) subscribe(ctx context.Context, topic []string, consum
 				}
 			}()
 
+			fmt.Println("subscribe     ===>", msg.Payload)
+
 			consume.Call(message.Event, message.Data)
 		})
 	}

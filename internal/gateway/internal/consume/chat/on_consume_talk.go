@@ -3,6 +3,7 @@ package chat
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"strconv"
 
 	"go-chat/internal/entity"
@@ -26,6 +27,8 @@ func (h *Handler) onConsumeTalk(ctx context.Context, body []byte) {
 		logger.Error("[ChatSubscribe] onConsumeTalk Unmarshal err: ", err.Error())
 		return
 	}
+
+	fmt.Println("subscribe onConsumeTalk      ===>", string(body))
 
 	cids := make([]int64, 0)
 	if msg.TalkType == entity.ChatPrivateMode {

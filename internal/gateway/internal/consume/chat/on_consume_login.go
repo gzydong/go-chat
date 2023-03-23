@@ -34,10 +34,11 @@ func (h *Handler) onConsumeLogin(ctx context.Context, body []byte) {
 		uids = append(uids, mids...)
 	}
 
-	sid := h.config.ServerId()
 	for _, uid := range sliceutil.Unique(uids) {
-		ids := h.clientStorage.GetUidFromClientIds(ctx, sid, socket.Session.Chat.Name(), strconv.FormatInt(uid, 10))
-		cids = append(cids, ids...)
+		ids := h.clientStorage.GetUidFromClientIds(ctx, h.config.ServerId(), socket.Session.Chat.Name(), strconv.FormatInt(uid, 10))
+		if len(ids) > 0 {
+			cids = append(cids, ids...)
+		}
 	}
 
 	if len(cids) == 0 {

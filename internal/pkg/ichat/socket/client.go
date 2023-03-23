@@ -195,7 +195,7 @@ func (c *Client) loopWrite() {
 		if data.IsAck && data.Retry > 0 {
 			data.Retry--
 
-			ackBufferContent := bufferContentPool.Get().(*AckBufferContent)
+			ackBufferContent := &AckBufferContent{}
 			ackBufferContent.cid = c.cid
 			ackBufferContent.uid = int64(c.uid)
 			ackBufferContent.channel = c.channel.Name()
