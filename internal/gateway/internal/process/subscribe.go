@@ -58,7 +58,7 @@ func (m *MessageSubscribe) subscribe(ctx context.Context, topic []string, consum
 	// 订阅 redis 消息
 	for msg := range sub.Channel(redis.WithChannelHealthCheckInterval(15 * time.Second)) {
 		worker.Go(func() {
-			var message *SubscribeContent
+			var message SubscribeContent
 			if err := json.Unmarshal([]byte(msg.Payload), &message); err != nil {
 				log.Println("SubscribeContent Err: ", err.Error())
 				return

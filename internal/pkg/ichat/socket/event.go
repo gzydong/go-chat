@@ -47,7 +47,7 @@ func (c *ClientEvent) Open(client IClient) {
 
 	defer func() {
 		if err := recover(); err != nil {
-			log.Println("open event callback exception: ", client.Uid(), client.Cid(), client.ChannelName(), utils.PanicTrace(err))
+			log.Println("open event callback exception: ", client.Uid(), client.Cid(), client.Channel().Name(), utils.PanicTrace(err))
 		}
 	}()
 
@@ -62,7 +62,7 @@ func (c *ClientEvent) Message(client IClient, data []byte) {
 
 	defer func() {
 		if err := recover(); err != nil {
-			log.Println("message event callback exception: ", client.Uid(), client.Cid(), client.ChannelName(), utils.PanicTrace(err))
+			log.Println("message event callback exception: ", client.Uid(), client.Cid(), client.Channel().Name(), utils.PanicTrace(err))
 		}
 	}()
 
@@ -76,7 +76,7 @@ func (c *ClientEvent) Close(client IClient, code int, text string) {
 
 	defer func() {
 		if err := recover(); err != nil {
-			log.Println("close event callback exception: ", client.Uid(), client.Cid(), client.ChannelName(), utils.PanicTrace(err))
+			log.Println("close event callback exception: ", client.Uid(), client.Cid(), client.Channel().Name(), utils.PanicTrace(err))
 		}
 	}()
 
@@ -90,7 +90,7 @@ func (c *ClientEvent) Destroy(client IClient) {
 
 	defer func() {
 		if err := recover(); err != nil {
-			log.Println("destroy event callback exception: ", client.Uid(), client.Cid(), client.ChannelName(), utils.PanicTrace(err))
+			log.Println("destroy event callback exception: ", client.Uid(), client.Cid(), client.Channel().Name(), utils.PanicTrace(err))
 		}
 	}()
 

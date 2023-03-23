@@ -19,13 +19,17 @@ type ConsumeTalkRead struct {
 // 消息已读事件
 func (h *Handler) onConsumeTalkRead(ctx context.Context, body []byte) {
 
-	var data *ConsumeTalkRead
+	var data ConsumeTalkRead
 	if err := json.Unmarshal(body, &data); err != nil {
 		logger.Error("[ChatSubscribe] onConsumeContactApply Unmarshal err: ", err.Error())
 		return
 	}
 
 	cids := h.clientStorage.GetUidFromClientIds(ctx, h.config.ServerId(), socket.Session.Chat.Name(), strconv.Itoa(data.ReceiverId))
+
+	if len(cids) == 0 {
+		return
+	}
 
 	c := socket.NewSenderContent()
 	c.IsAck = true

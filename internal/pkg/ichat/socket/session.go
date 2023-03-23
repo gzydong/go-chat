@@ -44,7 +44,7 @@ func initialize(ctx context.Context, eg *errgroup.Group, fn func(name string)) {
 	Session.channels["example"] = Session.Example
 
 	// 延时启动守护协程
-	time.AfterFunc(5*time.Second, func() {
+	time.AfterFunc(3*time.Second, func() {
 		eg.Go(func() error {
 			defer fn("health exit")
 			return health.Start(ctx)

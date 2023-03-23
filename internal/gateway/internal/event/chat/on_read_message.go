@@ -21,7 +21,7 @@ type TalkReadMessage struct {
 // OnReadMessage 消息已读事件
 func (h *Handler) OnReadMessage(ctx context.Context, client socket.IClient, data []byte) {
 
-	var m *TalkReadMessage
+	var m TalkReadMessage
 	if err := jsonutil.Decode(data, &m); err != nil {
 		log.Println("Chat OnReadMessage Err: ", err)
 		return

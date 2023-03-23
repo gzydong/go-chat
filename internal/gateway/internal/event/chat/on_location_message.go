@@ -19,7 +19,7 @@ type LocationMessageMessage struct {
 // OnLocationMessage 位置消息
 func (h *Handler) OnLocationMessage(ctx context.Context, _ socket.IClient, data []byte) {
 
-	var m *LocationMessageMessage
+	var m LocationMessageMessage
 	if err := json.Unmarshal(data, &m); err != nil {
 		log.Println("Chat OnLocationMessage Err: ", err)
 		return

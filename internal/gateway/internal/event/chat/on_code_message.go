@@ -19,7 +19,7 @@ type CodeMessage struct {
 // OnCodeMessage 代码消息
 func (h *Handler) OnCodeMessage(ctx context.Context, _ socket.IClient, data []byte) {
 
-	var m *CodeMessage
+	var m CodeMessage
 	if err := json.Unmarshal(data, &m); err != nil {
 		log.Println("Chat OnCodeMessage Err: ", err)
 		return

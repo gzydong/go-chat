@@ -19,7 +19,7 @@ type VoteMessage struct {
 // OnVoteMessage 文本消息
 func (h *Handler) OnVoteMessage(ctx context.Context, _ socket.IClient, data []byte) {
 
-	var m *VoteMessage
+	var m VoteMessage
 	if err := json.Unmarshal(data, &m); err != nil {
 		log.Println("Chat OnVoteMessage Err: ", err)
 		return

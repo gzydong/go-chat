@@ -18,7 +18,7 @@ type ConsumeTalkKeyboard struct {
 // 键盘输入事件消息
 func (h *Handler) onConsumeTalkKeyboard(ctx context.Context, body []byte) {
 
-	var msg *ConsumeTalkKeyboard
+	var msg ConsumeTalkKeyboard
 	if err := json.Unmarshal(body, &msg); err != nil {
 		logger.Error("[ChatSubscribe] onConsumeTalkKeyboard Unmarshal err: ", err.Error())
 		return

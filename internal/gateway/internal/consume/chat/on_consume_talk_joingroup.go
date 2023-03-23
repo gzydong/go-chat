@@ -20,7 +20,7 @@ type ConsumeTalkJoinGroup struct {
 // 加入群房间
 func (h *Handler) onConsumeTalkJoinGroup(ctx context.Context, body []byte) {
 
-	var data *ConsumeTalkJoinGroup
+	var data ConsumeTalkJoinGroup
 	if err := json.Unmarshal(body, &data); err != nil {
 		logger.Error("[ChatSubscribe] onConsumeTalkJoinGroup Unmarshal err: ", err.Error())
 		return

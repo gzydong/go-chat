@@ -21,7 +21,7 @@ type KeyboardMessage struct {
 // OnKeyboardMessage 键盘输入事件
 func (h *Handler) OnKeyboardMessage(ctx context.Context, _ socket.IClient, data []byte) {
 
-	var m *KeyboardMessage
+	var m KeyboardMessage
 	if err := json.Unmarshal(data, &m); err != nil {
 		log.Println("Chat OnKeyboardMessage Err: ", err)
 		return

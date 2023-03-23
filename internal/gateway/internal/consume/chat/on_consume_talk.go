@@ -21,7 +21,7 @@ type ConsumeTalk struct {
 // 聊天消息事件
 func (h *Handler) onConsumeTalk(ctx context.Context, body []byte) {
 
-	var msg *ConsumeTalk
+	var msg ConsumeTalk
 	if err := json.Unmarshal(body, &msg); err != nil {
 		logger.Error("[ChatSubscribe] onConsumeTalk Unmarshal err: ", err.Error())
 		return

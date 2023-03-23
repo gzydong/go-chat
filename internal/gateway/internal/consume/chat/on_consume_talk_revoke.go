@@ -19,14 +19,14 @@ type ConsumeTalkRevoke struct {
 // 撤销聊天消息
 func (h *Handler) onConsumeTalkRevoke(ctx context.Context, body []byte) {
 
-	var msg *ConsumeTalkRevoke
-	if err := json.Unmarshal(body, &msg); err != nil {
+	var data ConsumeTalkRevoke
+	if err := json.Unmarshal(body, &data); err != nil {
 		logger.Error("[ChatSubscribe] onConsumeTalkRevoke Unmarshal err: ", err.Error())
 		return
 	}
 
 	var record *model.TalkRecords
-	if err := h.recordsService.Db().First(&record, msg.RecordId).Error; err != nil {
+	if err := h.recordsService.Db().First(&record, data.RecordId).Error; err != nil {
 		return
 	}
 

@@ -19,7 +19,7 @@ type EmoticonMessage struct {
 // OnEmoticonMessage 表情包消息
 func (h *Handler) OnEmoticonMessage(ctx context.Context, _ socket.IClient, data []byte) {
 
-	var m *EmoticonMessage
+	var m EmoticonMessage
 	if err := json.Unmarshal(data, &m); err != nil {
 		log.Println("Chat OnEmoticonMessage Err: ", err)
 		return

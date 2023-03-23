@@ -19,7 +19,7 @@ type ImageMessage struct {
 // OnImageMessage 图片消息
 func (h *Handler) OnImageMessage(ctx context.Context, _ socket.IClient, data []byte) {
 
-	var m *ImageMessage
+	var m ImageMessage
 	if err := json.Unmarshal(data, &m); err != nil {
 		log.Println("Chat OnImageMessage Err: ", err)
 		return

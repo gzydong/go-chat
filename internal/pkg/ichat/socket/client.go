@@ -16,7 +16,7 @@ type IClient interface {
 	Uid() int                         // 客户端关联用户ID
 	Close(code int, text string)      // 关闭客户端
 	Write(data *ClientResponse) error // 写入数据
-	ChannelName() string
+	Channel() IChannel                // 获取客户端所属渠道
 }
 
 type IStorage interface {
@@ -38,8 +38,8 @@ type Client struct {
 	cid      int64                // 客户端ID/客户端唯一标识
 	uid      int                  // 用户ID
 	lastTime int64                // 客户端最后心跳时间/心跳检测
-	channel  *Channel             // 渠道分组
 	closed   int32                // 客户端是否关闭连接
+	channel  IChannel             // 渠道分组
 	storage  IStorage             // 缓存服务
 	event    IEvent               // 回调方法
 	outChan  chan *ClientResponse // 发送通道
@@ -47,7 +47,7 @@ type Client struct {
 
 type ClientOption struct {
 	Uid     int      // 用户识别ID
-	Channel *Channel // 渠道信息
+	Channel IChannel // 渠道信息
 	Storage IStorage // 自定义缓存组件，用于绑定用户与客户端的关系
 	Buffer  int      // 缓冲区大小根据业务，自行调整
 }
@@ -79,7 +79,7 @@ func NewClient(conn IConn, opt *ClientOption, event IEvent) error {
 
 	// 绑定客户端映射关系
 	if client.storage != nil {
-		client.storage.Bind(context.TODO(), client.channel.name, client.cid, client.uid)
+		client.storage.Bind(context.TODO(), client.channel.Name(), client.cid, client.uid)
 	}
 
 	// 注册客户端
@@ -94,9 +94,9 @@ func NewClient(conn IConn, opt *ClientOption, event IEvent) error {
 	return client.init()
 }
 
-// ChannelName Channel Name
-func (c *Client) ChannelName() string {
-	return c.channel.Name()
+// Channel  Name
+func (c *Client) Channel() IChannel {
+	return c.channel
 }
 
 // Cid 获取客户端ID
@@ -154,7 +154,7 @@ func (c *Client) close(code int, text string) error {
 	c.event.Close(c, code, text)
 
 	if c.storage != nil {
-		c.storage.UnBind(context.TODO(), c.channel.name, c.cid)
+		c.storage.UnBind(context.TODO(), c.channel.Name(), c.cid)
 	}
 
 	health.delete(c)
@@ -194,12 +194,14 @@ func (c *Client) loopWrite() {
 
 		if data.IsAck && data.Retry > 0 {
 			data.Retry--
-			ack.insert(data.Sid, &AckBufferContent{
-				Cid:   c.cid,
-				Uid:   int64(c.uid),
-				Ch:    c.channel.name,
-				Value: data,
-			})
+
+			ackBufferContent := bufferContentPool.Get().(*AckBufferContent)
+			ackBufferContent.cid = c.cid
+			ackBufferContent.uid = int64(c.uid)
+			ackBufferContent.channel = c.channel.Name()
+			ackBufferContent.response = data
+
+			ack.insert(data.Sid, ackBufferContent)
 		}
 	}
 }

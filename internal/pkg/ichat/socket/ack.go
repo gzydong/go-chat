@@ -4,13 +4,19 @@ import (
 	"context"
 	"errors"
 	"log"
+	"sync"
 	"time"
 
 	"go-chat/internal/pkg/timewheel"
 )
 
-// nolint
 var ack *AckBuffer
+
+var bufferContentPool = sync.Pool{
+	New: func() any {
+		return &AckBufferContent{}
+	},
+}
 
 // AckBuffer Ack 确认缓冲区
 type AckBuffer struct {
@@ -18,10 +24,10 @@ type AckBuffer struct {
 }
 
 type AckBufferContent struct {
-	Cid   int64
-	Uid   int64
-	Ch    string
-	Value *ClientResponse
+	cid      int64
+	uid      int64
+	channel  string
+	response *ClientResponse
 }
 
 func init() {
@@ -50,21 +56,33 @@ func (a *AckBuffer) delete(ackKey string) {
 
 func (a *AckBuffer) handle(_ *timewheel.SimpleTimeWheel[*AckBufferContent], _ string, bufferContent *AckBufferContent) {
 
-	ch, ok := Session.Channel(bufferContent.Ch)
+	defer func() {
+		bufferContent.reset()
+		bufferContentPool.Put(bufferContent)
+	}()
+
+	ch, ok := Session.Channel(bufferContent.channel)
 	if !ok {
 		return
 	}
 
-	client, ok := ch.Client(bufferContent.Cid)
+	client, ok := ch.Client(bufferContent.cid)
 	if !ok {
 		return
 	}
 
-	if client.Closed() || int64(client.uid) != bufferContent.Uid {
+	if client.Closed() || int64(client.uid) != bufferContent.uid {
 		return
 	}
 
-	if err := client.Write(bufferContent.Value); err != nil {
+	if err := client.Write(bufferContent.response); err != nil {
 		log.Println("ack err: ", err)
 	}
+}
+
+func (a *AckBufferContent) reset() {
+	a.cid = 0
+	a.uid = 0
+	a.channel = ""
+	a.response = nil
 }

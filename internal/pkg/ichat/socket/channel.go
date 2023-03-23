@@ -16,6 +16,10 @@ import (
 type IChannel interface {
 	Name() string
 	Count() int64
+	Client(cid int64) (*Client, bool)
+	Write(data *SenderContent)
+	addClient(client *Client)
+	delClient(client *Client)
 }
 
 // Channel 渠道管理（多渠道划分，实现不同业务之间隔离）
@@ -46,13 +50,13 @@ func (c *Channel) Client(cid int64) (*Client, bool) {
 }
 
 // Write 推送消息到消费通道
-func (c *Channel) Write(msg *SenderContent) {
+func (c *Channel) Write(data *SenderContent) {
 
 	timer := time.NewTimer(3 * time.Second)
 	defer timer.Stop()
 
 	select {
-	case c.outChan <- msg:
+	case c.outChan <- data:
 		break
 	case <-timer.C:
 		log.Printf("[ERROR] [%s] Channel OutChan 写入消息超时,管道长度：%d \n", c.name, len(c.outChan))

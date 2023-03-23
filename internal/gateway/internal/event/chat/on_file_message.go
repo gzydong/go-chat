@@ -19,7 +19,7 @@ type FileMessage struct {
 // OnFileMessage 文本消息
 func (h *Handler) OnFileMessage(ctx context.Context, _ socket.IClient, data []byte) {
 
-	var m *FileMessage
+	var m FileMessage
 	if err := json.Unmarshal(data, &m); err != nil {
 		log.Println("Chat OnFileMessage Err: ", err)
 		return

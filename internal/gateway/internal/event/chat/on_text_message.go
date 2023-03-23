@@ -19,7 +19,7 @@ type TextMessage struct {
 // OnTextMessage 文本消息
 func (h *Handler) OnTextMessage(ctx context.Context, client socket.IClient, data []byte) {
 
-	var m *TextMessage
+	var m TextMessage
 	if err := json.Unmarshal(data, &m); err != nil {
 		log.Println("Chat OnTextMessage Err: ", err)
 		return

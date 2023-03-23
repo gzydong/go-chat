@@ -76,6 +76,8 @@ func (d *ChatEvent) OnMessage(client socket.IClient, message []byte) {
 // OnClose 连接关闭回调事件
 func (d *ChatEvent) OnClose(client socket.IClient, code int, text string) {
 
+	log.Println("client close: ", client.Uid(), client.Cid(), client.Channel().Name(), code, text)
+
 	ctx := context.Background()
 
 	// 1.判断用户是否是多点登录
