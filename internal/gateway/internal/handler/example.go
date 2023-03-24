@@ -31,12 +31,12 @@ func (c *ExampleChannel) Conn(ctx *ichat.Context) error {
 	return socket.NewClient(conn, &socket.ClientOption{
 		Channel: socket.Session.Example,
 		Uid:     0,
-	}, socket.NewClientEvent(
+	}, socket.NewEvent(
 		// 连接成功回调
-		socket.WithOpenCallback(c.event.OnOpen),
+		socket.WithOpenEvent(c.event.OnOpen),
 		// 接收消息回调
-		socket.WithMessageCallback(c.event.OnMessage),
+		socket.WithMessageEvent(c.event.OnMessage),
 		// 关闭连接回调
-		socket.WithCloseCallback(c.event.OnClose),
+		socket.WithCloseEvent(c.event.OnClose),
 	))
 }

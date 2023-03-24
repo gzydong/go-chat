@@ -14,23 +14,23 @@ type IEvent interface {
 }
 
 type (
-	OpenEvent         func(client IClient)
-	MessageEvent      func(client IClient, data []byte)
-	CloseEvent        func(client IClient, code int, text string)
-	DestroyEvent      func(client IClient)
-	ClientEventOption func(event *ClientEvent)
+	OpenEvent    func(client IClient)
+	MessageEvent func(client IClient, data []byte)
+	CloseEvent   func(client IClient, code int, text string)
+	DestroyEvent func(client IClient)
+	EventOption  func(event *Event)
 )
 
-type ClientEvent struct {
+type Event struct {
 	open    OpenEvent
 	message MessageEvent
 	close   CloseEvent
 	destroy DestroyEvent
 }
 
-func NewClientEvent(opts ...ClientEventOption) IEvent {
+func NewEvent(opts ...EventOption) IEvent {
 
-	o := &ClientEvent{}
+	o := &Event{}
 
 	for _, opt := range opts {
 		opt(o)
@@ -39,7 +39,7 @@ func NewClientEvent(opts ...ClientEventOption) IEvent {
 	return o
 }
 
-func (c *ClientEvent) Open(client IClient) {
+func (c *Event) Open(client IClient) {
 
 	if c.open == nil {
 		return
@@ -54,7 +54,7 @@ func (c *ClientEvent) Open(client IClient) {
 	c.open(client)
 }
 
-func (c *ClientEvent) Message(client IClient, data []byte) {
+func (c *Event) Message(client IClient, data []byte) {
 
 	if c.message == nil {
 		return
@@ -69,7 +69,8 @@ func (c *ClientEvent) Message(client IClient, data []byte) {
 	c.message(client, data)
 }
 
-func (c *ClientEvent) Close(client IClient, code int, text string) {
+func (c *Event) Close(client IClient, code int, text string) {
+
 	if c.close == nil {
 		return
 	}
@@ -83,7 +84,8 @@ func (c *ClientEvent) Close(client IClient, code int, text string) {
 	c.close(client, code, text)
 }
 
-func (c *ClientEvent) Destroy(client IClient) {
+func (c *Event) Destroy(client IClient) {
+
 	if c.destroy == nil {
 		return
 	}
@@ -97,30 +99,30 @@ func (c *ClientEvent) Destroy(client IClient) {
 	c.destroy(client)
 }
 
-// WithOpenCallback 连接成功回调事件
-func WithOpenCallback(e OpenEvent) ClientEventOption {
-	return func(event *ClientEvent) {
+// WithOpenEvent 连接成功回调事件
+func WithOpenEvent(e OpenEvent) EventOption {
+	return func(event *Event) {
 		event.open = e
 	}
 }
 
-// WithMessageCallback 消息回调事件
-func WithMessageCallback(e MessageEvent) ClientEventOption {
-	return func(event *ClientEvent) {
+// WithMessageEvent 消息回调事件
+func WithMessageEvent(e MessageEvent) EventOption {
+	return func(event *Event) {
 		event.message = e
 	}
 }
 
-// WithCloseCallback 连接关闭回调事件
-func WithCloseCallback(e CloseEvent) ClientEventOption {
-	return func(event *ClientEvent) {
+// WithCloseEvent 连接关闭回调事件
+func WithCloseEvent(e CloseEvent) EventOption {
+	return func(event *Event) {
 		event.close = e
 	}
 }
 
-// WithDestroyCallback 连接销毁回调事件
-func WithDestroyCallback(e DestroyEvent) ClientEventOption {
-	return func(event *ClientEvent) {
+// WithDestroyEvent 连接销毁回调事件
+func WithDestroyEvent(e DestroyEvent) EventOption {
+	return func(event *Event) {
 		event.destroy = e
 	}
 }

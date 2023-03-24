@@ -37,12 +37,12 @@ func (c *ChatChannel) NewClient(uid int, conn socket.IConn) error {
 		Channel: socket.Session.Chat,
 		Storage: c.storage,
 		Buffer:  10,
-	}, socket.NewClientEvent(
+	}, socket.NewEvent(
 		// 连接成功回调
-		socket.WithOpenCallback(c.event.OnOpen),
+		socket.WithOpenEvent(c.event.OnOpen),
 		// 接收消息回调
-		socket.WithMessageCallback(c.event.OnMessage),
+		socket.WithMessageEvent(c.event.OnMessage),
 		// 关闭连接回调
-		socket.WithCloseCallback(c.event.OnClose),
+		socket.WithCloseEvent(c.event.OnClose),
 	))
 }
