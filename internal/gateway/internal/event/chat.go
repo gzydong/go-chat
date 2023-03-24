@@ -5,7 +5,7 @@ import (
 	"log"
 	"strconv"
 
-	"github.com/go-redis/redis/v8"
+	"github.com/redis/go-redis/v9"
 	"github.com/tidwall/gjson"
 	"go-chat/config"
 	"go-chat/internal/entity"
@@ -31,7 +31,7 @@ func NewChatEvent(redis *redis.Client, config *config.Config, roomStorage *cache
 // OnOpen 连接成功回调事件
 func (d *ChatEvent) OnOpen(client socket.IClient) {
 
-	ctx := context.Background()
+	ctx := context.TODO()
 
 	// 1.查询用户群列表
 	ids := d.memberService.Dao().GetUserGroupIds(ctx, client.Uid())
@@ -69,7 +69,7 @@ func (d *ChatEvent) OnMessage(client socket.IClient, message []byte) {
 	event := gjson.GetBytes(message, "event").String()
 	if event != "" {
 		// 触发事件
-		d.handler.Call(context.Background(), client, event, message)
+		d.handler.Call(context.TODO(), client, event, message)
 	}
 }
 
@@ -78,7 +78,7 @@ func (d *ChatEvent) OnClose(client socket.IClient, code int, text string) {
 
 	log.Println("client close: ", client.Uid(), client.Cid(), client.Channel().Name(), code, text)
 
-	ctx := context.Background()
+	ctx := context.TODO()
 
 	// 1.判断用户是否是多点登录
 

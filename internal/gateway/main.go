@@ -105,7 +105,7 @@ func start(c chan os.Signal, eg *errgroup.Group, ctx context.Context, app *AppPr
 			log.Println("Shutting down server...")
 
 			// 等待中断信号以优雅地关闭服务器（设置 5 秒的超时时间）
-			timeCtx, timeCancel := context.WithTimeout(context.Background(), 3*time.Second)
+			timeCtx, timeCancel := context.WithTimeout(context.TODO(), 3*time.Second)
 			defer timeCancel()
 
 			if err := server.Shutdown(timeCtx); err != nil {

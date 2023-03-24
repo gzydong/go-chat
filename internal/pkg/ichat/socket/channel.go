@@ -10,7 +10,6 @@ import (
 
 	cmap "github.com/orcaman/concurrent-map/v2"
 	"github.com/sourcegraph/conc/pool"
-	"go-chat/internal/pkg/jsonutil"
 	"go-chat/internal/pkg/strutil"
 )
 
@@ -58,65 +57,67 @@ func (c *Channel) Write(data *SenderContent) {
 
 	select {
 	case c.outChan <- data:
-		break
 	case <-timer.C:
 		log.Printf("[ERROR] [%s] Channel OutChan 写入消息超时,管道长度：%d \n", c.name, len(c.outChan))
-		break
 	}
 }
 
 // Start 渠道消费开启
 func (c *Channel) Start(ctx context.Context) error {
 
-	work := pool.New().WithMaxGoroutines(10)
+	var (
+		worker = pool.New().WithMaxGoroutines(10)
+		timer  = time.NewTimer(10 * time.Second)
+	)
 
-	err := fmt.Errorf("channel exit :%s", c.Name())
-
-	defer log.Println(err)
+	defer log.Println(fmt.Errorf("channel exit :%s", c.Name()))
+	defer timer.Stop()
 
 	for {
+		timer.Reset(10 * time.Second)
+
 		select {
 		case <-ctx.Done():
-			return err
+			return fmt.Errorf("channel exit :%s", c.Name())
+		case <-timer.C:
+			fmt.Printf("channel empty message name:%s unix:%d \n", c.name, time.Now().Unix())
 		case val, ok := <-c.outChan:
 			if !ok {
-				return err
+				return fmt.Errorf("outchan close :%s", c.Name())
 			}
 
-			data := val
-
-			fmt.Println("Channel outChan       ===>", jsonutil.Encode(data.message))
-
-			work.Go(func() {
-				if data.IsBroadcast() {
-					c.node.IterCb(func(_ string, client *Client) {
-						c.write(data, client)
-					})
-				} else {
-					for _, cid := range data.receives {
-						if client, ok := c.Client(cid); ok {
-							c.write(data, client)
-						}
-					}
+			c.consume(worker, val, func(data *SenderContent, value *Client) {
+				response := &ClientResponse{
+					IsAck:   data.IsAck,
+					Event:   data.message.Event,
+					Content: data.message.Content,
 				}
+
+				if data.IsAck {
+					response.Sid = strutil.NewMsgId()
+					response.Retry = 3
+				}
+
+				_ = value.Write(response)
 			})
 		}
 	}
 }
 
-func (c *Channel) write(data *SenderContent, value *Client) {
-	response := &ClientResponse{
-		IsAck:   data.IsAck,
-		Event:   data.message.Event,
-		Content: data.message.Content,
-	}
-
-	if data.IsAck {
-		response.Sid = strutil.NewMsgId()
-		response.Retry = 3
-	}
-
-	_ = value.Write(response)
+func (c *Channel) consume(worker *pool.Pool, data *SenderContent, fn func(data *SenderContent, value *Client)) {
+	worker.Go(func() {
+		if data.IsBroadcast() {
+			c.node.IterCb(func(_ string, client *Client) {
+				fn(data, client)
+			})
+		} else {
+			for _, cid := range data.receives {
+				if client, ok := c.Client(cid); ok {
+					fn(data, client)
+				}
+			}
+		}
+	})
 }
 
 // addClient 添加客户端

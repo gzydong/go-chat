@@ -106,7 +106,7 @@ func (r *TestRequest) doRequest(method string, contentType string, body io.Reade
 	var err error
 	var bb []byte
 
-	req := r.Request.Clone(context.Background())
+	req := r.Request.Clone(context.TODO())
 	req.Method = method
 	if body != nil {
 		bb, err = io.ReadAll(body)

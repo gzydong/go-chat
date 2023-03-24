@@ -23,11 +23,11 @@ func NewIpAddressService(baseService *BaseService, conf *config.Config, httpClie
 }
 
 func (s *IpAddressService) getCache(ip string) (string, error) {
-	return s.rds.HGet(context.Background(), "rds:hash:ip-address", ip).Result()
+	return s.rds.HGet(context.TODO(), "rds:hash:ip-address", ip).Result()
 }
 
 func (s *IpAddressService) setCache(ip string, value string) error {
-	return s.rds.HSet(context.Background(), "rds:hash:ip-address", ip, value).Err()
+	return s.rds.HSet(context.TODO(), "rds:hash:ip-address", ip, value).Err()
 }
 
 type IpAddressResponse struct {

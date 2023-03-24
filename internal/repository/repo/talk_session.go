@@ -18,7 +18,7 @@ func NewTalkSession(db *gorm.DB) *TalkSession {
 
 func (t *TalkSession) IsDisturb(uid int, receiverId int, talkType int) bool {
 
-	resp, err := t.FindByWhere(context.Background(), "user_id = ? and receiver_id = ? and talk_type = ?", uid, receiverId, talkType)
+	resp, err := t.FindByWhere(context.TODO(), "user_id = ? and receiver_id = ? and talk_type = ?", uid, receiverId, talkType)
 	if err != nil {
 		return false
 	}
@@ -28,7 +28,7 @@ func (t *TalkSession) IsDisturb(uid int, receiverId int, talkType int) bool {
 
 func (t *TalkSession) FindBySessionId(uid int, receiverId int, talkType int) int {
 
-	resp, err := t.FindByWhere(context.Background(), "user_id = ? and receiver_id = ? and talk_type = ?", uid, receiverId, talkType)
+	resp, err := t.FindByWhere(context.TODO(), "user_id = ? and receiver_id = ? and talk_type = ?", uid, receiverId, talkType)
 	if err != nil {
 		return 0
 	}

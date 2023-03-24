@@ -40,9 +40,9 @@ func (s *GroupMemberService) Handover(ctx context.Context, groupId int, userId i
 }
 
 func (s *GroupMemberService) UpdateLeaderStatus(groupId int, userId int, leader int) error {
-	return s.repo.Model(context.Background()).Where("group_id = ? and user_id = ?", groupId, userId).UpdateColumn("leader", leader).Error
+	return s.repo.Model(context.TODO()).Where("group_id = ? and user_id = ?", groupId, userId).UpdateColumn("leader", leader).Error
 }
 
 func (s *GroupMemberService) UpdateMuteStatus(groupId int, userId int, status int) error {
-	return s.repo.Model(context.Background()).Where("group_id = ? and user_id = ?", groupId, userId).UpdateColumn("is_mute", status).Error
+	return s.repo.Model(context.TODO()).Where("group_id = ? and user_id = ?", groupId, userId).UpdateColumn("is_mute", status).Error
 }

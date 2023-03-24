@@ -28,7 +28,7 @@ func (e *ExampleEvent) OnMessage(client socket.IClient, message []byte) {
 	event := gjson.GetBytes(message, "event").String()
 	if event != "" {
 		// 触发事件
-		e.handler.Call(context.Background(), client, event, message)
+		e.handler.Call(context.TODO(), client, event, message)
 	}
 }
 

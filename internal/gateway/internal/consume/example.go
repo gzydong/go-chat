@@ -16,5 +16,5 @@ func NewExampleSubscribe(handler *example.Handler) *ExampleSubscribe {
 
 // Call 触发回调事件
 func (s *ExampleSubscribe) Call(event string, data string) {
-	s.handler.Call(context.Background(), event, []byte(data))
+	s.handler.Call(context.TODO(), event, []byte(data))
 }

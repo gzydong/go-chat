@@ -7,8 +7,15 @@ import (
 	"sync/atomic"
 	"time"
 
+	jsoniter "github.com/json-iterator/go"
 	"github.com/tidwall/gjson"
-	"go-chat/internal/pkg/jsonutil"
+	"go-chat/internal/pkg/utils"
+)
+
+const (
+	_MsgEventPing = "ping"
+	_MsgEventPong = "pong"
+	_MsgEventAck  = "ack"
 )
 
 type IClient interface {
@@ -75,7 +82,7 @@ func NewClient(conn IConn, opt *ClientOption, event IEvent) error {
 	}
 
 	// 设置客户端连接关闭回调事件
-	conn.SetCloseHandler(client.close)
+	conn.SetCloseHandler(client.hookClose)
 
 	// 绑定客户端映射关系
 	if client.storage != nil {
@@ -111,10 +118,14 @@ func (c *Client) Uid() int {
 
 // Close 关闭客户端连接
 func (c *Client) Close(code int, message string) {
-	defer c.conn.Close()
+	defer func() {
+		if err := c.conn.Close(); err != nil {
+			log.Printf("connection closed failed: %s \n", err.Error())
+		}
+	}()
 
 	// 触发客户端关闭回调事件
-	if err := c.close(code, message); err != nil {
+	if err := c.hookClose(code, message); err != nil {
 		log.Printf("[%s-%d-%d] client close err: %s \n", c.channel.Name(), c.cid, c.uid, err.Error())
 	}
 }
@@ -127,7 +138,7 @@ func (c *Client) Closed() bool {
 func (c *Client) Write(data *ClientResponse) error {
 
 	if c.Closed() {
-		return fmt.Errorf("connection closed")
+		return fmt.Errorf("connection has been closed")
 	}
 
 	defer func() {
@@ -142,30 +153,9 @@ func (c *Client) Write(data *ClientResponse) error {
 	return nil
 }
 
-// 关闭回调
-func (c *Client) close(code int, text string) error {
-
-	if !atomic.CompareAndSwapInt32(&c.closed, 0, 1) {
-		return nil
-	}
-
-	close(c.outChan)
-
-	c.event.Close(c, code, text)
-
-	if c.storage != nil {
-		c.storage.UnBind(context.TODO(), c.channel.Name(), c.cid)
-	}
-
-	health.delete(c)
-	c.channel.delClient(c)
-
-	return nil
-}
-
 // 循环接收客户端推送信息
 func (c *Client) loopAccept() {
-	defer c.conn.Close()
+	defer c.Close(1000, "loop accept closed")
 
 	for {
 		data, err := c.conn.Read()
@@ -175,60 +165,50 @@ func (c *Client) loopAccept() {
 
 		c.lastTime = time.Now().Unix()
 
-		c.message(data)
+		c.handleMessage(data)
 	}
 }
 
 // 循环推送客户端信息
 func (c *Client) loopWrite() {
-	for data := range c.outChan {
 
-		if c.Closed() {
-			break
+	timer := time.NewTimer(10 * time.Second)
+	defer timer.Stop()
+
+	for {
+		timer.Reset(10 * time.Second)
+
+		select {
+		case <-timer.C:
+			fmt.Printf("client empty message cid:%d uid:%d time:%d \n", c.cid, c.uid, time.Now().Unix())
+		case data, ok := <-c.outChan:
+			if !ok || c.Closed() {
+				return // channel closed
+			}
+
+			bt, err := jsoniter.Marshal(data)
+			if err != nil {
+				log.Printf("[ERROR] client json marshal err: %v \n", err)
+				break
+			}
+
+			if err := c.conn.Write(bt); err != nil {
+				log.Printf("[ERROR] [%s-%d-%d] client write err: %v \n", c.channel.Name(), c.cid, c.uid, err)
+				return
+			}
+
+			if data.IsAck && data.Retry > 0 {
+				data.Retry--
+
+				ackBufferContent := &AckBufferContent{}
+				ackBufferContent.cid = c.cid
+				ackBufferContent.uid = int64(c.uid)
+				ackBufferContent.channel = c.channel.Name()
+				ackBufferContent.response = data
+
+				ack.insert(data.Sid, ackBufferContent)
+			}
 		}
-
-		if err := c.conn.Write(jsonutil.Marshal(data)); err != nil {
-			log.Printf("[ERROR] [%s-%d-%d] client write err: %v \n", c.channel.Name(), c.cid, c.uid, err)
-			break
-		}
-
-		if data.IsAck && data.Retry > 0 {
-			data.Retry--
-
-			ackBufferContent := &AckBufferContent{}
-			ackBufferContent.cid = c.cid
-			ackBufferContent.uid = int64(c.uid)
-			ackBufferContent.channel = c.channel.Name()
-			ackBufferContent.response = data
-
-			ack.insert(data.Sid, ackBufferContent)
-		}
-	}
-}
-
-func (c *Client) message(data []byte) {
-
-	if !gjson.ValidBytes(data) {
-		return
-	}
-
-	event := gjson.GetBytes(data, "event").String()
-
-	if len(event) == 0 {
-		return
-	}
-
-	switch event {
-	case "ping": // 心跳消息
-		_ = c.Write(&ClientResponse{Event: "pong"})
-	case "pong":
-	case "ack": // ACK回执
-		ackId := gjson.GetBytes(data, "sid").String()
-		if len(ackId) > 0 {
-			ack.delete(ackId)
-		}
-	default: // 触发消息回调
-		c.event.Message(c, data)
 	}
 }
 
@@ -250,4 +230,67 @@ func (c *Client) init() error {
 	go c.loopAccept()
 
 	return nil
+}
+
+func (c *Client) hookClose(code int, text string) error {
+
+	if !atomic.CompareAndSwapInt32(&c.closed, 0, 1) {
+		return nil
+	}
+
+	close(c.outChan)
+
+	c.event.Close(c, code, text)
+
+	if c.storage != nil {
+		c.storage.UnBind(context.TODO(), c.channel.Name(), c.cid)
+	}
+
+	health.delete(c)
+
+	c.channel.delClient(c)
+
+	return nil
+}
+
+func (c *Client) handleMessage(data []byte) {
+
+	defer func() {
+		if err := recover(); err != nil {
+			log.Printf("[ERROR] event dispatch err: %v", utils.PanicTrace(err))
+		}
+	}()
+
+	event, err := c.validate(data)
+	if err != nil {
+		log.Printf("[ERROR] validate err: %s \n", err.Error())
+		return
+	}
+
+	switch event {
+	case _MsgEventPing:
+		_ = c.Write(&ClientResponse{Event: _MsgEventPong})
+	case _MsgEventPong:
+	case _MsgEventAck:
+		ackId := gjson.GetBytes(data, "sid").String()
+		if len(ackId) > 0 {
+			ack.delete(ackId)
+		}
+	default: // 触发消息回调
+		c.event.Message(c, data)
+	}
+}
+
+func (c *Client) validate(data []byte) (string, error) {
+
+	if !gjson.ValidBytes(data) {
+		return "", fmt.Errorf("invalid json")
+	}
+
+	event := gjson.GetBytes(data, "event").String()
+	if len(event) == 0 {
+		return "", fmt.Errorf("invalid event")
+	}
+
+	return event, nil
 }

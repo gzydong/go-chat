@@ -4,7 +4,7 @@ import (
 	"context"
 	"log"
 
-	"github.com/go-redis/redis/v8"
+	"github.com/redis/go-redis/v9"
 	"github.com/tidwall/gjson"
 	"go-chat/internal/pkg/ichat/socket"
 	"go-chat/internal/service"

@@ -94,7 +94,7 @@ func (s *UserService) Forget(opts *UserForgetOpt) (bool, error) {
 // UpdatePassword 修改用户密码
 func (s *UserService) UpdatePassword(uid int, oldPassword string, password string) error {
 
-	user, err := s.Dao().FindById(context.Background(), uid)
+	user, err := s.Dao().FindById(context.TODO(), uid)
 	if err != nil {
 		return errors.New("用户不存在！")
 	}

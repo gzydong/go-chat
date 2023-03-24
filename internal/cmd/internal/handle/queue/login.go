@@ -8,8 +8,8 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/go-redis/redis/v8"
 	"github.com/nsqio/go-nsq"
+	"github.com/redis/go-redis/v9"
 )
 
 type LoginHandle struct {

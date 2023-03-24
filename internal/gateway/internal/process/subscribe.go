@@ -5,9 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"time"
 
-	"github.com/go-redis/redis/v8"
+	"github.com/redis/go-redis/v9"
 	"github.com/sourcegraph/conc/pool"
 	"go-chat/config"
 	"go-chat/internal/entity"
@@ -53,28 +52,30 @@ func (m *MessageSubscribe) subscribe(ctx context.Context, topic []string, consum
 	sub := m.redis.Subscribe(ctx, topic...)
 	defer sub.Close()
 
-	worker := pool.New().WithMaxGoroutines(24)
+	worker := pool.New().WithMaxGoroutines(10)
 
 	// 订阅 redis 消息
-	for msg := range sub.Channel(redis.WithChannelHealthCheckInterval(15 * time.Second)) {
-		worker.Go(func() {
-			var message SubscribeContent
-			if err := json.Unmarshal([]byte(msg.Payload), &message); err != nil {
-				log.Println("SubscribeContent Err: ", err.Error())
-				return
-			}
-
-			defer func() {
-				if err := recover(); err != nil {
-					log.Println("MessageSubscribe Call Err: ", utils.PanicTrace(err))
-				}
-			}()
-
-			fmt.Println("subscribe     ===>", msg.Payload)
-
-			consume.Call(message.Event, message.Data)
-		})
+	for data := range sub.Channel() {
+		m.handle(worker, data, consume)
 	}
 
 	worker.Wait()
+}
+
+func (m *MessageSubscribe) handle(worker *pool.Pool, data *redis.Message, consume IConsume) {
+	worker.Go(func() {
+		var message SubscribeContent
+		if err := json.Unmarshal([]byte(data.Payload), &message); err != nil {
+			log.Println("SubscribeContent Err: ", err.Error())
+			return
+		}
+
+		defer func() {
+			if err := recover(); err != nil {
+				log.Println("MessageSubscribe Call Err: ", utils.PanicTrace(err))
+			}
+		}()
+
+		consume.Call(message.Event, message.Data)
+	})
 }

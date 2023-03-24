@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/go-redis/redis/v8"
+	"github.com/redis/go-redis/v9"
 )
 
 type Relation struct {
@@ -33,7 +33,7 @@ func (r *Relation) IsContactRelation(ctx context.Context, uid, uid2 int) error {
 }
 
 func (r *Relation) SetContactRelation(ctx context.Context, uid, uid2 int) {
-	r.rds.SetEX(ctx, r.keyContactRelation(uid, uid2), "1", time.Hour*1)
+	r.rds.SetEx(ctx, r.keyContactRelation(uid, uid2), "1", time.Hour*1)
 }
 
 func (r *Relation) DelContactRelation(ctx context.Context, uid, uid2 int) {
@@ -45,7 +45,7 @@ func (r *Relation) IsGroupRelation(ctx context.Context, uid, gid int) error {
 }
 
 func (r *Relation) SetGroupRelation(ctx context.Context, uid, gid int) {
-	r.rds.SetEX(ctx, r.keyGroupRelation(uid, gid), "1", time.Hour*1)
+	r.rds.SetEx(ctx, r.keyGroupRelation(uid, gid), "1", time.Hour*1)
 }
 
 func (r *Relation) DelGroupRelation(ctx context.Context, uid, gid int) {

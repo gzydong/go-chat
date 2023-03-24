@@ -33,7 +33,7 @@ func (u *Users) FindByMobile(mobile string) (*model.Users, error) {
 		return nil, fmt.Errorf("mobile is empty")
 	}
 
-	return u.FindByWhere(context.Background(), "mobile = ?", mobile)
+	return u.FindByWhere(context.TODO(), "mobile = ?", mobile)
 }
 
 // IsMobileExist 判断手机号是否存在
@@ -43,7 +43,7 @@ func (u *Users) IsMobileExist(mobile string) bool {
 		return false
 	}
 
-	exist, _ := u.QueryExist(context.Background(), "mobile = ?", mobile)
+	exist, _ := u.QueryExist(context.TODO(), "mobile = ?", mobile)
 
 	return exist
 }

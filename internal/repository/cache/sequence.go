@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/go-redis/redis/v8"
+	"github.com/redis/go-redis/v9"
 )
 
 type Sequence struct {
@@ -35,7 +35,7 @@ func (s *Sequence) Name(userId int, receiverId int) string {
 
 // Set 初始化发号器
 func (s *Sequence) Set(ctx context.Context, userId int, receiverId int, value int64) error {
-	return s.redis.SetEX(ctx, s.Name(userId, receiverId), value, 12*time.Hour).Err()
+	return s.redis.SetEx(ctx, s.Name(userId, receiverId), value, 12*time.Hour).Err()
 }
 
 // Get 获取消息时序ID
@@ -53,7 +53,7 @@ func (s *Sequence) BatchGet(ctx context.Context, userId int, receiverId int, num
 
 	items := make([]int64, 0, num)
 	for i := num; i > 0; i-- {
-		items = append(items, int64(value-i+1))
+		items = append(items, value-i+1)
 	}
 
 	return items

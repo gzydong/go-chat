@@ -4,8 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/go-redis/redis/v8"
-
+	"github.com/redis/go-redis/v9"
 	"go-chat/config"
 )
 
@@ -18,7 +17,7 @@ func NewRedisClient(conf *config.Config) *redis.Client {
 		ReadTimeout: -1,
 	})
 
-	if _, err := client.Ping(context.Background()).Result(); err != nil {
+	if _, err := client.Ping(context.TODO()).Result(); err != nil {
 		panic(fmt.Errorf("redis client error: %s", err))
 	}
 
