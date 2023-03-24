@@ -9,7 +9,6 @@ import (
 
 	jsoniter "github.com/json-iterator/go"
 	"github.com/tidwall/gjson"
-	"go-chat/internal/pkg/utils"
 )
 
 const (
@@ -254,12 +253,6 @@ func (c *Client) hookClose(code int, text string) error {
 }
 
 func (c *Client) handleMessage(data []byte) {
-
-	defer func() {
-		if err := recover(); err != nil {
-			log.Printf("[ERROR] event dispatch err: %v", utils.PanicTrace(err))
-		}
-	}()
 
 	event, err := c.validate(data)
 	if err != nil {
