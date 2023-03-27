@@ -67,20 +67,18 @@ func (c *Channel) Start(ctx context.Context) error {
 
 	var (
 		worker = pool.New().WithMaxGoroutines(10)
-		timer  = time.NewTimer(10 * time.Second)
+		timer  = time.NewTicker(15 * time.Second)
 	)
 
 	defer log.Println(fmt.Errorf("channel exit :%s", c.Name()))
 	defer timer.Stop()
 
 	for {
-		timer.Reset(10 * time.Second)
-
 		select {
 		case <-ctx.Done():
 			return fmt.Errorf("channel exit :%s", c.Name())
 		case <-timer.C:
-			fmt.Printf("channel empty message name:%s unix:%d \n", c.name, time.Now().Unix())
+			fmt.Printf("channel empty message name:%s unix:%d len:%d\n", c.name, time.Now().Unix(), len(c.outChan))
 		case val, ok := <-c.outChan:
 			if !ok {
 				return fmt.Errorf("outchan close :%s", c.Name())

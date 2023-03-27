@@ -28,8 +28,6 @@ func (h *Handler) onConsumeTalk(ctx context.Context, body []byte) {
 		return
 	}
 
-	fmt.Println("subscribe onConsumeTalk      ===>", string(body))
-
 	cids := make([]int64, 0)
 	if msg.TalkType == entity.ChatPrivateMode {
 		for _, val := range [2]int64{msg.SenderID, msg.ReceiverID} {
@@ -50,6 +48,7 @@ func (h *Handler) onConsumeTalk(ctx context.Context, body []byte) {
 
 	data, err := h.recordsService.GetTalkRecord(ctx, msg.RecordID)
 	if err != nil {
+		fmt.Println("GetTalkRecord===>", err.Error())
 		return
 	}
 

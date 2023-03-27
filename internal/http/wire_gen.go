@@ -145,8 +145,8 @@ func Initialize(conf *config.Config) *AppProvider {
 	}
 	index := v1_2.NewIndex()
 	captchaStorage := cache.NewCaptchaStorage(client)
-	test := repo.NewTest(db)
-	v1Auth := v1_2.NewAuth(conf, captchaStorage, test)
+	repoAdmin := repo.NewAdmin(db)
+	v1Auth := v1_2.NewAuth(conf, captchaStorage, repoAdmin)
 	adminV1 := &admin.V1{
 		Index: index,
 		Auth:  v1Auth,
@@ -180,6 +180,6 @@ func Initialize(conf *config.Config) *AppProvider {
 
 var providerSet = wire.NewSet(provider.NewMySQLClient, provider.NewRedisClient, provider.NewHttpClient, provider.NewEmailClient, provider.NewFilesystem, provider.NewRequestClient, router.NewRouter, wire.Struct(new(web.Handler), "*"), wire.Struct(new(admin.Handler), "*"), wire.Struct(new(open.Handler), "*"), wire.Struct(new(handler.Handler), "*"), wire.Struct(new(AppProvider), "*"))
 
-var daoProviderSet = wire.NewSet(repo.NewContact, repo.NewContactGroup, repo.NewGroupMember, repo.NewUsers, repo.NewGroup, repo.NewGroupApply, repo.NewTalkRecords, repo.NewGroupNotice, repo.NewTalkSession, repo.NewEmoticon, repo.NewTalkRecordsVote, repo.NewFileSplitUpload, note.NewArticleClass, note.NewArticleAnnex, organize.NewDepartment, organize.NewOrganize, organize.NewPosition, repo.NewRobot, repo.NewTest, repo.NewSequence)
+var daoProviderSet = wire.NewSet(repo.NewContact, repo.NewContactGroup, repo.NewGroupMember, repo.NewUsers, repo.NewGroup, repo.NewGroupApply, repo.NewTalkRecords, repo.NewGroupNotice, repo.NewTalkSession, repo.NewEmoticon, repo.NewTalkRecordsVote, repo.NewFileSplitUpload, note.NewArticleClass, note.NewArticleAnnex, organize.NewDepartment, organize.NewOrganize, organize.NewPosition, repo.NewRobot, repo.NewTest, repo.NewSequence, repo.NewAdmin)
 
 var serviceProviderSet = wire.NewSet(service.NewBaseService, service.NewUserService, service.NewSmsService, service.NewTalkService, service.NewTalkMessageService, service.NewGroupService, service.NewGroupMemberService, service.NewGroupNoticeService, service.NewGroupApplyService, service.NewTalkSessionService, service.NewEmoticonService, service.NewTalkRecordsService, service.NewContactService, service.NewContactApplyService, service.NewContactGroupService, service.NewSplitUploadService, service.NewIpAddressService, service.NewAuthPermissionService, service.NewMessageService, note2.NewArticleService, note2.NewArticleTagService, note2.NewArticleClassService, note2.NewArticleAnnexService, organize2.NewOrganizeDeptService, organize2.NewOrganizeService, organize2.NewPositionService, service.NewTemplateService, service.NewTalkAuthService, logic.NewMessageForwardLogic)

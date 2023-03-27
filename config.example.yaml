@@ -3,6 +3,14 @@ app:
   env: dev
   debug: false
   juhe_key: "xxxxxxx"
+  public_key: |
+    -----BEGIN PUBLIC KEY-----
+    xxxxxxx
+    -----END PUBLIC KEY-----
+  private_key: |
+    -----BEGIN RSA PRIVATE KEY-----
+    xxxxx
+    -----END RSA PRIVATE KEY-----
 
 # 日志配置
 log:
