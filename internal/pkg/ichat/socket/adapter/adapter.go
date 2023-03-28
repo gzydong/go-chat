@@ -2,6 +2,7 @@ package adapter
 
 // 适配器类型定义
 const (
-	WssType = "wss"
-	TcpType = "tcp"
+	WssType  = "wss"
+	TcpType  = "tcp"
+	testType = "test"
 )
