@@ -7,8 +7,7 @@ type V1 struct {
 	Auth  *v1.Auth
 }
 
-type V2 struct {
-}
+type V2 struct{}
 
 type Handler struct {
 	V1 *V1

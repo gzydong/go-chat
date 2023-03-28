@@ -11,18 +11,19 @@ import (
 	"go-chat/internal/pkg/ichat"
 	"go-chat/internal/pkg/jwt"
 	"go-chat/internal/repository/cache"
+	"go-chat/internal/repository/model"
 	"go-chat/internal/repository/repo"
 	"gorm.io/gorm"
 )
 
 type Auth struct {
 	config  *config.Config
-	captcha *cache.CaptchaStorage
+	captcha *base64Captcha.Captcha
 	admin   *repo.Admin
 }
 
 func NewAuth(config *config.Config, captcha *cache.CaptchaStorage, admin *repo.Admin) *Auth {
-	return &Auth{config: config, captcha: captcha, admin: admin}
+	return &Auth{config: config, captcha: base64Captcha.NewCaptcha(base64Captcha.DefaultDriverDigit, captcha), admin: admin}
 }
 
 // Login 登录接口
@@ -46,16 +47,16 @@ func (c *Auth) Login(ctx *ichat.Context) error {
 		return ctx.Error(err.Error())
 	}
 
-	password, err := encrypt.RSADecrypt(params.Password, []byte(c.config.App.PrivateKey))
+	password, err := encrypt.RsaDecrypt(params.Password, c.config.App.PrivateKey)
 	if err != nil {
 		return ctx.Error(err.Error())
 	}
 
-	if !encrypt.VerifyPassword(adminInfo.Password, password) {
+	if !encrypt.VerifyPassword(adminInfo.Password, string(password)) {
 		return ctx.InvalidParams("账号不存在或密码填写错误!")
 	}
 
-	if adminInfo.Status != 1 {
+	if adminInfo.Status != model.AdminStatusNormal {
 		return ctx.ErrorBusiness("账号已被管理员禁用，如有问题请联系管理员！")
 	}
 
@@ -81,9 +82,7 @@ func (c *Auth) Login(ctx *ichat.Context) error {
 // Captcha 图形验证码
 func (c *Auth) Captcha(ctx *ichat.Context) error {
 
-	captcha := base64Captcha.NewCaptcha(base64Captcha.DefaultDriverDigit, c.captcha)
-
-	generate, base64, err := captcha.Generate()
+	generate, base64, err := c.captcha.Generate()
 	if err != nil {
 		return ctx.ErrorBusiness(err)
 	}

@@ -2,6 +2,10 @@ package model
 
 import "time"
 
+const (
+	AdminStatusNormal = 1
+)
+
 type Admin struct {
 	Id        int       `gorm:"column:id" db:"id" json:"id" form:"id"`                                 // 用户ID
 	Username  string    `gorm:"column:username" db:"username" json:"username" form:"username"`         // 用户昵称
