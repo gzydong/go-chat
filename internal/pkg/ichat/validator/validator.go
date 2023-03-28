@@ -1,4 +1,4 @@
-package validation
+package validator
 
 import (
 	"reflect"
@@ -12,7 +12,11 @@ import (
 
 var trans ut.Translator
 
-func InitValidator() error {
+func init() {
+	_ = Initialize()
+}
+
+func Initialize() error {
 	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
 		chinese := zh.New()
 		uni := ut.New(chinese)
@@ -32,12 +36,6 @@ func InitValidator() error {
 	return nil
 }
 
-// registerCustomValidator 注册自定义验证器
-func registerCustomValidator(v *validator.Validate, trans ut.Translator) {
-	validatorPhone(v, trans)
-	validatorIds(v, trans)
-}
-
 func Translate(err error) string {
 	if errs, ok := err.(validator.ValidationErrors); ok {
 		for _, err := range errs {
@@ -48,6 +46,12 @@ func Translate(err error) string {
 	return err.Error()
 }
 
-func init() {
-	_ = InitValidator()
+func Validate(value interface{}) error {
+	return binding.Validator.Engine().(*validator.Validate).Struct(value)
+}
+
+// registerCustomValidator 注册自定义验证器
+func registerCustomValidator(v *validator.Validate, trans ut.Translator) {
+	validatorPhone(v, trans)
+	validatorIds(v, trans)
 }

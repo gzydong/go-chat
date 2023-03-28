@@ -7,15 +7,21 @@ import (
 	"github.com/sourcegraph/conc/pool"
 )
 
+type entry[T any] struct {
+	key    string
+	value  T
+	expire int64
+}
+
 // SimpleTimeWheel 简单时间轮
 type SimpleTimeWheel[T any] struct {
 	interval  time.Duration
 	ticker    *time.Ticker
-	slot      []cmap.ConcurrentMap[string, *element]
-	indicator cmap.ConcurrentMap[string, int]
 	tickIndex int
+	slot      []cmap.ConcurrentMap[string, *entry[T]]
+	indicator cmap.ConcurrentMap[string, int]
 	onTick    SimpleHandler[T]
-	taskChan  chan *element
+	taskChan  chan *entry[T]
 	quitChan  chan struct{}
 }
 
@@ -24,7 +30,7 @@ type SimpleHandler[T any] func(*SimpleTimeWheel[T], string, T)
 
 func NewSimpleTimeWheel[T any](delay time.Duration, numSlot int, handler SimpleHandler[T]) *SimpleTimeWheel[T] {
 	timeWheel := &SimpleTimeWheel[T]{
-		taskChan:  make(chan *element, 100),
+		taskChan:  make(chan *entry[T], 100),
 		quitChan:  make(chan struct{}),
 		indicator: cmap.New[int](),
 		interval:  delay,
@@ -33,7 +39,7 @@ func NewSimpleTimeWheel[T any](delay time.Duration, numSlot int, handler SimpleH
 	}
 
 	for i := 0; i < numSlot; i++ {
-		timeWheel.slot = append(timeWheel.slot, cmap.New[*element]())
+		timeWheel.slot = append(timeWheel.slot, cmap.New[*entry[T]]())
 	}
 
 	return timeWheel
@@ -81,17 +87,17 @@ func (t *SimpleTimeWheel[T]) run() {
 
 			slot := t.slot[tickIndex]
 			for item := range slot.IterBuffered() {
-				el := item.Val
+				v := item.Val
 
-				slot.Remove(el.key)
-				t.indicator.Remove(el.key)
+				slot.Remove(v.key)
+				t.indicator.Remove(v.key)
 
 				worker.Go(func() {
-					if el.expire <= time.Now().Unix() {
-						t.onTick(t, el.key, el.value.(T))
+					unix := time.Now().Unix()
+					if v.expire <= unix {
+						t.onTick(t, v.key, v.value)
 					} else {
-						second := el.expire - time.Now().Unix()
-						_ = t.Add(el.key, el.value, time.Duration(second)*time.Second)
+						t.Add(v.key, v.value, time.Duration(v.expire-unix)*time.Second)
 					}
 				})
 			}
@@ -100,11 +106,8 @@ func (t *SimpleTimeWheel[T]) run() {
 }
 
 // Add 添加任务
-func (t *SimpleTimeWheel[T]) Add(key string, task any, delay time.Duration) error {
-
-	t.taskChan <- &element{key: key, value: task, expire: time.Now().Add(delay).Unix()}
-
-	return nil
+func (t *SimpleTimeWheel[T]) Add(key string, value T, delay time.Duration) {
+	t.taskChan <- &entry[T]{key: key, value: value, expire: time.Now().Add(delay).Unix()}
 }
 
 func (t *SimpleTimeWheel[T]) Remove(key string) {
@@ -114,9 +117,9 @@ func (t *SimpleTimeWheel[T]) Remove(key string) {
 	}
 }
 
-func (t *SimpleTimeWheel[T]) getCircleAndSlot(el *element) int {
+func (t *SimpleTimeWheel[T]) getCircleAndSlot(e *entry[T]) int {
 
-	remainingTime := int(el.expire - time.Now().Unix())
+	remainingTime := int(e.expire - time.Now().Unix())
 	if remainingTime <= 0 {
 		remainingTime = 0
 	}

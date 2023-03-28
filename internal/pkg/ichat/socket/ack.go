@@ -40,7 +40,7 @@ func (a *AckBuffer) Start(ctx context.Context) error {
 }
 
 func (a *AckBuffer) insert(ackKey string, value *AckBufferContent) {
-	_ = a.timeWheel.Add(ackKey, value, time.Duration(5)*time.Second)
+	a.timeWheel.Add(ackKey, value, time.Duration(5)*time.Second)
 }
 
 func (a *AckBuffer) delete(ackKey string) {
