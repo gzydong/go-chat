@@ -10,7 +10,6 @@ import (
 
 	cmap "github.com/orcaman/concurrent-map/v2"
 	"github.com/sourcegraph/conc/pool"
-	"go-chat/internal/pkg/strutil"
 )
 
 type IChannel interface {
@@ -87,18 +86,12 @@ func (c *Channel) Start(ctx context.Context) error {
 			}
 
 			c.consume(worker, val, func(data *SenderContent, value *Client) {
-				response := &ClientResponse{
+				_ = value.Write(&ClientResponse{
 					IsAck:   data.IsAck,
 					Event:   data.message.Event,
 					Content: data.message.Content,
-				}
-
-				if data.IsAck {
-					response.Sid = strutil.NewMsgId()
-					response.Retry = 3
-				}
-
-				_ = value.Write(response)
+					Retry:   3,
+				})
 			})
 		}
 	}
@@ -106,15 +99,17 @@ func (c *Channel) Start(ctx context.Context) error {
 
 func (c *Channel) consume(worker *pool.Pool, data *SenderContent, fn func(data *SenderContent, value *Client)) {
 	worker.Go(func() {
+
 		if data.IsBroadcast() {
 			c.node.IterCb(func(_ string, client *Client) {
 				fn(data, client)
 			})
-		} else {
-			for _, cid := range data.receives {
-				if client, ok := c.Client(cid); ok {
-					fn(data, client)
-				}
+			return
+		}
+
+		for _, cid := range data.receives {
+			if client, ok := c.Client(cid); ok {
+				fn(data, client)
 			}
 		}
 	})

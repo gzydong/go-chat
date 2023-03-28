@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"go-chat/internal/entity"
+	"go-chat/internal/pkg/jsonutil"
 	"go-chat/internal/pkg/sliceutil"
 	"go-chat/internal/repository/model"
 	"go-chat/internal/repository/repo"
@@ -66,13 +67,9 @@ func (s *TalkService) RemoveRecords(ctx context.Context, opts *TalkMessageDelete
 
 // CollectRecord 收藏表情包
 func (s *TalkService) CollectRecord(ctx context.Context, uid int, recordId int) error {
-	var (
-		err      error
-		record   model.TalkRecords
-		fileInfo model.TalkRecordsFile
-	)
 
-	if err = s.db.First(&record, recordId).Error; err != nil {
+	var record model.TalkRecords
+	if err := s.db.First(&record, recordId).Error; err != nil {
 		return err
 	}
 
@@ -94,16 +91,15 @@ func (s *TalkService) CollectRecord(ctx context.Context, uid int, recordId int) 
 		}
 	}
 
-	if err = s.db.First(&fileInfo, "record_id = ? and type = ?", record.Id, 1).Error; err != nil {
+	var fileInfo model.TalkRecordExtraFile
+	if err := jsonutil.Decode(record.Extra, &fileInfo); err != nil {
 		return err
 	}
 
-	emoticon := &model.EmoticonItem{
+	return s.db.Create(&model.EmoticonItem{
 		UserId:     uid,
 		Url:        fileInfo.Url,
 		FileSuffix: fileInfo.Suffix,
 		FileSize:   fileInfo.Size,
-	}
-
-	return s.db.Create(emoticon).Error
+	}).Error
 }

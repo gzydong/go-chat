@@ -9,6 +9,7 @@ import (
 
 	jsoniter "github.com/json-iterator/go"
 	"github.com/tidwall/gjson"
+	"go-chat/internal/pkg/strutil"
 )
 
 const (
@@ -32,10 +33,10 @@ type IStorage interface {
 
 type ClientResponse struct {
 	IsAck   bool   `json:"-"`                 // 是否需要 ack 回调
-	Retry   int    `json:"-"`                 // 重试次数（0 默认不重试）
 	Sid     string `json:"sid,omitempty"`     // ACK ID
 	Event   string `json:"event"`             // 事件名
 	Content any    `json:"content,omitempty"` // 事件内容
+	Retry   int    `json:"-"`                 // 重试次数（0 默认不重试）
 }
 
 // Client WebSocket 客户端连接信息
@@ -135,18 +136,20 @@ func (c *Client) Closed() bool {
 
 // Write 客户端写入数据
 func (c *Client) Write(data *ClientResponse) error {
-
-	if c.Closed() {
-		return fmt.Errorf("connection has been closed")
-	}
-
 	defer func() {
 		if err := recover(); err != nil {
 			log.Printf("[ERROR] [%s-%d-%d] chan write err: %v \n", c.channel.Name(), c.cid, c.uid, err)
 		}
 	}()
 
-	// 消息写入缓冲通道
+	if c.Closed() {
+		return fmt.Errorf("connection has been closed")
+	}
+
+	if data.IsAck {
+		data.Sid = strutil.NewMsgId()
+	}
+
 	c.outChan <- data
 
 	return nil

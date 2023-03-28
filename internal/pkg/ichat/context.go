@@ -8,8 +8,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"go-chat/internal/pkg/ichat/middleware"
+	"go-chat/internal/pkg/ichat/validator"
 	"go-chat/internal/pkg/jsonutil"
-	"go-chat/internal/pkg/validation"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
 )
@@ -31,8 +31,7 @@ func New(ctx *gin.Context) *Context {
 // Unauthorized 未认证
 func (c *Context) Unauthorized(message string) error {
 
-	c.Context.Abort()
-	c.Context.JSON(http.StatusUnauthorized, &Response{
+	c.Context.AbortWithStatusJSON(http.StatusUnauthorized, &Response{
 		Code:    http.StatusUnauthorized,
 		Message: message,
 	})
@@ -43,8 +42,7 @@ func (c *Context) Unauthorized(message string) error {
 // Forbidden 未授权
 func (c *Context) Forbidden(message string) error {
 
-	c.Context.Abort()
-	c.Context.JSON(http.StatusForbidden, &Response{
+	c.Context.AbortWithStatusJSON(http.StatusForbidden, &Response{
 		Code:    http.StatusForbidden,
 		Message: message,
 	})
@@ -59,15 +57,14 @@ func (c *Context) InvalidParams(message any) error {
 
 	switch msg := message.(type) {
 	case error:
-		resp.Message = validation.Translate(msg)
+		resp.Message = validator.Translate(msg)
 	case string:
 		resp.Message = msg
 	default:
 		resp.Message = fmt.Sprintf("%v", msg)
 	}
 
-	c.Context.Abort()
-	c.Context.JSON(http.StatusOK, resp)
+	c.Context.AbortWithStatusJSON(http.StatusOK, resp)
 
 	return nil
 }
@@ -88,8 +85,7 @@ func (c *Context) ErrorBusiness(message any) error {
 
 	resp.Meta = initMeta()
 
-	c.Context.Abort()
-	c.Context.JSON(http.StatusOK, resp)
+	c.Context.AbortWithStatusJSON(http.StatusOK, resp)
 
 	return nil
 }
@@ -97,8 +93,7 @@ func (c *Context) ErrorBusiness(message any) error {
 // Error 系统错误
 func (c *Context) Error(error string) error {
 
-	c.Context.Abort()
-	c.Context.JSON(http.StatusInternalServerError, &Response{
+	c.Context.AbortWithStatusJSON(http.StatusInternalServerError, &Response{
 		Code:    500,
 		Message: error,
 		Meta:    initMeta(),
@@ -132,8 +127,7 @@ func (c *Context) Success(data any, message ...string) error {
 		resp.Data = data
 	}
 
-	c.Context.Abort()
-	c.Context.JSON(http.StatusOK, resp)
+	c.Context.AbortWithStatusJSON(http.StatusOK, resp)
 
 	return nil
 }

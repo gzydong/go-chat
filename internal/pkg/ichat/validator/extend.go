@@ -1,4 +1,4 @@
-package validation
+package validator
 
 import (
 	"regexp"

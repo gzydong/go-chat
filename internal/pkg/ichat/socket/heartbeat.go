@@ -38,7 +38,7 @@ func (h *heartbeat) Start(ctx context.Context) error {
 }
 
 func (h *heartbeat) insert(c *Client) {
-	_ = h.timeWheel.Add(strconv.FormatInt(c.cid, 10), c, time.Duration(heartbeatInterval)*time.Second)
+	h.timeWheel.Add(strconv.FormatInt(c.cid, 10), c, time.Duration(heartbeatInterval)*time.Second)
 }
 
 func (h *heartbeat) delete(c *Client) {
@@ -62,5 +62,5 @@ func (h *heartbeat) handle(timeWheel *timewheel.SimpleTimeWheel[*Client], key st
 		_ = c.Write(&ClientResponse{Event: "ping"})
 	}
 
-	_ = timeWheel.Add(key, c, time.Duration(heartbeatInterval)*time.Second)
+	timeWheel.Add(key, c, time.Duration(heartbeatInterval)*time.Second)
 }

@@ -59,23 +59,15 @@ func (m *MessageForwardLogic) Verify(ctx context.Context, uid int, req *message.
 
 // MultiMergeForward 批量合并转发
 func (m *MessageForwardLogic) MultiMergeForward(ctx context.Context, uid int, req *message.ForwardMessageRequest) ([]*ForwardRecord, error) {
-	var (
-		receives = make([]map[string]int, 0)
-		arr      = make([]*ForwardRecord, 0)
-	)
 
-	for _, uid := range req.Uids {
-		receives = append(receives, map[string]int{
-			"id":   int(uid),
-			"type": 1,
-		})
+	receives := make([]map[string]int, 0)
+
+	for _, userId := range req.Uids {
+		receives = append(receives, map[string]int{"receiver_id": int(userId), "talk_type": 1})
 	}
 
 	for _, gid := range req.Gids {
-		receives = append(receives, map[string]int{
-			"id":   int(gid),
-			"type": 2,
-		})
+		receives = append(receives, map[string]int{"receiver_id": int(gid), "talk_type": 2})
 	}
 
 	tmpRecords, err := m.aggregation(ctx, req)
@@ -97,10 +89,10 @@ func (m *MessageForwardLogic) MultiMergeForward(ctx context.Context, uid int, re
 	for _, item := range receives {
 		data := &model.TalkRecords{
 			MsgId:      strutil.NewMsgId(),
-			TalkType:   item["type"],
+			TalkType:   item["talk_type"],
 			MsgType:    entity.MsgTypeForward,
 			UserId:     uid,
-			ReceiverId: item["id"],
+			ReceiverId: item["receiver_id"],
 			Extra:      extra,
 		}
 
@@ -117,169 +109,78 @@ func (m *MessageForwardLogic) MultiMergeForward(ctx context.Context, uid int, re
 		return nil, err
 	}
 
+	list := make([]*ForwardRecord, 0, len(records))
 	for _, record := range records {
-		arr = append(arr, &ForwardRecord{
+		list = append(list, &ForwardRecord{
 			RecordId:   record.Id,
 			ReceiverId: record.ReceiverId,
 			TalkType:   record.TalkType,
 		})
 	}
 
-	return arr, nil
+	return list, nil
 }
 
 // MultiSplitForward 批量逐条转发
 func (m *MessageForwardLogic) MultiSplitForward(ctx context.Context, uid int, req *message.ForwardMessageRequest) ([]*ForwardRecord, error) {
 	var (
-		receives  = make([]map[string]int, 0)
-		arr       = make([]*ForwardRecord, 0)
-		records   = make([]*model.TalkRecords, 0)
-		hashFiles = make(map[int]*model.TalkRecordsFile)
-		hashCodes = make(map[int]*model.TalkRecordsCode)
+		receives = make([]map[string]int, 0)
+		records  = make([]*model.TalkRecords, 0)
+		db       = m.db.WithContext(ctx)
 	)
 
-	for _, uid := range req.Uids {
-		receives = append(receives, map[string]int{
-			"id":   int(uid),
-			"type": 1,
-		})
+	for _, userId := range req.Uids {
+		receives = append(receives, map[string]int{"receiver_id": int(userId), "talk_type": 1})
 	}
 
 	for _, gid := range req.Gids {
-		receives = append(receives, map[string]int{
-			"id":   int(gid),
-			"type": 2,
-		})
+		receives = append(receives, map[string]int{"receiver_id": int(gid), "talk_type": 2})
 	}
-
-	db := m.db.WithContext(ctx)
 
 	if err := db.Model(&model.TalkRecords{}).Where("id IN ?", req.MessageIds).Scan(&records).Error; err != nil {
 		return nil, err
 	}
 
-	codeIds, fileIds := make([]int, 0), make([]int, 0)
+	items := make([]*model.TalkRecords, 0, len(receives)*len(records))
 
-	for _, record := range records {
-		switch record.MsgType {
-		case entity.MsgTypeFile:
-			fileIds = append(fileIds, record.Id)
-		case entity.MsgTypeCode:
-			codeIds = append(codeIds, record.Id)
+	recordsLen := int64(len(records))
+	for _, v := range receives {
+		var sequences []int64
+
+		if v["talk_type"] == entity.ChatGroupMode {
+			sequences = m.sequence.BatchGet(ctx, 0, v["receiver_id"], recordsLen)
+		} else {
+			sequences = m.sequence.BatchGet(ctx, uid, v["receiver_id"], recordsLen)
+		}
+
+		for i, item := range records {
+			items = append(items, &model.TalkRecords{
+				MsgId:      strutil.NewMsgId(),
+				TalkType:   v["talk_type"],
+				MsgType:    item.MsgType,
+				UserId:     uid,
+				ReceiverId: v["receiver_id"],
+				Content:    item.Content,
+				Sequence:   sequences[i],
+				Extra:      item.Extra,
+			})
 		}
 	}
 
-	if len(codeIds) > 0 {
-		items := make([]*model.TalkRecordsCode, 0)
-		if err := db.Model(&model.TalkRecordsCode{}).Where("record_id in ?", codeIds).Scan(&items).Error; err == nil {
-			for i := range items {
-				hashCodes[items[i].RecordId] = items[i]
-			}
-		}
-	}
-
-	if len(fileIds) > 0 {
-		items := make([]*model.TalkRecordsFile, 0)
-		if err := db.Model(&model.TalkRecordsFile{}).Where("record_id in ?", fileIds).Scan(&items).Error; err == nil {
-			for i := range items {
-				hashFiles[items[i].RecordId] = items[i]
-			}
-		}
-	}
-
-	err := db.Transaction(func(tx *gorm.DB) error {
-
-		for _, v := range receives {
-			var sequences []int64
-			if v["type"] == entity.ChatGroupMode {
-				sequences = m.sequence.BatchGet(ctx, 0, v["id"], int64(len(records)))
-			} else {
-				sequences = m.sequence.BatchGet(ctx, uid, v["id"], int64(len(records)))
-			}
-
-			items := make([]*model.TalkRecords, 0, len(receives))
-			files := make([]*model.TalkRecordsFile, 0)
-			codes := make([]*model.TalkRecordsCode, 0)
-
-			recordsHash := make(map[int]*model.TalkRecords)
-
-			for i, item := range records {
-				recordsHash[i] = item
-
-				data := &model.TalkRecords{
-					MsgId:      strutil.NewMsgId(),
-					TalkType:   v["type"],
-					MsgType:    item.MsgType,
-					UserId:     uid,
-					ReceiverId: v["id"],
-					Content:    item.Content,
-					Sequence:   sequences[i],
-				}
-
-				items = append(items, data)
-			}
-
-			if err := tx.Create(items).Error; err != nil {
-				return err
-			}
-
-			for i, record := range items {
-				arr = append(arr, &ForwardRecord{
-					RecordId:   record.Id,
-					ReceiverId: record.ReceiverId,
-					TalkType:   record.TalkType,
-				})
-
-				oldRecord := recordsHash[i]
-
-				switch record.MsgType {
-				case entity.MsgTypeFile:
-					if file, ok := hashFiles[oldRecord.Id]; ok {
-						files = append(files, &model.TalkRecordsFile{
-							RecordId:     record.Id,
-							UserId:       uid,
-							Source:       file.Source,
-							Type:         file.Type,
-							Drive:        file.Drive,
-							OriginalName: file.OriginalName,
-							Suffix:       file.Suffix,
-							Size:         file.Size,
-							Path:         file.Path,
-						})
-					}
-				case entity.MsgTypeCode:
-					if code, ok := hashCodes[oldRecord.Id]; ok {
-						codes = append(codes, &model.TalkRecordsCode{
-							RecordId: record.Id,
-							UserId:   uid,
-							Lang:     code.Lang,
-							Code:     code.Code,
-						})
-					}
-				}
-			}
-
-			if len(files) > 0 {
-				if err := tx.Create(files).Error; err != nil {
-					return err
-				}
-			}
-
-			if len(codes) > 0 {
-				if err := tx.Create(codes).Error; err != nil {
-					return err
-				}
-			}
-		}
-
-		return nil
-	})
-
-	if err != nil {
+	if err := db.Create(items).Error; err != nil {
 		return nil, err
 	}
 
-	return arr, nil
+	list := make([]*ForwardRecord, 0, len(items))
+	for _, item := range items {
+		list = append(list, &ForwardRecord{
+			RecordId:   item.Id,
+			ReceiverId: item.ReceiverId,
+			TalkType:   item.TalkType,
+		})
+	}
+
+	return list, nil
 }
 
 type forwardItem struct {
@@ -291,7 +192,7 @@ type forwardItem struct {
 // 聚合转发数据
 func (m *MessageForwardLogic) aggregation(ctx context.Context, req *message.ForwardMessageRequest) ([]map[string]any, error) {
 
-	rows := make([]*forwardItem, 0)
+	rows := make([]*forwardItem, 0, 3)
 
 	query := m.db.WithContext(ctx).Table("talk_records")
 	query.Joins("left join users on users.id = talk_records.user_id")
