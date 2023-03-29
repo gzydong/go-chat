@@ -50,7 +50,6 @@ var providerSet = wire.NewSet(
 	logic.NewMessageForwardLogic,
 
 	// 服务
-	service.NewBaseService,
 	service.NewTalkRecordsService,
 	service.NewGroupMemberService,
 	service.NewContactService,

@@ -69,7 +69,6 @@ var daoProviderSet = wire.NewSet(
 )
 
 var serviceProviderSet = wire.NewSet(
-	service.NewBaseService,
 	service.NewUserService,
 	service.NewSmsService,
 	service.NewTalkService,
