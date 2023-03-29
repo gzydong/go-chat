@@ -25,7 +25,7 @@ import (
 )
 
 type MessageService struct {
-	*BaseService
+	*repo.Source
 	forward         *logic.MessageForwardLogic
 	groupMemberRepo *repo.GroupMember
 	splitUploadRepo *repo.SplitUpload
@@ -37,8 +37,8 @@ type MessageService struct {
 	Sequence        *repo.Sequence
 }
 
-func NewMessageService(baseService *BaseService, forward *logic.MessageForwardLogic, groupMemberRepo *repo.GroupMember, splitUploadRepo *repo.SplitUpload, fileSystem *filesystem.Filesystem, unreadStorage *cache.UnreadStorage, messageStorage *cache.MessageStorage, sidStorage *cache.ServerStorage, clientStorage *cache.ClientStorage, sequence *repo.Sequence) *MessageService {
-	return &MessageService{BaseService: baseService, forward: forward, groupMemberRepo: groupMemberRepo, splitUploadRepo: splitUploadRepo, fileSystem: fileSystem, unreadStorage: unreadStorage, messageStorage: messageStorage, sidStorage: sidStorage, clientStorage: clientStorage, Sequence: sequence}
+func NewMessageService(source *repo.Source, forward *logic.MessageForwardLogic, groupMemberRepo *repo.GroupMember, splitUploadRepo *repo.SplitUpload, fileSystem *filesystem.Filesystem, unreadStorage *cache.UnreadStorage, messageStorage *cache.MessageStorage, sidStorage *cache.ServerStorage, clientStorage *cache.ClientStorage, sequence *repo.Sequence) *MessageService {
+	return &MessageService{Source: source, forward: forward, groupMemberRepo: groupMemberRepo, splitUploadRepo: splitUploadRepo, fileSystem: fileSystem, unreadStorage: unreadStorage, messageStorage: messageStorage, sidStorage: sidStorage, clientStorage: clientStorage, Sequence: sequence}
 }
 
 // SendText 文本消息
@@ -59,7 +59,7 @@ func (m *MessageService) SendText(ctx context.Context, uid int, req *message.Tex
 		data.Sequence = m.Sequence.Get(ctx, uid, int(req.Receiver.ReceiverId))
 	}
 
-	if err := m.db.WithContext(ctx).Create(data).Error; err != nil {
+	if err := m.Db().WithContext(ctx).Create(data).Error; err != nil {
 		return err
 	}
 
@@ -101,7 +101,7 @@ func (m *MessageService) SendImage(ctx context.Context, uid int, req *message.Im
 		data.Sequence = m.Sequence.Get(ctx, uid, int(req.Receiver.ReceiverId))
 	}
 
-	err = m.db.WithContext(ctx).Create(data).Error
+	err = m.Db().WithContext(ctx).Create(data).Error
 	if err == nil {
 		m.afterHandle(ctx, data, map[string]string{"text": "[图片消息]"})
 	}
@@ -140,7 +140,7 @@ func (m *MessageService) SendVoice(ctx context.Context, uid int, req *message.Vo
 		data.Sequence = m.Sequence.Get(ctx, uid, int(req.Receiver.ReceiverId))
 	}
 
-	err = m.db.WithContext(ctx).Create(data).Error
+	err = m.Db().WithContext(ctx).Create(data).Error
 	if err == nil {
 		m.afterHandle(ctx, data, map[string]string{"text": "[语音消息]"})
 	}
@@ -179,7 +179,7 @@ func (m *MessageService) SendVideo(ctx context.Context, uid int, req *message.Vi
 		data.Sequence = m.Sequence.Get(ctx, uid, int(req.Receiver.ReceiverId))
 	}
 
-	err = m.db.WithContext(ctx).Create(data).Error
+	err = m.Db().WithContext(ctx).Create(data).Error
 	if err == nil {
 		m.afterHandle(ctx, data, map[string]string{"text": "[文件消息]"})
 	}
@@ -230,7 +230,7 @@ func (m *MessageService) SendFile(ctx context.Context, uid int, req *message.Fil
 		data.Sequence = m.Sequence.Get(ctx, uid, int(req.Receiver.ReceiverId))
 	}
 
-	err = m.db.WithContext(ctx).Create(data).Error
+	err = m.Db().WithContext(ctx).Create(data).Error
 	if err == nil {
 		m.afterHandle(ctx, data, map[string]string{"text": "[文件消息]"})
 	}
@@ -259,7 +259,7 @@ func (m *MessageService) SendCode(ctx context.Context, uid int, req *message.Cod
 		data.Sequence = m.Sequence.Get(ctx, uid, int(req.Receiver.ReceiverId))
 	}
 
-	err := m.db.WithContext(ctx).Create(data).Error
+	err := m.Db().WithContext(ctx).Create(data).Error
 	if err == nil {
 		m.afterHandle(ctx, data, map[string]string{"text": "[代码消息]"})
 	}
@@ -291,7 +291,7 @@ func (m *MessageService) SendVote(ctx context.Context, uid int, req *message.Vot
 
 	num := m.groupMemberRepo.CountMemberTotal(ctx, int(req.Receiver.ReceiverId))
 
-	err := m.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+	err := m.Db().WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 
 		if err := tx.Create(data).Error; err != nil {
 			return err
@@ -319,7 +319,7 @@ func (m *MessageService) SendVote(ctx context.Context, uid int, req *message.Vot
 func (m *MessageService) SendEmoticon(ctx context.Context, uid int, req *message.EmoticonMessageRequest) error {
 
 	emoticon := &model.EmoticonItem{}
-	if err := m.db.Model(&model.EmoticonItem{}).Where("id = ? and user_id = ?", req.EmoticonId, uid).First(emoticon).Error; err != nil {
+	if err := m.Db().Model(&model.EmoticonItem{}).Where("id = ? and user_id = ?", req.EmoticonId, uid).First(emoticon).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return errors.New("表情信息不存在")
 		}
@@ -349,7 +349,7 @@ func (m *MessageService) SendEmoticon(ctx context.Context, uid int, req *message
 		data.Sequence = m.Sequence.Get(ctx, uid, int(req.Receiver.ReceiverId))
 	}
 
-	err := m.db.WithContext(ctx).Create(data).Error
+	err := m.Db().WithContext(ctx).Create(data).Error
 	if err == nil {
 		m.afterHandle(ctx, data, map[string]string{"text": "[表情包]"})
 	}
@@ -374,7 +374,7 @@ func (m *MessageService) SendForward(ctx context.Context, uid int, req *message.
 	}
 
 	for _, item := range items {
-		m.rds.Publish(ctx, entity.ImTopicChat, jsonutil.Encode(entity.MapStrAny{
+		m.Redis().Publish(ctx, entity.ImTopicChat, jsonutil.Encode(entity.MapStrAny{
 			"event": entity.EventTalk,
 			"data": jsonutil.Encode(entity.MapStrAny{
 				"sender_id":   uid,
@@ -409,7 +409,7 @@ func (m *MessageService) SendLocation(ctx context.Context, uid int, req *message
 		data.Sequence = m.Sequence.Get(ctx, uid, int(req.Receiver.ReceiverId))
 	}
 
-	err := m.db.WithContext(ctx).Create(data).Error
+	err := m.Db().WithContext(ctx).Create(data).Error
 	if err == nil {
 		m.afterHandle(ctx, data, map[string]string{"text": "[位置消息]"})
 	}
@@ -442,7 +442,7 @@ func (m *MessageService) SendLogin(ctx context.Context, uid int, req *message.Lo
 		}),
 	}
 
-	err := m.db.WithContext(ctx).Create(data).Error
+	err := m.Db().WithContext(ctx).Create(data).Error
 	if err == nil {
 		m.afterHandle(ctx, data, map[string]string{"text": "[登录消息]"})
 	}
@@ -494,7 +494,7 @@ func (m *MessageService) afterHandle(ctx context.Context, record *model.TalkReco
 
 		// 小于三台服务器则采用全局广播
 		if len(sids) <= 3 {
-			if err := m.rds.Publish(ctx, entity.ImTopicChat, content).Err(); err != nil {
+			if err := m.Redis().Publish(ctx, entity.ImTopicChat, content).Err(); err != nil {
 				logger.Error(fmt.Sprintf("[ALL]消息推送失败 %s", err.Error()))
 			}
 
@@ -507,7 +507,7 @@ func (m *MessageService) afterHandle(ctx context.Context, record *model.TalkReco
 					continue
 				}
 
-				if err := m.rds.Publish(ctx, fmt.Sprintf(entity.ImTopicChatPrivate, sid), content).Err(); err != nil {
+				if err := m.Redis().Publish(ctx, fmt.Sprintf(entity.ImTopicChatPrivate, sid), content).Err(); err != nil {
 					logger.WithFields(entity.H{
 						"sid": sid,
 					}).Error(fmt.Sprintf("[Private]消息推送失败 %s", err.Error()))
@@ -515,7 +515,7 @@ func (m *MessageService) afterHandle(ctx context.Context, record *model.TalkReco
 			}
 		}
 	} else {
-		if err := m.rds.Publish(ctx, entity.ImTopicChat, content).Err(); err != nil {
+		if err := m.Redis().Publish(ctx, entity.ImTopicChat, content).Err(); err != nil {
 			logger.Error(fmt.Sprintf("[ALL]消息推送失败 %s", err.Error()))
 		}
 	}

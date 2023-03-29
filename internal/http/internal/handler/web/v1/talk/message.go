@@ -53,7 +53,7 @@ func (c *Message) Text(ctx *ichat.Context) error {
 	uid := ctx.UserId()
 
 	// 权限验证
-	if err := c.auth.IsAuth(ctx.Ctx(), &service.TalkAuthOption{
+	if err := c.auth.IsAuth(ctx.Ctx(), &service.TalkAuthOpt{
 		TalkType:   params.TalkType,
 		UserId:     uid,
 		ReceiverId: params.ReceiverId,
@@ -92,7 +92,7 @@ func (c *Message) Code(ctx *ichat.Context) error {
 	uid := ctx.UserId()
 
 	// 权限验证
-	if err := c.auth.IsAuth(ctx.Ctx(), &service.TalkAuthOption{
+	if err := c.auth.IsAuth(ctx.Ctx(), &service.TalkAuthOpt{
 		TalkType:   params.TalkType,
 		UserId:     uid,
 		ReceiverId: params.ReceiverId,
@@ -142,7 +142,7 @@ func (c *Message) Image(ctx *ichat.Context) error {
 	}
 
 	// 权限验证
-	if err := c.auth.IsAuth(ctx.Ctx(), &service.TalkAuthOption{
+	if err := c.auth.IsAuth(ctx.Ctx(), &service.TalkAuthOpt{
 		TalkType:   params.TalkType,
 		UserId:     ctx.UserId(),
 		ReceiverId: params.ReceiverId,
@@ -198,7 +198,7 @@ func (c *Message) File(ctx *ichat.Context) error {
 	uid := ctx.UserId()
 
 	// 权限验证
-	if err := c.auth.IsAuth(ctx.Ctx(), &service.TalkAuthOption{
+	if err := c.auth.IsAuth(ctx.Ctx(), &service.TalkAuthOpt{
 		TalkType:   params.TalkType,
 		UserId:     uid,
 		ReceiverId: params.ReceiverId,
@@ -246,7 +246,7 @@ func (c *Message) Vote(ctx *ichat.Context) error {
 	uid := ctx.UserId()
 
 	// 权限验证
-	if err := c.auth.IsAuth(ctx.Ctx(), &service.TalkAuthOption{
+	if err := c.auth.IsAuth(ctx.Ctx(), &service.TalkAuthOpt{
 		TalkType:   entity.ChatGroupMode,
 		UserId:     uid,
 		ReceiverId: params.ReceiverId,
@@ -286,7 +286,7 @@ func (c *Message) Emoticon(ctx *ichat.Context) error {
 
 	uid := ctx.UserId()
 
-	if err := c.auth.IsAuth(ctx.Ctx(), &service.TalkAuthOption{
+	if err := c.auth.IsAuth(ctx.Ctx(), &service.TalkAuthOpt{
 		TalkType:   params.TalkType,
 		UserId:     uid,
 		ReceiverId: params.ReceiverId,
@@ -330,7 +330,7 @@ func (c *Message) Forward(ctx *ichat.Context) error {
 
 	uid := ctx.UserId()
 
-	if err := c.auth.IsAuth(ctx.Ctx(), &service.TalkAuthOption{
+	if err := c.auth.IsAuth(ctx.Ctx(), &service.TalkAuthOpt{
 		TalkType:   params.TalkType,
 		UserId:     ctx.UserId(),
 		ReceiverId: params.ReceiverId,
@@ -383,7 +383,7 @@ func (c *Message) Card(ctx *ichat.Context) error {
 
 	uid := ctx.UserId()
 
-	if err := c.auth.IsAuth(ctx.Ctx(), &service.TalkAuthOption{
+	if err := c.auth.IsAuth(ctx.Ctx(), &service.TalkAuthOpt{
 		TalkType:   params.TalkType,
 		UserId:     uid,
 		ReceiverId: params.ReceiverId,
@@ -507,7 +507,7 @@ func (c *Message) Location(ctx *ichat.Context) error {
 
 	uid := ctx.UserId()
 
-	if err := c.auth.IsAuth(ctx.Ctx(), &service.TalkAuthOption{
+	if err := c.auth.IsAuth(ctx.Ctx(), &service.TalkAuthOpt{
 		TalkType:   params.TalkType,
 		UserId:     uid,
 		ReceiverId: params.ReceiverId,

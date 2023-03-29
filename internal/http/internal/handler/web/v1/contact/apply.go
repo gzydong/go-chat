@@ -41,7 +41,7 @@ func (c *Apply) Create(ctx *ichat.Context) error {
 		return ctx.Success(nil)
 	}
 
-	if err := c.service.Create(ctx.Ctx(), &service.ContactApplyCreateOpts{
+	if err := c.service.Create(ctx.Ctx(), &service.ContactApplyCreateOpt{
 		UserId:   ctx.UserId(),
 		Remarks:  params.Remark,
 		FriendId: int(params.FriendId),
@@ -107,7 +107,7 @@ func (c *Apply) Decline(ctx *ichat.Context) error {
 // List 获取联系人申请列表
 func (c *Apply) List(ctx *ichat.Context) error {
 
-	list, err := c.service.List(ctx.Ctx(), ctx.UserId(), 1, 1000)
+	list, err := c.service.List(ctx.Ctx(), ctx.UserId())
 	if err != nil {
 		return ctx.Error(err.Error())
 	}

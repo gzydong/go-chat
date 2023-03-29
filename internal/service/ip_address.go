@@ -10,24 +10,17 @@ import (
 	"go-chat/config"
 	"go-chat/internal/pkg/client"
 	"go-chat/internal/pkg/sliceutil"
+	"go-chat/internal/repository/repo"
 )
 
 type IpAddressService struct {
-	*BaseService
+	*repo.Source
 	conf       *config.Config
 	httpClient *client.RequestClient
 }
 
-func NewIpAddressService(baseService *BaseService, conf *config.Config, httpClient *client.RequestClient) *IpAddressService {
-	return &IpAddressService{BaseService: baseService, conf: conf, httpClient: httpClient}
-}
-
-func (s *IpAddressService) getCache(ip string) (string, error) {
-	return s.rds.HGet(context.TODO(), "rds:hash:ip-address", ip).Result()
-}
-
-func (s *IpAddressService) setCache(ip string, value string) error {
-	return s.rds.HSet(context.TODO(), "rds:hash:ip-address", ip, value).Err()
+func NewIpAddressService(source *repo.Source, conf *config.Config, httpClient *client.RequestClient) *IpAddressService {
+	return &IpAddressService{Source: source, conf: conf, httpClient: httpClient}
 }
 
 type IpAddressResponse struct {
@@ -72,4 +65,12 @@ func (s *IpAddressService) FindAddress(ip string) (string, error) {
 	_ = s.setCache(ip, val)
 
 	return val, nil
+}
+
+func (s *IpAddressService) getCache(ip string) (string, error) {
+	return s.Redis().HGet(context.TODO(), "rds:hash:ip-address", ip).Result()
+}
+
+func (s *IpAddressService) setCache(ip string, value string) error {
+	return s.Redis().HSet(context.TODO(), "rds:hash:ip-address", ip, value).Err()
 }

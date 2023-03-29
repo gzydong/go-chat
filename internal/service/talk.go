@@ -13,12 +13,12 @@ import (
 )
 
 type TalkService struct {
-	*BaseService
+	*repo.Source
 	groupMemberRepo *repo.GroupMember
 }
 
-func NewTalkService(baseService *BaseService, groupMemberRepo *repo.GroupMember) *TalkService {
-	return &TalkService{BaseService: baseService, groupMemberRepo: groupMemberRepo}
+func NewTalkService(source *repo.Source, groupMemberRepo *repo.GroupMember) *TalkService {
+	return &TalkService{Source: source, groupMemberRepo: groupMemberRepo}
 }
 
 type TalkMessageDeleteOpt struct {
@@ -38,15 +38,15 @@ func (s *TalkService) RemoveRecords(ctx context.Context, opts *TalkMessageDelete
 	findIds := make([]int64, 0)
 
 	if opts.TalkType == entity.ChatPrivateMode {
-		subQuery := s.db.Where("user_id = ? and receiver_id = ?", opts.UserId, opts.ReceiverId).Or("user_id = ? and receiver_id = ?", opts.ReceiverId, opts.UserId)
+		subQuery := s.Db().Where("user_id = ? and receiver_id = ?", opts.UserId, opts.ReceiverId).Or("user_id = ? and receiver_id = ?", opts.ReceiverId, opts.UserId)
 
-		s.db.Model(&model.TalkRecords{}).Where("id in ?", ids).Where("talk_type = ?", entity.ChatPrivateMode).Where(subQuery).Pluck("id", &findIds)
+		s.Db().Model(&model.TalkRecords{}).Where("id in ?", ids).Where("talk_type = ?", entity.ChatPrivateMode).Where(subQuery).Pluck("id", &findIds)
 	} else {
 		if !s.groupMemberRepo.IsMember(ctx, opts.ReceiverId, opts.UserId, false) {
 			return entity.ErrPermissionDenied
 		}
 
-		s.db.Model(&model.TalkRecords{}).Where("id in ? and talk_type = ?", ids, entity.ChatGroupMode).Pluck("id", &findIds)
+		s.Db().Model(&model.TalkRecords{}).Where("id in ? and talk_type = ?", ids, entity.ChatGroupMode).Pluck("id", &findIds)
 	}
 
 	if len(ids) != len(findIds) {
@@ -62,14 +62,14 @@ func (s *TalkService) RemoveRecords(ctx context.Context, opts *TalkMessageDelete
 		})
 	}
 
-	return s.db.Create(items).Error
+	return s.Db().Create(items).Error
 }
 
 // CollectRecord 收藏表情包
 func (s *TalkService) CollectRecord(ctx context.Context, uid int, recordId int) error {
 
 	var record model.TalkRecords
-	if err := s.db.First(&record, recordId).Error; err != nil {
+	if err := s.Db().First(&record, recordId).Error; err != nil {
 		return err
 	}
 
@@ -96,7 +96,7 @@ func (s *TalkService) CollectRecord(ctx context.Context, uid int, recordId int) 
 		return err
 	}
 
-	return s.db.Create(&model.EmoticonItem{
+	return s.Db().Create(&model.EmoticonItem{
 		UserId:     uid,
 		Url:        fileInfo.Url,
 		FileSuffix: fileInfo.Suffix,

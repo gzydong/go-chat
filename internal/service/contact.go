@@ -8,16 +8,16 @@ import (
 )
 
 type ContactService struct {
-	*BaseService
-	repo *repo.Contact
+	*repo.Source
+	contact *repo.Contact
 }
 
-func NewContactService(baseService *BaseService, dao *repo.Contact) *ContactService {
-	return &ContactService{BaseService: baseService, repo: dao}
+func NewContactService(source *repo.Source, contact *repo.Contact) *ContactService {
+	return &ContactService{Source: source, contact: contact}
 }
 
 func (s *ContactService) Dao() *repo.Contact {
-	return s.repo
+	return s.contact
 }
 
 // EditRemark 编辑联系人备注
@@ -25,9 +25,9 @@ func (s *ContactService) Dao() *repo.Contact {
 // @params friendId 联系人ID
 func (s *ContactService) EditRemark(ctx context.Context, uid int, friendId int, remark string) error {
 
-	err := s.repo.Model(ctx).Where("user_id = ? and friend_id = ?", uid, friendId).Update("remark", remark).Error
+	_, err := s.contact.UpdateWhere(ctx, map[string]any{"remark": remark}, "user_id = ? and friend_id = ?", uid, friendId)
 	if err == nil {
-		_ = s.repo.SetFriendRemark(ctx, uid, friendId, remark)
+		_ = s.contact.SetFriendRemark(ctx, uid, friendId, remark)
 	}
 
 	return err
@@ -37,15 +37,14 @@ func (s *ContactService) EditRemark(ctx context.Context, uid int, friendId int, 
 // @params uid      用户ID
 // @params friendId 联系人ID
 func (s *ContactService) Delete(ctx context.Context, uid, friendId int) error {
-	return s.repo.Model(ctx).Where("user_id = ? and friend_id = ?", uid, friendId).Update("status", 0).Error
+	return s.contact.Model(ctx).Where("user_id = ? and friend_id = ?", uid, friendId).Update("status", 0).Error
 }
 
 // List 获取联系人列表
 // @params uid      用户ID
 func (s *ContactService) List(ctx context.Context, uid int) ([]*model.ContactListItem, error) {
 
-	tx := s.repo.Model(ctx)
-
+	tx := s.contact.Model(ctx)
 	tx.Select([]string{
 		"users.id",
 		"users.nickname",
@@ -58,7 +57,7 @@ func (s *ContactService) List(ctx context.Context, uid int) ([]*model.ContactLis
 	tx.Joins("inner join `users` ON `users`.id = contact.friend_id")
 	tx.Where("contact.user_id = ? and contact.status = ?", uid, 1)
 
-	items := make([]*model.ContactListItem, 0)
+	var items []*model.ContactListItem
 	if err := tx.Scan(&items).Error; err != nil {
 		return nil, err
 	}
@@ -69,7 +68,7 @@ func (s *ContactService) List(ctx context.Context, uid int) ([]*model.ContactLis
 func (s *ContactService) GetContactIds(ctx context.Context, uid int) []int64 {
 
 	var ids []int64
-	s.repo.Model(ctx).Where("user_id = ? and status = ?", uid, 1).Pluck("friend_id", &ids)
+	s.contact.Model(ctx).Where("user_id = ? and status = ?", uid, 1).Pluck("friend_id", &ids)
 
 	return ids
 }

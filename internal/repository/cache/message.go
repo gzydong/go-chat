@@ -23,18 +23,6 @@ func NewMessageStorage(rds *redis.Client) *MessageStorage {
 	return &MessageStorage{rds}
 }
 
-func (m *MessageStorage) name(talkType int, sender int, receive int) string {
-	if talkType == 2 {
-		sender = 0
-	}
-
-	if sender > receive {
-		sender, receive = receive, sender
-	}
-
-	return fmt.Sprintf("%d_%d_%d", talkType, sender, receive)
-}
-
 func (m *MessageStorage) Set(ctx context.Context, talkType int, sender int, receive int, message *LastCacheMessage) error {
 	text := jsonutil.Encode(message)
 
@@ -74,4 +62,16 @@ func (m *MessageStorage) MGet(ctx context.Context, fields []string) ([]*LastCach
 	}
 
 	return items, nil
+}
+
+func (m *MessageStorage) name(talkType int, sender int, receive int) string {
+	if talkType == 2 {
+		sender = 0
+	}
+
+	if sender > receive {
+		sender, receive = receive, sender
+	}
+
+	return fmt.Sprintf("%d_%d_%d", talkType, sender, receive)
 }

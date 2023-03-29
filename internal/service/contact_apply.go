@@ -6,47 +6,36 @@ import (
 	"fmt"
 
 	"go-chat/internal/repository/model"
+	"go-chat/internal/repository/repo"
 	"gorm.io/gorm"
 
 	"go-chat/internal/entity"
 	"go-chat/internal/pkg/jsonutil"
 )
 
-type ContactApplyCreateOpts struct {
+type ContactApplyService struct {
+	*repo.Source
+}
+
+func NewContactApplyService(source *repo.Source) *ContactApplyService {
+	return &ContactApplyService{Source: source}
+}
+
+type ContactApplyCreateOpt struct {
 	UserId   int
 	Remarks  string
 	FriendId int
 }
 
-type ContactApplyAcceptOpt struct {
-	UserId  int
-	Remarks string
-	ApplyId int
-}
-
-type ContactApplyDeclineOpt struct {
-	UserId  int
-	Remarks string
-	ApplyId int
-}
-
-type ContactApplyService struct {
-	*BaseService
-}
-
-func NewContactApplyService(base *BaseService) *ContactApplyService {
-	return &ContactApplyService{BaseService: base}
-}
-
-func (s *ContactApplyService) Create(ctx context.Context, opts *ContactApplyCreateOpts) error {
+func (s *ContactApplyService) Create(ctx context.Context, opt *ContactApplyCreateOpt) error {
 
 	apply := &model.ContactApply{
-		UserId:   opts.UserId,
-		FriendId: opts.FriendId,
-		Remark:   opts.Remarks,
+		UserId:   opt.UserId,
+		FriendId: opt.FriendId,
+		Remark:   opt.Remarks,
 	}
 
-	if err := s.db.Create(apply).Error; err != nil {
+	if err := s.Db().Create(apply).Error; err != nil {
 		return err
 	}
 
@@ -58,25 +47,31 @@ func (s *ContactApplyService) Create(ctx context.Context, opts *ContactApplyCrea
 		}),
 	}
 
-	s.rds.Incr(ctx, fmt.Sprintf("friend-apply:user_%d", opts.FriendId))
+	s.Redis().Incr(ctx, fmt.Sprintf("friend-apply:user_%d", opt.FriendId))
 
-	s.rds.Publish(ctx, entity.ImTopicChat, jsonutil.Encode(body))
+	s.Redis().Publish(ctx, entity.ImTopicChat, jsonutil.Encode(body))
 
 	return nil
 }
 
+type ContactApplyAcceptOpt struct {
+	UserId  int
+	Remarks string
+	ApplyId int
+}
+
 // Accept 同意好友申请
-func (s *ContactApplyService) Accept(ctx context.Context, opts *ContactApplyAcceptOpt) (*model.ContactApply, error) {
+func (s *ContactApplyService) Accept(ctx context.Context, opt *ContactApplyAcceptOpt) (*model.ContactApply, error) {
 	var (
 		err       error
 		applyInfo *model.ContactApply
 	)
 
-	if err := s.db.First(&applyInfo, "id = ? and friend_id = ?", opts.ApplyId, opts.UserId).Error; err != nil {
+	if err := s.Db().First(&applyInfo, "id = ? and friend_id = ?", opt.ApplyId, opt.UserId).Error; err != nil {
 		return nil, err
 	}
 
-	err = s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+	err = s.Db().WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		addFriendFunc := func(uid, fid int, remark string) error {
 			var friends *model.Contact
 
@@ -111,7 +106,7 @@ func (s *ContactApplyService) Accept(ctx context.Context, opts *ContactApplyAcce
 			return err
 		}
 
-		if err := addFriendFunc(applyInfo.FriendId, applyInfo.UserId, opts.Remarks); err != nil {
+		if err := addFriendFunc(applyInfo.FriendId, applyInfo.UserId, opt.Remarks); err != nil {
 			return err
 		}
 
@@ -121,27 +116,33 @@ func (s *ContactApplyService) Accept(ctx context.Context, opts *ContactApplyAcce
 	return applyInfo, err
 }
 
+type ContactApplyDeclineOpt struct {
+	UserId  int
+	Remarks string
+	ApplyId int
+}
+
 // Decline 拒绝好友申请
-func (s *ContactApplyService) Decline(ctx context.Context, opts *ContactApplyDeclineOpt) error {
-	err := s.db.Delete(&model.ContactApply{}, "id = ? and friend_id = ?", opts.ApplyId, opts.UserId).Error
-
-	if err == nil {
-		body := map[string]any{
-			"event": entity.EventContactApply,
-			"data": jsonutil.Encode(map[string]any{
-				"apply_id": int64(opts.ApplyId),
-				"type":     2,
-			}),
-		}
-
-		s.rds.Publish(ctx, entity.ImTopicChat, jsonutil.Encode(body))
+func (s *ContactApplyService) Decline(ctx context.Context, opt *ContactApplyDeclineOpt) error {
+	err := s.Db().Delete(&model.ContactApply{}, "id = ? and friend_id = ?", opt.ApplyId, opt.UserId).Error
+	if err != nil {
+		return err
 	}
 
-	return err
+	body := map[string]any{
+		"event": entity.EventContactApply,
+		"data": jsonutil.Encode(map[string]any{
+			"apply_id": int64(opt.ApplyId),
+			"type":     2,
+		}),
+	}
+
+	s.Redis().Publish(ctx, entity.ImTopicChat, jsonutil.Encode(body))
+	return nil
 }
 
 // List 联系人申请列表
-func (s *ContactApplyService) List(ctx context.Context, uid, page, size int) ([]*model.ApplyItem, error) {
+func (s *ContactApplyService) List(ctx context.Context, uid int) ([]*model.ApplyItem, error) {
 	fields := []string{
 		"contact_apply.id",
 		"contact_apply.remark",
@@ -153,12 +154,12 @@ func (s *ContactApplyService) List(ctx context.Context, uid, page, size int) ([]
 		"contact_apply.created_at",
 	}
 
-	tx := s.db.Table("contact_apply")
+	tx := s.Db().WithContext(ctx).Table("contact_apply")
 	tx.Joins("left join `users` ON `users`.id = contact_apply.user_id")
 	tx.Where("contact_apply.friend_id = ?", uid)
 	tx.Order("contact_apply.id desc")
 
-	items := make([]*model.ApplyItem, 0)
+	var items []*model.ApplyItem
 	if err := tx.Select(fields).Scan(&items).Error; err != nil {
 		return nil, err
 	}
@@ -168,7 +169,7 @@ func (s *ContactApplyService) List(ctx context.Context, uid, page, size int) ([]
 
 func (s *ContactApplyService) GetApplyUnreadNum(ctx context.Context, uid int) int {
 
-	num, err := s.rds.Get(ctx, fmt.Sprintf("friend-apply:user_%d", uid)).Int()
+	num, err := s.Redis().Get(ctx, fmt.Sprintf("friend-apply:user_%d", uid)).Int()
 	if err != nil {
 		return 0
 	}
@@ -177,5 +178,5 @@ func (s *ContactApplyService) GetApplyUnreadNum(ctx context.Context, uid int) in
 }
 
 func (s *ContactApplyService) ClearApplyUnreadNum(ctx context.Context, uid int) {
-	s.rds.Del(ctx, fmt.Sprintf("friend-apply:user_%d", uid))
+	s.Redis().Del(ctx, fmt.Sprintf("friend-apply:user_%d", uid))
 }

@@ -16,18 +16,6 @@ func NewRelation(rds *redis.Client) *Relation {
 	return &Relation{rds: rds}
 }
 
-func (r *Relation) keyContactRelation(uid, uid2 int) string {
-	if uid2 < uid {
-		uid, uid2 = uid2, uid
-	}
-
-	return fmt.Sprintf("redis:contact:relation:%d_%d", uid, uid2)
-}
-
-func (r *Relation) keyGroupRelation(uid, gid int) string {
-	return fmt.Sprintf("redis:contact:relation:%d_%d", uid, gid)
-}
-
 func (r *Relation) IsContactRelation(ctx context.Context, uid, uid2 int) error {
 	return r.rds.Get(ctx, r.keyContactRelation(uid, uid2)).Err()
 }
@@ -56,4 +44,16 @@ func (r *Relation) BatchDelGroupRelation(ctx context.Context, uids []int, gid in
 	for _, uid := range uids {
 		r.DelGroupRelation(ctx, uid, gid)
 	}
+}
+
+func (r *Relation) keyContactRelation(uid, uid2 int) string {
+	if uid2 < uid {
+		uid, uid2 = uid2, uid
+	}
+
+	return fmt.Sprintf("redis:contact:relation:%d_%d", uid, uid2)
+}
+
+func (r *Relation) keyGroupRelation(uid, gid int) string {
+	return fmt.Sprintf("redis:contact:relation:%d_%d", uid, gid)
 }

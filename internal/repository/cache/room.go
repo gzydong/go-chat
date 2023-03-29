@@ -26,15 +26,10 @@ func NewRoomStorage(rds *redis.Client) *RoomStorage {
 	return &RoomStorage{rds: rds}
 }
 
-// 获取房间名 [ws:sid:room:房间类型:房间号]
-func (r *RoomStorage) key(opts *RoomOption) string {
-	return fmt.Sprintf("ws:%s:%s:%s", opts.Sid, opts.RoomType, opts.Number)
-}
-
 // Add 添加房间成员
 func (r *RoomStorage) Add(ctx context.Context, opt *RoomOption) error {
 
-	key := r.key(opt)
+	key := r.name(opt)
 
 	err := r.rds.SAdd(ctx, key, opt.Cid).Err()
 	if err == nil {
@@ -48,7 +43,7 @@ func (r *RoomStorage) BatchAdd(ctx context.Context, opts []*RoomOption) error {
 
 	pipeline := r.rds.Pipeline()
 	for _, opt := range opts {
-		key := r.key(opt)
+		key := r.name(opt)
 		if err := pipeline.SAdd(ctx, key, opt.Cid).Err(); err == nil {
 			pipeline.Expire(ctx, key, time.Hour*24*7)
 		}
@@ -60,14 +55,14 @@ func (r *RoomStorage) BatchAdd(ctx context.Context, opts []*RoomOption) error {
 
 // Del 删除房间成员
 func (r *RoomStorage) Del(ctx context.Context, opts *RoomOption) error {
-	return r.rds.SRem(ctx, r.key(opts), opts.Cid).Err()
+	return r.rds.SRem(ctx, r.name(opts), opts.Cid).Err()
 }
 
 func (r *RoomStorage) BatchDel(ctx context.Context, opts []*RoomOption) error {
 
 	pipeline := r.rds.Pipeline()
 	for _, opt := range opts {
-		pipeline.SRem(ctx, r.key(opt), opt.Cid)
+		pipeline.SRem(ctx, r.name(opt), opt.Cid)
 	}
 
 	_, err := pipeline.Exec(ctx)
@@ -77,7 +72,7 @@ func (r *RoomStorage) BatchDel(ctx context.Context, opts []*RoomOption) error {
 // All 获取所有房间成员
 func (r *RoomStorage) All(ctx context.Context, opts *RoomOption) []int64 {
 
-	arr := r.rds.SMembers(ctx, r.key(opts)).Val()
+	arr := r.rds.SMembers(ctx, r.name(opts)).Val()
 
 	cids := make([]int64, 0, len(arr))
 	for _, val := range arr {
@@ -87,4 +82,9 @@ func (r *RoomStorage) All(ctx context.Context, opts *RoomOption) []int64 {
 	}
 
 	return cids
+}
+
+// 获取房间名 [ws:sid:room:房间类型:房间号]
+func (r *RoomStorage) name(opts *RoomOption) string {
+	return fmt.Sprintf("ws:%s:%s:%s", opts.Sid, opts.RoomType, opts.Number)
 }

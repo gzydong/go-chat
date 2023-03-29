@@ -16,10 +16,6 @@ func NewCaptchaStorage(redis *redis.Client) *CaptchaStorage {
 	return &CaptchaStorage{redis: redis}
 }
 
-func (c *CaptchaStorage) name(id string) string {
-	return fmt.Sprintf("im:auth:captcha:%s", id)
-}
-
 func (c *CaptchaStorage) Set(id string, value string) error {
 	return c.redis.SetEx(context.TODO(), c.name(id), value, 3*time.Minute).Err()
 }
@@ -42,4 +38,8 @@ func (c *CaptchaStorage) Verify(id, answer string, clear bool) bool {
 	}
 
 	return value == answer
+}
+
+func (c *CaptchaStorage) name(id string) string {
+	return fmt.Sprintf("im:auth:captcha:%s", id)
 }

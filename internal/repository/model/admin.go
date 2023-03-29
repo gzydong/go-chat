@@ -3,7 +3,8 @@ package model
 import "time"
 
 const (
-	AdminStatusNormal = 1
+	AdminStatusNormal     = 1
+	AdminStatusDeactivate = 2
 )
 
 type Admin struct {

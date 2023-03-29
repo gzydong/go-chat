@@ -16,10 +16,6 @@ func NewUnreadStorage(rds *redis.Client) *UnreadStorage {
 	return &UnreadStorage{rds}
 }
 
-func (u *UnreadStorage) name(receive int) string {
-	return fmt.Sprintf("talk:unread:uid_%d", receive)
-}
-
 // Incr 消息未读数自增
 // @params mode    对话模式 1私信 2群聊
 // @params sender  发送者ID
@@ -61,4 +57,8 @@ func (u *UnreadStorage) All(ctx context.Context, receive int) map[string]int {
 	}
 
 	return items
+}
+
+func (u *UnreadStorage) name(receive int) string {
+	return fmt.Sprintf("im:message:unread:uid_%d", receive)
 }

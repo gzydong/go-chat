@@ -32,19 +32,19 @@ type TalkRecordsItem struct {
 }
 
 type TalkRecordsService struct {
-	*BaseService
+	*repo.Source
 	talkVoteCache       *cache.TalkVote
 	talkRecordsVoteRepo *repo.TalkRecordsVote
 	groupMemberRepo     *repo.GroupMember
-	repo                *repo.TalkRecords
+	talkRecordsRepo     *repo.TalkRecords
 }
 
-func NewTalkRecordsService(baseService *BaseService, talkVoteCache *cache.TalkVote, talkRecordsVoteRepo *repo.TalkRecordsVote, groupMemberRepo *repo.GroupMember, repo *repo.TalkRecords) *TalkRecordsService {
-	return &TalkRecordsService{BaseService: baseService, talkVoteCache: talkVoteCache, talkRecordsVoteRepo: talkRecordsVoteRepo, groupMemberRepo: groupMemberRepo, repo: repo}
+func NewTalkRecordsService(source *repo.Source, talkVoteCache *cache.TalkVote, talkRecordsVoteRepo *repo.TalkRecordsVote, groupMemberRepo *repo.GroupMember, repo *repo.TalkRecords) *TalkRecordsService {
+	return &TalkRecordsService{Source: source, talkVoteCache: talkVoteCache, talkRecordsVoteRepo: talkRecordsVoteRepo, groupMemberRepo: groupMemberRepo, talkRecordsRepo: repo}
 }
 
 func (s *TalkRecordsService) Dao() *repo.TalkRecords {
-	return s.repo
+	return s.talkRecordsRepo
 }
 
 type QueryTalkRecordsOpt struct {
@@ -97,7 +97,7 @@ func (s *TalkRecordsService) GetTalkRecords(ctx context.Context, opts *QueryTalk
 		}
 	)
 
-	query := s.db.Table("talk_records")
+	query := s.Db().Table("talk_records")
 	query.Joins("left join users on talk_records.user_id = users.id")
 	query.Joins("left join talk_records_delete on talk_records.id = talk_records_delete.record_id and talk_records_delete.user_id = ?", opts.UserId)
 
@@ -106,7 +106,7 @@ func (s *TalkRecordsService) GetTalkRecords(ctx context.Context, opts *QueryTalk
 	}
 
 	if opts.TalkType == entity.ChatPrivateMode {
-		subQuery := s.db.Where("talk_records.user_id = ? and talk_records.receiver_id = ?", opts.UserId, opts.ReceiverId)
+		subQuery := s.Db().Where("talk_records.user_id = ? and talk_records.receiver_id = ?", opts.UserId, opts.ReceiverId)
 		subQuery.Or("talk_records.user_id = ? and talk_records.receiver_id = ?", opts.ReceiverId, opts.UserId)
 
 		query.Where(subQuery)
@@ -159,7 +159,7 @@ func (s *TalkRecordsService) GetTalkRecord(ctx context.Context, recordId int64) 
 		}
 	)
 
-	query := s.db.Table("talk_records")
+	query := s.Db().Table("talk_records")
 	query.Joins("left join users on talk_records.user_id = users.id")
 	query.Where("talk_records.id = ?", recordId)
 
@@ -177,8 +177,9 @@ func (s *TalkRecordsService) GetTalkRecord(ctx context.Context, recordId int64) 
 
 // GetForwardRecords 获取转发消息记录
 func (s *TalkRecordsService) GetForwardRecords(ctx context.Context, uid int, recordId int64) ([]*TalkRecordsItem, error) {
-	record := &model.TalkRecords{}
-	if err := s.db.First(&record, recordId).Error; err != nil {
+
+	record, err := s.talkRecordsRepo.FindById(ctx, int(recordId))
+	if err != nil {
 		return nil, err
 	}
 
@@ -218,7 +219,7 @@ func (s *TalkRecordsService) GetForwardRecords(ctx context.Context, uid int, rec
 		}
 	)
 
-	query := s.db.Table("talk_records")
+	query := s.Db().Table("talk_records")
 	query.Select(fields)
 	query.Joins("left join users on talk_records.user_id = users.id")
 	query.Where("talk_records.id in ?", extra.MsgIds)
@@ -246,7 +247,7 @@ func (s *TalkRecordsService) HandleTalkRecords(ctx context.Context, items []*Que
 
 	hashVotes := make(map[int]*model.TalkRecordsVote)
 	if len(votes) > 0 {
-		s.db.Model(&model.TalkRecordsVote{}).Where("record_id in ?", votes).Scan(&voteItems)
+		s.Db().Model(&model.TalkRecordsVote{}).Where("record_id in ?", votes).Scan(&voteItems)
 		for i := range voteItems {
 			hashVotes[voteItems[i].RecordId] = voteItems[i]
 		}

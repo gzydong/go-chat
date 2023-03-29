@@ -44,6 +44,7 @@ var providerSet = wire.NewSet(
 )
 
 var daoProviderSet = wire.NewSet(
+	repo.NewSource,
 	repo.NewContact,
 	repo.NewContactGroup,
 	repo.NewGroupMember,

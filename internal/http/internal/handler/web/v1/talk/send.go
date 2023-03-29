@@ -37,7 +37,7 @@ func (c *SendMessage) Send(ctx *ichat.Context) error {
 	}
 
 	// 权限验证
-	if err := c.auth.IsAuth(ctx.Ctx(), &service.TalkAuthOption{
+	if err := c.auth.IsAuth(ctx.Ctx(), &service.TalkAuthOpt{
 		TalkType:   params.Receiver.TalkType,
 		UserId:     ctx.UserId(),
 		ReceiverId: params.Receiver.ReceiverId,

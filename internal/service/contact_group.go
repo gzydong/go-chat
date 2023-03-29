@@ -10,20 +10,20 @@ import (
 )
 
 type ContactGroupService struct {
-	*BaseService
-	repo *repo.ContactGroup
+	*repo.Source
+	contactGroup *repo.ContactGroup
 }
 
-func NewContactGroupService(baseService *BaseService, repo *repo.ContactGroup) *ContactGroupService {
-	return &ContactGroupService{BaseService: baseService, repo: repo}
+func NewContactGroupService(source *repo.Source, contactGroup *repo.ContactGroup) *ContactGroupService {
+	return &ContactGroupService{Source: source, contactGroup: contactGroup}
 }
 
 func (c *ContactGroupService) Repo() *repo.ContactGroup {
-	return c.repo
+	return c.contactGroup
 }
 
 func (c *ContactGroupService) Delete(ctx context.Context, id int, uid int) error {
-	return c.repo.Txx(ctx, func(tx *gorm.DB) error {
+	return c.contactGroup.Txx(ctx, func(tx *gorm.DB) error {
 		res := tx.Delete(&model.ContactGroup{}, "id = ? and user_id = ?", id, uid)
 		if err := res.Error; err != nil {
 			return err
@@ -33,7 +33,7 @@ func (c *ContactGroupService) Delete(ctx context.Context, id int, uid int) error
 			return errors.New("数据不存在")
 		}
 
-		res = tx.Table(model.Contact{}.TableName()).Where("user_id = ? and group_id = ?", uid, id).UpdateColumn("group_id", 0)
+		res = tx.Table("contact").Where("user_id = ? and group_id = ?", uid, id).UpdateColumn("group_id", 0)
 		if err := res.Error; err != nil {
 			return err
 		}
@@ -43,9 +43,9 @@ func (c *ContactGroupService) Delete(ctx context.Context, id int, uid int) error
 }
 
 func (c *ContactGroupService) Sort(ctx context.Context, uid int, values []*model.ContactGroup) error {
-	return c.repo.Txx(ctx, func(tx *gorm.DB) error {
+	return c.contactGroup.Txx(ctx, func(tx *gorm.DB) error {
 		for _, value := range values {
-			err := tx.Table(model.ContactGroup{}.TableName()).Where("id = ? and user_id = ?", value.Id, uid).
+			err := tx.Table("contact_group").Where("id = ? and user_id = ?", value.Id, uid).
 				UpdateColumn("sort", value.Sort).Error
 			if err != nil {
 				return err
@@ -60,8 +60,7 @@ func (c *ContactGroupService) Sort(ctx context.Context, uid int, values []*model
 func (c *ContactGroupService) GetUserGroup(ctx context.Context, uid int) ([]*model.ContactGroup, error) {
 
 	var items []*model.ContactGroup
-
-	err := c.db.WithContext(ctx).Table("contact_group").Where("user_id = ?", uid).Order("sort asc").Scan(&items).Error
+	err := c.Db().WithContext(ctx).Table("contact_group").Where("user_id = ?", uid).Order("sort asc").Scan(&items).Error
 	if err != nil {
 		return nil, err
 	}

@@ -7,20 +7,20 @@ import (
 	"html"
 
 	"go-chat/internal/repository/model"
+	"go-chat/internal/repository/repo"
 	"gorm.io/gorm"
 
 	"go-chat/internal/pkg/sliceutil"
 	"go-chat/internal/pkg/strutil"
 	"go-chat/internal/pkg/timeutil"
-	"go-chat/internal/service"
 )
 
 type ArticleService struct {
-	*service.BaseService
+	*repo.Source
 }
 
-func NewArticleService(baseService *service.BaseService) *ArticleService {
-	return &ArticleService{BaseService: baseService}
+func NewArticleService(source *repo.Source) *ArticleService {
+	return &ArticleService{Source: source}
 }
 
 // Detail 笔记详情
@@ -140,7 +140,7 @@ type ArticleListOpt struct {
 }
 
 // List 笔记列表
-func (s *ArticleService) List(ctx context.Context, opts *ArticleListOpt) ([]*model.ArticleItem, error) {
+func (s *ArticleService) List(ctx context.Context, opts *ArticleListOpt) ([]*model.ArticleListItem, error) {
 
 	query := s.Db().WithContext(ctx).Table("article").Select("article.*,article_class.class_name")
 	query.Joins("left join article_class on article_class.id = article.class_id")
@@ -170,7 +170,7 @@ func (s *ArticleService) List(ctx context.Context, opts *ArticleListOpt) ([]*mod
 		query.Order("article.id desc")
 	}
 
-	items := make([]*model.ArticleItem, 0)
+	items := make([]*model.ArticleListItem, 0)
 	if err := query.Scan(&items).Error; err != nil {
 		return nil, err
 	}

@@ -16,10 +16,6 @@ func NewTokenSessionStorage(rds *redis.Client) *TokenSessionStorage {
 	return &TokenSessionStorage{rds}
 }
 
-func (s *TokenSessionStorage) name(token string) string {
-	return fmt.Sprintf("jwt:black-list:%s", token)
-}
-
 // SetBlackList 登录 token 加入黑名单
 func (s *TokenSessionStorage) SetBlackList(ctx context.Context, token string, expire time.Duration) error {
 	return s.rds.Set(ctx, s.name(token), 1, expire).Err()
@@ -33,4 +29,8 @@ func (s *TokenSessionStorage) DelBlackList(ctx context.Context, token string) er
 // IsBlackList 判断 token 是否存在黑名单
 func (s *TokenSessionStorage) IsBlackList(ctx context.Context, token string) bool {
 	return s.rds.Get(ctx, s.name(token)).Val() != ""
+}
+
+func (s *TokenSessionStorage) name(token string) string {
+	return fmt.Sprintf("jwt:black-list:%s", token)
 }

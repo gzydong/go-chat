@@ -35,6 +35,7 @@ var providerSet = wire.NewSet(
 	cache.NewSidStorage,
 	cache.NewSequence,
 
+	repo.NewSource,
 	repo.NewSequence,
 
 	// Crontab 命令行

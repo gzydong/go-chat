@@ -23,7 +23,7 @@ import (
 )
 
 type TalkMessageService struct {
-	*BaseService
+	*repo.Source
 	config              *config.Config
 	unreadTalkCache     *cache.UnreadStorage
 	lastMessage         *cache.MessageStorage
@@ -36,8 +36,8 @@ type TalkMessageService struct {
 	sequence            *repo.Sequence
 }
 
-func NewTalkMessageService(baseService *BaseService, config *config.Config, unreadTalkCache *cache.UnreadStorage, lastMessage *cache.MessageStorage, talkRecordsVoteRepo *repo.TalkRecordsVote, groupMemberRepo *repo.GroupMember, sidServer *cache.ServerStorage, client *cache.ClientStorage, fileSystem *filesystem.Filesystem, splitUploadDao *repo.SplitUpload, sequence *repo.Sequence) *TalkMessageService {
-	return &TalkMessageService{BaseService: baseService, config: config, unreadTalkCache: unreadTalkCache, lastMessage: lastMessage, talkRecordsVoteRepo: talkRecordsVoteRepo, groupMemberRepo: groupMemberRepo, sidServer: sidServer, client: client, fileSystem: fileSystem, splitUploadDao: splitUploadDao, sequence: sequence}
+func NewTalkMessageService(source *repo.Source, config *config.Config, unreadTalkCache *cache.UnreadStorage, lastMessage *cache.MessageStorage, talkRecordsVoteRepo *repo.TalkRecordsVote, groupMemberRepo *repo.GroupMember, sidServer *cache.ServerStorage, client *cache.ClientStorage, fileSystem *filesystem.Filesystem, splitUploadDao *repo.SplitUpload, sequence *repo.Sequence) *TalkMessageService {
+	return &TalkMessageService{Source: source, config: config, unreadTalkCache: unreadTalkCache, lastMessage: lastMessage, talkRecordsVoteRepo: talkRecordsVoteRepo, groupMemberRepo: groupMemberRepo, sidServer: sidServer, client: client, fileSystem: fileSystem, splitUploadDao: splitUploadDao, sequence: sequence}
 }
 
 type SysTextMessageOpt struct {
@@ -59,7 +59,7 @@ func (s *TalkMessageService) SendSysMessage(ctx context.Context, opt *SysTextMes
 		Sequence:   s.sequence.Get(ctx, opt.UserId, opt.ReceiverId),
 	}
 
-	if err := s.db.Create(record).Error; err != nil {
+	if err := s.Db().Create(record).Error; err != nil {
 		return err
 	}
 
@@ -77,7 +77,7 @@ func (s *TalkMessageService) SendRevokeRecordMessage(ctx context.Context, uid in
 		record model.TalkRecords
 	)
 
-	if err = s.db.First(&record, recordId).Error; err != nil {
+	if err = s.Db().First(&record, recordId).Error; err != nil {
 		return err
 	}
 
@@ -93,7 +93,7 @@ func (s *TalkMessageService) SendRevokeRecordMessage(ctx context.Context, uid in
 		return errors.New("超出有效撤回时间范围，无法进行撤销！")
 	}
 
-	if err = s.db.Model(&model.TalkRecords{Id: recordId}).Update("is_revoke", 1).Error; err != nil {
+	if err = s.Db().Model(&model.TalkRecords{Id: recordId}).Update("is_revoke", 1).Error; err != nil {
 		return err
 	}
 
@@ -104,7 +104,7 @@ func (s *TalkMessageService) SendRevokeRecordMessage(ctx context.Context, uid in
 		}),
 	}
 
-	s.rds.Publish(ctx, entity.ImTopicChat, jsonutil.Encode(body))
+	s.Redis().Publish(ctx, entity.ImTopicChat, jsonutil.Encode(body))
 
 	return nil
 }
@@ -122,7 +122,7 @@ func (s *TalkMessageService) VoteHandle(ctx context.Context, opts *VoteMessageHa
 		vote *model.QueryVoteModel
 	)
 
-	tx := s.db.Table("talk_records")
+	tx := s.Db().Table("talk_records")
 	tx.Select([]string{
 		"talk_records.receiver_id", "talk_records.talk_type", "talk_records.msg_type",
 		"vote.id as vote_id", "vote.id as record_id", "vote.answer_mode", "vote.answer_option",
@@ -147,7 +147,7 @@ func (s *TalkMessageService) VoteHandle(ctx context.Context, opts *VoteMessageHa
 	// 判断是否有投票权限
 
 	var count int64
-	s.db.Table("talk_records_vote_answer").Where("vote_id = ? and user_id = ？", vote.VoteId, opts.UserId).Count(&count)
+	s.Db().Table("talk_records_vote_answer").Where("vote_id = ? and user_id = ？", vote.VoteId, opts.UserId).Count(&count)
 	if count > 0 { // 判断是否已投票
 		return 0, fmt.Errorf("不能重复投票[%d]", vote.VoteId)
 	}
@@ -181,7 +181,7 @@ func (s *TalkMessageService) VoteHandle(ctx context.Context, opts *VoteMessageHa
 		})
 	}
 
-	err = s.db.Transaction(func(tx *gorm.DB) error {
+	err = s.Db().Transaction(func(tx *gorm.DB) error {
 		if err = tx.Table("talk_records_vote").Where("id = ?", vote.VoteId).Updates(map[string]any{
 			"answered_num": gorm.Expr("answered_num + 1"),
 			"status":       gorm.Expr("if(answered_num >= answer_num, 1, 0)"),
@@ -250,17 +250,17 @@ func (s *TalkMessageService) afterHandle(ctx context.Context, record *model.Talk
 
 		// 小于三台服务器则采用全局广播
 		if len(sids) <= 3 {
-			s.rds.Publish(ctx, entity.ImTopicChat, content)
+			s.Redis().Publish(ctx, entity.ImTopicChat, content)
 		} else {
 			for _, sid := range s.sidServer.All(ctx, 1) {
 				for _, uid := range []int{record.UserId, record.ReceiverId} {
 					if s.client.IsCurrentServerOnline(ctx, sid, entity.ImChannelChat, strconv.Itoa(uid)) {
-						s.rds.Publish(ctx, fmt.Sprintf(entity.ImTopicChatPrivate, sid), content)
+						s.Redis().Publish(ctx, fmt.Sprintf(entity.ImTopicChatPrivate, sid), content)
 					}
 				}
 			}
 		}
 	} else {
-		s.rds.Publish(ctx, entity.ImTopicChat, content)
+		s.Redis().Publish(ctx, entity.ImTopicChat, content)
 	}
 }

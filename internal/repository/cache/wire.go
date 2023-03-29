@@ -15,7 +15,7 @@ var ProviderSet = wire.NewSet(
 	NewSequence,
 	NewTokenSessionStorage,
 	NewSidStorage,
-	NewSmsCodeCache,
+	NewSmsStorage,
 	NewTalkVote,
 	NewUnreadStorage,
 )

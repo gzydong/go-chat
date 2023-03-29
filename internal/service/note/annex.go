@@ -6,26 +6,26 @@ import (
 	"go-chat/internal/pkg/filesystem"
 	"go-chat/internal/pkg/timeutil"
 	"go-chat/internal/repository/model"
+	"go-chat/internal/repository/repo"
 	"go-chat/internal/repository/repo/note"
-	"go-chat/internal/service"
 )
 
 type ArticleAnnexService struct {
-	*service.BaseService
-	dao        *note.ArticleAnnex
+	*repo.Source
+	annex      *note.ArticleAnnex
 	fileSystem *filesystem.Filesystem
 }
 
-func NewArticleAnnexService(baseService *service.BaseService, dao *note.ArticleAnnex, fileSystem *filesystem.Filesystem) *ArticleAnnexService {
-	return &ArticleAnnexService{BaseService: baseService, dao: dao, fileSystem: fileSystem}
+func NewArticleAnnexService(source *repo.Source, dao *note.ArticleAnnex, fileSystem *filesystem.Filesystem) *ArticleAnnexService {
+	return &ArticleAnnexService{Source: source, annex: dao, fileSystem: fileSystem}
 }
 
 func (s *ArticleAnnexService) Dao() *note.ArticleAnnex {
-	return s.dao
+	return s.annex
 }
 
 func (s *ArticleAnnexService) Create(ctx context.Context, data *model.ArticleAnnex) error {
-	return s.Db().Create(data).Error
+	return s.annex.Create(ctx, data)
 }
 
 // UpdateStatus 更新附件状态
@@ -44,9 +44,9 @@ func (s *ArticleAnnexService) UpdateStatus(ctx context.Context, uid int, id int,
 
 // ForeverDelete 永久删除笔记附件
 func (s *ArticleAnnexService) ForeverDelete(ctx context.Context, uid int, id int) error {
-	var annex *model.ArticleAnnex
 
-	if err := s.Db().First(&annex, "id = ? and user_id = ?", id, uid).Error; err != nil {
+	annex, err := s.annex.FindByWhere(ctx, "id = ? and user_id = ?", id, uid)
+	if err != nil {
 		return err
 	}
 

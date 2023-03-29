@@ -20,13 +20,13 @@ func NewTalkAuthService(organize *organize.Organize, contact *repo.Contact) *Tal
 	return &TalkAuthService{organize: organize, contact: contact}
 }
 
-type TalkAuthOption struct {
+type TalkAuthOpt struct {
 	TalkType   int
 	UserId     int
 	ReceiverId int
 }
 
-func (t *TalkAuthService) IsAuth(ctx context.Context, opt *TalkAuthOption) error {
+func (t *TalkAuthService) IsAuth(ctx context.Context, opt *TalkAuthOpt) error {
 
 	if opt.TalkType == entity.ChatPrivateMode {
 		// 这里需要判断双方是否都是企业成员，如果是则无需添加好友即可聊天

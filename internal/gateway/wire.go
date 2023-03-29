@@ -38,6 +38,7 @@ var providerSet = wire.NewSet(
 	process.NewMessageSubscribe,
 
 	// 数据层
+	repo.NewSource,
 	repo.NewTalkRecords,
 	repo.NewTalkRecordsVote,
 	repo.NewGroupMember,
