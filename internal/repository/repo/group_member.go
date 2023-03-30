@@ -111,7 +111,7 @@ func (g *GroupMember) GetMembers(ctx context.Context, groupId int) []*model.Memb
 	tx.Where("group_member.group_id = ? and group_member.is_quit = ?", groupId, 0)
 	tx.Order("group_member.leader desc")
 
-	items := make([]*model.MemberItem, 0)
+	var items []*model.MemberItem
 	tx.Unscoped().Select(fields).Scan(&items)
 
 	return items

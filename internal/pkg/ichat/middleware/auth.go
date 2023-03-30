@@ -61,7 +61,15 @@ func Auth(secret string, guard string, storage IStorage) gin.HandlerFunc {
 }
 
 func AuthHeaderToken(c *gin.Context) string {
-	return strings.TrimSpace(strings.TrimPrefix(c.GetHeader("Authorization"), "Bearer"))
+	token := c.GetHeader("Authorization")
+	token = strings.TrimSpace(strings.TrimPrefix(token, "Bearer"))
+
+	// Headers 中没有授权信息则读取 url 中的 token
+	if token == "" {
+		token = c.DefaultQuery("token", "")
+	}
+
+	return token
 }
 
 func verify(guard string, secret string, token string) (*jwt.AuthClaims, error) {

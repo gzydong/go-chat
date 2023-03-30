@@ -32,6 +32,7 @@ func (c *ChatChannel) Conn(ctx *ichat.Context) error {
 }
 
 func (c *ChatChannel) NewClient(uid int, conn socket.IConn) error {
+
 	return socket.NewClient(conn, &socket.ClientOption{
 		Uid:     uid,
 		Channel: socket.Session.Chat,

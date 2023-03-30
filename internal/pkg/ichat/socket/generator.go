@@ -27,5 +27,5 @@ type SnowflakeGenerator struct {
 }
 
 func (s *SnowflakeGenerator) IdGen() int64 {
-	return int64(s.snowflake.Generate())
+	return s.snowflake.Generate().Int64()
 }

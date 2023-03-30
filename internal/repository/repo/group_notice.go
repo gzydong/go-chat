@@ -38,7 +38,7 @@ func (g *GroupNotice) GetListAll(ctx context.Context, groupId int) ([]*model.Sea
 	query.Order("group_notice.is_top desc")
 	query.Order("group_notice.created_at desc")
 
-	items := make([]*model.SearchNoticeItem, 0)
+	var items []*model.SearchNoticeItem
 	if err := query.Select(fields).Scan(&items).Error; err != nil {
 		return nil, err
 	}
