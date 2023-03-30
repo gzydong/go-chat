@@ -52,6 +52,6 @@ func Validate(value interface{}) error {
 
 // registerCustomValidator 注册自定义验证器
 func registerCustomValidator(v *validator.Validate, trans ut.Translator) {
-	validatorPhone(v, trans)
-	validatorIds(v, trans)
+	phone(v, trans)
+	ids(v, trans)
 }

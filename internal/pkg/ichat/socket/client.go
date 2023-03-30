@@ -27,16 +27,8 @@ type IClient interface {
 }
 
 type IStorage interface {
-	Bind(ctx context.Context, channel string, cid int64, uid int)
-	UnBind(ctx context.Context, channel string, cid int64)
-}
-
-type ClientResponse struct {
-	IsAck   bool   `json:"-"`                 // 是否需要 ack 回调
-	Sid     string `json:"sid,omitempty"`     // ACK ID
-	Event   string `json:"event"`             // 事件名
-	Content any    `json:"content,omitempty"` // 事件内容
-	Retry   int    `json:"-"`                 // 重试次数（0 默认不重试）
+	Bind(ctx context.Context, channel string, cid int64, uid int) error
+	UnBind(ctx context.Context, channel string, cid int64) error
 }
 
 // Client WebSocket 客户端连接信息
@@ -53,17 +45,26 @@ type Client struct {
 }
 
 type ClientOption struct {
-	Uid     int      // 用户识别ID
-	Channel IChannel // 渠道信息
-	Storage IStorage // 自定义缓存组件，用于绑定用户与客户端的关系
-	Buffer  int      // 缓冲区大小根据业务，自行调整
+	Uid         int         // 用户识别ID
+	Channel     IChannel    // 渠道信息
+	Storage     IStorage    // 自定义缓存组件，用于绑定用户与客户端的关系
+	IdGenerator IdGenerator // 客户端ID生成器(唯一ID), 默认使用雪花算法
+	Buffer      int         // 缓冲区大小根据业务，自行调整
+}
+
+type ClientResponse struct {
+	IsAck   bool   `json:"-"`                 // 是否需要 ack 回调
+	Sid     string `json:"sid,omitempty"`     // ACK ID
+	Event   string `json:"event"`             // 事件名
+	Content any    `json:"content,omitempty"` // 事件内容
+	Retry   int    `json:"-"`                 // 重试次数（0 默认不重试）
 }
 
 // NewClient 初始化客户端信息
-func NewClient(conn IConn, opt *ClientOption, event IEvent) error {
+func NewClient(conn IConn, option *ClientOption, event IEvent) error {
 
-	if opt.Buffer <= 0 {
-		opt.Buffer = 10
+	if option.Buffer <= 0 {
+		option.Buffer = 10
 	}
 
 	if event == nil {
@@ -72,13 +73,18 @@ func NewClient(conn IConn, opt *ClientOption, event IEvent) error {
 
 	client := &Client{
 		conn:     conn,
-		cid:      Counter.GenID(),
+		uid:      option.Uid,
 		lastTime: time.Now().Unix(),
-		uid:      opt.Uid,
-		channel:  opt.Channel,
-		storage:  opt.Storage,
-		outChan:  make(chan *ClientResponse, opt.Buffer),
+		channel:  option.Channel,
+		storage:  option.Storage,
+		outChan:  make(chan *ClientResponse, option.Buffer),
 		event:    event,
+	}
+
+	if option.IdGenerator != nil {
+		client.cid = option.IdGenerator.IdGen()
+	} else {
+		client.cid = defaultIdGenerator.IdGen()
 	}
 
 	// 设置客户端连接关闭回调事件
@@ -86,7 +92,11 @@ func NewClient(conn IConn, opt *ClientOption, event IEvent) error {
 
 	// 绑定客户端映射关系
 	if client.storage != nil {
-		client.storage.Bind(context.TODO(), client.channel.Name(), client.cid, client.uid)
+		err := client.storage.Bind(context.TODO(), client.channel.Name(), client.cid, client.uid)
+		if err != nil {
+			log.Println("[ERROR] bind client err: ", err.Error())
+			return err
+		}
 	}
 
 	// 注册客户端
@@ -174,11 +184,11 @@ func (c *Client) loopAccept() {
 // 循环推送客户端信息
 func (c *Client) loopWrite() {
 
-	timer := time.NewTimer(10 * time.Second)
+	timer := time.NewTimer(15 * time.Second)
 	defer timer.Stop()
 
 	for {
-		timer.Reset(10 * time.Second)
+		timer.Reset(15 * time.Second)
 
 		select {
 		case <-timer.C:
@@ -245,7 +255,11 @@ func (c *Client) hookClose(code int, text string) error {
 	c.event.Close(c, code, text)
 
 	if c.storage != nil {
-		c.storage.UnBind(context.TODO(), c.channel.Name(), c.cid)
+		err := c.storage.UnBind(context.TODO(), c.channel.Name(), c.cid)
+		if err != nil {
+			log.Println("[ERROR] unbind client err: ", err.Error())
+			return err
+		}
 	}
 
 	health.delete(c)

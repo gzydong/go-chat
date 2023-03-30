@@ -51,8 +51,3 @@ func (s *SenderContent) SetExclude(cid ...int64) *SenderContent {
 func (s *SenderContent) IsBroadcast() bool {
 	return s.broadcast
 }
-
-// GetMessage 获取消息内容
-func (s *SenderContent) GetMessage() any {
-	return s.message
-}

@@ -17,7 +17,7 @@ var (
 	ErrorNoLogin = errors.New("请登录后操作! ")
 )
 
-type IStore interface {
+type IStorage interface {
 	// IsBlackList 判断是否是黑名单
 	IsBlackList(ctx context.Context, token string) bool
 }
@@ -29,33 +29,27 @@ type JSession struct {
 }
 
 // Auth 授权中间件
-func Auth(secret string, guard string, store IStore) gin.HandlerFunc {
+func Auth(secret string, guard string, storage IStorage) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		token := QueryToken(c)
+		token := AuthHeaderToken(c)
 
 		claims, err := verify(guard, secret, token)
 		if err != nil {
-			c.JSON(http.StatusUnauthorized, gin.H{"code": 401, "message": err.Error()})
-			c.Abort()
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"code": 401, "message": err.Error()})
 			return
 		}
 
-		// 这里还需要验证 token 黑名单
-		if store.IsBlackList(c.Request.Context(), token) {
-			c.JSON(http.StatusUnauthorized, gin.H{"code": 401, "message": "请登录再试."})
-			c.Abort()
+		if storage.IsBlackList(c.Request.Context(), token) {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"code": 401, "message": "请登录再试"})
 			return
 		}
 
-		// 设置登录用户ID
 		uid, err := strconv.Atoi(claims.ID)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": "解析 jwt 失败."})
-			c.Abort()
+			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"code": 500, "message": "解析 jwt 失败"})
 			return
 		}
 
-		// 记录 jwt 相关信息
 		c.Set(JWTSessionConst, &JSession{
 			Uid:       uid,
 			Token:     token,
@@ -66,17 +60,8 @@ func Auth(secret string, guard string, store IStore) gin.HandlerFunc {
 	}
 }
 
-func QueryToken(c *gin.Context) string {
-
-	token := c.GetHeader("Authorization")
-	token = strings.TrimSpace(strings.TrimPrefix(token, "Bearer"))
-
-	// Headers 中没有授权信息则读取 url 中的 token
-	if token == "" {
-		token = c.DefaultQuery("token", "")
-	}
-
-	return token
+func AuthHeaderToken(c *gin.Context) string {
+	return strings.TrimSpace(strings.TrimPrefix(c.GetHeader("Authorization"), "Bearer"))
 }
 
 func verify(guard string, secret string, token string) (*jwt.AuthClaims, error) {

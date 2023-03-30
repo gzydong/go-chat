@@ -7,8 +7,8 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
-// validatorPhone 手机号验证器
-func validatorPhone(v *validator.Validate, trans ut.Translator) {
+// phone 手机号验证器
+func phone(v *validator.Validate, trans ut.Translator) {
 	_ = v.RegisterValidation("phone", func(fl validator.FieldLevel) bool {
 		matched, _ := regexp.MatchString("^1[3456789][0-9]{9}$", fl.Field().String())
 		return matched
@@ -23,8 +23,8 @@ func validatorPhone(v *validator.Validate, trans ut.Translator) {
 	})
 }
 
-// validatorIds 逗号拼接ID，字符串验证
-func validatorIds(v *validator.Validate, trans ut.Translator) {
+// ids 逗号拼接ID，字符串验证
+func ids(v *validator.Validate, trans ut.Translator) {
 	_ = v.RegisterValidation("ids", func(fl validator.FieldLevel) bool {
 		value := fl.Field().String()
 

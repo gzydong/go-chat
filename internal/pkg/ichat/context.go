@@ -92,13 +92,11 @@ func (c *Context) ErrorBusiness(message any) error {
 
 // Error 系统错误
 func (c *Context) Error(error string) error {
-
 	c.Context.AbortWithStatusJSON(http.StatusInternalServerError, &Response{
 		Code:    500,
 		Message: error,
 		Meta:    initMeta(),
 	})
-
 	return nil
 }
 
