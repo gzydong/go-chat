@@ -16,7 +16,7 @@ import (
 )
 
 // NewRouter 初始化配置路由
-func NewRouter(conf *config.Config, handle *handler.Handler, session *cache.TokenSessionStorage) *gin.Engine {
+func NewRouter(conf *config.Config, handle *handler.Handler, session *cache.JwtTokenStorage) *gin.Engine {
 
 	router := gin.New()
 	router.Use(gin.RecoveryWithWriter(gin.DefaultWriter, func(c *gin.Context, err any) {
@@ -30,9 +30,8 @@ func NewRouter(conf *config.Config, handle *handler.Handler, session *cache.Toke
 	// 查看客户端连接状态
 	router.GET("/wss/connect/detail", func(ctx *gin.Context) {
 		ctx.JSON(200, entity.H{
-			"max_client_id": socket.Counter.GetMaxID(),
-			"chat":          socket.Session.Chat.Count(),
-			"example":       socket.Session.Example.Count(),
+			"chat":    socket.Session.Chat.Count(),
+			"example": socket.Session.Example.Count(),
 		})
 	})
 

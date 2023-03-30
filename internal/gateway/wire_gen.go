@@ -55,8 +55,8 @@ func Initialize(conf *config.Config) *AppProvider {
 		Example: exampleChannel,
 		Config:  conf,
 	}
-	tokenSessionStorage := cache.NewTokenSessionStorage(client)
-	engine := router.NewRouter(conf, handlerHandler, tokenSessionStorage)
+	jwtTokenStorage := cache.NewTokenSessionStorage(client)
+	engine := router.NewRouter(conf, handlerHandler, jwtTokenStorage)
 	healthSubscribe := process.NewHealthSubscribe(conf, serverStorage)
 	talkVote := cache.NewTalkVote(client)
 	talkRecordsVote := repo.NewTalkRecordsVote(db, talkVote)

@@ -9,7 +9,7 @@ import (
 )
 
 // RegisterAdminRoute 注册 Admin 路由
-func RegisterAdminRoute(secret string, router *gin.Engine, handler *admin.Handler, session *cache.TokenSessionStorage) {
+func RegisterAdminRoute(secret string, router *gin.Engine, handler *admin.Handler, session *cache.JwtTokenStorage) {
 
 	// 授权验证中间件
 	authorize := middleware.Auth(secret, "admin", session)
@@ -26,7 +26,7 @@ func RegisterAdminRoute(secret string, router *gin.Engine, handler *admin.Handle
 		{
 			auth.POST("/login", ichat.HandlerFunc(handler.V1.Auth.Login))
 			auth.GET("/captcha", ichat.HandlerFunc(handler.V1.Auth.Captcha))
-			auth.GET("/logout", ichat.HandlerFunc(handler.V1.Auth.Logout))
+			auth.GET("/logout", authorize, ichat.HandlerFunc(handler.V1.Auth.Logout))
 			auth.POST("/refresh", authorize, ichat.HandlerFunc(handler.V1.Auth.Refresh))
 		}
 	}

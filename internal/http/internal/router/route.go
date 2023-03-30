@@ -13,7 +13,7 @@ import (
 )
 
 // NewRouter 初始化配置路由
-func NewRouter(conf *config.Config, handler *handler.Handler, session *cache.TokenSessionStorage) *gin.Engine {
+func NewRouter(conf *config.Config, handler *handler.Handler, session *cache.JwtTokenStorage) *gin.Engine {
 	router := gin.New()
 
 	router.Use(gin.RecoveryWithWriter(gin.DefaultWriter, func(c *gin.Context, err any) {

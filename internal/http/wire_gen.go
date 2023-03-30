@@ -42,7 +42,7 @@ func Initialize(conf *config.Config) *AppProvider {
 	users := repo.NewUsers(db)
 	userService := service.NewUserService(users)
 	common := v1.NewCommon(conf, smsService, userService)
-	tokenSessionStorage := cache.NewTokenSessionStorage(client)
+	jwtTokenStorage := cache.NewTokenSessionStorage(client)
 	redisLock := cache.NewRedisLock(client)
 	source := repo.NewSource(db, client)
 	unreadStorage := cache.NewUnreadStorage(client)
@@ -68,7 +68,7 @@ func Initialize(conf *config.Config) *AppProvider {
 	robot := repo.NewRobot(db)
 	messageForwardLogic := logic.NewMessageForwardLogic(db, repoSequence)
 	messageService := service.NewMessageService(source, messageForwardLogic, groupMember, splitUpload, filesystem, unreadStorage, messageStorage, serverStorage, clientStorage, repoSequence)
-	auth := v1.NewAuth(conf, userService, smsService, tokenSessionStorage, redisLock, talkMessageService, ipAddressService, talkSessionService, articleClassService, robot, messageService)
+	auth := v1.NewAuth(conf, userService, smsService, jwtTokenStorage, redisLock, talkMessageService, ipAddressService, talkSessionService, articleClassService, robot, messageService)
 	organizeOrganize := organize.NewOrganize(db)
 	organizeService := organize2.NewOrganizeService(source, organizeOrganize)
 	user := v1.NewUser(userService, smsService, organizeService)
@@ -146,7 +146,7 @@ func Initialize(conf *config.Config) *AppProvider {
 	index := v1_2.NewIndex()
 	captchaStorage := cache.NewCaptchaStorage(client)
 	repoAdmin := repo.NewAdmin(db)
-	v1Auth := v1_2.NewAuth(conf, captchaStorage, repoAdmin)
+	v1Auth := v1_2.NewAuth(conf, captchaStorage, repoAdmin, jwtTokenStorage)
 	adminV1 := &admin.V1{
 		Index: index,
 		Auth:  v1Auth,
@@ -168,7 +168,7 @@ func Initialize(conf *config.Config) *AppProvider {
 		Admin: adminHandler,
 		Open:  openHandler,
 	}
-	engine := router.NewRouter(conf, handlerHandler, tokenSessionStorage)
+	engine := router.NewRouter(conf, handlerHandler, jwtTokenStorage)
 	appProvider := &AppProvider{
 		Config: conf,
 		Engine: engine,

@@ -10,7 +10,7 @@ import (
 )
 
 // RegisterWebRoute 注册 Web 路由
-func RegisterWebRoute(secret string, router *gin.Engine, handler *web.Handler, session *cache.TokenSessionStorage) {
+func RegisterWebRoute(secret string, router *gin.Engine, handler *web.Handler, session *cache.JwtTokenStorage) {
 
 	// 授权验证中间件
 	authorize := middleware.Auth(secret, "api", session)

@@ -17,13 +17,14 @@ import (
 )
 
 type Auth struct {
-	config  *config.Config
-	captcha *base64Captcha.Captcha
-	admin   *repo.Admin
+	config          *config.Config
+	captcha         *base64Captcha.Captcha
+	admin           *repo.Admin
+	jwtTokenStorage *cache.JwtTokenStorage
 }
 
-func NewAuth(config *config.Config, captcha *cache.CaptchaStorage, admin *repo.Admin) *Auth {
-	return &Auth{config: config, captcha: base64Captcha.NewCaptcha(base64Captcha.DefaultDriverDigit, captcha), admin: admin}
+func NewAuth(config *config.Config, captcha *cache.CaptchaStorage, admin *repo.Admin, jwtTokenStorage *cache.JwtTokenStorage) *Auth {
+	return &Auth{config: config, captcha: base64Captcha.NewCaptcha(base64Captcha.DefaultDriverDigit, captcha), admin: admin, jwtTokenStorage: jwtTokenStorage}
 }
 
 // Login 登录接口
@@ -74,7 +75,7 @@ func (c *Auth) Login(ctx *ichat.Context) error {
 		Auth: &admin.AccessToken{
 			Type:        "Bearer",
 			AccessToken: token,
-			ExpiresIn:   60 * 60 * 12,
+			ExpiresIn:   int32(time.Now().Unix() - expiresAt.Unix()),
 		},
 	})
 }
@@ -96,7 +97,12 @@ func (c *Auth) Captcha(ctx *ichat.Context) error {
 // Logout 退出登录接口
 func (c *Auth) Logout(ctx *ichat.Context) error {
 
-	// TODO 业务逻辑 ...
+	session := ctx.JwtSession()
+	if session != nil {
+		if ex := session.ExpiresAt - time.Now().Unix(); ex > 0 {
+			_ = c.jwtTokenStorage.SetBlackList(ctx.Ctx(), session.Token, time.Duration(ex)*time.Second)
+		}
+	}
 
 	return ctx.Success(nil)
 }

@@ -23,23 +23,29 @@ func NewClientStorage(redis *redis.Client, config *config.Config, storage *Serve
 // @params channel  渠道分组
 // @params fd       客户端连接ID
 // @params id       用户ID
-func (w *ClientStorage) Set(ctx context.Context, channel string, fd string, uid int) {
-	w.redis.HSet(ctx, w.clientKey(w.config.ServerId(), channel), fd, uid)
-
-	w.redis.SAdd(ctx, w.userKey(w.config.ServerId(), channel, strconv.Itoa(uid)), fd)
+func (w *ClientStorage) Set(ctx context.Context, channel string, fd string, uid int) error {
+	sid := w.config.ServerId()
+	_, err := w.redis.Pipelined(ctx, func(pipe redis.Pipeliner) error {
+		pipe.HSet(ctx, w.clientKey(sid, channel), fd, uid)
+		pipe.SAdd(ctx, w.userKey(sid, channel, strconv.Itoa(uid)), fd)
+		return nil
+	})
+	return err
 }
 
 // Del 删除客户端与用户绑定关系
 // @params channel  渠道分组
-// @params fd     客户端连接ID
-func (w *ClientStorage) Del(ctx context.Context, channel, fd string) {
-	KeyName := w.clientKey(w.config.ServerId(), channel)
-
-	uid, _ := w.redis.HGet(ctx, KeyName, fd).Result()
-
-	w.redis.HDel(ctx, KeyName, fd)
-
-	w.redis.SRem(ctx, w.userKey(w.config.ServerId(), channel, uid), fd)
+// @params fd       客户端连接ID
+func (w *ClientStorage) Del(ctx context.Context, channel, fd string) error {
+	sid := w.config.ServerId()
+	key := w.clientKey(sid, channel)
+	uid, _ := w.redis.HGet(ctx, key, fd).Result()
+	_, err := w.redis.Pipelined(ctx, func(pipe redis.Pipeliner) error {
+		pipe.HDel(ctx, key, fd)
+		pipe.SRem(ctx, w.userKey(sid, channel, uid), fd)
+		return nil
+	})
+	return err
 }
 
 // IsOnline 判断客户端是否在线[所有部署机器]
@@ -99,12 +105,12 @@ func (w *ClientStorage) GetClientIdFromUid(ctx context.Context, sid, channel, ci
 	return strconv.ParseInt(uid, 10, 64)
 }
 
-func (w *ClientStorage) Bind(ctx context.Context, channel string, clientId int64, uid int) {
-	w.Set(ctx, channel, strconv.FormatInt(clientId, 10), uid)
+func (w *ClientStorage) Bind(ctx context.Context, channel string, clientId int64, uid int) error {
+	return w.Set(ctx, channel, strconv.FormatInt(clientId, 10), uid)
 }
 
-func (w *ClientStorage) UnBind(ctx context.Context, channel string, clientId int64) {
-	w.Del(ctx, channel, strconv.FormatInt(clientId, 10))
+func (w *ClientStorage) UnBind(ctx context.Context, channel string, clientId int64) error {
+	return w.Del(ctx, channel, strconv.FormatInt(clientId, 10))
 }
 
 func (w *ClientStorage) clientKey(sid, channel string) string {
