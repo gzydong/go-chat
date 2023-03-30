@@ -75,7 +75,7 @@ func (c *Auth) Login(ctx *ichat.Context) error {
 		Auth: &admin.AccessToken{
 			Type:        "Bearer",
 			AccessToken: token,
-			ExpiresIn:   int32(time.Now().Unix() - expiresAt.Unix()),
+			ExpiresIn:   int32(expiresAt.Unix() - time.Now().Unix()),
 		},
 	})
 }
