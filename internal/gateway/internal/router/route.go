@@ -5,7 +5,6 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"go-chat/internal/entity"
 	"go-chat/internal/pkg/ichat"
 	"go-chat/internal/pkg/ichat/middleware"
 	"go-chat/internal/pkg/ichat/socket"
@@ -21,7 +20,7 @@ func NewRouter(conf *config.Config, handle *handler.Handler, session *cache.JwtT
 	router := gin.New()
 	router.Use(gin.RecoveryWithWriter(gin.DefaultWriter, func(c *gin.Context, err any) {
 		log.Println(err)
-		c.AbortWithStatusJSON(http.StatusInternalServerError, entity.H{"code": 500, "msg": "系统错误，请重试!!!"})
+		c.AbortWithStatusJSON(http.StatusInternalServerError, map[string]any{"code": 500, "msg": "系统错误，请重试!!!"})
 	}))
 
 	// 授权验证中间件
@@ -29,7 +28,7 @@ func NewRouter(conf *config.Config, handle *handler.Handler, session *cache.JwtT
 
 	// 查看客户端连接状态
 	router.GET("/wss/connect/detail", func(ctx *gin.Context) {
-		ctx.JSON(200, entity.H{
+		ctx.JSON(200, map[string]any{
 			"chat":    socket.Session.Chat.Count(),
 			"example": socket.Session.Example.Count(),
 		})
@@ -39,11 +38,11 @@ func NewRouter(conf *config.Config, handle *handler.Handler, session *cache.JwtT
 	router.GET("/wss/example.io", authorize, ichat.HandlerFunc(handle.Example.Conn))
 
 	router.GET("/", func(c *gin.Context) {
-		c.JSON(http.StatusOK, entity.H{"ok": "success"})
+		c.JSON(http.StatusOK, map[string]any{"ok": "success"})
 	})
 
 	router.NoRoute(func(c *gin.Context) {
-		c.JSON(http.StatusNotFound, entity.H{"msg": "请求地址不存在"})
+		c.JSON(http.StatusNotFound, map[string]any{"msg": "请求地址不存在"})
 	})
 
 	return router

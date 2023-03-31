@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"sort"
-	"strconv"
 	"strings"
 	"time"
 
@@ -18,7 +17,6 @@ import (
 	"go-chat/internal/entity"
 	"go-chat/internal/pkg/filesystem"
 	"go-chat/internal/pkg/jsonutil"
-	"go-chat/internal/pkg/timeutil"
 )
 
 type TalkMessageService struct {
@@ -180,63 +178,4 @@ func (s *TalkMessageService) VoteHandle(ctx context.Context, opts *VoteMessageHa
 	_, _ = s.talkRecordsVoteRepo.SetVoteStatistics(ctx, vote.VoteId)
 
 	return vote.VoteId, nil
-}
-
-// 发送消息后置处理
-func (s *TalkMessageService) afterHandle(ctx context.Context, record *model.TalkRecords, opts map[string]string) {
-
-	if record.TalkType == entity.ChatPrivateMode {
-		s.unreadTalkCache.Incr(ctx, entity.ChatPrivateMode, record.UserId, record.ReceiverId)
-
-		if record.MsgType == entity.MsgTypeSystemText {
-			s.unreadTalkCache.Incr(ctx, 1, record.ReceiverId, record.UserId)
-		}
-	} else if record.TalkType == entity.ChatGroupMode {
-
-		// todo 需要加缓存
-		ids := s.groupMemberRepo.GetMemberIds(ctx, record.ReceiverId)
-		for _, uid := range ids {
-
-			if uid == record.UserId {
-				continue
-			}
-
-			s.unreadTalkCache.Incr(ctx, entity.ChatGroupMode, record.ReceiverId, uid)
-		}
-	}
-
-	_ = s.lastMessage.Set(ctx, record.TalkType, record.UserId, record.ReceiverId, &cache.LastCacheMessage{
-		Content:  opts["text"],
-		Datetime: timeutil.DateTime(),
-	})
-
-	content := jsonutil.Encode(map[string]any{
-		"event": entity.EventTalk,
-		"data": jsonutil.Encode(map[string]any{
-			"sender_id":   record.UserId,
-			"receiver_id": record.ReceiverId,
-			"talk_type":   record.TalkType,
-			"record_id":   record.Id,
-		}),
-	})
-
-	// 点对点消息采用精确投递
-	if record.TalkType == entity.ChatPrivateMode {
-		sids := s.sidServer.All(ctx, 1)
-
-		// 小于三台服务器则采用全局广播
-		if len(sids) <= 3 {
-			s.Redis().Publish(ctx, entity.ImTopicChat, content)
-		} else {
-			for _, sid := range s.sidServer.All(ctx, 1) {
-				for _, uid := range []int{record.UserId, record.ReceiverId} {
-					if s.client.IsCurrentServerOnline(ctx, sid, entity.ImChannelChat, strconv.Itoa(uid)) {
-						s.Redis().Publish(ctx, fmt.Sprintf(entity.ImTopicChatPrivate, sid), content)
-					}
-				}
-			}
-		}
-	} else {
-		s.Redis().Publish(ctx, entity.ImTopicChat, content)
-	}
 }

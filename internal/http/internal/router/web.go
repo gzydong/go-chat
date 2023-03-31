@@ -2,7 +2,6 @@ package router
 
 import (
 	"github.com/gin-gonic/gin"
-	"go-chat/internal/entity"
 	"go-chat/internal/http/internal/handler/web"
 	"go-chat/internal/pkg/ichat"
 	"go-chat/internal/pkg/ichat/middleware"
@@ -197,7 +196,7 @@ func RegisterWebRoute(secret string, router *gin.Engine, handler *web.Handler, s
 	v2 := router.Group("/api/v2")
 	{
 		v2.GET("/test", func(context *gin.Context) {
-			context.JSON(200, entity.H{"message": "success"})
+			context.JSON(200, map[string]any{"message": "success"})
 		})
 	}
 }

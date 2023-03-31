@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"strconv"
 
-	"go-chat/internal/entity"
 	"go-chat/internal/pkg/ichat/socket"
 	"go-chat/internal/pkg/logger"
 )
@@ -36,7 +35,7 @@ func (h *Handler) onConsumeTalkRead(ctx context.Context, body []byte) {
 	c.SetReceive(cids...)
 	c.SetMessage(&socket.Message{
 		Event: "im.message.read",
-		Content: entity.MapStrAny{
+		Content: map[string]any{
 			"sender_id":   data.SenderId,
 			"receiver_id": data.ReceiverId,
 			"ids":         data.Ids,

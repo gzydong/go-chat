@@ -18,10 +18,6 @@ func NewContactRemark(rds *redis.Client) *ContactRemark {
 	return &ContactRemark{rds: rds}
 }
 
-func (c *ContactRemark) name(uid int) string {
-	return fmt.Sprintf("contact:remark:uid_%d", uid)
-}
-
 func (c *ContactRemark) Get(ctx context.Context, uid int, fid int) string {
 	return c.rds.HGet(ctx, c.name(uid), fmt.Sprintf("%d", fid)).Val()
 }
@@ -74,4 +70,8 @@ func (c *ContactRemark) MSet(ctx context.Context, uid int, values map[string]any
 	c.rds.Expire(ctx, c.name(uid), time.Hour*24)
 
 	return nil
+}
+
+func (c *ContactRemark) name(uid int) string {
+	return fmt.Sprintf("contact:remark:uid_%d", uid)
 }

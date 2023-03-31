@@ -54,7 +54,7 @@ func (h *Handler) onConsumeTalkRevoke(ctx context.Context, body []byte) {
 	c.SetReceive(cids...)
 	c.SetMessage(&socket.Message{
 		Event: "im.message.revoke",
-		Content: entity.MapStrAny{
+		Content: map[string]any{
 			"talk_type":   record.TalkType,
 			"sender_id":   record.UserId,
 			"receiver_id": record.ReceiverId,

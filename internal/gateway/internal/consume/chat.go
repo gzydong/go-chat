@@ -15,6 +15,6 @@ func NewChatSubscribe(handel *chat.Handler) *ChatSubscribe {
 }
 
 // Call 触发回调事件
-func (s *ChatSubscribe) Call(event string, data string) {
-	s.handler.Call(context.TODO(), event, []byte(data))
+func (s *ChatSubscribe) Call(event string, data []byte) {
+	s.handler.Call(context.TODO(), event, data)
 }

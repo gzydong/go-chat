@@ -70,8 +70,6 @@ const (
 )
 
 const (
-	EventAck = 1000 // ACK消息确认
-
 	EventChatTalkMessage    = 101001 // IM对话消息事件
 	EventChatTalkKeyboard   = 101002 // IM键盘输入消息事件
 	EventChatTalkRevoke     = 101002 // IM消息撤回事件

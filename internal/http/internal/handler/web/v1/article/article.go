@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	"go-chat/api/pb/web/v1"
-	"go-chat/internal/entity"
 	"go-chat/internal/pkg/ichat"
 	"go-chat/internal/repository/model"
 
@@ -232,7 +231,7 @@ func (c *Article) Upload(ctx *ichat.Context) error {
 		return ctx.ErrorBusiness("文件上传失败")
 	}
 
-	return ctx.Success(entity.H{"url": c.fileSystem.Default.PublicUrl(filePath)})
+	return ctx.Success(map[string]any{"url": c.fileSystem.Default.PublicUrl(filePath)})
 }
 
 // Move 文章移动

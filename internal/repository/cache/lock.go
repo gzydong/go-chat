@@ -35,5 +35,5 @@ func (lock *RedisLock) UnLock(ctx context.Context, name string) bool {
 
 // 获取锁名
 func (lock *RedisLock) name(name string) string {
-	return fmt.Sprintf("redis:lock:%s", name)
+	return fmt.Sprintf("im:lock:%s", name)
 }

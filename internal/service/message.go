@@ -403,9 +403,9 @@ func (m *MessageService) SendForward(ctx context.Context, uid int, req *message.
 	}
 
 	for _, item := range items {
-		m.Redis().Publish(ctx, entity.ImTopicChat, jsonutil.Encode(entity.MapStrAny{
+		m.Redis().Publish(ctx, entity.ImTopicChat, jsonutil.Encode(map[string]any{
 			"event": entity.EventTalk,
-			"data": jsonutil.Encode(entity.MapStrAny{
+			"data": jsonutil.Encode(map[string]any{
 				"sender_id":   uid,
 				"receiver_id": item.ReceiverId,
 				"talk_type":   item.TalkType,
@@ -537,7 +537,7 @@ func (m *MessageService) afterHandle(ctx context.Context, record *model.TalkReco
 				}
 
 				if err := m.Redis().Publish(ctx, fmt.Sprintf(entity.ImTopicChatPrivate, sid), content).Err(); err != nil {
-					logger.WithFields(entity.H{
+					logger.WithFields(map[string]any{
 						"sid": sid,
 					}).Error(fmt.Sprintf("[Private]消息推送失败 %s", err.Error()))
 				}

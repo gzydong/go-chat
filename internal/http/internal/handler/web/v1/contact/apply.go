@@ -24,7 +24,7 @@ func NewApply(service *service.ContactApplyService, userService *service.UserSer
 
 // ApplyUnreadNum 获取好友申请未读数
 func (c *Apply) ApplyUnreadNum(ctx *ichat.Context) error {
-	return ctx.Success(entity.H{
+	return ctx.Success(map[string]any{
 		"unread_num": c.service.GetApplyUnreadNum(ctx.Ctx(), ctx.UserId()),
 	})
 }

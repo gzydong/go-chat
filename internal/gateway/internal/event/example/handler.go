@@ -20,7 +20,6 @@ func (h *Handler) Init() {
 	h.handlers = make(map[string]func(ctx context.Context, client socket.IClient, data []byte))
 
 	// 注册自定义绑定事件
-	// h.handlers[entity.EventTalkKeyboard] = h.OnKeyboardMessage
 }
 
 func (h *Handler) Call(ctx context.Context, client socket.IClient, event string, data []byte) {

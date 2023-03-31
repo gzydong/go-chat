@@ -26,7 +26,7 @@ func NewMessageSubscribe(config *config.Config, redis *redis.Client, defaultCons
 }
 
 type IConsume interface {
-	Call(event string, data string)
+	Call(event string, data []byte)
 }
 
 func (m *MessageSubscribe) Setup(ctx context.Context) error {
@@ -76,6 +76,6 @@ func (m *MessageSubscribe) handle(worker *pool.Pool, data *redis.Message, consum
 			}
 		}()
 
-		consume.Call(message.Event, message.Data)
+		consume.Call(message.Event, []byte(message.Data))
 	})
 }

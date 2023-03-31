@@ -31,9 +31,9 @@ func (h *Handler) OnReadMessage(ctx context.Context, client socket.IClient, data
 		Where("id in ? and receiver_id = ? and is_read = 0", m.Content.MsgIds, client.Uid()).
 		Update("is_read", 1)
 
-	h.redis.Publish(ctx, entity.ImTopicChat, jsonutil.Encode(entity.MapStrAny{
+	h.redis.Publish(ctx, entity.ImTopicChat, jsonutil.Encode(map[string]any{
 		"event": entity.EventTalkRead,
-		"data": jsonutil.Encode(entity.MapStrAny{
+		"data": jsonutil.Encode(map[string]any{
 			"sender_id":   client.Uid(),
 			"receiver_id": m.Content.ReceiverId,
 			"ids":         m.Content.MsgIds,

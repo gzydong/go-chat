@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"strconv"
 
-	"go-chat/internal/entity"
 	"go-chat/internal/pkg/ichat/socket"
 	"go-chat/internal/pkg/logger"
 )
@@ -33,7 +32,7 @@ func (h *Handler) onConsumeTalkKeyboard(ctx context.Context, body []byte) {
 	c.SetReceive(cids...)
 	c.SetMessage(&socket.Message{
 		Event: "im.message.keyboard",
-		Content: entity.MapStrAny{
+		Content: map[string]any{
 			"sender_id":   msg.SenderID,
 			"receiver_id": msg.ReceiverID,
 		},

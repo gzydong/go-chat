@@ -50,7 +50,7 @@ func (c *Common) SmsCode(ctx *ichat.Context) error {
 	}
 
 	if params.Channel == entity.SmsRegisterChannel {
-		return ctx.Success(entity.MapStrAny{
+		return ctx.Success(map[string]any{
 			"is_debug": true,
 			"sms_code": code,
 		})

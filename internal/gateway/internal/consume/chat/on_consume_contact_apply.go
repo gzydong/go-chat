@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"strconv"
 
-	"go-chat/internal/entity"
 	"go-chat/internal/pkg/ichat/socket"
 	"go-chat/internal/pkg/logger"
 	"go-chat/internal/pkg/timeutil"
@@ -41,11 +40,11 @@ func (h *Handler) onConsumeContactApply(ctx context.Context, body []byte) {
 		return
 	}
 
-	data := entity.MapStrAny{}
+	data := map[string]any{}
 	data["sender_id"] = apply.UserId
 	data["receiver_id"] = apply.FriendId
 	data["remark"] = apply.Remark
-	data["friend"] = entity.MapStrAny{
+	data["friend"] = map[string]any{
 		"nickname":   user.Nickname,
 		"remark":     apply.Remark,
 		"created_at": timeutil.FormatDatetime(apply.CreatedAt),
