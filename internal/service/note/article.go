@@ -69,14 +69,12 @@ func (s *ArticleService) Create(ctx context.Context, opts *ArticleEditOpt) (int,
 
 	abstract := strutil.MtSubstr(opts.MdContent, 0, 200)
 
-	abstract = strutil.Strip(abstract)
-
 	data := &model.Article{
 		UserId:   opts.UserId,
 		ClassId:  opts.ClassId,
 		Title:    opts.Title,
 		Image:    strutil.ParseHtmlImage(opts.Content),
-		Abstract: abstract,
+		Abstract: strutil.Strip(abstract),
 		Status:   1,
 	}
 
@@ -107,27 +105,20 @@ func (s *ArticleService) Create(ctx context.Context, opts *ArticleEditOpt) (int,
 // Update 更新笔记信息
 func (s *ArticleService) Update(ctx context.Context, opts *ArticleEditOpt) error {
 
-	abstract := strutil.Strip(opts.MdContent)
-	abstract = strutil.MtSubstr(abstract, 0, 200)
-
+	abstract := strutil.MtSubstr(opts.MdContent, 0, 200)
 	return s.Db().WithContext(ctx).Transaction(func(tx *gorm.DB) error {
-
 		if err := tx.Model(&model.Article{}).Where("id = ? and user_id = ?", opts.ArticleId, opts.UserId).Updates(&model.Article{
 			Title:    opts.Title,
 			Image:    strutil.ParseHtmlImage(opts.Content),
-			Abstract: abstract,
+			Abstract: strutil.Strip(abstract),
 		}).Error; err != nil {
 			return err
 		}
 
-		if err := tx.Model(&model.ArticleDetail{}).Where("article_id = ?", opts.ArticleId).Updates(&model.ArticleDetail{
+		return tx.Model(&model.ArticleDetail{}).Where("article_id = ?", opts.ArticleId).Updates(&model.ArticleDetail{
 			MdContent: html.EscapeString(opts.MdContent),
 			Content:   html.EscapeString(opts.Content),
-		}).Error; err != nil {
-			return err
-		}
-
-		return nil
+		}).Error
 	})
 }
 
@@ -216,7 +207,7 @@ func (s *ArticleService) ForeverDelete(ctx context.Context, uid int, articleId i
 
 	db := s.Db().WithContext(ctx)
 
-	var detail *model.Article
+	var detail model.Article
 	if err := db.First(&detail, "id = ? and user_id = ?", articleId, uid).Error; err != nil {
 		return err
 	}

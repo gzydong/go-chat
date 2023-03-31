@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/redis/go-redis/v9"
 	"go-chat/internal/repository/model"
 	"go-chat/internal/repository/repo"
 	"gorm.io/gorm"
@@ -42,14 +43,16 @@ func (s *ContactApplyService) Create(ctx context.Context, opt *ContactApplyCreat
 	body := map[string]any{
 		"event": entity.EventContactApply,
 		"data": jsonutil.Encode(map[string]any{
-			"apply_id": int64(apply.Id),
+			"apply_id": apply.Id,
 			"type":     1,
 		}),
 	}
 
-	s.Redis().Incr(ctx, fmt.Sprintf("friend-apply:user_%d", opt.FriendId))
-
-	s.Redis().Publish(ctx, entity.ImTopicChat, jsonutil.Encode(body))
+	_, _ = s.Redis().Pipelined(ctx, func(pipe redis.Pipeliner) error {
+		pipe.Incr(ctx, fmt.Sprintf("im:contact:apply:%d", opt.FriendId))
+		pipe.Publish(ctx, entity.ImTopicChat, jsonutil.Encode(body))
+		return nil
+	})
 
 	return nil
 }
@@ -62,24 +65,20 @@ type ContactApplyAcceptOpt struct {
 
 // Accept 同意好友申请
 func (s *ContactApplyService) Accept(ctx context.Context, opt *ContactApplyAcceptOpt) (*model.ContactApply, error) {
-	var (
-		err       error
-		applyInfo *model.ContactApply
-	)
 
+	var applyInfo model.ContactApply
 	if err := s.Db().First(&applyInfo, "id = ? and friend_id = ?", opt.ApplyId, opt.UserId).Error; err != nil {
 		return nil, err
 	}
 
-	err = s.Db().WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+	err := s.Db().WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		addFriendFunc := func(uid, fid int, remark string) error {
-			var friends *model.Contact
-
-			err = tx.Where("user_id = ? and friend_id = ?", uid, fid).First(&friends).Error
+			var contact model.Contact
+			err := tx.Where("user_id = ? and friend_id = ?", uid, fid).First(&contact).Error
 
 			// 数据存在则更新
 			if err == nil {
-				return tx.Model(&model.Contact{}).Where("id = ?", friends.Id).Updates(&model.Contact{
+				return tx.Model(&model.Contact{}).Where("id = ?", contact.Id).Updates(&model.Contact{
 					Remark: remark,
 					Status: 1,
 				}).Error
@@ -97,7 +96,7 @@ func (s *ContactApplyService) Accept(ctx context.Context, opt *ContactApplyAccep
 			}).Error
 		}
 
-		var user *model.Users
+		var user model.Users
 		if err := tx.Select("id", "nickname").First(&user, applyInfo.FriendId).Error; err != nil {
 			return err
 		}
@@ -113,7 +112,7 @@ func (s *ContactApplyService) Accept(ctx context.Context, opt *ContactApplyAccep
 		return tx.Delete(&model.ContactApply{}, "user_id = ? and friend_id = ?", applyInfo.UserId, applyInfo.FriendId).Error
 	})
 
-	return applyInfo, err
+	return &applyInfo, err
 }
 
 type ContactApplyDeclineOpt struct {
@@ -132,7 +131,7 @@ func (s *ContactApplyService) Decline(ctx context.Context, opt *ContactApplyDecl
 	body := map[string]any{
 		"event": entity.EventContactApply,
 		"data": jsonutil.Encode(map[string]any{
-			"apply_id": int64(opt.ApplyId),
+			"apply_id": opt.ApplyId,
 			"type":     2,
 		}),
 	}
@@ -169,7 +168,7 @@ func (s *ContactApplyService) List(ctx context.Context, uid int) ([]*model.Apply
 
 func (s *ContactApplyService) GetApplyUnreadNum(ctx context.Context, uid int) int {
 
-	num, err := s.Redis().Get(ctx, fmt.Sprintf("friend-apply:user_%d", uid)).Int()
+	num, err := s.Redis().Get(ctx, fmt.Sprintf("im:contact:apply:%d", uid)).Int()
 	if err != nil {
 		return 0
 	}
@@ -178,5 +177,5 @@ func (s *ContactApplyService) GetApplyUnreadNum(ctx context.Context, uid int) in
 }
 
 func (s *ContactApplyService) ClearApplyUnreadNum(ctx context.Context, uid int) {
-	s.Redis().Del(ctx, fmt.Sprintf("friend-apply:user_%d", uid))
+	s.Redis().Del(ctx, fmt.Sprintf("im:contact:apply:%d", uid))
 }

@@ -48,12 +48,11 @@ func (g *GroupNotice) GetListAll(ctx context.Context, groupId int) ([]*model.Sea
 
 // GetLatestNotice 获取最新公告
 func (g *GroupNotice) GetLatestNotice(ctx context.Context, groupId int) (*model.GroupNotice, error) {
-	info := &model.GroupNotice{}
-
-	err := g.Db.WithContext(ctx).Last(info, "group_id = ? and is_delete = ?", groupId, 0).Error
+	var info model.GroupNotice
+	err := g.Db.WithContext(ctx).Last(&info, "group_id = ? and is_delete = ?", groupId, 0).Error
 	if err != nil {
 		return nil, err
 	}
 
-	return info, nil
+	return &info, nil
 }

@@ -44,13 +44,11 @@ func (s *EmoticonService) RemoveUserSysEmoticon(uid int, emoticonId int) error {
 
 func (s *EmoticonService) AddUserSysEmoticon(uid int, emoticonId int) error {
 	ids := s.emoticon.GetUserInstallIds(uid)
-
 	if sliceutil.Include(emoticonId, ids) {
 		return nil
 	}
 
 	ids = append(ids, emoticonId)
-
 	return s.Db().Table("users_emoticon").Where("user_id = ?", uid).Update("emoticon_ids", sliceutil.ToIds(ids)).Error
 }
 

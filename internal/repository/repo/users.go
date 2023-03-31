@@ -44,6 +44,5 @@ func (u *Users) IsMobileExist(mobile string) bool {
 	}
 
 	exist, _ := u.QueryExist(context.TODO(), "mobile = ?", mobile)
-
 	return exist
 }

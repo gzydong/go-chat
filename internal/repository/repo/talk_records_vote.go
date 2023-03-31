@@ -67,27 +67,26 @@ func (t *TalkRecordsVote) GetVoteStatistics(ctx context.Context, vid int) (*Vote
 
 func (t *TalkRecordsVote) SetVoteStatistics(ctx context.Context, vid int) (*VoteStatistics, error) {
 	var (
-		err          error
-		vote         *model.TalkRecordsVote
+		vote         model.TalkRecordsVote
 		answerOption map[string]any
 		options      = make([]string, 0)
 	)
 
 	tx := t.Db.WithContext(ctx)
-
-	if err = tx.Table("talk_records_vote").First(&vote, vid).Error; err != nil {
+	if err := tx.Table("talk_records_vote").First(&vote, vid).Error; err != nil {
 		return nil, err
 	}
 
-	_ = jsonutil.Decode(vote.AnswerOption, &answerOption)
+	if err := jsonutil.Decode(vote.AnswerOption, &answerOption); err != nil {
+		return nil, err
+	}
 
-	err = tx.Table("talk_records_vote_answer").Where("vote_id = ?", vid).Pluck("option", &options).Error
+	err := tx.Table("talk_records_vote_answer").Where("vote_id = ?", vid).Pluck("option", &options).Error
 	if err != nil {
 		return nil, err
 	}
 
 	opts := make(map[string]int)
-
 	for option := range answerOption {
 		opts[option] = 0
 	}

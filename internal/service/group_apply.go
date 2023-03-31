@@ -22,19 +22,14 @@ func (s *GroupApplyService) Dao() *repo.GroupApply {
 }
 
 func (s *GroupApplyService) Auth(ctx context.Context, applyId, userId int) bool {
-
 	info, err := s.apply.FindById(ctx, applyId)
 	if err != nil {
 		return false
 	}
 
-	var member *model.GroupMember
+	var member model.GroupMember
 	err = s.Db().First(&member, "group_id = ? and user_id = ? and leader in (1,2) and is_quit = 0", info.GroupId, userId).Error
-	if err != nil {
-		return false
-	}
-
-	return member.Id == 0
+	return err == nil && member.Id == 0
 }
 
 func (s *GroupApplyService) Insert(ctx context.Context, groupId, userId int, remark string) error {

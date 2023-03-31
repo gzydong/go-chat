@@ -50,7 +50,6 @@ func (s *GroupNoticeService) Create(ctx context.Context, opt *GroupNoticeEditOpt
 
 // Update 更新群公告
 func (s *GroupNoticeService) Update(ctx context.Context, opts *GroupNoticeEditOpt) error {
-
 	_, err := s.notice.UpdateWhere(ctx, map[string]any{
 		"title":      opts.Title,
 		"content":    opts.Content,
@@ -58,17 +57,14 @@ func (s *GroupNoticeService) Update(ctx context.Context, opts *GroupNoticeEditOp
 		"is_confirm": opts.IsConfirm,
 		"updated_at": time.Now(),
 	}, "id = ? and group_id = ?", opts.NoticeId, opts.GroupId)
-
 	return err
 }
 
 func (s *GroupNoticeService) Delete(ctx context.Context, groupId, noticeId int) error {
-
 	_, err := s.notice.UpdateWhere(ctx, map[string]any{
 		"is_delete":  1,
 		"deleted_at": timeutil.DateTime(),
 		"updated_at": time.Now(),
 	}, "id = ? and group_id = ?", noticeId, groupId)
-
 	return err
 }

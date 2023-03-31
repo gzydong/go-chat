@@ -9,7 +9,7 @@ import (
 )
 
 type RedisLock struct {
-	rds *redis.Client
+	redis *redis.Client
 }
 
 func NewRedisLock(rds *redis.Client) *RedisLock {
@@ -17,12 +17,12 @@ func NewRedisLock(rds *redis.Client) *RedisLock {
 }
 
 // Lock 获取 redis 锁
-func (lock *RedisLock) Lock(ctx context.Context, name string, expire int) bool {
-	return lock.rds.SetNX(ctx, lock.name(name), 1, time.Duration(expire)*time.Second).Val()
+func (r *RedisLock) Lock(ctx context.Context, name string, expire int) bool {
+	return r.redis.SetNX(ctx, r.name(name), 1, time.Duration(expire)*time.Second).Val()
 }
 
 // UnLock 释放 redis 锁
-func (lock *RedisLock) UnLock(ctx context.Context, name string) bool {
+func (r *RedisLock) UnLock(ctx context.Context, name string) bool {
 	script := `
 	if redis.call("GET", KEYS[1]) == ARGV[1] then
 		return redis.call("DEL", KEYS[1])
@@ -30,10 +30,10 @@ func (lock *RedisLock) UnLock(ctx context.Context, name string) bool {
 		return false
 	end`
 
-	return lock.rds.Eval(ctx, script, []string{lock.name(name)}, 1).Err() == nil
+	return r.redis.Eval(ctx, script, []string{r.name(name)}, 1).Err() == nil
 }
 
 // 获取锁名
-func (lock *RedisLock) name(name string) string {
-	return fmt.Sprintf("im:lock:%s", name)
+func (r *RedisLock) name(name string) string {
+	return fmt.Sprintf("im:r:%s", name)
 }

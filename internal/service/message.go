@@ -8,6 +8,7 @@ import (
 	"net/url"
 	"strconv"
 
+	"github.com/redis/go-redis/v9"
 	"github.com/sirupsen/logrus"
 	"go-chat/api/pb/message/v1"
 	"go-chat/internal/entity"
@@ -394,25 +395,38 @@ func (m *MessageService) SendForward(ctx context.Context, uid int, req *message.
 		return err
 	}
 
-	var items []*logic.ForwardRecord
+	var (
+		err   error
+		items []*logic.ForwardRecord
+	)
+
 	// 发送方式 1:逐条发送 2:合并发送
 	if req.Mode == 1 {
-		items, _ = m.forward.MultiSplitForward(ctx, uid, req)
+		items, err = m.forward.MultiSplitForward(ctx, uid, req)
 	} else {
-		items, _ = m.forward.MultiMergeForward(ctx, uid, req)
+		items, err = m.forward.MultiMergeForward(ctx, uid, req)
 	}
 
-	for _, item := range items {
-		m.Redis().Publish(ctx, entity.ImTopicChat, jsonutil.Encode(map[string]any{
-			"event": entity.EventTalk,
-			"data": jsonutil.Encode(map[string]any{
-				"sender_id":   uid,
-				"receiver_id": item.ReceiverId,
-				"talk_type":   item.TalkType,
-				"record_id":   item.RecordId,
-			}),
-		}))
+	if err != nil {
+		return err
 	}
+
+	_, _ = m.Redis().Pipelined(ctx, func(pipe redis.Pipeliner) error {
+		for _, item := range items {
+			data := jsonutil.Encode(map[string]any{
+				"event": entity.EventTalk,
+				"data": jsonutil.Encode(map[string]any{
+					"sender_id":   uid,
+					"receiver_id": item.ReceiverId,
+					"talk_type":   item.TalkType,
+					"record_id":   item.RecordId,
+				}),
+			})
+
+			pipe.Publish(ctx, entity.ImTopicChat, data)
+		}
+		return nil
+	})
 
 	return nil
 }

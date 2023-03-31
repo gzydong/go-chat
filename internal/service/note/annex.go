@@ -39,7 +39,8 @@ func (s *ArticleAnnexService) UpdateStatus(ctx context.Context, uid int, id int,
 		data["deleted_at"] = timeutil.DateTime()
 	}
 
-	return s.Db().Model(&model.ArticleAnnex{}).Where("id = ? and user_id = ?", id, uid).Updates(data).Error
+	_, err := s.annex.UpdateWhere(ctx, data, "id = ? and user_id = ?", id, uid)
+	return err
 }
 
 // ForeverDelete 永久删除笔记附件

@@ -114,7 +114,7 @@ func (w *ClientStorage) UnBind(ctx context.Context, channel string, clientId int
 }
 
 func (w *ClientStorage) clientKey(sid, channel string) string {
-	return fmt.Sprintf("ws:%s:channel:%s:client", sid, channel)
+	return fmt.Sprintf("ws:%s:channel:%s:redis", sid, channel)
 }
 
 func (w *ClientStorage) userKey(sid, channel, uid string) string {

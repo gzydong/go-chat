@@ -51,9 +51,9 @@ func (r *Relation) keyContactRelation(uid, uid2 int) string {
 		uid, uid2 = uid2, uid
 	}
 
-	return fmt.Sprintf("redis:contact:relation:%d_%d", uid, uid2)
+	return fmt.Sprintf("im:contact:relation:%d_%d", uid, uid2)
 }
 
 func (r *Relation) keyGroupRelation(uid, gid int) string {
-	return fmt.Sprintf("redis:contact:relation:%d_%d", uid, gid)
+	return fmt.Sprintf("im:contact:relation:%d_%d", uid, gid)
 }
