@@ -20,24 +20,14 @@ func NewGroupMember(db *gorm.DB, relation *cache.Relation) *GroupMember {
 
 // IsMaster 判断是否是群主
 func (g *GroupMember) IsMaster(ctx context.Context, gid, uid int) bool {
-
 	exist, err := g.QueryExist(ctx, "group_id = ? and user_id = ? and leader = 2 and is_quit = 0", gid, uid)
-	if err != nil {
-		return false
-	}
-
-	return exist
+	return err == nil && exist
 }
 
 // IsLeader 判断是否是群主或管理员
 func (g *GroupMember) IsLeader(ctx context.Context, gid, uid int) bool {
-
 	exist, err := g.QueryExist(ctx, "group_id = ? and user_id = ? and leader in (1,2) and is_quit = 0", gid, uid)
-	if err != nil {
-		return false
-	}
-
-	return exist
+	return err == nil && exist
 }
 
 // IsMember 检测是属于群成员
