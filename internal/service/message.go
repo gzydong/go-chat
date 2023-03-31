@@ -6,7 +6,10 @@ import (
 	"fmt"
 	"html"
 	"net/url"
+	"sort"
 	"strconv"
+	"strings"
+	"time"
 
 	"github.com/redis/go-redis/v9"
 	"github.com/sirupsen/logrus"
@@ -27,19 +30,20 @@ import (
 
 type MessageService struct {
 	*repo.Source
-	forward         *logic.MessageForwardLogic
-	groupMemberRepo *repo.GroupMember
-	splitUploadRepo *repo.SplitUpload
-	fileSystem      *filesystem.Filesystem
-	unreadStorage   *cache.UnreadStorage
-	messageStorage  *cache.MessageStorage
-	sidStorage      *cache.ServerStorage
-	clientStorage   *cache.ClientStorage
-	Sequence        *repo.Sequence
+	forward             *logic.MessageForwardLogic
+	groupMemberRepo     *repo.GroupMember
+	splitUploadRepo     *repo.SplitUpload
+	talkRecordsVoteRepo *repo.TalkRecordsVote
+	fileSystem          *filesystem.Filesystem
+	unreadStorage       *cache.UnreadStorage
+	messageStorage      *cache.MessageStorage
+	sidStorage          *cache.ServerStorage
+	clientStorage       *cache.ClientStorage
+	Sequence            *repo.Sequence
 }
 
-func NewMessageService(source *repo.Source, forward *logic.MessageForwardLogic, groupMemberRepo *repo.GroupMember, splitUploadRepo *repo.SplitUpload, fileSystem *filesystem.Filesystem, unreadStorage *cache.UnreadStorage, messageStorage *cache.MessageStorage, sidStorage *cache.ServerStorage, clientStorage *cache.ClientStorage, sequence *repo.Sequence) *MessageService {
-	return &MessageService{Source: source, forward: forward, groupMemberRepo: groupMemberRepo, splitUploadRepo: splitUploadRepo, fileSystem: fileSystem, unreadStorage: unreadStorage, messageStorage: messageStorage, sidStorage: sidStorage, clientStorage: clientStorage, Sequence: sequence}
+func NewMessageService(source *repo.Source, forward *logic.MessageForwardLogic, groupMemberRepo *repo.GroupMember, splitUploadRepo *repo.SplitUpload, talkRecordsVoteRepo *repo.TalkRecordsVote, fileSystem *filesystem.Filesystem, unreadStorage *cache.UnreadStorage, messageStorage *cache.MessageStorage, sidStorage *cache.ServerStorage, clientStorage *cache.ClientStorage, sequence *repo.Sequence) *MessageService {
+	return &MessageService{Source: source, forward: forward, groupMemberRepo: groupMemberRepo, splitUploadRepo: splitUploadRepo, talkRecordsVoteRepo: talkRecordsVoteRepo, fileSystem: fileSystem, unreadStorage: unreadStorage, messageStorage: messageStorage, sidStorage: sidStorage, clientStorage: clientStorage, Sequence: sequence}
 }
 
 // SendSystemText 系统文本消息
@@ -491,6 +495,131 @@ func (m *MessageService) SendLogin(ctx context.Context, uid int, req *message.Lo
 	}
 
 	return err
+}
+
+// Revoke 撤回消息
+func (m *MessageService) Revoke(ctx context.Context, uid int, recordId int) error {
+
+	var record model.TalkRecords
+	if err := m.Db().First(&record, recordId).Error; err != nil {
+		return err
+	}
+
+	if record.IsRevoke == 1 {
+		return nil
+	}
+
+	if record.UserId != uid {
+		return errors.New("无权撤回回消息")
+	}
+
+	if time.Now().Unix() > record.CreatedAt.Add(3*time.Minute).Unix() {
+		return errors.New("超出有效撤回时间范围，无法进行撤销！")
+	}
+
+	if err := m.Db().Model(&model.TalkRecords{Id: recordId}).Update("is_revoke", 1).Error; err != nil {
+		return err
+	}
+
+	body := map[string]any{
+		"event": entity.EventTalkRevoke,
+		"data": jsonutil.Encode(map[string]any{
+			"record_id": record.Id,
+		}),
+	}
+
+	m.Redis().Publish(ctx, entity.ImTopicChat, jsonutil.Encode(body))
+
+	return nil
+}
+
+type VoteMessageHandleOpt struct {
+	RecordId int
+	Options  string
+}
+
+func (m *MessageService) Vote(ctx context.Context, uid int, opts *VoteMessageHandleOpt) (int, error) {
+	var (
+		err  error
+		vote *model.QueryVoteModel
+	)
+
+	db := m.Db().WithContext(ctx)
+
+	query := db.Table("talk_records")
+	query.Select([]string{
+		"talk_records.receiver_id", "talk_records.talk_type", "talk_records.msg_type",
+		"vote.id as vote_id", "vote.id as record_id", "vote.answer_mode", "vote.answer_option",
+		"vote.answer_num", "vote.status as vote_status",
+	})
+	query.Joins("left join talk_records_vote as vote on vote.record_id = talk_records.id")
+	query.Where("talk_records.id = ?", opts.RecordId)
+
+	res := query.Take(&vote)
+	if err := res.Error; err != nil {
+		return 0, err
+	}
+
+	if res.RowsAffected == 0 {
+		return 0, fmt.Errorf("投票信息不存在[%d]", opts.RecordId)
+	}
+
+	if vote.MsgType != entity.MsgTypeVote {
+		return 0, fmt.Errorf("当前记录属于投票信息[%d]", vote.MsgType)
+	}
+
+	var count int64
+	db.Table("talk_records_vote_answer").Where("vote_id = ? and user_id = ？", vote.VoteId, uid).Count(&count)
+	if count > 0 {
+		return 0, fmt.Errorf("不能重复投票[%d]", vote.VoteId)
+	}
+
+	options := strings.Split(opts.Options, ",")
+	sort.Strings(options)
+
+	var answerOptions map[string]any
+	if err := jsonutil.Decode(vote.AnswerOption, &answerOptions); err != nil {
+		return 0, err
+	}
+
+	for _, option := range options {
+		if _, ok := answerOptions[option]; !ok {
+			return 0, fmt.Errorf("的投票选项不存在[%s]", option)
+		}
+	}
+
+	if vote.AnswerMode == model.VoteAnswerModeSingleChoice {
+		options = options[:1]
+	}
+
+	answers := make([]*model.TalkRecordsVoteAnswer, 0, len(options))
+	for _, option := range options {
+		answers = append(answers, &model.TalkRecordsVoteAnswer{
+			VoteId: vote.VoteId,
+			UserId: uid,
+			Option: option,
+		})
+	}
+
+	err = m.Db().Transaction(func(tx *gorm.DB) error {
+		if err = tx.Table("talk_records_vote").Where("id = ?", vote.VoteId).Updates(map[string]any{
+			"answered_num": gorm.Expr("answered_num + 1"),
+			"status":       gorm.Expr("if(answered_num >= answer_num, 1, 0)"),
+		}).Error; err != nil {
+			return err
+		}
+
+		return tx.Create(answers).Error
+	})
+
+	if err != nil {
+		return 0, err
+	}
+
+	_, _ = m.talkRecordsVoteRepo.SetVoteAnswerUser(ctx, vote.VoteId)
+	_, _ = m.talkRecordsVoteRepo.SetVoteStatistics(ctx, vote.VoteId)
+
+	return vote.VoteId, nil
 }
 
 // 发送消息后置处理

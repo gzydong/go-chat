@@ -78,7 +78,7 @@ type QueryTalkRecordsItem struct {
 // GetTalkRecords 获取对话消息
 func (s *TalkRecordsService) GetTalkRecords(ctx context.Context, opts *QueryTalkRecordsOpt) ([]*TalkRecordsItem, error) {
 	var (
-		items  = make([]*QueryTalkRecordsItem, 0)
+		items  = make([]*QueryTalkRecordsItem, 0, opts.Limit)
 		fields = []string{
 			"talk_records.id",
 			"talk_records.sequence",

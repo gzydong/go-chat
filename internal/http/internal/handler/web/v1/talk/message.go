@@ -17,7 +17,6 @@ import (
 )
 
 type Message struct {
-	service            *service.TalkMessageService
 	talkService        *service.TalkService
 	talkRecordsVoteDao *repo.TalkRecordsVote
 	splitUploadService *service.SplitUploadService
@@ -26,8 +25,8 @@ type Message struct {
 	filesystem         *filesystem.Filesystem
 }
 
-func NewMessage(service *service.TalkMessageService, talkService *service.TalkService, talkRecordsVoteDao *repo.TalkRecordsVote, splitUploadService *service.SplitUploadService, auth *service.TalkAuthService, message *service.MessageService, filesystem *filesystem.Filesystem) *Message {
-	return &Message{service: service, talkService: talkService, talkRecordsVoteDao: talkRecordsVoteDao, splitUploadService: splitUploadService, auth: auth, message: message, filesystem: filesystem}
+func NewMessage(talkService *service.TalkService, talkRecordsVoteDao *repo.TalkRecordsVote, splitUploadService *service.SplitUploadService, auth *service.TalkAuthService, message *service.MessageService, filesystem *filesystem.Filesystem) *Message {
+	return &Message{talkService: talkService, talkRecordsVoteDao: talkRecordsVoteDao, splitUploadService: splitUploadService, auth: auth, message: message, filesystem: filesystem}
 }
 
 type AuthorityOpts struct {
@@ -430,7 +429,7 @@ func (c *Message) Revoke(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	if err := c.service.SendRevokeRecordMessage(ctx.Ctx(), ctx.UserId(), params.RecordId); err != nil {
+	if err := c.message.Revoke(ctx.Ctx(), ctx.UserId(), params.RecordId); err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}
 
@@ -476,11 +475,11 @@ func (c *Message) HandleVote(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	vid, err := c.service.VoteHandle(ctx.Ctx(), &service.VoteMessageHandleOpt{
-		UserId:   ctx.UserId(),
+	vid, err := c.message.Vote(ctx.Ctx(), ctx.UserId(), &service.VoteMessageHandleOpt{
 		RecordId: params.RecordId,
 		Options:  params.Options,
 	})
+
 	if err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}

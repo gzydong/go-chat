@@ -2,6 +2,11 @@ package model
 
 import "time"
 
+const (
+	VoteAnswerModeSingleChoice   = 0
+	VoteAnswerModeMultipleChoice = 1
+)
+
 type TalkRecordsVote struct {
 	Id           int       `gorm:"column:id;primary_key;AUTO_INCREMENT" json:"id"`             // 投票ID
 	RecordId     int       `gorm:"column:record_id;default:0;NOT NULL" json:"record_id"`       // 消息记录ID
@@ -22,7 +27,7 @@ func (TalkRecordsVote) TableName() string {
 }
 
 type QueryVoteModel struct {
-	RecordId     int    `json:"record_id" grom:"comment:消息记录ID"`
+	RecordId     int    `json:"record_id"`
 	ReceiverId   int    `json:"receiver_id"`
 	TalkType     int    `json:"talk_type"`
 	MsgType      int    `json:"msg_type"`

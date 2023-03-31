@@ -76,15 +76,11 @@ func (s *UserService) Forget(opts *UserForgetOpt) (bool, error) {
 		return false, errors.New("账号不存在! ")
 	}
 
-	_, err = s.users.UpdateById(context.TODO(), user.Id, map[string]any{
+	affected, err := s.users.UpdateById(context.TODO(), user.Id, map[string]any{
 		"password": encrypt.HashPassword(opts.Password),
 	})
 
-	if err != nil {
-		return false, err
-	}
-
-	return true, nil
+	return affected > 0, err
 }
 
 // UpdatePassword 修改用户密码

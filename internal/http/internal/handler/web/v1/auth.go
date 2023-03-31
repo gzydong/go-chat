@@ -23,7 +23,6 @@ type Auth struct {
 	smsService         *service.SmsService
 	session            *cache.JwtTokenStorage
 	redisLock          *cache.RedisLock
-	talkMessageService *service.TalkMessageService
 	ipAddressService   *service.IpAddressService
 	talkSessionService *service.TalkSessionService
 	noteClassService   *note.ArticleClassService
@@ -31,8 +30,8 @@ type Auth struct {
 	message            *service.MessageService
 }
 
-func NewAuth(config *config.Config, userService *service.UserService, smsService *service.SmsService, session *cache.JwtTokenStorage, redisLock *cache.RedisLock, talkMessageService *service.TalkMessageService, ipAddressService *service.IpAddressService, talkSessionService *service.TalkSessionService, noteClassService *note.ArticleClassService, robotDao *repo.Robot, message *service.MessageService) *Auth {
-	return &Auth{config: config, userService: userService, smsService: smsService, session: session, redisLock: redisLock, talkMessageService: talkMessageService, ipAddressService: ipAddressService, talkSessionService: talkSessionService, noteClassService: noteClassService, robotRepo: robotDao, message: message}
+func NewAuth(config *config.Config, userService *service.UserService, smsService *service.SmsService, session *cache.JwtTokenStorage, redisLock *cache.RedisLock, ipAddressService *service.IpAddressService, talkSessionService *service.TalkSessionService, noteClassService *note.ArticleClassService, robotRepo *repo.Robot, message *service.MessageService) *Auth {
+	return &Auth{config: config, userService: userService, smsService: smsService, session: session, redisLock: redisLock, ipAddressService: ipAddressService, talkSessionService: talkSessionService, noteClassService: noteClassService, robotRepo: robotRepo, message: message}
 }
 
 // Login 登录接口
