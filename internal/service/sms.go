@@ -17,8 +17,8 @@ func NewSmsService(codeCache *cache.SmsStorage) *SmsService {
 	return &SmsService{sms: codeCache}
 }
 
-// Check 验证短信验证码是否正确
-func (s *SmsService) Check(ctx context.Context, channel string, mobile string, code string) bool {
+// Verify 验证短信验证码是否正确
+func (s *SmsService) Verify(ctx context.Context, channel string, mobile string, code string) bool {
 	return s.sms.Verify(ctx, channel, mobile, code)
 }
 

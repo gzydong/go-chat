@@ -3,6 +3,7 @@ package group
 import (
 	"fmt"
 
+	"go-chat/api/pb/message/v1"
 	"go-chat/api/pb/web/v1"
 	"go-chat/internal/entity"
 	"go-chat/internal/pkg/ichat"
@@ -22,11 +23,11 @@ type Group struct {
 	redisLock          *cache.RedisLock
 	contactService     *service.ContactService
 	groupNoticeService *service.GroupNoticeService
-	messageService     *service.TalkMessageService
+	message            *service.MessageService
 }
 
-func NewGroup(service *service.GroupService, memberService *service.GroupMemberService, talkListService *service.TalkSessionService, userService *service.UserService, redisLock *cache.RedisLock, contactService *service.ContactService, groupNoticeService *service.GroupNoticeService, messageService *service.TalkMessageService) *Group {
-	return &Group{service: service, memberService: memberService, talkListService: talkListService, userService: userService, redisLock: redisLock, contactService: contactService, groupNoticeService: groupNoticeService, messageService: messageService}
+func NewGroup(service *service.GroupService, memberService *service.GroupMemberService, talkListService *service.TalkSessionService, userService *service.UserService, redisLock *cache.RedisLock, contactService *service.ContactService, groupNoticeService *service.GroupNoticeService, message *service.MessageService) *Group {
+	return &Group{service: service, memberService: memberService, talkListService: talkListService, userService: userService, redisLock: redisLock, contactService: contactService, groupNoticeService: groupNoticeService, message: message}
 }
 
 // Create 创建群聊分组
@@ -67,11 +68,12 @@ func (c *Group) Dismiss(ctx *ichat.Context) error {
 		return ctx.ErrorBusiness("群组解散失败！")
 	}
 
-	_ = c.messageService.SendSysMessage(ctx.Ctx(), &service.SysTextMessageOpt{
-		UserId:     uid,
-		TalkType:   entity.ChatGroupMode,
-		ReceiverId: int(params.GroupId),
-		Text:       "群组已被群主或管理员解散！",
+	_ = c.message.SendSystemText(ctx.Ctx(), uid, &message.TextMessageRequest{
+		Content: "群组已被群主或管理员解散！",
+		Receiver: &message.MessageReceiver{
+			TalkType:   entity.ChatPrivateMode,
+			ReceiverId: params.GroupId,
+		},
 	})
 
 	return ctx.Success(nil)
@@ -156,11 +158,12 @@ func (c *Group) Setting(ctx *ichat.Context) error {
 		return ctx.ErrorBusiness(err.Error())
 	}
 
-	_ = c.messageService.SendSysMessage(ctx.Ctx(), &service.SysTextMessageOpt{
-		UserId:     uid,
-		TalkType:   entity.ChatGroupMode,
-		ReceiverId: int(params.GroupId),
-		Text:       "群主或管理员修改了群信息！",
+	_ = c.message.SendSystemText(ctx.Ctx(), uid, &message.TextMessageRequest{
+		Content: "群主或管理员修改了群信息！",
+		Receiver: &message.MessageReceiver{
+			TalkType:   entity.ChatPrivateMode,
+			ReceiverId: params.GroupId,
+		},
 	})
 
 	return ctx.Success(&web.GroupSettingResponse{})

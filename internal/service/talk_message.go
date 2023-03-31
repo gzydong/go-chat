@@ -18,7 +18,6 @@ import (
 	"go-chat/internal/entity"
 	"go-chat/internal/pkg/filesystem"
 	"go-chat/internal/pkg/jsonutil"
-	"go-chat/internal/pkg/strutil"
 	"go-chat/internal/pkg/timeutil"
 )
 
@@ -45,29 +44,6 @@ type SysTextMessageOpt struct {
 	TalkType   int
 	ReceiverId int
 	Text       string
-}
-
-// SendSysMessage 发送文本消息
-func (s *TalkMessageService) SendSysMessage(ctx context.Context, opt *SysTextMessageOpt) error {
-	record := &model.TalkRecords{
-		MsgId:      strutil.NewMsgId(),
-		TalkType:   opt.TalkType,
-		MsgType:    entity.MsgTypeSystemText,
-		UserId:     opt.UserId,
-		ReceiverId: opt.ReceiverId,
-		Content:    opt.Text,
-		Sequence:   s.sequence.Get(ctx, opt.UserId, opt.ReceiverId),
-	}
-
-	if err := s.Db().Create(record).Error; err != nil {
-		return err
-	}
-
-	s.afterHandle(ctx, record, map[string]string{
-		"text": strutil.MtSubstr(record.Content, 0, 30),
-	})
-
-	return nil
 }
 
 // SendRevokeRecordMessage 撤销推送消息

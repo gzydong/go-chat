@@ -88,7 +88,7 @@ func (c *Auth) Register(ctx *ichat.Context) error {
 	}
 
 	// 验证短信验证码是否正确
-	if !c.smsService.Check(ctx.Ctx(), entity.SmsRegisterChannel, params.Mobile, params.SmsCode) {
+	if !c.smsService.Verify(ctx.Ctx(), entity.SmsRegisterChannel, params.Mobile, params.SmsCode) {
 		return ctx.InvalidParams("短信验证码填写错误！")
 	}
 
@@ -135,7 +135,7 @@ func (c *Auth) Forget(ctx *ichat.Context) error {
 	}
 
 	// 验证短信验证码是否正确
-	if !c.smsService.Check(ctx.Ctx(), entity.SmsForgetAccountChannel, params.Mobile, params.SmsCode) {
+	if !c.smsService.Verify(ctx.Ctx(), entity.SmsForgetAccountChannel, params.Mobile, params.SmsCode) {
 		return ctx.InvalidParams("短信验证码填写错误！")
 	}
 

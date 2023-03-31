@@ -20,14 +20,14 @@ import (
 
 type GroupService struct {
 	*repo.Source
-	group     *repo.Group
-	memberDao *repo.GroupMember
-	relation  *cache.Relation
-	sequence  *repo.Sequence
+	group    *repo.Group
+	member   *repo.GroupMember
+	relation *cache.Relation
+	sequence *repo.Sequence
 }
 
-func NewGroupService(source *repo.Source, repo *repo.Group, memberDao *repo.GroupMember, relation *cache.Relation, sequence *repo.Sequence) *GroupService {
-	return &GroupService{Source: source, group: repo, memberDao: memberDao, relation: relation, sequence: sequence}
+func NewGroupService(source *repo.Source, repo *repo.Group, member *repo.GroupMember, relation *cache.Relation, sequence *repo.Sequence) *GroupService {
+	return &GroupService{Source: source, group: repo, member: member, relation: relation, sequence: sequence}
 }
 
 func (s *GroupService) Dao() *repo.Group {
@@ -281,7 +281,7 @@ func (s *GroupService) InviteMembers(ctx context.Context, opt *InviteGroupMember
 	)
 
 	m := make(map[int]struct{})
-	for _, value := range s.memberDao.GetMemberIds(ctx, opt.GroupId) {
+	for _, value := range s.member.GetMemberIds(ctx, opt.GroupId) {
 		m[value] = struct{}{}
 	}
 

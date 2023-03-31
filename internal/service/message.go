@@ -41,6 +41,35 @@ func NewMessageService(source *repo.Source, forward *logic.MessageForwardLogic, 
 	return &MessageService{Source: source, forward: forward, groupMemberRepo: groupMemberRepo, splitUploadRepo: splitUploadRepo, fileSystem: fileSystem, unreadStorage: unreadStorage, messageStorage: messageStorage, sidStorage: sidStorage, clientStorage: clientStorage, Sequence: sequence}
 }
 
+// SendSystemText 系统文本消息
+func (m *MessageService) SendSystemText(ctx context.Context, uid int, req *message.TextMessageRequest) error {
+
+	data := &model.TalkRecords{
+		MsgId:      strutil.NewMsgId(),
+		TalkType:   int(req.Receiver.TalkType),
+		MsgType:    entity.MsgTypeSystemText,
+		UserId:     uid,
+		ReceiverId: int(req.Receiver.ReceiverId),
+		Content:    html.EscapeString(req.Content),
+	}
+
+	if req.Receiver.TalkType == entity.ChatGroupMode {
+		data.Sequence = m.Sequence.Get(ctx, 0, int(req.Receiver.ReceiverId))
+	} else {
+		data.Sequence = m.Sequence.Get(ctx, uid, int(req.Receiver.ReceiverId))
+	}
+
+	if err := m.Db().WithContext(ctx).Create(data).Error; err != nil {
+		return err
+	}
+
+	m.afterHandle(ctx, data, map[string]string{
+		"text": strutil.MtSubstr(data.Content, 0, 300),
+	})
+
+	return nil
+}
+
 // SendText 文本消息
 func (m *MessageService) SendText(ctx context.Context, uid int, req *message.TextMessageRequest) error {
 

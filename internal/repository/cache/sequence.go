@@ -40,10 +40,7 @@ func (s *Sequence) Set(ctx context.Context, userId int, receiverId int, value in
 
 // Get 获取消息时序ID
 func (s *Sequence) Get(ctx context.Context, userId int, receiverId int) int64 {
-
-	name := s.Name(userId, receiverId)
-
-	return s.redis.Incr(ctx, name).Val()
+	return s.redis.Incr(ctx, s.Name(userId, receiverId)).Val()
 }
 
 // BatchGet 批量获取消息时序ID

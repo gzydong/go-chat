@@ -15,12 +15,12 @@ import (
 
 type IpAddressService struct {
 	*repo.Source
-	conf       *config.Config
+	config     *config.Config
 	httpClient *client.RequestClient
 }
 
 func NewIpAddressService(source *repo.Source, conf *config.Config, httpClient *client.RequestClient) *IpAddressService {
-	return &IpAddressService{Source: source, conf: conf, httpClient: httpClient}
+	return &IpAddressService{Source: source, config: conf, httpClient: httpClient}
 }
 
 type IpAddressResponse struct {
@@ -41,7 +41,7 @@ func (s *IpAddressService) FindAddress(ip string) (string, error) {
 	}
 
 	params := &url.Values{}
-	params.Add("key", s.conf.App.JuheKey)
+	params.Add("key", s.config.App.JuheKey)
 	params.Add("ip", ip)
 
 	resp, err := s.httpClient.Get("http://apis.juhe.cn/ip/ipNew", params)

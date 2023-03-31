@@ -19,7 +19,7 @@ func NewGroup(db *gorm.DB) *Group {
 func (g *Group) SearchOvertList(ctx context.Context, name string, page, size int) ([]*model.Group, error) {
 	return g.FindAll(ctx, func(db *gorm.DB) {
 		if name != "" {
-			db.Where("group_name LIKE ?", "%"+name+"%")
+			db.Where("group_name like ?", "%"+name+"%")
 		} else {
 			db.Where("is_overt = ?", 1)
 		}

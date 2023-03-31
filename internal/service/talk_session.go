@@ -17,15 +17,15 @@ import (
 
 type TalkSessionService struct {
 	*repo.Source
-	repo *repo.TalkSession
+	talkSession *repo.TalkSession
 }
 
-func NewTalkSessionService(source *repo.Source, repo *repo.TalkSession) *TalkSessionService {
-	return &TalkSessionService{source, repo}
+func NewTalkSessionService(source *repo.Source, talkSession *repo.TalkSession) *TalkSessionService {
+	return &TalkSessionService{source, talkSession}
 }
 
 func (s *TalkSessionService) Dao() *repo.TalkSession {
-	return s.repo
+	return s.talkSession
 }
 
 func (s *TalkSessionService) List(ctx context.Context, uid int) ([]*model.SearchTalkSession, error) {
@@ -61,7 +61,7 @@ type TalkSessionCreateOpt struct {
 // Create 创建会话列表
 func (s *TalkSessionService) Create(ctx context.Context, opts *TalkSessionCreateOpt) (*model.TalkSession, error) {
 
-	result, err := s.repo.FindByWhere(ctx, "talk_type = ? and user_id = ? and receiver_id = ?", opts.TalkType, opts.UserId, opts.ReceiverId)
+	result, err := s.talkSession.FindByWhere(ctx, "talk_type = ? and user_id = ? and receiver_id = ?", opts.TalkType, opts.UserId, opts.ReceiverId)
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, err
 	}
@@ -95,7 +95,7 @@ func (s *TalkSessionService) Create(ctx context.Context, opts *TalkSessionCreate
 
 // Delete 删除会话
 func (s *TalkSessionService) Delete(ctx context.Context, uid int, id int) error {
-	_, err := s.repo.UpdateWhere(ctx, map[string]any{"is_delete": 1, "updated_at": time.Now()}, "id = ? and user_id = ?", id, uid)
+	_, err := s.talkSession.UpdateWhere(ctx, map[string]any{"is_delete": 1, "updated_at": time.Now()}, "id = ? and user_id = ?", id, uid)
 	return err
 }
 
@@ -107,7 +107,7 @@ type TalkSessionTopOpt struct {
 
 // Top 会话置顶
 func (s *TalkSessionService) Top(ctx context.Context, opts *TalkSessionTopOpt) error {
-	_, err := s.repo.UpdateWhere(ctx, map[string]any{
+	_, err := s.talkSession.UpdateWhere(ctx, map[string]any{
 		"is_top":     strutil.BoolToInt(opts.Type == 1),
 		"updated_at": time.Now(),
 	}, "id = ? and user_id = ?", opts.Id, opts.UserId)
@@ -123,7 +123,7 @@ type TalkSessionDisturbOpt struct {
 
 // Disturb 会话免打扰
 func (s *TalkSessionService) Disturb(ctx context.Context, opts *TalkSessionDisturbOpt) error {
-	_, err := s.repo.UpdateWhere(ctx, map[string]any{
+	_, err := s.talkSession.UpdateWhere(ctx, map[string]any{
 		"is_disturb": opts.IsDisturb,
 		"updated_at": time.Now(),
 	}, "user_id = ? and receiver_id = ? and talk_type = ?", opts.UserId, opts.ReceiverId, opts.TalkType)

@@ -98,14 +98,14 @@ func Initialize(conf *config.Config) *AppProvider {
 	upload := v1.NewUpload(conf, filesystem, splitUploadService)
 	groupNotice := repo.NewGroupNotice(db)
 	groupNoticeService := service.NewGroupNoticeService(source, groupNotice)
-	groupGroup := group.NewGroup(groupService, groupMemberService, talkSessionService, userService, redisLock, contactService, groupNoticeService, talkMessageService)
+	groupGroup := group.NewGroup(groupService, groupMemberService, talkSessionService, userService, redisLock, contactService, groupNoticeService, messageService)
 	notice := group.NewNotice(groupNoticeService, groupMemberService)
 	groupApply := repo.NewGroupApply(db)
 	groupApplyService := service.NewGroupApplyService(source, groupApply)
 	apply := group.NewApply(groupApplyService, groupMemberService, groupService)
-	contactContact := contact.NewContact(contactService, clientStorage, userService, talkSessionService, talkMessageService, organizeService)
+	contactContact := contact.NewContact(contactService, clientStorage, userService, talkSessionService, organizeService, messageService)
 	contactApplyService := service.NewContactApplyService(source)
-	contactApply := contact.NewApply(contactApplyService, userService, talkMessageService, contactService)
+	contactApply := contact.NewApply(contactApplyService, userService, contactService, messageService)
 	contactGroup := repo.NewContactGroup(db)
 	contactGroupService := service.NewContactGroupService(source, contactGroup)
 	group2 := contact.NewGroup(contactGroupService, contactService)
@@ -180,6 +180,6 @@ func Initialize(conf *config.Config) *AppProvider {
 
 var providerSet = wire.NewSet(provider.NewMySQLClient, provider.NewRedisClient, provider.NewHttpClient, provider.NewEmailClient, provider.NewFilesystem, provider.NewRequestClient, router.NewRouter, wire.Struct(new(web.Handler), "*"), wire.Struct(new(admin.Handler), "*"), wire.Struct(new(open.Handler), "*"), wire.Struct(new(handler.Handler), "*"), wire.Struct(new(AppProvider), "*"))
 
-var daoProviderSet = wire.NewSet(repo.NewSource, repo.NewContact, repo.NewContactGroup, repo.NewGroupMember, repo.NewUsers, repo.NewGroup, repo.NewGroupApply, repo.NewTalkRecords, repo.NewGroupNotice, repo.NewTalkSession, repo.NewEmoticon, repo.NewTalkRecordsVote, repo.NewFileSplitUpload, note.NewArticleClass, note.NewArticleAnnex, organize.NewDepartment, organize.NewOrganize, organize.NewPosition, repo.NewRobot, repo.NewTest, repo.NewSequence, repo.NewAdmin)
+var daoProviderSet = wire.NewSet(repo.NewSource, repo.NewContact, repo.NewContactGroup, repo.NewGroupMember, repo.NewUsers, repo.NewGroup, repo.NewGroupApply, repo.NewTalkRecords, repo.NewGroupNotice, repo.NewTalkSession, repo.NewEmoticon, repo.NewTalkRecordsVote, repo.NewFileSplitUpload, note.NewArticleClass, note.NewArticleAnnex, organize.NewDepartment, organize.NewOrganize, organize.NewPosition, repo.NewRobot, repo.NewSequence, repo.NewAdmin)
 
 var serviceProviderSet = wire.NewSet(service.NewUserService, service.NewSmsService, service.NewTalkService, service.NewTalkMessageService, service.NewGroupService, service.NewGroupMemberService, service.NewGroupNoticeService, service.NewGroupApplyService, service.NewTalkSessionService, service.NewEmoticonService, service.NewTalkRecordsService, service.NewContactService, service.NewContactApplyService, service.NewContactGroupService, service.NewSplitUploadService, service.NewIpAddressService, service.NewAuthPermissionService, service.NewMessageService, note2.NewArticleService, note2.NewArticleTagService, note2.NewArticleClassService, note2.NewArticleAnnexService, organize2.NewOrganizeDeptService, organize2.NewOrganizeService, organize2.NewPositionService, service.NewTemplateService, service.NewTalkAuthService, logic.NewMessageForwardLogic)

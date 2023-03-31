@@ -4,6 +4,7 @@ import (
 	"errors"
 	"strconv"
 
+	"go-chat/api/pb/message/v1"
 	"go-chat/api/pb/web/v1"
 	"go-chat/internal/pkg/ichat"
 	"go-chat/internal/repository/cache"
@@ -16,16 +17,16 @@ import (
 )
 
 type Contact struct {
-	service            *service.ContactService
-	wsClient           *cache.ClientStorage
-	userService        *service.UserService
-	talkListService    *service.TalkSessionService
-	talkMessageService *service.TalkMessageService
-	organizeService    *organize.OrganizeService
+	service         *service.ContactService
+	wsClient        *cache.ClientStorage
+	userService     *service.UserService
+	talkListService *service.TalkSessionService
+	organizeService *organize.OrganizeService
+	message         *service.MessageService
 }
 
-func NewContact(service *service.ContactService, wsClient *cache.ClientStorage, userService *service.UserService, talkListService *service.TalkSessionService, talkMessageService *service.TalkMessageService, organizeService *organize.OrganizeService) *Contact {
-	return &Contact{service: service, wsClient: wsClient, userService: userService, talkListService: talkListService, talkMessageService: talkMessageService, organizeService: organizeService}
+func NewContact(service *service.ContactService, wsClient *cache.ClientStorage, userService *service.UserService, talkListService *service.TalkSessionService, organizeService *organize.OrganizeService, message *service.MessageService) *Contact {
+	return &Contact{service: service, wsClient: wsClient, userService: userService, talkListService: talkListService, organizeService: organizeService, message: message}
 }
 
 // List 联系人列表
@@ -67,11 +68,12 @@ func (c *Contact) Delete(ctx *ichat.Context) error {
 	}
 
 	// 解除好友关系后需添加一条聊天记录
-	_ = c.talkMessageService.SendSysMessage(ctx.Ctx(), &service.SysTextMessageOpt{
-		UserId:     uid,
-		TalkType:   entity.ChatPrivateMode,
-		ReceiverId: int(params.FriendId),
-		Text:       "你与对方已经解除了好友关系！！！",
+	_ = c.message.SendSystemText(ctx.Ctx(), uid, &message.TextMessageRequest{
+		Content: "你与对方已经解除了好友关系！！！",
+		Receiver: &message.MessageReceiver{
+			TalkType:   entity.ChatPrivateMode,
+			ReceiverId: params.FriendId,
+		},
 	})
 
 	// 删除聊天会话

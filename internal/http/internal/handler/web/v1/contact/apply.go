@@ -3,6 +3,7 @@ package contact
 import (
 	"fmt"
 
+	"go-chat/api/pb/message/v1"
 	"go-chat/api/pb/web/v1"
 	"go-chat/internal/entity"
 	"go-chat/internal/pkg/ichat"
@@ -11,14 +12,14 @@ import (
 )
 
 type Apply struct {
-	service            *service.ContactApplyService
-	userService        *service.UserService
-	talkMessageService *service.TalkMessageService
-	contactService     *service.ContactService
+	service        *service.ContactApplyService
+	userService    *service.UserService
+	contactService *service.ContactService
+	message        *service.MessageService
 }
 
-func NewApply(service *service.ContactApplyService, userService *service.UserService, talkMessageService *service.TalkMessageService, contactService *service.ContactService) *Apply {
-	return &Apply{service: service, userService: userService, talkMessageService: talkMessageService, contactService: contactService}
+func NewApply(service *service.ContactApplyService, userService *service.UserService, contactService *service.ContactService, message *service.MessageService) *Apply {
+	return &Apply{service: service, userService: userService, contactService: contactService, message: message}
 }
 
 // ApplyUnreadNum 获取好友申请未读数
@@ -71,11 +72,12 @@ func (c *Apply) Accept(ctx *ichat.Context) error {
 		return ctx.ErrorBusiness(err)
 	}
 
-	err = c.talkMessageService.SendSysMessage(ctx.Ctx(), &service.SysTextMessageOpt{
-		UserId:     applyInfo.UserId,
-		TalkType:   entity.ChatPrivateMode,
-		ReceiverId: applyInfo.FriendId,
-		Text:       "你们已成为好友，可以开始聊天咯！",
+	err = c.message.SendSystemText(ctx.Ctx(), applyInfo.UserId, &message.TextMessageRequest{
+		Content: "你们已成为好友，可以开始聊天咯！",
+		Receiver: &message.MessageReceiver{
+			TalkType:   entity.ChatPrivateMode,
+			ReceiverId: int32(applyInfo.FriendId),
+		},
 	})
 
 	if err != nil {
