@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"strconv"
 	"strings"
 	"time"
 
@@ -146,15 +145,12 @@ func (s *TalkSessionService) BatchAddList(ctx context.Context, uid int, values m
 			continue
 		}
 
-		talkType, _ := strconv.Atoi(value[0])
-		receiverId, _ := strconv.Atoi(value[1])
-
-		data = append(data, fmt.Sprintf("(%d, %d, %d, '%s', '%s')", talkType, uid, receiverId, ctime, ctime))
+		data = append(data, fmt.Sprintf("(%s, %d, %s, '%s', '%s')", value[0], uid, value[1], ctime, ctime))
 	}
 
 	if len(data) == 0 {
 		return
 	}
 
-	s.Db().WithContext(ctx).Exec(fmt.Sprintf("INSERT INTO talk_session ( `talk_type`, `user_id`, `receiver_id`, created_at, updated_at ) VALUES %s ON DUPLICATE KEY UPDATE is_delete = 0, updated_at = '%s';", strings.Join(data, ","), ctime))
+	s.Db().WithContext(ctx).Exec(fmt.Sprintf("INSERT INTO talk_session ( `talk_type`, `user_id`, `receiver_id`, created_at, updated_at ) VALUES %s ON DUPLICATE KEY UPDATE is_delete = 0, updated_at = '%s'", strings.Join(data, ","), ctime))
 }

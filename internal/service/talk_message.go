@@ -533,16 +533,8 @@ func (m *MessageService) Revoke(ctx context.Context, uid int, recordId int) erro
 	return nil
 }
 
-type VoteMessageHandleOpt struct {
-	RecordId int
-	Options  string
-}
-
-func (m *MessageService) Vote(ctx context.Context, uid int, opts *VoteMessageHandleOpt) (int, error) {
-	var (
-		err  error
-		vote *model.QueryVoteModel
-	)
+// Vote 投票
+func (m *MessageService) Vote(ctx context.Context, uid int, recordId int, optionsValue string) (*repo.VoteStatistics, error) {
 
 	db := m.Db().WithContext(ctx)
 
@@ -553,38 +545,42 @@ func (m *MessageService) Vote(ctx context.Context, uid int, opts *VoteMessageHan
 		"vote.answer_num", "vote.status as vote_status",
 	})
 	query.Joins("left join talk_records_vote as vote on vote.record_id = talk_records.id")
-	query.Where("talk_records.id = ?", opts.RecordId)
+	query.Where("talk_records.id = ?", recordId)
 
-	res := query.Take(&vote)
-	if err := res.Error; err != nil {
-		return 0, err
-	}
-
-	if res.RowsAffected == 0 {
-		return 0, fmt.Errorf("投票信息不存在[%d]", opts.RecordId)
+	var vote model.QueryVoteModel
+	if err := query.Take(&vote).Error; err != nil {
+		return nil, err
 	}
 
 	if vote.MsgType != entity.MsgTypeVote {
-		return 0, fmt.Errorf("当前记录属于投票信息[%d]", vote.MsgType)
+		return nil, fmt.Errorf("当前记录不属于投票信息[%d]", vote.MsgType)
+	}
+
+	if vote.TalkType == entity.ChatGroupMode {
+		var count int64
+		db.Table("talk_group_members").Where("group_id = ? and user_id = ? and is_quit = 0", vote.ReceiverId, uid).Count(&count)
+		if count == 0 {
+			return nil, errors.New("暂无投票权限！")
+		}
 	}
 
 	var count int64
 	db.Table("talk_records_vote_answer").Where("vote_id = ? and user_id = ？", vote.VoteId, uid).Count(&count)
 	if count > 0 {
-		return 0, fmt.Errorf("不能重复投票[%d]", vote.VoteId)
+		return nil, fmt.Errorf("重复投票[%d]", vote.VoteId)
 	}
 
-	options := strings.Split(opts.Options, ",")
+	options := strings.Split(optionsValue, ",")
 	sort.Strings(options)
 
 	var answerOptions map[string]any
 	if err := jsonutil.Decode(vote.AnswerOption, &answerOptions); err != nil {
-		return 0, err
+		return nil, err
 	}
 
 	for _, option := range options {
 		if _, ok := answerOptions[option]; !ok {
-			return 0, fmt.Errorf("的投票选项不存在[%s]", option)
+			return nil, fmt.Errorf("投票选项不合法[%s]", option)
 		}
 	}
 
@@ -601,8 +597,8 @@ func (m *MessageService) Vote(ctx context.Context, uid int, opts *VoteMessageHan
 		})
 	}
 
-	err = m.Db().Transaction(func(tx *gorm.DB) error {
-		if err = tx.Table("talk_records_vote").Where("id = ?", vote.VoteId).Updates(map[string]any{
+	err := m.Db().Transaction(func(tx *gorm.DB) error {
+		if err := tx.Table("talk_records_vote").Where("id = ?", vote.VoteId).Updates(map[string]any{
 			"answered_num": gorm.Expr("answered_num + 1"),
 			"status":       gorm.Expr("if(answered_num >= answer_num, 1, 0)"),
 		}).Error; err != nil {
@@ -613,13 +609,14 @@ func (m *MessageService) Vote(ctx context.Context, uid int, opts *VoteMessageHan
 	})
 
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
 
 	_, _ = m.talkRecordsVoteRepo.SetVoteAnswerUser(ctx, vote.VoteId)
 	_, _ = m.talkRecordsVoteRepo.SetVoteStatistics(ctx, vote.VoteId)
+	info, _ := m.talkRecordsVoteRepo.GetVoteStatistics(ctx, vote.VoteId)
 
-	return vote.VoteId, nil
+	return info, nil
 }
 
 // 发送消息后置处理
@@ -627,22 +624,17 @@ func (m *MessageService) afterHandle(ctx context.Context, record *model.TalkReco
 
 	if record.TalkType == entity.ChatPrivateMode {
 		m.unreadStorage.Incr(ctx, entity.ChatPrivateMode, record.UserId, record.ReceiverId)
-
 		if record.MsgType == entity.MsgTypeSystemText {
 			m.unreadStorage.Incr(ctx, 1, record.ReceiverId, record.UserId)
 		}
 	} else if record.TalkType == entity.ChatGroupMode {
-
-		// todo 需要加缓存
-		ids := m.groupMemberRepo.GetMemberIds(ctx, record.ReceiverId)
-		for _, uid := range ids {
-
-			if uid == record.UserId {
-				continue
+		pipe := m.Redis().Pipeline()
+		for _, uid := range m.groupMemberRepo.GetMemberIds(ctx, record.ReceiverId) {
+			if uid != record.UserId {
+				m.unreadStorage.PipeIncr(ctx, pipe, entity.ChatGroupMode, record.ReceiverId, uid)
 			}
-
-			m.unreadStorage.Incr(ctx, entity.ChatGroupMode, record.ReceiverId, uid)
 		}
+		_, _ = pipe.Exec(ctx)
 	}
 
 	_ = m.messageStorage.Set(ctx, record.TalkType, record.UserId, record.ReceiverId, &cache.LastCacheMessage{
@@ -660,35 +652,29 @@ func (m *MessageService) afterHandle(ctx context.Context, record *model.TalkReco
 		}),
 	})
 
-	// 点对点消息采用精确投递
 	if record.TalkType == entity.ChatPrivateMode {
 		sids := m.sidStorage.All(ctx, 1)
 
-		// 小于三台服务器则采用全局广播
-		if len(sids) <= 3 {
-			if err := m.Redis().Publish(ctx, entity.ImTopicChat, content).Err(); err != nil {
-				logger.Error(fmt.Sprintf("[ALL]消息推送失败 %s", err.Error()))
-			}
+		if len(sids) > 3 {
+			pipe := m.Redis().Pipeline()
 
-			return
-		}
+			for _, sid := range sids {
+				for _, uid := range []int{record.UserId, record.ReceiverId} {
+					if !m.clientStorage.IsCurrentServerOnline(ctx, sid, entity.ImChannelChat, strconv.Itoa(uid)) {
+						continue
+					}
 
-		for _, sid := range m.sidStorage.All(ctx, 1) {
-			for _, uid := range []int{record.UserId, record.ReceiverId} {
-				if !m.clientStorage.IsCurrentServerOnline(ctx, sid, entity.ImChannelChat, strconv.Itoa(uid)) {
-					continue
-				}
-
-				if err := m.Redis().Publish(ctx, fmt.Sprintf(entity.ImTopicChatPrivate, sid), content).Err(); err != nil {
-					logger.WithFields(map[string]any{
-						"sid": sid,
-					}).Error(fmt.Sprintf("[Private]消息推送失败 %s", err.Error()))
+					pipe.Publish(ctx, fmt.Sprintf(entity.ImTopicChatPrivate, sid), content)
 				}
 			}
+
+			if _, err := pipe.Exec(ctx); err == nil {
+				return
+			}
 		}
-	} else {
-		if err := m.Redis().Publish(ctx, entity.ImTopicChat, content).Err(); err != nil {
-			logger.Error(fmt.Sprintf("[ALL]消息推送失败 %s", err.Error()))
-		}
+	}
+
+	if err := m.Redis().Publish(ctx, entity.ImTopicChat, content).Err(); err != nil {
+		logger.Error(fmt.Sprintf("[ALL]消息推送失败 %s", err.Error()))
 	}
 }

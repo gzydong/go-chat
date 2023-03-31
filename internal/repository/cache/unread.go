@@ -24,6 +24,14 @@ func (u *UnreadStorage) Incr(ctx context.Context, mode, sender, receive int) {
 	u.rds.HIncrBy(ctx, u.name(receive), fmt.Sprintf("%d_%d", mode, sender), 1)
 }
 
+// PipeIncr 消息未读数自增
+// @params mode    对话模式 1私信 2群聊
+// @params sender  发送者ID
+// @params receive 接收者ID
+func (u *UnreadStorage) PipeIncr(ctx context.Context, pipe redis.Pipeliner, mode, sender, receive int) {
+	pipe.HIncrBy(ctx, u.name(receive), fmt.Sprintf("%d_%d", mode, sender), 1)
+}
+
 // Get 获取消息未读数
 // @params mode    对话模式 1私信 2群聊
 // @params sender  发送者ID

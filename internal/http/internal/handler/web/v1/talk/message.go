@@ -12,21 +12,18 @@ import (
 	"go-chat/internal/pkg/strutil"
 	"go-chat/internal/pkg/timeutil"
 	"go-chat/internal/pkg/utils"
-	"go-chat/internal/repository/repo"
 	"go-chat/internal/service"
 )
 
 type Message struct {
-	talkService        *service.TalkService
-	talkRecordsVoteDao *repo.TalkRecordsVote
-	splitUploadService *service.SplitUploadService
-	auth               *service.TalkAuthService
-	message            *service.MessageService
-	filesystem         *filesystem.Filesystem
+	talkService *service.TalkService
+	auth        *service.TalkAuthService
+	message     *service.MessageService
+	filesystem  *filesystem.Filesystem
 }
 
-func NewMessage(talkService *service.TalkService, talkRecordsVoteDao *repo.TalkRecordsVote, splitUploadService *service.SplitUploadService, auth *service.TalkAuthService, message *service.MessageService, filesystem *filesystem.Filesystem) *Message {
-	return &Message{talkService: talkService, talkRecordsVoteDao: talkRecordsVoteDao, splitUploadService: splitUploadService, auth: auth, message: message, filesystem: filesystem}
+func NewMessage(talkService *service.TalkService, auth *service.TalkAuthService, message *service.MessageService, filesystem *filesystem.Filesystem) *Message {
+	return &Message{talkService: talkService, auth: auth, message: message, filesystem: filesystem}
 }
 
 type AuthorityOpts struct {
@@ -50,8 +47,6 @@ func (c *Message) Text(ctx *ichat.Context) error {
 	}
 
 	uid := ctx.UserId()
-
-	// 权限验证
 	if err := c.auth.IsAuth(ctx.Ctx(), &service.TalkAuthOpt{
 		TalkType:   params.TalkType,
 		UserId:     uid,
@@ -89,8 +84,6 @@ func (c *Message) Code(ctx *ichat.Context) error {
 	}
 
 	uid := ctx.UserId()
-
-	// 权限验证
 	if err := c.auth.IsAuth(ctx.Ctx(), &service.TalkAuthOpt{
 		TalkType:   params.TalkType,
 		UserId:     uid,
@@ -140,7 +133,6 @@ func (c *Message) Image(ctx *ichat.Context) error {
 		return ctx.InvalidParams("上传文件大小不能超过5M！")
 	}
 
-	// 权限验证
 	if err := c.auth.IsAuth(ctx.Ctx(), &service.TalkAuthOpt{
 		TalkType:   params.TalkType,
 		UserId:     ctx.UserId(),
@@ -195,8 +187,6 @@ func (c *Message) File(ctx *ichat.Context) error {
 	}
 
 	uid := ctx.UserId()
-
-	// 权限验证
 	if err := c.auth.IsAuth(ctx.Ctx(), &service.TalkAuthOpt{
 		TalkType:   params.TalkType,
 		UserId:     uid,
@@ -243,8 +233,6 @@ func (c *Message) Vote(ctx *ichat.Context) error {
 	}
 
 	uid := ctx.UserId()
-
-	// 权限验证
 	if err := c.auth.IsAuth(ctx.Ctx(), &service.TalkAuthOpt{
 		TalkType:   entity.ChatGroupMode,
 		UserId:     uid,
@@ -284,7 +272,6 @@ func (c *Message) Emoticon(ctx *ichat.Context) error {
 	}
 
 	uid := ctx.UserId()
-
 	if err := c.auth.IsAuth(ctx.Ctx(), &service.TalkAuthOpt{
 		TalkType:   params.TalkType,
 		UserId:     uid,
@@ -328,7 +315,6 @@ func (c *Message) Forward(ctx *ichat.Context) error {
 	}
 
 	uid := ctx.UserId()
-
 	if err := c.auth.IsAuth(ctx.Ctx(), &service.TalkAuthOpt{
 		TalkType:   params.TalkType,
 		UserId:     ctx.UserId(),
@@ -381,7 +367,6 @@ func (c *Message) Card(ctx *ichat.Context) error {
 	}
 
 	uid := ctx.UserId()
-
 	if err := c.auth.IsAuth(ctx.Ctx(), &service.TalkAuthOpt{
 		TalkType:   params.TalkType,
 		UserId:     uid,
@@ -475,18 +460,12 @@ func (c *Message) HandleVote(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	vid, err := c.message.Vote(ctx.Ctx(), ctx.UserId(), &service.VoteMessageHandleOpt{
-		RecordId: params.RecordId,
-		Options:  params.Options,
-	})
-
+	data, err := c.message.Vote(ctx.Ctx(), ctx.UserId(), params.RecordId, params.Options)
 	if err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}
 
-	res, _ := c.talkRecordsVoteDao.GetVoteStatistics(ctx.Ctx(), vid)
-
-	return ctx.Success(res)
+	return ctx.Success(data)
 }
 
 type LocationMessageRequest struct {
@@ -505,7 +484,6 @@ func (c *Message) Location(ctx *ichat.Context) error {
 	}
 
 	uid := ctx.UserId()
-
 	if err := c.auth.IsAuth(ctx.Ctx(), &service.TalkAuthOpt{
 		TalkType:   params.TalkType,
 		UserId:     uid,
