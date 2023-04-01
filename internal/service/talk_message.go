@@ -558,7 +558,7 @@ func (m *MessageService) Vote(ctx context.Context, uid int, recordId int, option
 
 	if vote.TalkType == entity.ChatGroupMode {
 		var count int64
-		db.Table("talk_group_members").Where("group_id = ? and user_id = ? and is_quit = 0", vote.ReceiverId, uid).Count(&count)
+		db.Debug().Table("group_member").Where("group_id = ? and user_id = ? and is_quit = 0", vote.ReceiverId, uid).Count(&count)
 		if count == 0 {
 			return nil, errors.New("暂无投票权限！")
 		}
