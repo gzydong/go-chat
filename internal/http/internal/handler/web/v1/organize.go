@@ -11,23 +11,23 @@ import (
 )
 
 type Organize struct {
-	deptServ     *organize.DeptService
-	organizeServ *organize.OrganizeService
-	positionServ *organize.PositionService
+	deptService     *organize.DeptService
+	organizeService *organize.OrganizeService
+	positionService *organize.PositionService
 }
 
-func NewOrganize(deptServ *organize.DeptService, organizeServ *organize.OrganizeService, positionServ *organize.PositionService) *Organize {
-	return &Organize{deptServ: deptServ, organizeServ: organizeServ, positionServ: positionServ}
+func NewOrganize(deptService *organize.DeptService, organizeService *organize.OrganizeService, positionService *organize.PositionService) *Organize {
+	return &Organize{deptService: deptService, organizeService: organizeService, positionService: positionService}
 }
 
 func (o *Organize) DepartmentList(ctx *ichat.Context) error {
 
 	uid := ctx.UserId()
-	if isOk, _ := o.organizeServ.Dao().IsQiyeMember(ctx.Ctx(), uid); !isOk {
+	if isOk, _ := o.organizeService.Dao().IsQiyeMember(ctx.Ctx(), uid); !isOk {
 		return ctx.Success(&web.OrganizeDepartmentListResponse{})
 	}
 
-	list, err := o.deptServ.Dao().List(ctx.Ctx())
+	list, err := o.deptService.Dao().List(ctx.Ctx())
 	if err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}
@@ -48,16 +48,16 @@ func (o *Organize) DepartmentList(ctx *ichat.Context) error {
 func (o *Organize) PersonnelList(ctx *ichat.Context) error {
 
 	uid := ctx.UserId()
-	if isOk, _ := o.organizeServ.Dao().IsQiyeMember(ctx.Ctx(), uid); !isOk {
+	if isOk, _ := o.organizeService.Dao().IsQiyeMember(ctx.Ctx(), uid); !isOk {
 		return ctx.Success(&web.OrganizePersonnelListResponse{})
 	}
 
-	list, err := o.organizeServ.Dao().List()
+	list, err := o.organizeService.Dao().List()
 	if err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}
 
-	departments, err := o.deptServ.Dao().List(ctx.Ctx())
+	departments, err := o.deptService.Dao().List(ctx.Ctx())
 	if err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}
@@ -67,7 +67,7 @@ func (o *Organize) PersonnelList(ctx *ichat.Context) error {
 		deptHash[department.DeptId] = department
 	}
 
-	positions, err := o.positionServ.Dao().List(ctx.Ctx())
+	positions, err := o.positionService.Dao().List(ctx.Ctx())
 	if err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}

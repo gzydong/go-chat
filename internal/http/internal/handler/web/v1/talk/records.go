@@ -16,14 +16,14 @@ import (
 )
 
 type Records struct {
-	service            *service.TalkRecordsService
-	groupMemberService *service.GroupMemberService
-	fileSystem         *filesystem.Filesystem
-	authPermission     *service.AuthPermissionService
+	talkRecordsService    *service.TalkRecordsService
+	groupMemberService    *service.GroupMemberService
+	filesystem            *filesystem.Filesystem
+	authPermissionService *service.AuthPermissionService
 }
 
-func NewRecords(service *service.TalkRecordsService, groupMemberService *service.GroupMemberService, fileSystem *filesystem.Filesystem, authPermission *service.AuthPermissionService) *Records {
-	return &Records{service: service, groupMemberService: groupMemberService, fileSystem: fileSystem, authPermission: authPermission}
+func NewRecords(talkRecordsService *service.TalkRecordsService, groupMemberService *service.GroupMemberService, filesystem *filesystem.Filesystem, authPermissionService *service.AuthPermissionService) *Records {
+	return &Records{talkRecordsService: talkRecordsService, groupMemberService: groupMemberService, filesystem: filesystem, authPermissionService: authPermissionService}
 }
 
 type (
@@ -46,7 +46,7 @@ func (c *Records) GetRecords(ctx *ichat.Context) error {
 
 	uid := ctx.UserId()
 	if params.TalkType == entity.ChatGroupMode {
-		if !c.authPermission.IsAuth(ctx.Ctx(), &service.AuthPermission{
+		if !c.authPermissionService.IsAuth(ctx.Ctx(), &service.AuthPermission{
 			TalkType:   params.TalkType,
 			UserId:     uid,
 			ReceiverId: params.ReceiverId,
@@ -71,7 +71,7 @@ func (c *Records) GetRecords(ctx *ichat.Context) error {
 		}
 	}
 
-	records, err := c.service.GetTalkRecords(ctx.Ctx(), &service.QueryTalkRecordsOpt{
+	records, err := c.talkRecordsService.GetTalkRecords(ctx.Ctx(), &service.QueryTalkRecordsOpt{
 		TalkType:   params.TalkType,
 		UserId:     ctx.UserId(),
 		ReceiverId: params.ReceiverId,
@@ -106,7 +106,7 @@ func (c *Records) SearchHistoryRecords(ctx *ichat.Context) error {
 	uid := ctx.UserId()
 
 	if params.TalkType == entity.ChatGroupMode {
-		if !c.authPermission.IsAuth(ctx.Ctx(), &service.AuthPermission{
+		if !c.authPermissionService.IsAuth(ctx.Ctx(), &service.AuthPermission{
 			TalkType:   params.TalkType,
 			UserId:     uid,
 			ReceiverId: params.ReceiverId,
@@ -131,7 +131,7 @@ func (c *Records) SearchHistoryRecords(ctx *ichat.Context) error {
 		m = []int{params.MsgType}
 	}
 
-	records, err := c.service.GetTalkRecords(ctx.Ctx(), &service.QueryTalkRecordsOpt{
+	records, err := c.talkRecordsService.GetTalkRecords(ctx.Ctx(), &service.QueryTalkRecordsOpt{
 		TalkType:   params.TalkType,
 		MsgType:    m,
 		UserId:     ctx.UserId(),
@@ -168,7 +168,7 @@ func (c *Records) GetForwardRecords(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	records, err := c.service.GetForwardRecords(ctx.Ctx(), ctx.UserId(), int64(params.RecordId))
+	records, err := c.talkRecordsService.GetForwardRecords(ctx.Ctx(), ctx.UserId(), int64(params.RecordId))
 	if err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}
@@ -190,7 +190,7 @@ func (c *Records) Download(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	record, err := c.service.Dao().FindById(ctx.Ctx(), params.RecordId)
+	record, err := c.talkRecordsService.Dao().FindById(ctx.Ctx(), params.RecordId)
 	if err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}
@@ -215,9 +215,9 @@ func (c *Records) Download(ctx *ichat.Context) error {
 
 	switch fileInfo.Drive {
 	case entity.FileDriveLocal:
-		ctx.Context.FileAttachment(c.fileSystem.Local.Path(fileInfo.Path), fileInfo.OriginalName)
+		ctx.Context.FileAttachment(c.filesystem.Local.Path(fileInfo.Path), fileInfo.OriginalName)
 	case entity.FileDriveCos:
-		ctx.Context.Redirect(http.StatusFound, c.fileSystem.Cos.PrivateUrl(fileInfo.Path, 60*time.Second))
+		ctx.Context.Redirect(http.StatusFound, c.filesystem.Cos.PrivateUrl(fileInfo.Path, 60*time.Second))
 	default:
 		return ctx.ErrorBusiness("未知文件驱动类型")
 	}

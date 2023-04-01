@@ -13,13 +13,13 @@ import (
 )
 
 type User struct {
-	service      *service.UserService
-	smsService   *service.SmsService
-	organizeServ *organize.OrganizeService
+	service         *service.UserService
+	smsService      *service.SmsService
+	organizeService *organize.OrganizeService
 }
 
-func NewUser(service *service.UserService, smsService *service.SmsService, organizeServ *organize.OrganizeService) *User {
-	return &User{service: service, smsService: smsService, organizeServ: organizeServ}
+func NewUser(service *service.UserService, smsService *service.SmsService, organizeService *organize.OrganizeService) *User {
+	return &User{service: service, smsService: smsService, organizeService: organizeService}
 }
 
 // Detail 个人用户信息
@@ -52,7 +52,7 @@ func (u *User) Setting(ctx *ichat.Context) error {
 		return ctx.Error(err.Error())
 	}
 
-	isOk, err := u.organizeServ.Dao().IsQiyeMember(ctx.Ctx(), uid)
+	isOk, err := u.organizeService.Dao().IsQiyeMember(ctx.Ctx(), uid)
 	if err != nil {
 		return ctx.Error(err.Error())
 	}

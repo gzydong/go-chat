@@ -10,13 +10,13 @@ import (
 )
 
 type Apply struct {
-	applyServ  *service.GroupApplyService
-	memberServ *service.GroupMemberService
-	groupServ  *service.GroupService
+	groupApplyService  *service.GroupApplyService
+	groupMemberService *service.GroupMemberService
+	groupService       *service.GroupService
 }
 
-func NewApply(applyServ *service.GroupApplyService, memberServ *service.GroupMemberService, groupServ *service.GroupService) *Apply {
-	return &Apply{applyServ: applyServ, memberServ: memberServ, groupServ: groupServ}
+func NewApply(groupApplyService *service.GroupApplyService, groupMemberService *service.GroupMemberService, groupService *service.GroupService) *Apply {
+	return &Apply{groupApplyService: groupApplyService, groupMemberService: groupMemberService, groupService: groupService}
 }
 
 func (c *Apply) Create(ctx *ichat.Context) error {
@@ -26,7 +26,7 @@ func (c *Apply) Create(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	err := c.applyServ.Insert(ctx.Ctx(), int(params.GroupId), ctx.UserId(), params.Remark)
+	err := c.groupApplyService.Insert(ctx.Ctx(), int(params.GroupId), ctx.UserId(), params.Remark)
 	if err != nil {
 		return ctx.ErrorBusiness("创建群聊失败，请稍后再试！")
 	}
@@ -46,16 +46,16 @@ func (c *Apply) Agree(ctx *ichat.Context) error {
 	uid := ctx.UserId()
 
 	apply := &model.GroupApply{}
-	if err := c.applyServ.Db().First(apply, params.ApplyId).Error; err != nil {
+	if err := c.groupApplyService.Db().First(apply, params.ApplyId).Error; err != nil {
 		return ctx.ErrorBusiness("数据不存在！")
 	}
 
-	if !c.memberServ.Dao().IsLeader(ctx.Ctx(), apply.GroupId, uid) {
+	if !c.groupMemberService.Dao().IsLeader(ctx.Ctx(), apply.GroupId, uid) {
 		return ctx.Forbidden("无权限访问")
 	}
 
-	if !c.memberServ.Dao().IsMember(ctx.Ctx(), apply.GroupId, apply.UserId, false) {
-		err := c.groupServ.InviteMembers(ctx.Ctx(), &service.InviteGroupMembersOpt{
+	if !c.groupMemberService.Dao().IsMember(ctx.Ctx(), apply.GroupId, apply.UserId, false) {
+		err := c.groupService.InviteMembers(ctx.Ctx(), &service.InviteGroupMembersOpt{
 			UserId:    uid,
 			GroupId:   apply.GroupId,
 			MemberIds: []int{apply.UserId},
@@ -65,7 +65,7 @@ func (c *Apply) Agree(ctx *ichat.Context) error {
 		}
 	}
 
-	err := c.applyServ.Db().Delete(model.GroupApply{}, "id = ?", apply.Id).Error
+	err := c.groupApplyService.Db().Delete(model.GroupApply{}, "id = ?", apply.Id).Error
 	if err != nil {
 		logger.Error("数据删除失败 err", err.Error())
 	}
@@ -80,7 +80,7 @@ func (c *Apply) Delete(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	err := c.applyServ.Delete(ctx.Ctx(), int(params.ApplyId), ctx.UserId())
+	err := c.groupApplyService.Delete(ctx.Ctx(), int(params.ApplyId), ctx.UserId())
 	if err != nil {
 		return ctx.ErrorBusiness("创建群聊失败，请稍后再试！")
 	}
@@ -95,11 +95,11 @@ func (c *Apply) List(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	if !c.memberServ.Dao().IsLeader(ctx.Ctx(), int(params.GroupId), ctx.UserId()) {
+	if !c.groupMemberService.Dao().IsLeader(ctx.Ctx(), int(params.GroupId), ctx.UserId()) {
 		return ctx.Forbidden("无权限访问")
 	}
 
-	list, err := c.applyServ.Dao().List(ctx.Ctx(), int(params.GroupId))
+	list, err := c.groupApplyService.Dao().List(ctx.Ctx(), int(params.GroupId))
 	if err != nil {
 		logger.Error("[Apply List] 接口异常 err:", err.Error())
 		return ctx.ErrorBusiness("创建群聊失败，请稍后再试！")

@@ -13,13 +13,13 @@ import (
 )
 
 type Upload struct {
-	config     *config.Config
-	filesystem *filesystem.Filesystem
-	service    *service.SplitUploadService
+	config             *config.Config
+	filesystem         *filesystem.Filesystem
+	splitUploadService *service.SplitUploadService
 }
 
-func NewUpload(config *config.Config, filesystem *filesystem.Filesystem, service *service.SplitUploadService) *Upload {
-	return &Upload{config: config, filesystem: filesystem, service: service}
+func NewUpload(config *config.Config, filesystem *filesystem.Filesystem, splitUploadService *service.SplitUploadService) *Upload {
+	return &Upload{config: config, filesystem: filesystem, splitUploadService: splitUploadService}
 }
 
 // Avatar 头像上传上传
@@ -50,7 +50,7 @@ func (u *Upload) InitiateMultipart(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	info, err := u.service.InitiateMultipartUpload(ctx.Ctx(), &service.MultipartInitiateOpt{
+	info, err := u.splitUploadService.InitiateMultipartUpload(ctx.Ctx(), &service.MultipartInitiateOpt{
 		Name:   params.FileName,
 		Size:   params.FileSize,
 		UserId: ctx.UserId(),
@@ -78,7 +78,7 @@ func (u *Upload) MultipartUpload(ctx *ichat.Context) error {
 		return ctx.InvalidParams("文件上传失败！")
 	}
 
-	err = u.service.MultipartUpload(ctx.Ctx(), &service.MultipartUploadOpt{
+	err = u.splitUploadService.MultipartUpload(ctx.Ctx(), &service.MultipartUploadOpt{
 		UserId:     ctx.UserId(),
 		UploadId:   params.UploadId,
 		SplitIndex: int(params.SplitIndex),

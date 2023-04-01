@@ -18,13 +18,13 @@ import (
 )
 
 type Emoticon struct {
-	fileSystem *filesystem.Filesystem
-	service    *service.EmoticonService
-	redisLock  *cache.RedisLock
+	filesystem      *filesystem.Filesystem
+	emoticonService *service.EmoticonService
+	redisLock       *cache.RedisLock
 }
 
-func NewEmoticon(fileSystem *filesystem.Filesystem, service *service.EmoticonService, redisLock *cache.RedisLock) *Emoticon {
-	return &Emoticon{fileSystem: fileSystem, service: service, redisLock: redisLock}
+func NewEmoticon(filesystem *filesystem.Filesystem, emoticonService *service.EmoticonService, redisLock *cache.RedisLock) *Emoticon {
+	return &Emoticon{filesystem: filesystem, emoticonService: emoticonService, redisLock: redisLock}
 }
 
 // CollectList 收藏列表
@@ -38,8 +38,8 @@ func (c *Emoticon) CollectList(ctx *ichat.Context) error {
 		}
 	)
 
-	if ids := c.service.Dao().GetUserInstallIds(uid); len(ids) > 0 {
-		if items, err := c.service.Dao().FindByIds(ctx.Ctx(), ids); err == nil {
+	if ids := c.emoticonService.Dao().GetUserInstallIds(uid); len(ids) > 0 {
+		if items, err := c.emoticonService.Dao().FindByIds(ctx.Ctx(), ids); err == nil {
 			for _, item := range items {
 				data := &web.EmoticonListResponse_SysEmoticon{
 					EmoticonId: int32(item.Id),
@@ -48,7 +48,7 @@ func (c *Emoticon) CollectList(ctx *ichat.Context) error {
 					List:       make([]*web.EmoticonListItem, 0),
 				}
 
-				if list, err := c.service.Dao().GetDetailsAll(item.Id, 0); err == nil {
+				if list, err := c.emoticonService.Dao().GetDetailsAll(item.Id, 0); err == nil {
 					for _, v := range list {
 						data.List = append(data.List, &web.EmoticonListItem{
 							MediaId: int32(v.Id),
@@ -62,7 +62,7 @@ func (c *Emoticon) CollectList(ctx *ichat.Context) error {
 		}
 	}
 
-	if items, err := c.service.Dao().GetDetailsAll(0, uid); err == nil {
+	if items, err := c.emoticonService.Dao().GetDetailsAll(0, uid); err == nil {
 		for _, item := range items {
 			resp.CollectEmoticon = append(resp.CollectEmoticon, &web.EmoticonListItem{
 				MediaId: int32(item.Id),
@@ -82,7 +82,7 @@ func (c *Emoticon) DeleteCollect(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	if err := c.service.DeleteCollect(ctx.UserId(), sliceutil.ParseIds(params.Ids)); err != nil {
+	if err := c.emoticonService.DeleteCollect(ctx.UserId(), sliceutil.ParseIds(params.Ids)); err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}
 
@@ -114,19 +114,19 @@ func (c *Emoticon) Upload(ctx *ichat.Context) error {
 	meta := utils.ReadImageMeta(bytes.NewReader(stream))
 	ext := strutil.FileSuffix(file.Filename)
 	src := fmt.Sprintf("public/media/image/emoticon/%s/%s", time.Now().Format("20060102"), strutil.GenImageName(ext, meta.Width, meta.Height))
-	if err = c.fileSystem.Default.Write(stream, src); err != nil {
+	if err = c.filesystem.Default.Write(stream, src); err != nil {
 		return ctx.ErrorBusiness("上传失败！")
 	}
 
 	m := &model.EmoticonItem{
 		UserId:     ctx.UserId(),
 		Describe:   "自定义表情包",
-		Url:        c.fileSystem.Default.PublicUrl(src),
+		Url:        c.filesystem.Default.PublicUrl(src),
 		FileSuffix: ext,
 		FileSize:   int(file.Size),
 	}
 
-	if err := c.service.Db().Create(m).Error; err != nil {
+	if err := c.emoticonService.Db().Create(m).Error; err != nil {
 		return ctx.ErrorBusiness("上传失败！")
 	}
 
@@ -139,13 +139,13 @@ func (c *Emoticon) Upload(ctx *ichat.Context) error {
 // SystemList 系统表情包列表
 func (c *Emoticon) SystemList(ctx *ichat.Context) error {
 
-	items, err := c.service.Dao().GetSystemEmoticonList(ctx.Ctx())
+	items, err := c.emoticonService.Dao().GetSystemEmoticonList(ctx.Ctx())
 
 	if err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}
 
-	ids := c.service.Dao().GetUserInstallIds(ctx.UserId())
+	ids := c.emoticonService.Dao().GetUserInstallIds(ctx.UserId())
 
 	data := make([]*web.EmoticonSysListResponse_Item, 0)
 	for _, item := range items {
@@ -179,7 +179,7 @@ func (c *Emoticon) SetSystemEmoticon(ctx *ichat.Context) error {
 	defer c.redisLock.UnLock(ctx.Ctx(), key)
 
 	if params.Type == 2 {
-		if err = c.service.RemoveUserSysEmoticon(uid, int(params.EmoticonId)); err != nil {
+		if err = c.emoticonService.RemoveUserSysEmoticon(uid, int(params.EmoticonId)); err != nil {
 			return ctx.ErrorBusiness(err.Error())
 		}
 
@@ -187,17 +187,17 @@ func (c *Emoticon) SetSystemEmoticon(ctx *ichat.Context) error {
 	}
 
 	// 查询表情包是否存在
-	info, err := c.service.Dao().FindById(ctx.Ctx(), int(params.EmoticonId))
+	info, err := c.emoticonService.Dao().FindById(ctx.Ctx(), int(params.EmoticonId))
 	if err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}
 
-	if err := c.service.AddUserSysEmoticon(uid, int(params.EmoticonId)); err != nil {
+	if err := c.emoticonService.AddUserSysEmoticon(uid, int(params.EmoticonId)); err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}
 
 	items := make([]*web.EmoticonListItem, 0)
-	if list, err := c.service.Dao().GetDetailsAll(int(params.EmoticonId), 0); err == nil {
+	if list, err := c.emoticonService.Dao().GetDetailsAll(int(params.EmoticonId), 0); err == nil {
 		for _, item := range list {
 			items = append(items, &web.EmoticonListItem{
 				MediaId: int32(item.Id),

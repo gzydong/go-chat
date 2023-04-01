@@ -16,14 +16,14 @@ import (
 )
 
 type Message struct {
-	talkService *service.TalkService
-	auth        *service.TalkAuthService
-	message     *service.MessageService
-	filesystem  *filesystem.Filesystem
+	talkService     *service.TalkService
+	talkAuthService *service.TalkAuthService
+	messageService  *service.MessageService
+	filesystem      *filesystem.Filesystem
 }
 
-func NewMessage(talkService *service.TalkService, auth *service.TalkAuthService, message *service.MessageService, filesystem *filesystem.Filesystem) *Message {
-	return &Message{talkService: talkService, auth: auth, message: message, filesystem: filesystem}
+func NewMessage(talkService *service.TalkService, talkAuthService *service.TalkAuthService, messageService *service.MessageService, filesystem *filesystem.Filesystem) *Message {
+	return &Message{talkService: talkService, talkAuthService: talkAuthService, messageService: messageService, filesystem: filesystem}
 }
 
 type AuthorityOpts struct {
@@ -47,7 +47,7 @@ func (c *Message) Text(ctx *ichat.Context) error {
 	}
 
 	uid := ctx.UserId()
-	if err := c.auth.IsAuth(ctx.Ctx(), &service.TalkAuthOpt{
+	if err := c.talkAuthService.IsAuth(ctx.Ctx(), &service.TalkAuthOpt{
 		TalkType:   params.TalkType,
 		UserId:     uid,
 		ReceiverId: params.ReceiverId,
@@ -55,7 +55,7 @@ func (c *Message) Text(ctx *ichat.Context) error {
 		return ctx.ErrorBusiness(err.Error())
 	}
 
-	if err := c.message.SendText(ctx.Ctx(), uid, &message.TextMessageRequest{
+	if err := c.messageService.SendText(ctx.Ctx(), uid, &message.TextMessageRequest{
 		Content: params.Text,
 		Receiver: &message.MessageReceiver{
 			TalkType:   int32(params.TalkType),
@@ -84,7 +84,7 @@ func (c *Message) Code(ctx *ichat.Context) error {
 	}
 
 	uid := ctx.UserId()
-	if err := c.auth.IsAuth(ctx.Ctx(), &service.TalkAuthOpt{
+	if err := c.talkAuthService.IsAuth(ctx.Ctx(), &service.TalkAuthOpt{
 		TalkType:   params.TalkType,
 		UserId:     uid,
 		ReceiverId: params.ReceiverId,
@@ -92,7 +92,7 @@ func (c *Message) Code(ctx *ichat.Context) error {
 		return ctx.ErrorBusiness(err.Error())
 	}
 
-	if err := c.message.SendCode(ctx.Ctx(), uid, &message.CodeMessageRequest{
+	if err := c.messageService.SendCode(ctx.Ctx(), uid, &message.CodeMessageRequest{
 		Lang: params.Lang,
 		Code: params.Code,
 		Receiver: &message.MessageReceiver{
@@ -133,7 +133,7 @@ func (c *Message) Image(ctx *ichat.Context) error {
 		return ctx.InvalidParams("上传文件大小不能超过5M！")
 	}
 
-	if err := c.auth.IsAuth(ctx.Ctx(), &service.TalkAuthOpt{
+	if err := c.talkAuthService.IsAuth(ctx.Ctx(), &service.TalkAuthOpt{
 		TalkType:   params.TalkType,
 		UserId:     ctx.UserId(),
 		ReceiverId: params.ReceiverId,
@@ -156,7 +156,7 @@ func (c *Message) Image(ctx *ichat.Context) error {
 		return err
 	}
 
-	if err := c.message.SendImage(ctx.Ctx(), ctx.UserId(), &message.ImageMessageRequest{
+	if err := c.messageService.SendImage(ctx.Ctx(), ctx.UserId(), &message.ImageMessageRequest{
 		Url:    c.filesystem.Default.PublicUrl(filePath),
 		Width:  int32(meta.Width),
 		Height: int32(meta.Height),
@@ -187,7 +187,7 @@ func (c *Message) File(ctx *ichat.Context) error {
 	}
 
 	uid := ctx.UserId()
-	if err := c.auth.IsAuth(ctx.Ctx(), &service.TalkAuthOpt{
+	if err := c.talkAuthService.IsAuth(ctx.Ctx(), &service.TalkAuthOpt{
 		TalkType:   params.TalkType,
 		UserId:     uid,
 		ReceiverId: params.ReceiverId,
@@ -195,7 +195,7 @@ func (c *Message) File(ctx *ichat.Context) error {
 		return ctx.ErrorBusiness(err.Error())
 	}
 
-	if err := c.message.SendFile(ctx.Ctx(), uid, &message.FileMessageRequest{
+	if err := c.messageService.SendFile(ctx.Ctx(), uid, &message.FileMessageRequest{
 		UploadId: params.UploadId,
 		Receiver: &message.MessageReceiver{
 			TalkType:   int32(params.TalkType),
@@ -233,7 +233,7 @@ func (c *Message) Vote(ctx *ichat.Context) error {
 	}
 
 	uid := ctx.UserId()
-	if err := c.auth.IsAuth(ctx.Ctx(), &service.TalkAuthOpt{
+	if err := c.talkAuthService.IsAuth(ctx.Ctx(), &service.TalkAuthOpt{
 		TalkType:   entity.ChatGroupMode,
 		UserId:     uid,
 		ReceiverId: params.ReceiverId,
@@ -241,7 +241,7 @@ func (c *Message) Vote(ctx *ichat.Context) error {
 		return ctx.ErrorBusiness(err.Error())
 	}
 
-	if err := c.message.SendVote(ctx.Ctx(), uid, &message.VoteMessageRequest{
+	if err := c.messageService.SendVote(ctx.Ctx(), uid, &message.VoteMessageRequest{
 		Mode:      int32(params.Mode),
 		Title:     params.Title,
 		Options:   params.Options,
@@ -272,7 +272,7 @@ func (c *Message) Emoticon(ctx *ichat.Context) error {
 	}
 
 	uid := ctx.UserId()
-	if err := c.auth.IsAuth(ctx.Ctx(), &service.TalkAuthOpt{
+	if err := c.talkAuthService.IsAuth(ctx.Ctx(), &service.TalkAuthOpt{
 		TalkType:   params.TalkType,
 		UserId:     uid,
 		ReceiverId: params.ReceiverId,
@@ -280,7 +280,7 @@ func (c *Message) Emoticon(ctx *ichat.Context) error {
 		return ctx.ErrorBusiness(err.Error())
 	}
 
-	if err := c.message.SendEmoticon(ctx.Ctx(), uid, &message.EmoticonMessageRequest{
+	if err := c.messageService.SendEmoticon(ctx.Ctx(), uid, &message.EmoticonMessageRequest{
 		EmoticonId: int32(params.EmoticonId),
 		Receiver: &message.MessageReceiver{
 			TalkType:   int32(params.TalkType),
@@ -315,7 +315,7 @@ func (c *Message) Forward(ctx *ichat.Context) error {
 	}
 
 	uid := ctx.UserId()
-	if err := c.auth.IsAuth(ctx.Ctx(), &service.TalkAuthOpt{
+	if err := c.talkAuthService.IsAuth(ctx.Ctx(), &service.TalkAuthOpt{
 		TalkType:   params.TalkType,
 		UserId:     ctx.UserId(),
 		ReceiverId: params.ReceiverId,
@@ -346,7 +346,7 @@ func (c *Message) Forward(ctx *ichat.Context) error {
 		data.Gids = append(data.Gids, int32(id))
 	}
 
-	if err := c.message.SendForward(ctx.Ctx(), uid, data); err != nil {
+	if err := c.messageService.SendForward(ctx.Ctx(), uid, data); err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}
 
@@ -367,7 +367,7 @@ func (c *Message) Card(ctx *ichat.Context) error {
 	}
 
 	uid := ctx.UserId()
-	if err := c.auth.IsAuth(ctx.Ctx(), &service.TalkAuthOpt{
+	if err := c.talkAuthService.IsAuth(ctx.Ctx(), &service.TalkAuthOpt{
 		TalkType:   params.TalkType,
 		UserId:     uid,
 		ReceiverId: params.ReceiverId,
@@ -376,7 +376,7 @@ func (c *Message) Card(ctx *ichat.Context) error {
 	}
 
 	// todo SendBusinessCard
-	if err := c.message.SendBusinessCard(ctx.Ctx(), uid); err != nil {
+	if err := c.messageService.SendBusinessCard(ctx.Ctx(), uid); err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}
 
@@ -414,7 +414,7 @@ func (c *Message) Revoke(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	if err := c.message.Revoke(ctx.Ctx(), ctx.UserId(), params.RecordId); err != nil {
+	if err := c.messageService.Revoke(ctx.Ctx(), ctx.UserId(), params.RecordId); err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}
 
@@ -460,7 +460,7 @@ func (c *Message) HandleVote(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	data, err := c.message.Vote(ctx.Ctx(), ctx.UserId(), params.RecordId, params.Options)
+	data, err := c.messageService.Vote(ctx.Ctx(), ctx.UserId(), params.RecordId, params.Options)
 	if err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}
@@ -484,7 +484,7 @@ func (c *Message) Location(ctx *ichat.Context) error {
 	}
 
 	uid := ctx.UserId()
-	if err := c.auth.IsAuth(ctx.Ctx(), &service.TalkAuthOpt{
+	if err := c.talkAuthService.IsAuth(ctx.Ctx(), &service.TalkAuthOpt{
 		TalkType:   params.TalkType,
 		UserId:     uid,
 		ReceiverId: params.ReceiverId,
@@ -492,7 +492,7 @@ func (c *Message) Location(ctx *ichat.Context) error {
 		return ctx.ErrorBusiness(err.Error())
 	}
 
-	if err := c.message.SendLocation(ctx.Ctx(), uid, &message.LocationMessageRequest{
+	if err := c.messageService.SendLocation(ctx.Ctx(), uid, &message.LocationMessageRequest{
 		Longitude:   params.Longitude,
 		Latitude:    params.Latitude,
 		Description: "", // todo 需完善

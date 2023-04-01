@@ -9,12 +9,12 @@ import (
 )
 
 type SendMessage struct {
-	auth    *service.TalkAuthService
-	message *service.MessageService
+	talkAuthService *service.TalkAuthService
+	messageService  *service.MessageService
 }
 
-func NewSendMessage(auth *service.TalkAuthService, message *service.MessageService) *SendMessage {
-	return &SendMessage{auth: auth, message: message}
+func NewSendMessage(talkAuthService *service.TalkAuthService, messageService *service.MessageService) *SendMessage {
+	return &SendMessage{talkAuthService: talkAuthService, messageService: messageService}
 }
 
 type SendBaseMessageRequest struct {
@@ -37,7 +37,7 @@ func (c *SendMessage) Send(ctx *ichat.Context) error {
 	}
 
 	// 权限验证
-	if err := c.auth.IsAuth(ctx.Ctx(), &service.TalkAuthOpt{
+	if err := c.talkAuthService.IsAuth(ctx.Ctx(), &service.TalkAuthOpt{
 		TalkType:   params.Receiver.TalkType,
 		UserId:     ctx.UserId(),
 		ReceiverId: params.Receiver.ReceiverId,
@@ -75,7 +75,7 @@ func (c *SendMessage) onSendText(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	err := c.message.SendText(ctx.Ctx(), ctx.UserId(), params)
+	err := c.messageService.SendText(ctx.Ctx(), ctx.UserId(), params)
 	if err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}
@@ -91,7 +91,7 @@ func (c *SendMessage) onSendImage(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	err := c.message.SendImage(ctx.Ctx(), ctx.UserId(), params)
+	err := c.messageService.SendImage(ctx.Ctx(), ctx.UserId(), params)
 	if err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}
@@ -107,7 +107,7 @@ func (c *SendMessage) onSendFile(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	err := c.message.SendFile(ctx.Ctx(), ctx.UserId(), params)
+	err := c.messageService.SendFile(ctx.Ctx(), ctx.UserId(), params)
 	if err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}
@@ -123,7 +123,7 @@ func (c *SendMessage) onSendCode(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	err := c.message.SendCode(ctx.Ctx(), ctx.UserId(), params)
+	err := c.messageService.SendCode(ctx.Ctx(), ctx.UserId(), params)
 	if err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}
@@ -139,7 +139,7 @@ func (c *SendMessage) onSendLocation(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	err := c.message.SendLocation(ctx.Ctx(), ctx.UserId(), params)
+	err := c.messageService.SendLocation(ctx.Ctx(), ctx.UserId(), params)
 	if err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}
@@ -155,7 +155,7 @@ func (c *SendMessage) onSendForward(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	err := c.message.SendForward(ctx.Ctx(), ctx.UserId(), params)
+	err := c.messageService.SendForward(ctx.Ctx(), ctx.UserId(), params)
 	if err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}
@@ -171,7 +171,7 @@ func (c *SendMessage) onSendEmoticon(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	err := c.message.SendEmoticon(ctx.Ctx(), ctx.UserId(), params)
+	err := c.messageService.SendEmoticon(ctx.Ctx(), ctx.UserId(), params)
 	if err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}
@@ -195,7 +195,7 @@ func (c *SendMessage) onSendVote(ctx *ichat.Context) error {
 		return ctx.InvalidParams("options 选项不能超过6个！")
 	}
 
-	err := c.message.SendVote(ctx.Ctx(), ctx.UserId(), params)
+	err := c.messageService.SendVote(ctx.Ctx(), ctx.UserId(), params)
 	if err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}

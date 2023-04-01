@@ -9,12 +9,12 @@ import (
 )
 
 type Notice struct {
-	service *service.GroupNoticeService
-	member  *service.GroupMemberService
+	groupNoticeService *service.GroupNoticeService
+	groupMemberService *service.GroupMemberService
 }
 
-func NewNotice(service *service.GroupNoticeService, member *service.GroupMemberService) *Notice {
-	return &Notice{service: service, member: member}
+func NewNotice(groupNoticeService *service.GroupNoticeService, groupMemberService *service.GroupMemberService) *Notice {
+	return &Notice{groupNoticeService: groupNoticeService, groupMemberService: groupMemberService}
 }
 
 // CreateAndUpdate 添加或编辑群公告
@@ -32,12 +32,12 @@ func (c *Notice) CreateAndUpdate(ctx *ichat.Context) error {
 
 	uid := ctx.UserId()
 
-	if !c.member.Dao().IsLeader(ctx.Ctx(), int(params.GroupId), uid) {
+	if !c.groupMemberService.Dao().IsLeader(ctx.Ctx(), int(params.GroupId), uid) {
 		return ctx.ErrorBusiness("无权限操作")
 	}
 
 	if params.NoticeId == 0 {
-		err = c.service.Create(ctx.Ctx(), &service.GroupNoticeEditOpt{
+		err = c.groupNoticeService.Create(ctx.Ctx(), &service.GroupNoticeEditOpt{
 			UserId:    uid,
 			GroupId:   int(params.GroupId),
 			NoticeId:  int(params.NoticeId),
@@ -48,7 +48,7 @@ func (c *Notice) CreateAndUpdate(ctx *ichat.Context) error {
 		})
 		msg = "添加群公告成功！"
 	} else {
-		err = c.service.Update(ctx.Ctx(), &service.GroupNoticeEditOpt{
+		err = c.groupNoticeService.Update(ctx.Ctx(), &service.GroupNoticeEditOpt{
 			GroupId:   int(params.GroupId),
 			NoticeId:  int(params.NoticeId),
 			Title:     params.Title,
@@ -74,7 +74,7 @@ func (c *Notice) Delete(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	if err := c.service.Delete(ctx.Ctx(), int(params.GroupId), int(params.NoticeId)); err != nil {
+	if err := c.groupNoticeService.Delete(ctx.Ctx(), int(params.GroupId), int(params.NoticeId)); err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}
 
@@ -90,11 +90,11 @@ func (c *Notice) List(ctx *ichat.Context) error {
 	}
 
 	// 判断是否是群成员
-	if !c.member.Dao().IsMember(ctx.Ctx(), int(params.GroupId), ctx.UserId(), true) {
+	if !c.groupMemberService.Dao().IsMember(ctx.Ctx(), int(params.GroupId), ctx.UserId(), true) {
 		return ctx.ErrorBusiness("无获取数据权限！")
 	}
 
-	all, err := c.service.Dao().GetListAll(ctx.Ctx(), int(params.GroupId))
+	all, err := c.groupNoticeService.Dao().GetListAll(ctx.Ctx(), int(params.GroupId))
 	if err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}

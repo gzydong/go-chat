@@ -9,12 +9,12 @@ import (
 )
 
 type Group struct {
-	service *service.ContactGroupService
-	contact *service.ContactService
+	contactGroupService *service.ContactGroupService
+	contactService      *service.ContactService
 }
 
-func NewGroup(service *service.ContactGroupService, contact *service.ContactService) *Group {
-	return &Group{service: service, contact: contact}
+func NewGroup(contactGroupService *service.ContactGroupService, contactService *service.ContactService) *Group {
+	return &Group{contactGroupService: contactGroupService, contactService: contactService}
 }
 
 // List 联系人分组列表
@@ -25,10 +25,10 @@ func (c *Group) List(ctx *ichat.Context) error {
 	items := make([]*web.ContactGroupListResponse_Item, 0)
 	items = append(items, &web.ContactGroupListResponse_Item{
 		Name:  "全部好友",
-		Count: int32(len(c.contact.GetContactIds(ctx.Ctx(), uid))),
+		Count: int32(len(c.contactService.GetContactIds(ctx.Ctx(), uid))),
 	})
 
-	group, err := c.service.GetUserGroup(ctx.Ctx(), uid)
+	group, err := c.contactGroupService.GetUserGroup(ctx.Ctx(), uid)
 	if err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}
@@ -57,7 +57,7 @@ func (c *Group) Create(ctx *ichat.Context) error {
 		Sort:   int(params.GetSort()),
 	}
 
-	err := c.service.Repo().Create(ctx.Ctx(), data)
+	err := c.contactGroupService.Repo().Create(ctx.Ctx(), data)
 	if err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}
@@ -72,7 +72,7 @@ func (c *Group) Update(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	affected, err := c.service.Repo().UpdateWhere(ctx.Ctx(), map[string]any{
+	affected, err := c.contactGroupService.Repo().UpdateWhere(ctx.Ctx(), map[string]any{
 		"name":       params.Name,
 		"sort":       params.Sort,
 		"updated_at": timeutil.DateTime(),
@@ -95,7 +95,7 @@ func (c *Group) Delete(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	err := c.service.Delete(ctx.Ctx(), int(params.Id), ctx.UserId())
+	err := c.contactGroupService.Delete(ctx.Ctx(), int(params.Id), ctx.UserId())
 	if err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}
@@ -117,7 +117,7 @@ func (c *Group) Sort(ctx *ichat.Context) error {
 		})
 	}
 
-	err := c.service.Sort(ctx.Ctx(), ctx.UserId(), items)
+	err := c.contactGroupService.Sort(ctx.Ctx(), ctx.UserId(), items)
 	if err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}
