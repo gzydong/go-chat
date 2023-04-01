@@ -9,6 +9,7 @@ type Contact struct {
 	FriendId  int       `gorm:"column:friend_id;default:0;NOT NULL" json:"friend_id"`                   // 好友id
 	Remark    string    `gorm:"column:remark;NOT NULL" json:"remark"`                                   // 好友的备注
 	Status    int       `gorm:"column:status;default:0;NOT NULL" json:"status"`                         // 好友状态 [0:否;1:是]
+	GroupId   int       `gorm:"column:group_id;default:0;NOT NULL" json:"group_id"`                     // 分组id
 	CreatedAt time.Time `gorm:"column:created_at;default:CURRENT_TIMESTAMP;NOT NULL" json:"created_at"` // 创建时间
 	UpdatedAt time.Time `gorm:"column:updated_at;default:CURRENT_TIMESTAMP;NOT NULL" json:"updated_at"` // 更新时间
 }

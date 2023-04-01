@@ -52,6 +52,7 @@ func RegisterWebRoute(secret string, router *gin.Engine, handler *web.Handler, s
 			contact.GET("/detail", ichat.HandlerFunc(handler.V1.Contact.Detail))           // 搜索联系人
 			contact.POST("/delete", ichat.HandlerFunc(handler.V1.Contact.Delete))          // 删除联系人
 			contact.POST("/edit-remark", ichat.HandlerFunc(handler.V1.Contact.EditRemark)) // 编辑联系人备注
+			contact.POST("/move-group", ichat.HandlerFunc(handler.V1.Contact.MoveGroup))   // 编辑联系人备注
 
 			// 联系人申请相关
 			contact.GET("/apply/records", ichat.HandlerFunc(handler.V1.ContactApply.List))              // 联系人申请列表

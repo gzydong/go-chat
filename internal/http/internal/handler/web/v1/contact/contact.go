@@ -159,9 +159,16 @@ func (c *Contact) Detail(ctx *ichat.Context) error {
 
 	if uid != user.Id {
 		data.FriendStatus = 1
-		if c.service.Dao().IsFriend(ctx.Ctx(), uid, user.Id, false) {
+
+		contact, err := c.service.Dao().FindByWhere(ctx.Ctx(), "user_id = ? and friend_id = ?", uid, user.Id)
+		if err != nil && err != gorm.ErrRecordNotFound {
+			return err
+		}
+
+		if err == nil && contact.Status == 1 {
 			data.FriendStatus = 2
-			data.NicknameRemark = c.service.Dao().GetFriendRemark(ctx.Ctx(), uid, user.Id)
+			data.GroupId = int32(contact.GroupId)
+			data.NicknameRemark = contact.Remark
 		} else {
 			isOk, _ := c.organizeService.Dao().IsQiyeMember(ctx.Ctx(), uid, user.Id)
 			if isOk {
@@ -171,4 +178,20 @@ func (c *Contact) Detail(ctx *ichat.Context) error {
 	}
 
 	return ctx.Success(&data)
+}
+
+// MoveGroup 移动好友分组
+func (c *Contact) MoveGroup(ctx *ichat.Context) error {
+
+	params := &web.ContactChangeGroupRequest{}
+	if err := ctx.Context.ShouldBind(params); err != nil {
+		return ctx.InvalidParams(err)
+	}
+
+	err := c.service.MoveGroup(ctx.Ctx(), ctx.UserId(), int(params.UserId), int(params.GroupId))
+	if err != nil {
+		return ctx.ErrorBusiness(err.Error())
+	}
+
+	return ctx.Success(&web.ContactChangeGroupResponse{})
 }

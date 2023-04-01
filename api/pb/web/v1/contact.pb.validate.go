@@ -831,6 +831,8 @@ func (m *ContactDetailResponse) validate(all bool) error {
 
 	// no validation rules for FriendStatus
 
+	// no validation rules for GroupId
+
 	if len(errors) > 0 {
 		return ContactDetailResponseMultiError(errors)
 	}
@@ -1128,6 +1130,214 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = ContactSearchResponseValidationError{}
+
+// Validate checks the field values on ContactChangeGroupRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *ContactChangeGroupRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ContactChangeGroupRequest with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// ContactChangeGroupRequestMultiError, or nil if none found.
+func (m *ContactChangeGroupRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ContactChangeGroupRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for UserId
+
+	// no validation rules for GroupId
+
+	if len(errors) > 0 {
+		return ContactChangeGroupRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// ContactChangeGroupRequestMultiError is an error wrapping multiple validation
+// errors returned by ContactChangeGroupRequest.ValidateAll() if the
+// designated constraints aren't met.
+type ContactChangeGroupRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ContactChangeGroupRequestMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ContactChangeGroupRequestMultiError) AllErrors() []error { return m }
+
+// ContactChangeGroupRequestValidationError is the validation error returned by
+// ContactChangeGroupRequest.Validate if the designated constraints aren't met.
+type ContactChangeGroupRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ContactChangeGroupRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ContactChangeGroupRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ContactChangeGroupRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ContactChangeGroupRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ContactChangeGroupRequestValidationError) ErrorName() string {
+	return "ContactChangeGroupRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e ContactChangeGroupRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sContactChangeGroupRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ContactChangeGroupRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ContactChangeGroupRequestValidationError{}
+
+// Validate checks the field values on ContactChangeGroupResponse with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *ContactChangeGroupResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ContactChangeGroupResponse with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// ContactChangeGroupResponseMultiError, or nil if none found.
+func (m *ContactChangeGroupResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ContactChangeGroupResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(errors) > 0 {
+		return ContactChangeGroupResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// ContactChangeGroupResponseMultiError is an error wrapping multiple
+// validation errors returned by ContactChangeGroupResponse.ValidateAll() if
+// the designated constraints aren't met.
+type ContactChangeGroupResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ContactChangeGroupResponseMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ContactChangeGroupResponseMultiError) AllErrors() []error { return m }
+
+// ContactChangeGroupResponseValidationError is the validation error returned
+// by ContactChangeGroupResponse.Validate if the designated constraints aren't met.
+type ContactChangeGroupResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ContactChangeGroupResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ContactChangeGroupResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ContactChangeGroupResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ContactChangeGroupResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ContactChangeGroupResponseValidationError) ErrorName() string {
+	return "ContactChangeGroupResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e ContactChangeGroupResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sContactChangeGroupResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ContactChangeGroupResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ContactChangeGroupResponseValidationError{}
 
 // Validate checks the field values on ContactListResponse_Item with the rules
 // defined in the proto definition for this message. If any rules are

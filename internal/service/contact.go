@@ -5,6 +5,7 @@ import (
 
 	"go-chat/internal/repository/model"
 	"go-chat/internal/repository/repo"
+	"gorm.io/gorm"
 )
 
 type ContactService struct {
@@ -71,4 +72,32 @@ func (s *ContactService) GetContactIds(ctx context.Context, uid int) []int64 {
 	s.contact.Model(ctx).Where("user_id = ? and status = ?", uid, 1).Pluck("friend_id", &ids)
 
 	return ids
+}
+
+func (s *ContactService) MoveGroup(ctx context.Context, uid int, friendId int, groupId int) error {
+	contact, err := s.Dao().FindByWhere(ctx, "user_id = ? and friend_id  = ?", uid, friendId)
+	if err != nil {
+		return err
+	}
+
+	return s.Db().Transaction(func(tx *gorm.DB) error {
+		if contact.GroupId > 0 {
+			err := tx.Table("contact_group").Where("id = ? and user_id = ?", contact.GroupId, uid).Updates(map[string]any{
+				"num": gorm.Expr("num - 1"),
+			}).Error
+
+			if err != nil {
+				return err
+			}
+		}
+
+		err := tx.Table("contact").Where("user_id = ? and friend_id = ? and group_id = ?", uid, friendId, contact.GroupId).UpdateColumn("group_id", groupId).Error
+		if err != nil {
+			return err
+		}
+
+		return tx.Table("contact_group").Where("id = ? and user_id = ?", groupId, uid).Updates(map[string]any{
+			"num": gorm.Expr("num + 1"),
+		}).Error
+	})
 }
