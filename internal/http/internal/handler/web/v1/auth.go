@@ -91,7 +91,7 @@ func (c *Auth) Register(ctx *ichat.Context) error {
 		return ctx.InvalidParams("短信验证码填写错误！")
 	}
 
-	if _, err := c.userService.Register(&service.UserRegisterOpt{
+	if _, err := c.userService.Register(ctx.Ctx(), &service.UserRegisterOpt{
 		Nickname: params.Nickname,
 		Mobile:   params.Mobile,
 		Password: params.Password,

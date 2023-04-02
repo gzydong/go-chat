@@ -58,21 +58,21 @@ type TalkSessionCreateOpt struct {
 }
 
 // Create 创建会话列表
-func (s *TalkSessionService) Create(ctx context.Context, opts *TalkSessionCreateOpt) (*model.TalkSession, error) {
+func (s *TalkSessionService) Create(ctx context.Context, opt *TalkSessionCreateOpt) (*model.TalkSession, error) {
 
-	result, err := s.talkSession.FindByWhere(ctx, "talk_type = ? and user_id = ? and receiver_id = ?", opts.TalkType, opts.UserId, opts.ReceiverId)
+	result, err := s.talkSession.FindByWhere(ctx, "talk_type = ? and user_id = ? and receiver_id = ?", opt.TalkType, opt.UserId, opt.ReceiverId)
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, err
 	}
 
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		result = &model.TalkSession{
-			TalkType:   opts.TalkType,
-			UserId:     opts.UserId,
-			ReceiverId: opts.ReceiverId,
+			TalkType:   opt.TalkType,
+			UserId:     opt.UserId,
+			ReceiverId: opt.ReceiverId,
 		}
 
-		if opts.IsBoot {
+		if opt.IsBoot {
 			result.IsRobot = 1
 		}
 
@@ -82,7 +82,7 @@ func (s *TalkSessionService) Create(ctx context.Context, opts *TalkSessionCreate
 		result.IsDelete = 0
 		result.IsDisturb = 0
 
-		if opts.IsBoot {
+		if opt.IsBoot {
 			result.IsRobot = 1
 		}
 
@@ -105,11 +105,11 @@ type TalkSessionTopOpt struct {
 }
 
 // Top 会话置顶
-func (s *TalkSessionService) Top(ctx context.Context, opts *TalkSessionTopOpt) error {
+func (s *TalkSessionService) Top(ctx context.Context, opt *TalkSessionTopOpt) error {
 	_, err := s.talkSession.UpdateWhere(ctx, map[string]any{
-		"is_top":     strutil.BoolToInt(opts.Type == 1),
+		"is_top":     strutil.BoolToInt(opt.Type == 1),
 		"updated_at": time.Now(),
-	}, "id = ? and user_id = ?", opts.Id, opts.UserId)
+	}, "id = ? and user_id = ?", opt.Id, opt.UserId)
 	return err
 }
 
@@ -121,11 +121,11 @@ type TalkSessionDisturbOpt struct {
 }
 
 // Disturb 会话免打扰
-func (s *TalkSessionService) Disturb(ctx context.Context, opts *TalkSessionDisturbOpt) error {
+func (s *TalkSessionService) Disturb(ctx context.Context, opt *TalkSessionDisturbOpt) error {
 	_, err := s.talkSession.UpdateWhere(ctx, map[string]any{
-		"is_disturb": opts.IsDisturb,
+		"is_disturb": opt.IsDisturb,
 		"updated_at": time.Now(),
-	}, "user_id = ? and receiver_id = ? and talk_type = ?", opts.UserId, opts.ReceiverId, opts.TalkType)
+	}, "user_id = ? and receiver_id = ? and talk_type = ?", opt.UserId, opt.ReceiverId, opt.TalkType)
 	return err
 }
 

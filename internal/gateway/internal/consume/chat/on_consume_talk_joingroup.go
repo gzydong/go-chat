@@ -31,7 +31,7 @@ func (h *Handler) onConsumeTalkJoinGroup(ctx context.Context, body []byte) {
 		cids := h.clientStorage.GetUidFromClientIds(ctx, sid, socket.Session.Chat.Name(), strconv.Itoa(uid))
 
 		for _, cid := range cids {
-			opts := &cache.RoomOption{
+			opt := &cache.RoomOption{
 				Channel:  socket.Session.Chat.Name(),
 				RoomType: entity.RoomImGroup,
 				Number:   strconv.Itoa(data.Gid),
@@ -40,9 +40,9 @@ func (h *Handler) onConsumeTalkJoinGroup(ctx context.Context, body []byte) {
 			}
 
 			if data.Type == 2 {
-				_ = h.roomStorage.Del(ctx, opts)
+				_ = h.roomStorage.Del(ctx, opt)
 			} else {
-				_ = h.roomStorage.Add(ctx, opts)
+				_ = h.roomStorage.Add(ctx, opt)
 			}
 		}
 	}

@@ -29,20 +29,20 @@ type TalkMessageDeleteOpt struct {
 }
 
 // RemoveRecords 删除消息记录
-func (s *TalkService) RemoveRecords(ctx context.Context, opts *TalkMessageDeleteOpt) error {
+func (s *TalkService) RemoveRecords(ctx context.Context, opt *TalkMessageDeleteOpt) error {
 
 	// 需要删除的消息记录ID
-	ids := sliceutil.Unique(sliceutil.ParseIds(opts.RecordIds))
+	ids := sliceutil.Unique(sliceutil.ParseIds(opt.RecordIds))
 
 	// 查询的ids
 	findIds := make([]int64, 0)
 
-	if opts.TalkType == entity.ChatPrivateMode {
-		subQuery := s.Db().Where("user_id = ? and receiver_id = ?", opts.UserId, opts.ReceiverId).Or("user_id = ? and receiver_id = ?", opts.ReceiverId, opts.UserId)
+	if opt.TalkType == entity.ChatPrivateMode {
+		subQuery := s.Db().Where("user_id = ? and receiver_id = ?", opt.UserId, opt.ReceiverId).Or("user_id = ? and receiver_id = ?", opt.ReceiverId, opt.UserId)
 
 		s.Db().Model(&model.TalkRecords{}).Where("id in ?", ids).Where("talk_type = ?", entity.ChatPrivateMode).Where(subQuery).Pluck("id", &findIds)
 	} else {
-		if !s.groupMemberRepo.IsMember(ctx, opts.ReceiverId, opts.UserId, false) {
+		if !s.groupMemberRepo.IsMember(ctx, opt.ReceiverId, opt.UserId, false) {
 			return entity.ErrPermissionDenied
 		}
 
@@ -57,7 +57,7 @@ func (s *TalkService) RemoveRecords(ctx context.Context, opts *TalkMessageDelete
 	for _, val := range ids {
 		items = append(items, &model.TalkRecordsDelete{
 			RecordId:  val,
-			UserId:    opts.UserId,
+			UserId:    opt.UserId,
 			CreatedAt: time.Now(),
 		})
 	}

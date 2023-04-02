@@ -49,14 +49,14 @@ func (s *GroupNoticeService) Create(ctx context.Context, opt *GroupNoticeEditOpt
 }
 
 // Update 更新群公告
-func (s *GroupNoticeService) Update(ctx context.Context, opts *GroupNoticeEditOpt) error {
+func (s *GroupNoticeService) Update(ctx context.Context, opt *GroupNoticeEditOpt) error {
 	_, err := s.notice.UpdateWhere(ctx, map[string]any{
-		"title":      opts.Title,
-		"content":    opts.Content,
-		"is_top":     opts.IsTop,
-		"is_confirm": opts.IsConfirm,
+		"title":      opt.Title,
+		"content":    opt.Content,
+		"is_top":     opt.IsTop,
+		"is_confirm": opt.IsConfirm,
 		"updated_at": time.Now(),
-	}, "id = ? and group_id = ?", opts.NoticeId, opts.GroupId)
+	}, "id = ? and group_id = ?", opt.NoticeId, opt.GroupId)
 	return err
 }
 

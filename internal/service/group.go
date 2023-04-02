@@ -43,7 +43,7 @@ type CreateGroupOpt struct {
 }
 
 // Create 创建群聊
-func (s *GroupService) Create(ctx context.Context, opts *CreateGroupOpt) (int, error) {
+func (s *GroupService) Create(ctx context.Context, opt *CreateGroupOpt) (int, error) {
 	var (
 		err      error
 		members  []*model.GroupMember
@@ -51,13 +51,13 @@ func (s *GroupService) Create(ctx context.Context, opts *CreateGroupOpt) (int, e
 	)
 
 	// 群成员用户ID
-	uids := sliceutil.Unique(append(opts.MemberIds, opts.UserId))
+	uids := sliceutil.Unique(append(opt.MemberIds, opt.UserId))
 
 	group := &model.Group{
-		CreatorId: opts.UserId,
-		Name:      opts.Name,
-		Profile:   opts.Profile,
-		Avatar:    opts.Avatar,
+		CreatorId: opt.UserId,
+		Name:      opt.Name,
+		Profile:   opt.Profile,
+		Avatar:    opt.Avatar,
 		MaxNum:    model.GroupMemberMaxNum,
 	}
 
@@ -70,7 +70,7 @@ func (s *GroupService) Create(ctx context.Context, opts *CreateGroupOpt) (int, e
 
 		for _, val := range uids {
 			leader := 0
-			if opts.UserId == val {
+			if opt.UserId == val {
 				leader = 2
 			}
 
@@ -133,12 +133,12 @@ type UpdateGroupOpt struct {
 }
 
 // Update 更新群信息
-func (s *GroupService) Update(ctx context.Context, opts *UpdateGroupOpt) error {
+func (s *GroupService) Update(ctx context.Context, opt *UpdateGroupOpt) error {
 
-	_, err := s.group.UpdateById(ctx, opts.GroupId, map[string]any{
-		"group_name": opts.Name,
-		"avatar":     opts.Avatar,
-		"profile":    opts.Profile,
+	_, err := s.group.UpdateById(ctx, opt.GroupId, map[string]any{
+		"group_name": opt.Name,
+		"avatar":     opt.Avatar,
+		"profile":    opt.Profile,
 	})
 
 	return err

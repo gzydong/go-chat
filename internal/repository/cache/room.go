@@ -54,8 +54,8 @@ func (r *RoomStorage) BatchAdd(ctx context.Context, opts []*RoomOption) error {
 }
 
 // Del 删除房间成员
-func (r *RoomStorage) Del(ctx context.Context, opts *RoomOption) error {
-	return r.redis.SRem(ctx, r.name(opts), opts.Cid).Err()
+func (r *RoomStorage) Del(ctx context.Context, opt *RoomOption) error {
+	return r.redis.SRem(ctx, r.name(opt), opt.Cid).Err()
 }
 
 func (r *RoomStorage) BatchDel(ctx context.Context, opts []*RoomOption) error {
@@ -70,9 +70,9 @@ func (r *RoomStorage) BatchDel(ctx context.Context, opts []*RoomOption) error {
 }
 
 // All 获取所有房间成员
-func (r *RoomStorage) All(ctx context.Context, opts *RoomOption) []int64 {
+func (r *RoomStorage) All(ctx context.Context, opt *RoomOption) []int64 {
 
-	arr := r.redis.SMembers(ctx, r.name(opts)).Val()
+	arr := r.redis.SMembers(ctx, r.name(opt)).Val()
 
 	cids := make([]int64, 0, len(arr))
 	for _, val := range arr {
@@ -85,6 +85,6 @@ func (r *RoomStorage) All(ctx context.Context, opts *RoomOption) []int64 {
 }
 
 // 获取房间名 [ws:sid:room:房间类型:房间号]
-func (r *RoomStorage) name(opts *RoomOption) string {
-	return fmt.Sprintf("ws:%s:%s:%s", opts.Sid, opts.RoomType, opts.Number)
+func (r *RoomStorage) name(opt *RoomOption) string {
+	return fmt.Sprintf("ws:%s:%s:%s", opt.Sid, opt.RoomType, opt.Number)
 }

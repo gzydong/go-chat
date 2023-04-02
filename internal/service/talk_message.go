@@ -620,7 +620,7 @@ func (m *MessageService) Vote(ctx context.Context, uid int, recordId int, option
 }
 
 // 发送消息后置处理
-func (m *MessageService) afterHandle(ctx context.Context, record *model.TalkRecords, opts map[string]string) {
+func (m *MessageService) afterHandle(ctx context.Context, record *model.TalkRecords, opt map[string]string) {
 
 	if record.TalkType == entity.ChatPrivateMode {
 		m.unreadStorage.Incr(ctx, entity.ChatPrivateMode, record.UserId, record.ReceiverId)
@@ -638,7 +638,7 @@ func (m *MessageService) afterHandle(ctx context.Context, record *model.TalkReco
 	}
 
 	_ = m.messageStorage.Set(ctx, record.TalkType, record.UserId, record.ReceiverId, &cache.LastCacheMessage{
-		Content:  opts["text"],
+		Content:  opt["text"],
 		Datetime: timeutil.DateTime(),
 	})
 

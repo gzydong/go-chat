@@ -133,7 +133,7 @@ func (c *Article) Edit(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	opts := &note.ArticleEditOpt{
+	opt := &note.ArticleEditOpt{
 		UserId:    uid,
 		ArticleId: int(params.ArticleId),
 		ClassId:   int(params.ClassId),
@@ -143,12 +143,12 @@ func (c *Article) Edit(ctx *ichat.Context) error {
 	}
 
 	if params.ArticleId == 0 {
-		id, err := c.articleService.Create(ctx.Ctx(), opts)
+		id, err := c.articleService.Create(ctx.Ctx(), opt)
 		if err == nil {
 			params.ArticleId = int32(id)
 		}
 	} else {
-		err = c.articleService.Update(ctx.Ctx(), opts)
+		err = c.articleService.Update(ctx.Ctx(), opt)
 	}
 
 	if err != nil {

@@ -26,7 +26,7 @@ func NewMessage(talkService *service.TalkService, talkAuthService *service.TalkA
 	return &Message{talkService: talkService, talkAuthService: talkAuthService, messageService: messageService, filesystem: filesystem}
 }
 
-type AuthorityOpts struct {
+type AuthorityOption struct {
 	TalkType   int // 对话类型
 	UserId     int // 发送者ID
 	ReceiverId int // 接收者ID

@@ -82,31 +82,31 @@ type MultipartUploadOpt struct {
 	File       *multipart.FileHeader
 }
 
-func (s *SplitUploadService) MultipartUpload(ctx context.Context, opts *MultipartUploadOpt) error {
+func (s *SplitUploadService) MultipartUpload(ctx context.Context, opt *MultipartUploadOpt) error {
 
-	info, err := s.splitUpload.FindByWhere(ctx, "upload_id = ? and type = 1", opts.UploadId)
+	info, err := s.splitUpload.FindByWhere(ctx, "upload_id = ? and type = 1", opt.UploadId)
 	if err != nil {
 		return err
 	}
 
-	stream, err := filesystem.ReadMultipartStream(opts.File)
+	stream, err := filesystem.ReadMultipartStream(opt.File)
 	if err != nil {
 		return err
 	}
 
-	dirPath := fmt.Sprintf("private/tmp/%s/%s/%d-%s.tmp", timeutil.DateNumber(), encrypt.Md5(opts.UploadId), opts.SplitIndex, opts.UploadId)
+	dirPath := fmt.Sprintf("private/tmp/%s/%s/%d-%s.tmp", timeutil.DateNumber(), encrypt.Md5(opt.UploadId), opt.SplitIndex, opt.UploadId)
 
 	data := &model.SplitUpload{
 		Type:         2,
 		Drive:        info.Drive,
-		UserId:       opts.UserId,
-		UploadId:     opts.UploadId,
+		UserId:       opt.UserId,
+		UploadId:     opt.UploadId,
 		OriginalName: info.OriginalName,
-		SplitIndex:   opts.SplitIndex,
-		SplitNum:     opts.SplitNum,
+		SplitIndex:   opt.SplitIndex,
+		SplitNum:     opt.SplitNum,
 		Path:         dirPath,
 		FileExt:      info.FileExt,
-		FileSize:     opts.File.Size,
+		FileSize:     opt.File.Size,
 		Attr:         "{}",
 	}
 
@@ -132,7 +132,7 @@ func (s *SplitUploadService) MultipartUpload(ctx context.Context, opts *Multipar
 	}
 
 	// 判断是否为最后一个分片上传
-	if opts.SplitNum == opts.SplitIndex+1 {
+	if opt.SplitNum == opt.SplitIndex+1 {
 		err = s.merge(info)
 	}
 

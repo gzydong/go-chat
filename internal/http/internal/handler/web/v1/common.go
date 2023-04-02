@@ -29,13 +29,13 @@ func (c *Common) SmsCode(ctx *ichat.Context) error {
 	switch params.Channel {
 	// 需要判断账号是否存在
 	case entity.SmsLoginChannel, entity.SmsForgetAccountChannel:
-		if !c.userService.Dao().IsMobileExist(params.Mobile) {
+		if !c.userService.Dao().IsMobileExist(ctx.Ctx(), params.Mobile) {
 			return ctx.ErrorBusiness("账号不存在或密码错误！")
 		}
 
 	// 需要判断账号是否存在
 	case entity.SmsRegisterChannel, entity.SmsChangeAccountChannel:
-		if c.userService.Dao().IsMobileExist(params.Mobile) {
+		if c.userService.Dao().IsMobileExist(ctx.Ctx(), params.Mobile) {
 			return ctx.ErrorBusiness("手机号已被他人使用！")
 		}
 

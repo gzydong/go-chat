@@ -37,12 +37,12 @@ func (u *Users) FindByMobile(mobile string) (*model.Users, error) {
 }
 
 // IsMobileExist 判断手机号是否存在
-func (u *Users) IsMobileExist(mobile string) bool {
+func (u *Users) IsMobileExist(ctx context.Context, mobile string) bool {
 
 	if len(mobile) == 0 {
 		return false
 	}
 
-	exist, _ := u.QueryExist(context.TODO(), "mobile = ?", mobile)
+	exist, _ := u.QueryExist(ctx, "mobile = ?", mobile)
 	return exist
 }

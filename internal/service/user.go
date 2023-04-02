@@ -30,15 +30,15 @@ type UserRegisterOpt struct {
 }
 
 // Register 注册用户
-func (s *UserService) Register(opts *UserRegisterOpt) (*model.Users, error) {
-	if s.users.IsMobileExist(opts.Mobile) {
+func (s *UserService) Register(ctx context.Context, opt *UserRegisterOpt) (*model.Users, error) {
+	if s.users.IsMobileExist(ctx, opt.Mobile) {
 		return nil, errors.New("账号已存在! ")
 	}
 
 	return s.users.Create(&model.Users{
-		Mobile:   opts.Mobile,
-		Nickname: opts.Nickname,
-		Password: encrypt.HashPassword(opts.Password),
+		Mobile:   opt.Mobile,
+		Nickname: opt.Nickname,
+		Password: encrypt.HashPassword(opt.Password),
 	})
 }
 
@@ -69,15 +69,15 @@ type UserForgetOpt struct {
 }
 
 // Forget 账号找回
-func (s *UserService) Forget(opts *UserForgetOpt) (bool, error) {
+func (s *UserService) Forget(opt *UserForgetOpt) (bool, error) {
 
-	user, err := s.users.FindByMobile(opts.Mobile)
+	user, err := s.users.FindByMobile(opt.Mobile)
 	if err != nil || user.Id == 0 {
 		return false, errors.New("账号不存在! ")
 	}
 
 	affected, err := s.users.UpdateById(context.TODO(), user.Id, map[string]any{
-		"password": encrypt.HashPassword(opts.Password),
+		"password": encrypt.HashPassword(opt.Password),
 	})
 
 	return affected > 0, err
