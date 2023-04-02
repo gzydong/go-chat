@@ -17,22 +17,26 @@ func NewSmsStorage(rds *redis.Client) *SmsStorage {
 	return &SmsStorage{redis: rds}
 }
 
-func (c *SmsStorage) Set(ctx context.Context, channel string, mobile string, code string, exp time.Duration) error {
-	c.redis.Del(ctx, c.failName(channel, mobile))
-	return c.redis.Set(ctx, c.name(channel, mobile), code, exp).Err()
+func (s *SmsStorage) Set(ctx context.Context, channel string, mobile string, code string, exp time.Duration) error {
+	_, err := s.redis.Pipelined(ctx, func(pipe redis.Pipeliner) error {
+		pipe.Del(ctx, s.failName(channel, mobile))
+		pipe.Set(ctx, s.name(channel, mobile), code, exp)
+		return nil
+	})
+	return err
 }
 
-func (c *SmsStorage) Get(ctx context.Context, channel string, mobile string) (string, error) {
-	return c.redis.Get(ctx, c.name(channel, mobile)).Result()
+func (s *SmsStorage) Get(ctx context.Context, channel string, mobile string) (string, error) {
+	return s.redis.Get(ctx, s.name(channel, mobile)).Result()
 }
 
-func (c *SmsStorage) Del(ctx context.Context, channel string, mobile string) error {
-	return c.redis.Del(ctx, c.name(channel, mobile)).Err()
+func (s *SmsStorage) Del(ctx context.Context, channel string, mobile string) error {
+	return s.redis.Del(ctx, s.name(channel, mobile)).Err()
 }
 
-func (c *SmsStorage) Verify(ctx context.Context, channel string, mobile string, code string) bool {
+func (s *SmsStorage) Verify(ctx context.Context, channel string, mobile string, code string) bool {
 
-	value, err := c.Get(ctx, channel, mobile)
+	value, err := s.Get(ctx, channel, mobile)
 	if err != nil {
 		return false
 	}
@@ -42,21 +46,24 @@ func (c *SmsStorage) Verify(ctx context.Context, channel string, mobile string, 
 	}
 
 	// 3分钟内同一个手机号验证码错误次数超过5次，删除验证码
-	num := c.redis.Incr(ctx, c.failName(channel, mobile)).Val()
+	num := s.redis.Incr(ctx, s.failName(channel, mobile)).Val()
 	if num >= 5 {
-		_ = c.Del(ctx, channel, mobile)
-		c.redis.Del(ctx, c.failName(channel, mobile))
+		_, _ = s.redis.Pipelined(ctx, func(pipe redis.Pipeliner) error {
+			pipe.Del(ctx, s.name(channel, mobile))
+			pipe.Del(ctx, s.failName(channel, mobile))
+			return nil
+		})
 	} else if num == 1 {
-		c.redis.Expire(ctx, c.failName(channel, mobile), 3*time.Minute)
+		s.redis.Expire(ctx, s.failName(channel, mobile), 3*time.Minute)
 	}
 
 	return false
 }
 
-func (c *SmsStorage) name(channel string, mobile string) string {
+func (s *SmsStorage) name(channel string, mobile string) string {
 	return fmt.Sprintf("sms:%s:%s", channel, encrypt.Md5(mobile))
 }
 
-func (c *SmsStorage) failName(channel string, mobile string) string {
+func (s *SmsStorage) failName(channel string, mobile string) string {
 	return fmt.Sprintf("sms:verify_fail:%s:%s", channel, encrypt.Md5(mobile))
 }

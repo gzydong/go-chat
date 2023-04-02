@@ -21,10 +21,10 @@ func (s *ContactService) Dao() *repo.Contact {
 	return s.contact
 }
 
-// EditRemark 编辑联系人备注
+// UpdateRemark 编辑联系人备注
 // @params uid      用户ID
 // @params friendId 联系人ID
-func (s *ContactService) EditRemark(ctx context.Context, uid int, friendId int, remark string) error {
+func (s *ContactService) UpdateRemark(ctx context.Context, uid int, friendId int, remark string) error {
 
 	_, err := s.contact.UpdateWhere(ctx, map[string]any{"remark": remark}, "user_id = ? and friend_id = ?", uid, friendId)
 	if err == nil {

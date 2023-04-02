@@ -11,7 +11,7 @@ import (
 const lastMessageCacheKey = "redis:hash:last-message"
 
 type MessageStorage struct {
-	rds *redis.Client
+	redis *redis.Client
 }
 
 type LastCacheMessage struct {
@@ -26,12 +26,12 @@ func NewMessageStorage(rds *redis.Client) *MessageStorage {
 func (m *MessageStorage) Set(ctx context.Context, talkType int, sender int, receive int, message *LastCacheMessage) error {
 	text := jsonutil.Encode(message)
 
-	return m.rds.HSet(ctx, lastMessageCacheKey, m.name(talkType, sender, receive), text).Err()
+	return m.redis.HSet(ctx, lastMessageCacheKey, m.name(talkType, sender, receive), text).Err()
 }
 
 func (m *MessageStorage) Get(ctx context.Context, talkType int, sender int, receive int) (*LastCacheMessage, error) {
 
-	res, err := m.rds.HGet(ctx, lastMessageCacheKey, m.name(talkType, sender, receive)).Result()
+	res, err := m.redis.HGet(ctx, lastMessageCacheKey, m.name(talkType, sender, receive)).Result()
 	if err != nil {
 		return nil, err
 	}
@@ -46,7 +46,7 @@ func (m *MessageStorage) Get(ctx context.Context, talkType int, sender int, rece
 
 func (m *MessageStorage) MGet(ctx context.Context, fields []string) ([]*LastCacheMessage, error) {
 
-	res := m.rds.HMGet(ctx, lastMessageCacheKey, fields...)
+	res := m.redis.HMGet(ctx, lastMessageCacheKey, fields...)
 
 	items := make([]*LastCacheMessage, 0)
 	for _, item := range res.Val() {

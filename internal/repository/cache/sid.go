@@ -51,12 +51,12 @@ func (s *ServerStorage) All(ctx context.Context, status int) []string {
 		slice = make([]string, 0)
 	)
 
-	result, err := s.redis.HGetAll(ctx, ServerKey).Result()
+	all, err := s.redis.HGetAll(ctx, ServerKey).Result()
 	if err != nil {
 		return slice
 	}
 
-	for key, val := range result {
+	for key, val := range all {
 		value, err := strconv.Atoi(val)
 		if err != nil {
 			continue

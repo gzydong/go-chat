@@ -9,35 +9,35 @@ import (
 )
 
 type Relation struct {
-	rds *redis.Client
+	redis *redis.Client
 }
 
 func NewRelation(rds *redis.Client) *Relation {
-	return &Relation{rds: rds}
+	return &Relation{redis: rds}
 }
 
 func (r *Relation) IsContactRelation(ctx context.Context, uid, uid2 int) error {
-	return r.rds.Get(ctx, r.keyContactRelation(uid, uid2)).Err()
+	return r.redis.Get(ctx, r.keyContactRelation(uid, uid2)).Err()
 }
 
 func (r *Relation) SetContactRelation(ctx context.Context, uid, uid2 int) {
-	r.rds.SetEx(ctx, r.keyContactRelation(uid, uid2), "1", time.Hour*1)
+	r.redis.SetEx(ctx, r.keyContactRelation(uid, uid2), "1", time.Hour*1)
 }
 
 func (r *Relation) DelContactRelation(ctx context.Context, uid, uid2 int) {
-	r.rds.Del(ctx, r.keyContactRelation(uid, uid2))
+	r.redis.Del(ctx, r.keyContactRelation(uid, uid2))
 }
 
 func (r *Relation) IsGroupRelation(ctx context.Context, uid, gid int) error {
-	return r.rds.Get(ctx, r.keyGroupRelation(uid, gid)).Err()
+	return r.redis.Get(ctx, r.keyGroupRelation(uid, gid)).Err()
 }
 
 func (r *Relation) SetGroupRelation(ctx context.Context, uid, gid int) {
-	r.rds.SetEx(ctx, r.keyGroupRelation(uid, gid), "1", time.Hour*1)
+	r.redis.SetEx(ctx, r.keyGroupRelation(uid, gid), "1", time.Hour*1)
 }
 
 func (r *Relation) DelGroupRelation(ctx context.Context, uid, gid int) {
-	r.rds.Del(ctx, r.keyGroupRelation(uid, gid))
+	r.redis.Del(ctx, r.keyGroupRelation(uid, gid))
 }
 
 func (r *Relation) BatchDelGroupRelation(ctx context.Context, uids []int, gid int) {

@@ -120,7 +120,7 @@ func (c *Contact) EditRemark(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	if err := c.contactService.EditRemark(ctx.Ctx(), ctx.UserId(), int(params.FriendId), params.Remark); err != nil {
+	if err := c.contactService.UpdateRemark(ctx.Ctx(), ctx.UserId(), int(params.FriendId), params.Remark); err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}
 
@@ -168,7 +168,7 @@ func (c *Contact) Detail(ctx *ichat.Context) error {
 		if err == nil && contact.Status == 1 {
 			data.FriendStatus = 2
 			data.GroupId = int32(contact.GroupId)
-			data.NicknameRemark = contact.Remark
+			data.Remark = contact.Remark
 		} else {
 			isOk, _ := c.organizeService.Dao().IsQiyeMember(ctx.Ctx(), uid, user.Id)
 			if isOk {

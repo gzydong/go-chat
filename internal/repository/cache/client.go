@@ -23,11 +23,11 @@ func NewClientStorage(redis *redis.Client, config *config.Config, storage *Serve
 // @params channel  渠道分组
 // @params fd       客户端连接ID
 // @params id       用户ID
-func (w *ClientStorage) Set(ctx context.Context, channel string, fd string, uid int) error {
-	sid := w.config.ServerId()
-	_, err := w.redis.Pipelined(ctx, func(pipe redis.Pipeliner) error {
-		pipe.HSet(ctx, w.clientKey(sid, channel), fd, uid)
-		pipe.SAdd(ctx, w.userKey(sid, channel, strconv.Itoa(uid)), fd)
+func (c *ClientStorage) Set(ctx context.Context, channel string, fd string, uid int) error {
+	sid := c.config.ServerId()
+	_, err := c.redis.Pipelined(ctx, func(pipe redis.Pipeliner) error {
+		pipe.HSet(ctx, c.clientKey(sid, channel), fd, uid)
+		pipe.SAdd(ctx, c.userKey(sid, channel, strconv.Itoa(uid)), fd)
 		return nil
 	})
 	return err
@@ -36,13 +36,13 @@ func (w *ClientStorage) Set(ctx context.Context, channel string, fd string, uid 
 // Del 删除客户端与用户绑定关系
 // @params channel  渠道分组
 // @params fd       客户端连接ID
-func (w *ClientStorage) Del(ctx context.Context, channel, fd string) error {
-	sid := w.config.ServerId()
-	key := w.clientKey(sid, channel)
-	uid, _ := w.redis.HGet(ctx, key, fd).Result()
-	_, err := w.redis.Pipelined(ctx, func(pipe redis.Pipeliner) error {
+func (c *ClientStorage) Del(ctx context.Context, channel, fd string) error {
+	sid := c.config.ServerId()
+	key := c.clientKey(sid, channel)
+	uid, _ := c.redis.HGet(ctx, key, fd).Result()
+	_, err := c.redis.Pipelined(ctx, func(pipe redis.Pipeliner) error {
 		pipe.HDel(ctx, key, fd)
-		pipe.SRem(ctx, w.userKey(sid, channel, uid), fd)
+		pipe.SRem(ctx, c.userKey(sid, channel, uid), fd)
 		return nil
 	})
 	return err
@@ -51,9 +51,9 @@ func (w *ClientStorage) Del(ctx context.Context, channel, fd string) error {
 // IsOnline 判断客户端是否在线[所有部署机器]
 // @params channel  渠道分组
 // @params uid      用户ID
-func (w *ClientStorage) IsOnline(ctx context.Context, channel, uid string) bool {
-	for _, sid := range w.storage.All(ctx, 1) {
-		if w.IsCurrentServerOnline(ctx, sid, channel, uid) {
+func (c *ClientStorage) IsOnline(ctx context.Context, channel, uid string) bool {
+	for _, sid := range c.storage.All(ctx, 1) {
+		if c.IsCurrentServerOnline(ctx, sid, channel, uid) {
 			return true
 		}
 	}
@@ -65,8 +65,8 @@ func (w *ClientStorage) IsOnline(ctx context.Context, channel, uid string) bool 
 // @params sid      服务ID
 // @params channel  渠道分组
 // @params uid      用户ID
-func (w *ClientStorage) IsCurrentServerOnline(ctx context.Context, sid, channel, uid string) bool {
-	val, err := w.redis.SCard(ctx, w.userKey(sid, channel, uid)).Result()
+func (c *ClientStorage) IsCurrentServerOnline(ctx context.Context, sid, channel, uid string) bool {
+	val, err := c.redis.SCard(ctx, c.userKey(sid, channel, uid)).Result()
 
 	return err == nil && val > 0
 }
@@ -75,10 +75,10 @@ func (w *ClientStorage) IsCurrentServerOnline(ctx context.Context, sid, channel,
 // @params sid      服务ID
 // @params channel  渠道分组
 // @params uid      用户ID
-func (w *ClientStorage) GetUidFromClientIds(ctx context.Context, sid, channel, uid string) []int64 {
+func (c *ClientStorage) GetUidFromClientIds(ctx context.Context, sid, channel, uid string) []int64 {
 	cids := make([]int64, 0)
 
-	items, err := w.redis.SMembers(ctx, w.userKey(sid, channel, uid)).Result()
+	items, err := c.redis.SMembers(ctx, c.userKey(sid, channel, uid)).Result()
 	if err != nil {
 		return cids
 	}
@@ -96,8 +96,8 @@ func (w *ClientStorage) GetUidFromClientIds(ctx context.Context, sid, channel, u
 // @params sid     服务节点ID
 // @params channel 渠道分组
 // @params cid     客户端ID
-func (w *ClientStorage) GetClientIdFromUid(ctx context.Context, sid, channel, cid string) (int64, error) {
-	uid, err := w.redis.HGet(ctx, w.clientKey(sid, channel), cid).Result()
+func (c *ClientStorage) GetClientIdFromUid(ctx context.Context, sid, channel, cid string) (int64, error) {
+	uid, err := c.redis.HGet(ctx, c.clientKey(sid, channel), cid).Result()
 	if err != nil {
 		return 0, err
 	}
@@ -105,18 +105,18 @@ func (w *ClientStorage) GetClientIdFromUid(ctx context.Context, sid, channel, ci
 	return strconv.ParseInt(uid, 10, 64)
 }
 
-func (w *ClientStorage) Bind(ctx context.Context, channel string, clientId int64, uid int) error {
-	return w.Set(ctx, channel, strconv.FormatInt(clientId, 10), uid)
+func (c *ClientStorage) Bind(ctx context.Context, channel string, clientId int64, uid int) error {
+	return c.Set(ctx, channel, strconv.FormatInt(clientId, 10), uid)
 }
 
-func (w *ClientStorage) UnBind(ctx context.Context, channel string, clientId int64) error {
-	return w.Del(ctx, channel, strconv.FormatInt(clientId, 10))
+func (c *ClientStorage) UnBind(ctx context.Context, channel string, clientId int64) error {
+	return c.Del(ctx, channel, strconv.FormatInt(clientId, 10))
 }
 
-func (w *ClientStorage) clientKey(sid, channel string) string {
+func (c *ClientStorage) clientKey(sid, channel string) string {
 	return fmt.Sprintf("ws:%s:channel:%s:redis", sid, channel)
 }
 
-func (w *ClientStorage) userKey(sid, channel, uid string) string {
+func (c *ClientStorage) userKey(sid, channel, uid string) string {
 	return fmt.Sprintf("ws:%s:channel:%s:user:%s", sid, channel, uid)
 }

@@ -59,13 +59,14 @@ message ContactDetailResponse{
   int32 id = 1;
   string mobile = 2;
   string nickname = 3;
-  string nickname_remark = 4;
+  string remark = 4;
   string avatar = 5;
   int32 gender = 6;
   string motto = 7;
   int32 friend_apply = 8;
   int32 friend_status = 9;
   int32 group_id = 10;
+  int32 email = 11;
 }
 
 // 联系人搜索接口请求参数

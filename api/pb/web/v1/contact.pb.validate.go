@@ -819,7 +819,7 @@ func (m *ContactDetailResponse) validate(all bool) error {
 
 	// no validation rules for Nickname
 
-	// no validation rules for NicknameRemark
+	// no validation rules for Remark
 
 	// no validation rules for Avatar
 
@@ -832,6 +832,8 @@ func (m *ContactDetailResponse) validate(all bool) error {
 	// no validation rules for FriendStatus
 
 	// no validation rules for GroupId
+
+	// no validation rules for Email
 
 	if len(errors) > 0 {
 		return ContactDetailResponseMultiError(errors)
