@@ -462,11 +462,7 @@ func (s *GroupService) RemoveMembers(ctx context.Context, opt *RemoveMembersOpt)
 			return err
 		}
 
-		if err = tx.Create(record).Error; err != nil {
-			return err
-		}
-
-		return nil
+		return tx.Create(record).Error
 	})
 
 	// 推送消息

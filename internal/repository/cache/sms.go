@@ -37,7 +37,7 @@ func (s *SmsStorage) Del(ctx context.Context, channel string, mobile string) err
 func (s *SmsStorage) Verify(ctx context.Context, channel string, mobile string, code string) bool {
 
 	value, err := s.Get(ctx, channel, mobile)
-	if err != nil {
+	if err != nil || len(value) == 0 {
 		return false
 	}
 
@@ -61,9 +61,9 @@ func (s *SmsStorage) Verify(ctx context.Context, channel string, mobile string, 
 }
 
 func (s *SmsStorage) name(channel string, mobile string) string {
-	return fmt.Sprintf("sms:%s:%s", channel, encrypt.Md5(mobile))
+	return fmt.Sprintf("im:auth:sms:%s:%s", channel, encrypt.Md5(mobile))
 }
 
 func (s *SmsStorage) failName(channel string, mobile string) string {
-	return fmt.Sprintf("sms:verify_fail:%s:%s", channel, encrypt.Md5(mobile))
+	return fmt.Sprintf("im:auth:sms_fail:%s:%s", channel, encrypt.Md5(mobile))
 }

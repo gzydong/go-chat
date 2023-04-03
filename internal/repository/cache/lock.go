@@ -33,7 +33,6 @@ func (r *RedisLock) UnLock(ctx context.Context, name string) bool {
 	return r.redis.Eval(ctx, script, []string{r.name(name)}, 1).Err() == nil
 }
 
-// 获取锁名
 func (r *RedisLock) name(name string) string {
-	return fmt.Sprintf("im:r:%s", name)
+	return fmt.Sprintf("im:lock:%s", name)
 }

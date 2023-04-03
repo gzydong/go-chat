@@ -67,7 +67,6 @@ func (c *ClientStorage) IsOnline(ctx context.Context, channel, uid string) bool 
 // @params uid      用户ID
 func (c *ClientStorage) IsCurrentServerOnline(ctx context.Context, sid, channel, uid string) bool {
 	val, err := c.redis.SCard(ctx, c.userKey(sid, channel, uid)).Result()
-
 	return err == nil && val > 0
 }
 
@@ -114,9 +113,9 @@ func (c *ClientStorage) UnBind(ctx context.Context, channel string, clientId int
 }
 
 func (c *ClientStorage) clientKey(sid, channel string) string {
-	return fmt.Sprintf("ws:%s:channel:%s:redis", sid, channel)
+	return fmt.Sprintf("ws:%s:%s:client", sid, channel)
 }
 
 func (c *ClientStorage) userKey(sid, channel, uid string) string {
-	return fmt.Sprintf("ws:%s:channel:%s:user:%s", sid, channel, uid)
+	return fmt.Sprintf("ws:%s:%s:user:%s", sid, channel, uid)
 }
