@@ -50,7 +50,6 @@ func (m *MessageStorage) MGet(ctx context.Context, fields []string) ([]*LastCach
 
 	items := make([]*LastCacheMessage, 0)
 	for _, item := range res.Val() {
-
 		if val, ok := item.(string); ok {
 			msg := &LastCacheMessage{}
 			if err := jsonutil.Decode(val, msg); err != nil {

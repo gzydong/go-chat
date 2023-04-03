@@ -38,7 +38,6 @@ func (u *UnreadStorage) PipeIncr(ctx context.Context, pipe redis.Pipeliner, mode
 // @params receive 接收者ID
 func (u *UnreadStorage) Get(ctx context.Context, mode, sender, receive int) int {
 	val, _ := u.redis.HGet(ctx, u.name(receive), fmt.Sprintf("%d_%d", mode, sender)).Int()
-
 	return val
 }
 

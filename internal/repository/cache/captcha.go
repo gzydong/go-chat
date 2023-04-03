@@ -21,7 +21,6 @@ func (c *CaptchaStorage) Set(id string, value string) error {
 }
 
 func (c *CaptchaStorage) Get(id string, clear bool) string {
-
 	value := c.redis.Get(context.TODO(), c.name(id)).Val()
 	if clear && len(value) > 0 {
 		c.redis.Del(context.TODO(), c.name(id))
@@ -31,7 +30,6 @@ func (c *CaptchaStorage) Get(id string, clear bool) string {
 }
 
 func (c *CaptchaStorage) Verify(id, answer string, clear bool) bool {
-
 	value := c.redis.Get(context.TODO(), c.name(id)).Val()
 	if clear && len(value) > 0 {
 		c.redis.Del(context.TODO(), c.name(id))
