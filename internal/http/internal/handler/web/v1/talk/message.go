@@ -395,7 +395,7 @@ func (c *Message) Collect(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	if err := c.talkService.CollectRecord(ctx.Ctx(), ctx.UserId(), params.RecordId); err != nil {
+	if err := c.talkService.Collect(ctx.Ctx(), ctx.UserId(), params.RecordId); err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}
 
@@ -435,7 +435,7 @@ func (c *Message) Delete(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	if err := c.talkService.RemoveRecords(ctx.Ctx(), &service.TalkMessageDeleteOpt{
+	if err := c.talkService.DeleteRecordList(ctx.Ctx(), &service.RemoveRecordListOpt{
 		UserId:     ctx.UserId(),
 		TalkType:   params.TalkType,
 		ReceiverId: params.ReceiverId,

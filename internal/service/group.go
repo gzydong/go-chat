@@ -30,11 +30,11 @@ func NewGroupService(source *repo.Source, repo *repo.Group, member *repo.GroupMe
 	return &GroupService{Source: source, group: repo, member: member, relation: relation, sequence: sequence}
 }
 
-func (s *GroupService) Dao() *repo.Group {
-	return s.group
+func (g *GroupService) Dao() *repo.Group {
+	return g.group
 }
 
-type CreateGroupOpt struct {
+type GroupCreateOpt struct {
 	UserId    int    // 操作人ID
 	Name      string // 群名称
 	Avatar    string // 群头像
@@ -43,7 +43,7 @@ type CreateGroupOpt struct {
 }
 
 // Create 创建群聊
-func (s *GroupService) Create(ctx context.Context, opts *CreateGroupOpt) (int, error) {
+func (g *GroupService) Create(ctx context.Context, opt *GroupCreateOpt) (int, error) {
 	var (
 		err      error
 		members  []*model.GroupMember
@@ -51,26 +51,26 @@ func (s *GroupService) Create(ctx context.Context, opts *CreateGroupOpt) (int, e
 	)
 
 	// 群成员用户ID
-	uids := sliceutil.Unique(append(opts.MemberIds, opts.UserId))
+	uids := sliceutil.Unique(append(opt.MemberIds, opt.UserId))
 
 	group := &model.Group{
-		CreatorId: opts.UserId,
-		Name:      opts.Name,
-		Profile:   opts.Profile,
-		Avatar:    opts.Avatar,
+		CreatorId: opt.UserId,
+		Name:      opt.Name,
+		Profile:   opt.Profile,
+		Avatar:    opt.Avatar,
 		MaxNum:    model.GroupMemberMaxNum,
 	}
 
 	joinTime := time.Now()
 
-	err = s.Db().Transaction(func(tx *gorm.DB) error {
+	err = g.Db().Transaction(func(tx *gorm.DB) error {
 		if err = tx.Create(group).Error; err != nil {
 			return err
 		}
 
 		for _, val := range uids {
 			leader := 0
-			if opts.UserId == val {
+			if opt.UserId == val {
 				leader = 2
 			}
 
@@ -101,7 +101,7 @@ func (s *GroupService) Create(ctx context.Context, opts *CreateGroupOpt) (int, e
 			TalkType:   entity.ChatGroupMode,
 			ReceiverId: group.Id,
 			MsgType:    entity.MsgTypeGroupInvite,
-			Sequence:   s.sequence.Get(ctx, 0, group.Id),
+			Sequence:   g.sequence.Get(ctx, 0, group.Id),
 		}
 
 		if err = tx.Create(record).Error; err != nil {
@@ -120,12 +120,12 @@ func (s *GroupService) Create(ctx context.Context, opts *CreateGroupOpt) (int, e
 		}),
 	}
 
-	s.Redis().Publish(ctx, entity.ImTopicChat, jsonutil.Encode(body))
+	g.Redis().Publish(ctx, entity.ImTopicChat, jsonutil.Encode(body))
 
 	return group.Id, err
 }
 
-type UpdateGroupOpt struct {
+type GroupUpdateOpt struct {
 	GroupId int    // 群ID
 	Name    string // 群名称
 	Avatar  string // 群头像
@@ -133,27 +133,27 @@ type UpdateGroupOpt struct {
 }
 
 // Update 更新群信息
-func (s *GroupService) Update(ctx context.Context, opts *UpdateGroupOpt) error {
+func (g *GroupService) Update(ctx context.Context, opt *GroupUpdateOpt) error {
 
-	_, err := s.group.UpdateById(ctx, opts.GroupId, map[string]any{
-		"group_name": opts.Name,
-		"avatar":     opts.Avatar,
-		"profile":    opts.Profile,
+	_, err := g.group.UpdateById(ctx, opt.GroupId, map[string]any{
+		"group_name": opt.Name,
+		"avatar":     opt.Avatar,
+		"profile":    opt.Profile,
 	})
 
 	return err
 }
 
 // Dismiss 解散群组[群主权限]
-func (s *GroupService) Dismiss(ctx context.Context, groupId int, uid int) error {
-	err := s.Db().WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+func (g *GroupService) Dismiss(ctx context.Context, groupId int, uid int) error {
+	err := g.Db().WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		if err := tx.Model(&model.Group{Id: groupId, CreatorId: uid}).Updates(&model.Group{
 			IsDismiss: 1,
 		}).Error; err != nil {
 			return err
 		}
 
-		if err := s.Db().Model(&model.GroupMember{}).Where("group_id = ?", groupId).Updates(&model.GroupMember{
+		if err := g.Db().Model(&model.GroupMember{}).Where("group_id = ?", groupId).Updates(&model.GroupMember{
 			IsQuit: 1,
 		}).Error; err != nil {
 			return err
@@ -166,10 +166,10 @@ func (s *GroupService) Dismiss(ctx context.Context, groupId int, uid int) error 
 }
 
 // Secede 退出群组[仅管理员及群成员]
-func (s *GroupService) Secede(ctx context.Context, groupId int, uid int) error {
+func (g *GroupService) Secede(ctx context.Context, groupId int, uid int) error {
 
 	var info model.GroupMember
-	if err := s.Db().Where("group_id = ? AND user_id = ? and is_quit = 0", groupId, uid).First(&info).Error; err != nil {
+	if err := g.Db().Where("group_id = ? AND user_id = ? and is_quit = 0", groupId, uid).First(&info).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return errors.New("数据不存在！")
 		}
@@ -182,7 +182,7 @@ func (s *GroupService) Secede(ctx context.Context, groupId int, uid int) error {
 	}
 
 	var user model.Users
-	err := s.Db().Table("users").Select("id,nickname").Where("id = ?", uid).First(&user).Error
+	err := g.Db().Table("users").Select("id,nickname").Where("id = ?", uid).First(&user).Error
 	if err != nil {
 		return err
 	}
@@ -192,7 +192,7 @@ func (s *GroupService) Secede(ctx context.Context, groupId int, uid int) error {
 		TalkType:   entity.ChatGroupMode,
 		ReceiverId: groupId,
 		MsgType:    entity.MsgTypeGroupInvite,
-		Sequence:   s.sequence.Get(ctx, 0, groupId),
+		Sequence:   g.sequence.Get(ctx, 0, groupId),
 		Extra: jsonutil.Encode(&model.TalkRecordExtraGroupJoin{
 			Action: 3,
 			Operator: map[string]any{
@@ -203,7 +203,7 @@ func (s *GroupService) Secede(ctx context.Context, groupId int, uid int) error {
 		}),
 	}
 
-	err = s.Db().Transaction(func(tx *gorm.DB) error {
+	err = g.Db().Transaction(func(tx *gorm.DB) error {
 		err := tx.Model(&model.GroupMember{}).Where("group_id = ? AND user_id = ?", groupId, uid).Updates(&model.GroupMember{
 			IsQuit: 1,
 		}).Error
@@ -222,9 +222,9 @@ func (s *GroupService) Secede(ctx context.Context, groupId int, uid int) error {
 		return err
 	}
 
-	s.relation.DelGroupRelation(ctx, uid, groupId)
+	g.relation.DelGroupRelation(ctx, uid, groupId)
 
-	s.Redis().Publish(ctx, entity.ImTopicChat, jsonutil.Encode(map[string]any{
+	g.Redis().Publish(ctx, entity.ImTopicChat, jsonutil.Encode(map[string]any{
 		"event": entity.EventTalkJoinGroup,
 		"data": jsonutil.Encode(map[string]any{
 			"type":     2,
@@ -233,7 +233,7 @@ func (s *GroupService) Secede(ctx context.Context, groupId int, uid int) error {
 		}),
 	}))
 
-	s.Redis().Publish(ctx, entity.ImTopicChat, jsonutil.Encode(map[string]any{
+	g.Redis().Publish(ctx, entity.ImTopicChat, jsonutil.Encode(map[string]any{
 		"event": entity.EventTalk,
 		"data": jsonutil.Encode(map[string]any{
 			"sender_id":   record.UserId,
@@ -246,29 +246,30 @@ func (s *GroupService) Secede(ctx context.Context, groupId int, uid int) error {
 	return nil
 }
 
-type InviteGroupMembersOpt struct {
+type GroupInviteOpt struct {
 	UserId    int   // 操作人ID
 	GroupId   int   // 群ID
 	MemberIds []int // 群成员ID
 }
 
-// InviteMembers 邀请加入群聊
-func (s *GroupService) InviteMembers(ctx context.Context, opt *InviteGroupMembersOpt) error {
+// Invite 邀请加入群聊
+func (g *GroupService) Invite(ctx context.Context, opt *GroupInviteOpt) error {
 	var (
 		err            error
 		addMembers     []*model.GroupMember
 		addTalkList    []*model.TalkSession
 		updateTalkList []int
 		talkList       []*model.TalkSession
+		db             = g.Db().WithContext(ctx)
 	)
 
 	m := make(map[int]struct{})
-	for _, value := range s.member.GetMemberIds(ctx, opt.GroupId) {
+	for _, value := range g.member.GetMemberIds(ctx, opt.GroupId) {
 		m[value] = struct{}{}
 	}
 
 	listHash := make(map[int]*model.TalkSession)
-	s.Db().Select("id", "user_id", "is_delete").Where("user_id in ? and receiver_id = ? and talk_type = 2", opt.MemberIds, opt.GroupId).Find(&talkList)
+	db.Select("id", "user_id", "is_delete").Where("user_id in ? and receiver_id = ? and talk_type = 2", opt.MemberIds, opt.GroupId).Find(&talkList)
 	for _, item := range talkList {
 		listHash[item.UserId] = item
 	}
@@ -278,7 +279,7 @@ func (s *GroupService) InviteMembers(ctx context.Context, opt *InviteGroupMember
 	mids = append(mids, opt.UserId)
 
 	memberItems := make([]*model.Users, 0)
-	err = s.Db().Table("users").Select("id,nickname").Where("id in ?", mids).Scan(&memberItems).Error
+	err = db.Table("users").Select("id,nickname").Where("id in ?", mids).Scan(&memberItems).Error
 	if err != nil {
 		return err
 	}
@@ -324,7 +325,7 @@ func (s *GroupService) InviteMembers(ctx context.Context, opt *InviteGroupMember
 		TalkType:   entity.ChatGroupMode,
 		ReceiverId: opt.GroupId,
 		MsgType:    entity.MsgTypeGroupInvite,
-		Sequence:   s.sequence.Get(ctx, 0, opt.GroupId),
+		Sequence:   g.sequence.Get(ctx, 0, opt.GroupId),
 	}
 
 	operator := memberMaps[opt.UserId]
@@ -337,7 +338,7 @@ func (s *GroupService) InviteMembers(ctx context.Context, opt *InviteGroupMember
 		Members: members,
 	})
 
-	err = s.Db().Transaction(func(tx *gorm.DB) error {
+	err = db.Transaction(func(tx *gorm.DB) error {
 		// 删除已存在成员记录
 		tx.Where("group_id = ? and user_id in ? and is_quit = 1", opt.GroupId, opt.MemberIds).Delete(&model.GroupMember{})
 
@@ -373,7 +374,7 @@ func (s *GroupService) InviteMembers(ctx context.Context, opt *InviteGroupMember
 	}
 
 	// 广播网关将在线的用户加入房间
-	s.Redis().Publish(ctx, entity.ImTopicChat, jsonutil.Encode(map[string]any{
+	g.Redis().Publish(ctx, entity.ImTopicChat, jsonutil.Encode(map[string]any{
 		"event": entity.EventTalkJoinGroup,
 		"data": jsonutil.Encode(map[string]any{
 			"type":     1,
@@ -382,7 +383,7 @@ func (s *GroupService) InviteMembers(ctx context.Context, opt *InviteGroupMember
 		}),
 	}))
 
-	s.Redis().Publish(ctx, entity.ImTopicChat, jsonutil.Encode(map[string]any{
+	g.Redis().Publish(ctx, entity.ImTopicChat, jsonutil.Encode(map[string]any{
 		"event": entity.EventTalk,
 		"data": jsonutil.Encode(map[string]any{
 			"sender_id":   record.UserId,
@@ -395,16 +396,16 @@ func (s *GroupService) InviteMembers(ctx context.Context, opt *InviteGroupMember
 	return nil
 }
 
-type RemoveMembersOpt struct {
+type GroupRemoveMembersOpt struct {
 	UserId    int   // 操作人ID
 	GroupId   int   // 群ID
 	MemberIds []int // 群成员ID
 }
 
-// RemoveMembers 群成员移除群聊
-func (s *GroupService) RemoveMembers(ctx context.Context, opt *RemoveMembersOpt) error {
+// RemoveMember 群成员移除群聊
+func (g *GroupService) RemoveMember(ctx context.Context, opt *GroupRemoveMembersOpt) error {
 	var num int64
-	if err := s.Db().Model(&model.GroupMember{}).Where("group_id = ? and user_id in ? and is_quit = 0", opt.GroupId, opt.MemberIds).Count(&num).Error; err != nil {
+	if err := g.Db().Model(&model.GroupMember{}).Where("group_id = ? and user_id in ? and is_quit = 0", opt.GroupId, opt.MemberIds).Count(&num).Error; err != nil {
 		return err
 	}
 
@@ -417,7 +418,7 @@ func (s *GroupService) RemoveMembers(ctx context.Context, opt *RemoveMembersOpt)
 	mids = append(mids, opt.UserId)
 
 	memberItems := make([]*model.Users, 0)
-	err := s.Db().Table("users").Select("id,nickname").Where("id in ?", mids).Scan(&memberItems).Error
+	err := g.Db().Table("users").Select("id,nickname").Where("id in ?", mids).Scan(&memberItems).Error
 	if err != nil {
 		return err
 	}
@@ -439,7 +440,7 @@ func (s *GroupService) RemoveMembers(ctx context.Context, opt *RemoveMembersOpt)
 	operator := memberMaps[opt.UserId]
 	record := &model.TalkRecords{
 		MsgId:      strutil.NewMsgId(),
-		Sequence:   s.sequence.Get(ctx, 0, opt.GroupId),
+		Sequence:   g.sequence.Get(ctx, 0, opt.GroupId),
 		TalkType:   entity.ChatGroupMode,
 		ReceiverId: opt.GroupId,
 		MsgType:    entity.MsgTypeGroupInvite,
@@ -453,7 +454,7 @@ func (s *GroupService) RemoveMembers(ctx context.Context, opt *RemoveMembersOpt)
 		}),
 	}
 
-	err = s.Db().Transaction(func(tx *gorm.DB) error {
+	err = g.Db().Transaction(func(tx *gorm.DB) error {
 		err := tx.Model(&model.GroupMember{}).Where("group_id = ? and user_id in ? and is_quit = 0", opt.GroupId, opt.MemberIds).Updates(map[string]any{
 			"is_quit":    1,
 			"updated_at": time.Now(),
@@ -470,9 +471,9 @@ func (s *GroupService) RemoveMembers(ctx context.Context, opt *RemoveMembersOpt)
 		return err
 	}
 
-	s.relation.BatchDelGroupRelation(ctx, opt.MemberIds, opt.GroupId)
+	g.relation.BatchDelGroupRelation(ctx, opt.MemberIds, opt.GroupId)
 
-	_, _ = s.Redis().Pipelined(ctx, func(pipe redis.Pipeliner) error {
+	_, _ = g.Redis().Pipelined(ctx, func(pipe redis.Pipeliner) error {
 		pipe.Publish(ctx, entity.ImTopicChat, jsonutil.Encode(map[string]any{
 			"event": entity.EventTalkJoinGroup,
 			"data": jsonutil.Encode(map[string]any{
@@ -502,8 +503,8 @@ type session struct {
 	IsDisturb  int `json:"is_disturb"`
 }
 
-func (s *GroupService) List(userId int) ([]*model.GroupItem, error) {
-	tx := s.Db().Table("group_member")
+func (g *GroupService) List(userId int) ([]*model.GroupItem, error) {
+	tx := g.Db().Table("group_member")
 	tx.Select("`group`.id,`group`.group_name,`group`.avatar,`group`.profile,group_member.leader")
 	tx.Joins("left join `group` on `group`.id = group_member.group_id")
 	tx.Where("group_member.user_id = ? and group_member.is_quit = ?", userId, 0)
@@ -524,7 +525,7 @@ func (s *GroupService) List(userId int) ([]*model.GroupItem, error) {
 		ids = append(ids, items[i].Id)
 	}
 
-	query := s.Db().Table("talk_session")
+	query := g.Db().Table("talk_session")
 	query.Select("receiver_id,is_disturb")
 	query.Where("talk_type = ? and receiver_id in ?", 2, ids)
 

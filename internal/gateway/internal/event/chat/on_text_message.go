@@ -50,11 +50,7 @@ func (h *Handler) OnTextMessage(ctx context.Context, client socket.IClient, data
 		return
 	}
 
-	if err = client.Write(&socket.ClientResponse{
-		Sid:   m.AckId,
-		Event: "ack",
-	}); err != nil {
+	if err = client.Write(&socket.ClientResponse{Sid: m.AckId, Event: "ack"}); err != nil {
 		log.Printf("Chat OnTextMessage ack err: %s", err.Error())
-		return
 	}
 }

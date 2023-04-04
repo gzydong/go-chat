@@ -105,11 +105,11 @@ type TalkSessionTopOpt struct {
 }
 
 // Top 会话置顶
-func (s *TalkSessionService) Top(ctx context.Context, opts *TalkSessionTopOpt) error {
+func (s *TalkSessionService) Top(ctx context.Context, opt *TalkSessionTopOpt) error {
 	_, err := s.talkSession.UpdateWhere(ctx, map[string]any{
-		"is_top":     strutil.BoolToInt(opts.Type == 1),
+		"is_top":     strutil.BoolToInt(opt.Type == 1),
 		"updated_at": time.Now(),
-	}, "id = ? and user_id = ?", opts.Id, opts.UserId)
+	}, "id = ? and user_id = ?", opt.Id, opt.UserId)
 	return err
 }
 
@@ -121,11 +121,11 @@ type TalkSessionDisturbOpt struct {
 }
 
 // Disturb 会话免打扰
-func (s *TalkSessionService) Disturb(ctx context.Context, opts *TalkSessionDisturbOpt) error {
+func (s *TalkSessionService) Disturb(ctx context.Context, opt *TalkSessionDisturbOpt) error {
 	_, err := s.talkSession.UpdateWhere(ctx, map[string]any{
-		"is_disturb": opts.IsDisturb,
+		"is_disturb": opt.IsDisturb,
 		"updated_at": time.Now(),
-	}, "user_id = ? and receiver_id = ? and talk_type = ?", opts.UserId, opts.ReceiverId, opts.TalkType)
+	}, "user_id = ? and receiver_id = ? and talk_type = ?", opt.UserId, opt.ReceiverId, opt.TalkType)
 	return err
 }
 

@@ -38,7 +38,7 @@ func (c *Group) Create(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	gid, err := c.groupService.Create(ctx.Ctx(), &service.CreateGroupOpt{
+	gid, err := c.groupService.Create(ctx.Ctx(), &service.GroupCreateOpt{
 		UserId:    ctx.UserId(),
 		Name:      params.Name,
 		Avatar:    params.Avatar,
@@ -105,7 +105,7 @@ func (c *Group) Invite(ctx *ichat.Context) error {
 		return ctx.ErrorBusiness("非群组成员，无权邀请好友！")
 	}
 
-	if err := c.groupService.InviteMembers(ctx.Ctx(), &service.InviteGroupMembersOpt{
+	if err := c.groupService.Invite(ctx.Ctx(), &service.GroupInviteOpt{
 		UserId:    uid,
 		GroupId:   int(params.GroupId),
 		MemberIds: uids,
@@ -149,7 +149,7 @@ func (c *Group) Setting(ctx *ichat.Context) error {
 		return ctx.ErrorBusiness("无权限操作")
 	}
 
-	if err := c.groupService.Update(ctx.Ctx(), &service.UpdateGroupOpt{
+	if err := c.groupService.Update(ctx.Ctx(), &service.GroupUpdateOpt{
 		GroupId: int(params.GroupId),
 		Name:    params.GroupName,
 		Avatar:  params.Avatar,
@@ -183,7 +183,7 @@ func (c *Group) RemoveMembers(ctx *ichat.Context) error {
 		return ctx.ErrorBusiness("无权限操作")
 	}
 
-	err := c.groupService.RemoveMembers(ctx.Ctx(), &service.RemoveMembersOpt{
+	err := c.groupService.RemoveMember(ctx.Ctx(), &service.GroupRemoveMembersOpt{
 		UserId:    uid,
 		GroupId:   int(params.GroupId),
 		MemberIds: sliceutil.ParseIds(params.MembersIds),

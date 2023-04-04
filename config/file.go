@@ -22,7 +22,7 @@ type QiniuSystem struct {
 	Domain    string `json:"domain" yaml:"domain"`
 }
 
-// OssSystem 阿里云 OSS 文件存储
+// CosSystem 腾讯云 COS 文件存储
 type CosSystem struct {
 	SecretId  string `json:"secret_id" yaml:"secret_id"`
 	SecretKey string `json:"secret_key" yaml:"secret_key"`

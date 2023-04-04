@@ -31,7 +31,7 @@ func (s *ArticleTagService) Create(ctx context.Context, uid int, tag string) (in
 }
 
 func (s *ArticleTagService) Update(ctx context.Context, uid int, tagId int, tag string) error {
-	return s.Db().Table("article_tag").Where("id = ? and user_id = ?", tagId, uid).UpdateColumn("tag_name", tag).Error
+	return s.Db().WithContext(ctx).Table("article_tag").Where("id = ? and user_id = ?", tagId, uid).UpdateColumn("tag_name", tag).Error
 }
 
 func (s *ArticleTagService) Delete(ctx context.Context, uid int, tagId int) error {
@@ -54,8 +54,7 @@ func (s *ArticleTagService) List(ctx context.Context, uid int) ([]*model.TagItem
 
 	db := s.Db().WithContext(ctx)
 
-	items := make([]*model.TagItem, 0)
-
+	var items []*model.TagItem
 	err := db.Table("article_tag").Select("id", "tag_name").Where("user_id = ?", uid).Scan(&items).Error
 	if err != nil {
 		return nil, err

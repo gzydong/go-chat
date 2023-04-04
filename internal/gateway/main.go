@@ -20,11 +20,13 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
+var ErrServerClosed = errors.New("shutting down server")
+
 func main() {
 	cmd := cli.NewApp()
 
 	cmd.Name = "LumenIM 在线聊天"
-	cmd.Usage = "IM Server"
+	cmd.Usage = "IM Gateway"
 
 	// 设置参数
 	cmd.Flags = []cli.Flag{
@@ -41,10 +43,10 @@ func newApp(tx *cli.Context) error {
 	eg, groupCtx := errgroup.WithContext(tx.Context)
 
 	// 读取配置文件
-	conf := config.ReadConfig(tx.String("config"))
+	conf := config.New(tx.String("config"))
 
 	// 设置日志输出
-	logger.SetOutput(conf.GetLogPath(), "logger-ws")
+	logger.SetOutput(conf.LogPath(), "logger-ws")
 
 	if !conf.Debug() {
 		gin.SetMode(gin.ReleaseMode)
@@ -57,7 +59,7 @@ func newApp(tx *cli.Context) error {
 		emailClient := app.Providers.EmailClient
 		if conf.App.Env == "prod" {
 			_ = emailClient.SendMail(&email.Option{
-				To:      []string{"837215079@qq.com"},
+				To:      conf.App.AdminEmail,
 				Subject: fmt.Sprintf("[%s]守护进程异常", conf.App.Env),
 				Body:    fmt.Sprintf("守护进程异常[%s]", name),
 			})
@@ -82,8 +84,6 @@ func newApp(tx *cli.Context) error {
 
 	return start(c, eg, groupCtx, app)
 }
-
-var ErrServerClosed = errors.New("shutting down server")
 
 func start(c chan os.Signal, eg *errgroup.Group, ctx context.Context, app *AppProvider) error {
 

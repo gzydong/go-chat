@@ -31,21 +31,22 @@ type Server struct {
 	Tcp       int `json:"tcp" yaml:"tcp"`
 }
 
-func ReadConfig(filename string) *Config {
-	conf := &Config{}
+func New(filename string) *Config {
+
 	content, err := os.ReadFile(filename)
 	if err != nil {
 		panic(err)
 	}
 
-	if yaml.Unmarshal(content, conf) != nil {
+	var conf Config
+	if yaml.Unmarshal(content, &conf) != nil {
 		panic(fmt.Sprintf("解析 config.yaml 读取错误: %v", err))
 	}
 
 	// 生成服务运行ID
 	conf.sid = encrypt.Md5(fmt.Sprintf("%d%s", time.Now().UnixNano(), strutil.Random(6)))
 
-	return conf
+	return &conf
 }
 
 // ServerId 服务运行ID
@@ -58,6 +59,6 @@ func (c *Config) Debug() bool {
 	return c.App.Debug
 }
 
-func (c *Config) GetLogPath() string {
+func (c *Config) LogPath() string {
 	return c.Log.Path
 }

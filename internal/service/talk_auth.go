@@ -36,15 +36,14 @@ func (t *TalkAuthService) IsAuth(ctx context.Context, opt *TalkAuthOpt) error {
 			return nil
 		}
 
-		isOk := t.contact.IsFriend(ctx, opt.UserId, opt.ReceiverId, false)
-		if isOk {
+		if t.contact.IsFriend(ctx, opt.UserId, opt.ReceiverId, false) {
 			return nil
 		}
 
 		return errors.New("暂无权限发送消息！")
 	}
 
-	memberInfo := &model.GroupMember{}
+	var memberInfo model.GroupMember
 	err := t.contact.Db.First(memberInfo, "group_id = ? and user_id = ?", opt.ReceiverId, opt.UserId).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {

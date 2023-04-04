@@ -105,7 +105,7 @@ func (m *MessageForwardLogic) MultiMergeForward(ctx context.Context, uid int, re
 		records = append(records, data)
 	}
 
-	if err := m.db.Create(records).Error; err != nil {
+	if err := m.db.WithContext(ctx).Create(records).Error; err != nil {
 		return nil, err
 	}
 

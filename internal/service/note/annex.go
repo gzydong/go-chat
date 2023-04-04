@@ -13,11 +13,11 @@ import (
 type ArticleAnnexService struct {
 	*repo.Source
 	annex      *note.ArticleAnnex
-	fileSystem *filesystem.Filesystem
+	filesystem *filesystem.Filesystem
 }
 
 func NewArticleAnnexService(source *repo.Source, dao *note.ArticleAnnex, fileSystem *filesystem.Filesystem) *ArticleAnnexService {
-	return &ArticleAnnexService{Source: source, annex: dao, fileSystem: fileSystem}
+	return &ArticleAnnexService{Source: source, annex: dao, filesystem: fileSystem}
 }
 
 func (s *ArticleAnnexService) Dao() *note.ArticleAnnex {
@@ -53,9 +53,9 @@ func (s *ArticleAnnexService) ForeverDelete(ctx context.Context, uid int, id int
 
 	switch annex.Drive {
 	case 1:
-		_ = s.fileSystem.Local.Delete(annex.Path)
+		_ = s.filesystem.Local.Delete(annex.Path)
 	case 2:
-		_ = s.fileSystem.Cos.Delete(annex.Path)
+		_ = s.filesystem.Cos.Delete(annex.Path)
 	}
 
 	return s.Db().Delete(&model.ArticleAnnex{}, id).Error

@@ -76,9 +76,9 @@ type QueryTalkRecordsItem struct {
 }
 
 // GetTalkRecords 获取对话消息
-func (s *TalkRecordsService) GetTalkRecords(ctx context.Context, opts *QueryTalkRecordsOpt) ([]*TalkRecordsItem, error) {
+func (s *TalkRecordsService) GetTalkRecords(ctx context.Context, opt *QueryTalkRecordsOpt) ([]*TalkRecordsItem, error) {
 	var (
-		items  = make([]*QueryTalkRecordsItem, 0, opts.Limit)
+		items  = make([]*QueryTalkRecordsItem, 0, opt.Limit)
 		fields = []string{
 			"talk_records.id",
 			"talk_records.sequence",
@@ -97,30 +97,30 @@ func (s *TalkRecordsService) GetTalkRecords(ctx context.Context, opts *QueryTalk
 		}
 	)
 
-	query := s.Db().Table("talk_records")
+	query := s.Db().WithContext(ctx).Table("talk_records")
 	query.Joins("left join users on talk_records.user_id = users.id")
-	query.Joins("left join talk_records_delete on talk_records.id = talk_records_delete.record_id and talk_records_delete.user_id = ?", opts.UserId)
+	query.Joins("left join talk_records_delete on talk_records.id = talk_records_delete.record_id and talk_records_delete.user_id = ?", opt.UserId)
 
-	if opts.RecordId > 0 {
-		query.Where("talk_records.sequence < ?", opts.RecordId)
+	if opt.RecordId > 0 {
+		query.Where("talk_records.sequence < ?", opt.RecordId)
 	}
 
-	if opts.TalkType == entity.ChatPrivateMode {
-		subQuery := s.Db().Where("talk_records.user_id = ? and talk_records.receiver_id = ?", opts.UserId, opts.ReceiverId)
-		subQuery.Or("talk_records.user_id = ? and talk_records.receiver_id = ?", opts.ReceiverId, opts.UserId)
+	if opt.TalkType == entity.ChatPrivateMode {
+		subQuery := s.Db().Where("talk_records.user_id = ? and talk_records.receiver_id = ?", opt.UserId, opt.ReceiverId)
+		subQuery.Or("talk_records.user_id = ? and talk_records.receiver_id = ?", opt.ReceiverId, opt.UserId)
 
 		query.Where(subQuery)
 	} else {
-		query.Where("talk_records.receiver_id = ?", opts.ReceiverId)
+		query.Where("talk_records.receiver_id = ?", opt.ReceiverId)
 	}
 
-	if opts.MsgType != nil && len(opts.MsgType) > 0 {
-		query.Where("talk_records.msg_type in ?", opts.MsgType)
+	if opt.MsgType != nil && len(opt.MsgType) > 0 {
+		query.Where("talk_records.msg_type in ?", opt.MsgType)
 	}
 
-	query.Where("talk_records.talk_type = ?", opts.TalkType)
+	query.Where("talk_records.talk_type = ?", opt.TalkType)
 	query.Where("ifnull(talk_records_delete.id,0) = 0")
-	query.Select(fields).Order("talk_records.sequence desc").Limit(opts.Limit)
+	query.Select(fields).Order("talk_records.sequence desc").Limit(opt.Limit)
 
 	if err := query.Scan(&items).Error; err != nil {
 		return nil, err

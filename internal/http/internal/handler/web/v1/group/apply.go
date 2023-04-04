@@ -55,7 +55,7 @@ func (c *Apply) Agree(ctx *ichat.Context) error {
 	}
 
 	if !c.groupMemberService.Dao().IsMember(ctx.Ctx(), apply.GroupId, apply.UserId, false) {
-		err := c.groupService.InviteMembers(ctx.Ctx(), &service.InviteGroupMembersOpt{
+		err := c.groupService.Invite(ctx.Ctx(), &service.GroupInviteOpt{
 			UserId:    uid,
 			GroupId:   apply.GroupId,
 			MemberIds: []int{apply.UserId},
