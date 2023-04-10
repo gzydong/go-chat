@@ -80,7 +80,7 @@ func (s *ContactService) MoveGroup(ctx context.Context, uid int, friendId int, g
 		return err
 	}
 
-	return s.Db().Transaction(func(tx *gorm.DB) error {
+	return s.Db().WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		if contact.GroupId > 0 {
 			err := tx.Table("contact_group").Where("id = ? and user_id = ?", contact.GroupId, uid).Updates(map[string]any{
 				"num": gorm.Expr("num - 1"),

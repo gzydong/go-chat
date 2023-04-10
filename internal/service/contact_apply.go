@@ -36,7 +36,7 @@ func (s *ContactApplyService) Create(ctx context.Context, opt *ContactApplyCreat
 		Remark:   opt.Remarks,
 	}
 
-	if err := s.Db().Create(apply).Error; err != nil {
+	if err := s.Db().WithContext(ctx).Create(apply).Error; err != nil {
 		return err
 	}
 
@@ -66,12 +66,14 @@ type ContactApplyAcceptOpt struct {
 // Accept 同意好友申请
 func (s *ContactApplyService) Accept(ctx context.Context, opt *ContactApplyAcceptOpt) (*model.ContactApply, error) {
 
+	db := s.Db().WithContext(ctx)
+
 	var applyInfo model.ContactApply
-	if err := s.Db().First(&applyInfo, "id = ? and friend_id = ?", opt.ApplyId, opt.UserId).Error; err != nil {
+	if err := db.First(&applyInfo, "id = ? and friend_id = ?", opt.ApplyId, opt.UserId).Error; err != nil {
 		return nil, err
 	}
 
-	err := s.Db().WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+	err := db.Transaction(func(tx *gorm.DB) error {
 		addFriendFunc := func(uid, fid int, remark string) error {
 			var contact model.Contact
 			err := tx.Where("user_id = ? and friend_id = ?", uid, fid).First(&contact).Error
@@ -123,7 +125,7 @@ type ContactApplyDeclineOpt struct {
 
 // Decline 拒绝好友申请
 func (s *ContactApplyService) Decline(ctx context.Context, opt *ContactApplyDeclineOpt) error {
-	err := s.Db().Delete(&model.ContactApply{}, "id = ? and friend_id = ?", opt.ApplyId, opt.UserId).Error
+	err := s.Db().WithContext(ctx).Delete(&model.ContactApply{}, "id = ? and friend_id = ?", opt.ApplyId, opt.UserId).Error
 	if err != nil {
 		return err
 	}

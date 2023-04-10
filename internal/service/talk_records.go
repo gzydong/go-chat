@@ -97,7 +97,7 @@ func (s *TalkRecordsService) GetTalkRecords(ctx context.Context, opt *QueryTalkR
 		}
 	)
 
-	query := s.Db().Table("talk_records")
+	query := s.Db().WithContext(ctx).Table("talk_records")
 	query.Joins("left join users on talk_records.user_id = users.id")
 	query.Joins("left join talk_records_delete on talk_records.id = talk_records_delete.record_id and talk_records_delete.user_id = ?", opt.UserId)
 

@@ -14,11 +14,11 @@ import (
 type EmoticonService struct {
 	*repo.Source
 	emoticon   *repo.Emoticon
-	fileSystem *filesystem.Filesystem
+	filesystem *filesystem.Filesystem
 }
 
 func NewEmoticonService(baseService *repo.Source, repo *repo.Emoticon, fileSystem *filesystem.Filesystem) *EmoticonService {
-	return &EmoticonService{Source: baseService, emoticon: repo, fileSystem: fileSystem}
+	return &EmoticonService{Source: baseService, emoticon: repo, filesystem: fileSystem}
 }
 
 func (s *EmoticonService) Dao() *repo.Emoticon {

@@ -6,5 +6,4 @@ type Redis struct {
 	Port     int    `json:"port" yaml:"port"`         // 服务器端口号
 	Auth     string `json:"auth" yaml:"auth"`         // 服务器端口号
 	Database int    `json:"database" yaml:"database"` // 数据库
-	Prefix   string `json:"prefix" yaml:"prefix"`     // 缓存前缀
 }

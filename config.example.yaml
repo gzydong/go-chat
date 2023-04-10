@@ -3,6 +3,8 @@ app:
   env: dev
   debug: false
   juhe_key: "xxxxxxx"
+  admin_email:
+    -
   public_key: |
     -----BEGIN PUBLIC KEY-----
     xxxxxxx

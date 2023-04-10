@@ -21,32 +21,31 @@ func NewTalkService(source *repo.Source, groupMemberRepo *repo.GroupMember) *Tal
 	return &TalkService{Source: source, groupMemberRepo: groupMemberRepo}
 }
 
-type TalkMessageDeleteOpt struct {
+type RemoveRecordListOpt struct {
 	UserId     int
 	TalkType   int
 	ReceiverId int
 	RecordIds  string
 }
 
-// RemoveRecords 删除消息记录
-func (s *TalkService) RemoveRecords(ctx context.Context, opt *TalkMessageDeleteOpt) error {
+// DeleteRecordList 删除消息记录
+func (t *TalkService) DeleteRecordList(ctx context.Context, opt *RemoveRecordListOpt) error {
 
-	// 需要删除的消息记录ID
-	ids := sliceutil.Unique(sliceutil.ParseIds(opt.RecordIds))
-
-	// 查询的ids
-	findIds := make([]int64, 0)
+	var (
+		db      = t.Db().WithContext(ctx)
+		findIds []int64
+		ids     = sliceutil.Unique(sliceutil.ParseIds(opt.RecordIds))
+	)
 
 	if opt.TalkType == entity.ChatPrivateMode {
-		subQuery := s.Db().Where("user_id = ? and receiver_id = ?", opt.UserId, opt.ReceiverId).Or("user_id = ? and receiver_id = ?", opt.ReceiverId, opt.UserId)
-
-		s.Db().Model(&model.TalkRecords{}).Where("id in ?", ids).Where("talk_type = ?", entity.ChatPrivateMode).Where(subQuery).Pluck("id", &findIds)
+		subQuery := db.Where("user_id = ? and receiver_id = ?", opt.UserId, opt.ReceiverId).Or("user_id = ? and receiver_id = ?", opt.ReceiverId, opt.UserId)
+		db.Model(&model.TalkRecords{}).Where("id in ?", ids).Where("talk_type = ?", entity.ChatPrivateMode).Where(subQuery).Pluck("id", &findIds)
 	} else {
-		if !s.groupMemberRepo.IsMember(ctx, opt.ReceiverId, opt.UserId, false) {
+		if !t.groupMemberRepo.IsMember(ctx, opt.ReceiverId, opt.UserId, false) {
 			return entity.ErrPermissionDenied
 		}
 
-		s.Db().Model(&model.TalkRecords{}).Where("id in ? and talk_type = ?", ids, entity.ChatGroupMode).Pluck("id", &findIds)
+		db.Model(&model.TalkRecords{}).Where("id in ? and talk_type = ?", ids, entity.ChatGroupMode).Pluck("id", &findIds)
 	}
 
 	if len(ids) != len(findIds) {
@@ -62,14 +61,14 @@ func (s *TalkService) RemoveRecords(ctx context.Context, opt *TalkMessageDeleteO
 		})
 	}
 
-	return s.Db().Create(items).Error
+	return db.Create(items).Error
 }
 
-// CollectRecord 收藏表情包
-func (s *TalkService) CollectRecord(ctx context.Context, uid int, recordId int) error {
+// Collect 收藏表情包
+func (t *TalkService) Collect(ctx context.Context, uid int, recordId int) error {
 
 	var record model.TalkRecords
-	if err := s.Db().First(&record, recordId).Error; err != nil {
+	if err := t.Db().First(&record, recordId).Error; err != nil {
 		return err
 	}
 
@@ -86,20 +85,20 @@ func (s *TalkService) CollectRecord(ctx context.Context, uid int, recordId int) 
 			return entity.ErrPermissionDenied
 		}
 	} else if record.TalkType == entity.ChatGroupMode {
-		if !s.groupMemberRepo.IsMember(ctx, record.ReceiverId, uid, true) {
+		if !t.groupMemberRepo.IsMember(ctx, record.ReceiverId, uid, true) {
 			return entity.ErrPermissionDenied
 		}
 	}
 
-	var fileInfo model.TalkRecordExtraFile
-	if err := jsonutil.Decode(record.Extra, &fileInfo); err != nil {
+	var file model.TalkRecordExtraFile
+	if err := jsonutil.Decode(record.Extra, &file); err != nil {
 		return err
 	}
 
-	return s.Db().Create(&model.EmoticonItem{
+	return t.Db().Create(&model.EmoticonItem{
 		UserId:     uid,
-		Url:        fileInfo.Url,
-		FileSuffix: fileInfo.Suffix,
-		FileSize:   fileInfo.Size,
+		Url:        file.Url,
+		FileSuffix: file.Suffix,
+		FileSize:   file.Size,
 	}).Error
 }

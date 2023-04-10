@@ -15,10 +15,10 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	app := Initialize(ctx, config.ReadConfig(parseConfigArg()))
+	app := Initialize(ctx, config.New(parseConfigArg()))
 
 	// 设置日志输出
-	logger.SetOutput(app.Config.GetLogPath(), "logger-cli")
+	logger.SetOutput(app.Config.LogPath(), "logger-cli")
 
 	newApp(ctx, app.Commands.SubCommands())
 }

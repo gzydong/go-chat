@@ -32,10 +32,10 @@ func main() {
 
 	cmd.Action = func(tx *cli.Context) error {
 		// 读取配置文件
-		conf := config.ReadConfig(tx.String("config"))
+		conf := config.New(tx.String("config"))
 
 		// 设置日志输出
-		logger.SetOutput(conf.GetLogPath(), "logger-http")
+		logger.SetOutput(conf.LogPath(), "logger-http")
 
 		if !conf.Debug() {
 			gin.SetMode(gin.ReleaseMode)

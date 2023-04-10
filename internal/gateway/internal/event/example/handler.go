@@ -15,7 +15,7 @@ func NewHandler() *Handler {
 	return &Handler{}
 }
 
-func (h *Handler) Init() {
+func (h *Handler) init() {
 
 	h.handlers = make(map[string]func(ctx context.Context, client socket.IClient, data []byte))
 
@@ -25,7 +25,7 @@ func (h *Handler) Init() {
 func (h *Handler) Call(ctx context.Context, client socket.IClient, event string, data []byte) {
 
 	if h.handlers == nil {
-		h.Init()
+		h.init()
 	}
 
 	if call, ok := h.handlers[event]; ok {
