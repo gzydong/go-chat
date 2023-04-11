@@ -7,16 +7,18 @@ import (
 	"go-chat/internal/service"
 )
 
-type SendMessage struct {
+type Publish struct {
+	mapping map[string]func(ctx *ichat.Context) error
+
 	talkAuthService *service.TalkAuthService
 	messageService  *service.MessageService
 }
 
-func NewSendMessage(talkAuthService *service.TalkAuthService, messageService *service.MessageService) *SendMessage {
-	return &SendMessage{talkAuthService: talkAuthService, messageService: messageService}
+func NewPublish(talkAuthService *service.TalkAuthService, messageService *service.MessageService) *Publish {
+	return &Publish{talkAuthService: talkAuthService, messageService: messageService}
 }
 
-type SendBaseMessageRequest struct {
+type PublishBaseMessageRequest struct {
 	Type     string    `json:"type" binding:"required"`
 	Receiver *Receiver `json:"receiver" binding:"required"`
 }
@@ -27,10 +29,10 @@ type Receiver struct {
 	ReceiverId int `json:"receiver_id" binding:"required,gt=0"` // 好友ID或群ID
 }
 
-// Send 发送消息接口
-func (c *SendMessage) Send(ctx *ichat.Context) error {
+// Publish 发送消息接口
+func (c *Publish) Publish(ctx *ichat.Context) error {
 
-	params := &SendBaseMessageRequest{}
+	params := &PublishBaseMessageRequest{}
 	if err := ctx.Context.ShouldBindBodyWith(params, binding.JSON); err != nil {
 		return ctx.InvalidParams(err)
 	}
@@ -47,25 +49,8 @@ func (c *SendMessage) Send(ctx *ichat.Context) error {
 	return c.transfer(ctx, params.Type)
 }
 
-func (c *SendMessage) transfer(ctx *ichat.Context, typeValue string) error {
-	publishMapping := make(map[string]func(ctx *ichat.Context) error)
-	publishMapping["text"] = c.onSendText
-	publishMapping["code"] = c.onSendCode
-	publishMapping["location"] = c.onSendLocation
-	publishMapping["emoticon"] = c.onSendEmoticon
-	publishMapping["vote"] = c.onSendVote
-	publishMapping["image"] = c.onSendImage
-	publishMapping["file"] = c.onSendFile
-
-	if call, ok := publishMapping[typeValue]; ok {
-		return call(ctx)
-	}
-
-	return nil
-}
-
 // 文本消息
-func (c *SendMessage) onSendText(ctx *ichat.Context) error {
+func (c *Publish) onSendText(ctx *ichat.Context) error {
 
 	params := &message.TextMessageRequest{}
 	if err := ctx.Context.ShouldBindBodyWith(params, binding.JSON); err != nil {
@@ -81,7 +66,7 @@ func (c *SendMessage) onSendText(ctx *ichat.Context) error {
 }
 
 // nolint 图片消息
-func (c *SendMessage) onSendImage(ctx *ichat.Context) error {
+func (c *Publish) onSendImage(ctx *ichat.Context) error {
 
 	params := &message.ImageMessageRequest{}
 	if err := ctx.Context.ShouldBindBodyWith(params, binding.JSON); err != nil {
@@ -97,7 +82,7 @@ func (c *SendMessage) onSendImage(ctx *ichat.Context) error {
 }
 
 // nolint 文件消息
-func (c *SendMessage) onSendFile(ctx *ichat.Context) error {
+func (c *Publish) onSendFile(ctx *ichat.Context) error {
 
 	params := &message.FileMessageRequest{}
 	if err := ctx.Context.ShouldBindBodyWith(params, binding.JSON); err != nil {
@@ -113,7 +98,7 @@ func (c *SendMessage) onSendFile(ctx *ichat.Context) error {
 }
 
 // 代码消息
-func (c *SendMessage) onSendCode(ctx *ichat.Context) error {
+func (c *Publish) onSendCode(ctx *ichat.Context) error {
 
 	params := &message.CodeMessageRequest{}
 	if err := ctx.Context.ShouldBindBodyWith(params, binding.JSON); err != nil {
@@ -129,7 +114,7 @@ func (c *SendMessage) onSendCode(ctx *ichat.Context) error {
 }
 
 // 位置消息
-func (c *SendMessage) onSendLocation(ctx *ichat.Context) error {
+func (c *Publish) onSendLocation(ctx *ichat.Context) error {
 
 	params := &message.LocationMessageRequest{}
 	if err := ctx.Context.ShouldBindBodyWith(params, binding.JSON); err != nil {
@@ -145,7 +130,7 @@ func (c *SendMessage) onSendLocation(ctx *ichat.Context) error {
 }
 
 // 转发消息
-func (c *SendMessage) onSendForward(ctx *ichat.Context) error {
+func (c *Publish) onSendForward(ctx *ichat.Context) error {
 
 	params := &message.ForwardMessageRequest{}
 	if err := ctx.Context.ShouldBindBodyWith(params, binding.JSON); err != nil {
@@ -161,7 +146,7 @@ func (c *SendMessage) onSendForward(ctx *ichat.Context) error {
 }
 
 // 表情消息
-func (c *SendMessage) onSendEmoticon(ctx *ichat.Context) error {
+func (c *Publish) onSendEmoticon(ctx *ichat.Context) error {
 
 	params := &message.EmoticonMessageRequest{}
 	if err := ctx.Context.ShouldBindBodyWith(params, binding.JSON); err != nil {
@@ -177,7 +162,7 @@ func (c *SendMessage) onSendEmoticon(ctx *ichat.Context) error {
 }
 
 // 投票消息
-func (c *SendMessage) onSendVote(ctx *ichat.Context) error {
+func (c *Publish) onSendVote(ctx *ichat.Context) error {
 
 	params := &message.VoteMessageRequest{}
 	if err := ctx.Context.ShouldBindBodyWith(params, binding.JSON); err != nil {
@@ -198,4 +183,43 @@ func (c *SendMessage) onSendVote(ctx *ichat.Context) error {
 	}
 
 	return ctx.Success(nil)
+}
+
+// 名片消息
+func (c *Publish) onSendCard(ctx *ichat.Context) error {
+
+	params := &message.LocationMessageRequest{}
+	if err := ctx.Context.ShouldBindBodyWith(params, binding.JSON); err != nil {
+		return ctx.InvalidParams(err)
+	}
+
+	err := c.messageService.SendLocation(ctx.Ctx(), ctx.UserId(), params)
+	if err != nil {
+		return ctx.ErrorBusiness(err.Error())
+	}
+
+	return ctx.Success(nil)
+}
+
+func (c *Publish) transfer(ctx *ichat.Context, typeValue string) error {
+
+	if c.mapping == nil {
+		publishMapping := make(map[string]func(ctx *ichat.Context) error)
+		publishMapping["text"] = c.onSendText
+		publishMapping["code"] = c.onSendCode
+		publishMapping["location"] = c.onSendLocation
+		publishMapping["emoticon"] = c.onSendEmoticon
+		publishMapping["vote"] = c.onSendVote
+		publishMapping["image"] = c.onSendImage
+		publishMapping["file"] = c.onSendFile
+		publishMapping["card"] = c.onSendCard
+		publishMapping["forward"] = c.onSendForward
+		c.mapping = publishMapping
+	}
+
+	if call, ok := c.mapping[typeValue]; ok {
+		return call(ctx)
+	}
+
+	return nil
 }

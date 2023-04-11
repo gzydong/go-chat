@@ -116,7 +116,7 @@ func Initialize(conf *config.Config) *AppProvider {
 	class := article.NewClass(articleClassService)
 	articleTagService := note2.NewArticleTagService(source)
 	tag := article.NewTag(articleTagService)
-	sendMessage := talk.NewSendMessage(talkAuthService, messageService)
+	sendMessage := talk.NewPublish(talkAuthService, messageService)
 	webV1 := &web.V1{
 		Common:       common,
 		Auth:         auth,

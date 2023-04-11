@@ -28,7 +28,7 @@ type V1 struct {
 	ArticleAnnex *article.Annex
 	ArticleClass *article.Class
 	ArticleTag   *article.Tag
-	Message      *talk.SendMessage
+	Message      *talk.Publish
 }
 
 type Handler struct {
