@@ -10,23 +10,20 @@ import (
 type Publish struct {
 	mapping map[string]func(ctx *ichat.Context) error
 
-	talkAuthService *service.AuthService
-	messageService  *service.MessageService
+	authService    *service.AuthService
+	messageService *service.MessageService
 }
 
 func NewPublish(talkAuthService *service.AuthService, messageService *service.MessageService) *Publish {
-	return &Publish{talkAuthService: talkAuthService, messageService: messageService}
+	return &Publish{authService: talkAuthService, messageService: messageService}
 }
 
 type PublishBaseMessageRequest struct {
-	Type     string    `json:"type" binding:"required"`
-	Receiver *Receiver `json:"receiver" binding:"required"`
-}
-
-// Receiver 接受者信息
-type Receiver struct {
-	TalkType   int `json:"talk_type" binding:"required,gt=0"`   // 对话类型 1:私聊 2:群聊
-	ReceiverId int `json:"receiver_id" binding:"required,gt=0"` // 好友ID或群ID
+	Type     string `json:"type" binding:"required"`
+	Receiver struct {
+		TalkType   int `json:"talk_type" binding:"required,gt=0"`   // 对话类型 1:私聊 2:群聊
+		ReceiverId int `json:"receiver_id" binding:"required,gt=0"` // 好友ID或群ID
+	} `json:"receiver" binding:"required"`
 }
 
 // Publish 发送消息接口
@@ -37,7 +34,7 @@ func (c *Publish) Publish(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	if err := c.talkAuthService.IsAuth(ctx.Ctx(), &service.AuthOption{
+	if err := c.authService.IsAuth(ctx.Ctx(), &service.AuthOption{
 		TalkType:   params.Receiver.TalkType,
 		UserId:     ctx.UserId(),
 		ReceiverId: params.Receiver.ReceiverId,
