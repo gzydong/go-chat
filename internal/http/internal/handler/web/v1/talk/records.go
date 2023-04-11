@@ -57,7 +57,7 @@ func (c *Records) GetRecords(ctx *ichat.Context) error {
 				"created_at":  timeutil.DateTime(),
 				"id":          1,
 				"msg_id":      strutil.NewMsgId(),
-				"msg_type":    0,
+				"msg_type":    entity.ChatMsgSysText,
 				"receiver_id": params.ReceiverId,
 				"talk_type":   params.TalkType,
 				"user_id":     0,

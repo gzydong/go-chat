@@ -292,18 +292,6 @@ CREATE TABLE `talk_records`
     KEY           `idx_receiver_id` (`receiver_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='用户聊天记录表';;
 
-CREATE TABLE `talk_records_code`
-(
-    `id`         int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT '代码块ID',
-    `record_id`  bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT '消息记录ID',
-    `user_id`    int(11) unsigned NOT NULL DEFAULT '0' COMMENT '用户ID',
-    `lang`       varchar(20) NOT NULL DEFAULT '' COMMENT '语言类型(如：php,java,python)',
-    `code`       text CHARACTER SET utf8mb4 NOT NULL COMMENT '代码内容',
-    `created_at` datetime    NOT NULL COMMENT '创建时间',
-    PRIMARY KEY (`id`),
-    KEY          `idx_record_id` (`record_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=681 DEFAULT CHARSET=utf8 COMMENT='用户聊天记录（代码块消息）';;
-
 CREATE TABLE `talk_records_delete`
 (
     `id`         int(11) unsigned NOT NULL AUTO_INCREMENT,
@@ -313,76 +301,6 @@ CREATE TABLE `talk_records_delete`
     PRIMARY KEY (`id`),
     UNIQUE KEY `uk_record_user_id` (`record_id`,`user_id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=368 DEFAULT CHARSET=utf8 COMMENT='聊天记录删除记录表';;
-
-CREATE TABLE `talk_records_file`
-(
-    `id`            bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '文件ID',
-    `record_id`     bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT '消息记录ID',
-    `user_id`       int(11) unsigned NOT NULL DEFAULT '0' COMMENT '上传文件的用户ID',
-    `source`        tinyint(3) unsigned NOT NULL DEFAULT '1' COMMENT '文件来源[1:用户上传;2:表情包;]',
-    `type`          tinyint(3) unsigned NOT NULL DEFAULT '1' COMMENT '文件类型[1:图片;2:音频文件;3:视频文件;4:其它文件;]',
-    `drive`         tinyint(3) unsigned NOT NULL DEFAULT '1' COMMENT '驱动类型[1:local;2:cos;]',
-    `original_name` varchar(100) NOT NULL DEFAULT '' COMMENT '原文件名',
-    `suffix`        varchar(10)  NOT NULL DEFAULT '' COMMENT '文件后缀',
-    `size`          bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT '文件大小',
-    `path`          varchar(300) NOT NULL DEFAULT '' COMMENT '文件地址(相对地址)',
-    `url`           varchar(255) NOT NULL DEFAULT '' COMMENT '网络地址(公开文件地址)',
-    `created_at`    datetime     NOT NULL COMMENT '创建时间',
-    PRIMARY KEY (`id`),
-    UNIQUE KEY `idx_record_id` (`record_id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=2545 DEFAULT CHARSET=utf8 COMMENT='用户聊天记录（文件消息）';;
-
-CREATE TABLE `talk_records_forward`
-(
-    `id`         int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT '合并转发ID',
-    `record_id`  bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT '消息记录ID',
-    `user_id`    int(11) unsigned NOT NULL DEFAULT '0' COMMENT '转发用户ID',
-    `records_id` varchar(255) NOT NULL DEFAULT '' COMMENT '转发的聊天记录ID （多个用 , 拼接），最多只能30条记录信息',
-    `text`       json         NOT NULL COMMENT '记录快照（避免后端再次查询数据）',
-    `created_at` datetime     NOT NULL COMMENT '转发时间',
-    PRIMARY KEY (`id`),
-    UNIQUE KEY `idx_records_id` (`record_id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=178 DEFAULT CHARSET=utf8 COMMENT='用户聊天记录（会话记录转发消息）';;
-
-CREATE TABLE `talk_records_invite`
-(
-    `id`              int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT '入群或退群通知ID',
-    `record_id`       bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT '消息记录ID',
-    `type`            tinyint(3) unsigned NOT NULL DEFAULT '1' COMMENT '通知类型 （1:入群通知 2:自动退群 3:管理员踢群）',
-    `operate_user_id` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '操作人的用户ID（邀请人OR管理员ID）',
-    `user_ids`        varchar(255) NOT NULL COMMENT '用户ID，多个用 , 分割',
-    PRIMARY KEY (`id`),
-    UNIQUE KEY `idx_recordid` (`record_id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=473 DEFAULT CHARSET=utf8 COMMENT='用户聊天记录（入群/退群消息）';;
-
-CREATE TABLE `talk_records_location`
-(
-    `id`         int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT '自增ID',
-    `record_id`  int(11) unsigned NOT NULL DEFAULT '0' COMMENT '消息记录ID',
-    `user_id`    int(11) unsigned NOT NULL DEFAULT '0' COMMENT '用户ID',
-    `longitude`  decimal(11, 6) NOT NULL DEFAULT '0.000000' COMMENT '经度',
-    `latitude`   decimal(11, 6) NOT NULL DEFAULT '0.000000' COMMENT '纬度',
-    `created_at` datetime       NOT NULL COMMENT '创建时间',
-    PRIMARY KEY (`id`),
-    UNIQUE KEY `uk_record_id` (`record_id`) USING BTREE,
-    KEY          `idx_user_id` (`user_id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8 COMMENT='聊天对话记录（位置消息）';;
-
-CREATE TABLE `talk_records_login`
-(
-    `id`         int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT '登录ID',
-    `record_id`  int(11) unsigned NOT NULL DEFAULT '0' COMMENT '消息记录ID',
-    `user_id`    int(11) unsigned NOT NULL DEFAULT '0' COMMENT '用户ID',
-    `ip`         varchar(20)  NOT NULL DEFAULT '' COMMENT 'IP地址',
-    `platform`   varchar(20)  NOT NULL DEFAULT '' COMMENT '登录平台[h5,ios,windows,mac,web]',
-    `agent`      varchar(500) NOT NULL DEFAULT '' COMMENT '设备信息',
-    `address`    varchar(100) NOT NULL DEFAULT '' COMMENT 'IP所在地',
-    `reason`     varchar(100) NOT NULL DEFAULT '' COMMENT '异常提示',
-    `created_at` datetime     NOT NULL COMMENT '创建时间',
-    PRIMARY KEY (`id`),
-    UNIQUE KEY `uk_record_id` (`record_id`) USING BTREE,
-    KEY          `idx_user_id` (`user_id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=28562 DEFAULT CHARSET=utf8 COMMENT='聊天对话记录（登录日志）';;
 
 CREATE TABLE `talk_records_vote`
 (

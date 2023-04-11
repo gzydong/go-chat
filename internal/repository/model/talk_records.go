@@ -2,8 +2,8 @@ package model
 
 import "time"
 
-type TalkRecords struct {
-	Id         int       `gorm:"column:id;primary_key;AUTO_INCREMENT" json:"id"`           // 聊天记录ID
+type TalkRecordBase struct {
+	Id         int       `gorm:"column:id;primary_key;AUTO_INCREMENT" json:"id"`           // 自增ID
 	MsgId      string    `gorm:"column:msg_id;NOT NULL" json:"msg_id"`                     // 消息唯一ID
 	Sequence   int64     `gorm:"column:sequence;default:0;NOT NULL" json:"sequence"`       // 消息时序ID
 	TalkType   int       `gorm:"column:talk_type;default:1;NOT NULL" json:"talk_type"`     // 对话类型[1:私信;2:群聊;]
@@ -20,8 +20,28 @@ type TalkRecords struct {
 	UpdatedAt  time.Time `gorm:"column:updated_at;NOT NULL" json:"updated_at"`             // 更新时间
 }
 
+type TalkRecords struct {
+	TalkRecordBase
+}
+
 func (TalkRecords) TableName() string {
 	return "talk_records"
+}
+
+type TalkGroupRecords struct {
+	TalkRecordBase
+}
+
+func (TalkGroupRecords) TableName() string {
+	return "talk_group_records"
+}
+
+type TalkPrivateRecords struct {
+	TalkRecordBase
+}
+
+func (TalkPrivateRecords) TableName() string {
+	return "talk_private_records"
 }
 
 type TalkRecordExtraCode struct {
