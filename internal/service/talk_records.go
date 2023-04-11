@@ -240,7 +240,7 @@ func (s *TalkRecordsService) HandleTalkRecords(ctx context.Context, items []*Que
 
 	for _, item := range items {
 		switch item.MsgType {
-		case entity.MsgTypeVote:
+		case entity.ChatMsgTypeVote:
 			votes = append(votes, item.Id)
 		}
 	}
@@ -276,7 +276,7 @@ func (s *TalkRecordsService) HandleTalkRecords(ctx context.Context, items []*Que
 		_ = jsonutil.Decode(item.Extra, &data.Extra)
 
 		switch item.MsgType {
-		case entity.MsgTypeVote:
+		case entity.ChatMsgTypeVote:
 			if value, ok := hashVotes[item.Id]; ok {
 				options := make(map[string]any)
 				opts := make([]any, 0)

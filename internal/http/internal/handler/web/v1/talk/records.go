@@ -122,11 +122,14 @@ func (c *Records) SearchHistoryRecords(ctx *ichat.Context) error {
 	}
 
 	m := []int{
-		entity.MsgTypeText,
-		entity.MsgTypeFile,
-		entity.MsgTypeForward,
-		entity.MsgTypeCode,
-		entity.MsgTypeVote,
+		entity.ChatMsgTypeText,
+		entity.ChatMsgTypeImage,
+		entity.ChatMsgTypeVideo,
+		entity.ChatMsgTypeVoice,
+		entity.ChatMsgTypeFile,
+		entity.ChatMsgTypeForward,
+		entity.ChatMsgTypeCode,
+		entity.ChatMsgTypeVote,
 	}
 
 	if sliceutil.Include(params.MsgType, m) {

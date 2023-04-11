@@ -90,7 +90,7 @@ func (m *MessageForwardLogic) MultiMergeForward(ctx context.Context, uid int, re
 		data := &model.TalkRecords{
 			MsgId:      strutil.NewMsgId(),
 			TalkType:   item["talk_type"],
-			MsgType:    entity.MsgTypeForward,
+			MsgType:    entity.ChatMsgTypeForward,
 			UserId:     uid,
 			ReceiverId: item["receiver_id"],
 			Extra:      extra,
@@ -213,14 +213,14 @@ func (m *MessageForwardLogic) aggregation(ctx context.Context, req *message.Forw
 		item := map[string]any{}
 
 		switch row.MsgType {
-		case entity.MsgTypeText:
+		case entity.ChatMsgTypeText:
 			text := strings.TrimSpace(row.Content)
 			item["nickname"] = row.Nickname
 			item["text"] = strutil.MtSubstr(text, 0, 30)
-		case entity.MsgTypeCode:
+		case entity.ChatMsgTypeCode:
 			item["nickname"] = row.Nickname
 			item["text"] = "【代码消息】"
-		case entity.MsgTypeFile:
+		case entity.ChatMsgTypeFile:
 			item["nickname"] = row.Nickname
 			item["text"] = "【文件消息】"
 		}

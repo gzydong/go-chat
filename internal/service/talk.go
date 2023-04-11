@@ -72,7 +72,7 @@ func (t *TalkService) Collect(ctx context.Context, uid int, recordId int) error 
 		return err
 	}
 
-	if record.MsgType != entity.MsgTypeFile {
+	if record.MsgType != entity.ChatMsgTypeImage {
 		return errors.New("当前消息不支持收藏！")
 	}
 

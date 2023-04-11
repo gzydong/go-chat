@@ -100,7 +100,7 @@ func (g *GroupService) Create(ctx context.Context, opt *GroupCreateOpt) (int, er
 			MsgId:      strutil.NewMsgId(),
 			TalkType:   entity.ChatGroupMode,
 			ReceiverId: group.Id,
-			MsgType:    entity.MsgTypeGroupInvite,
+			MsgType:    entity.ChatMsgSysGroupCreate,
 			Sequence:   g.sequence.Get(ctx, 0, group.Id),
 		}
 
@@ -191,7 +191,7 @@ func (g *GroupService) Secede(ctx context.Context, groupId int, uid int) error {
 		MsgId:      strutil.NewMsgId(),
 		TalkType:   entity.ChatGroupMode,
 		ReceiverId: groupId,
-		MsgType:    entity.MsgTypeGroupInvite,
+		MsgType:    entity.ChatMsgSysGroupMemberQuit,
 		Sequence:   g.sequence.Get(ctx, 0, groupId),
 		Extra: jsonutil.Encode(&model.TalkRecordExtraGroupJoin{
 			Action: 3,
@@ -324,7 +324,7 @@ func (g *GroupService) Invite(ctx context.Context, opt *GroupInviteOpt) error {
 		MsgId:      strutil.NewMsgId(),
 		TalkType:   entity.ChatGroupMode,
 		ReceiverId: opt.GroupId,
-		MsgType:    entity.MsgTypeGroupInvite,
+		MsgType:    entity.ChatMsgSysGroupMemberJoin,
 		Sequence:   g.sequence.Get(ctx, 0, opt.GroupId),
 	}
 
@@ -443,7 +443,7 @@ func (g *GroupService) RemoveMember(ctx context.Context, opt *GroupRemoveMembers
 		Sequence:   g.sequence.Get(ctx, 0, opt.GroupId),
 		TalkType:   entity.ChatGroupMode,
 		ReceiverId: opt.GroupId,
-		MsgType:    entity.MsgTypeGroupInvite,
+		MsgType:    entity.ChatMsgSysGroupMemberKicked,
 		Extra: jsonutil.Encode(&model.TalkRecordExtraGroupJoin{
 			Action: 2,
 			Operator: map[string]any{

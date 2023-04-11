@@ -375,8 +375,13 @@ func (c *Message) Card(ctx *ichat.Context) error {
 		return ctx.ErrorBusiness(err.Error())
 	}
 
-	// todo SendBusinessCard
-	if err := c.messageService.SendBusinessCard(ctx.Ctx(), uid); err != nil {
+	if err := c.messageService.SendBusinessCard(ctx.Ctx(), uid, &message.CardMessageRequest{
+		UserId: int32(params.ReceiverId),
+		Receiver: &message.MessageReceiver{
+			TalkType:   int32(params.TalkType),
+			ReceiverId: int32(params.ReceiverId),
+		},
+	}); err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}
 

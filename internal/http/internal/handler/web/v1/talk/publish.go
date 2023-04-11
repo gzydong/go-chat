@@ -187,12 +187,12 @@ func (c *Publish) onSendVote(ctx *ichat.Context) error {
 // 名片消息
 func (c *Publish) onSendCard(ctx *ichat.Context) error {
 
-	params := &message.LocationMessageRequest{}
+	params := &message.CardMessageRequest{}
 	if err := ctx.Context.ShouldBindBodyWith(params, binding.JSON); err != nil {
 		return ctx.InvalidParams(err)
 	}
 
-	err := c.messageService.SendLocation(ctx.Ctx(), ctx.UserId(), params)
+	err := c.messageService.SendBusinessCard(ctx.Ctx(), ctx.UserId(), params)
 	if err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}

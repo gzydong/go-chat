@@ -52,7 +52,7 @@ func (m *MessageService) SendSystemText(ctx context.Context, uid int, req *messa
 	data := &model.TalkRecords{
 		MsgId:      strutil.NewMsgId(),
 		TalkType:   int(req.Receiver.TalkType),
-		MsgType:    entity.MsgTypeSystemText,
+		MsgType:    entity.ChatMsgSysText,
 		UserId:     uid,
 		ReceiverId: int(req.Receiver.ReceiverId),
 		Content:    html.EscapeString(req.Content),
@@ -81,7 +81,7 @@ func (m *MessageService) SendText(ctx context.Context, uid int, req *message.Tex
 	data := &model.TalkRecords{
 		MsgId:      strutil.NewMsgId(),
 		TalkType:   int(req.Receiver.TalkType),
-		MsgType:    entity.MsgTypeText,
+		MsgType:    entity.ChatMsgTypeText,
 		UserId:     uid,
 		ReceiverId: int(req.Receiver.ReceiverId),
 		Content:    html.EscapeString(req.Content),
@@ -115,7 +115,7 @@ func (m *MessageService) SendImage(ctx context.Context, uid int, req *message.Im
 	data := &model.TalkRecords{
 		MsgId:      strutil.NewMsgId(),
 		TalkType:   int(req.Receiver.TalkType),
-		MsgType:    entity.MsgTypeFile,
+		MsgType:    entity.ChatMsgTypeFile,
 		UserId:     uid,
 		ReceiverId: int(req.Receiver.ReceiverId),
 		Extra: jsonutil.Encode(&model.TalkRecordExtraFile{
@@ -154,7 +154,7 @@ func (m *MessageService) SendVoice(ctx context.Context, uid int, req *message.Vo
 	data := &model.TalkRecords{
 		MsgId:      strutil.NewMsgId(),
 		TalkType:   int(req.Receiver.TalkType),
-		MsgType:    entity.MsgTypeFile,
+		MsgType:    entity.ChatMsgTypeFile,
 		UserId:     uid,
 		ReceiverId: int(req.Receiver.ReceiverId),
 		Extra: jsonutil.Encode(&model.TalkRecordExtraFile{
@@ -193,7 +193,7 @@ func (m *MessageService) SendVideo(ctx context.Context, uid int, req *message.Vi
 	data := &model.TalkRecords{
 		MsgId:      strutil.NewMsgId(),
 		TalkType:   int(req.Receiver.TalkType),
-		MsgType:    entity.MsgTypeFile,
+		MsgType:    entity.ChatMsgTypeFile,
 		UserId:     uid,
 		ReceiverId: int(req.Receiver.ReceiverId),
 		Extra: jsonutil.Encode(&model.TalkRecordExtraFile{
@@ -244,7 +244,7 @@ func (m *MessageService) SendFile(ctx context.Context, uid int, req *message.Fil
 	data := &model.TalkRecords{
 		MsgId:      strutil.NewMsgId(),
 		TalkType:   int(req.Receiver.TalkType),
-		MsgType:    entity.MsgTypeFile,
+		MsgType:    entity.ChatMsgTypeFile,
 		UserId:     uid,
 		ReceiverId: int(req.Receiver.ReceiverId),
 		Extra: jsonutil.Encode(&model.TalkRecordExtraFile{
@@ -278,7 +278,7 @@ func (m *MessageService) SendCode(ctx context.Context, uid int, req *message.Cod
 	data := &model.TalkRecords{
 		MsgId:      strutil.NewMsgId(),
 		TalkType:   int(req.Receiver.TalkType),
-		MsgType:    entity.MsgTypeCode,
+		MsgType:    entity.ChatMsgTypeCode,
 		UserId:     uid,
 		ReceiverId: int(req.Receiver.ReceiverId),
 		Extra: jsonutil.Encode(&model.TalkRecordExtraCode{
@@ -307,7 +307,7 @@ func (m *MessageService) SendVote(ctx context.Context, uid int, req *message.Vot
 	data := &model.TalkRecords{
 		MsgId:      strutil.NewMsgId(),
 		TalkType:   entity.ChatGroupMode,
-		MsgType:    entity.MsgTypeVote,
+		MsgType:    entity.ChatMsgTypeVote,
 		UserId:     uid,
 		ReceiverId: int(req.Receiver.ReceiverId),
 	}
@@ -364,7 +364,7 @@ func (m *MessageService) SendEmoticon(ctx context.Context, uid int, req *message
 	data := &model.TalkRecords{
 		MsgId:      strutil.NewMsgId(),
 		TalkType:   int(req.Receiver.TalkType),
-		MsgType:    entity.MsgTypeFile,
+		MsgType:    entity.ChatMsgTypeFile,
 		UserId:     uid,
 		ReceiverId: int(req.Receiver.ReceiverId),
 		Extra: jsonutil.Encode(&model.TalkRecordExtraFile{
@@ -441,7 +441,7 @@ func (m *MessageService) SendLocation(ctx context.Context, uid int, req *message
 	data := &model.TalkRecords{
 		MsgId:      strutil.NewMsgId(),
 		TalkType:   int(req.Receiver.TalkType),
-		MsgType:    entity.MsgTypeLocation,
+		MsgType:    entity.ChatMsgTypeLocation,
 		UserId:     uid,
 		ReceiverId: int(req.Receiver.ReceiverId),
 		Extra: jsonutil.Encode(&model.TalkRecordExtraLocation{
@@ -465,8 +465,30 @@ func (m *MessageService) SendLocation(ctx context.Context, uid int, req *message
 }
 
 // SendBusinessCard 推送用户名片消息
-func (m *MessageService) SendBusinessCard(ctx context.Context, uid int) error {
-	panic("SendBusinessCard")
+func (m *MessageService) SendBusinessCard(ctx context.Context, uid int, req *message.CardMessageRequest) error {
+	data := &model.TalkRecords{
+		MsgId:      strutil.NewMsgId(),
+		TalkType:   int(req.Receiver.TalkType),
+		MsgType:    entity.ChatMsgTypeCard,
+		UserId:     uid,
+		ReceiverId: int(req.Receiver.ReceiverId),
+		Extra: jsonutil.Encode(&model.TalkRecordExtraCard{
+			UserId: int(req.UserId),
+		}),
+	}
+
+	if req.Receiver.TalkType == entity.ChatGroupMode {
+		data.Sequence = m.Sequence.Get(ctx, 0, int(req.Receiver.ReceiverId))
+	} else {
+		data.Sequence = m.Sequence.Get(ctx, uid, int(req.Receiver.ReceiverId))
+	}
+
+	err := m.Db().WithContext(ctx).Create(data).Error
+	if err == nil {
+		m.afterHandle(ctx, data, map[string]string{"text": "[分享名片]"})
+	}
+
+	return err
 }
 
 // SendLogin 推送用户登录消息
@@ -476,7 +498,7 @@ func (m *MessageService) SendLogin(ctx context.Context, uid int, req *message.Lo
 		MsgId:      strutil.NewMsgId(),
 		Sequence:   m.Sequence.Get(ctx, 4257, uid),
 		TalkType:   entity.ChatPrivateMode,
-		MsgType:    entity.MsgTypeLogin,
+		MsgType:    entity.ChatMsgTypeLogin,
 		UserId:     4257, // 机器人ID
 		ReceiverId: uid,
 		Extra: jsonutil.Encode(&model.TalkRecordExtraLogin{
@@ -552,7 +574,7 @@ func (m *MessageService) Vote(ctx context.Context, uid int, recordId int, option
 		return nil, err
 	}
 
-	if vote.MsgType != entity.MsgTypeVote {
+	if vote.MsgType != entity.ChatMsgTypeVote {
 		return nil, fmt.Errorf("当前记录不属于投票信息[%d]", vote.MsgType)
 	}
 
@@ -624,7 +646,7 @@ func (m *MessageService) afterHandle(ctx context.Context, record *model.TalkReco
 
 	if record.TalkType == entity.ChatPrivateMode {
 		m.unreadStorage.Incr(ctx, entity.ChatPrivateMode, record.UserId, record.ReceiverId)
-		if record.MsgType == entity.MsgTypeSystemText {
+		if record.MsgType == entity.ChatMsgSysText {
 			m.unreadStorage.Incr(ctx, 1, record.ReceiverId, record.UserId)
 		}
 	} else if record.TalkType == entity.ChatGroupMode {
