@@ -3,7 +3,6 @@ package talk
 import (
 	"github.com/gin-gonic/gin/binding"
 	"go-chat/api/pb/message/v1"
-	"go-chat/internal/entity"
 	"go-chat/internal/pkg/ichat"
 	"go-chat/internal/service"
 )
@@ -18,7 +17,7 @@ func NewSendMessage(talkAuthService *service.TalkAuthService, messageService *se
 }
 
 type SendBaseMessageRequest struct {
-	Type     int       `json:"type" binding:"required,gt=0"`
+	Type     string    `json:"type" binding:"required"`
 	Receiver *Receiver `json:"receiver" binding:"required"`
 }
 
@@ -48,23 +47,21 @@ func (c *SendMessage) Send(ctx *ichat.Context) error {
 	return c.transfer(ctx, params.Type)
 }
 
-func (c *SendMessage) transfer(ctx *ichat.Context, typeValue int) error {
-	switch typeValue {
-	case entity.MsgTypeText:
-		return c.onSendText(ctx)
-	case entity.MsgTypeCode:
-		return c.onSendCode(ctx)
-	case entity.MsgTypeForward:
-		return c.onSendForward(ctx)
-	case entity.MsgTypeLocation:
-		return c.onSendLocation(ctx)
-	case entity.MsgTypeEmoticon:
-		return c.onSendEmoticon(ctx)
-	case entity.MsgTypeVote:
-		return c.onSendVote(ctx)
-	default:
-		return ctx.InvalidParams("消息类型未定义")
+func (c *SendMessage) transfer(ctx *ichat.Context, typeValue string) error {
+	publishMapping := make(map[string]func(ctx *ichat.Context) error)
+	publishMapping["text"] = c.onSendText
+	publishMapping["code"] = c.onSendCode
+	publishMapping["location"] = c.onSendLocation
+	publishMapping["emoticon"] = c.onSendEmoticon
+	publishMapping["vote"] = c.onSendVote
+	publishMapping["image"] = c.onSendImage
+	publishMapping["file"] = c.onSendFile
+
+	if call, ok := publishMapping[typeValue]; ok {
+		return call(ctx)
 	}
+
+	return nil
 }
 
 // 文本消息

@@ -18,12 +18,12 @@ type KeyboardMessage struct {
 	} `json:"content"`
 }
 
-// OnKeyboardMessage 键盘输入事件
-func (h *Handler) OnKeyboardMessage(ctx context.Context, _ socket.IClient, data []byte) {
+// onKeyboardMessage 键盘输入事件
+func (h *Handler) onKeyboardMessage(ctx context.Context, _ socket.IClient, data []byte) {
 
 	var m KeyboardMessage
 	if err := json.Unmarshal(data, &m); err != nil {
-		log.Println("Chat OnKeyboardMessage Err: ", err)
+		log.Println("Chat onKeyboardMessage Err: ", err)
 		return
 	}
 
