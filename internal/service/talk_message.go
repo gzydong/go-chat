@@ -58,11 +58,7 @@ func (m *MessageService) SendSystemText(ctx context.Context, uid int, req *messa
 		Content:    html.EscapeString(req.Content),
 	}
 
-	if req.Receiver.TalkType == entity.ChatGroupMode {
-		data.Sequence = m.Sequence.Get(ctx, 0, int(req.Receiver.ReceiverId))
-	} else {
-		data.Sequence = m.Sequence.Get(ctx, uid, int(req.Receiver.ReceiverId))
-	}
+	m.loadSequence(ctx, data)
 
 	if err := m.Db().WithContext(ctx).Create(data).Error; err != nil {
 		return err
@@ -87,11 +83,7 @@ func (m *MessageService) SendText(ctx context.Context, uid int, req *message.Tex
 		Content:    html.EscapeString(req.Content),
 	}
 
-	if req.Receiver.TalkType == entity.ChatGroupMode {
-		data.Sequence = m.Sequence.Get(ctx, 0, int(req.Receiver.ReceiverId))
-	} else {
-		data.Sequence = m.Sequence.Get(ctx, uid, int(req.Receiver.ReceiverId))
-	}
+	m.loadSequence(ctx, data)
 
 	if err := m.Db().WithContext(ctx).Create(data).Error; err != nil {
 		return err
@@ -129,11 +121,7 @@ func (m *MessageService) SendImage(ctx context.Context, uid int, req *message.Im
 		}),
 	}
 
-	if req.Receiver.TalkType == entity.ChatGroupMode {
-		data.Sequence = m.Sequence.Get(ctx, 0, int(req.Receiver.ReceiverId))
-	} else {
-		data.Sequence = m.Sequence.Get(ctx, uid, int(req.Receiver.ReceiverId))
-	}
+	m.loadSequence(ctx, data)
 
 	err = m.Db().WithContext(ctx).Create(data).Error
 	if err == nil {
@@ -168,11 +156,7 @@ func (m *MessageService) SendVoice(ctx context.Context, uid int, req *message.Vo
 		}),
 	}
 
-	if req.Receiver.TalkType == entity.ChatGroupMode {
-		data.Sequence = m.Sequence.Get(ctx, 0, int(req.Receiver.ReceiverId))
-	} else {
-		data.Sequence = m.Sequence.Get(ctx, uid, int(req.Receiver.ReceiverId))
-	}
+	m.loadSequence(ctx, data)
 
 	err = m.Db().WithContext(ctx).Create(data).Error
 	if err == nil {
@@ -207,11 +191,7 @@ func (m *MessageService) SendVideo(ctx context.Context, uid int, req *message.Vi
 		}),
 	}
 
-	if req.Receiver.TalkType == entity.ChatGroupMode {
-		data.Sequence = m.Sequence.Get(ctx, 0, int(req.Receiver.ReceiverId))
-	} else {
-		data.Sequence = m.Sequence.Get(ctx, uid, int(req.Receiver.ReceiverId))
-	}
+	m.loadSequence(ctx, data)
 
 	err = m.Db().WithContext(ctx).Create(data).Error
 	if err == nil {
@@ -258,11 +238,7 @@ func (m *MessageService) SendFile(ctx context.Context, uid int, req *message.Fil
 		}),
 	}
 
-	if req.Receiver.TalkType == entity.ChatGroupMode {
-		data.Sequence = m.Sequence.Get(ctx, 0, int(req.Receiver.ReceiverId))
-	} else {
-		data.Sequence = m.Sequence.Get(ctx, uid, int(req.Receiver.ReceiverId))
-	}
+	m.loadSequence(ctx, data)
 
 	err = m.Db().WithContext(ctx).Create(data).Error
 	if err == nil {
@@ -287,11 +263,7 @@ func (m *MessageService) SendCode(ctx context.Context, uid int, req *message.Cod
 		}),
 	}
 
-	if req.Receiver.TalkType == entity.ChatGroupMode {
-		data.Sequence = m.Sequence.Get(ctx, 0, int(req.Receiver.ReceiverId))
-	} else {
-		data.Sequence = m.Sequence.Get(ctx, uid, int(req.Receiver.ReceiverId))
-	}
+	m.loadSequence(ctx, data)
 
 	err := m.Db().WithContext(ctx).Create(data).Error
 	if err == nil {
@@ -312,11 +284,7 @@ func (m *MessageService) SendVote(ctx context.Context, uid int, req *message.Vot
 		ReceiverId: int(req.Receiver.ReceiverId),
 	}
 
-	if req.Receiver.TalkType == entity.ChatGroupMode {
-		data.Sequence = m.Sequence.Get(ctx, 0, int(req.Receiver.ReceiverId))
-	} else {
-		data.Sequence = m.Sequence.Get(ctx, uid, int(req.Receiver.ReceiverId))
-	}
+	m.loadSequence(ctx, data)
 
 	options := make(map[string]string)
 	for i, value := range req.Options {
@@ -377,11 +345,7 @@ func (m *MessageService) SendEmoticon(ctx context.Context, uid int, req *message
 		}),
 	}
 
-	if req.Receiver.TalkType == entity.ChatGroupMode {
-		data.Sequence = m.Sequence.Get(ctx, 0, int(req.Receiver.ReceiverId))
-	} else {
-		data.Sequence = m.Sequence.Get(ctx, uid, int(req.Receiver.ReceiverId))
-	}
+	m.loadSequence(ctx, data)
 
 	err := m.Db().WithContext(ctx).Create(data).Error
 	if err == nil {
@@ -450,11 +414,7 @@ func (m *MessageService) SendLocation(ctx context.Context, uid int, req *message
 		}),
 	}
 
-	if req.Receiver.TalkType == entity.ChatGroupMode {
-		data.Sequence = m.Sequence.Get(ctx, 0, int(req.Receiver.ReceiverId))
-	} else {
-		data.Sequence = m.Sequence.Get(ctx, uid, int(req.Receiver.ReceiverId))
-	}
+	m.loadSequence(ctx, data)
 
 	err := m.Db().WithContext(ctx).Create(data).Error
 	if err == nil {
@@ -477,11 +437,7 @@ func (m *MessageService) SendBusinessCard(ctx context.Context, uid int, req *mes
 		}),
 	}
 
-	if req.Receiver.TalkType == entity.ChatGroupMode {
-		data.Sequence = m.Sequence.Get(ctx, 0, int(req.Receiver.ReceiverId))
-	} else {
-		data.Sequence = m.Sequence.Get(ctx, uid, int(req.Receiver.ReceiverId))
-	}
+	m.loadSequence(ctx, data)
 
 	err := m.Db().WithContext(ctx).Create(data).Error
 	if err == nil {
@@ -496,10 +452,9 @@ func (m *MessageService) SendLogin(ctx context.Context, uid int, req *message.Lo
 
 	data := &model.TalkRecords{
 		MsgId:      strutil.NewMsgId(),
-		Sequence:   m.Sequence.Get(ctx, 4257, uid),
 		TalkType:   entity.ChatPrivateMode,
 		MsgType:    entity.ChatMsgTypeLogin,
-		UserId:     4257, // 机器人ID
+		UserId:     4257,
 		ReceiverId: uid,
 		Extra: jsonutil.Encode(&model.TalkRecordExtraLogin{
 			IpAddress: req.Ip,
@@ -510,6 +465,8 @@ func (m *MessageService) SendLogin(ctx context.Context, uid int, req *message.Lo
 			Datetime:  timeutil.DateTime(),
 		}),
 	}
+
+	m.loadSequence(ctx, data)
 
 	err := m.Db().WithContext(ctx).Create(data).Error
 	if err == nil {
@@ -580,7 +537,7 @@ func (m *MessageService) Vote(ctx context.Context, uid int, recordId int, option
 
 	if vote.TalkType == entity.ChatGroupMode {
 		var count int64
-		db.Debug().Table("group_member").Where("group_id = ? and user_id = ? and is_quit = 0", vote.ReceiverId, uid).Count(&count)
+		db.Table("group_member").Where("group_id = ? and user_id = ? and is_quit = 0", vote.ReceiverId, uid).Count(&count)
 		if count == 0 {
 			return nil, errors.New("暂无投票权限！")
 		}
@@ -698,5 +655,13 @@ func (m *MessageService) afterHandle(ctx context.Context, record *model.TalkReco
 
 	if err := m.Redis().Publish(ctx, entity.ImTopicChat, content).Err(); err != nil {
 		logger.Error(fmt.Sprintf("[ALL]消息推送失败 %s", err.Error()))
+	}
+}
+
+func (m *MessageService) loadSequence(ctx context.Context, data *model.TalkRecords) {
+	if data.TalkType == entity.ChatGroupMode {
+		data.Sequence = m.Sequence.Get(ctx, 0, data.ReceiverId)
+	} else {
+		data.Sequence = m.Sequence.Get(ctx, data.UserId, data.ReceiverId)
 	}
 }
