@@ -82,7 +82,7 @@ func Initialize(conf *config.Config) *AppProvider {
 	contactService := service.NewContactService(source, repoContact)
 	repoGroup := repo.NewGroup(db)
 	groupService := service.NewGroupService(source, repoGroup, groupMember, relation, repoSequence)
-	authService := service.NewAuthService(organizeOrganize, repoContact)
+	authService := service.NewAuthService(organizeOrganize, repoContact, groupMember)
 	session := talk.NewSession(talkService, talkSessionService, redisLock, userService, clientStorage, messageStorage, contactService, unreadStorage, contactRemark, groupService, authService)
 	message := talk.NewMessage(talkService, authService, messageService, filesystem)
 	talkRecords := repo.NewTalkRecords(db)

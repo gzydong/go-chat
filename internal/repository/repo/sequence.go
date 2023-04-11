@@ -29,12 +29,14 @@ func (s *Sequence) try(ctx context.Context, userId int, receiverId int) error {
 
 	// 当数据不存在时需要从数据库中加载
 	if result == time.Duration(-2) {
-		isTrue := s.cache.Redis().SetNX(ctx, fmt.Sprintf("%s_lock", s.cache.Name(userId, receiverId)), 1, 10*time.Second).Val()
+		lockName := fmt.Sprintf("%s_lock", s.cache.Name(userId, receiverId))
+
+		isTrue := s.cache.Redis().SetNX(ctx, lockName, 1, 10*time.Second).Val()
 		if !isTrue {
 			return errors.New("请求频繁")
 		}
 
-		defer s.cache.Redis().Del(ctx, fmt.Sprintf("%s_lock", s.cache.Name(userId, receiverId)))
+		defer s.cache.Redis().Del(ctx, lockName)
 
 		tx := s.db.WithContext(ctx).Model(&model.TalkRecords{})
 

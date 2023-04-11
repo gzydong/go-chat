@@ -18,5 +18,5 @@ func NewRobot(db *gorm.DB) *Robot {
 
 // GetLoginRobot 获取登录机器的信息
 func (r *Robot) GetLoginRobot(ctx context.Context) (*model.Robot, error) {
-	return r.FindByWhere(ctx, "type = ? and status = ?", 1, 0)
+	return r.FindByWhere(ctx, "type = ? and status = ?", 1, model.RootStatusNormal)
 }

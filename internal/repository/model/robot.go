@@ -2,6 +2,12 @@ package model
 
 import "time"
 
+const (
+	RootStatusDeleted = -1
+	RootStatusNormal  = 0
+	RootStatusDisable = 1
+)
+
 type Robot struct {
 	Id        int       `gorm:"column:id;primary_key;AUTO_INCREMENT" json:"id"`   // 机器人ID
 	UserId    int       `gorm:"column:user_id;default:0;NOT NULL" json:"user_id"` // 关联用户ID

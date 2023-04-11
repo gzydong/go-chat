@@ -4,6 +4,14 @@ import (
 	"time"
 )
 
+const (
+	GroupMemberQuitStatusYes = 1
+	GroupMemberQuitStatusNo  = 0
+
+	GroupMemberMuteStatusYes = 1
+	GroupMemberMuteStatusNo  = 0
+)
+
 type GroupMember struct {
 	Id          int       `gorm:"column:id;primary_key;AUTO_INCREMENT" json:"id"`               // 自增ID
 	GroupId     int       `gorm:"column:group_id;default:0;NOT NULL" json:"group_id"`           // 群组ID

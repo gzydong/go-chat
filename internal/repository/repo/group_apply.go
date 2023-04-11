@@ -33,7 +33,7 @@ func (g *GroupApply) List(ctx context.Context, groupId int) ([]*model.GroupApply
 	query.Where("group_apply.group_id = ?", groupId)
 	query.Order("group_apply.created_at desc")
 
-	items := make([]*model.GroupApplyList, 0)
+	var items []*model.GroupApplyList
 	if err := query.Select(fields).Scan(&items).Error; err != nil {
 		return nil, err
 	}
