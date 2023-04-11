@@ -83,7 +83,6 @@ var serviceProviderSet = wire.NewSet(
 	service.NewContactGroupService,
 	service.NewSplitUploadService,
 	service.NewIpAddressService,
-	service.NewAuthPermissionService,
 	service.NewMessageService,
 	note.NewArticleService,
 	note.NewArticleTagService,
@@ -93,7 +92,7 @@ var serviceProviderSet = wire.NewSet(
 	organize.NewOrganizeService,
 	organize.NewPositionService,
 	service.NewTemplateService,
-	service.NewTalkAuthService,
+	service.NewAuthService,
 	logic.NewMessageForwardLogic,
 )
 

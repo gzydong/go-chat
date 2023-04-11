@@ -16,25 +16,23 @@ import (
 )
 
 type Records struct {
-	talkRecordsService    *service.TalkRecordsService
-	groupMemberService    *service.GroupMemberService
-	filesystem            *filesystem.Filesystem
-	authPermissionService *service.AuthPermissionService
+	talkRecordsService *service.TalkRecordsService
+	groupMemberService *service.GroupMemberService
+	filesystem         *filesystem.Filesystem
+	authService        *service.AuthService
 }
 
-func NewRecords(talkRecordsService *service.TalkRecordsService, groupMemberService *service.GroupMemberService, filesystem *filesystem.Filesystem, authPermissionService *service.AuthPermissionService) *Records {
-	return &Records{talkRecordsService: talkRecordsService, groupMemberService: groupMemberService, filesystem: filesystem, authPermissionService: authPermissionService}
+func NewRecords(talkRecordsService *service.TalkRecordsService, groupMemberService *service.GroupMemberService, filesystem *filesystem.Filesystem, authService *service.AuthService) *Records {
+	return &Records{talkRecordsService: talkRecordsService, groupMemberService: groupMemberService, filesystem: filesystem, authService: authService}
 }
 
-type (
-	GetTalkRecordsRequest struct {
-		TalkType   int `form:"talk_type" json:"talk_type" binding:"required,oneof=1 2"`         // 对话类型
-		MsgType    int `form:"msg_type" json:"msg_type" binding:"numeric"`                      // 消息类型
-		ReceiverId int `form:"receiver_id" json:"receiver_id" binding:"required,numeric,min=1"` // 接收者ID
-		RecordId   int `form:"record_id" json:"record_id" binding:"min=0,numeric"`              // 上次查询的最小消息ID
-		Limit      int `form:"limit" json:"limit" binding:"required,numeric,max=100"`           // 数据行数
-	}
-)
+type GetTalkRecordsRequest struct {
+	TalkType   int `form:"talk_type" json:"talk_type" binding:"required,oneof=1 2"`         // 对话类型
+	MsgType    int `form:"msg_type" json:"msg_type" binding:"numeric"`                      // 消息类型
+	ReceiverId int `form:"receiver_id" json:"receiver_id" binding:"required,numeric,min=1"` // 接收者ID
+	RecordId   int `form:"record_id" json:"record_id" binding:"min=0,numeric"`              // 上次查询的最小消息ID
+	Limit      int `form:"limit" json:"limit" binding:"required,numeric,max=100"`           // 数据行数
+}
 
 // GetRecords 获取会话记录
 func (c *Records) GetRecords(ctx *ichat.Context) error {
@@ -46,11 +44,13 @@ func (c *Records) GetRecords(ctx *ichat.Context) error {
 
 	uid := ctx.UserId()
 	if params.TalkType == entity.ChatGroupMode {
-		if !c.authPermissionService.IsAuth(ctx.Ctx(), &service.AuthPermission{
+		err := c.authService.IsAuth(ctx.Ctx(), &service.AuthOption{
 			TalkType:   params.TalkType,
 			UserId:     uid,
 			ReceiverId: params.ReceiverId,
-		}) {
+		})
+
+		if err != nil {
 			items := make([]map[string]any, 0)
 			items = append(items, map[string]any{
 				"content":     "暂无权限查看群消息",
@@ -106,11 +106,13 @@ func (c *Records) SearchHistoryRecords(ctx *ichat.Context) error {
 	uid := ctx.UserId()
 
 	if params.TalkType == entity.ChatGroupMode {
-		if !c.authPermissionService.IsAuth(ctx.Ctx(), &service.AuthPermission{
+		err := c.authService.IsAuth(ctx.Ctx(), &service.AuthOption{
 			TalkType:   params.TalkType,
 			UserId:     uid,
 			ReceiverId: params.ReceiverId,
-		}) {
+		})
+
+		if err != nil {
 			return ctx.Success(map[string]any{
 				"limit":     params.Limit,
 				"record_id": 0,

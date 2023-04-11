@@ -11,22 +11,22 @@ import (
 	"gorm.io/gorm"
 )
 
-type TalkAuthService struct {
+type AuthService struct {
 	organize *organize.Organize
 	contact  *repo.Contact
 }
 
-func NewTalkAuthService(organize *organize.Organize, contact *repo.Contact) *TalkAuthService {
-	return &TalkAuthService{organize: organize, contact: contact}
+func NewAuthService(organize *organize.Organize, contact *repo.Contact) *AuthService {
+	return &AuthService{organize: organize, contact: contact}
 }
 
-type TalkAuthOpt struct {
+type AuthOption struct {
 	TalkType   int
 	UserId     int
 	ReceiverId int
 }
 
-func (t *TalkAuthService) IsAuth(ctx context.Context, opt *TalkAuthOpt) error {
+func (t *AuthService) IsAuth(ctx context.Context, opt *AuthOption) error {
 
 	if opt.TalkType == entity.ChatPrivateMode {
 		// 这里需要判断双方是否都是企业成员，如果是则无需添加好友即可聊天

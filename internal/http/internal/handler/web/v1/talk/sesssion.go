@@ -16,21 +16,21 @@ import (
 )
 
 type Session struct {
-	talkService           *service.TalkService
-	talkSessionService    *service.TalkSessionService
-	redisLock             *cache.RedisLock
-	userService           *service.UserService
-	clientStorage         *cache.ClientStorage
-	messageStorage        *cache.MessageStorage
-	contactService        *service.ContactService
-	unreadStorage         *cache.UnreadStorage
-	contactRemark         *cache.ContactRemark
-	groupService          *service.GroupService
-	authPermissionService *service.AuthPermissionService
+	talkService        *service.TalkService
+	talkSessionService *service.TalkSessionService
+	redisLock          *cache.RedisLock
+	userService        *service.UserService
+	clientStorage      *cache.ClientStorage
+	messageStorage     *cache.MessageStorage
+	contactService     *service.ContactService
+	unreadStorage      *cache.UnreadStorage
+	contactRemark      *cache.ContactRemark
+	groupService       *service.GroupService
+	authService        *service.AuthService
 }
 
-func NewSession(talkService *service.TalkService, talkSessionService *service.TalkSessionService, redisLock *cache.RedisLock, userService *service.UserService, clientStorage *cache.ClientStorage, messageStorage *cache.MessageStorage, contactService *service.ContactService, unreadStorage *cache.UnreadStorage, contactRemark *cache.ContactRemark, groupService *service.GroupService, authPermissionService *service.AuthPermissionService) *Session {
-	return &Session{talkService: talkService, talkSessionService: talkSessionService, redisLock: redisLock, userService: userService, clientStorage: clientStorage, messageStorage: messageStorage, contactService: contactService, unreadStorage: unreadStorage, contactRemark: contactRemark, groupService: groupService, authPermissionService: authPermissionService}
+func NewSession(talkService *service.TalkService, talkSessionService *service.TalkSessionService, redisLock *cache.RedisLock, userService *service.UserService, clientStorage *cache.ClientStorage, messageStorage *cache.MessageStorage, contactService *service.ContactService, unreadStorage *cache.UnreadStorage, contactRemark *cache.ContactRemark, groupService *service.GroupService, authService *service.AuthService) *Session {
+	return &Session{talkService: talkService, talkSessionService: talkSessionService, redisLock: redisLock, userService: userService, clientStorage: clientStorage, messageStorage: messageStorage, contactService: contactService, unreadStorage: unreadStorage, contactRemark: contactRemark, groupService: groupService, authService: authService}
 }
 
 // Create 创建会话列表
@@ -60,12 +60,11 @@ func (c *Session) Create(ctx *ichat.Context) error {
 		return ctx.ErrorBusiness("创建失败")
 	}
 
-	// 暂无权限
-	if !c.authPermissionService.IsAuth(ctx.Ctx(), &service.AuthPermission{
+	if c.authService.IsAuth(ctx.Ctx(), &service.AuthOption{
 		TalkType:   int(params.TalkType),
 		UserId:     uid,
 		ReceiverId: int(params.ReceiverId),
-	}) {
+	}) != nil {
 		return ctx.ErrorBusiness("暂无权限！")
 	}
 

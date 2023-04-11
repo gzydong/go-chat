@@ -10,11 +10,11 @@ import (
 type Publish struct {
 	mapping map[string]func(ctx *ichat.Context) error
 
-	talkAuthService *service.TalkAuthService
+	talkAuthService *service.AuthService
 	messageService  *service.MessageService
 }
 
-func NewPublish(talkAuthService *service.TalkAuthService, messageService *service.MessageService) *Publish {
+func NewPublish(talkAuthService *service.AuthService, messageService *service.MessageService) *Publish {
 	return &Publish{talkAuthService: talkAuthService, messageService: messageService}
 }
 
@@ -37,8 +37,7 @@ func (c *Publish) Publish(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	// 权限验证
-	if err := c.talkAuthService.IsAuth(ctx.Ctx(), &service.TalkAuthOpt{
+	if err := c.talkAuthService.IsAuth(ctx.Ctx(), &service.AuthOption{
 		TalkType:   params.Receiver.TalkType,
 		UserId:     ctx.UserId(),
 		ReceiverId: params.Receiver.ReceiverId,

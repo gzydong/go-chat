@@ -82,14 +82,13 @@ func Initialize(conf *config.Config) *AppProvider {
 	contactService := service.NewContactService(source, repoContact)
 	repoGroup := repo.NewGroup(db)
 	groupService := service.NewGroupService(source, repoGroup, groupMember, relation, repoSequence)
-	authPermissionService := service.NewAuthPermissionService(repoContact, groupMember, organizeOrganize)
-	session := talk.NewSession(talkService, talkSessionService, redisLock, userService, clientStorage, messageStorage, contactService, unreadStorage, contactRemark, groupService, authPermissionService)
-	talkAuthService := service.NewTalkAuthService(organizeOrganize, repoContact)
-	message := talk.NewMessage(talkService, talkAuthService, messageService, filesystem)
+	authService := service.NewAuthService(organizeOrganize, repoContact)
+	session := talk.NewSession(talkService, talkSessionService, redisLock, userService, clientStorage, messageStorage, contactService, unreadStorage, contactRemark, groupService, authService)
+	message := talk.NewMessage(talkService, authService, messageService, filesystem)
 	talkRecords := repo.NewTalkRecords(db)
 	talkRecordsService := service.NewTalkRecordsService(source, talkVote, talkRecordsVote, groupMember, talkRecords)
 	groupMemberService := service.NewGroupMemberService(source, groupMember)
-	records := talk.NewRecords(talkRecordsService, groupMemberService, filesystem, authPermissionService)
+	records := talk.NewRecords(talkRecordsService, groupMemberService, filesystem, authService)
 	emoticon := repo.NewEmoticon(db)
 	emoticonService := service.NewEmoticonService(source, emoticon, filesystem)
 	v1Emoticon := v1.NewEmoticon(filesystem, emoticonService, redisLock)
@@ -116,7 +115,7 @@ func Initialize(conf *config.Config) *AppProvider {
 	class := article.NewClass(articleClassService)
 	articleTagService := note2.NewArticleTagService(source)
 	tag := article.NewTag(articleTagService)
-	sendMessage := talk.NewPublish(talkAuthService, messageService)
+	publish := talk.NewPublish(authService, messageService)
 	webV1 := &web.V1{
 		Common:       common,
 		Auth:         auth,
@@ -137,7 +136,7 @@ func Initialize(conf *config.Config) *AppProvider {
 		ArticleAnnex: annex,
 		ArticleClass: class,
 		ArticleTag:   tag,
-		Message:      sendMessage,
+		Message:      publish,
 	}
 	webHandler := &web.Handler{
 		V1: webV1,
@@ -181,4 +180,4 @@ var providerSet = wire.NewSet(provider.NewMySQLClient, provider.NewRedisClient, 
 
 var daoProviderSet = wire.NewSet(repo.NewSource, repo.NewContact, repo.NewContactGroup, repo.NewGroupMember, repo.NewUsers, repo.NewGroup, repo.NewGroupApply, repo.NewTalkRecords, repo.NewGroupNotice, repo.NewTalkSession, repo.NewEmoticon, repo.NewTalkRecordsVote, repo.NewFileSplitUpload, note.NewArticleClass, note.NewArticleAnnex, organize.NewDepartment, organize.NewOrganize, organize.NewPosition, repo.NewRobot, repo.NewSequence, repo.NewAdmin)
 
-var serviceProviderSet = wire.NewSet(service.NewUserService, service.NewSmsService, service.NewTalkService, service.NewGroupService, service.NewGroupMemberService, service.NewGroupNoticeService, service.NewGroupApplyService, service.NewTalkSessionService, service.NewEmoticonService, service.NewTalkRecordsService, service.NewContactService, service.NewContactApplyService, service.NewContactGroupService, service.NewSplitUploadService, service.NewIpAddressService, service.NewAuthPermissionService, service.NewMessageService, note2.NewArticleService, note2.NewArticleTagService, note2.NewArticleClassService, note2.NewArticleAnnexService, organize2.NewOrganizeDeptService, organize2.NewOrganizeService, organize2.NewPositionService, service.NewTemplateService, service.NewTalkAuthService, logic.NewMessageForwardLogic)
+var serviceProviderSet = wire.NewSet(service.NewUserService, service.NewSmsService, service.NewTalkService, service.NewGroupService, service.NewGroupMemberService, service.NewGroupNoticeService, service.NewGroupApplyService, service.NewTalkSessionService, service.NewEmoticonService, service.NewTalkRecordsService, service.NewContactService, service.NewContactApplyService, service.NewContactGroupService, service.NewSplitUploadService, service.NewIpAddressService, service.NewMessageService, note2.NewArticleService, note2.NewArticleTagService, note2.NewArticleClassService, note2.NewArticleAnnexService, organize2.NewOrganizeDeptService, organize2.NewOrganizeService, organize2.NewPositionService, service.NewTemplateService, service.NewAuthService, logic.NewMessageForwardLogic)
