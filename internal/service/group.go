@@ -340,16 +340,15 @@ func (g *GroupService) Invite(ctx context.Context, opt *GroupInviteOpt) error {
 
 	err = db.Transaction(func(tx *gorm.DB) error {
 		// 删除已存在成员记录
-		tx.Where("group_id = ? and user_id in ? and is_quit = 1", opt.GroupId, opt.MemberIds).Delete(&model.GroupMember{})
+		tx.Delete(&model.GroupMember{}, "group_id = ? and user_id in ? and is_quit = ?", opt.GroupId, opt.MemberIds, model.GroupMemberQuitStatusYes)
 
-		// 添加新成员
 		if err = tx.Create(&addMembers).Error; err != nil {
 			return err
 		}
 
 		// 添加用户的对话列表
 		if len(addTalkList) > 0 {
-			if err = tx.Select("talk_type", "user_id", "receiver_id", "updated_at").Create(&addTalkList).Error; err != nil {
+			if err = tx.Create(&addTalkList).Error; err != nil {
 				return err
 			}
 		}

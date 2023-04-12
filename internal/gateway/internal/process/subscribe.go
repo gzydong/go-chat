@@ -64,7 +64,7 @@ func (m *MessageSubscribe) handle(worker *pool.Pool, data *redis.Message, consum
 	worker.Go(func() {
 		var in SubscribeContent
 		if err := json.Unmarshal([]byte(data.Payload), &in); err != nil {
-			log.Println("SubscribeContent Err: ", err.Error())
+			log.Println("SubscribeContent Unmarshal Err: ", err.Error())
 			return
 		}
 
