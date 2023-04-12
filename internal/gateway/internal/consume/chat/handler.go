@@ -29,13 +29,13 @@ func NewHandler(config *config.Config, clientStorage *cache.ClientStorage, roomS
 func (h *Handler) init() {
 	h.handlers = make(map[string]func(ctx context.Context, data []byte))
 
-	h.handlers[entity.EventTalk] = h.onConsumeTalk
-	h.handlers[entity.EventTalkKeyboard] = h.onConsumeTalkKeyboard
-	h.handlers[entity.EventOnlineStatus] = h.onConsumeLogin
-	h.handlers[entity.EventTalkRevoke] = h.onConsumeTalkRevoke
-	h.handlers[entity.EventTalkJoinGroup] = h.onConsumeTalkJoinGroup
-	h.handlers[entity.EventContactApply] = h.onConsumeContactApply
-	h.handlers[entity.EventTalkRead] = h.onConsumeTalkRead
+	h.handlers[entity.SubEventImMessage] = h.onConsumeTalk
+	h.handlers[entity.SubEventImMessageKeyboard] = h.onConsumeTalkKeyboard
+	h.handlers[entity.SubEventImMessageRead] = h.onConsumeTalkRead
+	h.handlers[entity.SubEventImMessageRevoke] = h.onConsumeTalkRevoke
+	h.handlers[entity.SubEventContactStatus] = h.onConsumeContactStatus
+	h.handlers[entity.SubEventContactApply] = h.onConsumeContactApply
+	h.handlers[entity.SubEventGroupJoin] = h.onConsumeGroupJoin
 }
 
 func (h *Handler) Call(ctx context.Context, event string, data []byte) {

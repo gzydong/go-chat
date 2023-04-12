@@ -6,6 +6,13 @@ type Message struct {
 	Content any    `json:"content"` // 消息内容
 }
 
+func NewMessage(event string, content any) *Message {
+	return &Message{
+		Event:   event,
+		Content: content,
+	}
+}
+
 // SenderContent 推送的消息
 type SenderContent struct {
 	IsAck     bool
@@ -23,15 +30,19 @@ func NewSenderContent() *SenderContent {
 	}
 }
 
+func (s *SenderContent) SetAck(value bool) *SenderContent {
+	s.IsAck = value
+	return s
+}
+
 // SetBroadcast 设置广播推送
 func (s *SenderContent) SetBroadcast(value bool) *SenderContent {
 	s.broadcast = value
 	return s
 }
 
-// SetMessage 设置推送数据
-func (s *SenderContent) SetMessage(msg *Message) *SenderContent {
-	s.message = msg
+func (s *SenderContent) SetMessage(event string, content any) *SenderContent {
+	s.message = NewMessage(event, content)
 	return s
 }
 

@@ -21,7 +21,7 @@ func NewTcpAdapter(conn net.Conn) (*TcpAdapter, error) {
 }
 
 func (t *TcpAdapter) Network() string {
-	return TcpType
+	return NetworkTcp
 }
 
 func (t *TcpAdapter) Read() ([]byte, error) {

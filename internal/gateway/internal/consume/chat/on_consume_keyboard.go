@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"strconv"
 
+	"go-chat/internal/entity"
 	"go-chat/internal/pkg/ichat/socket"
 	"go-chat/internal/pkg/logger"
 )
@@ -17,25 +18,22 @@ type ConsumeTalkKeyboard struct {
 // 键盘输入事件消息
 func (h *Handler) onConsumeTalkKeyboard(ctx context.Context, body []byte) {
 
-	var msg ConsumeTalkKeyboard
-	if err := json.Unmarshal(body, &msg); err != nil {
+	var in ConsumeTalkKeyboard
+	if err := json.Unmarshal(body, &in); err != nil {
 		logger.Error("[ChatSubscribe] onConsumeTalkKeyboard Unmarshal err: ", err.Error())
 		return
 	}
 
-	cids := h.clientStorage.GetUidFromClientIds(ctx, h.config.ServerId(), socket.Session.Chat.Name(), strconv.Itoa(msg.ReceiverID))
-	if len(cids) == 0 {
+	ids := h.clientStorage.GetUidFromClientIds(ctx, h.config.ServerId(), socket.Session.Chat.Name(), strconv.Itoa(in.ReceiverID))
+	if len(ids) == 0 {
 		return
 	}
 
 	c := socket.NewSenderContent()
-	c.SetReceive(cids...)
-	c.SetMessage(&socket.Message{
-		Event: "im.message.keyboard",
-		Content: map[string]any{
-			"sender_id":   msg.SenderID,
-			"receiver_id": msg.ReceiverID,
-		},
+	c.SetReceive(ids...)
+	c.SetMessage(entity.PushEventImMessageKeyboard, map[string]any{
+		"sender_id":   in.SenderID,
+		"receiver_id": in.ReceiverID,
 	})
 
 	socket.Session.Chat.Write(c)

@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"strconv"
 
+	"go-chat/internal/entity"
 	"go-chat/internal/pkg/ichat/socket"
 	"go-chat/internal/pkg/logger"
 )
@@ -18,28 +19,24 @@ type ConsumeTalkRead struct {
 // 消息已读事件
 func (h *Handler) onConsumeTalkRead(ctx context.Context, body []byte) {
 
-	var data ConsumeTalkRead
-	if err := json.Unmarshal(body, &data); err != nil {
+	var in ConsumeTalkRead
+	if err := json.Unmarshal(body, &in); err != nil {
 		logger.Error("[ChatSubscribe] onConsumeContactApply Unmarshal err: ", err.Error())
 		return
 	}
 
-	cids := h.clientStorage.GetUidFromClientIds(ctx, h.config.ServerId(), socket.Session.Chat.Name(), strconv.Itoa(data.ReceiverId))
-
-	if len(cids) == 0 {
+	clientIds := h.clientStorage.GetUidFromClientIds(ctx, h.config.ServerId(), socket.Session.Chat.Name(), strconv.Itoa(in.ReceiverId))
+	if len(clientIds) == 0 {
 		return
 	}
 
 	c := socket.NewSenderContent()
-	c.IsAck = true
-	c.SetReceive(cids...)
-	c.SetMessage(&socket.Message{
-		Event: "im.message.read",
-		Content: map[string]any{
-			"sender_id":   data.SenderId,
-			"receiver_id": data.ReceiverId,
-			"ids":         data.Ids,
-		},
+	c.SetAck(true)
+	c.SetReceive(clientIds...)
+	c.SetMessage(entity.PushEventImMessageRead, map[string]any{
+		"sender_id":   in.SenderId,
+		"receiver_id": in.ReceiverId,
+		"ids":         in.Ids,
 	})
 
 	socket.Session.Chat.Write(c)

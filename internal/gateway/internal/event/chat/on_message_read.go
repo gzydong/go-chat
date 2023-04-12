@@ -32,7 +32,7 @@ func (h *Handler) onReadMessage(ctx context.Context, client socket.IClient, data
 		Update("is_read", 1)
 
 	h.redis.Publish(ctx, entity.ImTopicChat, jsonutil.Encode(map[string]any{
-		"event": entity.EventTalkRead,
+		"event": entity.SubEventImMessageRead,
 		"data": jsonutil.Encode(map[string]any{
 			"sender_id":   client.Uid(),
 			"receiver_id": m.Content.ReceiverId,

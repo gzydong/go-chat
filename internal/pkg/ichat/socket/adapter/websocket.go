@@ -30,17 +30,12 @@ func NewWsAdapter(w http.ResponseWriter, r *http.Request) (*WsAdapter, error) {
 }
 
 func (w *WsAdapter) Network() string {
-	return WssType
+	return NetworkWss
 }
 
 func (w *WsAdapter) Read() ([]byte, error) {
-
 	_, content, err := w.conn.ReadMessage()
-	if err != nil {
-		return nil, err
-	}
-
-	return content, nil
+	return content, err
 }
 
 func (w *WsAdapter) Write(bytes []byte) error {

@@ -7,15 +7,21 @@ const (
 	ChatRoomMode    = 3 // 房间模式
 )
 
-// WebSocket 消息事件枚举
 const (
-	EventTalk          = "event_talk"            // 对话消息通知
-	EventTalkKeyboard  = "event_talk_keyboard"   // 键盘输入事件通知
-	EventTalkRevoke    = "event_talk_revoke"     // 聊天消息撤销通知
-	EventTalkJoinGroup = "event_talk_join_group" // 邀请加入群聊通知
-	EventTalkRead      = "event_talk_read"       // 对话消息读事件
-	EventOnlineStatus  = "event_login"           // 用户在线状态通知
-	EventContactApply  = "event_contact_apply"   // 好友申请消息通知
+	SubEventImMessage         = "sub.im.message"          // 对话消息通知
+	SubEventImMessageKeyboard = "sub.im.message.keyboard" // 键盘输入事件通知
+	SubEventImMessageRevoke   = "sub.im.message.revoke"   // 聊天消息撤销通知
+	SubEventImMessageRead     = "sub.im.message.read"     // 对话消息读事件
+	SubEventContactStatus     = "sub.im.contact.status"   // 用户在线状态通知
+	SubEventContactApply      = "sub.im.contact.apply"    // 好友申请消息通知
+	SubEventGroupJoin         = "sub.im.group.join"       // 邀请加入群聊通知
+
+	PushEventImMessage         = "im.message"          // 对话消息推送
+	PushEventImMessageKeyboard = "im.message.keyboard" // 键盘输入事件推送
+	PushEventImMessageRead     = "im.message.read"     // 对话消息读事件推送
+	PushEventImMessageRevoke   = "im.message.revoke"   // 聊天消息撤销推送
+	PushEventContactApply      = "im.contact.apply"    // 好友申请消息推送
+	PushEventContactStatus     = "im.contact.status"   // 用户在线状态推送
 )
 
 const (

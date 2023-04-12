@@ -54,7 +54,7 @@ func (c *ChatEvent) OnOpen(client socket.IClient) {
 
 	// 推送上线消息
 	c.redis.Publish(ctx, entity.ImTopicChat, jsonutil.Encode(map[string]any{
-		"event": entity.EventOnlineStatus,
+		"event": entity.SubEventContactStatus,
 		"data": jsonutil.Encode(map[string]any{
 			"user_id": client.Uid(),
 			"status":  1,
@@ -103,7 +103,7 @@ func (c *ChatEvent) OnClose(client socket.IClient, code int, text string) {
 
 	// 推送下线消息
 	c.redis.Publish(ctx, entity.ImTopicChat, jsonutil.Encode(map[string]any{
-		"event": entity.EventOnlineStatus,
+		"event": entity.SubEventContactStatus,
 		"data": jsonutil.Encode(map[string]any{
 			"user_id": client.Uid(),
 			"status":  0,

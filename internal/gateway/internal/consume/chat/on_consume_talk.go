@@ -3,7 +3,6 @@ package chat
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"strconv"
 
 	"go-chat/internal/entity"
@@ -22,51 +21,47 @@ type ConsumeTalk struct {
 // 聊天消息事件
 func (h *Handler) onConsumeTalk(ctx context.Context, body []byte) {
 
-	var msg ConsumeTalk
-	if err := json.Unmarshal(body, &msg); err != nil {
+	var in ConsumeTalk
+	if err := json.Unmarshal(body, &in); err != nil {
 		logger.Error("[ChatSubscribe] onConsumeTalk Unmarshal err: ", err.Error())
 		return
 	}
 
-	cids := make([]int64, 0)
-	if msg.TalkType == entity.ChatPrivateMode {
-		for _, val := range [2]int64{msg.SenderID, msg.ReceiverID} {
+	clientIds := make([]int64, 0)
+	if in.TalkType == entity.ChatPrivateMode {
+		for _, val := range [2]int64{in.SenderID, in.ReceiverID} {
 			ids := h.clientStorage.GetUidFromClientIds(ctx, h.config.ServerId(), socket.Session.Chat.Name(), strconv.FormatInt(val, 10))
 
-			cids = append(cids, ids...)
+			clientIds = append(clientIds, ids...)
 		}
-	} else if msg.TalkType == entity.ChatGroupMode {
+	} else if in.TalkType == entity.ChatGroupMode {
 		ids := h.roomStorage.All(ctx, &cache.RoomOption{
 			Channel:  socket.Session.Chat.Name(),
 			RoomType: entity.RoomImGroup,
-			Number:   strconv.Itoa(int(msg.ReceiverID)),
+			Number:   strconv.Itoa(int(in.ReceiverID)),
 			Sid:      h.config.ServerId(),
 		})
 
-		cids = append(cids, ids...)
+		clientIds = append(clientIds, ids...)
 	}
 
-	data, err := h.recordsService.GetTalkRecord(ctx, msg.RecordID)
-	if err != nil {
-		fmt.Println("GetTalkRecord===>", err.Error())
+	if len(clientIds) == 0 {
 		return
 	}
 
-	if len(cids) == 0 {
+	data, err := h.recordsService.GetTalkRecord(ctx, in.RecordID)
+	if err != nil {
 		return
 	}
 
 	c := socket.NewSenderContent()
-	c.SetReceive(cids...)
-	c.IsAck = true
-	c.SetMessage(&socket.Message{
-		Event: "im.message",
-		Content: map[string]any{
-			"sender_id":   msg.SenderID,
-			"receiver_id": msg.ReceiverID,
-			"talk_type":   msg.TalkType,
-			"data":        data,
-		},
+	c.SetReceive(clientIds...)
+	c.SetAck(true)
+	c.SetMessage(entity.PushEventImMessage, map[string]any{
+		"sender_id":   in.SenderID,
+		"receiver_id": in.ReceiverID,
+		"talk_type":   in.TalkType,
+		"data":        data,
 	})
 
 	socket.Session.Chat.Write(c)

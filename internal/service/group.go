@@ -113,7 +113,7 @@ func (g *GroupService) Create(ctx context.Context, opt *GroupCreateOpt) (int, er
 
 	// 广播网关将在线的用户加入房间
 	body := map[string]any{
-		"event": entity.EventTalkJoinGroup,
+		"event": entity.SubEventGroupJoin,
 		"data": jsonutil.Encode(map[string]any{
 			"group_id": group.Id,
 			"uids":     uids,
@@ -225,7 +225,7 @@ func (g *GroupService) Secede(ctx context.Context, groupId int, uid int) error {
 	g.relation.DelGroupRelation(ctx, uid, groupId)
 
 	g.Redis().Publish(ctx, entity.ImTopicChat, jsonutil.Encode(map[string]any{
-		"event": entity.EventTalkJoinGroup,
+		"event": entity.SubEventGroupJoin,
 		"data": jsonutil.Encode(map[string]any{
 			"type":     2,
 			"group_id": groupId,
@@ -234,7 +234,7 @@ func (g *GroupService) Secede(ctx context.Context, groupId int, uid int) error {
 	}))
 
 	g.Redis().Publish(ctx, entity.ImTopicChat, jsonutil.Encode(map[string]any{
-		"event": entity.EventTalk,
+		"event": entity.SubEventImMessage,
 		"data": jsonutil.Encode(map[string]any{
 			"sender_id":   record.UserId,
 			"receiver_id": record.ReceiverId,
@@ -375,7 +375,7 @@ func (g *GroupService) Invite(ctx context.Context, opt *GroupInviteOpt) error {
 
 	// 广播网关将在线的用户加入房间
 	g.Redis().Publish(ctx, entity.ImTopicChat, jsonutil.Encode(map[string]any{
-		"event": entity.EventTalkJoinGroup,
+		"event": entity.SubEventGroupJoin,
 		"data": jsonutil.Encode(map[string]any{
 			"type":     1,
 			"group_id": opt.GroupId,
@@ -384,7 +384,7 @@ func (g *GroupService) Invite(ctx context.Context, opt *GroupInviteOpt) error {
 	}))
 
 	g.Redis().Publish(ctx, entity.ImTopicChat, jsonutil.Encode(map[string]any{
-		"event": entity.EventTalk,
+		"event": entity.SubEventImMessage,
 		"data": jsonutil.Encode(map[string]any{
 			"sender_id":   record.UserId,
 			"receiver_id": record.ReceiverId,
@@ -475,7 +475,7 @@ func (g *GroupService) RemoveMember(ctx context.Context, opt *GroupRemoveMembers
 
 	_, _ = g.Redis().Pipelined(ctx, func(pipe redis.Pipeliner) error {
 		pipe.Publish(ctx, entity.ImTopicChat, jsonutil.Encode(map[string]any{
-			"event": entity.EventTalkJoinGroup,
+			"event": entity.SubEventGroupJoin,
 			"data": jsonutil.Encode(map[string]any{
 				"type":     2,
 				"group_id": opt.GroupId,
@@ -484,7 +484,7 @@ func (g *GroupService) RemoveMember(ctx context.Context, opt *GroupRemoveMembers
 		}))
 
 		pipe.Publish(ctx, entity.ImTopicChat, jsonutil.Encode(map[string]any{
-			"event": entity.EventTalk,
+			"event": entity.SubEventImMessage,
 			"data": jsonutil.Encode(map[string]any{
 				"sender_id":   int64(record.UserId),
 				"receiver_id": int64(record.ReceiverId),

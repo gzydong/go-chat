@@ -382,7 +382,7 @@ func (m *MessageService) SendForward(ctx context.Context, uid int, req *message.
 	_, _ = m.Redis().Pipelined(ctx, func(pipe redis.Pipeliner) error {
 		for _, item := range items {
 			data := jsonutil.Encode(map[string]any{
-				"event": entity.EventTalk,
+				"event": entity.SubEventImMessage,
 				"data": jsonutil.Encode(map[string]any{
 					"sender_id":   uid,
 					"receiver_id": item.ReceiverId,
@@ -501,7 +501,7 @@ func (m *MessageService) Revoke(ctx context.Context, uid int, recordId int) erro
 	}
 
 	body := map[string]any{
-		"event": entity.EventTalkRevoke,
+		"event": entity.SubEventImMessageRevoke,
 		"data": jsonutil.Encode(map[string]any{
 			"record_id": record.Id,
 		}),
@@ -622,7 +622,7 @@ func (m *MessageService) afterHandle(ctx context.Context, record *model.TalkReco
 	})
 
 	content := jsonutil.Encode(map[string]any{
-		"event": entity.EventTalk,
+		"event": entity.SubEventImMessage,
 		"data": jsonutil.Encode(map[string]any{
 			"sender_id":   record.UserId,
 			"receiver_id": record.ReceiverId,

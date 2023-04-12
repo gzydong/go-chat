@@ -41,7 +41,7 @@ func (s *ContactApplyService) Create(ctx context.Context, opt *ContactApplyCreat
 	}
 
 	body := map[string]any{
-		"event": entity.EventContactApply,
+		"event": entity.SubEventContactApply,
 		"data": jsonutil.Encode(map[string]any{
 			"apply_id": apply.Id,
 			"type":     1,
@@ -131,7 +131,7 @@ func (s *ContactApplyService) Decline(ctx context.Context, opt *ContactApplyDecl
 	}
 
 	body := map[string]any{
-		"event": entity.EventContactApply,
+		"event": entity.SubEventContactApply,
 		"data": jsonutil.Encode(map[string]any{
 			"apply_id": opt.ApplyId,
 			"type":     2,
