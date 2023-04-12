@@ -15,42 +15,40 @@ import (
 
 type ConsumeContactStatus struct {
 	Status int `json:"status"`
-	UserID int `json:"user_id"`
+	UserId int `json:"user_id"`
 }
 
 // 用户上线或下线消息
 func (h *Handler) onConsumeContactStatus(ctx context.Context, body []byte) {
 
-	var data ConsumeContactStatus
-	if err := json.Unmarshal(body, &data); err != nil {
+	var in ConsumeContactStatus
+	if err := json.Unmarshal(body, &in); err != nil {
 		logger.Error("[ChatSubscribe] onConsumeContactStatus Unmarshal err: ", err.Error())
 		return
 	}
 
-	cids := make([]int64, 0)
+	contactIds := h.contactService.GetContactIds(ctx, in.UserId)
 
-	uids := h.contactService.GetContactIds(ctx, data.UserID)
-
-	isQiye, _ := h.organize.IsQiyeMember(ctx, data.UserID)
-	if isQiye {
-		mids, _ := h.organize.GetMemberIds(ctx)
-		uids = append(uids, mids...)
+	if isOk, _ := h.organize.IsQiyeMember(ctx, in.UserId); isOk {
+		ids, _ := h.organize.GetMemberIds(ctx)
+		contactIds = append(contactIds, ids...)
 	}
 
-	for _, uid := range sliceutil.Unique(uids) {
+	clientIds := make([]int64, 0)
+	for _, uid := range sliceutil.Unique(contactIds) {
 		ids := h.clientStorage.GetUidFromClientIds(ctx, h.config.ServerId(), socket.Session.Chat.Name(), strconv.FormatInt(uid, 10))
 		if len(ids) > 0 {
-			cids = append(cids, ids...)
+			clientIds = append(clientIds, ids...)
 		}
 	}
 
-	if len(cids) == 0 {
+	if len(clientIds) == 0 {
 		return
 	}
 
 	c := socket.NewSenderContent()
-	c.SetReceive(cids...)
-	c.SetMessage(entity.PushEventContactStatus, data)
+	c.SetReceive(clientIds...)
+	c.SetMessage(entity.PushEventContactStatus, in)
 
 	socket.Session.Chat.Write(c)
 }
@@ -69,7 +67,7 @@ func (h *Handler) onConsumeContactApply(ctx context.Context, body []byte) {
 		return
 	}
 
-	var apply *model.ContactApply
+	var apply model.ContactApply
 	if err := h.contactService.Db().First(&apply, in.ApplyId).Error; err != nil {
 		return
 	}
@@ -79,7 +77,7 @@ func (h *Handler) onConsumeContactApply(ctx context.Context, body []byte) {
 		return
 	}
 
-	var user *model.Users
+	var user model.Users
 	if err := h.contactService.Db().First(&user, apply.FriendId).Error; err != nil {
 		return
 	}

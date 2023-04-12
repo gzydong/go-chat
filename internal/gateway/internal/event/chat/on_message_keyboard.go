@@ -21,8 +21,8 @@ type KeyboardMessage struct {
 // onKeyboardMessage 键盘输入事件
 func (h *Handler) onKeyboardMessage(ctx context.Context, _ socket.IClient, data []byte) {
 
-	var m KeyboardMessage
-	if err := json.Unmarshal(data, &m); err != nil {
+	var in KeyboardMessage
+	if err := json.Unmarshal(data, &in); err != nil {
 		log.Println("Chat onKeyboardMessage Err: ", err)
 		return
 	}
@@ -30,8 +30,8 @@ func (h *Handler) onKeyboardMessage(ctx context.Context, _ socket.IClient, data 
 	h.redis.Publish(ctx, entity.ImTopicChat, jsonutil.Encode(map[string]any{
 		"event": entity.SubEventImMessageKeyboard,
 		"data": jsonutil.Encode(map[string]any{
-			"sender_id":   m.Content.SenderID,
-			"receiver_id": m.Content.ReceiverID,
+			"sender_id":   in.Content.SenderID,
+			"receiver_id": in.Content.ReceiverID,
 		}),
 	}))
 }

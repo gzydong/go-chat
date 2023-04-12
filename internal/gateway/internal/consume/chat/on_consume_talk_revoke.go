@@ -30,7 +30,7 @@ func (h *Handler) onConsumeTalkRevoke(ctx context.Context, body []byte) {
 		return
 	}
 
-	clientIds := make([]int64, 0)
+	var clientIds []int64
 	if record.TalkType == entity.ChatPrivateMode {
 		for _, uid := range [2]int{record.UserId, record.ReceiverId} {
 			ids := h.clientStorage.GetUidFromClientIds(ctx, h.config.ServerId(), socket.Session.Chat.Name(), strconv.Itoa(uid))

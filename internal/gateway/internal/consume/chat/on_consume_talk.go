@@ -27,7 +27,7 @@ func (h *Handler) onConsumeTalk(ctx context.Context, body []byte) {
 		return
 	}
 
-	clientIds := make([]int64, 0)
+	var clientIds []int64
 	if in.TalkType == entity.ChatPrivateMode {
 		for _, val := range [2]int64{in.SenderID, in.ReceiverID} {
 			ids := h.clientStorage.GetUidFromClientIds(ctx, h.config.ServerId(), socket.Session.Chat.Name(), strconv.FormatInt(val, 10))

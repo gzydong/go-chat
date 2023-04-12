@@ -42,21 +42,21 @@ type TextMessage struct {
 // onTextMessage 文本消息
 func (h *Handler) onTextMessage(ctx context.Context, client socket.IClient, data []byte) {
 
-	var m TextMessage
-	if err := json.Unmarshal(data, &m); err != nil {
+	var in TextMessage
+	if err := json.Unmarshal(data, &in); err != nil {
 		log.Println("Chat onTextMessage Err: ", err)
 		return
 	}
 
-	if m.Content.GetContent() == "" || m.Content.GetReceiver() == nil {
+	if in.Content.GetContent() == "" || in.Content.GetReceiver() == nil {
 		return
 	}
 
 	err := h.message.SendText(ctx, client.Uid(), &message.TextMessageRequest{
-		Content: m.Content.Content,
+		Content: in.Content.Content,
 		Receiver: &message.MessageReceiver{
-			TalkType:   m.Content.Receiver.TalkType,
-			ReceiverId: m.Content.Receiver.ReceiverId,
+			TalkType:   in.Content.Receiver.TalkType,
+			ReceiverId: in.Content.Receiver.ReceiverId,
 		},
 	})
 
@@ -65,11 +65,11 @@ func (h *Handler) onTextMessage(ctx context.Context, client socket.IClient, data
 		return
 	}
 
-	if len(m.AckId) == 0 {
+	if len(in.AckId) == 0 {
 		return
 	}
 
-	if err = client.Write(&socket.ClientResponse{Sid: m.AckId, Event: "ack"}); err != nil {
+	if err = client.Write(&socket.ClientResponse{Sid: in.AckId, Event: "ack"}); err != nil {
 		log.Printf("Chat onTextMessage ack err: %s", err.Error())
 	}
 }

@@ -48,13 +48,11 @@ type SubscribeContent struct {
 }
 
 func (m *MessageSubscribe) subscribe(ctx context.Context, topic []string, consume IConsume) {
-
 	sub := m.redis.Subscribe(ctx, topic...)
 	defer sub.Close()
 
 	worker := pool.New().WithMaxGoroutines(10)
 
-	// 订阅 redis 消息
 	for data := range sub.Channel() {
 		m.handle(worker, data, consume)
 	}
@@ -64,8 +62,8 @@ func (m *MessageSubscribe) subscribe(ctx context.Context, topic []string, consum
 
 func (m *MessageSubscribe) handle(worker *pool.Pool, data *redis.Message, consume IConsume) {
 	worker.Go(func() {
-		var message SubscribeContent
-		if err := json.Unmarshal([]byte(data.Payload), &message); err != nil {
+		var in SubscribeContent
+		if err := json.Unmarshal([]byte(data.Payload), &in); err != nil {
 			log.Println("SubscribeContent Err: ", err.Error())
 			return
 		}
@@ -76,6 +74,6 @@ func (m *MessageSubscribe) handle(worker *pool.Pool, data *redis.Message, consum
 			}
 		}()
 
-		consume.Call(message.Event, []byte(message.Data))
+		consume.Call(in.Event, []byte(in.Data))
 	})
 }
