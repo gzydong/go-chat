@@ -193,13 +193,9 @@ func (g *GroupService) Secede(ctx context.Context, groupId int, uid int) error {
 		ReceiverId: groupId,
 		MsgType:    entity.ChatMsgSysGroupMemberQuit,
 		Sequence:   g.sequence.Get(ctx, 0, groupId),
-		Extra: jsonutil.Encode(&model.TalkRecordExtraGroupJoin{
-			Action: 3,
-			Operator: map[string]any{
-				"uid":      user.Id,
-				"nickname": user.Nickname,
-			},
-			Members: []map[string]any{},
+		Extra: jsonutil.Encode(&model.TalkRecordExtraGroupMemberQuit{
+			OwnerId:   user.Id,
+			OwnerName: user.Nickname,
 		}),
 	}
 
@@ -329,13 +325,11 @@ func (g *GroupService) Invite(ctx context.Context, opt *GroupInviteOpt) error {
 	}
 
 	operator := memberMaps[opt.UserId]
+
+	// TODO 优化
 	record.Extra = jsonutil.Encode(&model.TalkRecordExtraGroupJoin{
-		Action: 1,
-		Operator: map[string]any{
-			"uid":      operator.Id,
-			"nickname": operator.Nickname,
-		},
-		Members: members,
+		OwnerId:   operator.Id,
+		OwnerName: operator.Nickname,
 	})
 
 	err = db.Transaction(func(tx *gorm.DB) error {
@@ -443,13 +437,9 @@ func (g *GroupService) RemoveMember(ctx context.Context, opt *GroupRemoveMembers
 		TalkType:   entity.ChatGroupMode,
 		ReceiverId: opt.GroupId,
 		MsgType:    entity.ChatMsgSysGroupMemberKicked,
-		Extra: jsonutil.Encode(&model.TalkRecordExtraGroupJoin{
-			Action: 2,
-			Operator: map[string]any{
-				"uid":      operator.Id,
-				"nickname": operator.Nickname,
-			},
-			Members: members,
+		Extra: jsonutil.Encode(&model.TalkRecordExtraGroupMemberKicked{
+			OwnerId:   operator.Id,
+			OwnerName: operator.Nickname,
 		}),
 	}
 

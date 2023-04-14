@@ -35,15 +35,20 @@ func (t TalkRecords) TableName() string {
 	return "talk_records"
 }
 
+type TalkRecordExtraGroupMembers struct {
+	UserId   int `json:"user_id"`  // 用户ID
+	Nickname int `json:"nickname"` // 用户昵称
+}
+
 type TalkRecordExtraCode struct {
-	Lang string `json:"lang"`
-	Code string `json:"code"`
+	Lang string `json:"lang"` // 代码语言
+	Code string `json:"code"` // 代码内容
 }
 
 type TalkRecordExtraLocation struct {
-	Longitude   string `json:"longitude"`
-	Latitude    string `json:"latitude"`
-	Description string `json:"description"`
+	Longitude   string `json:"longitude"`   // 经度
+	Latitude    string `json:"latitude"`    // 纬度
+	Description string `json:"description"` // 位置描述
 }
 
 type TalkRecordExtraForward struct {
@@ -55,36 +60,122 @@ type TalkRecordExtraForward struct {
 }
 
 type TalkRecordExtraLogin struct {
-	IP       string `json:"ip"`
-	Address  string `json:"address"`
-	Agent    string `json:"agent"`
-	Platform string `json:"platform"`
-	Reason   string `json:"reason"`
-	Datetime string `json:"datetime"`
+	IP       string `json:"ip"`       // 登录IP
+	Address  string `json:"address"`  // 登录地址
+	Agent    string `json:"agent"`    // 登录设备
+	Platform string `json:"platform"` // 登录平台
+	Reason   string `json:"reason"`   // 登录原因
+	Datetime string `json:"datetime"` // 登录时间
 }
 
 type TalkRecordExtraCard struct {
-	UserId int `json:"user_id"`
-}
-
-type TalkRecordExtraContact struct {
-	Action int    `json:"action"`  // 操作方式 1联系人申请 2被申请人处理结果
-	UserId int    `json:"user_id"` // 联系人ID
-	Remark string `json:"remark"`  // 申请备注
+	UserId int `json:"user_id"` // 名片用户ID
 }
 
 type TalkRecordExtraFile struct {
-	Type         int    `json:"type"`
-	Drive        int    `json:"drive"`
-	Suffix       string `json:"suffix"`
-	Size         int    `json:"size"`
-	Path         string `json:"path"`
-	Url          string `json:"url"`
-	OriginalName string `json:"original_name"`
+	Name   string `json:"name"`   // 文件名称
+	Drive  int    `json:"drive"`  // 文件存储方式
+	Suffix string `json:"suffix"` // 文件后缀
+	Size   int    `json:"size"`   // 文件大小
+	Path   string `json:"path"`   // 文件路径
 }
 
+type TalkRecordExtraImage struct {
+	Name   string `json:"name"`   // 图片名称
+	Suffix string `json:"suffix"` // 图片后缀
+	Size   int    `json:"size"`   // 图片大小
+	Url    string `json:"url"`    // 图片地址
+	Width  int    `json:"width"`  // 图片宽度
+	Height int    `json:"height"` // 图片高度
+}
+
+type TalkRecordExtraVoice struct {
+	Name     string `json:"name"`     // 语音名称
+	Suffix   string `json:"suffix"`   // 文件后缀
+	Size     int    `json:"size"`     // 语音大小
+	Url      string `json:"url"`      // 语音地址
+	Duration int    `json:"duration"` // 语音时长
+}
+
+type TalkRecordExtraVideo struct {
+	Name     string `json:"name"`     // 视频名称
+	Cover    string `json:"cover"`    // 视频封面
+	Suffix   string `json:"suffix"`   // 文件后缀
+	Size     int    `json:"size"`     // 视频大小
+	Url      string `json:"url"`      // 视频地址
+	Duration int    `json:"duration"` // 视频时长
+}
+
+// TalkRecordExtraGroupCreate 创建群消息
+type TalkRecordExtraGroupCreate struct {
+	OwnerId   int                           `json:"owner_id"`   // 操作人ID
+	OwnerName string                        `json:"owner_name"` // 操作人昵称
+	Members   []TalkRecordExtraGroupMembers `json:"members"`    // 成员列表
+}
+
+// TalkRecordExtraGroupJoin 群主邀请加入群消息
 type TalkRecordExtraGroupJoin struct {
-	Action   int              `json:"action"`   // 操作方式 1邀请入群 2管理员踢人 3自动退群
-	Operator map[string]any   `json:"operator"` // 操作人
-	Members  []map[string]any `json:"members"`  // 被操作人
+	OwnerId   int                           `json:"owner_id"`   // 操作人ID
+	OwnerName string                        `json:"owner_name"` // 操作人昵称
+	Members   []TalkRecordExtraGroupMembers `json:"members"`    // 成员列表
+}
+
+// TalkRecordExtraGroupTransfer 群主转让群消息
+type TalkRecordExtraGroupTransfer struct {
+	OldOwnerId   int    `json:"old_owner_id"`   // 老群主ID
+	OldOwnerName string `json:"old_owner_name"` // 老群主昵称
+	NewOwnerId   int    `json:"new_owner_id"`   // 新群主ID
+	NewOwnerName string `json:"new_owner_name"` // 新群主昵称
+}
+
+// TalkRecordExtraGroupMuted 管理员设置群禁言消息
+type TalkRecordExtraGroupMuted struct {
+	OwnerId   int    `json:"owner_id"`   // 操作人ID
+	OwnerName string `json:"owner_name"` // 操作人昵称
+}
+
+// TalkRecordExtraGroupCancelMuted 管理员解除群禁言消息
+type TalkRecordExtraGroupCancelMuted struct {
+	OwnerId   int    `json:"owner_id"`   // 操作人ID
+	OwnerName string `json:"owner_name"` // 操作人昵称
+}
+
+// TalkRecordExtraGroupMemberMuted 管理员设置群成员禁言消息
+type TalkRecordExtraGroupMemberMuted struct {
+	OwnerId   int                           `json:"owner_id"`   // 操作人ID
+	OwnerName string                        `json:"owner_name"` // 操作人昵称
+	Members   []TalkRecordExtraGroupMembers `json:"members"`    // 成员列表
+}
+
+// TalkRecordExtraGroupMemberCancelMuted 管理员解除群成员禁言消息
+type TalkRecordExtraGroupMemberCancelMuted struct {
+	OwnerId   int                           `json:"owner_id"`   // 操作人ID
+	OwnerName string                        `json:"owner_name"` // 操作人昵称
+	Members   []TalkRecordExtraGroupMembers `json:"members"`    // 成员列表
+}
+
+// TalkRecordExtraGroupDismissed 群主解散群消息
+type TalkRecordExtraGroupDismissed struct {
+	OwnerId   int    `json:"owner_id"`   // 操作人ID
+	OwnerName string `json:"owner_name"` // 操作人昵称
+}
+
+// TalkRecordExtraGroupMemberQuit 群成员退出群消息
+type TalkRecordExtraGroupMemberQuit struct {
+	OwnerId   int    `json:"owner_id"`   // 操作人ID
+	OwnerName string `json:"owner_name"` // 操作人昵称
+}
+
+// TalkRecordExtraGroupMemberKicked 踢出群成员消息
+type TalkRecordExtraGroupMemberKicked struct {
+	OwnerId   int                           `json:"owner_id"`   // 操作人ID
+	OwnerName string                        `json:"owner_name"` // 操作人昵称
+	Members   []TalkRecordExtraGroupMembers `json:"members"`    // 成员列表
+}
+
+// TalkRecordExtraGroupMessageRevoke 管理员撤回成员消息
+type TalkRecordExtraGroupMessageRevoke struct {
+	OwnerId         int    `json:"owner_id"`          // 操作人ID
+	OwnerName       string `json:"owner_name"`        // 操作人昵称
+	RevokeMessageId string `json:"revoke_message_id"` // 被撤回消息ID
 }

@@ -30,16 +30,16 @@ func NewAuth(config *config.Config, captcha *cache.CaptchaStorage, admin *repo.A
 // Login 登录接口
 func (c *Auth) Login(ctx *ichat.Context) error {
 
-	var params admin.AuthLoginRequest
-	if err := ctx.Context.ShouldBindJSON(&params); err != nil {
+	var in admin.AuthLoginRequest
+	if err := ctx.Context.ShouldBindJSON(&in); err != nil {
 		return ctx.InvalidParams(err)
 	}
 
-	if !c.captcha.Verify(params.CaptchaVoucher, params.Captcha, true) {
+	if !c.captcha.Verify(in.CaptchaVoucher, in.Captcha, true) {
 		return ctx.InvalidParams("验证码填写不正确")
 	}
 
-	adminInfo, err := c.admin.FindByWhere(ctx.Ctx(), "username = ? or email = ?", params.Username, params.Username)
+	adminInfo, err := c.admin.FindByWhere(ctx.Ctx(), "username = ? or email = ?", in.Username, in.Username)
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return ctx.InvalidParams("账号不存在或密码填写错误!")
@@ -48,7 +48,7 @@ func (c *Auth) Login(ctx *ichat.Context) error {
 		return ctx.Error(err.Error())
 	}
 
-	password, err := encrypt.RsaDecrypt(params.Password, c.config.App.PrivateKey)
+	password, err := encrypt.RsaDecrypt(in.Password, c.config.App.PrivateKey)
 	if err != nil {
 		return ctx.Error(err.Error())
 	}

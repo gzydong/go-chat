@@ -25,16 +25,16 @@ func (c *Notice) CreateAndUpdate(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	var (
-		msg string
-		err error
-	)
-
 	uid := ctx.UserId()
 
 	if !c.groupMemberService.Dao().IsLeader(ctx.Ctx(), int(params.GroupId), uid) {
 		return ctx.ErrorBusiness("无权限操作")
 	}
+
+	var (
+		msg string
+		err error
+	)
 
 	if params.NoticeId == 0 {
 		err = c.groupNoticeService.Create(ctx.Ctx(), &service.GroupNoticeEditOpt{

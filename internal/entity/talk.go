@@ -57,6 +57,8 @@ const (
 	ChatMsgSysGroupCancelMuted       = 1108 // 群解除禁言
 	ChatMsgSysGroupMemberMuted       = 1109 // 群成员禁言
 	ChatMsgSysGroupMemberCancelMuted = 1110 // 群成员解除禁言
+	ChatMsgSysGroupNoticeCreate      = 1111 // 创建群公告
+	ChatMsgSysGroupNoticeUpdate      = 1112 // 更新群公告
 )
 
 const (

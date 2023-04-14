@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"html"
-	"net/url"
 	"sort"
 	"strconv"
 	"strings"
@@ -55,9 +54,7 @@ func (m *MessageService) SendSystemText(ctx context.Context, uid int, req *messa
 		Content:    html.EscapeString(req.Content),
 	}
 
-	return m.save(ctx, data, map[string]string{
-		"text": strutil.MtSubstr(data.Content, 0, 300),
-	})
+	return m.save(ctx, data)
 }
 
 // SendText 文本消息
@@ -70,93 +67,66 @@ func (m *MessageService) SendText(ctx context.Context, uid int, req *message.Tex
 		Content:    html.EscapeString(req.Content),
 	}
 
-	return m.save(ctx, data, map[string]string{
-		"text": strutil.MtSubstr(data.Content, 0, 300),
-	})
+	return m.save(ctx, data)
 }
 
 // SendImage 图片文件消息
 func (m *MessageService) SendImage(ctx context.Context, uid int, req *message.ImageMessageRequest) error {
-	parse, err := url.Parse(req.Url)
-	if err != nil {
-		return err
-	}
-
 	data := &model.TalkRecords{
 		TalkType:   int(req.Receiver.TalkType),
 		MsgType:    entity.ChatMsgTypeImage,
 		UserId:     uid,
 		ReceiverId: int(req.Receiver.ReceiverId),
-		Extra: jsonutil.Encode(&model.TalkRecordExtraFile{
-			Type:         entity.MediaFileImage,
-			Drive:        entity.FileDriveMode("local"),
-			OriginalName: "图片名称",
-			Suffix:       strutil.FileSuffix(req.Url),
-			Size:         int(req.Size),
-			Path:         parse.Path,
-			Url:          req.Url,
+		Extra: jsonutil.Encode(&model.TalkRecordExtraImage{
+			Name:   "图片名称",
+			Suffix: strutil.FileSuffix(req.Url),
+			Size:   int(req.Size),
+			Url:    req.Url,
+			Width:  0,
+			Height: 0,
 		}),
 	}
 
-	return m.save(ctx, data, map[string]string{
-		"text": "[图片消息]",
-	})
+	return m.save(ctx, data)
 }
 
 // SendVoice 语音文件消息
 func (m *MessageService) SendVoice(ctx context.Context, uid int, req *message.VoiceMessageRequest) error {
-	parse, err := url.Parse(req.Url)
-	if err != nil {
-		return err
-	}
-
 	data := &model.TalkRecords{
 		TalkType:   int(req.Receiver.TalkType),
 		MsgType:    entity.ChatMsgTypeVoice,
 		UserId:     uid,
 		ReceiverId: int(req.Receiver.ReceiverId),
-		Extra: jsonutil.Encode(&model.TalkRecordExtraFile{
-			Type:         entity.MediaFileAudio,
-			Drive:        entity.FileDriveMode("local"),
-			OriginalName: "语音文件",
-			Suffix:       strutil.FileSuffix(req.Url),
-			Size:         int(req.Size),
-			Path:         parse.Path,
-			Url:          req.Url,
+		Extra: jsonutil.Encode(&model.TalkRecordExtraVoice{
+			Name:     "语音文件",
+			Suffix:   strutil.FileSuffix(req.Url),
+			Size:     int(req.Size),
+			Url:      req.Url,
+			Duration: 0,
 		}),
 	}
 
-	return m.save(ctx, data, map[string]string{
-		"text": "[语音消息]",
-	})
+	return m.save(ctx, data)
 }
 
 // SendVideo 视频文件消息
 func (m *MessageService) SendVideo(ctx context.Context, uid int, req *message.VideoMessageRequest) error {
-	parse, err := url.Parse(req.Url)
-	if err != nil {
-		return err
-	}
-
 	data := &model.TalkRecords{
 		TalkType:   int(req.Receiver.TalkType),
 		MsgType:    entity.ChatMsgTypeVideo,
 		UserId:     uid,
 		ReceiverId: int(req.Receiver.ReceiverId),
-		Extra: jsonutil.Encode(&model.TalkRecordExtraFile{
-			Type:         entity.MediaFileVideo,
-			Drive:        entity.FileDriveMode("local"),
-			OriginalName: "语音文件",
-			Suffix:       strutil.FileSuffix(req.Url),
-			Size:         int(req.Size),
-			Path:         parse.Path,
-			Url:          req.Url,
+		Extra: jsonutil.Encode(&model.TalkRecordExtraVideo{
+			Name:     "语音文件",
+			Cover:    "",
+			Suffix:   strutil.FileSuffix(req.Url),
+			Size:     int(req.Size),
+			Url:      req.Url,
+			Duration: int(req.Duration),
 		}),
 	}
 
-	return m.save(ctx, data, map[string]string{
-		"text": "[文件消息]",
-	})
+	return m.save(ctx, data)
 }
 
 // SendFile 文件消息
@@ -167,15 +137,13 @@ func (m *MessageService) SendFile(ctx context.Context, uid int, req *message.Fil
 		return err
 	}
 
+	// // 公开文件
+	// if entity.GetMediaType(file.FileExt) <= 3 {
+	// 	filePath = fmt.Sprintf("public/media/%s/%s.%s", timeutil.DateNumber(), encrypt.Md5(strutil.Random(16)), file.FileExt)
+	// 	uri = m.fileSystem.Default.PublicUrl(filePath)
+	// }
+
 	filePath := fmt.Sprintf("private/files/talks/%s/%s.%s", timeutil.DateNumber(), encrypt.Md5(strutil.Random(16)), file.FileExt)
-	uri := ""
-
-	// 公开文件
-	if entity.GetMediaType(file.FileExt) <= 3 {
-		filePath = fmt.Sprintf("public/media/%s/%s.%s", timeutil.DateNumber(), encrypt.Md5(strutil.Random(16)), file.FileExt)
-		uri = m.fileSystem.Default.PublicUrl(filePath)
-	}
-
 	if err := m.fileSystem.Default.Copy(file.Path, filePath); err != nil {
 		return err
 	}
@@ -186,19 +154,15 @@ func (m *MessageService) SendFile(ctx context.Context, uid int, req *message.Fil
 		UserId:     uid,
 		ReceiverId: int(req.Receiver.ReceiverId),
 		Extra: jsonutil.Encode(&model.TalkRecordExtraFile{
-			Type:         entity.GetMediaType(file.FileExt),
-			Drive:        file.Drive,
-			OriginalName: file.OriginalName,
-			Suffix:       file.FileExt,
-			Size:         int(file.FileSize),
-			Path:         filePath,
-			Url:          uri,
+			Drive:  file.Drive,
+			Name:   file.OriginalName,
+			Suffix: file.FileExt,
+			Size:   int(file.FileSize),
+			Path:   filePath,
 		}),
 	}
 
-	return m.save(ctx, data, map[string]string{
-		"text": "[文件消息]",
-	})
+	return m.save(ctx, data)
 }
 
 // SendCode 代码消息
@@ -214,9 +178,7 @@ func (m *MessageService) SendCode(ctx context.Context, uid int, req *message.Cod
 		}),
 	}
 
-	return m.save(ctx, data, map[string]string{
-		"text": "[代码消息]",
-	})
+	return m.save(ctx, data)
 }
 
 // SendVote 投票消息
@@ -280,19 +242,17 @@ func (m *MessageService) SendEmoticon(ctx context.Context, uid int, req *message
 		MsgType:    entity.ChatMsgTypeImage,
 		UserId:     uid,
 		ReceiverId: int(req.Receiver.ReceiverId),
-		Extra: jsonutil.Encode(&model.TalkRecordExtraFile{
-			Type:         entity.GetMediaType(emoticon.FileSuffix),
-			OriginalName: "图片表情",
-			Suffix:       emoticon.FileSuffix,
-			Size:         emoticon.FileSize,
-			Path:         emoticon.Url,
-			Url:          emoticon.Url,
+		Extra: jsonutil.Encode(&model.TalkRecordExtraImage{
+			Name:   "图片表情",
+			Suffix: emoticon.FileSuffix,
+			Size:   emoticon.FileSize,
+			Url:    emoticon.Url,
+			Width:  0,
+			Height: 0,
 		}),
 	}
 
-	return m.save(ctx, data, map[string]string{
-		"text": "[表情包]",
-	})
+	return m.save(ctx, data)
 }
 
 // SendForward 转发消息
@@ -353,9 +313,7 @@ func (m *MessageService) SendLocation(ctx context.Context, uid int, req *message
 		}),
 	}
 
-	return m.save(ctx, data, map[string]string{
-		"text": "[位置消息]",
-	})
+	return m.save(ctx, data)
 }
 
 // SendBusinessCard 推送用户名片消息
@@ -370,9 +328,7 @@ func (m *MessageService) SendBusinessCard(ctx context.Context, uid int, req *mes
 		}),
 	}
 
-	return m.save(ctx, data, map[string]string{
-		"text": "[分享名片 ]",
-	})
+	return m.save(ctx, data)
 }
 
 // SendLogin 推送用户登录消息
@@ -393,9 +349,12 @@ func (m *MessageService) SendLogin(ctx context.Context, uid int, req *message.Lo
 		}),
 	}
 
-	return m.save(ctx, data, map[string]string{
-		"text": "[登录消息 ]",
-	})
+	return m.save(ctx, data)
+}
+
+// SendSysOther 推送其它消息
+func (m *MessageService) SendSysOther(ctx context.Context, data *model.TalkRecords) error {
+	return m.save(ctx, data)
 }
 
 // Revoke 撤回消息
@@ -520,7 +479,7 @@ func (m *MessageService) Vote(ctx context.Context, uid int, recordId int, option
 	return info, nil
 }
 
-func (m *MessageService) save(ctx context.Context, data *model.TalkRecords, option map[string]string) error {
+func (m *MessageService) save(ctx context.Context, data *model.TalkRecords) error {
 
 	m.loadSequence(ctx, data)
 
@@ -528,6 +487,56 @@ func (m *MessageService) save(ctx context.Context, data *model.TalkRecords, opti
 
 	err := m.Db().WithContext(ctx).Create(data).Error
 	if err == nil {
+		option := make(map[string]string)
+		option["text"] = "【未知消息】"
+
+		switch data.MsgType {
+		case entity.ChatMsgTypeText:
+			option["text"] = strutil.MtSubstr(data.Content, 0, 300)
+		case entity.ChatMsgTypeImage:
+			option["text"] = "【图片消息】"
+		case entity.ChatMsgTypeVoice:
+			option["text"] = "【语音消息】"
+		case entity.ChatMsgTypeVideo:
+			option["text"] = "【视频消息】"
+		case entity.ChatMsgTypeFile:
+			option["text"] = "【文件消息】"
+		case entity.ChatMsgTypeLocation:
+			option["text"] = "【位置消息】"
+		case entity.ChatMsgTypeCard:
+			option["text"] = "【名片消息】"
+		case entity.ChatMsgTypeForward:
+			option["text"] = "【转发消息】"
+		case entity.ChatMsgTypeLogin:
+			option["text"] = "【登录消息】"
+		case entity.ChatMsgTypeVote:
+			option["text"] = "【投票消息】"
+		case entity.ChatMsgTypeCode:
+			option["text"] = "【代码消息】"
+		case entity.ChatMsgSysText:
+			option["text"] = "【系统消息】"
+		case entity.ChatMsgSysGroupCreate:
+			option["text"] = "【创建群消息】"
+		case entity.ChatMsgSysGroupMemberJoin:
+			option["text"] = "【加入群消息】"
+		case entity.ChatMsgSysGroupMemberQuit:
+			option["text"] = "【退出群消息】"
+		case entity.ChatMsgSysGroupMemberKicked:
+			option["text"] = "【踢出群消息】"
+		case entity.ChatMsgSysGroupMessageRevoke:
+			option["text"] = "【撤回消息】"
+		case entity.ChatMsgSysGroupDismissed:
+			option["text"] = "【群解散消息】"
+		case entity.ChatMsgSysGroupMuted:
+			option["text"] = "【群禁言消息】"
+		case entity.ChatMsgSysGroupCancelMuted:
+			option["text"] = "【群解除禁言消息】"
+		case entity.ChatMsgSysGroupMemberMuted:
+			option["text"] = "【群成员禁言消息】"
+		case entity.ChatMsgSysGroupMemberCancelMuted:
+			option["text"] = "【群成员解除禁言消息】"
+		}
+
 		m.afterHandle(ctx, data, option)
 	}
 

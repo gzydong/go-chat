@@ -15,12 +15,12 @@ func NewIndex() *Index {
 
 func (c *Index) Index(ctx *ichat.Context) error {
 
-	params := &open.IndexRequest{}
-	if err := ctx.Context.ShouldBind(params); err != nil {
+	var in open.IndexRequest
+	if err := ctx.Context.ShouldBind(&in); err != nil {
 		return ctx.InvalidParams(err)
 	}
 
-	return ctx.Success(params)
+	return ctx.Success(&in)
 }
 
 func (c *Index) Proto(ctx *ichat.Context) error {
