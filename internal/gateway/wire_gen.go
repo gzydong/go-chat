@@ -41,7 +41,7 @@ func Initialize(conf *config.Config) *AppProvider {
 	repoSequence := repo.NewSequence(db, sequence)
 	messageForwardLogic := logic.NewMessageForwardLogic(db, repoSequence)
 	splitUpload := repo.NewFileSplitUpload(db)
-	talkVote := cache.NewTalkVote(client)
+	talkVote := cache.NewVote(client)
 	talkRecordsVote := repo.NewTalkRecordsVote(db, talkVote)
 	filesystem := provider.NewFilesystem(conf)
 	unreadStorage := cache.NewUnreadStorage(client)

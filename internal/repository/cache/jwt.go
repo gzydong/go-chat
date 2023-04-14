@@ -13,8 +13,8 @@ type JwtTokenStorage struct {
 	redis *redis.Client
 }
 
-func NewTokenSessionStorage(rds *redis.Client) *JwtTokenStorage {
-	return &JwtTokenStorage{rds}
+func NewTokenSessionStorage(redis *redis.Client) *JwtTokenStorage {
+	return &JwtTokenStorage{redis}
 }
 
 func (s *JwtTokenStorage) SetBlackList(ctx context.Context, token string, exp time.Duration) error {

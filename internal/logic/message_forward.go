@@ -130,11 +130,11 @@ func (m *MessageForwardLogic) MultiSplitForward(ctx context.Context, uid int, re
 	)
 
 	for _, userId := range req.Uids {
-		receives = append(receives, map[string]int{"receiver_id": int(userId), "talk_type": 1})
+		receives = append(receives, map[string]int{"receiver_id": int(userId), "talk_type": model.TalkRecordTalkTypePrivate})
 	}
 
 	for _, gid := range req.Gids {
-		receives = append(receives, map[string]int{"receiver_id": int(gid), "talk_type": 2})
+		receives = append(receives, map[string]int{"receiver_id": int(gid), "talk_type": model.TalkRecordTalkTypeGroup})
 	}
 
 	if err := db.Model(&model.TalkRecords{}).Where("id IN ?", req.MessageIds).Scan(&records).Error; err != nil {
@@ -147,7 +147,7 @@ func (m *MessageForwardLogic) MultiSplitForward(ctx context.Context, uid int, re
 	for _, v := range receives {
 		var sequences []int64
 
-		if v["talk_type"] == entity.ChatGroupMode {
+		if v["talk_type"] == model.TalkRecordTalkTypeGroup {
 			sequences = m.sequence.BatchGet(ctx, 0, v["receiver_id"], recordsLen)
 		} else {
 			sequences = m.sequence.BatchGet(ctx, uid, v["receiver_id"], recordsLen)
@@ -210,19 +210,25 @@ func (m *MessageForwardLogic) aggregation(ctx context.Context, req *message.Forw
 
 	data := make([]map[string]any, 0)
 	for _, row := range rows {
-		item := map[string]any{}
+		item := map[string]any{
+			"nickname": row.Nickname,
+		}
 
 		switch row.MsgType {
 		case entity.ChatMsgTypeText:
-			text := strings.TrimSpace(row.Content)
-			item["nickname"] = row.Nickname
-			item["text"] = strutil.MtSubstr(text, 0, 30)
+			item["text"] = strutil.MtSubstr(strings.TrimSpace(row.Content), 0, 30)
 		case entity.ChatMsgTypeCode:
-			item["nickname"] = row.Nickname
 			item["text"] = "【代码消息】"
+		case entity.ChatMsgTypeImage:
+			item["text"] = "【图片消息】"
+		case entity.ChatMsgTypeVoice:
+			item["text"] = "【语音消息】"
+		case entity.ChatMsgTypeVideo:
+			item["text"] = "【视频消息】"
 		case entity.ChatMsgTypeFile:
-			item["nickname"] = row.Nickname
 			item["text"] = "【文件消息】"
+		case entity.ChatMsgTypeLocation:
+			item["text"] = "【位置消息】"
 		}
 
 		data = append(data, item)

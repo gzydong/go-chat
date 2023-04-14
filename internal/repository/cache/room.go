@@ -22,8 +22,8 @@ type RoomOption struct {
 	Cid      int64           // 客户端ID
 }
 
-func NewRoomStorage(rds *redis.Client) *RoomStorage {
-	return &RoomStorage{redis: rds}
+func NewRoomStorage(redis *redis.Client) *RoomStorage {
+	return &RoomStorage{redis: redis}
 }
 
 // Add 添加房间成员

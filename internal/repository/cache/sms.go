@@ -13,8 +13,8 @@ type SmsStorage struct {
 	redis *redis.Client
 }
 
-func NewSmsStorage(rds *redis.Client) *SmsStorage {
-	return &SmsStorage{redis: rds}
+func NewSmsStorage(redis *redis.Client) *SmsStorage {
+	return &SmsStorage{redis}
 }
 
 func (s *SmsStorage) Set(ctx context.Context, channel string, mobile string, code string, exp time.Duration) error {

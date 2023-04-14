@@ -36,7 +36,7 @@ func (c *Contact) IsFriend(ctx context.Context, uid int, friendId int, cache boo
 		return true
 	}
 
-	count, err := c.QueryCount(ctx, "((user_id = ? and friend_id = ?) or (user_id = ? and friend_id = ?)) and status = 1", uid, friendId, friendId, uid)
+	count, err := c.QueryCount(ctx, "((user_id = ? and friend_id = ?) or (user_id = ? and friend_id = ?)) and status = ?", uid, friendId, friendId, uid, model.ContactStatusNormal)
 	if err != nil {
 		return false
 	}
@@ -69,7 +69,7 @@ func (c *Contact) SetFriendRemark(ctx context.Context, uid int, friendId int, re
 func (c *Contact) LoadContactCache(ctx context.Context, uid int) error {
 
 	all, err := c.FindAll(ctx, func(db *gorm.DB) {
-		db.Select("friend_id,remark").Where("user_id = ? and status = 1", uid)
+		db.Select("friend_id,remark").Where("user_id = ? and status = ?", uid, model.ContactStatusNormal)
 	})
 
 	if err != nil {

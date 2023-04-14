@@ -14,37 +14,37 @@ const (
 	VoteStatisticCache = "talk:vote:statistic:%d"
 )
 
-type TalkVote struct {
+type Vote struct {
 	redis *redis.Client
 }
 
-func NewTalkVote(rds *redis.Client) *TalkVote {
-	return &TalkVote{redis: rds}
+func NewVote(rds *redis.Client) *Vote {
+	return &Vote{redis: rds}
 }
 
-func (t *TalkVote) GetVoteAnswerUser(ctx context.Context, voteId int) ([]int, error) {
+func (t *Vote) GetVoteAnswerUser(ctx context.Context, voteId int) ([]int, error) {
 	val, err := t.redis.Get(ctx, fmt.Sprintf(VoteUsersCache, voteId)).Result()
 
 	if err != nil {
 		return nil, err
 	}
 
-	var uids []int
-	if err := jsonutil.Decode(val, &uids); err != nil {
+	var ids []int
+	if err := jsonutil.Decode(val, &ids); err != nil {
 		return nil, err
 	}
 
-	return uids, nil
+	return ids, nil
 }
 
-func (t *TalkVote) SetVoteAnswerUser(ctx context.Context, vid int, uids []int) error {
+func (t *Vote) SetVoteAnswerUser(ctx context.Context, vid int, uids []int) error {
 	return t.redis.Set(ctx, fmt.Sprintf(VoteUsersCache, vid), jsonutil.Encode(uids), time.Hour*24).Err()
 }
 
-func (t *TalkVote) GetVoteStatistics(ctx context.Context, vid int) (string, error) {
+func (t *Vote) GetVoteStatistics(ctx context.Context, vid int) (string, error) {
 	return t.redis.Get(ctx, fmt.Sprintf(VoteStatisticCache, vid)).Result()
 }
 
-func (t *TalkVote) SetVoteStatistics(ctx context.Context, vid int, value string) error {
+func (t *Vote) SetVoteStatistics(ctx context.Context, vid int, value string) error {
 	return t.redis.Set(ctx, fmt.Sprintf(VoteStatisticCache, vid), value, time.Hour*24).Err()
 }

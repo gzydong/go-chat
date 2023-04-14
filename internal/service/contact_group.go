@@ -33,12 +33,7 @@ func (c *ContactGroupService) Delete(ctx context.Context, id int, uid int) error
 			return errors.New("数据不存在")
 		}
 
-		res = tx.Table("contact").Where("user_id = ? and group_id = ?", uid, id).UpdateColumn("group_id", 0)
-		if err := res.Error; err != nil {
-			return err
-		}
-
-		return nil
+		return tx.Table("contact").Where("user_id = ? and group_id = ?", uid, id).UpdateColumn("group_id", 0).Error
 	})
 }
 

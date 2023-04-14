@@ -2,6 +2,11 @@ package model
 
 import "time"
 
+const (
+	ContactStatusNormal = 1
+	ContactStatusDelete = 0
+)
+
 // Contact 用户好友关系表
 type Contact struct {
 	Id        int       `gorm:"column:id;primary_key;AUTO_INCREMENT" json:"id"`                         // 关系ID

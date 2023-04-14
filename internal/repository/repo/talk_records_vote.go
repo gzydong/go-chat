@@ -12,7 +12,7 @@ import (
 
 type TalkRecordsVote struct {
 	ichat.Repo[model.TalkRecordsVote]
-	cache *cache.TalkVote
+	cache *cache.Vote
 }
 
 type VoteStatistics struct {
@@ -20,7 +20,7 @@ type VoteStatistics struct {
 	Options map[string]int `json:"options"`
 }
 
-func NewTalkRecordsVote(db *gorm.DB, cache *cache.TalkVote) *TalkRecordsVote {
+func NewTalkRecordsVote(db *gorm.DB, cache *cache.Vote) *TalkRecordsVote {
 	return &TalkRecordsVote{Repo: ichat.NewRepo[model.TalkRecordsVote](db), cache: cache}
 }
 

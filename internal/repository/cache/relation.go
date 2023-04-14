@@ -12,8 +12,8 @@ type Relation struct {
 	redis *redis.Client
 }
 
-func NewRelation(rds *redis.Client) *Relation {
-	return &Relation{redis: rds}
+func NewRelation(redis *redis.Client) *Relation {
+	return &Relation{redis: redis}
 }
 
 func (r *Relation) IsContactRelation(ctx context.Context, uid, uid2 int) error {

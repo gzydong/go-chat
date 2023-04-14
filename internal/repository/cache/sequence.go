@@ -23,14 +23,14 @@ func (s *Sequence) Redis() *redis.Client {
 func (s *Sequence) Name(userId int, receiverId int) string {
 
 	if userId == 0 {
-		return fmt.Sprintf("im:sequence:msg:%d", receiverId)
+		return fmt.Sprintf("im:sequence:chat:%d", receiverId)
 	}
 
 	if receiverId < userId {
 		receiverId, userId = userId, receiverId
 	}
 
-	return fmt.Sprintf("im:sequence:msg:%d_%d", userId, receiverId)
+	return fmt.Sprintf("im:sequence:chat:%d_%d", userId, receiverId)
 }
 
 // Set 初始化发号器

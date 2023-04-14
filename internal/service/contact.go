@@ -38,7 +38,7 @@ func (s *ContactService) UpdateRemark(ctx context.Context, uid int, friendId int
 // @params uid      用户ID
 // @params friendId 联系人ID
 func (s *ContactService) Delete(ctx context.Context, uid, friendId int) error {
-	return s.contact.Model(ctx).Where("user_id = ? and friend_id = ?", uid, friendId).Update("status", 0).Error
+	return s.contact.Model(ctx).Where("user_id = ? and friend_id = ?", uid, friendId).Update("status", model.ContactStatusDelete).Error
 }
 
 // List 获取联系人列表
@@ -56,7 +56,7 @@ func (s *ContactService) List(ctx context.Context, uid int) ([]*model.ContactLis
 		"contact.group_id",
 	})
 	tx.Joins("inner join `users` ON `users`.id = contact.friend_id")
-	tx.Where("contact.user_id = ? and contact.status = ?", uid, 1)
+	tx.Where("contact.user_id = ? and contact.status = ?", uid, model.ContactStatusNormal)
 
 	var items []*model.ContactListItem
 	if err := tx.Scan(&items).Error; err != nil {
@@ -69,7 +69,7 @@ func (s *ContactService) List(ctx context.Context, uid int) ([]*model.ContactLis
 func (s *ContactService) GetContactIds(ctx context.Context, uid int) []int64 {
 
 	var ids []int64
-	s.contact.Model(ctx).Where("user_id = ? and status = ?", uid, 1).Pluck("friend_id", &ids)
+	s.contact.Model(ctx).Where("user_id = ? and status = ?", uid, model.ContactStatusNormal).Pluck("friend_id", &ids)
 
 	return ids
 }

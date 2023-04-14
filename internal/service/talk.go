@@ -52,7 +52,7 @@ func (t *TalkService) DeleteRecordList(ctx context.Context, opt *RemoveRecordLis
 		return errors.New("删除异常! ")
 	}
 
-	items := make([]*model.TalkRecordsDelete, 0)
+	items := make([]*model.TalkRecordsDelete, 0, len(ids))
 	for _, val := range ids {
 		items = append(items, &model.TalkRecordsDelete{
 			RecordId:  val,

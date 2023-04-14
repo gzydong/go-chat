@@ -33,13 +33,13 @@ type TalkRecordsItem struct {
 
 type TalkRecordsService struct {
 	*repo.Source
-	talkVoteCache       *cache.TalkVote
+	talkVoteCache       *cache.Vote
 	talkRecordsVoteRepo *repo.TalkRecordsVote
 	groupMemberRepo     *repo.GroupMember
 	talkRecordsRepo     *repo.TalkRecords
 }
 
-func NewTalkRecordsService(source *repo.Source, talkVoteCache *cache.TalkVote, talkRecordsVoteRepo *repo.TalkRecordsVote, groupMemberRepo *repo.GroupMember, repo *repo.TalkRecords) *TalkRecordsService {
+func NewTalkRecordsService(source *repo.Source, talkVoteCache *cache.Vote, talkRecordsVoteRepo *repo.TalkRecordsVote, groupMemberRepo *repo.GroupMember, repo *repo.TalkRecords) *TalkRecordsService {
 	return &TalkRecordsService{Source: source, talkVoteCache: talkVoteCache, talkRecordsVoteRepo: talkRecordsVoteRepo, groupMemberRepo: groupMemberRepo, talkRecordsRepo: repo}
 }
 

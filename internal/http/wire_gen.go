@@ -59,7 +59,7 @@ func Initialize(conf *config.Config) *AppProvider {
 	relation := cache.NewRelation(client)
 	groupMember := repo.NewGroupMember(db, relation)
 	splitUpload := repo.NewFileSplitUpload(db)
-	talkVote := cache.NewTalkVote(client)
+	talkVote := cache.NewVote(client)
 	talkRecordsVote := repo.NewTalkRecordsVote(db, talkVote)
 	filesystem := provider.NewFilesystem(conf)
 	unreadStorage := cache.NewUnreadStorage(client)
