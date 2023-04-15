@@ -14,7 +14,7 @@ var fileMediaMap = map[string]int{
 	"png":  MediaFileImage,
 	"webp": MediaFileImage,
 	"ogg":  MediaFileVideo,
-	"mp3":  MediaFileVideo,
+	"mp3":  MediaFileAudio,
 	"wav":  MediaFileAudio,
 	"mp4":  MediaFileVideo,
 	"webm": MediaFileAudio,
