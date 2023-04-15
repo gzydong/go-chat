@@ -125,7 +125,7 @@ func (c *Records) SearchHistoryRecords(ctx *ichat.Context) error {
 		entity.ChatMsgTypeText,
 		entity.ChatMsgTypeImage,
 		entity.ChatMsgTypeVideo,
-		entity.ChatMsgTypeVoice,
+		entity.ChatMsgTypeAudio,
 		entity.ChatMsgTypeFile,
 		entity.ChatMsgTypeForward,
 		entity.ChatMsgTypeCode,
@@ -220,7 +220,7 @@ func (c *Records) Download(ctx *ichat.Context) error {
 
 	switch fileInfo.Drive {
 	case entity.FileDriveLocal:
-		ctx.Context.FileAttachment(c.filesystem.Local.Path(fileInfo.Path), fileInfo.OriginalName)
+		ctx.Context.FileAttachment(c.filesystem.Local.Path(fileInfo.Path), fileInfo.Name)
 	case entity.FileDriveCos:
 		ctx.Context.Redirect(http.StatusFound, c.filesystem.Cos.PrivateUrl(fileInfo.Path, 60*time.Second))
 	default:

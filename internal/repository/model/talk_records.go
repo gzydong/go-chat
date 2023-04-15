@@ -36,8 +36,8 @@ func (t TalkRecords) TableName() string {
 }
 
 type TalkRecordExtraGroupMembers struct {
-	UserId   int `json:"user_id"`  // 用户ID
-	Nickname int `json:"nickname"` // 用户昵称
+	UserId   int    `gorm:"column:user_id;" json:"user_id"`   // 用户ID
+	Nickname string `gorm:"column:nickname;" json:"nickname"` // 用户昵称
 }
 
 type TalkRecordExtraCode struct {
@@ -89,7 +89,7 @@ type TalkRecordExtraImage struct {
 	Height int    `json:"height"` // 图片高度
 }
 
-type TalkRecordExtraVoice struct {
+type TalkRecordExtraAudio struct {
 	Name     string `json:"name"`     // 语音名称
 	Suffix   string `json:"suffix"`   // 文件后缀
 	Size     int    `json:"size"`     // 语音大小

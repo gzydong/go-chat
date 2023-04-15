@@ -68,6 +68,9 @@ func (g *GroupService) Create(ctx context.Context, opt *GroupCreateOpt) (int, er
 			return err
 		}
 
+		addMembers := make([]model.TalkRecordExtraGroupMembers, 0, len(opt.MemberIds))
+		tx.Table("users").Select("id as user_id", "nickname").Where("id in ?", opt.MemberIds).Scan(&addMembers)
+
 		for _, val := range uids {
 			leader := 0
 			if opt.UserId == val {
@@ -102,6 +105,11 @@ func (g *GroupService) Create(ctx context.Context, opt *GroupCreateOpt) (int, er
 			ReceiverId: group.Id,
 			MsgType:    entity.ChatMsgSysGroupCreate,
 			Sequence:   g.sequence.Get(ctx, 0, group.Id),
+			Extra: jsonutil.Encode(model.TalkRecordExtraGroupCreate{
+				OwnerId:   opt.UserId,
+				OwnerName: "gzydong",
+				Members:   addMembers,
+			}),
 		}
 
 		if err = tx.Create(record).Error; err != nil {
@@ -285,12 +293,11 @@ func (g *GroupService) Invite(ctx context.Context, opt *GroupInviteOpt) error {
 		memberMaps[item.Id] = item
 	}
 
-	members := make([]map[string]any, 0)
+	members := make([]model.TalkRecordExtraGroupMembers, 0)
 	for _, value := range opt.MemberIds {
-		member := memberMaps[value]
-		members = append(members, map[string]any{
-			"uid":      value,
-			"nickname": member.Nickname,
+		members = append(members, model.TalkRecordExtraGroupMembers{
+			UserId:   value,
+			Nickname: memberMaps[value].Nickname,
 		})
 
 		if _, ok := m[value]; !ok {
@@ -324,12 +331,10 @@ func (g *GroupService) Invite(ctx context.Context, opt *GroupInviteOpt) error {
 		Sequence:   g.sequence.Get(ctx, 0, opt.GroupId),
 	}
 
-	operator := memberMaps[opt.UserId]
-
-	// TODO 优化
 	record.Extra = jsonutil.Encode(&model.TalkRecordExtraGroupJoin{
-		OwnerId:   operator.Id,
-		OwnerName: operator.Nickname,
+		OwnerId:   memberMaps[opt.UserId].Id,
+		OwnerName: memberMaps[opt.UserId].Nickname,
+		Members:   members,
 	})
 
 	err = db.Transaction(func(tx *gorm.DB) error {
@@ -421,16 +426,14 @@ func (g *GroupService) RemoveMember(ctx context.Context, opt *GroupRemoveMembers
 		memberMaps[item.Id] = item
 	}
 
-	members := make([]map[string]any, 0)
+	members := make([]model.TalkRecordExtraGroupMembers, 0)
 	for _, value := range opt.MemberIds {
-		member := memberMaps[value]
-		members = append(members, map[string]any{
-			"uid":      value,
-			"nickname": member.Nickname,
+		members = append(members, model.TalkRecordExtraGroupMembers{
+			UserId:   value,
+			Nickname: memberMaps[value].Nickname,
 		})
 	}
 
-	operator := memberMaps[opt.UserId]
 	record := &model.TalkRecords{
 		MsgId:      strutil.NewMsgId(),
 		Sequence:   g.sequence.Get(ctx, 0, opt.GroupId),
@@ -438,8 +441,9 @@ func (g *GroupService) RemoveMember(ctx context.Context, opt *GroupRemoveMembers
 		ReceiverId: opt.GroupId,
 		MsgType:    entity.ChatMsgSysGroupMemberKicked,
 		Extra: jsonutil.Encode(&model.TalkRecordExtraGroupMemberKicked{
-			OwnerId:   operator.Id,
-			OwnerName: operator.Nickname,
+			OwnerId:   memberMaps[opt.UserId].Id,
+			OwnerName: memberMaps[opt.UserId].Nickname,
+			Members:   members,
 		}),
 	}
 

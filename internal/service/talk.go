@@ -90,7 +90,7 @@ func (t *TalkService) Collect(ctx context.Context, uid int, recordId int) error 
 		}
 	}
 
-	var file model.TalkRecordExtraFile
+	var file model.TalkRecordExtraImage
 	if err := jsonutil.Decode(record.Extra, &file); err != nil {
 		return err
 	}

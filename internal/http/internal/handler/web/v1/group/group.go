@@ -7,6 +7,7 @@ import (
 	"go-chat/api/pb/web/v1"
 	"go-chat/internal/entity"
 	"go-chat/internal/pkg/ichat"
+	"go-chat/internal/pkg/jsonutil"
 	"go-chat/internal/pkg/logger"
 	"go-chat/internal/pkg/sliceutil"
 	"go-chat/internal/pkg/timeutil"
@@ -129,8 +130,8 @@ func (c *Group) SignOut(ctx *ichat.Context) error {
 		return ctx.ErrorBusiness(err.Error())
 	}
 
-	// 删除聊天会话
 	sid := c.talkSessionService.Dao().FindBySessionId(uid, int(params.GroupId), entity.ChatGroupMode)
+
 	_ = c.talkSessionService.Delete(ctx.Ctx(), ctx.UserId(), sid)
 
 	return ctx.Success(nil)
@@ -407,6 +408,28 @@ func (c *Group) Handover(ctx *ichat.Context) error {
 		return ctx.ErrorBusiness("转让群主失败！")
 	}
 
+	members := make([]model.TalkRecordExtraGroupMembers, 0)
+	c.messageService.Db().Table("users").Select("id as user_id", "nickname").Where("id in ?", []int{uid, int(params.UserId)}).Scan(&members)
+
+	extra := model.TalkRecordExtraGroupTransfer{}
+	for _, member := range members {
+		if member.UserId == uid {
+			extra.OldOwnerId = member.UserId
+			extra.OldOwnerName = member.Nickname
+		} else {
+			extra.NewOwnerId = member.UserId
+			extra.NewOwnerName = member.Nickname
+		}
+	}
+
+	_ = c.messageService.SendSysOther(ctx.Ctx(), &model.TalkRecords{
+		MsgType:    entity.ChatMsgSysGroupTransfer,
+		TalkType:   model.TalkRecordTalkTypeGroup,
+		UserId:     uid,
+		ReceiverId: int(params.GroupId),
+		Extra:      jsonutil.Encode(extra),
+	})
+
 	return ctx.Success(nil)
 }
 
@@ -459,6 +482,38 @@ func (c *Group) NoSpeak(ctx *ichat.Context) error {
 	if err != nil {
 		return ctx.ErrorBusiness("设置群成员禁言状态失败！")
 	}
+
+	data := &model.TalkRecords{
+		TalkType:   model.TalkRecordTalkTypeGroup,
+		UserId:     uid,
+		ReceiverId: int(params.GroupId),
+	}
+
+	members := make([]model.TalkRecordExtraGroupMembers, 0)
+	c.messageService.Db().Table("users").Select("id as user_id", "nickname").Where("id = ?", params.UserId).Scan(&members)
+
+	user, err := c.userService.Dao().FindById(ctx.Ctx(), uid)
+	if err != nil {
+		return ctx.ErrorBusiness(err.Error())
+	}
+
+	if status == 1 {
+		data.MsgType = entity.ChatMsgSysGroupMemberMuted
+		data.Extra = jsonutil.Encode(model.TalkRecordExtraGroupMemberCancelMuted{
+			OwnerId:   uid,
+			OwnerName: user.Nickname,
+			Members:   members,
+		})
+	} else {
+		data.MsgType = entity.ChatMsgSysGroupMemberCancelMuted
+		data.Extra = jsonutil.Encode(model.TalkRecordExtraGroupMemberCancelMuted{
+			OwnerId:   uid,
+			OwnerName: user.Nickname,
+			Members:   members,
+		})
+	}
+
+	_ = c.messageService.SendSysOther(ctx.Ctx(), data)
 
 	return ctx.Success(nil)
 }

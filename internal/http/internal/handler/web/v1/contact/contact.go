@@ -2,7 +2,6 @@ package contact
 
 import (
 	"errors"
-	"strconv"
 
 	"go-chat/api/pb/message/v1"
 	"go-chat/api/pb/web/v1"
@@ -12,7 +11,6 @@ import (
 	"gorm.io/gorm"
 
 	"go-chat/internal/entity"
-	"go-chat/internal/pkg/strutil"
 	"go-chat/internal/service"
 )
 
@@ -46,7 +44,6 @@ func (c *Contact) List(ctx *ichat.Context) error {
 			Motto:    item.Motto,
 			Avatar:   item.Avatar,
 			Remark:   item.Remark,
-			IsOnline: int32(strutil.BoolToInt(c.clientStorage.IsOnline(ctx.Ctx(), entity.ImChannelChat, strconv.Itoa(item.Id)))),
 			GroupId:  int32(item.GroupId),
 		})
 	}

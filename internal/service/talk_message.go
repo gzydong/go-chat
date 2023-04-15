@@ -82,8 +82,8 @@ func (m *MessageService) SendImage(ctx context.Context, uid int, req *message.Im
 			Suffix: strutil.FileSuffix(req.Url),
 			Size:   int(req.Size),
 			Url:    req.Url,
-			Width:  0,
-			Height: 0,
+			Width:  int(req.Width),
+			Height: int(req.Height),
 		}),
 	}
 
@@ -94,10 +94,10 @@ func (m *MessageService) SendImage(ctx context.Context, uid int, req *message.Im
 func (m *MessageService) SendVoice(ctx context.Context, uid int, req *message.VoiceMessageRequest) error {
 	data := &model.TalkRecords{
 		TalkType:   int(req.Receiver.TalkType),
-		MsgType:    entity.ChatMsgTypeVoice,
+		MsgType:    entity.ChatMsgTypeAudio,
 		UserId:     uid,
 		ReceiverId: int(req.Receiver.ReceiverId),
-		Extra: jsonutil.Encode(&model.TalkRecordExtraVoice{
+		Extra: jsonutil.Encode(&model.TalkRecordExtraAudio{
 			Name:     "语音文件",
 			Suffix:   strutil.FileSuffix(req.Url),
 			Size:     int(req.Size),
@@ -137,29 +137,54 @@ func (m *MessageService) SendFile(ctx context.Context, uid int, req *message.Fil
 		return err
 	}
 
-	// // 公开文件
-	// if entity.GetMediaType(file.FileExt) <= 3 {
-	// 	filePath = fmt.Sprintf("public/media/%s/%s.%s", timeutil.DateNumber(), encrypt.Md5(strutil.Random(16)), file.FileExt)
-	// 	uri = m.fileSystem.Default.PublicUrl(filePath)
-	// }
-
+	publicUrl := ""
 	filePath := fmt.Sprintf("private/files/talks/%s/%s.%s", timeutil.DateNumber(), encrypt.Md5(strutil.Random(16)), file.FileExt)
+
+	// 公开文件
+	if entity.GetMediaType(file.FileExt) <= 3 {
+		filePath = fmt.Sprintf("public/media/%s/%s.%s", timeutil.DateNumber(), encrypt.Md5(strutil.Random(16)), file.FileExt)
+		publicUrl = m.fileSystem.Default.PublicUrl(filePath)
+	}
+
 	if err := m.fileSystem.Default.Copy(file.Path, filePath); err != nil {
 		return err
 	}
 
 	data := &model.TalkRecords{
 		TalkType:   int(req.Receiver.TalkType),
-		MsgType:    entity.ChatMsgTypeFile,
 		UserId:     uid,
 		ReceiverId: int(req.Receiver.ReceiverId),
-		Extra: jsonutil.Encode(&model.TalkRecordExtraFile{
+	}
+
+	switch entity.GetMediaType(file.FileExt) {
+	case entity.MediaFileAudio:
+		data.MsgType = entity.ChatMsgTypeAudio
+		data.Extra = jsonutil.Encode(&model.TalkRecordExtraAudio{
+			Name:     file.OriginalName,
+			Suffix:   file.FileExt,
+			Size:     int(file.FileSize),
+			Url:      publicUrl,
+			Duration: 0,
+		})
+	case entity.MediaFileVideo:
+		data.MsgType = entity.ChatMsgTypeVideo
+		data.Extra = jsonutil.Encode(&model.TalkRecordExtraVideo{
+			Name:     file.OriginalName,
+			Cover:    "",
+			Suffix:   file.FileExt,
+			Size:     int(file.FileSize),
+			Url:      publicUrl,
+			Duration: 0,
+		})
+	case entity.MediaFileOther:
+		data.MsgType = entity.ChatMsgTypeFile
+		data.Extra = jsonutil.Encode(&model.TalkRecordExtraFile{
 			Drive:  file.Drive,
 			Name:   file.OriginalName,
 			Suffix: file.FileExt,
 			Size:   int(file.FileSize),
 			Path:   filePath,
-		}),
+		})
 	}
 
 	return m.save(ctx, data)
@@ -277,6 +302,23 @@ func (m *MessageService) SendForward(ctx context.Context, uid int, req *message.
 
 	if err != nil {
 		return err
+	}
+
+	for _, record := range items {
+		if record.TalkType == entity.ChatPrivateMode {
+			m.unreadStorage.Incr(ctx, entity.ChatPrivateMode, uid, record.ReceiverId)
+		} else if record.TalkType == entity.ChatGroupMode {
+			pipe := m.Redis().Pipeline()
+			for _, uid := range m.groupMemberRepo.GetMemberIds(ctx, record.ReceiverId) {
+				m.unreadStorage.PipeIncr(ctx, pipe, entity.ChatGroupMode, record.ReceiverId, uid)
+			}
+			_, _ = pipe.Exec(ctx)
+		}
+
+		_ = m.messageStorage.Set(ctx, record.TalkType, uid, record.ReceiverId, &cache.LastCacheMessage{
+			Content:  "[转发消息]",
+			Datetime: timeutil.DateTime(),
+		})
 	}
 
 	_, _ = m.Redis().Pipelined(ctx, func(pipe redis.Pipeliner) error {
@@ -495,7 +537,7 @@ func (m *MessageService) save(ctx context.Context, data *model.TalkRecords) erro
 			option["text"] = strutil.MtSubstr(data.Content, 0, 300)
 		case entity.ChatMsgTypeImage:
 			option["text"] = "【图片消息】"
-		case entity.ChatMsgTypeVoice:
+		case entity.ChatMsgTypeAudio:
 			option["text"] = "【语音消息】"
 		case entity.ChatMsgTypeVideo:
 			option["text"] = "【视频消息】"

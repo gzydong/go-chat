@@ -42,7 +42,7 @@ func (m *MessageForwardLogic) Verify(ctx context.Context, uid int, req *message.
 	}
 
 	query.Where("talk_type = ?", req.Receiver.TalkType)
-	query.Where("msg_type in ?", []int{1, 2, 4})
+	query.Where("msg_type in ?", []int{1, 2, 3, 4, 5, 6, 7, 8})
 	query.Where("is_revoke = ?", 0)
 
 	var count int64
@@ -221,7 +221,7 @@ func (m *MessageForwardLogic) aggregation(ctx context.Context, req *message.Forw
 			item["text"] = "【代码消息】"
 		case entity.ChatMsgTypeImage:
 			item["text"] = "【图片消息】"
-		case entity.ChatMsgTypeVoice:
+		case entity.ChatMsgTypeAudio:
 			item["text"] = "【语音消息】"
 		case entity.ChatMsgTypeVideo:
 			item["text"] = "【视频消息】"

@@ -37,7 +37,7 @@ const (
 	ChatMsgTypeText     = 1  // 文本消息
 	ChatMsgTypeCode     = 2  // 代码消息
 	ChatMsgTypeImage    = 3  // 图片文件
-	ChatMsgTypeVoice    = 4  // 语音文件
+	ChatMsgTypeAudio    = 4  // 语音文件
 	ChatMsgTypeVideo    = 5  // 视频文件
 	ChatMsgTypeFile     = 6  // 其它文件
 	ChatMsgTypeLocation = 7  // 位置消息
@@ -59,6 +59,7 @@ const (
 	ChatMsgSysGroupMemberCancelMuted = 1110 // 群成员解除禁言
 	ChatMsgSysGroupNoticeCreate      = 1111 // 创建群公告
 	ChatMsgSysGroupNoticeUpdate      = 1112 // 更新群公告
+	ChatMsgSysGroupTransfer          = 1113 // 变更群主
 )
 
 const (
