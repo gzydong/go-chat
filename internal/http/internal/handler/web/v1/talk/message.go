@@ -125,7 +125,7 @@ func (c *Message) Image(ctx *ichat.Context) error {
 	}
 
 	if !sliceutil.Include(strutil.FileSuffix(file.Filename), []string{"png", "jpg", "jpeg", "gif", "webp"}) {
-		return ctx.InvalidParams("上传文件格式不正确,仅支持 png、jpg、jpeg 和 gif")
+		return ctx.InvalidParams("上传文件格式不正确,仅支持 png、jpg、jpeg、gif 及 webp")
 	}
 
 	// 判断上传文件大小（5M）

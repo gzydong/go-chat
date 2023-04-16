@@ -36,15 +36,24 @@ func (a *ArticleClass) MinSort(ctx context.Context, uid int) (int, error) {
 	return sort, nil
 }
 
+type ClassGroupCount struct {
+	ClassId int `json:"class_id"`
+	Count   int `json:"count"`
+}
+
 func (a *ArticleClass) GroupCount(uid int) (map[int]int, error) {
-	items := make([]map[string]int, 0)
-	if err := a.Db.Model(&model.Article{}).Select("class_id", "count(*) as count").Where("user_id = ? and status = 1", uid).Group("class_id").Scan(&items).Error; err != nil {
+	var items []ClassGroupCount
+	if err := a.Db.Debug().Table("article").
+		Select("class_id", "ifnull(count(*),0) as count").
+		Where("user_id = ? and status = 1", uid).
+		Group("class_id").
+		Scan(&items).Error; err != nil {
 		return nil, err
 	}
 
 	maps := make(map[int]int)
 	for _, item := range items {
-		maps[item["class_id"]] = item["count"]
+		maps[item.ClassId] = item.Count
 	}
 
 	return maps, nil

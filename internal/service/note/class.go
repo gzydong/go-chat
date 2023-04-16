@@ -23,7 +23,7 @@ func NewArticleClassService(source *repo.Source, dao *note.ArticleClass) *Articl
 func (s *ArticleClassService) List(ctx context.Context, uid int) ([]*model.ArticleClassItem, error) {
 	items := make([]*model.ArticleClassItem, 0)
 
-	err := s.Db().WithContext(ctx).Model(&model.ArticleClass{}).Select("id", "class_name", "is_default").Where("user_id = ?", uid).Order("sort asc").Scan(&items).Error
+	err := s.articleClass.Model(ctx).Select("id", "class_name", "is_default").Where("user_id = ?", uid).Order("sort asc").Scan(&items).Error
 	if err != nil {
 		return nil, err
 	}

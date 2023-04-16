@@ -123,12 +123,13 @@ func (c *Records) SearchHistoryRecords(ctx *ichat.Context) error {
 
 	m := []int{
 		entity.ChatMsgTypeText,
+		entity.ChatMsgTypeCode,
 		entity.ChatMsgTypeImage,
 		entity.ChatMsgTypeVideo,
 		entity.ChatMsgTypeAudio,
 		entity.ChatMsgTypeFile,
+		entity.ChatMsgTypeLocation,
 		entity.ChatMsgTypeForward,
-		entity.ChatMsgTypeCode,
 		entity.ChatMsgTypeVote,
 	}
 
