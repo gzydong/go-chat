@@ -533,7 +533,7 @@ func (m *MessageService) save(ctx context.Context, data *model.TalkRecords) erro
 
 		switch data.MsgType {
 		case entity.ChatMsgTypeText:
-			option["text"] = strutil.MtSubstr(data.Content, 0, 300)
+			option["text"] = strutil.MtSubstr(strutil.ReplaceImgAll(data.Content), 0, 300)
 		default:
 			if value, ok := entity.ChatMsgTypeMapping[data.MsgType]; ok {
 				option["text"] = value

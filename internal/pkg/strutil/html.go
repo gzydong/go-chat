@@ -53,3 +53,9 @@ func EscapeHtml(value string) string {
 
 	return value
 }
+
+var imgReg = regexp.MustCompile(`<img .*?>`)
+
+func ReplaceImgAll(value string) string {
+	return strings.TrimSpace(string(imgReg.ReplaceAll([]byte(value), []byte(""))))
+}
