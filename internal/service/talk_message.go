@@ -64,7 +64,7 @@ func (m *MessageService) SendText(ctx context.Context, uid int, req *message.Tex
 		MsgType:    entity.ChatMsgTypeText,
 		UserId:     uid,
 		ReceiverId: int(req.Receiver.ReceiverId),
-		Content:    html.EscapeString(req.Content),
+		Content:    strutil.EscapeHtml(req.Content),
 	}
 
 	return m.save(ctx, data)
@@ -530,53 +530,16 @@ func (m *MessageService) save(ctx context.Context, data *model.TalkRecords) erro
 	err := m.Db().WithContext(ctx).Create(data).Error
 	if err == nil {
 		option := make(map[string]string)
-		option["text"] = "【未知消息】"
 
 		switch data.MsgType {
 		case entity.ChatMsgTypeText:
 			option["text"] = strutil.MtSubstr(data.Content, 0, 300)
-		case entity.ChatMsgTypeImage:
-			option["text"] = "【图片消息】"
-		case entity.ChatMsgTypeAudio:
-			option["text"] = "【语音消息】"
-		case entity.ChatMsgTypeVideo:
-			option["text"] = "【视频消息】"
-		case entity.ChatMsgTypeFile:
-			option["text"] = "【文件消息】"
-		case entity.ChatMsgTypeLocation:
-			option["text"] = "【位置消息】"
-		case entity.ChatMsgTypeCard:
-			option["text"] = "【名片消息】"
-		case entity.ChatMsgTypeForward:
-			option["text"] = "【转发消息】"
-		case entity.ChatMsgTypeLogin:
-			option["text"] = "【登录消息】"
-		case entity.ChatMsgTypeVote:
-			option["text"] = "【投票消息】"
-		case entity.ChatMsgTypeCode:
-			option["text"] = "【代码消息】"
-		case entity.ChatMsgSysText:
-			option["text"] = "【系统消息】"
-		case entity.ChatMsgSysGroupCreate:
-			option["text"] = "【创建群消息】"
-		case entity.ChatMsgSysGroupMemberJoin:
-			option["text"] = "【加入群消息】"
-		case entity.ChatMsgSysGroupMemberQuit:
-			option["text"] = "【退出群消息】"
-		case entity.ChatMsgSysGroupMemberKicked:
-			option["text"] = "【踢出群消息】"
-		case entity.ChatMsgSysGroupMessageRevoke:
-			option["text"] = "【撤回消息】"
-		case entity.ChatMsgSysGroupDismissed:
-			option["text"] = "【群解散消息】"
-		case entity.ChatMsgSysGroupMuted:
-			option["text"] = "【群禁言消息】"
-		case entity.ChatMsgSysGroupCancelMuted:
-			option["text"] = "【群解除禁言消息】"
-		case entity.ChatMsgSysGroupMemberMuted:
-			option["text"] = "【群成员禁言消息】"
-		case entity.ChatMsgSysGroupMemberCancelMuted:
-			option["text"] = "【群成员解除禁言消息】"
+		default:
+			if value, ok := entity.ChatMsgTypeMapping[data.MsgType]; ok {
+				option["text"] = value
+			} else {
+				option["text"] = "[未知消息]"
+			}
 		}
 
 		m.afterHandle(ctx, data, option)

@@ -62,6 +62,30 @@ const (
 	ChatMsgSysGroupTransfer          = 1113 // 变更群主
 )
 
+var ChatMsgTypeMapping = map[int]string{
+	ChatMsgTypeImage:                 "[图片消息]",
+	ChatMsgTypeAudio:                 "[语音消息]",
+	ChatMsgTypeVideo:                 "[视频消息]",
+	ChatMsgTypeFile:                  "[文件消息]",
+	ChatMsgTypeLocation:              "[位置消息]",
+	ChatMsgTypeCard:                  "[名片消息]",
+	ChatMsgTypeForward:               "[转发消息]",
+	ChatMsgTypeLogin:                 "[登录消息]",
+	ChatMsgTypeVote:                  "[投票消息]",
+	ChatMsgTypeCode:                  "[代码消息]",
+	ChatMsgSysText:                   "[系统消息]",
+	ChatMsgSysGroupCreate:            "[创建群消息]",
+	ChatMsgSysGroupMemberJoin:        "[加入群消息]",
+	ChatMsgSysGroupMemberQuit:        "[退出群消息]",
+	ChatMsgSysGroupMemberKicked:      "[踢出群消息]",
+	ChatMsgSysGroupMessageRevoke:     "[撤回消息]",
+	ChatMsgSysGroupDismissed:         "[群解散消息]",
+	ChatMsgSysGroupMuted:             "[群禁言消息]",
+	ChatMsgSysGroupCancelMuted:       "[群解除禁言消息]",
+	ChatMsgSysGroupMemberMuted:       "[群成员禁言消息]",
+	ChatMsgSysGroupMemberCancelMuted: "[群成员解除禁言消息]",
+}
+
 const (
 	EventChatTalkMessage    = 101001 // IM对话消息事件
 	EventChatTalkKeyboard   = 101002 // IM键盘输入消息事件

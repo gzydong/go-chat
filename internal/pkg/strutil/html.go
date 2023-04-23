@@ -1,6 +1,11 @@
 package strutil
 
-import "regexp"
+import (
+	"fmt"
+	"html"
+	"regexp"
+	"strings"
+)
 
 // ParseHtmlImage 解析 Md 文本中的图片信息
 func ParseHtmlImage(text string) string {
@@ -25,4 +30,26 @@ func ParseHtmlImageAll(text string) []string {
 	}
 
 	return list
+}
+
+var amReg = regexp.MustCompile(`<a href="([^"]*)" alt="link"[^>]*>(.*?)</a>|<img src="([^"]*)" alt="img"[^>]*/>`)
+
+func EscapeHtml(value string) string {
+	items := make(map[string]string)
+	for index, v := range amReg.FindAllString(value, -1) {
+		val := fmt.Sprintf("{#%d#}", index)
+		items[val] = v
+		value = strings.Replace(value, v, val, -1)
+	}
+
+	value = html.EscapeString(value)
+	if len(items) == 0 {
+		return value
+	}
+
+	for k, v := range items {
+		value = strings.Replace(value, k, v, -1)
+	}
+
+	return value
 }
