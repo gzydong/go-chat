@@ -66,7 +66,7 @@ func Initialize(conf *config.Config) *AppProvider {
 	messageStorage := cache.NewMessageStorage(client)
 	serverStorage := cache.NewSidStorage(client)
 	clientStorage := cache.NewClientStorage(client, conf, serverStorage)
-	messageService := service.NewMessageService(source, messageForwardLogic, groupMember, splitUpload, talkRecordsVote, filesystem, unreadStorage, messageStorage, serverStorage, clientStorage, repoSequence)
+	messageService := service.NewMessageService(source, messageForwardLogic, groupMember, splitUpload, talkRecordsVote, filesystem, unreadStorage, messageStorage, serverStorage, clientStorage, repoSequence, robot)
 	auth := v1.NewAuth(conf, userService, smsService, jwtTokenStorage, redisLock, ipAddressService, talkSessionService, articleClassService, robot, messageService)
 	organizeOrganize := organize.NewOrganize(db)
 	organizeService := organize2.NewOrganizeService(source, organizeOrganize)

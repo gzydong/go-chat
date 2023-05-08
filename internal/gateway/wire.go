@@ -46,6 +46,7 @@ var providerSet = wire.NewSet(
 	repo.NewFileSplitUpload,
 	repo.NewSequence,
 	organize.NewOrganize,
+	repo.NewRobot,
 
 	logic.NewMessageForwardLogic,
 

@@ -46,7 +46,8 @@ func Initialize(conf *config.Config) *AppProvider {
 	filesystem := provider.NewFilesystem(conf)
 	unreadStorage := cache.NewUnreadStorage(client)
 	messageStorage := cache.NewMessageStorage(client)
-	messageService := service.NewMessageService(source, messageForwardLogic, groupMember, splitUpload, talkRecordsVote, filesystem, unreadStorage, messageStorage, serverStorage, clientStorage, repoSequence)
+	robot := repo.NewRobot(db)
+	messageService := service.NewMessageService(source, messageForwardLogic, groupMember, splitUpload, talkRecordsVote, filesystem, unreadStorage, messageStorage, serverStorage, clientStorage, repoSequence, robot)
 	chatHandler := chat.NewHandler(client, groupMemberService, messageService)
 	chatEvent := event.NewChatEvent(client, conf, roomStorage, groupMemberService, chatHandler)
 	chatChannel := handler.NewChatChannel(clientStorage, chatEvent)
@@ -90,4 +91,4 @@ func Initialize(conf *config.Config) *AppProvider {
 
 // wire.go:
 
-var providerSet = wire.NewSet(provider.NewMySQLClient, provider.NewRedisClient, provider.NewFilesystem, provider.NewEmailClient, provider.NewProviders, router.NewRouter, wire.Struct(new(process.SubServers), "*"), process.NewServer, process.NewHealthSubscribe, process.NewMessageSubscribe, repo.NewSource, repo.NewTalkRecords, repo.NewTalkRecordsVote, repo.NewGroupMember, repo.NewContact, repo.NewFileSplitUpload, repo.NewSequence, organize.NewOrganize, logic.NewMessageForwardLogic, service.NewTalkRecordsService, service.NewGroupMemberService, service.NewContactService, service.NewMessageService, wire.Struct(new(handler.Handler), "*"), wire.Struct(new(AppProvider), "*"))
+var providerSet = wire.NewSet(provider.NewMySQLClient, provider.NewRedisClient, provider.NewFilesystem, provider.NewEmailClient, provider.NewProviders, router.NewRouter, wire.Struct(new(process.SubServers), "*"), process.NewServer, process.NewHealthSubscribe, process.NewMessageSubscribe, repo.NewSource, repo.NewTalkRecords, repo.NewTalkRecordsVote, repo.NewGroupMember, repo.NewContact, repo.NewFileSplitUpload, repo.NewSequence, organize.NewOrganize, repo.NewRobot, logic.NewMessageForwardLogic, service.NewTalkRecordsService, service.NewGroupMemberService, service.NewContactService, service.NewMessageService, wire.Struct(new(handler.Handler), "*"), wire.Struct(new(AppProvider), "*"))

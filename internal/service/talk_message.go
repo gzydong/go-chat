@@ -37,11 +37,12 @@ type MessageService struct {
 	messageStorage      *cache.MessageStorage
 	sidStorage          *cache.ServerStorage
 	clientStorage       *cache.ClientStorage
-	Sequence            *repo.Sequence
+	sequence            *repo.Sequence
+	robotRepo           *repo.Robot
 }
 
-func NewMessageService(source *repo.Source, forward *logic.MessageForwardLogic, groupMemberRepo *repo.GroupMember, splitUploadRepo *repo.SplitUpload, talkRecordsVoteRepo *repo.TalkRecordsVote, fileSystem *filesystem.Filesystem, unreadStorage *cache.UnreadStorage, messageStorage *cache.MessageStorage, sidStorage *cache.ServerStorage, clientStorage *cache.ClientStorage, sequence *repo.Sequence) *MessageService {
-	return &MessageService{Source: source, forward: forward, groupMemberRepo: groupMemberRepo, splitUploadRepo: splitUploadRepo, talkRecordsVoteRepo: talkRecordsVoteRepo, fileSystem: fileSystem, unreadStorage: unreadStorage, messageStorage: messageStorage, sidStorage: sidStorage, clientStorage: clientStorage, Sequence: sequence}
+func NewMessageService(source *repo.Source, forward *logic.MessageForwardLogic, groupMemberRepo *repo.GroupMember, splitUploadRepo *repo.SplitUpload, talkRecordsVoteRepo *repo.TalkRecordsVote, fileSystem *filesystem.Filesystem, unreadStorage *cache.UnreadStorage, messageStorage *cache.MessageStorage, sidStorage *cache.ServerStorage, clientStorage *cache.ClientStorage, sequence *repo.Sequence, robotRepo *repo.Robot) *MessageService {
+	return &MessageService{Source: source, forward: forward, groupMemberRepo: groupMemberRepo, splitUploadRepo: splitUploadRepo, talkRecordsVoteRepo: talkRecordsVoteRepo, fileSystem: fileSystem, unreadStorage: unreadStorage, messageStorage: messageStorage, sidStorage: sidStorage, clientStorage: clientStorage, sequence: sequence, robotRepo: robotRepo}
 }
 
 // SendSystemText 系统文本消息
@@ -375,11 +376,17 @@ func (m *MessageService) SendBusinessCard(ctx context.Context, uid int, req *mes
 
 // SendLogin 推送用户登录消息
 func (m *MessageService) SendLogin(ctx context.Context, uid int, req *message.LoginMessageRequest) error {
+
+	robot, err := m.robotRepo.GetLoginRobot(ctx)
+	if err != nil {
+		return err
+	}
+
 	data := &model.TalkRecords{
 		MsgId:      strutil.NewMsgId(),
 		TalkType:   entity.ChatPrivateMode,
 		MsgType:    entity.ChatMsgTypeLogin,
-		UserId:     4257,
+		UserId:     robot.UserId,
 		ReceiverId: uid,
 		Extra: jsonutil.Encode(&model.TalkRecordExtraLogin{
 			IP:       req.Ip,
@@ -550,9 +557,9 @@ func (m *MessageService) save(ctx context.Context, data *model.TalkRecords) erro
 
 func (m *MessageService) loadSequence(ctx context.Context, data *model.TalkRecords) {
 	if data.TalkType == entity.ChatGroupMode {
-		data.Sequence = m.Sequence.Get(ctx, 0, data.ReceiverId)
+		data.Sequence = m.sequence.Get(ctx, 0, data.ReceiverId)
 	} else {
-		data.Sequence = m.Sequence.Get(ctx, data.UserId, data.ReceiverId)
+		data.Sequence = m.sequence.Get(ctx, data.UserId, data.ReceiverId)
 	}
 }
 
