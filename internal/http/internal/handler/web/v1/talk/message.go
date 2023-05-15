@@ -72,7 +72,7 @@ type CodeMessageRequest struct {
 	TalkType   int    `form:"talk_type" json:"talk_type" binding:"required,oneof=1 2" label:"talk_type"`
 	ReceiverId int    `form:"receiver_id" json:"receiver_id" binding:"required,numeric,gt=0" label:"receiver_id"`
 	Lang       string `form:"lang" json:"lang" binding:"required"`
-	Code       string `form:"code" json:"code" binding:"required,max=3000"`
+	Code       string `form:"code" json:"code" binding:"required,max=65535"`
 }
 
 // Code 发送代码块消息

@@ -162,7 +162,7 @@ func (c *Group) Setting(ctx *ichat.Context) error {
 	_ = c.messageService.SendSystemText(ctx.Ctx(), uid, &message.TextMessageRequest{
 		Content: "群主或管理员修改了群信息！",
 		Receiver: &message.MessageReceiver{
-			TalkType:   entity.ChatPrivateMode,
+			TalkType:   entity.ChatGroupMode,
 			ReceiverId: params.GroupId,
 		},
 	})
