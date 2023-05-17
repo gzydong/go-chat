@@ -70,9 +70,9 @@ func (c *Group) Dismiss(ctx *ichat.Context) error {
 	}
 
 	_ = c.messageService.SendSystemText(ctx.Ctx(), uid, &message.TextMessageRequest{
-		Content: "群组已被群主或管理员解散！",
+		Content: "群组已被群主解散！",
 		Receiver: &message.MessageReceiver{
-			TalkType:   entity.ChatPrivateMode,
+			TalkType:   entity.ChatGroupMode,
 			ReceiverId: params.GroupId,
 		},
 	})
