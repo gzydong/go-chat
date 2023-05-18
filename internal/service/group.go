@@ -99,6 +99,12 @@ func (g *GroupService) Create(ctx context.Context, opt *GroupCreateOpt) (int, er
 			return err
 		}
 
+		var user model.Users
+		err = tx.Table("users").Where("id = ?", opt.UserId).Scan(&user).Error
+		if err != nil {
+			return err
+		}
+
 		record := &model.TalkRecords{
 			MsgId:      strutil.NewMsgId(),
 			TalkType:   entity.ChatGroupMode,
@@ -106,8 +112,8 @@ func (g *GroupService) Create(ctx context.Context, opt *GroupCreateOpt) (int, er
 			MsgType:    entity.ChatMsgSysGroupCreate,
 			Sequence:   g.sequence.Get(ctx, 0, group.Id),
 			Extra: jsonutil.Encode(model.TalkRecordExtraGroupCreate{
-				OwnerId:   opt.UserId,
-				OwnerName: "gzydong",
+				OwnerId:   user.Id,
+				OwnerName: user.Nickname,
 				Members:   addMembers,
 			}),
 		}
