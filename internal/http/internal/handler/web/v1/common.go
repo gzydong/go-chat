@@ -49,7 +49,7 @@ func (c *Common) SmsCode(ctx *ichat.Context) error {
 		return ctx.ErrorBusiness(err.Error())
 	}
 
-	if params.Channel == entity.SmsRegisterChannel {
+	if params.Channel == entity.SmsRegisterChannel || params.Channel == entity.SmsChangeAccountChannel {
 		return ctx.Success(map[string]any{
 			"is_debug": true,
 			"sms_code": code,

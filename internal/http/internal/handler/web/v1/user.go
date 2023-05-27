@@ -130,22 +130,22 @@ func (u *User) ChangeMobile(ctx *ichat.Context) error {
 	}
 
 	uid := ctx.UserId()
+
+	user, _ := u.service.Dao().FindById(ctx.Ctx(), uid)
+	if user.Mobile == params.Mobile {
+		return ctx.ErrorBusiness("手机号与原手机号一致无需修改！")
+	}
+
+	if !encrypt.VerifyPassword(user.Password, params.Password) {
+		return ctx.ErrorBusiness("账号密码填写错误！")
+	}
+
 	if uid == 2054 || uid == 2055 {
 		return ctx.ErrorBusiness("预览账号不支持修改手机号！")
 	}
 
 	if !u.smsService.Verify(ctx.Ctx(), entity.SmsChangeAccountChannel, params.Mobile, params.SmsCode) {
 		return ctx.ErrorBusiness("短信验证码填写错误！")
-	}
-
-	user, _ := u.service.Dao().FindById(ctx.Ctx(), uid)
-
-	if user.Mobile != params.Mobile {
-		return ctx.ErrorBusiness("手机号与原手机号一致无需修改！")
-	}
-
-	if !encrypt.VerifyPassword(user.Password, params.Password) {
-		return ctx.ErrorBusiness("账号密码填写错误！")
 	}
 
 	_, err := u.service.Dao().UpdateById(ctx.Ctx(), user.Id, map[string]any{
@@ -169,5 +169,5 @@ func (u *User) ChangeEmail(ctx *ichat.Context) error {
 
 	// todo 1.验证邮件激活码是否正确
 
-	return nil
+	return ctx.ErrorBusiness("手机号修改成功！")
 }

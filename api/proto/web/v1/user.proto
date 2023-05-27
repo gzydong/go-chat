@@ -88,7 +88,7 @@ message UserMobileUpdateResponse{}
 message UserEmailUpdateRequest{
   string email = 1 [(tagger.tags) = "binding:\"required\""];
   string password = 2 [(tagger.tags) = "binding:\"required\""];
-  string sms_code = 3 [(tagger.tags) = "binding:\"required,len=6,numeric\""];
+  string code = 3 [(tagger.tags) = "binding:\"required,len=6,numeric\""];
 }
 
 // 用户邮箱更新接口响应参数

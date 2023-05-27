@@ -13,6 +13,7 @@ import (
 	"go-chat/internal/pkg/timeutil"
 	"go-chat/internal/repository/cache"
 	"go-chat/internal/repository/model"
+	"go-chat/internal/repository/repo"
 	"go-chat/internal/service"
 )
 
@@ -331,7 +332,14 @@ func (c *Group) OvertList(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	list, err := c.groupService.Dao().SearchOvertList(ctx.Ctx(), params.Name, int(params.Page), 20)
+	uid := ctx.UserId()
+
+	list, err := c.groupService.Dao().SearchOvertList(ctx.Ctx(), &repo.SearchOvertListOpt{
+		Name:   params.Name,
+		UserId: uid,
+		Page:   int(params.Page),
+		Size:   20,
+	})
 	if err != nil {
 		return ctx.ErrorBusiness("查询异常！")
 	}
@@ -358,11 +366,6 @@ func (c *Group) OvertList(ctx *ichat.Context) error {
 		countMap[member.GroupId] = member.Count
 	}
 
-	checks, err := c.groupMemberService.Dao().CheckUserGroup(ids, ctx.UserId())
-	if err != nil {
-		return ctx.ErrorBusiness("查询异常！")
-	}
-
 	for i, value := range list {
 		if i >= 19 {
 			break
@@ -376,7 +379,6 @@ func (c *Group) OvertList(ctx *ichat.Context) error {
 			Profile:   value.Profile,
 			Count:     int32(countMap[value.Id]),
 			MaxNum:    int32(value.MaxNum),
-			IsMember:  sliceutil.Include(value.Id, checks),
 			CreatedAt: timeutil.FormatDatetime(value.CreatedAt),
 		})
 	}

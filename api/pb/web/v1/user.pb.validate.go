@@ -1175,7 +1175,7 @@ func (m *UserEmailUpdateRequest) validate(all bool) error {
 
 	// no validation rules for Password
 
-	// no validation rules for SmsCode
+	// no validation rules for Code
 
 	if len(errors) > 0 {
 		return UserEmailUpdateRequestMultiError(errors)

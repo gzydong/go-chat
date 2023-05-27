@@ -28,7 +28,7 @@ message GroupApplyAgreeResponse{}
 
 
 message GroupApplyListRequest{
-  int32 group_id = 1 [(tagger.tags) = "binding:\"required\""];
+  int32 group_id = 1 [(tagger.tags) = "form:\"group_id\" binding:\"required\""];
 }
 
 message GroupApplyListResponse{
