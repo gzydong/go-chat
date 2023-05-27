@@ -113,7 +113,7 @@ message GroupSettingResponse{}
 // 群聊名片更新接口请求参数
 message GroupRemarkUpdateRequest{
   int32 group_id = 1 [(tagger.tags) = "binding:\"required\""];
-  string visit_card = 2 [(tagger.tags) = "binding:\"required\""];
+  string visit_card = 2;
 }
 
 // 群聊名片更新接口响应参数
