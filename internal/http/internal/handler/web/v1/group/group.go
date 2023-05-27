@@ -96,6 +96,15 @@ func (c *Group) Invite(ctx *ichat.Context) error {
 
 	defer c.redisLock.UnLock(ctx.Ctx(), key)
 
+	group, err := c.groupService.Dao().FindById(ctx.Ctx(), int(params.GroupId))
+	if err != nil {
+		return ctx.ErrorBusiness("网络异常，请稍后再试！")
+	}
+
+	if group != nil && group.IsDismiss == 1 {
+		return ctx.ErrorBusiness("该群已解散！")
+	}
+
 	uid := ctx.UserId()
 	uids := sliceutil.Unique(sliceutil.ParseIds(params.Ids))
 
@@ -144,6 +153,15 @@ func (c *Group) Setting(ctx *ichat.Context) error {
 	params := &web.GroupSettingRequest{}
 	if err := ctx.Context.ShouldBind(params); err != nil {
 		return ctx.InvalidParams(err)
+	}
+
+	group, err := c.groupService.Dao().FindById(ctx.Ctx(), int(params.GroupId))
+	if err != nil {
+		return ctx.ErrorBusiness("网络异常，请稍后再试！")
+	}
+
+	if group != nil && group.IsDismiss == 1 {
+		return ctx.ErrorBusiness("该群已解散！")
 	}
 
 	uid := ctx.UserId()
@@ -315,6 +333,15 @@ func (c *Group) Members(ctx *ichat.Context) error {
 	params := &web.GroupMemberListRequest{}
 	if err := ctx.Context.ShouldBind(params); err != nil {
 		return ctx.InvalidParams(err)
+	}
+
+	group, err := c.groupService.Dao().FindById(ctx.Ctx(), int(params.GroupId))
+	if err != nil {
+		return ctx.ErrorBusiness("网络异常，请稍后再试！")
+	}
+
+	if group != nil && group.IsDismiss == 1 {
+		return ctx.Success([]any{})
 	}
 
 	if !c.groupMemberService.Dao().IsMember(ctx.Ctx(), int(params.GroupId), ctx.UserId(), false) {
