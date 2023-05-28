@@ -243,6 +243,7 @@ func (c *Group) Detail(ctx *ichat.Context) error {
 		CreatedAt: timeutil.FormatDatetime(groupInfo.CreatedAt),
 		IsManager: uid == groupInfo.CreatorId,
 		IsDisturb: 0,
+		IsMute:    int32(groupInfo.IsMute),
 		VisitCard: c.groupMemberService.Dao().GetMemberRemark(ctx.Ctx(), int(params.GroupId), uid),
 	}
 
@@ -545,4 +546,74 @@ func (c *Group) NoSpeak(ctx *ichat.Context) error {
 	_ = c.messageService.SendSysOther(ctx.Ctx(), data)
 
 	return ctx.Success(nil)
+}
+
+// Mute 全员禁言
+func (c *Group) Mute(ctx *ichat.Context) error {
+	params := &web.GroupMuteRequest{}
+	if err := ctx.Context.ShouldBind(params); err != nil {
+		return ctx.InvalidParams(err)
+	}
+
+	uid := ctx.UserId()
+
+	group, err := c.groupService.Dao().FindById(ctx.Ctx(), int(params.GroupId))
+	if err != nil {
+		return ctx.ErrorBusiness("网络异常，请稍后再试！")
+	}
+
+	if group.IsDismiss == 1 {
+		return ctx.ErrorBusiness("此群已解散！")
+	}
+
+	if !c.groupMemberService.Dao().IsLeader(ctx.Ctx(), int(params.GroupId), uid) {
+		return ctx.ErrorBusiness("暂无权限！")
+	}
+
+	data := make(map[string]any)
+	if params.Mode == 1 {
+		data["is_mute"] = 1
+	} else {
+		data["is_mute"] = 0
+	}
+
+	affected, err := c.groupService.Dao().UpdateWhere(ctx.Ctx(), data, "id = ?", params.GroupId)
+	if err != nil {
+		return ctx.Error("服务器异常，请稍后再试！")
+	}
+
+	if affected == 0 {
+		return ctx.Success(web.GroupMuteResponse{})
+	}
+
+	user, err := c.userService.Dao().FindById(ctx.Ctx(), uid)
+	if err != nil {
+		return err
+	}
+
+	var extra any
+	var msgType int
+	if params.Mode == 1 {
+		msgType = entity.ChatMsgSysGroupMuted
+		extra = model.TalkRecordExtraGroupMuted{
+			OwnerId:   user.Id,
+			OwnerName: user.Nickname,
+		}
+	} else {
+		msgType = entity.ChatMsgSysGroupCancelMuted
+		extra = model.TalkRecordExtraGroupCancelMuted{
+			OwnerId:   user.Id,
+			OwnerName: user.Nickname,
+		}
+	}
+
+	_ = c.messageService.SendSysOther(ctx.Ctx(), &model.TalkRecords{
+		MsgType:    msgType,
+		TalkType:   model.TalkRecordTalkTypeGroup,
+		UserId:     uid,
+		ReceiverId: int(params.GroupId),
+		Extra:      jsonutil.Encode(extra),
+	})
+
+	return ctx.Success(web.GroupMuteResponse{})
 }

@@ -48,9 +48,10 @@ func (c *Message) Text(ctx *ichat.Context) error {
 
 	uid := ctx.UserId()
 	if err := c.authService.IsAuth(ctx.Ctx(), &service.AuthOption{
-		TalkType:   params.TalkType,
-		UserId:     uid,
-		ReceiverId: params.ReceiverId,
+		TalkType:          params.TalkType,
+		UserId:            uid,
+		ReceiverId:        params.ReceiverId,
+		IsVerifyGroupMute: true,
 	}); err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}
@@ -85,9 +86,10 @@ func (c *Message) Code(ctx *ichat.Context) error {
 
 	uid := ctx.UserId()
 	if err := c.authService.IsAuth(ctx.Ctx(), &service.AuthOption{
-		TalkType:   params.TalkType,
-		UserId:     uid,
-		ReceiverId: params.ReceiverId,
+		TalkType:          params.TalkType,
+		UserId:            uid,
+		ReceiverId:        params.ReceiverId,
+		IsVerifyGroupMute: true,
 	}); err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}
@@ -134,9 +136,10 @@ func (c *Message) Image(ctx *ichat.Context) error {
 	}
 
 	if err := c.authService.IsAuth(ctx.Ctx(), &service.AuthOption{
-		TalkType:   params.TalkType,
-		UserId:     ctx.UserId(),
-		ReceiverId: params.ReceiverId,
+		TalkType:          params.TalkType,
+		UserId:            ctx.UserId(),
+		ReceiverId:        params.ReceiverId,
+		IsVerifyGroupMute: true,
 	}); err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}
@@ -188,9 +191,10 @@ func (c *Message) File(ctx *ichat.Context) error {
 
 	uid := ctx.UserId()
 	if err := c.authService.IsAuth(ctx.Ctx(), &service.AuthOption{
-		TalkType:   params.TalkType,
-		UserId:     uid,
-		ReceiverId: params.ReceiverId,
+		TalkType:          params.TalkType,
+		UserId:            uid,
+		ReceiverId:        params.ReceiverId,
+		IsVerifyGroupMute: true,
 	}); err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}
@@ -234,9 +238,10 @@ func (c *Message) Vote(ctx *ichat.Context) error {
 
 	uid := ctx.UserId()
 	if err := c.authService.IsAuth(ctx.Ctx(), &service.AuthOption{
-		TalkType:   entity.ChatGroupMode,
-		UserId:     uid,
-		ReceiverId: params.ReceiverId,
+		TalkType:          entity.ChatGroupMode,
+		UserId:            uid,
+		ReceiverId:        params.ReceiverId,
+		IsVerifyGroupMute: true,
 	}); err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}
@@ -273,9 +278,10 @@ func (c *Message) Emoticon(ctx *ichat.Context) error {
 
 	uid := ctx.UserId()
 	if err := c.authService.IsAuth(ctx.Ctx(), &service.AuthOption{
-		TalkType:   params.TalkType,
-		UserId:     uid,
-		ReceiverId: params.ReceiverId,
+		TalkType:          params.TalkType,
+		UserId:            uid,
+		ReceiverId:        params.ReceiverId,
+		IsVerifyGroupMute: true,
 	}); err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}
@@ -368,9 +374,10 @@ func (c *Message) Card(ctx *ichat.Context) error {
 
 	uid := ctx.UserId()
 	if err := c.authService.IsAuth(ctx.Ctx(), &service.AuthOption{
-		TalkType:   params.TalkType,
-		UserId:     uid,
-		ReceiverId: params.ReceiverId,
+		TalkType:          params.TalkType,
+		UserId:            uid,
+		ReceiverId:        params.ReceiverId,
+		IsVerifyGroupMute: true,
 	}); err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}
@@ -490,9 +497,10 @@ func (c *Message) Location(ctx *ichat.Context) error {
 
 	uid := ctx.UserId()
 	if err := c.authService.IsAuth(ctx.Ctx(), &service.AuthOption{
-		TalkType:   params.TalkType,
-		UserId:     uid,
-		ReceiverId: params.ReceiverId,
+		TalkType:          params.TalkType,
+		UserId:            uid,
+		ReceiverId:        params.ReceiverId,
+		IsVerifyGroupMute: true,
 	}); err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}

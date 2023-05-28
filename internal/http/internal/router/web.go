@@ -83,6 +83,7 @@ func RegisterWebRoute(secret string, router *gin.Engine, handler *web.Handler, s
 			userGroup.POST("/handover", ichat.HandlerFunc(handler.V1.Group.Handover))        // 群主转让
 			userGroup.POST("/assign-admin", ichat.HandlerFunc(handler.V1.Group.AssignAdmin)) // 分配管理员
 			userGroup.POST("/no-speak", ichat.HandlerFunc(handler.V1.Group.NoSpeak))         // 修改禁言状态
+			userGroup.POST("/mute", ichat.HandlerFunc(handler.V1.Group.Mute))                // 修改禁言状态
 
 			// 群成员相关
 			userGroup.GET("/member/list", ichat.HandlerFunc(handler.V1.Group.Members))               // 群成员列表

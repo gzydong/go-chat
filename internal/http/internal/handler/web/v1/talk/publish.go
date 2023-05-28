@@ -35,9 +35,10 @@ func (c *Publish) Publish(ctx *ichat.Context) error {
 	}
 
 	if err := c.authService.IsAuth(ctx.Ctx(), &service.AuthOption{
-		TalkType:   params.Receiver.TalkType,
-		UserId:     ctx.UserId(),
-		ReceiverId: params.Receiver.ReceiverId,
+		TalkType:          params.Receiver.TalkType,
+		UserId:            ctx.UserId(),
+		ReceiverId:        params.Receiver.ReceiverId,
+		IsVerifyGroupMute: true,
 	}); err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}
