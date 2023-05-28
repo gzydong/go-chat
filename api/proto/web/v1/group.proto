@@ -52,6 +52,7 @@ message GroupDetailResponse{
   int32 is_disturb = 7;
   string visit_card = 8;
   int32 is_mute = 9;
+  int32 is_overt = 10;
 }
 
 
@@ -197,4 +198,15 @@ message GroupMuteRequest{
 
 // 群禁言接口响应参数
 message GroupMuteResponse{}
+
+// 群公开修改接口请求参数
+message GroupOvertRequest{
+  int32 group_id = 1 [(tagger.tags) = "binding:\"required\""];
+  // 操作方式  1:开启公开可见  2:关闭公开可见
+  int32 mode = 3 [(tagger.tags) = "binding:\"required,oneof=1 2\""];
+}
+
+// 群公开修改接口响应参数
+message GroupOvertResponse{}
+
 

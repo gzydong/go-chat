@@ -244,6 +244,7 @@ func (c *Group) Detail(ctx *ichat.Context) error {
 		IsManager: uid == groupInfo.CreatorId,
 		IsDisturb: 0,
 		IsMute:    int32(groupInfo.IsMute),
+		IsOvert:   int32(groupInfo.IsOvert),
 		VisitCard: c.groupMemberService.Dao().GetMemberRemark(ctx.Ctx(), int(params.GroupId), uid),
 	}
 
@@ -616,4 +617,41 @@ func (c *Group) Mute(ctx *ichat.Context) error {
 	})
 
 	return ctx.Success(web.GroupMuteResponse{})
+}
+
+// Overt 公开群
+func (c *Group) Overt(ctx *ichat.Context) error {
+	params := &web.GroupOvertRequest{}
+	if err := ctx.Context.ShouldBind(params); err != nil {
+		return ctx.InvalidParams(err)
+	}
+
+	uid := ctx.UserId()
+
+	group, err := c.groupService.Dao().FindById(ctx.Ctx(), int(params.GroupId))
+	if err != nil {
+		return ctx.ErrorBusiness("网络异常，请稍后再试！")
+	}
+
+	if group.IsDismiss == 1 {
+		return ctx.ErrorBusiness("此群已解散！")
+	}
+
+	if !c.groupMemberService.Dao().IsMaster(ctx.Ctx(), int(params.GroupId), uid) {
+		return ctx.ErrorBusiness("暂无权限！")
+	}
+
+	data := make(map[string]any)
+	if params.Mode == 1 {
+		data["is_overt"] = 1
+	} else {
+		data["is_overt"] = 0
+	}
+
+	_, err = c.groupService.Dao().UpdateWhere(ctx.Ctx(), data, "id = ?", params.GroupId)
+	if err != nil {
+		return ctx.Error("服务器异常，请稍后再试！")
+	}
+
+	return ctx.Success(web.GroupOvertResponse{})
 }
