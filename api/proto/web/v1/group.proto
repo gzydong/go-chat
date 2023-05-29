@@ -17,6 +17,7 @@ message GroupListResponse{
     string profile = 4;
     int32 leader = 5;
     int32 is_disturb = 6;
+    int32 creator_id = 7;
   }
 
   repeated Item items = 1;

@@ -323,6 +323,7 @@ func (c *Group) GroupList(ctx *ichat.Context) error {
 			Profile:   item.Profile,
 			Leader:    int32(item.Leader),
 			IsDisturb: int32(item.IsDisturb),
+			CreatorId: int32(item.CreatorId),
 		})
 	}
 

@@ -3689,6 +3689,8 @@ func (m *GroupListResponse_Item) validate(all bool) error {
 
 	// no validation rules for IsDisturb
 
+	// no validation rules for CreatorId
+
 	if len(errors) > 0 {
 		return GroupListResponse_ItemMultiError(errors)
 	}

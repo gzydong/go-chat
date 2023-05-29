@@ -30,7 +30,7 @@ func (g *Group) SearchOvertList(ctx context.Context, opt *SearchOvertListOpt) ([
 		}
 
 		db.Where("is_overt = ?", 1)
-		db.Where("id  NOT IN (?)", g.Db.Select("group_id").Where("user_id = ? and is_quit= ?", opt.UserId, 0).Table("group_member"))
+		db.Where("id NOT IN (?)", g.Db.Select("group_id").Where("user_id = ? and is_quit= ?", opt.UserId, 0).Table("group_member"))
 		db.Where("is_dismiss = 0").Order("created_at desc").Offset((opt.Page - 1) * opt.Size).Limit(opt.Size)
 	})
 }
