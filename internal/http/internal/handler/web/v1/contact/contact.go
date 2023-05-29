@@ -163,9 +163,11 @@ func (c *Contact) Detail(ctx *ichat.Context) error {
 		}
 
 		if err == nil && contact.Status == 1 {
-			data.FriendStatus = 2
-			data.GroupId = int32(contact.GroupId)
-			data.Remark = contact.Remark
+			if c.contactService.Dao().IsFriend(ctx.Ctx(), uid, user.Id, false) {
+				data.FriendStatus = 2
+				data.GroupId = int32(contact.GroupId)
+				data.Remark = contact.Remark
+			}
 		} else {
 			isOk, _ := c.organizeService.Dao().IsQiyeMember(ctx.Ctx(), uid, user.Id)
 			if isOk {
