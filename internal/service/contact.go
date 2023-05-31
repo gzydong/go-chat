@@ -38,7 +38,26 @@ func (s *ContactService) UpdateRemark(ctx context.Context, uid int, friendId int
 // @params uid      用户ID
 // @params friendId 联系人ID
 func (s *ContactService) Delete(ctx context.Context, uid, friendId int) error {
-	return s.contact.Model(ctx).Where("user_id = ? and friend_id = ?", uid, friendId).Update("status", model.ContactStatusDelete).Error
+
+	find, err := s.Dao().FindByWhere(ctx, "user_id = ? and friend_id = ?", uid, friendId)
+	if err != nil {
+		return err
+	}
+
+	return s.Db().WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		if find.GroupId > 0 {
+			err := tx.Table("contact_group").
+				Where("id = ? and user_id = ?", find.GroupId, uid).
+				Updates(map[string]any{"num": gorm.Expr("num - 1")}).Error
+
+			if err != nil {
+				return err
+			}
+		}
+
+		return tx.Table("contact").Where("user_id = ? and friend_id = ?", uid, friendId).
+			Update("status", model.ContactStatusDelete).Error
+	})
 }
 
 // List 获取联系人列表
