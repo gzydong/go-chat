@@ -67,6 +67,7 @@ func RegisterWebRoute(secret string, router *gin.Engine, handler *web.Handler, s
 			contact.POST("/group/update", ichat.HandlerFunc(handler.V1.ContactGroup.Update)) // 联系人分组更新
 			contact.POST("/group/delete", ichat.HandlerFunc(handler.V1.ContactGroup.Delete)) // 联系人分组删除
 			contact.POST("/group/sort", ichat.HandlerFunc(handler.V1.ContactGroup.Sort))     // 联系人分组排序
+			contact.POST("/group/save", ichat.HandlerFunc(handler.V1.ContactGroup.Save))     // 联系人分组排序
 		}
 
 		// 聊天群相关分组
