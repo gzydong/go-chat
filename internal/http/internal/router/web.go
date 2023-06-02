@@ -62,12 +62,8 @@ func RegisterWebRoute(secret string, router *gin.Engine, handler *web.Handler, s
 			contact.GET("/apply/unread-num", ichat.HandlerFunc(handler.V1.ContactApply.ApplyUnreadNum)) // 联系人申请未读数
 
 			// 联系人分组
-			contact.GET("/group/list", ichat.HandlerFunc(handler.V1.ContactGroup.List))      // 联系人分组列表
-			contact.POST("/group/create", ichat.HandlerFunc(handler.V1.ContactGroup.Create)) // 联系人分组添加
-			contact.POST("/group/update", ichat.HandlerFunc(handler.V1.ContactGroup.Update)) // 联系人分组更新
-			contact.POST("/group/delete", ichat.HandlerFunc(handler.V1.ContactGroup.Delete)) // 联系人分组删除
-			contact.POST("/group/sort", ichat.HandlerFunc(handler.V1.ContactGroup.Sort))     // 联系人分组排序
-			contact.POST("/group/save", ichat.HandlerFunc(handler.V1.ContactGroup.Save))     // 联系人分组排序
+			contact.GET("/group/list", ichat.HandlerFunc(handler.V1.ContactGroup.List))  // 联系人分组列表
+			contact.POST("/group/save", ichat.HandlerFunc(handler.V1.ContactGroup.Save)) // 联系人分组排序
 		}
 
 		// 聊天群相关分组

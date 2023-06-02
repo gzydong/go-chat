@@ -37,20 +37,6 @@ func (c *ContactGroupService) Delete(ctx context.Context, id int, uid int) error
 	})
 }
 
-func (c *ContactGroupService) Sort(ctx context.Context, uid int, values []*model.ContactGroup) error {
-	return c.contactGroup.Txx(ctx, func(tx *gorm.DB) error {
-		for _, value := range values {
-			err := tx.Table("contact_group").Where("id = ? and user_id = ?", value.Id, uid).
-				UpdateColumn("sort", value.Sort).Error
-			if err != nil {
-				return err
-			}
-		}
-
-		return nil
-	})
-}
-
 // GetUserGroup 用户联系人分组列表
 func (c *ContactGroupService) GetUserGroup(ctx context.Context, uid int) ([]*model.ContactGroup, error) {
 
