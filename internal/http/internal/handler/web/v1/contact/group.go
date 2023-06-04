@@ -30,7 +30,7 @@ func (c *Group) List(ctx *ichat.Context) error {
 	}
 
 	items = append(items, &web.ContactGroupListResponse_Item{
-		Name:  "全部好友",
+		Name:  "全部",
 		Count: int32(count),
 	})
 
