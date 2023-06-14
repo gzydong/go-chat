@@ -59,12 +59,12 @@ $ make migrate
 # 打开两个终端，分别运行下面两个命令
 
 $ go run ./internal/http       # 本地启动 http 服务
-$ go run ./internal/websocket  # 本地启动 websocket 服务
+$ go run ./internal/gateway    # 本地启动 websocket 服务
 
 # 或者一下命令
 
 $ make http                    # 本地启动 http 服务
-$ make websocket               # 本地启动 websocket 服务
+$ make im_server               # 本地启动 websocket 服务
 ```
 
 7. 编译后运行

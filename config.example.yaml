@@ -14,6 +14,11 @@ app:
     xxxxx
     -----END RSA PRIVATE KEY-----
 
+server:
+  http: 9503
+  websocket: 9504
+  tcp: 9505
+
 # 日志配置
 log:
   # 日志文件路径 *请使用绝对路径*
