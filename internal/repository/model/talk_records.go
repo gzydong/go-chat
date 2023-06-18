@@ -179,3 +179,11 @@ type TalkRecordExtraGroupMessageRevoke struct {
 	OwnerName       string `json:"owner_name"`        // 操作人昵称
 	RevokeMessageId string `json:"revoke_message_id"` // 被撤回消息ID
 }
+
+// TalkRecordExtraGroupNotice 发布群公告
+type TalkRecordExtraGroupNotice struct {
+	OwnerId   int    `json:"owner_id"`   // 操作人ID
+	OwnerName string `json:"owner_name"` // 操作人昵称
+	Title     string `json:"title"`      // 标题
+	Content   string `json:"content"`    // 内容
+}

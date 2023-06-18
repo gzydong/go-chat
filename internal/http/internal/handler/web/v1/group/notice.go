@@ -2,8 +2,11 @@ package group
 
 import (
 	"go-chat/api/pb/web/v1"
+	"go-chat/internal/entity"
 	"go-chat/internal/pkg/ichat"
+	"go-chat/internal/pkg/jsonutil"
 	"go-chat/internal/pkg/timeutil"
+	"go-chat/internal/repository/model"
 
 	"go-chat/internal/service"
 )
@@ -11,10 +14,11 @@ import (
 type Notice struct {
 	groupNoticeService *service.GroupNoticeService
 	groupMemberService *service.GroupMemberService
+	messageService     *service.MessageService
 }
 
-func NewNotice(groupNoticeService *service.GroupNoticeService, groupMemberService *service.GroupMemberService) *Notice {
-	return &Notice{groupNoticeService: groupNoticeService, groupMemberService: groupMemberService}
+func NewNotice(groupNoticeService *service.GroupNoticeService, groupMemberService *service.GroupMemberService, messageService *service.MessageService) *Notice {
+	return &Notice{groupNoticeService: groupNoticeService, groupMemberService: groupMemberService, messageService: messageService}
 }
 
 // CreateAndUpdate 添加或编辑群公告
@@ -62,6 +66,19 @@ func (c *Notice) CreateAndUpdate(ctx *ichat.Context) error {
 	if err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}
+
+	_ = c.messageService.SendSysOther(ctx.Ctx(), &model.TalkRecords{
+		TalkType:   model.TalkRecordTalkTypeGroup,
+		MsgType:    entity.ChatMsgSysGroupNotice,
+		UserId:     uid,
+		ReceiverId: int(params.GroupId),
+		Extra: jsonutil.Encode(model.TalkRecordExtraGroupNotice{
+			OwnerId:   uid,
+			OwnerName: "gzydong",
+			Title:     params.Title,
+			Content:   params.Content,
+		}),
+	})
 
 	return ctx.Success(nil, msg)
 }

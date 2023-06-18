@@ -57,8 +57,7 @@ const (
 	ChatMsgSysGroupCancelMuted       = 1108 // 群解除禁言
 	ChatMsgSysGroupMemberMuted       = 1109 // 群成员禁言
 	ChatMsgSysGroupMemberCancelMuted = 1110 // 群成员解除禁言
-	ChatMsgSysGroupNoticeCreate      = 1111 // 创建群公告
-	ChatMsgSysGroupNoticeUpdate      = 1112 // 更新群公告
+	ChatMsgSysGroupNotice            = 1111 // 编辑群公告
 	ChatMsgSysGroupTransfer          = 1113 // 变更群主
 )
 
@@ -84,6 +83,7 @@ var ChatMsgTypeMapping = map[int]string{
 	ChatMsgSysGroupCancelMuted:       "[群解除禁言消息]",
 	ChatMsgSysGroupMemberMuted:       "[群成员禁言消息]",
 	ChatMsgSysGroupMemberCancelMuted: "[群成员解除禁言消息]",
+	ChatMsgSysGroupNotice:            "[群公告]",
 }
 
 const (

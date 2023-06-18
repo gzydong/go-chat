@@ -97,7 +97,7 @@ func Initialize(conf *config.Config) *AppProvider {
 	groupNotice := repo.NewGroupNotice(db)
 	groupNoticeService := service.NewGroupNoticeService(source, groupNotice)
 	groupGroup := group.NewGroup(groupService, groupMemberService, talkSessionService, userService, redisLock, contactService, groupNoticeService, messageService)
-	notice := group.NewNotice(groupNoticeService, groupMemberService)
+	notice := group.NewNotice(groupNoticeService, groupMemberService, messageService)
 	groupApply := repo.NewGroupApply(db)
 	groupApplyService := service.NewGroupApplyService(source, groupApply)
 	apply := group.NewApply(groupApplyService, groupMemberService, groupService)
