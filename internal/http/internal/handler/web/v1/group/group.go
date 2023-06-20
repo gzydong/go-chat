@@ -351,7 +351,22 @@ func (c *Group) Members(ctx *ichat.Context) error {
 		return ctx.ErrorBusiness("非群成员无权查看成员列表！")
 	}
 
-	return ctx.Success(c.groupMemberService.Dao().GetMembers(ctx.Ctx(), int(params.GroupId)))
+	list := c.groupMemberService.Dao().GetMembers(ctx.Ctx(), int(params.GroupId))
+
+	items := make([]*web.GroupMemberListResponse_Item, 0)
+	for _, item := range list {
+		items = append(items, &web.GroupMemberListResponse_Item{
+			UserId:   int32(item.UserId),
+			Nickname: item.Nickname,
+			Avatar:   item.Avatar,
+			Gender:   int32(item.Gender),
+			Leader:   int32(item.Leader),
+			IsMute:   int32(item.IsMute),
+			Remark:   item.UserCard,
+		})
+	}
+
+	return ctx.Success(&web.GroupMemberListResponse{Items: items})
 }
 
 // OvertList 公开群列表

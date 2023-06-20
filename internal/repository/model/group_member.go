@@ -32,7 +32,7 @@ func (GroupMember) TableName() string {
 
 type MemberItem struct {
 	Id       string `json:"id"`
-	UserId   string `json:"user_id"`
+	UserId   int    `json:"user_id"`
 	Avatar   string `json:"avatar"`
 	Nickname string `json:"nickname"`
 	Gender   int    `json:"gender"`

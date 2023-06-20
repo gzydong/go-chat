@@ -63,7 +63,19 @@ message GroupMemberListRequest{
 }
 
 // 群成员列表接口响应参数
-message GroupMemberListResponse{}
+message GroupMemberListResponse{
+  message Item{
+    int32 user_id = 1;
+    string nickname = 2;
+    string avatar = 3;
+    int32 gender = 4;
+    int32 leader = 5;
+    int32 is_mute = 6;
+    string remark = 7;
+  }
+
+  repeated Item items = 1;
+}
 
 
 // 解散群聊接口请求参数
