@@ -42,7 +42,7 @@ func (m *MessageForwardLogic) Verify(ctx context.Context, uid int, req *message.
 	}
 
 	query.Where("talk_type = ?", req.Receiver.TalkType)
-	query.Where("msg_type in ?", []int{1, 2, 3, 4, 5, 6, 7, 8})
+	query.Where("msg_type in ?", []int{1, 2, 3, 4, 5, 6, 7, 8, entity.ChatMsgTypeForward})
 	query.Where("is_revoke = ?", 0)
 
 	var count int64
