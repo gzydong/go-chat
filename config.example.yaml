@@ -79,3 +79,8 @@ email:
   username: xxxxx
   password: xxxxx
   fromname: "Lumen IM 在线聊天"
+
+server:
+  http: 9503
+  websocket: 9504
+  tcp: 9505
