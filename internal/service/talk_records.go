@@ -183,17 +183,17 @@ func (s *TalkRecordsService) GetForwardRecords(ctx context.Context, uid int, rec
 		return nil, err
 	}
 
-	if record.TalkType == entity.ChatPrivateMode {
-		if record.UserId != uid && record.ReceiverId != uid {
-			return nil, entity.ErrPermissionDenied
-		}
-	} else if record.TalkType == entity.ChatGroupMode {
-		if !s.groupMemberRepo.IsMember(ctx, record.ReceiverId, uid, true) {
-			return nil, entity.ErrPermissionDenied
-		}
-	} else {
-		return nil, entity.ErrPermissionDenied
-	}
+	// if record.TalkType == entity.ChatPrivateMode {
+	// 	if record.UserId != uid && record.ReceiverId != uid {
+	// 		return nil, entity.ErrPermissionDenied
+	// 	}
+	// } else if record.TalkType == entity.ChatGroupMode {
+	// 	if !s.groupMemberRepo.IsMember(ctx, record.ReceiverId, uid, true) {
+	// 		return nil, entity.ErrPermissionDenied
+	// 	}
+	// } else {
+	// 	return nil, entity.ErrPermissionDenied
+	// }
 
 	var extra model.TalkRecordExtraForward
 	if err := jsonutil.Decode(record.Extra, &extra); err != nil {
