@@ -99,6 +99,7 @@ func RegisterWebRoute(secret string, router *gin.Engine, handler *web.Handler, s
 			userGroup.POST("/apply/delete", ichat.HandlerFunc(handler.V1.GroupApply.Delete)) // 申请入群申请
 			userGroup.POST("/apply/agree", ichat.HandlerFunc(handler.V1.GroupApply.Agree))   // 同意入群申请
 			userGroup.GET("/apply/list", ichat.HandlerFunc(handler.V1.GroupApply.List))      // 入群申请列表
+			userGroup.GET("/apply/all", ichat.HandlerFunc(handler.V1.GroupApply.All))        // 入群申请列表
 		}
 
 		talk := v1.Group("/talk").Use(authorize)

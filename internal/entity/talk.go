@@ -45,6 +45,7 @@ const (
 	ChatMsgTypeForward  = 9  // 转发消息
 	ChatMsgTypeLogin    = 10 // 登录消息
 	ChatMsgTypeVote     = 11 // 投票消息
+	ChatMsgTypeMixed    = 12 // 图文消息
 
 	ChatMsgSysText                   = 1000 // 系统文本消息
 	ChatMsgSysGroupCreate            = 1101 // 创建群聊消息

@@ -46,9 +46,13 @@ func (h *Handler) Dispatch(conn net.Conn) {
 	go h.auth(conn, ch)
 
 	fmt.Println(conn.RemoteAddr(), "开始认证==>>>", time.Now().Unix())
+
+	timer := time.NewTimer(2 * time.Second)
+	defer timer.Stop()
+
 	select {
 	// 2s认证超时
-	case <-time.After(2 * time.Second):
+	case <-timer.C:
 		fmt.Println(conn.RemoteAddr(), "认证超时==>>>", time.Now().Unix())
 		_ = conn.Close()
 		return

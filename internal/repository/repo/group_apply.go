@@ -16,7 +16,7 @@ func NewGroupApply(db *gorm.DB) *GroupApply {
 	return &GroupApply{Repo: ichat.NewRepo[model.GroupApply](db)}
 }
 
-func (g *GroupApply) List(ctx context.Context, groupId int) ([]*model.GroupApplyList, error) {
+func (g *GroupApply) List(ctx context.Context, groupIds []int) ([]*model.GroupApplyList, error) {
 
 	fields := []string{
 		"group_apply.id",
@@ -30,7 +30,7 @@ func (g *GroupApply) List(ctx context.Context, groupId int) ([]*model.GroupApply
 
 	query := g.Db.WithContext(ctx).Table("group_apply")
 	query.Joins("left join users on users.id = group_apply.user_id")
-	query.Where("group_apply.group_id = ?", groupId)
+	query.Where("group_apply.group_id in ?", groupIds)
 	query.Order("group_apply.created_at desc")
 
 	var items []*model.GroupApplyList

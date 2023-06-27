@@ -26,18 +26,17 @@ type TalkRecords struct {
 }
 
 func (t TalkRecords) TableName() string {
-	// if t.TalkType == TalkRecordTalkTypeGroup {
-	// 	return "talk_group_records"
-	// } else {
-	// 	return "talk_private_records"
-	// }
-
 	return "talk_records"
 }
 
 type TalkRecordExtraGroupMembers struct {
 	UserId   int    `gorm:"column:user_id;" json:"user_id"`   // 用户ID
 	Nickname string `gorm:"column:nickname;" json:"nickname"` // 用户昵称
+}
+
+// TalkRecordExtraText 文本消息
+type TalkRecordExtraText struct {
+	Content string `json:"content"` // 文本消息
 }
 
 type TalkRecordExtraCode struct {
@@ -186,4 +185,13 @@ type TalkRecordExtraGroupNotice struct {
 	OwnerName string `json:"owner_name"` // 操作人昵称
 	Title     string `json:"title"`      // 标题
 	Content   string `json:"content"`    // 内容
+}
+
+// TalkRecordExtraMixed 图文混合消息
+type TalkRecordExtraMixed struct {
+	Items []*struct { // 消息内容。可包含图片、文字、等消息。
+		Type    string `json:"type,omitempty"`    // 消息类型, 跟msgtype字段一致
+		Content string `json:"content,omitempty"` // 消息内容。可包含图片、文字、表情等多种消息。
+		Link    string `json:"link,omitempty"`    // 图片跳转地址
+	} `json:"item,omitempty"` // 消息内容。可包含图片、文字、表情等多种消息。
 }
