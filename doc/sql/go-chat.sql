@@ -162,6 +162,8 @@ CREATE TABLE `group_member`
     `user_card`  varchar(20) CHARACTER SET utf8mb4 NOT NULL DEFAULT '' COMMENT '群名片',
     `is_quit`    tinyint(4) NOT NULL DEFAULT '0' COMMENT '是否退群[0:否;1:是;]',
     `is_mute`    tinyint(4) unsigned NOT NULL DEFAULT '0' COMMENT '是否禁言[0:否;1:是;]',
+    `min_record_id` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '可查看历史记录最小ID',
+    `join_time`  datetime                          DEFAULT NULL COMMENT '入群时间',
     `created_at` datetime                          NOT NULL COMMENT '创建时间',
     `updated_at` datetime                          NOT NULL COMMENT '更新时间',
     `deleted_at` datetime                                   DEFAULT NULL COMMENT '删除时间',
