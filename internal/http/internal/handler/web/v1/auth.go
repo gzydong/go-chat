@@ -47,29 +47,30 @@ func (c *Auth) Login(ctx *ichat.Context) error {
 		return ctx.ErrorBusiness(err.Error())
 	}
 
-	// TODO 这里需需要异步处理
-	root, _ := c.robotRepo.GetLoginRobot(ctx.Ctx())
-	if root != nil {
-		ip := ctx.Context.ClientIP()
-
-		address, _ := c.ipAddressService.FindAddress(ip)
-
-		_, _ = c.talkSessionService.Create(ctx.Ctx(), &service.TalkSessionCreateOpt{
-			UserId:     user.Id,
-			TalkType:   entity.ChatPrivateMode,
-			ReceiverId: root.UserId,
-			IsBoot:     true,
-		})
-
-		// 推送登录消息
-		_ = c.messageService.SendLogin(ctx.Ctx(), user.Id, &message.LoginMessageRequest{
-			Ip:       ip,
-			Address:  address,
-			Platform: params.Platform,
-			Agent:    ctx.Context.GetHeader("user-agent"),
-			Reason:   "常用设备登录",
-		})
-	}
+	go func(ctx *ichat.Context) {
+		root, _ := c.robotRepo.GetLoginRobot(ctx.Ctx())
+		if root != nil {
+			ip := ctx.Context.ClientIP()
+	
+			address, _ := c.ipAddressService.FindAddress(ip)
+	
+			_, _ = c.talkSessionService.Create(ctx.Ctx(), &service.TalkSessionCreateOpt{
+				UserId:     user.Id,
+				TalkType:   entity.ChatPrivateMode,
+				ReceiverId: root.UserId,
+				IsBoot:     true,
+			})
+	
+			// 推送登录消息
+			_ = c.messageService.SendLogin(ctx.Ctx(), user.Id, &message.LoginMessageRequest{
+				Ip:       ip,
+				Address:  address,
+				Platform: params.Platform,
+				Agent:    ctx.Context.GetHeader("user-agent"),
+				Reason:   "常用设备登录",
+			})
+		}
+	}(ctx)
 
 	return ctx.Success(&web.AuthLoginResponse{
 		Type:        "Bearer",
