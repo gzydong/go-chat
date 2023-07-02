@@ -46,6 +46,10 @@ jwt:
   expires_time: 3600
   buffer_time: 3600
 
+openai:
+  key: "xxxx"
+  proxy: "https://api.openai.com"
+
 # 跨域配置
 cors:
   origin: "*"

@@ -148,7 +148,7 @@ func (x *TextMessageRequest) GetReceiver() *MessageReceiver {
 	return nil
 }
 
-// 代码消息
+// 图片消息
 type ImageMessageRequest struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -996,6 +996,70 @@ func (x *CardMessageRequest) GetReceiver() *MessageReceiver {
 	return nil
 }
 
+// 图文消息
+type MixedMessageRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Type     string                      `protobuf:"bytes,1,opt,name=type,proto3" json:"type,omitempty"`
+	Items    []*MixedMessageRequest_Item `protobuf:"bytes,2,rep,name=items,proto3" json:"items,omitempty"`
+	Receiver *MessageReceiver            `protobuf:"bytes,3,opt,name=receiver,proto3" json:"receiver,omitempty"`
+}
+
+func (x *MixedMessageRequest) Reset() {
+	*x = MixedMessageRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_message_v1_message_proto_msgTypes[13]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *MixedMessageRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MixedMessageRequest) ProtoMessage() {}
+
+func (x *MixedMessageRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_message_v1_message_proto_msgTypes[13]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MixedMessageRequest.ProtoReflect.Descriptor instead.
+func (*MixedMessageRequest) Descriptor() ([]byte, []int) {
+	return file_message_v1_message_proto_rawDescGZIP(), []int{13}
+}
+
+func (x *MixedMessageRequest) GetType() string {
+	if x != nil {
+		return x.Type
+	}
+	return ""
+}
+
+func (x *MixedMessageRequest) GetItems() []*MixedMessageRequest_Item {
+	if x != nil {
+		return x.Items
+	}
+	return nil
+}
+
+func (x *MixedMessageRequest) GetReceiver() *MessageReceiver {
+	if x != nil {
+		return x.Receiver
+	}
+	return nil
+}
+
 type TextMessageRequest_Mention struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -1008,7 +1072,7 @@ type TextMessageRequest_Mention struct {
 func (x *TextMessageRequest_Mention) Reset() {
 	*x = TextMessageRequest_Mention{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_message_v1_message_proto_msgTypes[13]
+		mi := &file_message_v1_message_proto_msgTypes[14]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1021,7 +1085,7 @@ func (x *TextMessageRequest_Mention) String() string {
 func (*TextMessageRequest_Mention) ProtoMessage() {}
 
 func (x *TextMessageRequest_Mention) ProtoReflect() protoreflect.Message {
-	mi := &file_message_v1_message_proto_msgTypes[13]
+	mi := &file_message_v1_message_proto_msgTypes[14]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1049,6 +1113,61 @@ func (x *TextMessageRequest_Mention) GetUids() []int32 {
 		return x.Uids
 	}
 	return nil
+}
+
+type MixedMessageRequest_Item struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Type    int32  `protobuf:"varint,1,opt,name=type,proto3" json:"type,omitempty"`
+	Content string `protobuf:"bytes,2,opt,name=content,proto3" json:"content,omitempty"`
+}
+
+func (x *MixedMessageRequest_Item) Reset() {
+	*x = MixedMessageRequest_Item{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_message_v1_message_proto_msgTypes[15]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *MixedMessageRequest_Item) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MixedMessageRequest_Item) ProtoMessage() {}
+
+func (x *MixedMessageRequest_Item) ProtoReflect() protoreflect.Message {
+	mi := &file_message_v1_message_proto_msgTypes[15]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MixedMessageRequest_Item.ProtoReflect.Descriptor instead.
+func (*MixedMessageRequest_Item) Descriptor() ([]byte, []int) {
+	return file_message_v1_message_proto_rawDescGZIP(), []int{13, 0}
+}
+
+func (x *MixedMessageRequest_Item) GetType() int32 {
+	if x != nil {
+		return x.Type
+	}
+	return 0
+}
+
+func (x *MixedMessageRequest_Item) GetContent() string {
+	if x != nil {
+		return x.Content
+	}
+	return ""
 }
 
 var File_message_v1_message_proto protoreflect.FileDescriptor
@@ -1226,9 +1345,22 @@ var file_message_v1_message_proto_rawDesc = []byte{
 	0x34, 0x0a, 0x08, 0x72, 0x65, 0x63, 0x65, 0x69, 0x76, 0x65, 0x72, 0x18, 0x03, 0x20, 0x01, 0x28,
 	0x0b, 0x32, 0x18, 0x2e, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x2e, 0x4d, 0x65, 0x73, 0x73,
 	0x61, 0x67, 0x65, 0x52, 0x65, 0x63, 0x65, 0x69, 0x76, 0x65, 0x72, 0x52, 0x08, 0x72, 0x65, 0x63,
-	0x65, 0x69, 0x76, 0x65, 0x72, 0x42, 0x14, 0x5a, 0x12, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65,
-	0x2f, 0x76, 0x31, 0x3b, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x62, 0x06, 0x70, 0x72, 0x6f,
-	0x74, 0x6f, 0x33,
+	0x65, 0x69, 0x76, 0x65, 0x72, 0x22, 0xce, 0x01, 0x0a, 0x13, 0x4d, 0x69, 0x78, 0x65, 0x64, 0x4d,
+	0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x12, 0x0a,
+	0x04, 0x74, 0x79, 0x70, 0x65, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x04, 0x74, 0x79, 0x70,
+	0x65, 0x12, 0x37, 0x0a, 0x05, 0x69, 0x74, 0x65, 0x6d, 0x73, 0x18, 0x02, 0x20, 0x03, 0x28, 0x0b,
+	0x32, 0x21, 0x2e, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x2e, 0x4d, 0x69, 0x78, 0x65, 0x64,
+	0x4d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x2e, 0x49,
+	0x74, 0x65, 0x6d, 0x52, 0x05, 0x69, 0x74, 0x65, 0x6d, 0x73, 0x12, 0x34, 0x0a, 0x08, 0x72, 0x65,
+	0x63, 0x65, 0x69, 0x76, 0x65, 0x72, 0x18, 0x03, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x18, 0x2e, 0x6d,
+	0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x2e, 0x4d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x52, 0x65,
+	0x63, 0x65, 0x69, 0x76, 0x65, 0x72, 0x52, 0x08, 0x72, 0x65, 0x63, 0x65, 0x69, 0x76, 0x65, 0x72,
+	0x1a, 0x34, 0x0a, 0x04, 0x49, 0x74, 0x65, 0x6d, 0x12, 0x12, 0x0a, 0x04, 0x74, 0x79, 0x70, 0x65,
+	0x18, 0x01, 0x20, 0x01, 0x28, 0x05, 0x52, 0x04, 0x74, 0x79, 0x70, 0x65, 0x12, 0x18, 0x0a, 0x07,
+	0x63, 0x6f, 0x6e, 0x74, 0x65, 0x6e, 0x74, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x07, 0x63,
+	0x6f, 0x6e, 0x74, 0x65, 0x6e, 0x74, 0x42, 0x14, 0x5a, 0x12, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67,
+	0x65, 0x2f, 0x76, 0x31, 0x3b, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x62, 0x06, 0x70, 0x72,
+	0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -1243,7 +1375,7 @@ func file_message_v1_message_proto_rawDescGZIP() []byte {
 	return file_message_v1_message_proto_rawDescData
 }
 
-var file_message_v1_message_proto_msgTypes = make([]protoimpl.MessageInfo, 14)
+var file_message_v1_message_proto_msgTypes = make([]protoimpl.MessageInfo, 16)
 var file_message_v1_message_proto_goTypes = []interface{}{
 	(*MessageReceiver)(nil),            // 0: message.MessageReceiver
 	(*TextMessageRequest)(nil),         // 1: message.TextMessageRequest
@@ -1258,10 +1390,12 @@ var file_message_v1_message_proto_goTypes = []interface{}{
 	(*LoginMessageRequest)(nil),        // 10: message.LoginMessageRequest
 	(*EmoticonMessageRequest)(nil),     // 11: message.EmoticonMessageRequest
 	(*CardMessageRequest)(nil),         // 12: message.CardMessageRequest
-	(*TextMessageRequest_Mention)(nil), // 13: message.TextMessageRequest.Mention
+	(*MixedMessageRequest)(nil),        // 13: message.MixedMessageRequest
+	(*TextMessageRequest_Mention)(nil), // 14: message.TextMessageRequest.Mention
+	(*MixedMessageRequest_Item)(nil),   // 15: message.MixedMessageRequest.Item
 }
 var file_message_v1_message_proto_depIdxs = []int32{
-	13, // 0: message.TextMessageRequest.mention:type_name -> message.TextMessageRequest.Mention
+	14, // 0: message.TextMessageRequest.mention:type_name -> message.TextMessageRequest.Mention
 	0,  // 1: message.TextMessageRequest.receiver:type_name -> message.MessageReceiver
 	0,  // 2: message.ImageMessageRequest.receiver:type_name -> message.MessageReceiver
 	0,  // 3: message.VoiceMessageRequest.receiver:type_name -> message.MessageReceiver
@@ -1273,11 +1407,13 @@ var file_message_v1_message_proto_depIdxs = []int32{
 	0,  // 9: message.VoteMessageRequest.receiver:type_name -> message.MessageReceiver
 	0,  // 10: message.EmoticonMessageRequest.receiver:type_name -> message.MessageReceiver
 	0,  // 11: message.CardMessageRequest.receiver:type_name -> message.MessageReceiver
-	12, // [12:12] is the sub-list for method output_type
-	12, // [12:12] is the sub-list for method input_type
-	12, // [12:12] is the sub-list for extension type_name
-	12, // [12:12] is the sub-list for extension extendee
-	0,  // [0:12] is the sub-list for field type_name
+	15, // 12: message.MixedMessageRequest.items:type_name -> message.MixedMessageRequest.Item
+	0,  // 13: message.MixedMessageRequest.receiver:type_name -> message.MessageReceiver
+	14, // [14:14] is the sub-list for method output_type
+	14, // [14:14] is the sub-list for method input_type
+	14, // [14:14] is the sub-list for extension type_name
+	14, // [14:14] is the sub-list for extension extendee
+	0,  // [0:14] is the sub-list for field type_name
 }
 
 func init() { file_message_v1_message_proto_init() }
@@ -1443,7 +1579,31 @@ func file_message_v1_message_proto_init() {
 			}
 		}
 		file_message_v1_message_proto_msgTypes[13].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*MixedMessageRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_message_v1_message_proto_msgTypes[14].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*TextMessageRequest_Mention); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_message_v1_message_proto_msgTypes[15].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*MixedMessageRequest_Item); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -1461,7 +1621,7 @@ func file_message_v1_message_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_message_v1_message_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   14,
+			NumMessages:   16,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

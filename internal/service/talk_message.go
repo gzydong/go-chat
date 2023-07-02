@@ -26,6 +26,39 @@ import (
 	"gorm.io/gorm"
 )
 
+type IMessageService interface {
+	// SendSystemText 系统文本消息
+	SendSystemText(ctx context.Context, uid int, req *message.TextMessageRequest) error
+	// SendText 文本消息
+	SendText(ctx context.Context, uid int, req *message.TextMessageRequest) error
+	// SendImage 图片文件消息
+	SendImage(ctx context.Context, uid int, req *message.ImageMessageRequest) error
+	// SendVoice 语音文件消息
+	SendVoice(ctx context.Context, uid int, req *message.VoiceMessageRequest) error
+	// SendVideo 视频文件消息
+	SendVideo(ctx context.Context, uid int, req *message.VideoMessageRequest) error
+	// SendFile 文件消息
+	SendFile(ctx context.Context, uid int, req *message.FileMessageRequest) error
+	// SendCode 代码消息
+	SendCode(ctx context.Context, uid int, req *message.CodeMessageRequest) error
+	// SendVote 投票消息
+	SendVote(ctx context.Context, uid int, req *message.VoteMessageRequest) error
+	// SendEmoticon 表情消息
+	SendEmoticon(ctx context.Context, uid int, req *message.EmoticonMessageRequest) error
+	// SendForward 转发消息
+	SendForward(ctx context.Context, uid int, req *message.ForwardMessageRequest) error
+	// SendLocation 位置消息
+	SendLocation(ctx context.Context, uid int, req *message.LocationMessageRequest) error
+	// SendBusinessCard 推送用户名片消息
+	SendBusinessCard(ctx context.Context, uid int, req *message.CardMessageRequest) error
+	// SendLogin 推送用户登录消息
+	SendLogin(ctx context.Context, uid int, req *message.LoginMessageRequest) error
+	// SendSysOther 推送其它消息
+	SendSysOther(ctx context.Context, data *model.TalkRecords) error
+	// SendMixedMessage 图文消息
+	SendMixedMessage(ctx context.Context, uid int, req *message.MixedMessageRequest) error
+}
+
 type MessageService struct {
 	*repo.Source
 	forward             *logic.MessageForwardLogic
@@ -73,15 +106,13 @@ func (m *MessageService) SendText(ctx context.Context, uid int, req *message.Tex
 
 // SendImage 图片文件消息
 func (m *MessageService) SendImage(ctx context.Context, uid int, req *message.ImageMessageRequest) error {
+
 	data := &model.TalkRecords{
 		TalkType:   int(req.Receiver.TalkType),
 		MsgType:    entity.ChatMsgTypeImage,
 		UserId:     uid,
 		ReceiverId: int(req.Receiver.ReceiverId),
 		Extra: jsonutil.Encode(&model.TalkRecordExtraImage{
-			Name:   "图片名称",
-			Suffix: strutil.FileSuffix(req.Url),
-			Size:   int(req.Size),
 			Url:    req.Url,
 			Width:  int(req.Width),
 			Height: int(req.Height),
@@ -99,7 +130,6 @@ func (m *MessageService) SendVoice(ctx context.Context, uid int, req *message.Vo
 		UserId:     uid,
 		ReceiverId: int(req.Receiver.ReceiverId),
 		Extra: jsonutil.Encode(&model.TalkRecordExtraAudio{
-			Name:     "语音文件",
 			Suffix:   strutil.FileSuffix(req.Url),
 			Size:     int(req.Size),
 			Url:      req.Url,
@@ -118,7 +148,6 @@ func (m *MessageService) SendVideo(ctx context.Context, uid int, req *message.Vi
 		UserId:     uid,
 		ReceiverId: int(req.Receiver.ReceiverId),
 		Extra: jsonutil.Encode(&model.TalkRecordExtraVideo{
-			Name:     "语音文件",
 			Cover:    "",
 			Suffix:   strutil.FileSuffix(req.Url),
 			Size:     int(req.Size),
@@ -152,6 +181,7 @@ func (m *MessageService) SendFile(ctx context.Context, uid int, req *message.Fil
 	}
 
 	data := &model.TalkRecords{
+		MsgId:      encrypt.Md5(req.UploadId),
 		TalkType:   int(req.Receiver.TalkType),
 		UserId:     uid,
 		ReceiverId: int(req.Receiver.ReceiverId),
@@ -161,7 +191,6 @@ func (m *MessageService) SendFile(ctx context.Context, uid int, req *message.Fil
 	case entity.MediaFileAudio:
 		data.MsgType = entity.ChatMsgTypeAudio
 		data.Extra = jsonutil.Encode(&model.TalkRecordExtraAudio{
-			Name:     file.OriginalName,
 			Suffix:   file.FileExt,
 			Size:     int(file.FileSize),
 			Url:      publicUrl,
@@ -170,7 +199,6 @@ func (m *MessageService) SendFile(ctx context.Context, uid int, req *message.Fil
 	case entity.MediaFileVideo:
 		data.MsgType = entity.ChatMsgTypeVideo
 		data.Extra = jsonutil.Encode(&model.TalkRecordExtraVideo{
-			Name:     file.OriginalName,
 			Cover:    "",
 			Suffix:   file.FileExt,
 			Size:     int(file.FileSize),
@@ -269,9 +297,6 @@ func (m *MessageService) SendEmoticon(ctx context.Context, uid int, req *message
 		UserId:     uid,
 		ReceiverId: int(req.Receiver.ReceiverId),
 		Extra: jsonutil.Encode(&model.TalkRecordExtraImage{
-			Name:   "图片表情",
-			Suffix: emoticon.FileSuffix,
-			Size:   emoticon.FileSize,
 			Url:    emoticon.Url,
 			Width:  0,
 			Height: 0,
@@ -383,7 +408,6 @@ func (m *MessageService) SendLogin(ctx context.Context, uid int, req *message.Lo
 	}
 
 	data := &model.TalkRecords{
-		MsgId:      strutil.NewMsgId(),
 		TalkType:   entity.ChatPrivateMode,
 		MsgType:    entity.ChatMsgTypeLogin,
 		UserId:     robot.UserId,
@@ -396,6 +420,29 @@ func (m *MessageService) SendLogin(ctx context.Context, uid int, req *message.Lo
 			Reason:   req.Reason,
 			Datetime: timeutil.DateTime(),
 		}),
+	}
+
+	return m.save(ctx, data)
+}
+
+// SendMixedMessage 图文消息
+func (m *MessageService) SendMixedMessage(ctx context.Context, uid int, req *message.MixedMessageRequest) error {
+
+	items := make([]*model.TalkRecordExtraMixedItem, 0)
+
+	for _, item := range req.Items {
+		items = append(items, &model.TalkRecordExtraMixedItem{
+			Type:    int(item.Type),
+			Content: item.Content,
+		})
+	}
+
+	data := &model.TalkRecords{
+		TalkType:   int(req.Receiver.TalkType),
+		MsgType:    entity.ChatMsgTypeMixed,
+		UserId:     uid,
+		ReceiverId: int(req.Receiver.ReceiverId),
+		Extra:      jsonutil.Encode(model.TalkRecordExtraMixed{Items: items}),
 	}
 
 	return m.save(ctx, data)
@@ -530,9 +577,11 @@ func (m *MessageService) Vote(ctx context.Context, uid int, recordId int, option
 
 func (m *MessageService) save(ctx context.Context, data *model.TalkRecords) error {
 
-	m.loadSequence(ctx, data)
+	if data.MsgId == "" {
+		data.MsgId = strutil.NewMsgId()
+	}
 
-	data.MsgId = strutil.NewMsgId()
+	m.loadSequence(ctx, data)
 
 	err := m.Db().WithContext(ctx).Create(data).Error
 	if err == nil {

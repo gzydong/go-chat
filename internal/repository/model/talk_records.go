@@ -187,11 +187,14 @@ type TalkRecordExtraGroupNotice struct {
 	Content   string `json:"content"`    // 内容
 }
 
+type TalkRecordExtraMixedItem struct {
+	Type    int    `json:"type"`           // 消息类型, 跟msgtype字段一致
+	Content string `json:"content"`        // 消息内容。可包含图片、文字、表情等多种消息。
+	Link    string `json:"link,omitempty"` // 图片跳转地址
+}
+
 // TalkRecordExtraMixed 图文混合消息
 type TalkRecordExtraMixed struct {
-	Items []*struct { // 消息内容。可包含图片、文字、等消息。
-		Type    string `json:"type,omitempty"`    // 消息类型, 跟msgtype字段一致
-		Content string `json:"content,omitempty"` // 消息内容。可包含图片、文字、表情等多种消息。
-		Link    string `json:"link,omitempty"`    // 图片跳转地址
-	} `json:"item,omitempty"` // 消息内容。可包含图片、文字、表情等多种消息。
+	// 消息内容。可包含图片、文字、等消息。
+	Items []*TalkRecordExtraMixedItem `json:"items"` // 消息内容。可包含图片、文字、表情等多种消息。
 }

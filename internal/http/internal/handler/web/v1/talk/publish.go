@@ -28,7 +28,6 @@ type PublishBaseMessageRequest struct {
 
 // Publish 发送消息接口
 func (c *Publish) Publish(ctx *ichat.Context) error {
-
 	params := &PublishBaseMessageRequest{}
 	if err := ctx.Context.ShouldBindBodyWith(params, binding.JSON); err != nil {
 		return ctx.InvalidParams(err)
@@ -62,7 +61,7 @@ func (c *Publish) onSendText(ctx *ichat.Context) error {
 	return ctx.Success(nil)
 }
 
-// nolint 图片消息
+// 图片消息
 func (c *Publish) onSendImage(ctx *ichat.Context) error {
 
 	params := &message.ImageMessageRequest{}
@@ -78,7 +77,7 @@ func (c *Publish) onSendImage(ctx *ichat.Context) error {
 	return ctx.Success(nil)
 }
 
-// nolint 文件消息
+// 文件消息
 func (c *Publish) onSendFile(ctx *ichat.Context) error {
 
 	params := &message.FileMessageRequest{}
@@ -198,20 +197,35 @@ func (c *Publish) onSendCard(ctx *ichat.Context) error {
 	return ctx.Success(nil)
 }
 
-func (c *Publish) transfer(ctx *ichat.Context, typeValue string) error {
+// 图文消息
+func (c *Publish) onMixedMessage(ctx *ichat.Context) error {
 
+	params := &message.MixedMessageRequest{}
+	if err := ctx.Context.ShouldBindBodyWith(params, binding.JSON); err != nil {
+		return ctx.InvalidParams(err)
+	}
+
+	err := c.messageService.SendMixedMessage(ctx.Ctx(), ctx.UserId(), params)
+	if err != nil {
+		return ctx.ErrorBusiness(err.Error())
+	}
+
+	return ctx.Success(nil)
+}
+
+func (c *Publish) transfer(ctx *ichat.Context, typeValue string) error {
 	if c.mapping == nil {
-		publishMapping := make(map[string]func(ctx *ichat.Context) error)
-		publishMapping["text"] = c.onSendText
-		publishMapping["code"] = c.onSendCode
-		publishMapping["location"] = c.onSendLocation
-		publishMapping["emoticon"] = c.onSendEmoticon
-		publishMapping["vote"] = c.onSendVote
-		publishMapping["image"] = c.onSendImage
-		publishMapping["file"] = c.onSendFile
-		publishMapping["card"] = c.onSendCard
-		publishMapping["forward"] = c.onSendForward
-		c.mapping = publishMapping
+		c.mapping = make(map[string]func(ctx *ichat.Context) error)
+		c.mapping["text"] = c.onSendText
+		c.mapping["code"] = c.onSendCode
+		c.mapping["location"] = c.onSendLocation
+		c.mapping["emoticon"] = c.onSendEmoticon
+		c.mapping["vote"] = c.onSendVote
+		c.mapping["image"] = c.onSendImage
+		c.mapping["file"] = c.onSendFile
+		c.mapping["card"] = c.onSendCard
+		c.mapping["forward"] = c.onSendForward
+		c.mapping["mixed"] = c.onMixedMessage
 	}
 
 	if call, ok := c.mapping[typeValue]; ok {

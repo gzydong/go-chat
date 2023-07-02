@@ -13,6 +13,14 @@ message UploadAvatarResponse{
   string avatar = 1;
 }
 
+// 头像上传接口请求参数
+message UploadImagerRequest{}
+
+// 头像上传接口响应参数
+message UploadImageResponse{
+  string src = 1;
+}
+
 
 // 批量上传文件初始化接口请求参数
 message UploadInitiateMultipartRequest{
@@ -24,6 +32,7 @@ message UploadInitiateMultipartRequest{
 message UploadInitiateMultipartResponse{
   string upload_id = 1;
   int32 split_size = 2;
+  string upload_id_md5 = 3;
 }
 
 

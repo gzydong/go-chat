@@ -25,7 +25,7 @@ message TextMessageRequest{
   MessageReceiver receiver = 4;// 消息接收者
 }
 
-// 代码消息
+// 图片消息
 message ImageMessageRequest{
   string type = 1;
   string url = 2 [(tagger.tags) = "binding:\"required\""]; // 图片地址
@@ -118,5 +118,17 @@ message EmoticonMessageRequest{
 message CardMessageRequest{
   string type = 1;
   int32 user_id = 2 [(tagger.tags) = "binding:\"required\""];
+  MessageReceiver receiver = 3;
+}
+
+// 图文消息
+message MixedMessageRequest{
+  message Item{
+    int32 type = 1;
+    string content = 2;
+  }
+
+  string type = 1;
+  repeated Item items = 2;
   MessageReceiver receiver = 3;
 }

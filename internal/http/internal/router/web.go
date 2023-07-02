@@ -148,6 +148,7 @@ func RegisterWebRoute(secret string, router *gin.Engine, handler *web.Handler, s
 		upload := v1.Group("/upload").Use(authorize)
 		{
 			upload.POST("/avatar", ichat.HandlerFunc(handler.V1.Upload.Avatar))
+			upload.POST("/image", ichat.HandlerFunc(handler.V1.Upload.Image))
 			upload.POST("/multipart/initiate", ichat.HandlerFunc(handler.V1.Upload.InitiateMultipart))
 			upload.POST("/multipart", ichat.HandlerFunc(handler.V1.Upload.MultipartUpload))
 		}
