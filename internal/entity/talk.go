@@ -73,6 +73,7 @@ var ChatMsgTypeMapping = map[int]string{
 	ChatMsgTypeLogin:                 "[登录消息]",
 	ChatMsgTypeVote:                  "[投票消息]",
 	ChatMsgTypeCode:                  "[代码消息]",
+	ChatMsgTypeMixed:                 "[图文消息]",
 	ChatMsgSysText:                   "[系统消息]",
 	ChatMsgSysGroupCreate:            "[创建群消息]",
 	ChatMsgSysGroupMemberJoin:        "[加入群消息]",
