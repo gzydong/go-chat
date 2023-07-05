@@ -1,5 +1,7 @@
 package entity
 
+type SmsSendChannel string
+
 const (
 	SmsLoginChannel         = "login"
 	SmsRegisterChannel      = "register"

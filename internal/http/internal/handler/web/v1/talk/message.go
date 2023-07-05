@@ -1,81 +1,35 @@
 package talk
 
 import (
-	"errors"
+	"bytes"
+	"fmt"
 
 	"go-chat/api/pb/message/v1"
-	"go-chat/internal/pkg/ichat"
-	"go-chat/internal/repository/model"
-	"go-chat/internal/repository/repo"
-	"go-chat/internal/service/organize"
-	"gorm.io/gorm"
-
 	"go-chat/internal/entity"
+	"go-chat/internal/pkg/filesystem"
+	"go-chat/internal/pkg/ichat"
 	"go-chat/internal/pkg/sliceutil"
 	"go-chat/internal/pkg/strutil"
+	"go-chat/internal/pkg/timeutil"
+	"go-chat/internal/pkg/utils"
 	"go-chat/internal/service"
 )
 
 type Message struct {
-	service            *service.TalkMessageService
-	talkService        *service.TalkService
-	talkRecordsVoteDao *repo.TalkRecordsVote
-	splitUploadService *service.SplitUploadService
-	contactService     *service.ContactService
-	groupMemberService *service.GroupMemberService
-	organizeService    *organize.OrganizeService
-	auth               *service.TalkAuthService
-	message            *service.MessageService
+	talkService    *service.TalkService
+	authService    *service.AuthService
+	messageService *service.MessageService
+	filesystem     *filesystem.Filesystem
 }
 
-func NewMessage(service *service.TalkMessageService, talkService *service.TalkService, talkRecordsVoteDao *repo.TalkRecordsVote, splitUploadService *service.SplitUploadService, contactService *service.ContactService, groupMemberService *service.GroupMemberService, organizeService *organize.OrganizeService, auth *service.TalkAuthService, message *service.MessageService) *Message {
-	return &Message{service: service, talkService: talkService, talkRecordsVoteDao: talkRecordsVoteDao, splitUploadService: splitUploadService, contactService: contactService, groupMemberService: groupMemberService, organizeService: organizeService, auth: auth, message: message}
+func NewMessage(talkService *service.TalkService, talkAuthService *service.AuthService, messageService *service.MessageService, filesystem *filesystem.Filesystem) *Message {
+	return &Message{talkService: talkService, authService: talkAuthService, messageService: messageService, filesystem: filesystem}
 }
 
-type AuthorityOpts struct {
+type AuthorityOption struct {
 	TalkType   int // 对话类型
 	UserId     int // 发送者ID
 	ReceiverId int // 接收者ID
-}
-
-// 权限验证
-func (c *Message) authority(ctx *ichat.Context, opt *AuthorityOpts) error {
-
-	if opt.TalkType == entity.ChatPrivateMode {
-		// 这里需要判断双方是否都是企业成员，如果是则无需添加好友即可聊天
-		if isOk, err := c.organizeService.Dao().IsQiyeMember(ctx.Ctx(), opt.UserId, opt.ReceiverId); err != nil {
-			return errors.New("系统繁忙，请稍后再试！！！")
-		} else if isOk {
-			return nil
-		}
-
-		isOk := c.contactService.Dao().IsFriend(ctx.Ctx(), opt.UserId, opt.ReceiverId, false)
-		if isOk {
-			return nil
-		}
-
-		return errors.New("暂无权限发送消息！")
-	} else {
-		groupMemberInfo := &model.GroupMember{}
-		err := c.groupMemberService.Db().First(groupMemberInfo, "group_id = ? and user_id = ?", opt.ReceiverId, opt.UserId).Error
-		if err != nil {
-			if err == gorm.ErrRecordNotFound {
-				return errors.New("暂无权限发送消息！")
-			}
-
-			return errors.New("系统繁忙，请稍后再试！！！")
-		}
-
-		if groupMemberInfo.IsQuit == 1 {
-			return errors.New("暂无权限发送消息！")
-		}
-
-		if groupMemberInfo.IsMute == 1 {
-			return errors.New("已被群主或管理员禁言！")
-		}
-	}
-
-	return nil
 }
 
 type TextMessageRequest struct {
@@ -93,15 +47,16 @@ func (c *Message) Text(ctx *ichat.Context) error {
 	}
 
 	uid := ctx.UserId()
-	if err := c.authority(ctx, &AuthorityOpts{
-		TalkType:   params.TalkType,
-		UserId:     uid,
-		ReceiverId: params.ReceiverId,
+	if err := c.authService.IsAuth(ctx.Ctx(), &service.AuthOption{
+		TalkType:          params.TalkType,
+		UserId:            uid,
+		ReceiverId:        params.ReceiverId,
+		IsVerifyGroupMute: true,
 	}); err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}
 
-	if err := c.message.SendText(ctx.Ctx(), uid, &message.TextMessageRequest{
+	if err := c.messageService.SendText(ctx.Ctx(), uid, &message.TextMessageRequest{
 		Content: params.Text,
 		Receiver: &message.MessageReceiver{
 			TalkType:   int32(params.TalkType),
@@ -118,7 +73,7 @@ type CodeMessageRequest struct {
 	TalkType   int    `form:"talk_type" json:"talk_type" binding:"required,oneof=1 2" label:"talk_type"`
 	ReceiverId int    `form:"receiver_id" json:"receiver_id" binding:"required,numeric,gt=0" label:"receiver_id"`
 	Lang       string `form:"lang" json:"lang" binding:"required"`
-	Code       string `form:"code" json:"code" binding:"required,max=3000"`
+	Code       string `form:"code" json:"code" binding:"required,max=65535"`
 }
 
 // Code 发送代码块消息
@@ -130,15 +85,16 @@ func (c *Message) Code(ctx *ichat.Context) error {
 	}
 
 	uid := ctx.UserId()
-	if err := c.authority(ctx, &AuthorityOpts{
-		TalkType:   params.TalkType,
-		UserId:     uid,
-		ReceiverId: params.ReceiverId,
+	if err := c.authService.IsAuth(ctx.Ctx(), &service.AuthOption{
+		TalkType:          params.TalkType,
+		UserId:            uid,
+		ReceiverId:        params.ReceiverId,
+		IsVerifyGroupMute: true,
 	}); err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}
 
-	if err := c.message.SendCode(ctx.Ctx(), uid, &message.CodeMessageRequest{
+	if err := c.messageService.SendCode(ctx.Ctx(), uid, &message.CodeMessageRequest{
 		Lang: params.Lang,
 		Code: params.Code,
 		Receiver: &message.MessageReceiver{
@@ -170,8 +126,8 @@ func (c *Message) Image(ctx *ichat.Context) error {
 		return ctx.InvalidParams("image 字段必传！")
 	}
 
-	if !sliceutil.Include(strutil.FileSuffix(file.Filename), []string{"png", "jpg", "jpeg", "gif"}) {
-		return ctx.InvalidParams("上传文件格式不正确,仅支持 png、jpg、jpeg 和 gif")
+	if !sliceutil.Include(strutil.FileSuffix(file.Filename), []string{"png", "jpg", "jpeg", "gif", "webp"}) {
+		return ctx.InvalidParams("上传文件格式不正确,仅支持 png、jpg、jpeg、gif 及 webp")
 	}
 
 	// 判断上传文件大小（5M）
@@ -179,20 +135,39 @@ func (c *Message) Image(ctx *ichat.Context) error {
 		return ctx.InvalidParams("上传文件大小不能超过5M！")
 	}
 
-	uid := ctx.UserId()
-	if err := c.authority(ctx, &AuthorityOpts{
-		TalkType:   params.TalkType,
-		UserId:     uid,
-		ReceiverId: params.ReceiverId,
+	if err := c.authService.IsAuth(ctx.Ctx(), &service.AuthOption{
+		TalkType:          params.TalkType,
+		UserId:            ctx.UserId(),
+		ReceiverId:        params.ReceiverId,
+		IsVerifyGroupMute: true,
 	}); err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}
 
-	if err := c.service.SendImageMessage(ctx.Ctx(), &service.ImageMessageOpt{
-		UserId:     uid,
-		TalkType:   params.TalkType,
-		ReceiverId: params.ReceiverId,
-		File:       file,
+	stream, err := filesystem.ReadMultipartStream(file)
+	if err != nil {
+		return err
+	}
+
+	ext := strutil.FileSuffix(file.Filename)
+
+	meta := utils.ReadImageMeta(bytes.NewReader(stream))
+
+	filePath := fmt.Sprintf("public/media/image/talk/%s/%s", timeutil.DateNumber(), strutil.GenImageName(ext, meta.Width, meta.Height))
+
+	if err := c.filesystem.Default.Write(stream, filePath); err != nil {
+		return err
+	}
+
+	if err := c.messageService.SendImage(ctx.Ctx(), ctx.UserId(), &message.ImageMessageRequest{
+		Url:    c.filesystem.Default.PublicUrl(filePath),
+		Width:  int32(meta.Width),
+		Height: int32(meta.Height),
+		Size:   int32(file.Size),
+		Receiver: &message.MessageReceiver{
+			TalkType:   int32(params.TalkType),
+			ReceiverId: int32(params.ReceiverId),
+		},
 	}); err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}
@@ -215,19 +190,21 @@ func (c *Message) File(ctx *ichat.Context) error {
 	}
 
 	uid := ctx.UserId()
-	if err := c.authority(ctx, &AuthorityOpts{
-		TalkType:   params.TalkType,
-		UserId:     uid,
-		ReceiverId: params.ReceiverId,
+	if err := c.authService.IsAuth(ctx.Ctx(), &service.AuthOption{
+		TalkType:          params.TalkType,
+		UserId:            uid,
+		ReceiverId:        params.ReceiverId,
+		IsVerifyGroupMute: true,
 	}); err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}
 
-	if err := c.service.SendFileMessage(ctx.Ctx(), &service.FileMessageOpt{
-		UserId:     uid,
-		TalkType:   params.TalkType,
-		ReceiverId: params.ReceiverId,
-		UploadId:   params.UploadId,
+	if err := c.messageService.SendFile(ctx.Ctx(), uid, &message.FileMessageRequest{
+		UploadId: params.UploadId,
+		Receiver: &message.MessageReceiver{
+			TalkType:   int32(params.TalkType),
+			ReceiverId: int32(params.ReceiverId),
+		},
 	}); err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}
@@ -260,15 +237,16 @@ func (c *Message) Vote(ctx *ichat.Context) error {
 	}
 
 	uid := ctx.UserId()
-	if err := c.authority(ctx, &AuthorityOpts{
-		TalkType:   entity.ChatGroupMode,
-		UserId:     uid,
-		ReceiverId: params.ReceiverId,
+	if err := c.authService.IsAuth(ctx.Ctx(), &service.AuthOption{
+		TalkType:          entity.ChatGroupMode,
+		UserId:            uid,
+		ReceiverId:        params.ReceiverId,
+		IsVerifyGroupMute: true,
 	}); err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}
 
-	if err := c.message.SendVote(ctx.Ctx(), uid, &message.VoteMessageRequest{
+	if err := c.messageService.SendVote(ctx.Ctx(), uid, &message.VoteMessageRequest{
 		Mode:      int32(params.Mode),
 		Title:     params.Title,
 		Options:   params.Options,
@@ -299,15 +277,16 @@ func (c *Message) Emoticon(ctx *ichat.Context) error {
 	}
 
 	uid := ctx.UserId()
-	if err := c.authority(ctx, &AuthorityOpts{
-		TalkType:   params.TalkType,
-		UserId:     uid,
-		ReceiverId: params.ReceiverId,
+	if err := c.authService.IsAuth(ctx.Ctx(), &service.AuthOption{
+		TalkType:          params.TalkType,
+		UserId:            uid,
+		ReceiverId:        params.ReceiverId,
+		IsVerifyGroupMute: true,
 	}); err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}
 
-	if err := c.message.SendEmoticon(ctx.Ctx(), uid, &message.EmoticonMessageRequest{
+	if err := c.messageService.SendEmoticon(ctx.Ctx(), uid, &message.EmoticonMessageRequest{
 		EmoticonId: int32(params.EmoticonId),
 		Receiver: &message.MessageReceiver{
 			TalkType:   int32(params.TalkType),
@@ -342,9 +321,9 @@ func (c *Message) Forward(ctx *ichat.Context) error {
 	}
 
 	uid := ctx.UserId()
-	if err := c.authority(ctx, &AuthorityOpts{
+	if err := c.authService.IsAuth(ctx.Ctx(), &service.AuthOption{
 		TalkType:   params.TalkType,
-		UserId:     uid,
+		UserId:     ctx.UserId(),
 		ReceiverId: params.ReceiverId,
 	}); err != nil {
 		return ctx.ErrorBusiness(err.Error())
@@ -373,7 +352,7 @@ func (c *Message) Forward(ctx *ichat.Context) error {
 		data.Gids = append(data.Gids, int32(id))
 	}
 
-	if err := c.message.SendForward(ctx.Ctx(), uid, data); err != nil {
+	if err := c.messageService.SendForward(ctx.Ctx(), uid, data); err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}
 
@@ -394,16 +373,22 @@ func (c *Message) Card(ctx *ichat.Context) error {
 	}
 
 	uid := ctx.UserId()
-	if err := c.authority(ctx, &AuthorityOpts{
-		TalkType:   params.TalkType,
-		UserId:     uid,
-		ReceiverId: params.ReceiverId,
+	if err := c.authService.IsAuth(ctx.Ctx(), &service.AuthOption{
+		TalkType:          params.TalkType,
+		UserId:            uid,
+		ReceiverId:        params.ReceiverId,
+		IsVerifyGroupMute: true,
 	}); err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}
 
-	// todo SendBusinessCard
-	if err := c.message.SendBusinessCard(ctx.Ctx(), uid); err != nil {
+	if err := c.messageService.SendBusinessCard(ctx.Ctx(), uid, &message.CardMessageRequest{
+		UserId: int32(params.ReceiverId),
+		Receiver: &message.MessageReceiver{
+			TalkType:   int32(params.TalkType),
+			ReceiverId: int32(params.ReceiverId),
+		},
+	}); err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}
 
@@ -422,7 +407,7 @@ func (c *Message) Collect(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	if err := c.talkService.CollectRecord(ctx.Ctx(), ctx.UserId(), params.RecordId); err != nil {
+	if err := c.talkService.Collect(ctx.Ctx(), ctx.UserId(), params.RecordId); err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}
 
@@ -441,7 +426,7 @@ func (c *Message) Revoke(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	if err := c.service.SendRevokeRecordMessage(ctx.Ctx(), ctx.UserId(), params.RecordId); err != nil {
+	if err := c.messageService.Revoke(ctx.Ctx(), ctx.UserId(), params.RecordId); err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}
 
@@ -462,7 +447,7 @@ func (c *Message) Delete(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	if err := c.talkService.RemoveRecords(ctx.Ctx(), &service.TalkMessageDeleteOpt{
+	if err := c.talkService.DeleteRecordList(ctx.Ctx(), &service.RemoveRecordListOpt{
 		UserId:     ctx.UserId(),
 		TalkType:   params.TalkType,
 		ReceiverId: params.ReceiverId,
@@ -487,18 +472,12 @@ func (c *Message) HandleVote(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	vid, err := c.service.VoteHandle(ctx.Ctx(), &service.VoteMessageHandleOpt{
-		UserId:   ctx.UserId(),
-		RecordId: params.RecordId,
-		Options:  params.Options,
-	})
+	data, err := c.messageService.Vote(ctx.Ctx(), ctx.UserId(), params.RecordId, params.Options)
 	if err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}
 
-	res, _ := c.talkRecordsVoteDao.GetVoteStatistics(ctx.Ctx(), vid)
-
-	return ctx.Success(res)
+	return ctx.Success(data)
 }
 
 type LocationMessageRequest struct {
@@ -517,15 +496,16 @@ func (c *Message) Location(ctx *ichat.Context) error {
 	}
 
 	uid := ctx.UserId()
-	if err := c.authority(ctx, &AuthorityOpts{
-		TalkType:   params.TalkType,
-		UserId:     uid,
-		ReceiverId: params.ReceiverId,
+	if err := c.authService.IsAuth(ctx.Ctx(), &service.AuthOption{
+		TalkType:          params.TalkType,
+		UserId:            uid,
+		ReceiverId:        params.ReceiverId,
+		IsVerifyGroupMute: true,
 	}); err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}
 
-	if err := c.message.SendLocation(ctx.Ctx(), uid, &message.LocationMessageRequest{
+	if err := c.messageService.SendLocation(ctx.Ctx(), uid, &message.LocationMessageRequest{
 		Longitude:   params.Longitude,
 		Latitude:    params.Latitude,
 		Description: "", // todo 需完善

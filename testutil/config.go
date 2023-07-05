@@ -12,5 +12,5 @@ func GetConfig() *config.Config {
 
 	paths := []string{filepath.Dir(filepath.Dir(file)), "./config.yaml"}
 
-	return config.ReadConfig(filepath.Join(paths...))
+	return config.New(filepath.Join(paths...))
 }

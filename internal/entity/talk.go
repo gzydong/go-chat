@@ -7,31 +7,21 @@ const (
 	ChatRoomMode    = 3 // 房间模式
 )
 
-// WebSocket 消息事件枚举
 const (
-	EventTalk          = "event_talk"            // 对话消息通知
-	EventTalkKeyboard  = "event_talk_keyboard"   // 键盘输入事件通知
-	EventTalkRevoke    = "event_talk_revoke"     // 聊天消息撤销通知
-	EventTalkJoinGroup = "event_talk_join_group" // 邀请加入群聊通知
-	EventTalkRead      = "event_talk_read"       // 对话消息读事件
-	EventOnlineStatus  = "event_login"           // 用户在线状态通知
-	EventContactApply  = "event_contact_apply"   // 好友申请消息通知
-)
+	SubEventImMessage         = "sub.im.message"          // 对话消息通知
+	SubEventImMessageKeyboard = "sub.im.message.keyboard" // 键盘输入事件通知
+	SubEventImMessageRevoke   = "sub.im.message.revoke"   // 聊天消息撤销通知
+	SubEventImMessageRead     = "sub.im.message.read"     // 对话消息读事件
+	SubEventContactStatus     = "sub.im.contact.status"   // 用户在线状态通知
+	SubEventContactApply      = "sub.im.contact.apply"    // 好友申请消息通知
+	SubEventGroupJoin         = "sub.im.group.join"       // 邀请加入群聊通知
 
-// 聊天消息类型
-const (
-	MsgTypeSystemText  = 0  // 系统文本消息
-	MsgTypeText        = 1  // 文本消息
-	MsgTypeFile        = 2  // 文件消息
-	MsgTypeForward     = 3  // 会话消息
-	MsgTypeCode        = 4  // 代码消息
-	MsgTypeVote        = 5  // 投票消息
-	MsgTypeGroupNotice = 6  // 群组公告
-	MsgTypeFriendApply = 7  // 好友申请
-	MsgTypeLogin       = 8  // 登录通知
-	MsgTypeGroupInvite = 9  // 入群退群消息
-	MsgTypeLocation    = 10 // 位置消息
-	MsgTypeEmoticon    = 11 // 表情消息
+	PushEventImMessage         = "im.message"          // 对话消息推送
+	PushEventImMessageKeyboard = "im.message.keyboard" // 键盘输入事件推送
+	PushEventImMessageRead     = "im.message.read"     // 对话消息读事件推送
+	PushEventImMessageRevoke   = "im.message.revoke"   // 聊天消息撤销推送
+	PushEventContactApply      = "im.contact.apply"    // 好友申请消息推送
+	PushEventContactStatus     = "im.contact.status"   // 用户在线状态推送
 )
 
 const (
@@ -46,15 +36,16 @@ const (
 const (
 	ChatMsgTypeText     = 1  // 文本消息
 	ChatMsgTypeCode     = 2  // 代码消息
-	ChatMsgTypeEmoticon = 3  // 表情消息
-	ChatMsgTypeImage    = 3  // 图片文件消息
-	ChatMsgTypeVoice    = 4  // 语音文件消息
-	ChatMsgTypeVideo    = 5  // 视频文件消息
-	ChatMsgTypeFile     = 6  // 其它文件消息
+	ChatMsgTypeImage    = 3  // 图片文件
+	ChatMsgTypeAudio    = 4  // 语音文件
+	ChatMsgTypeVideo    = 5  // 视频文件
+	ChatMsgTypeFile     = 6  // 其它文件
 	ChatMsgTypeLocation = 7  // 位置消息
 	ChatMsgTypeCard     = 8  // 名片消息
 	ChatMsgTypeForward  = 9  // 转发消息
 	ChatMsgTypeLogin    = 10 // 登录消息
+	ChatMsgTypeVote     = 11 // 投票消息
+	ChatMsgTypeMixed    = 12 // 图文消息
 
 	ChatMsgSysText                   = 1000 // 系统文本消息
 	ChatMsgSysGroupCreate            = 1101 // 创建群聊消息
@@ -67,11 +58,37 @@ const (
 	ChatMsgSysGroupCancelMuted       = 1108 // 群解除禁言
 	ChatMsgSysGroupMemberMuted       = 1109 // 群成员禁言
 	ChatMsgSysGroupMemberCancelMuted = 1110 // 群成员解除禁言
+	ChatMsgSysGroupNotice            = 1111 // 编辑群公告
+	ChatMsgSysGroupTransfer          = 1113 // 变更群主
 )
 
-const (
-	EventAck = 1000 // ACK消息确认
+var ChatMsgTypeMapping = map[int]string{
+	ChatMsgTypeImage:                 "[图片消息]",
+	ChatMsgTypeAudio:                 "[语音消息]",
+	ChatMsgTypeVideo:                 "[视频消息]",
+	ChatMsgTypeFile:                  "[文件消息]",
+	ChatMsgTypeLocation:              "[位置消息]",
+	ChatMsgTypeCard:                  "[名片消息]",
+	ChatMsgTypeForward:               "[转发消息]",
+	ChatMsgTypeLogin:                 "[登录消息]",
+	ChatMsgTypeVote:                  "[投票消息]",
+	ChatMsgTypeCode:                  "[代码消息]",
+	ChatMsgTypeMixed:                 "[图文消息]",
+	ChatMsgSysText:                   "[系统消息]",
+	ChatMsgSysGroupCreate:            "[创建群消息]",
+	ChatMsgSysGroupMemberJoin:        "[加入群消息]",
+	ChatMsgSysGroupMemberQuit:        "[退出群消息]",
+	ChatMsgSysGroupMemberKicked:      "[踢出群消息]",
+	ChatMsgSysGroupMessageRevoke:     "[撤回消息]",
+	ChatMsgSysGroupDismissed:         "[群解散消息]",
+	ChatMsgSysGroupMuted:             "[群禁言消息]",
+	ChatMsgSysGroupCancelMuted:       "[群解除禁言消息]",
+	ChatMsgSysGroupMemberMuted:       "[群成员禁言消息]",
+	ChatMsgSysGroupMemberCancelMuted: "[群成员解除禁言消息]",
+	ChatMsgSysGroupNotice:            "[群公告]",
+}
 
+const (
 	EventChatTalkMessage    = 101001 // IM对话消息事件
 	EventChatTalkKeyboard   = 101002 // IM键盘输入消息事件
 	EventChatTalkRevoke     = 101002 // IM消息撤回事件
@@ -79,8 +96,3 @@ const (
 	EventChatContactApply   = 101004 // IM好友申请事件
 	EventChatGroupJoinApply = 101005 // IM群加入申请事件
 )
-
-type Message struct {
-	MsgType uint   // 事件类型
-	Content string // 主体消息
-}

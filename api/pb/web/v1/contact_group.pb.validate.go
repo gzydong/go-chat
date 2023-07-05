@@ -1141,6 +1141,244 @@ var _ interface {
 	ErrorName() string
 } = ContactGroupListResponseValidationError{}
 
+// Validate checks the field values on ContactGroupSaveRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *ContactGroupSaveRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ContactGroupSaveRequest with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// ContactGroupSaveRequestMultiError, or nil if none found.
+func (m *ContactGroupSaveRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ContactGroupSaveRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	for idx, item := range m.GetItems() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ContactGroupSaveRequestValidationError{
+						field:  fmt.Sprintf("Items[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ContactGroupSaveRequestValidationError{
+						field:  fmt.Sprintf("Items[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ContactGroupSaveRequestValidationError{
+					field:  fmt.Sprintf("Items[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	if len(errors) > 0 {
+		return ContactGroupSaveRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// ContactGroupSaveRequestMultiError is an error wrapping multiple validation
+// errors returned by ContactGroupSaveRequest.ValidateAll() if the designated
+// constraints aren't met.
+type ContactGroupSaveRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ContactGroupSaveRequestMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ContactGroupSaveRequestMultiError) AllErrors() []error { return m }
+
+// ContactGroupSaveRequestValidationError is the validation error returned by
+// ContactGroupSaveRequest.Validate if the designated constraints aren't met.
+type ContactGroupSaveRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ContactGroupSaveRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ContactGroupSaveRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ContactGroupSaveRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ContactGroupSaveRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ContactGroupSaveRequestValidationError) ErrorName() string {
+	return "ContactGroupSaveRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e ContactGroupSaveRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sContactGroupSaveRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ContactGroupSaveRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ContactGroupSaveRequestValidationError{}
+
+// Validate checks the field values on ContactGroupSaveResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *ContactGroupSaveResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ContactGroupSaveResponse with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// ContactGroupSaveResponseMultiError, or nil if none found.
+func (m *ContactGroupSaveResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ContactGroupSaveResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(errors) > 0 {
+		return ContactGroupSaveResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// ContactGroupSaveResponseMultiError is an error wrapping multiple validation
+// errors returned by ContactGroupSaveResponse.ValidateAll() if the designated
+// constraints aren't met.
+type ContactGroupSaveResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ContactGroupSaveResponseMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ContactGroupSaveResponseMultiError) AllErrors() []error { return m }
+
+// ContactGroupSaveResponseValidationError is the validation error returned by
+// ContactGroupSaveResponse.Validate if the designated constraints aren't met.
+type ContactGroupSaveResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ContactGroupSaveResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ContactGroupSaveResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ContactGroupSaveResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ContactGroupSaveResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ContactGroupSaveResponseValidationError) ErrorName() string {
+	return "ContactGroupSaveResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e ContactGroupSaveResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sContactGroupSaveResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ContactGroupSaveResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ContactGroupSaveResponseValidationError{}
+
 // Validate checks the field values on ContactGroupSortRequest_Item with the
 // rules defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
@@ -1358,3 +1596,112 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = ContactGroupListResponse_ItemValidationError{}
+
+// Validate checks the field values on ContactGroupSaveRequest_Item with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *ContactGroupSaveRequest_Item) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ContactGroupSaveRequest_Item with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// ContactGroupSaveRequest_ItemMultiError, or nil if none found.
+func (m *ContactGroupSaveRequest_Item) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ContactGroupSaveRequest_Item) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Id
+
+	// no validation rules for Sort
+
+	// no validation rules for Name
+
+	if len(errors) > 0 {
+		return ContactGroupSaveRequest_ItemMultiError(errors)
+	}
+
+	return nil
+}
+
+// ContactGroupSaveRequest_ItemMultiError is an error wrapping multiple
+// validation errors returned by ContactGroupSaveRequest_Item.ValidateAll() if
+// the designated constraints aren't met.
+type ContactGroupSaveRequest_ItemMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ContactGroupSaveRequest_ItemMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ContactGroupSaveRequest_ItemMultiError) AllErrors() []error { return m }
+
+// ContactGroupSaveRequest_ItemValidationError is the validation error returned
+// by ContactGroupSaveRequest_Item.Validate if the designated constraints
+// aren't met.
+type ContactGroupSaveRequest_ItemValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ContactGroupSaveRequest_ItemValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ContactGroupSaveRequest_ItemValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ContactGroupSaveRequest_ItemValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ContactGroupSaveRequest_ItemValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ContactGroupSaveRequest_ItemValidationError) ErrorName() string {
+	return "ContactGroupSaveRequest_ItemValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e ContactGroupSaveRequest_ItemValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sContactGroupSaveRequest_Item.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ContactGroupSaveRequest_ItemValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ContactGroupSaveRequest_ItemValidationError{}

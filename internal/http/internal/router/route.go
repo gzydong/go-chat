@@ -6,30 +6,29 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"go-chat/config"
-	"go-chat/internal/entity"
 	"go-chat/internal/http/internal/handler"
 	"go-chat/internal/pkg/ichat/middleware"
 	"go-chat/internal/repository/cache"
 )
 
 // NewRouter 初始化配置路由
-func NewRouter(conf *config.Config, handler *handler.Handler, session *cache.TokenSessionStorage) *gin.Engine {
+func NewRouter(conf *config.Config, handler *handler.Handler, session *cache.JwtTokenStorage) *gin.Engine {
 	router := gin.New()
 
-	router.Use(gin.Logger())
-	router.Use(middleware.Cors(conf.Cors))
-	router.Use(gin.RecoveryWithWriter(gin.DefaultWriter, func(c *gin.Context, err interface{}) {
+	router.Use(gin.RecoveryWithWriter(gin.DefaultWriter, func(c *gin.Context, err any) {
 		log.Println(err)
 
-		c.AbortWithStatusJSON(http.StatusInternalServerError, entity.H{"code": 500, "msg": "系统错误，请重试!!!"})
+		c.AbortWithStatusJSON(http.StatusInternalServerError, map[string]any{"code": 500, "msg": "系统错误，请重试!!!"})
 	}))
+	router.Use(middleware.Cors(conf.Cors))
+	// router.Use(middleware.AccessLog())
 
 	router.GET("/", func(c *gin.Context) {
-		c.JSON(200, entity.H{"code": 200, "message": "hello world"})
+		c.JSON(200, map[string]any{"code": 200, "message": "hello world"})
 	})
 
 	router.GET("/health/check", func(c *gin.Context) {
-		c.JSON(200, entity.H{"status": "ok"})
+		c.JSON(200, map[string]any{"status": "ok"})
 	})
 
 	RegisterWebRoute(conf.Jwt.Secret, router, handler.Api, session)
@@ -42,7 +41,7 @@ func NewRouter(conf *config.Config, handler *handler.Handler, session *cache.Tok
 	}
 
 	router.NoRoute(func(c *gin.Context) {
-		c.JSON(404, entity.H{"code": 404, "message": "请求地址不存在"})
+		c.JSON(404, map[string]any{"code": 404, "message": "请求地址不存在"})
 	})
 
 	return router

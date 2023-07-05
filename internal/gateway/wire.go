@@ -5,15 +5,16 @@ package main
 
 import (
 	"go-chat/config"
-	consume2 "go-chat/internal/gateway/internal/consume"
+	"go-chat/internal/gateway/internal/consume"
 	"go-chat/internal/gateway/internal/event"
-	"go-chat/internal/gateway/internal/event/chat"
 	"go-chat/internal/gateway/internal/handler"
 	"go-chat/internal/gateway/internal/process"
 	"go-chat/internal/gateway/internal/router"
+	"go-chat/internal/logic"
 	"go-chat/internal/provider"
 	"go-chat/internal/repository/cache"
 	"go-chat/internal/repository/repo"
+	"go-chat/internal/repository/repo/organize"
 	"go-chat/internal/service"
 
 	"github.com/google/wire"
@@ -23,7 +24,9 @@ var providerSet = wire.NewSet(
 	// 基础服务
 	provider.NewMySQLClient,
 	provider.NewRedisClient,
-	provider.NewWebsocketServer,
+	provider.NewFilesystem,
+	provider.NewEmailClient,
+	provider.NewProviders,
 
 	// 路由
 	router.NewRouter,
@@ -33,45 +36,30 @@ var providerSet = wire.NewSet(
 	process.NewServer,
 	process.NewHealthSubscribe,
 	process.NewMessageSubscribe,
-	consume2.NewChatSubscribe,
-	consume2.NewExampleSubscribe,
 
-	// 缓存
-	cache.NewTokenSessionStorage,
-	cache.NewSidStorage,
-	cache.NewRedisLock,
-	cache.NewClientStorage,
-	cache.NewRoomStorage,
-	cache.NewTalkVote,
-	cache.NewRelation,
-	cache.NewContactRemark,
-	cache.NewSequence,
-
-	// dao 数据层
+	// 数据层
+	repo.NewSource,
 	repo.NewTalkRecords,
 	repo.NewTalkRecordsVote,
 	repo.NewGroupMember,
 	repo.NewContact,
+	repo.NewFileSplitUpload,
+	repo.NewSequence,
+	organize.NewOrganize,
+	repo.NewRobot,
 
-	chat.NewHandler,
-
-	event.NewChatEvent,
-	event.NewExampleEvent,
+	logic.NewMessageForwardLogic,
 
 	// 服务
-	service.NewBaseService,
 	service.NewTalkRecordsService,
 	service.NewGroupMemberService,
 	service.NewContactService,
-
-	// handle
-	handler.NewChatChannel,
-	handler.NewExampleChannel,
+	service.NewMessageService,
 
 	wire.Struct(new(handler.Handler), "*"),
 	wire.Struct(new(AppProvider), "*"),
 )
 
 func Initialize(conf *config.Config) *AppProvider {
-	panic(wire.Build(providerSet))
+	panic(wire.Build(providerSet, cache.ProviderSet, handler.ProviderSet, event.ProviderSet, consume.ProviderSet))
 }

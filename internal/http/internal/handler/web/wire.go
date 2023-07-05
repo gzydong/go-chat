@@ -29,7 +29,7 @@ var ProviderSet = wire.NewSet(
 	article.NewArticle,
 	article.NewClass,
 	article.NewTag,
-	talk.NewSendMessage,
+	talk.NewPublish,
 
 	wire.Struct(new(V1), "*"),
 )

@@ -2,7 +2,7 @@ package repo
 
 import (
 	"context"
-	"fmt"
+	"strconv"
 
 	"go-chat/internal/pkg/ichat"
 	"go-chat/internal/repository/cache"
@@ -22,7 +22,7 @@ func NewContact(db *gorm.DB, cache *cache.ContactRemark, relation *cache.Relatio
 
 func (c *Contact) Remarks(ctx context.Context, uid int, fids []int) (map[int]string, error) {
 
-	if !c.cache.IsExist(ctx, uid) {
+	if !c.cache.Exist(ctx, uid) {
 		_ = c.LoadContactCache(ctx, uid)
 	}
 
@@ -36,7 +36,7 @@ func (c *Contact) IsFriend(ctx context.Context, uid int, friendId int, cache boo
 		return true
 	}
 
-	count, err := c.QueryCount(ctx, "((user_id = ? and friend_id = ?) or (user_id = ? and friend_id = ?)) and status = 1", uid, friendId, friendId, uid)
+	count, err := c.QueryCount(ctx, "((user_id = ? and friend_id = ?) or (user_id = ? and friend_id = ?)) and status = ?", uid, friendId, friendId, uid, model.ContactStatusNormal)
 	if err != nil {
 		return false
 	}
@@ -52,16 +52,14 @@ func (c *Contact) IsFriend(ctx context.Context, uid int, friendId int, cache boo
 
 func (c *Contact) GetFriendRemark(ctx context.Context, uid int, friendId int) string {
 
-	if c.cache.IsExist(ctx, uid) {
+	if c.cache.Exist(ctx, uid) {
 		return c.cache.Get(ctx, uid, friendId)
 	}
 
-	info, err := c.FindByWhere(ctx, "user_id = ? and friend_id = ?", uid, friendId)
-	if err != nil {
-		return ""
-	}
+	var remark string
+	c.Model(ctx).Where("user_id = ? and friend_id = ?", uid, friendId).Pluck("remark", &remark)
 
-	return info.Remark
+	return remark
 }
 
 func (c *Contact) SetFriendRemark(ctx context.Context, uid int, friendId int, remark string) error {
@@ -70,22 +68,20 @@ func (c *Contact) SetFriendRemark(ctx context.Context, uid int, friendId int, re
 
 func (c *Contact) LoadContactCache(ctx context.Context, uid int) error {
 
-	contacts, err := c.FindAll(ctx, func(db *gorm.DB) {
-		db.Where("user_id = ? and status = 1", uid)
+	all, err := c.FindAll(ctx, func(db *gorm.DB) {
+		db.Select("friend_id,remark").Where("user_id = ? and status = ?", uid, model.ContactStatusNormal)
 	})
 
 	if err != nil {
 		return err
 	}
 
-	items := make(map[string]interface{})
-	for _, value := range contacts {
+	items := make(map[string]any)
+	for _, value := range all {
 		if len(value.Remark) > 0 {
-			items[fmt.Sprintf("%d", value.FriendId)] = value.Remark
+			items[strconv.Itoa(value.FriendId)] = value.Remark
 		}
 	}
 
-	_ = c.cache.MSet(ctx, uid, items)
-
-	return nil
+	return c.cache.MSet(ctx, uid, items)
 }

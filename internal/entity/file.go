@@ -13,11 +13,8 @@ var fileMediaMap = map[string]int{
 	"jpeg": MediaFileImage,
 	"png":  MediaFileImage,
 	"webp": MediaFileImage,
-	"ogg":  MediaFileVideo,
 	"mp3":  MediaFileAudio,
-	"wav":  MediaFileVideo,
 	"mp4":  MediaFileVideo,
-	"webm": MediaFileAudio,
 }
 
 func GetMediaType(ext string) int {

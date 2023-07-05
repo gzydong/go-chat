@@ -9,41 +9,36 @@ import (
 )
 
 type GroupApplyService struct {
-	*BaseService
-	repo *repo.GroupApply
+	*repo.Source
+	apply *repo.GroupApply
 }
 
-func NewGroupApplyService(baseService *BaseService, repo *repo.GroupApply) *GroupApplyService {
-	return &GroupApplyService{BaseService: baseService, repo: repo}
+func NewGroupApplyService(source *repo.Source, repo *repo.GroupApply) *GroupApplyService {
+	return &GroupApplyService{Source: source, apply: repo}
 }
 
 func (s *GroupApplyService) Dao() *repo.GroupApply {
-	return s.repo
+	return s.apply
 }
 
 func (s *GroupApplyService) Auth(ctx context.Context, applyId, userId int) bool {
-	info := &model.GroupApply{}
-
-	err := s.Db().First(info, "id = ?", applyId).Error
+	info, err := s.apply.FindById(ctx, applyId)
 	if err != nil {
 		return false
 	}
 
-	member := &model.GroupMember{}
-	err = s.Db().First(member, "group_id = ? and user_id = ? and leader in (1,2) and is_quit = 0", info.GroupId).Error
-	if err != nil {
-		return false
-	}
+	var member model.GroupMember
+	err = s.Db().Debug().WithContext(ctx).Select("id").First(&member, "group_id = ? and user_id = ? and leader in (1,2) and is_quit = 0", info.GroupId, userId).Error
 
-	return member.Id == 0
+	return err == nil && member.Id > 0
 }
 
 func (s *GroupApplyService) Insert(ctx context.Context, groupId, userId int, remark string) error {
-	return s.Db().Create(&model.GroupApply{
+	return s.apply.Create(ctx, &model.GroupApply{
 		GroupId: groupId,
 		UserId:  userId,
 		Remark:  remark,
-	}).Error
+	})
 }
 
 func (s *GroupApplyService) Delete(ctx context.Context, applyId, userId int) error {
@@ -52,5 +47,5 @@ func (s *GroupApplyService) Delete(ctx context.Context, applyId, userId int) err
 		return errors.New("auth failed")
 	}
 
-	return s.Db().Delete(&model.GroupApply{}, "id = ?", applyId).Error
+	return s.Db().WithContext(ctx).Delete(&model.GroupApply{}, "id = ?", applyId).Error
 }

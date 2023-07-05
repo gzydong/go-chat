@@ -3,38 +3,43 @@ package cache
 import (
 	"context"
 	"fmt"
+	"strconv"
 	"time"
 
-	"github.com/go-redis/redis/v8"
+	"github.com/redis/go-redis/v9"
 )
 
 // ContactRemark 联系人备注缓存
 type ContactRemark struct {
-	rds *redis.Client
+	redis *redis.Client
 }
 
-func NewContactRemark(rds *redis.Client) *ContactRemark {
-	return &ContactRemark{rds: rds}
-}
-
-func (c *ContactRemark) name(uid int) string {
-	return fmt.Sprintf("contact:remark:uid_%d", uid)
+func NewContactRemark(redis *redis.Client) *ContactRemark {
+	return &ContactRemark{redis: redis}
 }
 
 func (c *ContactRemark) Get(ctx context.Context, uid int, fid int) string {
-	return c.rds.HGet(ctx, c.name(uid), fmt.Sprintf("%d", fid)).Val()
+	return c.redis.HGet(ctx, c.name(uid), fmt.Sprintf("%d", fid)).Val()
 }
 
 func (c *ContactRemark) MGet(ctx context.Context, uid int, fids []int) (map[int]string, error) {
 
 	values := make([]string, 0, len(fids))
 	for _, value := range fids {
-		values = append(values, fmt.Sprintf("%d", value))
+		values = append(values, strconv.Itoa(value))
 	}
 
-	items := c.rds.HMGet(ctx, c.name(uid), values...).Val()
-
 	remarks := make(map[int]string)
+
+	items, err := c.redis.HMGet(ctx, c.name(uid), values...).Result()
+	if err != nil {
+		return nil, err
+	}
+
+	if len(items) == 0 {
+		return remarks, nil
+	}
+
 	for k, v := range fids {
 		if items[k] != nil {
 			remarks[v] = items[k].(string)
@@ -44,25 +49,28 @@ func (c *ContactRemark) MGet(ctx context.Context, uid int, fids []int) (map[int]
 	return remarks, nil
 }
 
-// Set 设置备注
 func (c *ContactRemark) Set(ctx context.Context, uid int, friendId int, value string) error {
 
-	if c.rds.Exists(ctx, c.name(uid)).Val() == 1 {
-		return c.rds.HSet(ctx, c.name(uid), friendId, value).Err()
+	if c.Exist(ctx, uid) {
+		return c.redis.HSet(ctx, c.name(uid), friendId, value).Err()
 	}
 
 	return nil
 }
 
-func (c *ContactRemark) IsExist(ctx context.Context, uid int) bool {
-	return c.rds.Exists(ctx, c.name(uid)).Val() == 1
+func (c *ContactRemark) MSet(ctx context.Context, uid int, values map[string]any) error {
+	_, err := c.redis.Pipelined(ctx, func(pipe redis.Pipeliner) error {
+		pipe.HSet(ctx, c.name(uid), values)
+		pipe.Expire(ctx, c.name(uid), 12*time.Hour)
+		return nil
+	})
+	return err
 }
 
-// MSet 批量设置备注
-func (c *ContactRemark) MSet(ctx context.Context, uid int, values map[string]interface{}) error {
+func (c *ContactRemark) Exist(ctx context.Context, uid int) bool {
+	return c.redis.Exists(ctx, c.name(uid)).Val() == 1
+}
 
-	c.rds.HSet(ctx, c.name(uid), values)
-	c.rds.Expire(ctx, c.name(uid), time.Hour*24)
-
-	return nil
+func (c *ContactRemark) name(uid int) string {
+	return fmt.Sprintf("im:contact:remark:uid_%d", uid)
 }

@@ -158,7 +158,7 @@ func (s *LocalFilesystem) PublicUrl(filePath string) string {
 }
 
 // PrivateUrl 获取私有URL
-func (s *LocalFilesystem) PrivateUrl(filePath string, timeout int) string {
+func (s *LocalFilesystem) PrivateUrl(filePath string, timeout time.Duration) string {
 	return ""
 }
 

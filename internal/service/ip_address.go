@@ -10,24 +10,17 @@ import (
 	"go-chat/config"
 	"go-chat/internal/pkg/client"
 	"go-chat/internal/pkg/sliceutil"
+	"go-chat/internal/repository/repo"
 )
 
 type IpAddressService struct {
-	*BaseService
-	conf       *config.Config
+	*repo.Source
+	config     *config.Config
 	httpClient *client.RequestClient
 }
 
-func NewIpAddressService(baseService *BaseService, conf *config.Config, httpClient *client.RequestClient) *IpAddressService {
-	return &IpAddressService{BaseService: baseService, conf: conf, httpClient: httpClient}
-}
-
-func (s *IpAddressService) getCache(ip string) (string, error) {
-	return s.rds.HGet(context.Background(), "rds:hash:ip-address", ip).Result()
-}
-
-func (s *IpAddressService) setCache(ip string, value string) error {
-	return s.rds.HSet(context.Background(), "rds:hash:ip-address", ip, value).Err()
+func NewIpAddressService(source *repo.Source, conf *config.Config, httpClient *client.RequestClient) *IpAddressService {
+	return &IpAddressService{Source: source, config: conf, httpClient: httpClient}
 }
 
 type IpAddressResponse struct {
@@ -42,16 +35,16 @@ type IpAddressResponse struct {
 	ErrorCode int `json:"error_code"`
 }
 
-func (s *IpAddressService) FindAddress(ip string) (string, error) {
-	if val, err := s.getCache(ip); err == nil {
+func (i *IpAddressService) FindAddress(ip string) (string, error) {
+	if val, err := i.getCache(ip); err == nil {
 		return val, nil
 	}
 
 	params := &url.Values{}
-	params.Add("key", s.conf.App.JuheKey)
+	params.Add("key", i.config.App.JuheKey)
 	params.Add("ip", ip)
 
-	resp, err := s.httpClient.Get("http://apis.juhe.cn/ip/ipNew", params)
+	resp, err := i.httpClient.Get("http://apis.juhe.cn/ip/ipNew", params)
 	if err != nil {
 		return "", err
 	}
@@ -69,7 +62,15 @@ func (s *IpAddressService) FindAddress(ip string) (string, error) {
 	val := strings.Join(sliceutil.Unique(arr), " ")
 	val = strings.TrimSpace(val)
 
-	_ = s.setCache(ip, val)
+	_ = i.setCache(ip, val)
 
 	return val, nil
+}
+
+func (i *IpAddressService) getCache(ip string) (string, error) {
+	return i.Redis().HGet(context.TODO(), "rds:hash:ip-address", ip).Result()
+}
+
+func (i *IpAddressService) setCache(ip string, value string) error {
+	return i.Redis().HSet(context.TODO(), "rds:hash:ip-address", ip, value).Err()
 }

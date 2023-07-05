@@ -6,7 +6,7 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-func ToSubCommand(value interface{}) []*cli.Command {
+func ToSubCommand(value any) []*cli.Command {
 
 	commands := make([]*cli.Command, 0)
 

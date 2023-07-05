@@ -1,25 +1,30 @@
 package v1
 
 import (
+	"bytes"
 	"fmt"
+	"path"
+	"strings"
 	"time"
 
 	"go-chat/api/pb/web/v1"
 	"go-chat/config"
+	"go-chat/internal/pkg/encrypt"
 	"go-chat/internal/pkg/filesystem"
 	"go-chat/internal/pkg/ichat"
 	"go-chat/internal/pkg/strutil"
+	"go-chat/internal/pkg/utils"
 	"go-chat/internal/service"
 )
 
 type Upload struct {
-	config     *config.Config
-	filesystem *filesystem.Filesystem
-	service    *service.SplitUploadService
+	config             *config.Config
+	filesystem         *filesystem.Filesystem
+	splitUploadService *service.SplitUploadService
 }
 
-func NewUpload(config *config.Config, filesystem *filesystem.Filesystem, service *service.SplitUploadService) *Upload {
-	return &Upload{config: config, filesystem: filesystem, service: service}
+func NewUpload(config *config.Config, filesystem *filesystem.Filesystem, splitUploadService *service.SplitUploadService) *Upload {
+	return &Upload{config: config, filesystem: filesystem, splitUploadService: splitUploadService}
 }
 
 // Avatar 头像上传上传
@@ -42,6 +47,31 @@ func (u *Upload) Avatar(ctx *ichat.Context) error {
 	})
 }
 
+// Image 图片上传
+func (u *Upload) Image(ctx *ichat.Context) error {
+
+	file, err := ctx.Context.FormFile("file")
+	if err != nil {
+		return ctx.InvalidParams("文件上传失败！")
+	}
+
+	ext := strings.TrimPrefix(path.Ext(file.Filename), ".")
+
+	stream, _ := filesystem.ReadMultipartStream(file)
+
+	meta := utils.ReadImageMeta(bytes.NewReader(stream))
+
+	object := fmt.Sprintf("public/media/image/common/%s/%s", time.Now().Format("20060102"), strutil.GenImageName(ext, meta.Width, meta.Height))
+
+	if err := u.filesystem.Default.Write(stream, object); err != nil {
+		return ctx.ErrorBusiness("文件上传失败")
+	}
+
+	return ctx.Success(web.UploadImageResponse{
+		Src: u.filesystem.Default.PublicUrl(object),
+	})
+}
+
 // InitiateMultipart 批量上传初始化
 func (u *Upload) InitiateMultipart(ctx *ichat.Context) error {
 
@@ -50,7 +80,7 @@ func (u *Upload) InitiateMultipart(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	info, err := u.service.InitiateMultipartUpload(ctx.Ctx(), &service.MultipartInitiateOpts{
+	info, err := u.splitUploadService.InitiateMultipartUpload(ctx.Ctx(), &service.MultipartInitiateOpt{
 		Name:   params.FileName,
 		Size:   params.FileSize,
 		UserId: ctx.UserId(),
@@ -60,8 +90,9 @@ func (u *Upload) InitiateMultipart(ctx *ichat.Context) error {
 	}
 
 	return ctx.Success(&web.UploadInitiateMultipartResponse{
-		UploadId:  info.UploadId,
-		SplitSize: 2 << 20,
+		UploadId:    info.UploadId,
+		UploadIdMd5: encrypt.Md5(info.UploadId),
+		SplitSize:   2 << 20,
 	})
 }
 
@@ -78,7 +109,7 @@ func (u *Upload) MultipartUpload(ctx *ichat.Context) error {
 		return ctx.InvalidParams("文件上传失败！")
 	}
 
-	err = u.service.MultipartUpload(ctx.Ctx(), &service.MultipartUploadOpts{
+	err = u.splitUploadService.MultipartUpload(ctx.Ctx(), &service.MultipartUploadOpt{
 		UserId:     ctx.UserId(),
 		UploadId:   params.UploadId,
 		SplitIndex: int(params.SplitIndex),

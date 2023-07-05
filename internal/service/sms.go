@@ -10,37 +10,21 @@ import (
 )
 
 type SmsService struct {
-	smsCodeCache *cache.SmsCodeCache
+	sms *cache.SmsStorage
 }
 
-func NewSmsService(codeCache *cache.SmsCodeCache) *SmsService {
-	return &SmsService{smsCodeCache: codeCache}
+func NewSmsService(codeCache *cache.SmsStorage) *SmsService {
+	return &SmsService{sms: codeCache}
 }
 
-// Check 验证短信验证码是否正确
-func (s *SmsService) Check(ctx context.Context, channel string, mobile string, code string) bool {
-	value, err := s.smsCodeCache.Get(ctx, channel, mobile)
-
-	if err != nil || value == "" {
-		return false
-	}
-
-	if value == code {
-		return true
-	}
-
-	// 验证失败超过5次，则直接删除缓存
-	failNum := s.smsCodeCache.IncrVerifyFail(ctx, channel, mobile, 15*time.Minute)
-	if failNum >= 5 {
-		_ = s.smsCodeCache.Del(ctx, channel, mobile)
-	}
-
-	return false
+// Verify 验证短信验证码是否正确
+func (s *SmsService) Verify(ctx context.Context, channel string, mobile string, code string) bool {
+	return s.sms.Verify(ctx, channel, mobile, code)
 }
 
 // Delete 删除短信验证码记录
 func (s *SmsService) Delete(ctx context.Context, channel string, mobile string) {
-	_ = s.smsCodeCache.Del(ctx, channel, mobile)
+	_ = s.sms.Del(ctx, channel, mobile)
 }
 
 // Send 发送短信
@@ -49,7 +33,7 @@ func (s *SmsService) Send(ctx context.Context, channel string, mobile string) (s
 	code := strutil.GenValidateCode(6)
 
 	// 添加发送记录
-	if err := s.smsCodeCache.Set(ctx, channel, mobile, code, 15*time.Minute); err != nil {
+	if err := s.sms.Set(ctx, channel, mobile, code, 15*time.Minute); err != nil {
 		return "", err
 	}
 

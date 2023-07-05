@@ -8,8 +8,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"go-chat/internal/pkg/ichat/middleware"
+	"go-chat/internal/pkg/ichat/validator"
 	"go-chat/internal/pkg/jsonutil"
-	"go-chat/internal/pkg/validation"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
 )
@@ -31,8 +31,7 @@ func New(ctx *gin.Context) *Context {
 // Unauthorized 未认证
 func (c *Context) Unauthorized(message string) error {
 
-	c.Context.Abort()
-	c.Context.JSON(http.StatusUnauthorized, &Response{
+	c.Context.AbortWithStatusJSON(http.StatusUnauthorized, &Response{
 		Code:    http.StatusUnauthorized,
 		Message: message,
 	})
@@ -43,8 +42,7 @@ func (c *Context) Unauthorized(message string) error {
 // Forbidden 未授权
 func (c *Context) Forbidden(message string) error {
 
-	c.Context.Abort()
-	c.Context.JSON(http.StatusForbidden, &Response{
+	c.Context.AbortWithStatusJSON(http.StatusForbidden, &Response{
 		Code:    http.StatusForbidden,
 		Message: message,
 	})
@@ -53,27 +51,26 @@ func (c *Context) Forbidden(message string) error {
 }
 
 // InvalidParams 参数错误
-func (c *Context) InvalidParams(message interface{}) error {
+func (c *Context) InvalidParams(message any) error {
 
 	resp := &Response{Code: 305, Message: "invalid params"}
 
 	switch msg := message.(type) {
 	case error:
-		resp.Message = validation.Translate(msg)
+		resp.Message = validator.Translate(msg)
 	case string:
 		resp.Message = msg
 	default:
 		resp.Message = fmt.Sprintf("%v", msg)
 	}
 
-	c.Context.Abort()
-	c.Context.JSON(http.StatusOK, resp)
+	c.Context.AbortWithStatusJSON(http.StatusOK, resp)
 
 	return nil
 }
 
 // ErrorBusiness 业务错误
-func (c *Context) ErrorBusiness(message interface{}) error {
+func (c *Context) ErrorBusiness(message any) error {
 
 	resp := &Response{Code: 400, Message: "business error"}
 
@@ -88,27 +85,23 @@ func (c *Context) ErrorBusiness(message interface{}) error {
 
 	resp.Meta = initMeta()
 
-	c.Context.Abort()
-	c.Context.JSON(http.StatusOK, resp)
+	c.Context.AbortWithStatusJSON(http.StatusOK, resp)
 
 	return nil
 }
 
 // Error 系统错误
 func (c *Context) Error(error string) error {
-
-	c.Context.Abort()
-	c.Context.JSON(http.StatusInternalServerError, &Response{
+	c.Context.AbortWithStatusJSON(http.StatusInternalServerError, &Response{
 		Code:    500,
 		Message: error,
 		Meta:    initMeta(),
 	})
-
 	return nil
 }
 
 // Success 成功响应(Json 数据)
-func (c *Context) Success(data interface{}, message ...string) error {
+func (c *Context) Success(data any, message ...string) error {
 
 	resp := &Response{
 		Code:    200,
@@ -124,7 +117,7 @@ func (c *Context) Success(data interface{}, message ...string) error {
 	if value, ok := data.(proto.Message); ok {
 		bt, _ := MarshalOptions.Marshal(value)
 
-		var data interface{}
+		var data any
 		if err := jsonutil.Decode(string(bt), &data); err != nil {
 			return c.Error(err.Error())
 		}
@@ -132,8 +125,7 @@ func (c *Context) Success(data interface{}, message ...string) error {
 		resp.Data = data
 	}
 
-	c.Context.Abort()
-	c.Context.JSON(http.StatusOK, resp)
+	c.Context.AbortWithStatusJSON(http.StatusOK, resp)
 
 	return nil
 }
@@ -177,8 +169,8 @@ func (c *Context) Ctx() context.Context {
 	return c.Context.Request.Context()
 }
 
-func initMeta() map[string]interface{} {
-	meta := make(map[string]interface{})
+func initMeta() map[string]any {
+	meta := make(map[string]any)
 	_, _, line, ok := runtime.Caller(2)
 	if ok {
 		meta["error_line"] = line

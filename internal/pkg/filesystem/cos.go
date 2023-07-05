@@ -44,14 +44,14 @@ func NewCosFilesystem(conf *config.Config) *CosFilesystem {
 // Write 文件写入
 func (c *CosFilesystem) Write(data []byte, filePath string) error {
 
-	_, err := c.client.Object.Put(context.Background(), filePath, bytes.NewBuffer(data), nil)
+	_, err := c.client.Object.Put(context.TODO(), filePath, bytes.NewBuffer(data), nil)
 
 	return err
 }
 
 // WriteLocal 本地文件上传
 func (c *CosFilesystem) WriteLocal(localFile string, filePath string) error {
-	_, _, err := c.client.Object.Upload(context.Background(), filePath, localFile, nil)
+	_, _, err := c.client.Object.Upload(context.TODO(), filePath, localFile, nil)
 
 	return err
 }
@@ -65,7 +65,7 @@ func (c *CosFilesystem) Copy(srcPath, filePath string) error {
 
 	sourceURL := fmt.Sprintf("%s/%s", c.client.BaseURL.BucketURL.Host, srcPath)
 
-	_, _, err := c.client.Object.Copy(context.Background(), filePath, sourceURL, nil)
+	_, _, err := c.client.Object.Copy(context.TODO(), filePath, sourceURL, nil)
 
 	return err
 }
@@ -73,7 +73,7 @@ func (c *CosFilesystem) Copy(srcPath, filePath string) error {
 // Delete 删除一个文件或空文件夹
 func (c *CosFilesystem) Delete(filePath string) error {
 
-	_, err := c.client.Object.Delete(context.Background(), filePath, nil)
+	_, err := c.client.Object.Delete(context.TODO(), filePath, nil)
 
 	return err
 }
@@ -90,14 +90,14 @@ func (c *CosFilesystem) CreateDir(path string) error {
 
 	path = strings.TrimSuffix(path, "/") + "/"
 
-	_, err := c.client.Object.Put(context.Background(), path, strings.NewReader(""), nil)
+	_, err := c.client.Object.Put(context.TODO(), path, strings.NewReader(""), nil)
 
 	return err
 }
 
 // Stat 文件信息
 func (c *CosFilesystem) Stat(filePath string) (*FileStat, error) {
-	resp, err := c.client.Object.Head(context.Background(), filePath, nil)
+	resp, err := c.client.Object.Head(context.TODO(), filePath, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -123,13 +123,13 @@ func (c *CosFilesystem) PublicUrl(filePath string) string {
 	return c.client.Object.GetObjectURL(filePath).String()
 }
 
-func (c *CosFilesystem) PrivateUrl(filePath string, timeout int) string {
+func (c *CosFilesystem) PrivateUrl(filePath string, timeout time.Duration) string {
 	result, err := c.client.Object.GetPresignedURL(
-		context.Background(),
+		context.TODO(),
 		http.MethodGet, filePath,
 		c.conf.Filesystem.Cos.SecretId,
 		c.conf.Filesystem.Cos.SecretKey,
-		time.Second*time.Duration(timeout),
+		timeout,
 		nil,
 	)
 
@@ -152,7 +152,7 @@ func (c *CosFilesystem) InitiateMultipartUpload(filePath string, fileName string
 		},
 	}
 
-	resp, _, err := c.client.Object.InitiateMultipartUpload(context.Background(), filePath, opt)
+	resp, _, err := c.client.Object.InitiateMultipartUpload(context.TODO(), filePath, opt)
 	if err != nil {
 		return "", err
 	}
@@ -161,7 +161,7 @@ func (c *CosFilesystem) InitiateMultipartUpload(filePath string, fileName string
 }
 
 func (c *CosFilesystem) UploadPart(filePath string, uploadID string, num int, stream []byte) (string, error) {
-	resp, err := c.client.Object.UploadPart(context.Background(), filePath, uploadID, num, bytes.NewBuffer(stream), nil)
+	resp, err := c.client.Object.UploadPart(context.TODO(), filePath, uploadID, num, bytes.NewBuffer(stream), nil)
 
 	if err != nil {
 		return "", err
@@ -171,7 +171,7 @@ func (c *CosFilesystem) UploadPart(filePath string, uploadID string, num int, st
 }
 
 func (c *CosFilesystem) CompleteMultipartUpload(filePath string, uploadID string, opt *cos.CompleteMultipartUploadOptions) error {
-	_, _, err := c.client.Object.CompleteMultipartUpload(context.Background(), filePath, uploadID, opt)
+	_, _, err := c.client.Object.CompleteMultipartUpload(context.TODO(), filePath, uploadID, opt)
 
 	return err
 }

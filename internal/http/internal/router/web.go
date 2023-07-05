@@ -2,7 +2,6 @@ package router
 
 import (
 	"github.com/gin-gonic/gin"
-	"go-chat/internal/entity"
 	"go-chat/internal/http/internal/handler/web"
 	"go-chat/internal/pkg/ichat"
 	"go-chat/internal/pkg/ichat/middleware"
@@ -10,7 +9,7 @@ import (
 )
 
 // RegisterWebRoute 注册 Web 路由
-func RegisterWebRoute(secret string, router *gin.Engine, handler *web.Handler, session *cache.TokenSessionStorage) {
+func RegisterWebRoute(secret string, router *gin.Engine, handler *web.Handler, session *cache.JwtTokenStorage) {
 
 	// 授权验证中间件
 	authorize := middleware.Auth(secret, "api", session)
@@ -53,6 +52,7 @@ func RegisterWebRoute(secret string, router *gin.Engine, handler *web.Handler, s
 			contact.GET("/detail", ichat.HandlerFunc(handler.V1.Contact.Detail))           // 搜索联系人
 			contact.POST("/delete", ichat.HandlerFunc(handler.V1.Contact.Delete))          // 删除联系人
 			contact.POST("/edit-remark", ichat.HandlerFunc(handler.V1.Contact.EditRemark)) // 编辑联系人备注
+			contact.POST("/move-group", ichat.HandlerFunc(handler.V1.Contact.MoveGroup))   // 编辑联系人备注
 
 			// 联系人申请相关
 			contact.GET("/apply/records", ichat.HandlerFunc(handler.V1.ContactApply.List))              // 联系人申请列表
@@ -62,11 +62,8 @@ func RegisterWebRoute(secret string, router *gin.Engine, handler *web.Handler, s
 			contact.GET("/apply/unread-num", ichat.HandlerFunc(handler.V1.ContactApply.ApplyUnreadNum)) // 联系人申请未读数
 
 			// 联系人分组
-			contact.GET("/group/list", ichat.HandlerFunc(handler.V1.ContactGroup.List))      // 联系人分组列表
-			contact.POST("/group/create", ichat.HandlerFunc(handler.V1.ContactGroup.Create)) // 联系人分组添加
-			contact.POST("/group/update", ichat.HandlerFunc(handler.V1.ContactGroup.Update)) // 联系人分组更新
-			contact.POST("/group/delete", ichat.HandlerFunc(handler.V1.ContactGroup.Delete)) // 联系人分组删除
-			contact.POST("/group/sort", ichat.HandlerFunc(handler.V1.ContactGroup.Sort))     // 联系人分组排序
+			contact.GET("/group/list", ichat.HandlerFunc(handler.V1.ContactGroup.List))  // 联系人分组列表
+			contact.POST("/group/save", ichat.HandlerFunc(handler.V1.ContactGroup.Save)) // 联系人分组排序
 		}
 
 		// 聊天群相关分组
@@ -83,6 +80,8 @@ func RegisterWebRoute(secret string, router *gin.Engine, handler *web.Handler, s
 			userGroup.POST("/handover", ichat.HandlerFunc(handler.V1.Group.Handover))        // 群主转让
 			userGroup.POST("/assign-admin", ichat.HandlerFunc(handler.V1.Group.AssignAdmin)) // 分配管理员
 			userGroup.POST("/no-speak", ichat.HandlerFunc(handler.V1.Group.NoSpeak))         // 修改禁言状态
+			userGroup.POST("/mute", ichat.HandlerFunc(handler.V1.Group.Mute))                // 修改禁言状态
+			userGroup.POST("/overt", ichat.HandlerFunc(handler.V1.Group.Overt))              // 修改禁言状态
 
 			// 群成员相关
 			userGroup.GET("/member/list", ichat.HandlerFunc(handler.V1.Group.Members))               // 群成员列表
@@ -100,6 +99,7 @@ func RegisterWebRoute(secret string, router *gin.Engine, handler *web.Handler, s
 			userGroup.POST("/apply/delete", ichat.HandlerFunc(handler.V1.GroupApply.Delete)) // 申请入群申请
 			userGroup.POST("/apply/agree", ichat.HandlerFunc(handler.V1.GroupApply.Agree))   // 同意入群申请
 			userGroup.GET("/apply/list", ichat.HandlerFunc(handler.V1.GroupApply.List))      // 入群申请列表
+			userGroup.GET("/apply/all", ichat.HandlerFunc(handler.V1.GroupApply.All))        // 入群申请列表
 		}
 
 		talk := v1.Group("/talk").Use(authorize)
@@ -118,7 +118,7 @@ func RegisterWebRoute(secret string, router *gin.Engine, handler *web.Handler, s
 
 		talkMsg := v1.Group("/talk/message").Use(authorize)
 		{
-			talkMsg.POST("/send", ichat.HandlerFunc(handler.V1.Message.Send))                  // 发送文本消息
+			talkMsg.POST("/publish", ichat.HandlerFunc(handler.V1.Message.Publish))            // 发送文本消息
 			talkMsg.POST("/text", ichat.HandlerFunc(handler.V1.TalkMessage.Text))              // 发送文本消息
 			talkMsg.POST("/code", ichat.HandlerFunc(handler.V1.TalkMessage.Code))              // 发送代码消息
 			talkMsg.POST("/image", ichat.HandlerFunc(handler.V1.TalkMessage.Image))            // 发送图片消息
@@ -148,6 +148,7 @@ func RegisterWebRoute(secret string, router *gin.Engine, handler *web.Handler, s
 		upload := v1.Group("/upload").Use(authorize)
 		{
 			upload.POST("/avatar", ichat.HandlerFunc(handler.V1.Upload.Avatar))
+			upload.POST("/image", ichat.HandlerFunc(handler.V1.Upload.Image))
 			upload.POST("/multipart/initiate", ichat.HandlerFunc(handler.V1.Upload.InitiateMultipart))
 			upload.POST("/multipart", ichat.HandlerFunc(handler.V1.Upload.MultipartUpload))
 		}
@@ -197,7 +198,7 @@ func RegisterWebRoute(secret string, router *gin.Engine, handler *web.Handler, s
 	v2 := router.Group("/api/v2")
 	{
 		v2.GET("/test", func(context *gin.Context) {
-			context.JSON(200, entity.H{"message": "success"})
+			context.JSON(200, map[string]any{"message": "success"})
 		})
 	}
 }

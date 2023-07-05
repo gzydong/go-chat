@@ -7,17 +7,17 @@ import (
 )
 
 type Tag struct {
-	service *note.ArticleTagService
+	articleTagService *note.ArticleTagService
 }
 
-func NewTag(service *note.ArticleTagService) *Tag {
-	return &Tag{service}
+func NewTag(articleTagService *note.ArticleTagService) *Tag {
+	return &Tag{articleTagService: articleTagService}
 }
 
 // List 标签列表
 func (c *Tag) List(ctx *ichat.Context) error {
 
-	list, err := c.service.List(ctx.Ctx(), ctx.UserId())
+	list, err := c.articleTagService.List(ctx.Ctx(), ctx.UserId())
 	if err != nil {
 		return ctx.ErrorBusiness(err)
 	}
@@ -48,12 +48,12 @@ func (c *Tag) Edit(ctx *ichat.Context) error {
 	}
 
 	if params.TagId == 0 {
-		id, err := c.service.Create(ctx.Ctx(), uid, params.TagName)
+		id, err := c.articleTagService.Create(ctx.Ctx(), uid, params.TagName)
 		if err == nil {
 			params.TagId = int32(id)
 		}
 	} else {
-		err = c.service.Update(ctx.Ctx(), uid, int(params.TagId), params.TagName)
+		err = c.articleTagService.Update(ctx.Ctx(), uid, int(params.TagId), params.TagName)
 	}
 
 	if err != nil {
@@ -71,7 +71,7 @@ func (c *Tag) Delete(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	err := c.service.Delete(ctx.Ctx(), ctx.UserId(), int(params.TagId))
+	err := c.articleTagService.Delete(ctx.Ctx(), ctx.UserId(), int(params.TagId))
 	if err != nil {
 		return ctx.ErrorBusiness(err)
 	}

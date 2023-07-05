@@ -42,7 +42,7 @@ func GenerateToken(guard string, secret string, ops *Options) string {
 // ParseToken 解析 JWT Token
 func ParseToken(token string, secret string) (*AuthClaims, error) {
 
-	data, err := jwt.ParseWithClaims(token, &AuthClaims{}, func(token *jwt.Token) (interface{}, error) {
+	data, err := jwt.ParseWithClaims(token, &AuthClaims{}, func(token *jwt.Token) (any, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}

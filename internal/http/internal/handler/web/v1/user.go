@@ -13,13 +13,13 @@ import (
 )
 
 type User struct {
-	service      *service.UserService
-	smsService   *service.SmsService
-	organizeServ *organize.OrganizeService
+	service         *service.UserService
+	smsService      *service.SmsService
+	organizeService *organize.OrganizeService
 }
 
-func NewUser(service *service.UserService, smsService *service.SmsService, organizeServ *organize.OrganizeService) *User {
-	return &User{service: service, smsService: smsService, organizeServ: organizeServ}
+func NewUser(service *service.UserService, smsService *service.SmsService, organizeService *organize.OrganizeService) *User {
+	return &User{service: service, smsService: smsService, organizeService: organizeService}
 }
 
 // Detail 个人用户信息
@@ -47,9 +47,15 @@ func (u *User) Setting(ctx *ichat.Context) error {
 
 	uid := ctx.UserId()
 
-	user, _ := u.service.Dao().FindById(ctx.Ctx(), uid)
+	user, err := u.service.Dao().FindById(ctx.Ctx(), uid)
+	if err != nil {
+		return ctx.Error(err.Error())
+	}
 
-	isOk, _ := u.organizeServ.Dao().IsQiyeMember(ctx.Ctx(), uid)
+	isOk, err := u.organizeService.Dao().IsQiyeMember(ctx.Ctx(), uid)
+	if err != nil {
+		return ctx.Error(err.Error())
+	}
 
 	return ctx.Success(&web.UserSettingResponse{
 		UserInfo: &web.UserSettingResponse_UserInfo{
@@ -80,7 +86,7 @@ func (u *User) ChangeDetail(ctx *ichat.Context) error {
 		}
 	}
 
-	_, err := u.service.Dao().UpdateById(ctx.Ctx(), ctx.UserId(), map[string]interface{}{
+	_, err := u.service.Dao().UpdateById(ctx.Ctx(), ctx.UserId(), map[string]any{
 		"nickname": strings.TrimSpace(strings.Replace(params.Nickname, " ", "", -1)),
 		"avatar":   params.Avatar,
 		"gender":   params.Gender,
@@ -104,7 +110,6 @@ func (u *User) ChangePassword(ctx *ichat.Context) error {
 	}
 
 	uid := ctx.UserId()
-
 	if uid == 2054 || uid == 2055 {
 		return ctx.ErrorBusiness("预览账号不支持修改密码！")
 	}
@@ -126,17 +131,8 @@ func (u *User) ChangeMobile(ctx *ichat.Context) error {
 
 	uid := ctx.UserId()
 
-	if uid == 2054 || uid == 2055 {
-		return ctx.ErrorBusiness("预览账号不支持修改手机号！")
-	}
-
-	if !u.smsService.Check(ctx.Ctx(), entity.SmsChangeAccountChannel, params.Mobile, params.SmsCode) {
-		return ctx.ErrorBusiness("短信验证码填写错误！")
-	}
-
 	user, _ := u.service.Dao().FindById(ctx.Ctx(), uid)
-
-	if user.Mobile != params.Mobile {
+	if user.Mobile == params.Mobile {
 		return ctx.ErrorBusiness("手机号与原手机号一致无需修改！")
 	}
 
@@ -144,7 +140,15 @@ func (u *User) ChangeMobile(ctx *ichat.Context) error {
 		return ctx.ErrorBusiness("账号密码填写错误！")
 	}
 
-	_, err := u.service.Dao().UpdateById(ctx.Ctx(), user.Id, map[string]interface{}{
+	if uid == 2054 || uid == 2055 {
+		return ctx.ErrorBusiness("预览账号不支持修改手机号！")
+	}
+
+	if !u.smsService.Verify(ctx.Ctx(), entity.SmsChangeAccountChannel, params.Mobile, params.SmsCode) {
+		return ctx.ErrorBusiness("短信验证码填写错误！")
+	}
+
+	_, err := u.service.Dao().UpdateById(ctx.Ctx(), user.Id, map[string]any{
 		"mobile": params.Mobile,
 	})
 
@@ -165,5 +169,5 @@ func (u *User) ChangeEmail(ctx *ichat.Context) error {
 
 	// todo 1.验证邮件激活码是否正确
 
-	return nil
+	return ctx.ErrorBusiness("手机号修改成功！")
 }

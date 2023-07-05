@@ -2,15 +2,15 @@ package event
 
 import (
 	"context"
-	"fmt"
+	"log"
 	"strconv"
 
-	"github.com/go-redis/redis/v8"
+	"github.com/redis/go-redis/v9"
 	"github.com/tidwall/gjson"
 	"go-chat/config"
 	"go-chat/internal/entity"
 	"go-chat/internal/gateway/internal/event/chat"
-	"go-chat/internal/pkg/im"
+	"go-chat/internal/pkg/ichat/socket"
 	"go-chat/internal/pkg/jsonutil"
 	"go-chat/internal/repository/cache"
 	"go-chat/internal/service"
@@ -29,33 +29,33 @@ func NewChatEvent(redis *redis.Client, config *config.Config, roomStorage *cache
 }
 
 // OnOpen 连接成功回调事件
-func (d *ChatEvent) OnOpen(client im.IClient) {
+func (c *ChatEvent) OnOpen(client socket.IClient) {
 
-	ctx := context.Background()
+	ctx := context.TODO()
 
 	// 1.查询用户群列表
-	ids := d.memberService.Dao().GetUserGroupIds(ctx, client.Uid())
+	ids := c.memberService.Dao().GetUserGroupIds(ctx, client.Uid())
 
 	// 2.客户端加入群房间
 	rooms := make([]*cache.RoomOption, 0, len(ids))
 	for _, id := range ids {
 		rooms = append(rooms, &cache.RoomOption{
-			Channel:  im.Session.Chat.Name(),
+			Channel:  socket.Session.Chat.Name(),
 			RoomType: entity.RoomImGroup,
 			Number:   strconv.Itoa(id),
-			Sid:      d.config.ServerId(),
+			Sid:      c.config.ServerId(),
 			Cid:      client.Cid(),
 		})
 	}
 
-	if err := d.roomStorage.BatchAdd(ctx, rooms); err != nil {
-		fmt.Println("加入群聊失败", err.Error())
+	if err := c.roomStorage.BatchAdd(ctx, rooms); err != nil {
+		log.Println("加入群聊失败", err.Error())
 	}
 
 	// 推送上线消息
-	d.redis.Publish(ctx, entity.ImTopicChat, jsonutil.Encode(entity.MapStrAny{
-		"event": entity.EventOnlineStatus,
-		"data": jsonutil.Encode(entity.MapStrAny{
+	c.redis.Publish(ctx, entity.ImTopicChat, jsonutil.Encode(map[string]any{
+		"event": entity.SubEventContactStatus,
+		"data": jsonutil.Encode(map[string]any{
 			"user_id": client.Uid(),
 			"status":  1,
 		}),
@@ -63,45 +63,48 @@ func (d *ChatEvent) OnOpen(client im.IClient) {
 }
 
 // OnMessage 消息回调事件
-func (d *ChatEvent) OnMessage(client im.IClient, message []byte) {
+func (c *ChatEvent) OnMessage(client socket.IClient, message []byte) {
 
 	// 获取事件名
 	event := gjson.GetBytes(message, "event").String()
 	if event != "" {
 		// 触发事件
-		d.handler.Call(context.Background(), client, event, message)
+		c.handler.Call(context.TODO(), client, event, message)
 	}
 }
 
 // OnClose 连接关闭回调事件
-func (d *ChatEvent) OnClose(client im.IClient, code int, text string) {
+func (c *ChatEvent) OnClose(client socket.IClient, code int, text string) {
+
+	log.Println("client close: ", client.Uid(), client.Cid(), client.Channel().Name(), code, text)
+
+	ctx := context.TODO()
+
 	// 1.判断用户是否是多点登录
 
-	ctx := context.Background()
-
 	// 2.查询用户群列表
-	ids := d.memberService.Dao().GetUserGroupIds(ctx, client.Uid())
+	ids := c.memberService.Dao().GetUserGroupIds(ctx, client.Uid())
 
 	// 3.客户端退出群房间
 	rooms := make([]*cache.RoomOption, 0, len(ids))
 	for _, id := range ids {
 		rooms = append(rooms, &cache.RoomOption{
-			Channel:  im.Session.Chat.Name(),
+			Channel:  socket.Session.Chat.Name(),
 			RoomType: entity.RoomImGroup,
 			Number:   strconv.Itoa(id),
-			Sid:      d.config.ServerId(),
+			Sid:      c.config.ServerId(),
 			Cid:      client.Cid(),
 		})
 	}
 
-	if err := d.roomStorage.BatchDel(ctx, rooms); err != nil {
-		fmt.Println("退出群聊失败", err.Error())
+	if err := c.roomStorage.BatchDel(ctx, rooms); err != nil {
+		log.Println("退出群聊失败", err.Error())
 	}
 
 	// 推送下线消息
-	d.redis.Publish(ctx, entity.ImTopicChat, jsonutil.Encode(entity.MapStrAny{
-		"event": entity.EventOnlineStatus,
-		"data": jsonutil.Encode(entity.MapStrAny{
+	c.redis.Publish(ctx, entity.ImTopicChat, jsonutil.Encode(map[string]any{
+		"event": entity.SubEventContactStatus,
+		"data": jsonutil.Encode(map[string]any{
 			"user_id": client.Uid(),
 			"status":  0,
 		}),

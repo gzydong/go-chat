@@ -1,8 +1,8 @@
 package v1
 
 import (
+	"go-chat/api/pb/open/v1"
 	"go-chat/api/pb/web/v1"
-	"go-chat/internal/entity"
 	"go-chat/internal/pkg/ichat"
 )
 
@@ -14,10 +14,13 @@ func NewIndex() *Index {
 }
 
 func (c *Index) Index(ctx *ichat.Context) error {
-	return ctx.Success(entity.H{
-		"uid":      ctx.UserId(),
-		"is_guest": ctx.IsGuest(),
-	})
+
+	var in open.IndexRequest
+	if err := ctx.Context.ShouldBind(&in); err != nil {
+		return ctx.InvalidParams(err)
+	}
+
+	return ctx.Success(&in)
 }
 
 func (c *Index) Proto(ctx *ichat.Context) error {

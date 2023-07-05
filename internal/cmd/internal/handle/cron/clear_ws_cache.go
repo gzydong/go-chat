@@ -18,7 +18,7 @@ func NewClearWsCache(storage *cache.ServerStorage) *ClearWsCache {
 // Spec 配置定时任务规则
 // 每隔30分钟处理 websocket 缓存
 func (c *ClearWsCache) Spec() string {
-	return "*/30 * * * *"
+	return "* * * * *"
 }
 
 func (c *ClearWsCache) Enable() bool {
@@ -28,15 +28,27 @@ func (c *ClearWsCache) Enable() bool {
 func (c *ClearWsCache) Handle(ctx context.Context) error {
 
 	for _, sid := range c.storage.GetExpireServerAll(ctx) {
-
-		iter := c.storage.Redis().Scan(ctx, 0, fmt.Sprintf("ws:%s:*", sid), 100).Iterator()
-
-		for iter.Next(ctx) {
-			c.storage.Redis().Del(ctx, iter.Val())
-		}
-
-		_ = c.storage.DelExpireServer(ctx, sid)
+		c.clear(ctx, sid)
 	}
 
 	return nil
+}
+
+func (c *ClearWsCache) clear(ctx context.Context, sid string) {
+	var cursor uint64
+	for {
+		var keys []string
+		var err error
+		keys, cursor, err = c.storage.Redis().Scan(ctx, cursor, fmt.Sprintf("ws:%s:*", sid), 200).Result()
+		if err != nil {
+			return
+		}
+
+		c.storage.Redis().Del(ctx, keys...)
+
+		if cursor == 0 {
+			_ = c.storage.DelExpireServer(ctx, sid)
+			break
+		}
+	}
 }

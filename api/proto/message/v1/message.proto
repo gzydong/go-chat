@@ -19,15 +19,15 @@ message TextMessageRequest{
     repeated int32 uids = 2;
   }
 
-  int32 type = 1;
+  string type = 1;
   string content = 2 [(tagger.tags) = "binding:\"required\""];
   Mention mention = 3;
   MessageReceiver receiver = 4;// 消息接收者
 }
 
-// 代码消息
+// 图片消息
 message ImageMessageRequest{
-  int32 type = 1;
+  string type = 1;
   string url = 2 [(tagger.tags) = "binding:\"required\""]; // 图片地址
   int32 width = 3 [(tagger.tags) = "binding:\"required\""]; // 图片宽度
   int32 height = 4 [(tagger.tags) = "binding:\"required\""]; // 图片高度
@@ -37,7 +37,7 @@ message ImageMessageRequest{
 
 // 语音消息
 message VoiceMessageRequest{
-  int32 type = 1;
+  string type = 1;
   string url = 2 [(tagger.tags) = "binding:\"required\""];
   int32 duration = 3 [(tagger.tags) = "binding:\"required,gt=0\""];
   int32 size = 4 [(tagger.tags) = "binding:\"required\""]; // 图片大小
@@ -46,7 +46,7 @@ message VoiceMessageRequest{
 
 // 视频文件消息
 message VideoMessageRequest{
-  int32 type = 1;
+  string type = 1;
   string url = 2 [(tagger.tags) = "binding:\"required\""];
   int32 duration = 3 [(tagger.tags) = "binding:\"required,gt=0\""];
   int32 size = 4 [(tagger.tags) = "binding:\"required\""]; // 图片大小
@@ -55,14 +55,14 @@ message VideoMessageRequest{
 
 // 文件消息
 message FileMessageRequest{
-  int32 type = 1;
+  string type = 1;
   string upload_id = 2 [(tagger.tags) = "binding:\"required\""];
   MessageReceiver receiver = 5;// 消息接收者
 }
 
 // 代码消息
 message CodeMessageRequest{
-  int32 type = 1;
+  string type = 1;
   string lang = 2 [(tagger.tags) = "binding:\"required\""];
   string code = 3 [(tagger.tags) = "binding:\"required\""];
   MessageReceiver receiver = 5;// 消息接收者
@@ -70,7 +70,7 @@ message CodeMessageRequest{
 
 // 位置消息
 message LocationMessageRequest{
-  int32 type = 1;
+  string type = 1;
   string longitude = 2 [(tagger.tags) = "binding:\"required\""];  // 地理位置 经度
   string latitude = 3 [(tagger.tags) = "binding:\"required\""]; // 地理位置 纬度
   string description = 4 [(tagger.tags) = "binding:\"required\""]; // 位置描述
@@ -79,7 +79,7 @@ message LocationMessageRequest{
 
 // 转发消息
 message ForwardMessageRequest{
-  int32 type = 1;
+  string type = 1;
   int32 mode = 2 [(tagger.tags) = "binding:\"required\""];   // 转发模式
   repeated int32 message_ids = 3 [(tagger.tags) = "binding:\"required\""];  // 消息ID
   repeated int32 gids = 4; // 群ID列表
@@ -89,7 +89,7 @@ message ForwardMessageRequest{
 
 // 投票消息
 message VoteMessageRequest{
-  int32 type = 1;
+  string type = 1;
   string title = 2 [(tagger.tags) = "binding:\"required\""];  // 标题
   int32 mode = 3 [(tagger.tags) = "binding:\"required\""]; // 投票模式
   int32 anonymous = 4 [(tagger.tags) = "binding:\"required\""]; // 匿名投票
@@ -108,7 +108,27 @@ message LoginMessageRequest{
 
 // 表情消息
 message EmoticonMessageRequest{
-  int32 type = 1;
+  string type = 1;
   int32 emoticon_id = 2 [(tagger.tags) = "binding:\"required\""]; // 投票模式
   MessageReceiver receiver = 3;// 消息接收者
+}
+
+
+// 位置消息
+message CardMessageRequest{
+  string type = 1;
+  int32 user_id = 2 [(tagger.tags) = "binding:\"required\""];
+  MessageReceiver receiver = 3;
+}
+
+// 图文消息
+message MixedMessageRequest{
+  message Item{
+    int32 type = 1;
+    string content = 2;
+  }
+
+  string type = 1;
+  repeated Item items = 2;
+  MessageReceiver receiver = 3;
 }

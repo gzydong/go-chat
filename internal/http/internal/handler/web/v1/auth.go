@@ -18,21 +18,20 @@ import (
 )
 
 type Auth struct {
-	config             *config.Config
-	userService        *service.UserService
-	smsService         *service.SmsService
-	session            *cache.TokenSessionStorage
-	redisLock          *cache.RedisLock
-	talkMessageService *service.TalkMessageService
-	ipAddressService   *service.IpAddressService
-	talkSessionService *service.TalkSessionService
-	noteClassService   *note.ArticleClassService
-	robotRepo          *repo.Robot
-	message            *service.MessageService
+	config              *config.Config
+	userService         *service.UserService
+	smsService          *service.SmsService
+	jwtTokenStorage     *cache.JwtTokenStorage
+	redisLock           *cache.RedisLock
+	ipAddressService    *service.IpAddressService
+	talkSessionService  *service.TalkSessionService
+	articleClassService *note.ArticleClassService
+	robotRepo           *repo.Robot
+	messageService      *service.MessageService
 }
 
-func NewAuth(config *config.Config, userService *service.UserService, smsService *service.SmsService, session *cache.TokenSessionStorage, redisLock *cache.RedisLock, talkMessageService *service.TalkMessageService, ipAddressService *service.IpAddressService, talkSessionService *service.TalkSessionService, noteClassService *note.ArticleClassService, robotDao *repo.Robot, message *service.MessageService) *Auth {
-	return &Auth{config: config, userService: userService, smsService: smsService, session: session, redisLock: redisLock, talkMessageService: talkMessageService, ipAddressService: ipAddressService, talkSessionService: talkSessionService, noteClassService: noteClassService, robotRepo: robotDao, message: message}
+func NewAuth(config *config.Config, userService *service.UserService, smsService *service.SmsService, jwtTokenStorage *cache.JwtTokenStorage, redisLock *cache.RedisLock, ipAddressService *service.IpAddressService, talkSessionService *service.TalkSessionService, articleClassService *note.ArticleClassService, robotRepo *repo.Robot, messageService *service.MessageService) *Auth {
+	return &Auth{config: config, userService: userService, smsService: smsService, jwtTokenStorage: jwtTokenStorage, redisLock: redisLock, ipAddressService: ipAddressService, talkSessionService: talkSessionService, articleClassService: articleClassService, robotRepo: robotRepo, messageService: messageService}
 }
 
 // Login 登录接口
@@ -48,6 +47,7 @@ func (c *Auth) Login(ctx *ichat.Context) error {
 		return ctx.ErrorBusiness(err.Error())
 	}
 
+	// TODO 这里需需要异步处理
 	root, _ := c.robotRepo.GetLoginRobot(ctx.Ctx())
 	if root != nil {
 		ip := ctx.Context.ClientIP()
@@ -62,7 +62,7 @@ func (c *Auth) Login(ctx *ichat.Context) error {
 		})
 
 		// 推送登录消息
-		_ = c.message.SendLogin(ctx.Ctx(), user.Id, &message.LoginMessageRequest{
+		_ = c.messageService.SendLogin(ctx.Ctx(), user.Id, &message.LoginMessageRequest{
 			Ip:       ip,
 			Address:  address,
 			Platform: params.Platform,
@@ -87,11 +87,11 @@ func (c *Auth) Register(ctx *ichat.Context) error {
 	}
 
 	// 验证短信验证码是否正确
-	if !c.smsService.Check(ctx.Ctx(), entity.SmsRegisterChannel, params.Mobile, params.SmsCode) {
+	if !c.smsService.Verify(ctx.Ctx(), entity.SmsRegisterChannel, params.Mobile, params.SmsCode) {
 		return ctx.InvalidParams("短信验证码填写错误！")
 	}
 
-	if _, err := c.userService.Register(&service.UserRegisterOpt{
+	if _, err := c.userService.Register(ctx.Ctx(), &service.UserRegisterOpt{
 		Nickname: params.Nickname,
 		Mobile:   params.Mobile,
 		Password: params.Password,
@@ -134,7 +134,7 @@ func (c *Auth) Forget(ctx *ichat.Context) error {
 	}
 
 	// 验证短信验证码是否正确
-	if !c.smsService.Check(ctx.Ctx(), entity.SmsForgetAccountChannel, params.Mobile, params.SmsCode) {
+	if !c.smsService.Verify(ctx.Ctx(), entity.SmsForgetAccountChannel, params.Mobile, params.SmsCode) {
 		return ctx.InvalidParams("短信验证码填写错误！")
 	}
 
@@ -171,9 +171,8 @@ func (c *Auth) toBlackList(ctx *ichat.Context) {
 
 	session := ctx.JwtSession()
 	if session != nil {
-		ex := session.ExpiresAt - time.Now().Unix()
-
-		// 将 session 加入黑名单
-		_ = c.session.SetBlackList(ctx.Ctx(), session.Token, time.Duration(ex)*time.Second)
+		if ex := session.ExpiresAt - time.Now().Unix(); ex > 0 {
+			_ = c.jwtTokenStorage.SetBlackList(ctx.Ctx(), session.Token, time.Duration(ex)*time.Second)
+		}
 	}
 }

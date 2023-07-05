@@ -59,12 +59,14 @@ message ContactDetailResponse{
   int32 id = 1;
   string mobile = 2;
   string nickname = 3;
-  string nickname_remark = 4;
+  string remark = 4;
   string avatar = 5;
   int32 gender = 6;
   string motto = 7;
   int32 friend_apply = 8;
   int32 friend_status = 9;
+  int32 group_id = 10;
+  int32 email = 11;
 }
 
 // 联系人搜索接口请求参数
@@ -81,3 +83,13 @@ message ContactSearchResponse{
   int32 gender = 6;
   string motto = 7;
 }
+
+
+// 修改联系人分组接口请求参数
+message ContactChangeGroupRequest{
+  int32 user_id = 1 [(tagger.tags) = "form:\"user_id\" binding:\"required\""];
+  int32 group_id = 2 [(tagger.tags) = "form:\"group_id\""];
+}
+
+// 修改联系人分组接口响应参数
+message ContactChangeGroupResponse{}

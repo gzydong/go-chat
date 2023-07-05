@@ -9,21 +9,21 @@ import (
 )
 
 type GroupMemberService struct {
-	*BaseService
-	repo *repo.GroupMember
+	*repo.Source
+	member *repo.GroupMember
 }
 
-func NewGroupMemberService(baseService *BaseService, repo *repo.GroupMember) *GroupMemberService {
-	return &GroupMemberService{BaseService: baseService, repo: repo}
+func NewGroupMemberService(source *repo.Source, repo *repo.GroupMember) *GroupMemberService {
+	return &GroupMemberService{Source: source, member: repo}
 }
 
-func (s *GroupMemberService) Dao() *repo.GroupMember {
-	return s.repo
+func (g *GroupMemberService) Dao() *repo.GroupMember {
+	return g.member
 }
 
 // Handover 交接群主权限
-func (s *GroupMemberService) Handover(ctx context.Context, groupId int, userId int, memberId int) error {
-	return s.Db().WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+func (g *GroupMemberService) Handover(ctx context.Context, groupId int, userId int, memberId int) error {
+	return g.Db().WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 
 		err := tx.Model(&model.GroupMember{}).Where("group_id = ? and user_id = ? and leader = 2", groupId, userId).Update("leader", 0).Error
 		if err != nil {
@@ -39,10 +39,10 @@ func (s *GroupMemberService) Handover(ctx context.Context, groupId int, userId i
 	})
 }
 
-func (s *GroupMemberService) UpdateLeaderStatus(groupId int, userId int, leader int) error {
-	return s.repo.Model(context.Background()).Where("group_id = ? and user_id = ?", groupId, userId).UpdateColumn("leader", leader).Error
+func (g *GroupMemberService) UpdateLeaderStatus(groupId int, userId int, leader int) error {
+	return g.member.Model(context.TODO()).Where("group_id = ? and user_id = ?", groupId, userId).UpdateColumn("leader", leader).Error
 }
 
-func (s *GroupMemberService) UpdateMuteStatus(groupId int, userId int, status int) error {
-	return s.repo.Model(context.Background()).Where("group_id = ? and user_id = ?", groupId, userId).UpdateColumn("is_mute", status).Error
+func (g *GroupMemberService) UpdateMuteStatus(groupId int, userId int, status int) error {
+	return g.member.Model(context.TODO()).Where("group_id = ? and user_id = ?", groupId, userId).UpdateColumn("is_mute", status).Error
 }

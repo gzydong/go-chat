@@ -32,7 +32,7 @@ type IAdapter interface {
 	PublicUrl(filePath string) string
 
 	// PrivateUrl 获取私有文件的访问地址
-	PrivateUrl(filePath string, timeout int) string
+	PrivateUrl(filePath string, timeout time.Duration) string
 
 	// ReadStream 读取文件内容
 	ReadStream(filePath string) ([]byte, error)

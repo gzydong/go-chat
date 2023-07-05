@@ -4,14 +4,14 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/go-redis/redis/v8"
+	"github.com/redis/go-redis/v9"
 	"go-chat/internal/pkg/jsonutil"
 )
 
 const lastMessageCacheKey = "redis:hash:last-message"
 
 type MessageStorage struct {
-	rds *redis.Client
+	redis *redis.Client
 }
 
 type LastCacheMessage struct {
@@ -23,27 +23,15 @@ func NewMessageStorage(rds *redis.Client) *MessageStorage {
 	return &MessageStorage{rds}
 }
 
-func (m *MessageStorage) name(talkType int, sender int, receive int) string {
-	if talkType == 2 {
-		sender = 0
-	}
-
-	if sender > receive {
-		sender, receive = receive, sender
-	}
-
-	return fmt.Sprintf("%d_%d_%d", talkType, sender, receive)
-}
-
 func (m *MessageStorage) Set(ctx context.Context, talkType int, sender int, receive int, message *LastCacheMessage) error {
 	text := jsonutil.Encode(message)
 
-	return m.rds.HSet(ctx, lastMessageCacheKey, m.name(talkType, sender, receive), text).Err()
+	return m.redis.HSet(ctx, lastMessageCacheKey, m.name(talkType, sender, receive), text).Err()
 }
 
 func (m *MessageStorage) Get(ctx context.Context, talkType int, sender int, receive int) (*LastCacheMessage, error) {
 
-	res, err := m.rds.HGet(ctx, lastMessageCacheKey, m.name(talkType, sender, receive)).Result()
+	res, err := m.redis.HGet(ctx, lastMessageCacheKey, m.name(talkType, sender, receive)).Result()
 	if err != nil {
 		return nil, err
 	}
@@ -58,11 +46,10 @@ func (m *MessageStorage) Get(ctx context.Context, talkType int, sender int, rece
 
 func (m *MessageStorage) MGet(ctx context.Context, fields []string) ([]*LastCacheMessage, error) {
 
-	res := m.rds.HMGet(ctx, lastMessageCacheKey, fields...)
+	res := m.redis.HMGet(ctx, lastMessageCacheKey, fields...)
 
 	items := make([]*LastCacheMessage, 0)
 	for _, item := range res.Val() {
-
 		if val, ok := item.(string); ok {
 			msg := &LastCacheMessage{}
 			if err := jsonutil.Decode(val, msg); err != nil {
@@ -74,4 +61,16 @@ func (m *MessageStorage) MGet(ctx context.Context, fields []string) ([]*LastCach
 	}
 
 	return items, nil
+}
+
+func (m *MessageStorage) name(talkType int, sender int, receive int) string {
+	if talkType == 2 {
+		sender = 0
+	}
+
+	if sender > receive {
+		sender, receive = receive, sender
+	}
+
+	return fmt.Sprintf("%d_%d_%d", talkType, sender, receive)
 }

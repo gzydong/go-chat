@@ -1,13 +1,12 @@
 package handler
 
 import (
-	"context"
+	"log"
 
 	"go-chat/internal/gateway/internal/event"
 	"go-chat/internal/pkg/ichat"
-	"go-chat/internal/pkg/im"
-	"go-chat/internal/pkg/im/adapter"
-	"go-chat/internal/pkg/logger"
+	"go-chat/internal/pkg/ichat/socket"
+	"go-chat/internal/pkg/ichat/socket/adapter"
 	"go-chat/internal/repository/cache"
 )
 
@@ -20,38 +19,31 @@ func NewChatChannel(storage *cache.ClientStorage, event *event.ChatEvent) *ChatC
 	return &ChatChannel{storage: storage, event: event}
 }
 
-// WsConn 初始化连接
-func (c *ChatChannel) WsConn(ctx *ichat.Context) error {
+// Conn 初始化连接
+func (c *ChatChannel) Conn(ctx *ichat.Context) error {
 
 	conn, err := adapter.NewWsAdapter(ctx.Context.Writer, ctx.Context.Request)
 	if err != nil {
-		logger.Errorf("websocket connect error: %s", err.Error())
-		return nil
+		log.Printf("websocket connect error: %s", err.Error())
+		return err
 	}
 
-	// 创建客户端
-	c.client(ctx.Ctx(), ctx.UserId(), conn)
-
-	return nil
+	return c.NewClient(ctx.UserId(), conn)
 }
 
-// TcpConn 初始化连接
-func (c *ChatChannel) TcpConn(ctx context.Context, uid int, conn *adapter.TcpAdapter) {
-	c.client(ctx, uid, conn)
-}
+func (c *ChatChannel) NewClient(uid int, conn socket.IConn) error {
 
-func (c *ChatChannel) client(ctx context.Context, uid int, conn im.IConn) {
-	im.NewClient(ctx, conn, &im.ClientOption{
+	return socket.NewClient(conn, &socket.ClientOption{
 		Uid:     uid,
-		Channel: im.Session.Chat,
+		Channel: socket.Session.Chat,
 		Storage: c.storage,
 		Buffer:  10,
-	}, im.NewClientCallback(
-		// 连接成功回调事件
-		im.WithOpenCallback(c.event.OnOpen),
+	}, socket.NewEvent(
+		// 连接成功回调
+		socket.WithOpenEvent(c.event.OnOpen),
 		// 接收消息回调
-		im.WithMessageCallback(c.event.OnMessage),
+		socket.WithMessageEvent(c.event.OnMessage),
 		// 关闭连接回调
-		im.WithCloseCallback(c.event.OnClose),
+		socket.WithCloseEvent(c.event.OnClose),
 	))
 }

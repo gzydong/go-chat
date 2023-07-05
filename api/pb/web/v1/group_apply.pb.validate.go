@@ -895,6 +895,142 @@ var _ interface {
 	ErrorName() string
 } = GroupApplyListResponseValidationError{}
 
+// Validate checks the field values on GroupApplyAllResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GroupApplyAllResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GroupApplyAllResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GroupApplyAllResponseMultiError, or nil if none found.
+func (m *GroupApplyAllResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GroupApplyAllResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	for idx, item := range m.GetItems() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, GroupApplyAllResponseValidationError{
+						field:  fmt.Sprintf("Items[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, GroupApplyAllResponseValidationError{
+						field:  fmt.Sprintf("Items[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return GroupApplyAllResponseValidationError{
+					field:  fmt.Sprintf("Items[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	if len(errors) > 0 {
+		return GroupApplyAllResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// GroupApplyAllResponseMultiError is an error wrapping multiple validation
+// errors returned by GroupApplyAllResponse.ValidateAll() if the designated
+// constraints aren't met.
+type GroupApplyAllResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GroupApplyAllResponseMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GroupApplyAllResponseMultiError) AllErrors() []error { return m }
+
+// GroupApplyAllResponseValidationError is the validation error returned by
+// GroupApplyAllResponse.Validate if the designated constraints aren't met.
+type GroupApplyAllResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GroupApplyAllResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GroupApplyAllResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GroupApplyAllResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GroupApplyAllResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GroupApplyAllResponseValidationError) ErrorName() string {
+	return "GroupApplyAllResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GroupApplyAllResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGroupApplyAllResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GroupApplyAllResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GroupApplyAllResponseValidationError{}
+
 // Validate checks the field values on GroupApplyListResponse_Item with the
 // rules defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
@@ -1011,3 +1147,121 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = GroupApplyListResponse_ItemValidationError{}
+
+// Validate checks the field values on GroupApplyAllResponse_Item with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GroupApplyAllResponse_Item) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GroupApplyAllResponse_Item with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GroupApplyAllResponse_ItemMultiError, or nil if none found.
+func (m *GroupApplyAllResponse_Item) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GroupApplyAllResponse_Item) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Id
+
+	// no validation rules for UserId
+
+	// no validation rules for GroupId
+
+	// no validation rules for GroupName
+
+	// no validation rules for Remark
+
+	// no validation rules for Avatar
+
+	// no validation rules for Nickname
+
+	// no validation rules for CreatedAt
+
+	if len(errors) > 0 {
+		return GroupApplyAllResponse_ItemMultiError(errors)
+	}
+
+	return nil
+}
+
+// GroupApplyAllResponse_ItemMultiError is an error wrapping multiple
+// validation errors returned by GroupApplyAllResponse_Item.ValidateAll() if
+// the designated constraints aren't met.
+type GroupApplyAllResponse_ItemMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GroupApplyAllResponse_ItemMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GroupApplyAllResponse_ItemMultiError) AllErrors() []error { return m }
+
+// GroupApplyAllResponse_ItemValidationError is the validation error returned
+// by GroupApplyAllResponse_Item.Validate if the designated constraints aren't met.
+type GroupApplyAllResponse_ItemValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GroupApplyAllResponse_ItemValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GroupApplyAllResponse_ItemValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GroupApplyAllResponse_ItemValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GroupApplyAllResponse_ItemValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GroupApplyAllResponse_ItemValidationError) ErrorName() string {
+	return "GroupApplyAllResponse_ItemValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GroupApplyAllResponse_ItemValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGroupApplyAllResponse_Item.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GroupApplyAllResponse_ItemValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GroupApplyAllResponse_ItemValidationError{}

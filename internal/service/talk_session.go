@@ -4,10 +4,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"strconv"
 	"strings"
 	"time"
 
+	"go-chat/internal/pkg/strutil"
 	"go-chat/internal/pkg/timeutil"
 	"go-chat/internal/repository/model"
 	"go-chat/internal/repository/repo"
@@ -15,23 +15,19 @@ import (
 )
 
 type TalkSessionService struct {
-	*BaseService
-	repo *repo.TalkSession
+	*repo.Source
+	talkSession *repo.TalkSession
 }
 
-func NewTalkSessionService(base *BaseService, repo *repo.TalkSession) *TalkSessionService {
-	return &TalkSessionService{base, repo}
+func NewTalkSessionService(source *repo.Source, talkSession *repo.TalkSession) *TalkSessionService {
+	return &TalkSessionService{source, talkSession}
 }
 
 func (s *TalkSessionService) Dao() *repo.TalkSession {
-	return s.repo
+	return s.talkSession
 }
 
 func (s *TalkSessionService) List(ctx context.Context, uid int) ([]*model.SearchTalkSession, error) {
-	var (
-		err   error
-		items = make([]*model.SearchTalkSession, 0)
-	)
 
 	fields := []string{
 		"list.id", "list.talk_type", "list.receiver_id", "list.updated_at",
@@ -40,13 +36,14 @@ func (s *TalkSessionService) List(ctx context.Context, uid int) ([]*model.Search
 		"`group`.group_name", "`group`.avatar as group_avatar",
 	}
 
-	query := s.db.Table("talk_session list")
+	query := s.Db().WithContext(ctx).Table("talk_session list")
 	query.Joins("left join `users` ON list.receiver_id = `users`.id AND list.talk_type = 1")
 	query.Joins("left join `group` ON list.receiver_id = `group`.id AND list.talk_type = 2")
 	query.Where("list.user_id = ? and list.is_delete = 0", uid)
 	query.Order("list.updated_at desc")
 
-	if err = query.Select(fields).Scan(&items).Error; err != nil {
+	var items []*model.SearchTalkSession
+	if err := query.Select(fields).Scan(&items).Error; err != nil {
 		return nil, err
 	}
 
@@ -61,44 +58,35 @@ type TalkSessionCreateOpt struct {
 }
 
 // Create 创建会话列表
-func (s *TalkSessionService) Create(ctx context.Context, opts *TalkSessionCreateOpt) (*model.TalkSession, error) {
-	var (
-		err    error
-		result *model.TalkSession
-	)
+func (s *TalkSessionService) Create(ctx context.Context, opt *TalkSessionCreateOpt) (*model.TalkSession, error) {
 
-	err = s.db.Where(&model.TalkSession{
-		TalkType:   opts.TalkType,
-		UserId:     opts.UserId,
-		ReceiverId: opts.ReceiverId,
-	}).First(&result).Error
-
+	result, err := s.talkSession.FindByWhere(ctx, "talk_type = ? and user_id = ? and receiver_id = ?", opt.TalkType, opt.UserId, opt.ReceiverId)
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, err
 	}
 
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		result = &model.TalkSession{
-			TalkType:   opts.TalkType,
-			UserId:     opts.UserId,
-			ReceiverId: opts.ReceiverId,
+			TalkType:   opt.TalkType,
+			UserId:     opt.UserId,
+			ReceiverId: opt.ReceiverId,
 		}
 
-		if opts.IsBoot {
+		if opt.IsBoot {
 			result.IsRobot = 1
 		}
 
-		s.db.Create(result)
+		s.Db().WithContext(ctx).Create(result)
 	} else {
 		result.IsTop = 0
 		result.IsDelete = 0
 		result.IsDisturb = 0
 
-		if opts.IsBoot {
+		if opt.IsBoot {
 			result.IsRobot = 1
 		}
 
-		s.db.Save(result)
+		s.Db().WithContext(ctx).Save(result)
 	}
 
 	return result, nil
@@ -106,10 +94,8 @@ func (s *TalkSessionService) Create(ctx context.Context, opts *TalkSessionCreate
 
 // Delete 删除会话
 func (s *TalkSessionService) Delete(ctx context.Context, uid int, id int) error {
-	return s.db.Model(&model.TalkSession{}).Where("id = ? and user_id = ?", id, uid).Updates(map[string]interface{}{
-		"is_delete":  1,
-		"updated_at": time.Now(),
-	}).Error
+	_, err := s.talkSession.UpdateWhere(ctx, map[string]any{"is_delete": 1, "updated_at": time.Now()}, "id = ? and user_id = ?", id, uid)
+	return err
 }
 
 type TalkSessionTopOpt struct {
@@ -119,20 +105,11 @@ type TalkSessionTopOpt struct {
 }
 
 // Top 会话置顶
-func (s *TalkSessionService) Top(ctx context.Context, opts *TalkSessionTopOpt) error {
-
-	isTop := 0
-
-	if opts.Type == 1 {
-		isTop = 1
-	}
-
-	err := s.db.Model(&model.TalkSession{}).Where("id = ? and user_id = ?", opts.Id, opts.UserId).
-		Updates(map[string]interface{}{
-			"is_top":     isTop,
-			"updated_at": time.Now(),
-		}).Error
-
+func (s *TalkSessionService) Top(ctx context.Context, opt *TalkSessionTopOpt) error {
+	_, err := s.talkSession.UpdateWhere(ctx, map[string]any{
+		"is_top":     strutil.BoolToInt(opt.Type == 1),
+		"updated_at": time.Now(),
+	}, "id = ? and user_id = ?", opt.Id, opt.UserId)
 	return err
 }
 
@@ -144,14 +121,11 @@ type TalkSessionDisturbOpt struct {
 }
 
 // Disturb 会话免打扰
-func (s *TalkSessionService) Disturb(ctx context.Context, opts *TalkSessionDisturbOpt) error {
-	err := s.db.Model(&model.TalkSession{}).
-		Where("user_id = ? and receiver_id = ? and talk_type = ?", opts.UserId, opts.ReceiverId, opts.TalkType).
-		Updates(map[string]interface{}{
-			"is_disturb": opts.IsDisturb,
-			"updated_at": time.Now(),
-		}).Error
-
+func (s *TalkSessionService) Disturb(ctx context.Context, opt *TalkSessionDisturbOpt) error {
+	_, err := s.talkSession.UpdateWhere(ctx, map[string]any{
+		"is_disturb": opt.IsDisturb,
+		"updated_at": time.Now(),
+	}, "user_id = ? and receiver_id = ? and talk_type = ?", opt.UserId, opt.ReceiverId, opt.TalkType)
 	return err
 }
 
@@ -171,17 +145,12 @@ func (s *TalkSessionService) BatchAddList(ctx context.Context, uid int, values m
 			continue
 		}
 
-		talkType, _ := strconv.Atoi(value[0])
-		receiverId, _ := strconv.Atoi(value[1])
-
-		data = append(data, fmt.Sprintf("(%d, %d, %d, '%s', '%s')", talkType, uid, receiverId, ctime, ctime))
+		data = append(data, fmt.Sprintf("(%s, %d, %s, '%s', '%s')", value[0], uid, value[1], ctime, ctime))
 	}
 
 	if len(data) == 0 {
 		return
 	}
 
-	sql := fmt.Sprintf("INSERT INTO talk_session ( `talk_type`, `user_id`, `receiver_id`, created_at, updated_at ) VALUES %s ON DUPLICATE KEY UPDATE is_delete = 0, updated_at = '%s';", strings.Join(data, ","), ctime)
-
-	s.db.Exec(sql)
+	s.Db().WithContext(ctx).Exec(fmt.Sprintf("INSERT INTO talk_session ( `talk_type`, `user_id`, `receiver_id`, created_at, updated_at ) VALUES %s ON DUPLICATE KEY UPDATE is_delete = 0, updated_at = '%s'", strings.Join(data, ","), ctime))
 }

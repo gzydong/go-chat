@@ -51,3 +51,12 @@ func (o *Organize) IsQiyeMember(ctx context.Context, uid ...int) (bool, error) {
 
 	return int(count) == len(uid), nil
 }
+
+func (o *Organize) GetMemberIds(ctx context.Context) ([]int64, error) {
+	var ids []int64
+	if err := o.Db.WithContext(ctx).Table("organize").Pluck("user_id", &ids).Error; err != nil {
+		return nil, err
+	}
+
+	return ids, nil
+}

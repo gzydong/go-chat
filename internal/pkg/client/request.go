@@ -87,7 +87,7 @@ func (c *RequestClient) Post(url string, params *url.Values) ([]byte, error) {
 	return res, nil
 }
 
-func (c *RequestClient) PostJson(url string, params interface{}) ([]byte, error) {
+func (c *RequestClient) PostJson(url string, params any) ([]byte, error) {
 	text, _ := json.Marshal(params)
 
 	req, _ := http.NewRequest("POST", url, strings.NewReader(string(text)))

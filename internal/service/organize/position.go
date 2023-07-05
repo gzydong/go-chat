@@ -1,17 +1,17 @@
 package organize
 
 import (
+	"go-chat/internal/repository/repo"
 	"go-chat/internal/repository/repo/organize"
-	"go-chat/internal/service"
 )
 
 type PositionService struct {
-	*service.BaseService
+	*repo.Source
 	dao *organize.Position
 }
 
-func NewPositionService(baseService *service.BaseService, dao *organize.Position) *PositionService {
-	return &PositionService{BaseService: baseService, dao: dao}
+func NewPositionService(source *repo.Source, dao *organize.Position) *PositionService {
+	return &PositionService{Source: source, dao: dao}
 }
 
 func (s *PositionService) Dao() *organize.Position {

@@ -4,6 +4,14 @@ import (
 	"time"
 )
 
+const (
+	GroupMemberQuitStatusYes = 1
+	GroupMemberQuitStatusNo  = 0
+
+	GroupMemberMuteStatusYes = 1
+	GroupMemberMuteStatusNo  = 0
+)
+
 type GroupMember struct {
 	Id          int       `gorm:"column:id;primary_key;AUTO_INCREMENT" json:"id"`               // 自增ID
 	GroupId     int       `gorm:"column:group_id;default:0;NOT NULL" json:"group_id"`           // 群组ID
@@ -24,7 +32,7 @@ func (GroupMember) TableName() string {
 
 type MemberItem struct {
 	Id       string `json:"id"`
-	UserId   string `json:"user_id"`
+	UserId   int    `json:"user_id"`
 	Avatar   string `json:"avatar"`
 	Nickname string `json:"nickname"`
 	Gender   int    `json:"gender"`

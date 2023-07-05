@@ -6,77 +6,73 @@ import (
 	"time"
 
 	"go-chat/internal/entity"
+	"go-chat/internal/pkg/jsonutil"
 	"go-chat/internal/pkg/sliceutil"
 	"go-chat/internal/repository/model"
 	"go-chat/internal/repository/repo"
 )
 
 type TalkService struct {
-	*BaseService
+	*repo.Source
 	groupMemberRepo *repo.GroupMember
 }
 
-func NewTalkService(baseService *BaseService, groupMemberRepo *repo.GroupMember) *TalkService {
-	return &TalkService{BaseService: baseService, groupMemberRepo: groupMemberRepo}
+func NewTalkService(source *repo.Source, groupMemberRepo *repo.GroupMember) *TalkService {
+	return &TalkService{Source: source, groupMemberRepo: groupMemberRepo}
 }
 
-type TalkMessageDeleteOpt struct {
+type RemoveRecordListOpt struct {
 	UserId     int
 	TalkType   int
 	ReceiverId int
 	RecordIds  string
 }
 
-// RemoveRecords 删除消息记录
-func (s *TalkService) RemoveRecords(ctx context.Context, opts *TalkMessageDeleteOpt) error {
+// DeleteRecordList 删除消息记录
+func (t *TalkService) DeleteRecordList(ctx context.Context, opt *RemoveRecordListOpt) error {
 
-	// 需要删除的消息记录ID
-	ids := sliceutil.Unique(sliceutil.ParseIds(opts.RecordIds))
+	var (
+		db      = t.Db().WithContext(ctx)
+		findIds []int64
+		ids     = sliceutil.Unique(sliceutil.ParseIds(opt.RecordIds))
+	)
 
-	// 查询的ids
-	findIds := make([]int64, 0)
-
-	if opts.TalkType == entity.ChatPrivateMode {
-		subQuery := s.db.Where("user_id = ? and receiver_id = ?", opts.UserId, opts.ReceiverId).Or("user_id = ? and receiver_id = ?", opts.ReceiverId, opts.UserId)
-
-		s.db.Model(&model.TalkRecords{}).Where("id in ?", ids).Where("talk_type = ?", entity.ChatPrivateMode).Where(subQuery).Pluck("id", &findIds)
+	if opt.TalkType == entity.ChatPrivateMode {
+		subQuery := db.Where("user_id = ? and receiver_id = ?", opt.UserId, opt.ReceiverId).Or("user_id = ? and receiver_id = ?", opt.ReceiverId, opt.UserId)
+		db.Model(&model.TalkRecords{}).Where("id in ?", ids).Where("talk_type = ?", entity.ChatPrivateMode).Where(subQuery).Pluck("id", &findIds)
 	} else {
-		if !s.groupMemberRepo.IsMember(ctx, opts.ReceiverId, opts.UserId, false) {
+		if !t.groupMemberRepo.IsMember(ctx, opt.ReceiverId, opt.UserId, false) {
 			return entity.ErrPermissionDenied
 		}
 
-		s.db.Model(&model.TalkRecords{}).Where("id in ? and talk_type = ?", ids, entity.ChatGroupMode).Pluck("id", &findIds)
+		db.Model(&model.TalkRecords{}).Where("id in ? and talk_type = ?", ids, entity.ChatGroupMode).Pluck("id", &findIds)
 	}
 
 	if len(ids) != len(findIds) {
 		return errors.New("删除异常! ")
 	}
 
-	items := make([]*model.TalkRecordsDelete, 0)
+	items := make([]*model.TalkRecordsDelete, 0, len(ids))
 	for _, val := range ids {
 		items = append(items, &model.TalkRecordsDelete{
 			RecordId:  val,
-			UserId:    opts.UserId,
+			UserId:    opt.UserId,
 			CreatedAt: time.Now(),
 		})
 	}
 
-	return s.db.Create(items).Error
+	return db.Create(items).Error
 }
 
-// CollectRecord 收藏表情包
-func (s *TalkService) CollectRecord(ctx context.Context, uid int, recordId int) error {
-	var (
-		err      error
-		record   model.TalkRecords
-		fileInfo model.TalkRecordsFile
-	)
+// Collect 收藏表情包
+func (t *TalkService) Collect(ctx context.Context, uid int, recordId int) error {
 
-	if err = s.db.First(&record, recordId).Error; err != nil {
+	var record model.TalkRecords
+	if err := t.Db().First(&record, recordId).Error; err != nil {
 		return err
 	}
 
-	if record.MsgType != entity.MsgTypeFile {
+	if record.MsgType != entity.ChatMsgTypeImage {
 		return errors.New("当前消息不支持收藏！")
 	}
 
@@ -89,21 +85,20 @@ func (s *TalkService) CollectRecord(ctx context.Context, uid int, recordId int) 
 			return entity.ErrPermissionDenied
 		}
 	} else if record.TalkType == entity.ChatGroupMode {
-		if !s.groupMemberRepo.IsMember(ctx, record.ReceiverId, uid, true) {
+		if !t.groupMemberRepo.IsMember(ctx, record.ReceiverId, uid, true) {
 			return entity.ErrPermissionDenied
 		}
 	}
 
-	if err = s.db.First(&fileInfo, "record_id = ? and type = ?", record.Id, 1).Error; err != nil {
+	var file model.TalkRecordExtraImage
+	if err := jsonutil.Decode(record.Extra, &file); err != nil {
 		return err
 	}
 
-	emoticon := &model.EmoticonItem{
+	return t.Db().Create(&model.EmoticonItem{
 		UserId:     uid,
-		Url:        fileInfo.Url,
-		FileSuffix: fileInfo.Suffix,
-		FileSize:   fileInfo.Size,
-	}
-
-	return s.db.Create(emoticon).Error
+		Url:        file.Url,
+		FileSuffix: file.Suffix,
+		FileSize:   file.Size,
+	}).Error
 }

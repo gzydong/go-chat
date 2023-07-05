@@ -34,4 +34,5 @@ type GroupItem struct {
 	Profile   string `json:"profile"`
 	Leader    int    `json:"leader"`
 	IsDisturb int    `json:"is_disturb"`
+	CreatorId int    `json:"creator_id"`
 }

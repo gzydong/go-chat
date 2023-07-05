@@ -28,7 +28,7 @@ message GroupApplyAgreeResponse{}
 
 
 message GroupApplyListRequest{
-  int32 group_id = 1 [(tagger.tags) = "binding:\"required\""];
+  int32 group_id = 1 [(tagger.tags) = "form:\"group_id\" binding:\"required\""];
 }
 
 message GroupApplyListResponse{
@@ -41,6 +41,22 @@ message GroupApplyListResponse{
     string avatar = 5;
     string nickname = 6;
     string created_at = 7;
+  }
+
+  repeated Item items = 1;
+}
+
+message GroupApplyAllResponse{
+
+  message Item{
+    int32 id = 1;
+    int32 user_id = 2;
+    int32 group_id = 3;
+    string group_name = 4;
+    string remark = 5;
+    string avatar = 6;
+    string nickname = 7;
+    string created_at = 8;
   }
 
   repeated Item items = 1;

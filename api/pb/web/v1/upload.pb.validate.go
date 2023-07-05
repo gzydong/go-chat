@@ -241,6 +241,212 @@ var _ interface {
 	ErrorName() string
 } = UploadAvatarResponseValidationError{}
 
+// Validate checks the field values on UploadImagerRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *UploadImagerRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on UploadImagerRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// UploadImagerRequestMultiError, or nil if none found.
+func (m *UploadImagerRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *UploadImagerRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(errors) > 0 {
+		return UploadImagerRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// UploadImagerRequestMultiError is an error wrapping multiple validation
+// errors returned by UploadImagerRequest.ValidateAll() if the designated
+// constraints aren't met.
+type UploadImagerRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m UploadImagerRequestMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m UploadImagerRequestMultiError) AllErrors() []error { return m }
+
+// UploadImagerRequestValidationError is the validation error returned by
+// UploadImagerRequest.Validate if the designated constraints aren't met.
+type UploadImagerRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e UploadImagerRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e UploadImagerRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e UploadImagerRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e UploadImagerRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e UploadImagerRequestValidationError) ErrorName() string {
+	return "UploadImagerRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e UploadImagerRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sUploadImagerRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = UploadImagerRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = UploadImagerRequestValidationError{}
+
+// Validate checks the field values on UploadImageResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *UploadImageResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on UploadImageResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// UploadImageResponseMultiError, or nil if none found.
+func (m *UploadImageResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *UploadImageResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Src
+
+	if len(errors) > 0 {
+		return UploadImageResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// UploadImageResponseMultiError is an error wrapping multiple validation
+// errors returned by UploadImageResponse.ValidateAll() if the designated
+// constraints aren't met.
+type UploadImageResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m UploadImageResponseMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m UploadImageResponseMultiError) AllErrors() []error { return m }
+
+// UploadImageResponseValidationError is the validation error returned by
+// UploadImageResponse.Validate if the designated constraints aren't met.
+type UploadImageResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e UploadImageResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e UploadImageResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e UploadImageResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e UploadImageResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e UploadImageResponseValidationError) ErrorName() string {
+	return "UploadImageResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e UploadImageResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sUploadImageResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = UploadImageResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = UploadImageResponseValidationError{}
+
 // Validate checks the field values on UploadInitiateMultipartRequest with the
 // rules defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
@@ -373,6 +579,8 @@ func (m *UploadInitiateMultipartResponse) validate(all bool) error {
 	// no validation rules for UploadId
 
 	// no validation rules for SplitSize
+
+	// no validation rules for UploadIdMd5
 
 	if len(errors) > 0 {
 		return UploadInitiateMultipartResponseMultiError(errors)

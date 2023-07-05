@@ -9,6 +9,7 @@ type Command *cli.Command
 
 // Subcommands 注册子命令
 type Subcommands struct {
+	// LoginHandle *queue.LoginHandle
 }
 
 func NewQueueCommand(subcommands *Subcommands) Command {

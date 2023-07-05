@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -13,16 +14,19 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/urfave/cli/v2"
 	"go-chat/config"
-	"go-chat/internal/pkg/im"
+	"go-chat/internal/pkg/email"
+	"go-chat/internal/pkg/ichat/socket"
 	"go-chat/internal/pkg/logger"
 	"golang.org/x/sync/errgroup"
 )
+
+var ErrServerClosed = errors.New("shutting down server")
 
 func main() {
 	cmd := cli.NewApp()
 
 	cmd.Name = "LumenIM 在线聊天"
-	cmd.Usage = "IM Server"
+	cmd.Usage = "IM Gateway"
 
 	// 设置参数
 	cmd.Flags = []cli.Flag{
@@ -38,20 +42,29 @@ func main() {
 func newApp(tx *cli.Context) error {
 	eg, groupCtx := errgroup.WithContext(tx.Context)
 
-	// 初始化 IM 渠道配置
-	im.Initialize(groupCtx, eg)
-
 	// 读取配置文件
-	conf := config.ReadConfig(tx.String("config"))
+	conf := config.New(tx.String("config"))
 
 	// 设置日志输出
-	logger.SetOutput(conf.GetLogPath(), "logger-ws")
+	logger.SetOutput(conf.LogPath(), "logger-ws")
 
 	if !conf.Debug() {
 		gin.SetMode(gin.ReleaseMode)
 	}
 
 	app := Initialize(conf)
+
+	// 初始化 IM 渠道配置
+	socket.Initialize(groupCtx, eg, func(name string) {
+		emailClient := app.Providers.EmailClient
+		if conf.App.Env == "prod" {
+			_ = emailClient.SendMail(&email.Option{
+				To:      conf.App.AdminEmail,
+				Subject: fmt.Sprintf("[%s]守护进程异常", conf.App.Env),
+				Body:    fmt.Sprintf("守护进程异常[%s]", name),
+			})
+		}
+	})
 
 	c := make(chan os.Signal, 1)
 
@@ -64,34 +77,42 @@ func newApp(tx *cli.Context) error {
 
 	log.Printf("Server ID   :%s", conf.ServerId())
 	log.Printf("Server Pid  :%d", os.Getpid())
-	log.Printf("Websocket Listen Port :%d", conf.Ports.Websocket)
-	log.Printf("Tcp Listen Port :%d", conf.Ports.Tcp)
+	log.Printf("Websocket Listen Port :%d", conf.Server.Websocket)
+	log.Printf("Tcp Listen Port :%d", conf.Server.Tcp)
 
 	go NewTcpServer(app)
 
-	return start(c, eg, groupCtx, app.Server)
+	return start(c, eg, groupCtx, app)
 }
 
-func start(c chan os.Signal, eg *errgroup.Group, ctx context.Context, server *http.Server) error {
+func start(c chan os.Signal, eg *errgroup.Group, ctx context.Context, app *AppProvider) error {
+
+	server := &http.Server{
+		Addr:    fmt.Sprintf(":%d", app.Config.Server.Websocket),
+		Handler: app.Engine,
+	}
 
 	eg.Go(func() error {
-		err := server.ListenAndServe()
-		if err != nil && err != http.ErrServerClosed {
-			log.Fatalf("Websocket Listen Err: %s", err)
+		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			return err
 		}
 
-		return err
+		return nil
 	})
 
-	eg.Go(func() error {
+	eg.Go(func() (err error) {
 		defer func() {
+			log.Println("Shutting down server...")
+
 			// 等待中断信号以优雅地关闭服务器（设置 5 秒的超时时间）
-			timeCtx, timeCancel := context.WithTimeout(context.Background(), 3*time.Second)
+			timeCtx, timeCancel := context.WithTimeout(context.TODO(), 3*time.Second)
 			defer timeCancel()
 
 			if err := server.Shutdown(timeCtx); err != nil {
 				log.Printf("Websocket Shutdown Err: %s \n", err)
 			}
+
+			err = ErrServerClosed
 		}()
 
 		select {
@@ -102,11 +123,11 @@ func start(c chan os.Signal, eg *errgroup.Group, ctx context.Context, server *ht
 		}
 	})
 
-	if err := eg.Wait(); err != nil && !errors.Is(err, context.Canceled) {
-		time.Sleep(3 * time.Second)
+	if err := eg.Wait(); err != nil && !errors.Is(err, context.Canceled) && !errors.Is(err, ErrServerClosed) {
+		log.Fatalf("Server forced to shutdown: %s", err)
 	}
 
-	log.Fatal("IM Server Shutdown")
+	log.Println("Server exiting")
 
 	return nil
 }

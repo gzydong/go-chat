@@ -1,8 +1,23 @@
 # 项目配置信息
 app:
-  app_name: LumenIM
+  env: dev
   debug: false
-  juhe_key: "836a9c3fxxxd902fbc5"
+  juhe_key: "xxxxxxx"
+  admin_email:
+    -
+  public_key: |
+    -----BEGIN PUBLIC KEY-----
+    xxxxxxx
+    -----END PUBLIC KEY-----
+  private_key: |
+    -----BEGIN RSA PRIVATE KEY-----
+    xxxxx
+    -----END RSA PRIVATE KEY-----
+
+server:
+  http: 9503
+  websocket: 9504
+  tcp: 9505
 
 # 日志配置
 log:
@@ -11,8 +26,7 @@ log:
 
 # Redis 相关配置
 redis:
-  host: 127.0.0.1
-  port: 6379
+  host: 127.0.0.1:6379
   auth: xxxxx
   database: 0
 
@@ -31,6 +45,10 @@ jwt:
   secret: 836c3fea9bba4e04d51bd0fbcc5
   expires_time: 3600
   buffer_time: 3600
+
+openai:
+  key: "xxxx"
+  proxy: "https://api.openai.com"
 
 # 跨域配置
 cors:

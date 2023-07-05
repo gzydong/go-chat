@@ -7,17 +7,17 @@ import (
 )
 
 type Class struct {
-	service *note.ArticleClassService
+	articleClassService *note.ArticleClassService
 }
 
-func NewClass(service *note.ArticleClassService) *Class {
-	return &Class{service}
+func NewClass(articleClassService *note.ArticleClassService) *Class {
+	return &Class{articleClassService: articleClassService}
 }
 
 // List 分类列表
 func (c *Class) List(ctx *ichat.Context) error {
 
-	list, err := c.service.List(ctx.Ctx(), ctx.UserId())
+	list, err := c.articleClassService.List(ctx.Ctx(), ctx.UserId())
 	if err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}
@@ -56,12 +56,12 @@ func (c *Class) Edit(ctx *ichat.Context) error {
 	}
 
 	if params.ClassId == 0 {
-		id, err := c.service.Create(ctx.Ctx(), uid, params.ClassName)
+		id, err := c.articleClassService.Create(ctx.Ctx(), uid, params.ClassName)
 		if err == nil {
 			params.ClassId = int32(id)
 		}
 	} else {
-		err = c.service.Update(ctx.Ctx(), uid, int(params.ClassId), params.ClassName)
+		err = c.articleClassService.Update(ctx.Ctx(), uid, int(params.ClassId), params.ClassName)
 	}
 
 	if err != nil {
@@ -81,7 +81,7 @@ func (c *Class) Delete(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	err := c.service.Delete(ctx.Ctx(), ctx.UserId(), int(params.ClassId))
+	err := c.articleClassService.Delete(ctx.Ctx(), ctx.UserId(), int(params.ClassId))
 	if err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}
@@ -97,7 +97,7 @@ func (c *Class) Sort(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	err := c.service.Sort(ctx.Ctx(), ctx.UserId(), int(params.ClassId), int(params.SortType))
+	err := c.articleClassService.Sort(ctx.Ctx(), ctx.UserId(), int(params.ClassId), int(params.SortType))
 	if err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}

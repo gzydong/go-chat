@@ -2,8 +2,10 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net"
 
+	"github.com/gin-gonic/gin"
 	"go-chat/config"
 	"go-chat/internal/gateway/internal/handler"
 	"go-chat/internal/gateway/internal/process"
@@ -12,13 +14,18 @@ import (
 
 type AppProvider struct {
 	Config    *config.Config
-	Server    provider.WebsocketServer
+	Engine    *gin.Engine
 	Coroutine *process.Server
 	Handler   *handler.Handler
+	Providers *provider.Providers
 }
 
 func NewTcpServer(app *AppProvider) {
-	listener, _ := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%d", app.Config.Ports.Tcp))
+
+	listener, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%d", app.Config.Server.Tcp))
+	if err != nil {
+		panic(err)
+	}
 
 	defer func() {
 		_ = listener.Close()
@@ -27,7 +34,7 @@ func NewTcpServer(app *AppProvider) {
 	for {
 		conn, err := listener.Accept()
 		if err != nil {
-			fmt.Println("accept failed, err:", err)
+			log.Println("accept failed err:", err)
 			continue
 		}
 

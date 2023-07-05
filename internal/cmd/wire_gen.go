@@ -20,6 +20,7 @@ import (
 	"go-chat/internal/pkg/filesystem"
 	"go-chat/internal/provider"
 	"go-chat/internal/repository/cache"
+	"go-chat/internal/repository/repo"
 )
 
 // Injectors from wire.go:
@@ -42,7 +43,9 @@ func Initialize(ctx context.Context, conf *config.Config) *AppProvider {
 	cronCommand := cron2.NewCrontabCommand(subcommands)
 	queueSubcommands := &queue.Subcommands{}
 	queueCommand := queue.NewQueueCommand(queueSubcommands)
-	exampleHandle := other.NewExampleHandle(db)
+	sequence := cache.NewSequence(client)
+	repoSequence := repo.NewSequence(db, sequence)
+	exampleHandle := other.NewExampleHandle(db, repoSequence)
 	exampleCommand := other2.NewExampleCommand(exampleHandle)
 	migrateCommand := other2.NewMigrateCommand(db)
 	otherSubcommands := &other2.Subcommands{
@@ -64,4 +67,4 @@ func Initialize(ctx context.Context, conf *config.Config) *AppProvider {
 
 // wire.go:
 
-var providerSet = wire.NewSet(provider.NewMySQLClient, provider.NewRedisClient, provider.NewHttpClient, provider.NewEmailClient, provider.NewRequestClient, filesystem.NewFilesystem, cache.NewSidStorage, cron2.NewCrontabCommand, cron.NewClearTmpFile, cron.NewClearArticle, cron.NewClearWsCache, cron.NewClearExpireServer, wire.Struct(new(cron2.Subcommands), "*"), queue.NewQueueCommand, wire.Struct(new(queue.Subcommands), "*"), queue2.NewEmailHandle, other2.NewOtherCommand, other2.NewExampleCommand, other2.NewMigrateCommand, wire.Struct(new(other2.Subcommands), "*"), other.NewExampleHandle, wire.Struct(new(command.Commands), "*"), wire.Struct(new(AppProvider), "*"))
+var providerSet = wire.NewSet(provider.NewMySQLClient, provider.NewRedisClient, provider.NewHttpClient, provider.NewEmailClient, provider.NewRequestClient, filesystem.NewFilesystem, cache.NewSidStorage, cache.NewSequence, repo.NewSource, repo.NewSequence, cron2.NewCrontabCommand, cron.NewClearTmpFile, cron.NewClearArticle, cron.NewClearWsCache, cron.NewClearExpireServer, wire.Struct(new(cron2.Subcommands), "*"), queue.NewQueueCommand, wire.Struct(new(queue.Subcommands), "*"), queue2.NewEmailHandle, other2.NewOtherCommand, other2.NewExampleCommand, other2.NewMigrateCommand, wire.Struct(new(other2.Subcommands), "*"), other.NewExampleHandle, wire.Struct(new(command.Commands), "*"), wire.Struct(new(AppProvider), "*"))

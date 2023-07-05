@@ -16,14 +16,21 @@ func NewGroup(db *gorm.DB) *Group {
 	return &Group{Repo: ichat.NewRepo[model.Group](db)}
 }
 
-func (g *Group) SearchOvertList(ctx context.Context, name string, page, size int) ([]*model.Group, error) {
+type SearchOvertListOpt struct {
+	Name   string
+	UserId int
+	Page   int
+	Size   int
+}
+
+func (g *Group) SearchOvertList(ctx context.Context, opt *SearchOvertListOpt) ([]*model.Group, error) {
 	return g.FindAll(ctx, func(db *gorm.DB) {
-		if name != "" {
-			db.Where("group_name LIKE ?", "%"+name+"%")
-		} else {
-			db.Where("is_overt = ?", 1)
+		if opt.Name != "" {
+			db.Where("group_name like ?", "%"+opt.Name+"%")
 		}
 
-		db.Where("is_dismiss = 0").Order("created_at desc").Offset((page - 1) * size).Limit(size)
+		db.Where("is_overt = ?", 1)
+		db.Where("id NOT IN (?)", g.Db.Select("group_id").Where("user_id = ? and is_quit= ?", opt.UserId, 0).Table("group_member"))
+		db.Where("is_dismiss = 0").Order("created_at desc").Offset((opt.Page - 1) * opt.Size).Limit(opt.Size)
 	})
 }

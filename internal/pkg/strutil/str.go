@@ -80,6 +80,10 @@ func FileSuffix(filename string) string {
 	return strings.TrimPrefix(path.Ext(filename), ".")
 }
 
+func NewMsgId() string {
+	return strings.ReplaceAll(uuid.New().String(), "-", "")
+}
+
 func NewUuid() string {
 	return uuid.New().String()
 }

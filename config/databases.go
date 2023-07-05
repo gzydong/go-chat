@@ -14,7 +14,7 @@ type MySQL struct {
 	Collation string `json:"collation" yaml:"collation"`
 }
 
-func (m *MySQL) GetDsn() string {
+func (m *MySQL) Dsn() string {
 	return fmt.Sprintf(
 		"%s:%s@tcp(%s:%d)/%s?charset=%s&parseTime=True&loc=Local",
 		m.UserName,

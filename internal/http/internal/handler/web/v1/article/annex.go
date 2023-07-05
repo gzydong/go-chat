@@ -18,12 +18,12 @@ import (
 )
 
 type Annex struct {
-	service    *note.ArticleAnnexService
-	fileSystem *filesystem.Filesystem
+	articleAnnexService *note.ArticleAnnexService
+	filesystem          *filesystem.Filesystem
 }
 
-func NewAnnex(service *note.ArticleAnnexService, fileSystem *filesystem.Filesystem) *Annex {
-	return &Annex{service, fileSystem}
+func NewAnnex(articleAnnexService *note.ArticleAnnexService, filesystem *filesystem.Filesystem) *Annex {
+	return &Annex{articleAnnexService: articleAnnexService, filesystem: filesystem}
 }
 
 // Upload 上传附件
@@ -53,14 +53,14 @@ func (c *Annex) Upload(ctx *ichat.Context) error {
 
 	filePath := fmt.Sprintf("private/files/note/%s/%s", timeutil.DateNumber(), strutil.GenFileName(ext))
 
-	if err := c.fileSystem.Default.Write(stream, filePath); err != nil {
+	if err := c.filesystem.Default.Write(stream, filePath); err != nil {
 		return ctx.ErrorBusiness("附件上传失败")
 	}
 
 	data := &model.ArticleAnnex{
 		UserId:       ctx.UserId(),
 		ArticleId:    int(params.ArticleId),
-		Drive:        entity.FileDriveMode(c.fileSystem.Driver()),
+		Drive:        entity.FileDriveMode(c.filesystem.Driver()),
 		Suffix:       ext,
 		Size:         int(file.Size),
 		Path:         filePath,
@@ -71,7 +71,7 @@ func (c *Annex) Upload(ctx *ichat.Context) error {
 		},
 	}
 
-	if err := c.service.Create(ctx.Ctx(), data); err != nil {
+	if err := c.articleAnnexService.Create(ctx.Ctx(), data); err != nil {
 		return ctx.ErrorBusiness("附件上传失败")
 	}
 
@@ -92,7 +92,7 @@ func (c *Annex) Delete(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	err := c.service.UpdateStatus(ctx.Ctx(), ctx.UserId(), int(params.AnnexId), 2)
+	err := c.articleAnnexService.UpdateStatus(ctx.Ctx(), ctx.UserId(), int(params.AnnexId), 2)
 	if err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}
@@ -108,7 +108,7 @@ func (c *Annex) Recover(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	err := c.service.UpdateStatus(ctx.Ctx(), ctx.UserId(), int(params.AnnexId), 1)
+	err := c.articleAnnexService.UpdateStatus(ctx.Ctx(), ctx.UserId(), int(params.AnnexId), 1)
 	if err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}
@@ -119,7 +119,7 @@ func (c *Annex) Recover(ctx *ichat.Context) error {
 // RecoverList 附件回收站列表
 func (c *Annex) RecoverList(ctx *ichat.Context) error {
 
-	items, err := c.service.Dao().RecoverList(ctx.Ctx(), ctx.UserId())
+	items, err := c.articleAnnexService.Dao().RecoverList(ctx.Ctx(), ctx.UserId())
 
 	if err != nil {
 		return ctx.ErrorBusiness(err.Error())
@@ -157,7 +157,7 @@ func (c *Annex) ForeverDelete(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	if err := c.service.ForeverDelete(ctx.Ctx(), ctx.UserId(), int(params.AnnexId)); err != nil {
+	if err := c.articleAnnexService.ForeverDelete(ctx.Ctx(), ctx.UserId(), int(params.AnnexId)); err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}
 
@@ -172,7 +172,7 @@ func (c *Annex) Download(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	info, err := c.service.Dao().FindById(ctx.Ctx(), int(params.AnnexId))
+	info, err := c.articleAnnexService.Dao().FindById(ctx.Ctx(), int(params.AnnexId))
 	if err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}
@@ -183,9 +183,9 @@ func (c *Annex) Download(ctx *ichat.Context) error {
 
 	switch info.Drive {
 	case entity.FileDriveLocal:
-		ctx.Context.FileAttachment(c.fileSystem.Local.Path(info.Path), info.OriginalName)
+		ctx.Context.FileAttachment(c.filesystem.Local.Path(info.Path), info.OriginalName)
 	case entity.FileDriveCos:
-		ctx.Context.Redirect(http.StatusFound, c.fileSystem.Cos.PrivateUrl(info.Path, 60))
+		ctx.Context.Redirect(http.StatusFound, c.filesystem.Cos.PrivateUrl(info.Path, 60*time.Second))
 	default:
 		return ctx.ErrorBusiness("未知文件驱动类型")
 	}

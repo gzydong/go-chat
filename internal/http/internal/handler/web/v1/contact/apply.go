@@ -1,6 +1,9 @@
 package contact
 
 import (
+	"fmt"
+
+	"go-chat/api/pb/message/v1"
 	"go-chat/api/pb/web/v1"
 	"go-chat/internal/entity"
 	"go-chat/internal/pkg/ichat"
@@ -9,20 +12,20 @@ import (
 )
 
 type Apply struct {
-	service            *service.ContactApplyService
-	userService        *service.UserService
-	talkMessageService *service.TalkMessageService
-	contactService     *service.ContactService
+	contactApplyService *service.ContactApplyService
+	userService         *service.UserService
+	contactService      *service.ContactService
+	messageService      *service.MessageService
 }
 
-func NewApply(service *service.ContactApplyService, userService *service.UserService, talkMessageService *service.TalkMessageService, contactService *service.ContactService) *Apply {
-	return &Apply{service: service, userService: userService, talkMessageService: talkMessageService, contactService: contactService}
+func NewApply(contactApplyService *service.ContactApplyService, userService *service.UserService, contactService *service.ContactService, messageService *service.MessageService) *Apply {
+	return &Apply{contactApplyService: contactApplyService, userService: userService, contactService: contactService, messageService: messageService}
 }
 
 // ApplyUnreadNum 获取好友申请未读数
 func (c *Apply) ApplyUnreadNum(ctx *ichat.Context) error {
-	return ctx.Success(entity.H{
-		"unread_num": c.service.GetApplyUnreadNum(ctx.Ctx(), ctx.UserId()),
+	return ctx.Success(map[string]any{
+		"unread_num": c.contactApplyService.GetApplyUnreadNum(ctx.Ctx(), ctx.UserId()),
 	})
 }
 
@@ -39,7 +42,7 @@ func (c *Apply) Create(ctx *ichat.Context) error {
 		return ctx.Success(nil)
 	}
 
-	if err := c.service.Create(ctx.Ctx(), &service.ContactApplyCreateOpts{
+	if err := c.contactApplyService.Create(ctx.Ctx(), &service.ContactApplyCreateOpt{
 		UserId:   ctx.UserId(),
 		Remarks:  params.Remark,
 		FriendId: int(params.FriendId),
@@ -59,7 +62,7 @@ func (c *Apply) Accept(ctx *ichat.Context) error {
 	}
 
 	uid := ctx.UserId()
-	applyInfo, err := c.service.Accept(ctx.Ctx(), &service.ContactApplyAcceptOpts{
+	applyInfo, err := c.contactApplyService.Accept(ctx.Ctx(), &service.ContactApplyAcceptOpt{
 		Remarks: params.Remark,
 		ApplyId: int(params.ApplyId),
 		UserId:  uid,
@@ -69,12 +72,17 @@ func (c *Apply) Accept(ctx *ichat.Context) error {
 		return ctx.ErrorBusiness(err)
 	}
 
-	_ = c.talkMessageService.SendSysMessage(ctx.Ctx(), &service.SysTextMessageOpt{
-		UserId:     applyInfo.UserId,
-		TalkType:   entity.ChatPrivateMode,
-		ReceiverId: applyInfo.FriendId,
-		Text:       "你们已成为好友，可以开始聊天咯！",
+	err = c.messageService.SendSystemText(ctx.Ctx(), applyInfo.UserId, &message.TextMessageRequest{
+		Content: "你们已成为好友，可以开始聊天咯！",
+		Receiver: &message.MessageReceiver{
+			TalkType:   entity.ChatPrivateMode,
+			ReceiverId: int32(applyInfo.FriendId),
+		},
 	})
+
+	if err != nil {
+		fmt.Println("Apply Accept Err", err.Error())
+	}
 
 	return ctx.Success(&web.ContactApplyAcceptResponse{})
 }
@@ -87,7 +95,7 @@ func (c *Apply) Decline(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	if err := c.service.Decline(ctx.Ctx(), &service.ContactApplyDeclineOpts{
+	if err := c.contactApplyService.Decline(ctx.Ctx(), &service.ContactApplyDeclineOpt{
 		UserId:  ctx.UserId(),
 		Remarks: params.Remark,
 		ApplyId: int(params.ApplyId),
@@ -101,7 +109,7 @@ func (c *Apply) Decline(ctx *ichat.Context) error {
 // List 获取联系人申请列表
 func (c *Apply) List(ctx *ichat.Context) error {
 
-	list, err := c.service.List(ctx.Ctx(), ctx.UserId(), 1, 1000)
+	list, err := c.contactApplyService.List(ctx.Ctx(), ctx.UserId())
 	if err != nil {
 		return ctx.Error(err.Error())
 	}
@@ -119,9 +127,7 @@ func (c *Apply) List(ctx *ichat.Context) error {
 		})
 	}
 
-	c.service.ClearApplyUnreadNum(ctx.Ctx(), ctx.UserId())
+	c.contactApplyService.ClearApplyUnreadNum(ctx.Ctx(), ctx.UserId())
 
-	return ctx.Success(&web.ContactApplyListResponse{
-		Items: items,
-	})
+	return ctx.Success(&web.ContactApplyListResponse{Items: items})
 }

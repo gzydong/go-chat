@@ -24,7 +24,7 @@ func (Article) TableName() string {
 	return "article"
 }
 
-type ArticleItem struct {
+type ArticleListItem struct {
 	Id         int       `gorm:"column:id;primary_key;AUTO_INCREMENT" json:"id"`           // 文章ID
 	UserId     int       `gorm:"column:user_id;NOT NULL" json:"user_id"`                   // 用户ID
 	ClassId    int       `gorm:"column:class_id;default:0;NOT NULL" json:"class_id"`       // 分类ID

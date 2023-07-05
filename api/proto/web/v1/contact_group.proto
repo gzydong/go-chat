@@ -74,3 +74,15 @@ message ContactGroupListResponse{
   // 分组列表
   repeated Item items = 1;
 }
+
+message ContactGroupSaveRequest{
+  message Item{
+    int32 id = 1 [(tagger.tags) = "binding:\"required\""];
+    int32 sort = 2 [(tagger.tags) = "binding:\"required\""];
+    string name = 3 [(tagger.tags) = "binding:\"required\""];
+  }
+
+  repeated Item items = 1 [(tagger.tags) = "binding:\"required\""];
+}
+
+message ContactGroupSaveResponse{}

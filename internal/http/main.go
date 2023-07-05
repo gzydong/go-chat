@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -31,10 +32,10 @@ func main() {
 
 	cmd.Action = func(tx *cli.Context) error {
 		// 读取配置文件
-		conf := config.ReadConfig(tx.String("config"))
+		conf := config.New(tx.String("config"))
 
 		// 设置日志输出
-		logger.SetOutput(conf.GetLogPath(), "logger-http")
+		logger.SetOutput(conf.LogPath(), "logger-http")
 
 		if !conf.Debug() {
 			gin.SetMode(gin.ReleaseMode)
@@ -46,31 +47,38 @@ func main() {
 		c := make(chan os.Signal, 1)
 		signal.Notify(c, syscall.SIGTERM, syscall.SIGQUIT, syscall.SIGINT)
 
-		log.Printf("HTTP Listen Port :%d", conf.Ports.Http)
+		log.Printf("HTTP Listen Port :%d", conf.Server.Http)
 		log.Printf("HTTP Server Pid  :%d", os.Getpid())
 
-		return run(c, eg, groupCtx, app.Server)
+		return run(c, eg, groupCtx, app)
 	}
 
 	_ = cmd.Run(os.Args)
 }
 
-func run(c chan os.Signal, eg *errgroup.Group, ctx context.Context, server *http.Server) error {
+func run(c chan os.Signal, eg *errgroup.Group, ctx context.Context, app *AppProvider) error {
+
+	server := &http.Server{
+		Addr:    fmt.Sprintf(":%d", app.Config.Server.Http),
+		Handler: app.Engine,
+	}
+
 	// 启动 http 服务
 	eg.Go(func() error {
-
 		err := server.ListenAndServe()
 		if err != nil && err != http.ErrServerClosed {
-			log.Fatalf("HTTP Server Listen Err: %s", err)
+			return err
 		}
 
-		return err
+		return nil
 	})
 
 	eg.Go(func() error {
 		defer func() {
+			log.Println("Shutting down server...")
+
 			// 等待中断信号以优雅地关闭服务器（设置 5 秒的超时时间）
-			timeCtx, timeCancel := context.WithTimeout(context.Background(), 5*time.Second)
+			timeCtx, timeCancel := context.WithTimeout(context.Background(), 3*time.Second)
 			defer timeCancel()
 
 			if err := server.Shutdown(timeCtx); err != nil {
@@ -87,10 +95,10 @@ func run(c chan os.Signal, eg *errgroup.Group, ctx context.Context, server *http
 	})
 
 	if err := eg.Wait(); err != nil && !errors.Is(err, context.Canceled) {
-		log.Fatalf("Error: %s", err)
+		log.Fatalf("HTTP Server forced to shutdown: %s", err)
 	}
 
-	log.Fatal("HTTP Server Shutdown")
+	log.Println("Server exiting")
 
 	return nil
 }
