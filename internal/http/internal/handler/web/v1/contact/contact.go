@@ -66,7 +66,7 @@ func (c *Contact) Delete(ctx *ichat.Context) error {
 
 	// 解除好友关系后需添加一条聊天记录
 	_ = c.messageService.SendSystemText(ctx.Ctx(), uid, &message.TextMessageRequest{
-		Content: "你与对方已经解除了好友关系！！！",
+		Content: "你与对方已经解除了好友关系！",
 		Receiver: &message.MessageReceiver{
 			TalkType:   entity.ChatPrivateMode,
 			ReceiverId: params.FriendId,
