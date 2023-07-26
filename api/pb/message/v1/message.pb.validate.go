@@ -163,10 +163,6 @@ func (m *TextMessageRequest) validate(all bool) error {
 
 	// no validation rules for Type
 
-	// no validation rules for TalkType
-
-	// no validation rules for ReceiverId
-
 	// no validation rules for Content
 
 	if all {
