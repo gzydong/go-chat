@@ -77,6 +77,22 @@ func (c *Publish) onSendImage(ctx *ichat.Context) error {
 	return ctx.Success(nil)
 }
 
+// 视频消息
+func (c *Publish) onSendVideo(ctx *ichat.Context) error {
+
+	params := &message.VideoMessageRequest{}
+	if err := ctx.Context.ShouldBindBodyWith(params, binding.JSON); err != nil {
+		return ctx.InvalidParams(err)
+	}
+
+	err := c.messageService.SendVideo(ctx.Ctx(), ctx.UserId(), params)
+	if err != nil {
+		return ctx.ErrorBusiness(err.Error())
+	}
+
+	return ctx.Success(nil)
+}
+
 // 文件消息
 func (c *Publish) onSendFile(ctx *ichat.Context) error {
 
@@ -222,6 +238,7 @@ func (c *Publish) transfer(ctx *ichat.Context, typeValue string) error {
 		c.mapping["emoticon"] = c.onSendEmoticon
 		c.mapping["vote"] = c.onSendVote
 		c.mapping["image"] = c.onSendImage
+		c.mapping["video"] = c.onSendVideo
 		c.mapping["file"] = c.onSendFile
 		c.mapping["card"] = c.onSendCard
 		c.mapping["forward"] = c.onSendForward

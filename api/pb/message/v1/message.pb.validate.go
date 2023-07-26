@@ -163,6 +163,10 @@ func (m *TextMessageRequest) validate(all bool) error {
 
 	// no validation rules for Type
 
+	// no validation rules for TalkType
+
+	// no validation rules for ReceiverId
+
 	// no validation rules for Content
 
 	if all {
@@ -193,6 +197,8 @@ func (m *TextMessageRequest) validate(all bool) error {
 			}
 		}
 	}
+
+	// no validation rules for QuoteId
 
 	if all {
 		switch v := interface{}(m.GetReceiver()).(type) {
@@ -641,6 +647,8 @@ func (m *VideoMessageRequest) validate(all bool) error {
 			}
 		}
 	}
+
+	// no validation rules for Cover
 
 	if len(errors) > 0 {
 		return VideoMessageRequestMultiError(errors)

@@ -148,8 +148,7 @@ func (m *MessageService) SendVideo(ctx context.Context, uid int, req *message.Vi
 		UserId:     uid,
 		ReceiverId: int(req.Receiver.ReceiverId),
 		Extra: jsonutil.Encode(&model.TalkRecordExtraVideo{
-			Cover:    "",
-			Suffix:   strutil.FileSuffix(req.Url),
+			Cover:    req.Cover,
 			Size:     int(req.Size),
 			Url:      req.Url,
 			Duration: int(req.Duration),
