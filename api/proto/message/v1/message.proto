@@ -22,7 +22,7 @@ message TextMessageRequest{
   }
 
   Mention mention = 5;
-  int32 quote_id = 6; // 引用的消息ID
+  string quote_id = 6; // 引用的消息ID
   MessageReceiver receiver = 7;// 消息接收者
 }
 
@@ -34,6 +34,7 @@ message ImageMessageRequest{
   int32 height = 4 [(tagger.tags) = "binding:\"required\""]; // 图片高度
   int32 size = 5 [(tagger.tags) = "binding:\"required\""]; // 图片大小
   MessageReceiver receiver = 6;// 消息接收者
+  string quote_id = 7; // 引用的消息ID
 }
 
 // 语音消息
@@ -133,4 +134,5 @@ message MixedMessageRequest{
   string type = 1;
   repeated Item items = 2;
   MessageReceiver receiver = 3;
+  string quote_id = 4; // 引用的消息ID
 }

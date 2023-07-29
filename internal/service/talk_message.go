@@ -96,6 +96,7 @@ func (m *MessageService) SendText(ctx context.Context, uid int, req *message.Tex
 	data := &model.TalkRecords{
 		TalkType:   int(req.Receiver.TalkType),
 		MsgType:    entity.ChatMsgTypeText,
+		QuoteId:    req.QuoteId,
 		UserId:     uid,
 		ReceiverId: int(req.Receiver.ReceiverId),
 		Content:    strutil.EscapeHtml(req.Content),
@@ -110,6 +111,7 @@ func (m *MessageService) SendImage(ctx context.Context, uid int, req *message.Im
 	data := &model.TalkRecords{
 		TalkType:   int(req.Receiver.TalkType),
 		MsgType:    entity.ChatMsgTypeImage,
+		QuoteId:    req.QuoteId,
 		UserId:     uid,
 		ReceiverId: int(req.Receiver.ReceiverId),
 		Extra: jsonutil.Encode(&model.TalkRecordExtraImage{
@@ -439,6 +441,7 @@ func (m *MessageService) SendMixedMessage(ctx context.Context, uid int, req *mes
 	data := &model.TalkRecords{
 		TalkType:   int(req.Receiver.TalkType),
 		MsgType:    entity.ChatMsgTypeMixed,
+		QuoteId:    req.QuoteId,
 		UserId:     uid,
 		ReceiverId: int(req.Receiver.ReceiverId),
 		Extra:      jsonutil.Encode(model.TalkRecordExtraMixed{Items: items}),
@@ -580,27 +583,30 @@ func (m *MessageService) save(ctx context.Context, data *model.TalkRecords) erro
 		data.MsgId = strutil.NewMsgId()
 	}
 
+	m.loadReply(ctx, data)
+
 	m.loadSequence(ctx, data)
 
-	err := m.Db().WithContext(ctx).Create(data).Error
-	if err == nil {
-		option := make(map[string]string)
-
-		switch data.MsgType {
-		case entity.ChatMsgTypeText:
-			option["text"] = strutil.MtSubstr(strutil.ReplaceImgAll(data.Content), 0, 300)
-		default:
-			if value, ok := entity.ChatMsgTypeMapping[data.MsgType]; ok {
-				option["text"] = value
-			} else {
-				option["text"] = "[未知消息]"
-			}
-		}
-
-		m.afterHandle(ctx, data, option)
+	if err := m.Db().WithContext(ctx).Create(data).Error; err != nil {
+		return err
 	}
 
-	return err
+	option := make(map[string]string)
+
+	switch data.MsgType {
+	case entity.ChatMsgTypeText:
+		option["text"] = strutil.MtSubstr(strutil.ReplaceImgAll(data.Content), 0, 300)
+	default:
+		if value, ok := entity.ChatMsgTypeMapping[data.MsgType]; ok {
+			option["text"] = value
+		} else {
+			option["text"] = "[未知消息]"
+		}
+	}
+
+	m.afterHandle(ctx, data, option)
+
+	return nil
 }
 
 func (m *MessageService) loadSequence(ctx context.Context, data *model.TalkRecords) {
@@ -609,6 +615,56 @@ func (m *MessageService) loadSequence(ctx context.Context, data *model.TalkRecor
 	} else {
 		data.Sequence = m.sequence.Get(ctx, data.UserId, data.ReceiverId)
 	}
+}
+
+func (m *MessageService) loadReply(ctx context.Context, data *model.TalkRecords) {
+	// 检测是否引用消息
+	if data.QuoteId == "" {
+		return
+	}
+
+	if data.Extra == "" {
+		data.Extra = "{}"
+	}
+
+	extra := make(map[string]any)
+
+	err := jsonutil.Decode(data.Extra, &extra)
+	if err != nil {
+		logger.Error("MessageService Json Decode err: ", err.Error())
+		return
+	}
+
+	var record model.TalkRecords
+	err = m.Db().Table("talk_records").Find(&record, "msg_id = ?", data.QuoteId).Error
+	if err != nil {
+		return
+	}
+
+	var user model.Users
+	err = m.Db().Table("users").Select("nickname").Find(&user, "id = ?", record.UserId).Error
+	if err != nil {
+		return
+	}
+
+	reply := model.Reply{
+		UserId:   record.UserId,
+		Nickname: user.Nickname,
+		MsgType:  1,
+		Content:  record.Content,
+		MsgId:    record.MsgId,
+	}
+
+	if record.MsgType != entity.ChatMsgTypeText {
+		reply.Content = "[未知消息]"
+		if value, ok := entity.ChatMsgTypeMapping[record.MsgType]; ok {
+			reply.Content = value
+		}
+	}
+
+	extra["reply"] = reply
+
+	data.Extra = jsonutil.Encode(extra)
 }
 
 // 发送消息后置处理

@@ -366,6 +366,8 @@ func (m *ImageMessageRequest) validate(all bool) error {
 		}
 	}
 
+	// no validation rules for QuoteId
+
 	if len(errors) > 0 {
 		return ImageMessageRequestMultiError(errors)
 	}
@@ -1879,6 +1881,8 @@ func (m *MixedMessageRequest) validate(all bool) error {
 			}
 		}
 	}
+
+	// no validation rules for QuoteId
 
 	if len(errors) > 0 {
 		return MixedMessageRequestMultiError(errors)
