@@ -47,12 +47,12 @@ func RegisterWebRoute(secret string, router *gin.Engine, handler *web.Handler, s
 
 		contact := v1.Group("/contact").Use(authorize)
 		{
-			contact.GET("/list", ichat.HandlerFunc(handler.V1.Contact.List))               // 联系人列表
-			contact.GET("/search", ichat.HandlerFunc(handler.V1.Contact.Search))           // 搜索联系人
-			contact.GET("/detail", ichat.HandlerFunc(handler.V1.Contact.Detail))           // 搜索联系人
-			contact.POST("/delete", ichat.HandlerFunc(handler.V1.Contact.Delete))          // 删除联系人
-			contact.POST("/edit-remark", ichat.HandlerFunc(handler.V1.Contact.EditRemark)) // 编辑联系人备注
-			contact.POST("/move-group", ichat.HandlerFunc(handler.V1.Contact.MoveGroup))   // 编辑联系人备注
+			contact.GET("/list", ichat.HandlerFunc(handler.V1.Contact.List))             // 联系人列表
+			contact.GET("/search", ichat.HandlerFunc(handler.V1.Contact.Search))         // 搜索联系人
+			contact.GET("/detail", ichat.HandlerFunc(handler.V1.Contact.Detail))         // 搜索联系人
+			contact.POST("/delete", ichat.HandlerFunc(handler.V1.Contact.Delete))        // 删除联系人
+			contact.POST("/edit-remark", ichat.HandlerFunc(handler.V1.Contact.Remark))   // 编辑联系人备注
+			contact.POST("/move-group", ichat.HandlerFunc(handler.V1.Contact.MoveGroup)) // 编辑联系人备注
 
 			// 联系人申请相关
 			contact.GET("/apply/records", ichat.HandlerFunc(handler.V1.ContactApply.List))              // 联系人申请列表
@@ -95,11 +95,12 @@ func RegisterWebRoute(secret string, router *gin.Engine, handler *web.Handler, s
 			userGroup.POST("/notice/delete", ichat.HandlerFunc(handler.V1.GroupNotice.Delete))        // 删除群公告
 
 			// 群申请
-			userGroup.POST("/apply/create", ichat.HandlerFunc(handler.V1.GroupApply.Create)) // 提交入群申请
-			userGroup.POST("/apply/delete", ichat.HandlerFunc(handler.V1.GroupApply.Delete)) // 申请入群申请
-			userGroup.POST("/apply/agree", ichat.HandlerFunc(handler.V1.GroupApply.Agree))   // 同意入群申请
-			userGroup.GET("/apply/list", ichat.HandlerFunc(handler.V1.GroupApply.List))      // 入群申请列表
-			userGroup.GET("/apply/all", ichat.HandlerFunc(handler.V1.GroupApply.All))        // 入群申请列表
+			userGroup.POST("/apply/create", ichat.HandlerFunc(handler.V1.GroupApply.Create))        // 提交入群申请
+			userGroup.POST("/apply/delete", ichat.HandlerFunc(handler.V1.GroupApply.Delete))        // 申请入群申请
+			userGroup.POST("/apply/agree", ichat.HandlerFunc(handler.V1.GroupApply.Agree))          // 同意入群申请
+			userGroup.GET("/apply/list", ichat.HandlerFunc(handler.V1.GroupApply.List))             // 入群申请列表
+			userGroup.GET("/apply/all", ichat.HandlerFunc(handler.V1.GroupApply.All))               // 入群申请列表
+			userGroup.GET("/apply/unread", ichat.HandlerFunc(handler.V1.GroupApply.ApplyUnreadNum)) // 入群申请未读
 		}
 
 		talk := v1.Group("/talk").Use(authorize)
@@ -118,15 +119,15 @@ func RegisterWebRoute(secret string, router *gin.Engine, handler *web.Handler, s
 
 		talkMsg := v1.Group("/talk/message").Use(authorize)
 		{
-			talkMsg.POST("/publish", ichat.HandlerFunc(handler.V1.Message.Publish))            // 发送文本消息
-			talkMsg.POST("/text", ichat.HandlerFunc(handler.V1.TalkMessage.Text))              // 发送文本消息
-			talkMsg.POST("/code", ichat.HandlerFunc(handler.V1.TalkMessage.Code))              // 发送代码消息
-			talkMsg.POST("/image", ichat.HandlerFunc(handler.V1.TalkMessage.Image))            // 发送图片消息
-			talkMsg.POST("/file", ichat.HandlerFunc(handler.V1.TalkMessage.File))              // 发送文件消息
-			talkMsg.POST("/emoticon", ichat.HandlerFunc(handler.V1.TalkMessage.Emoticon))      // 发送表情包消息
-			talkMsg.POST("/forward", ichat.HandlerFunc(handler.V1.TalkMessage.Forward))        // 发送转发消息
-			talkMsg.POST("/card", ichat.HandlerFunc(handler.V1.TalkMessage.Card))              // 发送用户名片
-			talkMsg.POST("/location", ichat.HandlerFunc(handler.V1.TalkMessage.Location))      // 发送位置消息
+			talkMsg.POST("/publish", ichat.HandlerFunc(handler.V1.Message.Publish)) // 发送文本消息
+			// talkMsg.POST("/text", ichat.HandlerFunc(handler.V1.TalkMessage.Text))              // 发送文本消息
+			// talkMsg.POST("/code", ichat.HandlerFunc(handler.V1.TalkMessage.Code))              // 发送代码消息
+			// talkMsg.POST("/image", ichat.HandlerFunc(handler.V1.TalkMessage.Image))            // 发送图片消息
+			talkMsg.POST("/file", ichat.HandlerFunc(handler.V1.TalkMessage.File)) // 发送文件消息
+			// talkMsg.POST("/emoticon", ichat.HandlerFunc(handler.V1.TalkMessage.Emoticon))      // 发送表情包消息
+			// talkMsg.POST("/forward", ichat.HandlerFunc(handler.V1.TalkMessage.Forward))        // 发送转发消息
+			// talkMsg.POST("/card", ichat.HandlerFunc(handler.V1.TalkMessage.Card))              // 发送用户名片
+			// talkMsg.POST("/location", ichat.HandlerFunc(handler.V1.TalkMessage.Location))      // 发送位置消息
 			talkMsg.POST("/collect", ichat.HandlerFunc(handler.V1.TalkMessage.Collect))        // 收藏会话表情图片
 			talkMsg.POST("/revoke", ichat.HandlerFunc(handler.V1.TalkMessage.Revoke))          // 撤销聊天消息
 			talkMsg.POST("/delete", ichat.HandlerFunc(handler.V1.TalkMessage.Delete))          // 删除聊天消息

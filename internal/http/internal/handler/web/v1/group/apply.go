@@ -1,11 +1,15 @@
 package group
 
 import (
+	"github.com/redis/go-redis/v9"
 	"go-chat/api/pb/web/v1"
+	"go-chat/internal/entity"
 	"go-chat/internal/pkg/ichat"
+	"go-chat/internal/pkg/jsonutil"
 	"go-chat/internal/pkg/logger"
 	"go-chat/internal/pkg/sliceutil"
 	"go-chat/internal/pkg/timeutil"
+	"go-chat/internal/repository/cache"
 	"go-chat/internal/repository/model"
 	"go-chat/internal/service"
 	"gorm.io/gorm"
@@ -15,10 +19,12 @@ type Apply struct {
 	groupApplyService  *service.GroupApplyService
 	groupMemberService *service.GroupMemberService
 	groupService       *service.GroupService
+	storage            *cache.GroupApplyStorage
+	redis              *redis.Client
 }
 
-func NewApply(groupApplyService *service.GroupApplyService, groupMemberService *service.GroupMemberService, groupService *service.GroupService) *Apply {
-	return &Apply{groupApplyService: groupApplyService, groupMemberService: groupMemberService, groupService: groupService}
+func NewApply(groupApplyService *service.GroupApplyService, groupMemberService *service.GroupMemberService, groupService *service.GroupService, storage *cache.GroupApplyStorage, redis *redis.Client) *Apply {
+	return &Apply{groupApplyService: groupApplyService, groupMemberService: groupMemberService, groupService: groupService, storage: storage, redis: redis}
 }
 
 func (c *Apply) Create(ctx *ichat.Context) error {
@@ -33,7 +39,18 @@ func (c *Apply) Create(ctx *ichat.Context) error {
 		return ctx.ErrorBusiness("创建群聊失败，请稍后再试！")
 	}
 
-	// TODO 这里需要推送给群主
+	find, err := c.groupMemberService.Dao().FindByWhere(ctx.Ctx(), "group_id = ? and leader = ?", params.GroupId, 2)
+	if err == nil && find != nil {
+		c.storage.Incr(ctx.Ctx(), find.UserId)
+	}
+
+	c.redis.Publish(ctx.Ctx(), entity.ImTopicChat, jsonutil.Encode(map[string]any{
+		"event": entity.SubEventGroupApply,
+		"data": jsonutil.Encode(map[string]any{
+			"group_id": params.GroupId,
+			"user_id":  ctx.UserId(),
+		}),
+	}))
 
 	return ctx.Success(nil)
 }
@@ -178,5 +195,14 @@ func (c *Apply) All(ctx *ichat.Context) error {
 		})
 	}
 
+	c.storage.Del(ctx.Ctx(), ctx.UserId())
+
 	return ctx.Success(resp)
+}
+
+// ApplyUnreadNum 获取群申请未读数
+func (c *Apply) ApplyUnreadNum(ctx *ichat.Context) error {
+	return ctx.Success(map[string]any{
+		"unread_num": c.storage.Get(ctx.Ctx(), ctx.UserId()),
+	})
 }

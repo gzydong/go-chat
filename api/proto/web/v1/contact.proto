@@ -43,7 +43,7 @@ message ContactDeleteResponse{}
 // 联系人备注修改接口请求参数
 message ContactEditRemarkRequest{
   int32 friend_id = 1 [(tagger.tags) = "binding:\"required\""];
-  string remark = 2 [(tagger.tags) = "binding:\"required\""];
+  string remark = 2;
 }
 
 // 联系人备注修改接口响应参数

@@ -15,6 +15,7 @@ const (
 	SubEventContactStatus     = "sub.im.contact.status"   // 用户在线状态通知
 	SubEventContactApply      = "sub.im.contact.apply"    // 好友申请消息通知
 	SubEventGroupJoin         = "sub.im.group.join"       // 邀请加入群聊通知
+	SubEventGroupApply        = "sub.im.group.apply"      // 入群申请通知
 
 	PushEventImMessage         = "im.message"          // 对话消息推送
 	PushEventImMessageKeyboard = "im.message.keyboard" // 键盘输入事件推送
@@ -22,6 +23,7 @@ const (
 	PushEventImMessageRevoke   = "im.message.revoke"   // 聊天消息撤销推送
 	PushEventContactApply      = "im.contact.apply"    // 好友申请消息推送
 	PushEventContactStatus     = "im.contact.status"   // 用户在线状态推送
+	PushEventGroupApply        = "im.group.apply"      // 用户在线状态推送
 )
 
 const (

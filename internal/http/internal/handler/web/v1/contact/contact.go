@@ -109,8 +109,8 @@ func (c *Contact) Search(ctx *ichat.Context) error {
 	})
 }
 
-// EditRemark 编辑联系人备注
-func (c *Contact) EditRemark(ctx *ichat.Context) error {
+// Remark 编辑联系人备注
+func (c *Contact) Remark(ctx *ichat.Context) error {
 
 	params := &web.ContactEditRemarkRequest{}
 	if err := ctx.Context.ShouldBind(params); err != nil {

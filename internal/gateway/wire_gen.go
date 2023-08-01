@@ -67,7 +67,7 @@ func Initialize(conf *config.Config) *AppProvider {
 	contact := repo.NewContact(db, contactRemark, relation)
 	contactService := service.NewContactService(source, contact)
 	organizeOrganize := organize.NewOrganize(db)
-	handler2 := chat2.NewHandler(conf, clientStorage, roomStorage, talkRecordsService, contactService, organizeOrganize)
+	handler2 := chat2.NewHandler(conf, clientStorage, roomStorage, talkRecordsService, contactService, organizeOrganize, source)
 	chatSubscribe := consume.NewChatSubscribe(handler2)
 	exampleHandler := example.NewHandler()
 	exampleSubscribe := consume.NewExampleSubscribe(exampleHandler)

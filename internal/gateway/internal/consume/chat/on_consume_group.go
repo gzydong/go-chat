@@ -9,12 +9,18 @@ import (
 	"go-chat/internal/pkg/ichat/socket"
 	"go-chat/internal/pkg/logger"
 	"go-chat/internal/repository/cache"
+	"go-chat/internal/repository/model"
 )
 
 type ConsumeGroupJoin struct {
 	Gid  int   `json:"group_id"`
 	Type int   `json:"type"`
 	Uids []int `json:"uids"`
+}
+
+type ConsumeGroupApply struct {
+	GroupId int `json:"group_id"`
+	UserId  int `json:"user_id"`
 }
 
 // 加入群房间
@@ -46,4 +52,41 @@ func (h *Handler) onConsumeGroupJoin(ctx context.Context, body []byte) {
 			}
 		}
 	}
+}
+
+// 入群申请通知
+func (h *Handler) onConsumeGroupApply(ctx context.Context, body []byte) {
+
+	var in ConsumeGroupApply
+	if err := json.Unmarshal(body, &in); err != nil {
+		logger.Error("[ChatSubscribe] onConsumeGroupApply Unmarshal err: ", err.Error())
+		return
+	}
+
+	var groupMember model.GroupMember
+	if err := h.source.Db().First(&groupMember, "group_id = ? and leader = ?", in.GroupId, 2).Error; err != nil {
+		return
+	}
+
+	var groupDetail model.Group
+	if err := h.source.Db().First(&groupDetail, in.GroupId).Error; err != nil {
+		return
+	}
+
+	var user model.Users
+	if err := h.source.Db().First(&user, in.UserId).Error; err != nil {
+		return
+	}
+
+	data := make(map[string]any)
+	data["group_name"] = groupDetail.Name
+	data["nickname"] = user.Nickname
+
+	clientIds := h.clientStorage.GetUidFromClientIds(ctx, h.config.ServerId(), socket.Session.Chat.Name(), strconv.Itoa(groupMember.UserId))
+
+	c := socket.NewSenderContent()
+	c.SetReceive(clientIds...)
+	c.SetMessage(entity.PushEventGroupApply, data)
+
+	socket.Session.Chat.Write(c)
 }
