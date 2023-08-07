@@ -12,18 +12,18 @@ import (
 	"go-chat/internal/pkg/strutil"
 	"go-chat/internal/pkg/timeutil"
 	"go-chat/internal/repository/model"
+	"go-chat/internal/repository/repo"
 	"go-chat/internal/service"
 )
 
 type Records struct {
-	talkRecordsService *service.TalkRecordsService
-	groupMemberService *service.GroupMemberService
-	filesystem         *filesystem.Filesystem
-	authService        *service.AuthService
-}
+	GroupMemberRepo *repo.GroupMember
+	TalkRecordsRepo *repo.TalkRecords
 
-func NewRecords(talkRecordsService *service.TalkRecordsService, groupMemberService *service.GroupMemberService, filesystem *filesystem.Filesystem, authService *service.AuthService) *Records {
-	return &Records{talkRecordsService: talkRecordsService, groupMemberService: groupMemberService, filesystem: filesystem, authService: authService}
+	TalkRecordsService *service.TalkRecordsService
+	GroupMemberService *service.GroupMemberService
+	Filesystem         *filesystem.Filesystem
+	AuthService        *service.AuthService
 }
 
 type GetTalkRecordsRequest struct {
@@ -44,7 +44,7 @@ func (c *Records) GetRecords(ctx *ichat.Context) error {
 
 	uid := ctx.UserId()
 	if params.TalkType == entity.ChatGroupMode {
-		err := c.authService.IsAuth(ctx.Ctx(), &service.AuthOption{
+		err := c.AuthService.IsAuth(ctx.Ctx(), &service.AuthOption{
 			TalkType:   params.TalkType,
 			UserId:     uid,
 			ReceiverId: params.ReceiverId,
@@ -71,7 +71,7 @@ func (c *Records) GetRecords(ctx *ichat.Context) error {
 		}
 	}
 
-	records, err := c.talkRecordsService.GetTalkRecords(ctx.Ctx(), &service.QueryTalkRecordsOpt{
+	records, err := c.TalkRecordsService.GetTalkRecords(ctx.Ctx(), &service.QueryTalkRecordsOpt{
 		TalkType:   params.TalkType,
 		UserId:     ctx.UserId(),
 		ReceiverId: params.ReceiverId,
@@ -106,7 +106,7 @@ func (c *Records) SearchHistoryRecords(ctx *ichat.Context) error {
 	uid := ctx.UserId()
 
 	if params.TalkType == entity.ChatGroupMode {
-		err := c.authService.IsAuth(ctx.Ctx(), &service.AuthOption{
+		err := c.AuthService.IsAuth(ctx.Ctx(), &service.AuthOption{
 			TalkType:   params.TalkType,
 			UserId:     uid,
 			ReceiverId: params.ReceiverId,
@@ -137,7 +137,7 @@ func (c *Records) SearchHistoryRecords(ctx *ichat.Context) error {
 		m = []int{params.MsgType}
 	}
 
-	records, err := c.talkRecordsService.GetTalkRecords(ctx.Ctx(), &service.QueryTalkRecordsOpt{
+	records, err := c.TalkRecordsService.GetTalkRecords(ctx.Ctx(), &service.QueryTalkRecordsOpt{
 		TalkType:   params.TalkType,
 		MsgType:    m,
 		UserId:     ctx.UserId(),
@@ -174,7 +174,7 @@ func (c *Records) GetForwardRecords(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	records, err := c.talkRecordsService.GetForwardRecords(ctx.Ctx(), ctx.UserId(), int64(params.RecordId))
+	records, err := c.TalkRecordsService.GetForwardRecords(ctx.Ctx(), ctx.UserId(), int64(params.RecordId))
 	if err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}
@@ -196,7 +196,7 @@ func (c *Records) Download(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	record, err := c.talkRecordsService.Dao().FindById(ctx.Ctx(), params.RecordId)
+	record, err := c.TalkRecordsRepo.FindById(ctx.Ctx(), params.RecordId)
 	if err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}
@@ -208,7 +208,7 @@ func (c *Records) Download(ctx *ichat.Context) error {
 				return ctx.Forbidden("无访问权限！")
 			}
 		} else {
-			if !c.groupMemberService.Dao().IsMember(ctx.Ctx(), record.ReceiverId, uid, false) {
+			if !c.GroupMemberRepo.IsMember(ctx.Ctx(), record.ReceiverId, uid, false) {
 				return ctx.Forbidden("无访问权限！")
 			}
 		}
@@ -221,9 +221,9 @@ func (c *Records) Download(ctx *ichat.Context) error {
 
 	switch fileInfo.Drive {
 	case entity.FileDriveLocal:
-		ctx.Context.FileAttachment(c.filesystem.Local.Path(fileInfo.Path), fileInfo.Name)
+		ctx.Context.FileAttachment(c.Filesystem.Local.Path(fileInfo.Path), fileInfo.Name)
 	case entity.FileDriveCos:
-		ctx.Context.Redirect(http.StatusFound, c.filesystem.Cos.PrivateUrl(fileInfo.Path, 60*time.Second))
+		ctx.Context.Redirect(http.StatusFound, c.Filesystem.Cos.PrivateUrl(fileInfo.Path, 60*time.Second))
 	default:
 		return ctx.ErrorBusiness("未知文件驱动类型")
 	}

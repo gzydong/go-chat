@@ -4,17 +4,17 @@ import (
 	"go-chat/api/pb/web/v1"
 	"go-chat/internal/pkg/ichat"
 	"go-chat/internal/repository/model"
+	"go-chat/internal/repository/repo"
 	"go-chat/internal/service"
 	"gorm.io/gorm"
 )
 
 type Group struct {
-	contactGroupService *service.ContactGroupService
-	contactService      *service.ContactService
-}
+	ContactRepo      *repo.Contact
+	ContactGroupRepo *repo.ContactGroup
 
-func NewGroup(contactGroupService *service.ContactGroupService, contactService *service.ContactService) *Group {
-	return &Group{contactGroupService: contactGroupService, contactService: contactService}
+	ContactGroupService *service.ContactGroupService
+	ContactService      *service.ContactService
 }
 
 // List 联系人分组列表
@@ -24,7 +24,7 @@ func (c *Group) List(ctx *ichat.Context) error {
 
 	items := make([]*web.ContactGroupListResponse_Item, 0)
 
-	count, err := c.contactService.Dao().QueryCount(ctx.Ctx(), "user_id = ? and status = 1", uid)
+	count, err := c.ContactRepo.QueryCount(ctx.Ctx(), "user_id = ? and status = 1", uid)
 	if err != nil {
 		return ctx.Error(err.Error())
 	}
@@ -34,7 +34,7 @@ func (c *Group) List(ctx *ichat.Context) error {
 		Count: int32(count),
 	})
 
-	group, err := c.contactGroupService.GetUserGroup(ctx.Ctx(), uid)
+	group, err := c.ContactGroupService.GetUserGroup(ctx.Ctx(), uid)
 	if err != nil {
 		return ctx.Error(err.Error())
 	}
@@ -81,7 +81,7 @@ func (c *Group) Save(ctx *ichat.Context) error {
 		}
 	}
 
-	all, err := c.contactGroupService.Repo().FindAll(ctx.Ctx())
+	all, err := c.ContactGroupRepo.FindAll(ctx.Ctx())
 	if err != nil {
 		return ctx.ErrorBusiness(err)
 	}
@@ -92,7 +92,7 @@ func (c *Group) Save(ctx *ichat.Context) error {
 		}
 	}
 
-	err = c.contactGroupService.Db().Transaction(func(tx *gorm.DB) error {
+	err = c.ContactGroupService.Db().Transaction(func(tx *gorm.DB) error {
 
 		if len(insertItems) > 0 {
 			if err := tx.Create(insertItems).Error; err != nil {

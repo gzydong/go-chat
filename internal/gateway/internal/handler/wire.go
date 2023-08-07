@@ -5,6 +5,6 @@ import (
 )
 
 var ProviderSet = wire.NewSet(
-	NewChatChannel,
-	NewExampleChannel,
+	wire.Struct(new(ChatChannel), "*"),
+	wire.Struct(new(ExampleChannel), "*"),
 )

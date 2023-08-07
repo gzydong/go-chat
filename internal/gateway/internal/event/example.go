@@ -10,11 +10,7 @@ import (
 )
 
 type ExampleEvent struct {
-	handler *example.Handler
-}
-
-func NewExampleEvent() *ExampleEvent {
-	return &ExampleEvent{}
+	Handler *example.Handler
 }
 
 func (e *ExampleEvent) OnOpen(client socket.IClient) {
@@ -28,7 +24,7 @@ func (e *ExampleEvent) OnMessage(client socket.IClient, message []byte) {
 	event := gjson.GetBytes(message, "event").String()
 	if event != "" {
 		// 触发事件
-		e.handler.Call(context.TODO(), client, event, message)
+		e.Handler.Call(context.TODO(), client, event, message)
 	}
 }
 

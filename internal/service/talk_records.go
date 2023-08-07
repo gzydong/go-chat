@@ -43,10 +43,6 @@ func NewTalkRecordsService(source *repo.Source, talkVoteCache *cache.Vote, talkR
 	return &TalkRecordsService{Source: source, talkVoteCache: talkVoteCache, talkRecordsVoteRepo: talkRecordsVoteRepo, groupMemberRepo: groupMemberRepo, talkRecordsRepo: repo}
 }
 
-func (s *TalkRecordsService) Dao() *repo.TalkRecords {
-	return s.talkRecordsRepo
-}
-
 type QueryTalkRecordsOpt struct {
 	TalkType   int   // 对话类型
 	UserId     int   // 获取消息的用户

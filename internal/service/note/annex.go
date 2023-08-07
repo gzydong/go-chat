@@ -20,10 +20,6 @@ func NewArticleAnnexService(source *repo.Source, dao *note.ArticleAnnex, fileSys
 	return &ArticleAnnexService{Source: source, annex: dao, filesystem: fileSystem}
 }
 
-func (s *ArticleAnnexService) Dao() *note.ArticleAnnex {
-	return s.annex
-}
-
 func (s *ArticleAnnexService) Create(ctx context.Context, data *model.ArticleAnnex) error {
 	return s.annex.Create(ctx, data)
 }

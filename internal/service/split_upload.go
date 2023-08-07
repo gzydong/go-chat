@@ -33,10 +33,6 @@ func NewSplitUploadService(source *repo.Source, repo *repo.SplitUpload, conf *co
 	return &SplitUploadService{Source: source, splitUpload: repo, config: conf, fileSystem: fileSystem}
 }
 
-func (s *SplitUploadService) Dao() *repo.SplitUpload {
-	return s.splitUpload
-}
-
 type MultipartInitiateOpt struct {
 	UserId int
 	Name   string

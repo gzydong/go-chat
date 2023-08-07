@@ -18,20 +18,16 @@ import (
 )
 
 type Auth struct {
-	config              *config.Config
-	userService         *service.UserService
-	smsService          *service.SmsService
-	jwtTokenStorage     *cache.JwtTokenStorage
-	redisLock           *cache.RedisLock
-	ipAddressService    *service.IpAddressService
-	talkSessionService  *service.TalkSessionService
-	articleClassService *note.ArticleClassService
-	robotRepo           *repo.Robot
-	messageService      *service.MessageService
-}
-
-func NewAuth(config *config.Config, userService *service.UserService, smsService *service.SmsService, jwtTokenStorage *cache.JwtTokenStorage, redisLock *cache.RedisLock, ipAddressService *service.IpAddressService, talkSessionService *service.TalkSessionService, articleClassService *note.ArticleClassService, robotRepo *repo.Robot, messageService *service.MessageService) *Auth {
-	return &Auth{config: config, userService: userService, smsService: smsService, jwtTokenStorage: jwtTokenStorage, redisLock: redisLock, ipAddressService: ipAddressService, talkSessionService: talkSessionService, articleClassService: articleClassService, robotRepo: robotRepo, messageService: messageService}
+	Config              *config.Config
+	UserService         *service.UserService
+	SmsService          *service.SmsService
+	JwtTokenStorage     *cache.JwtTokenStorage
+	RedisLock           *cache.RedisLock
+	IpAddressService    *service.IpAddressService
+	TalkSessionService  *service.TalkSessionService
+	ArticleClassService *note.ArticleClassService
+	RobotRepo           *repo.Robot
+	MessageService      *service.MessageService
 }
 
 // Login 登录接口
@@ -42,19 +38,19 @@ func (c *Auth) Login(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	user, err := c.userService.Login(params.Mobile, params.Password)
+	user, err := c.UserService.Login(params.Mobile, params.Password)
 	if err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}
 
 	// TODO 这里需需要异步处理
-	root, _ := c.robotRepo.GetLoginRobot(ctx.Ctx())
+	root, _ := c.RobotRepo.GetLoginRobot(ctx.Ctx())
 	if root != nil {
 		ip := ctx.Context.ClientIP()
 
-		address, _ := c.ipAddressService.FindAddress(ip)
+		address, _ := c.IpAddressService.FindAddress(ip)
 
-		_, _ = c.talkSessionService.Create(ctx.Ctx(), &service.TalkSessionCreateOpt{
+		_, _ = c.TalkSessionService.Create(ctx.Ctx(), &service.TalkSessionCreateOpt{
 			UserId:     user.Id,
 			TalkType:   entity.ChatPrivateMode,
 			ReceiverId: root.UserId,
@@ -62,7 +58,7 @@ func (c *Auth) Login(ctx *ichat.Context) error {
 		})
 
 		// 推送登录消息
-		_ = c.messageService.SendLogin(ctx.Ctx(), user.Id, &message.LoginMessageRequest{
+		_ = c.MessageService.SendLogin(ctx.Ctx(), user.Id, &message.LoginMessageRequest{
 			Ip:       ip,
 			Address:  address,
 			Platform: params.Platform,
@@ -74,7 +70,7 @@ func (c *Auth) Login(ctx *ichat.Context) error {
 	return ctx.Success(&web.AuthLoginResponse{
 		Type:        "Bearer",
 		AccessToken: c.token(user.Id),
-		ExpiresIn:   int32(c.config.Jwt.ExpiresTime),
+		ExpiresIn:   int32(c.Config.Jwt.ExpiresTime),
 	})
 }
 
@@ -87,11 +83,11 @@ func (c *Auth) Register(ctx *ichat.Context) error {
 	}
 
 	// 验证短信验证码是否正确
-	if !c.smsService.Verify(ctx.Ctx(), entity.SmsRegisterChannel, params.Mobile, params.SmsCode) {
+	if !c.SmsService.Verify(ctx.Ctx(), entity.SmsRegisterChannel, params.Mobile, params.SmsCode) {
 		return ctx.InvalidParams("短信验证码填写错误！")
 	}
 
-	if _, err := c.userService.Register(ctx.Ctx(), &service.UserRegisterOpt{
+	if _, err := c.UserService.Register(ctx.Ctx(), &service.UserRegisterOpt{
 		Nickname: params.Nickname,
 		Mobile:   params.Mobile,
 		Password: params.Password,
@@ -100,7 +96,7 @@ func (c *Auth) Register(ctx *ichat.Context) error {
 		return ctx.ErrorBusiness(err.Error())
 	}
 
-	c.smsService.Delete(ctx.Ctx(), entity.SmsRegisterChannel, params.Mobile)
+	c.SmsService.Delete(ctx.Ctx(), entity.SmsRegisterChannel, params.Mobile)
 
 	return ctx.Success(&web.AuthRegisterResponse{})
 }
@@ -121,7 +117,7 @@ func (c *Auth) Refresh(ctx *ichat.Context) error {
 	return ctx.Success(&web.AuthRefreshResponse{
 		Type:        "Bearer",
 		AccessToken: c.token(ctx.UserId()),
-		ExpiresIn:   int32(c.config.Jwt.ExpiresTime),
+		ExpiresIn:   int32(c.Config.Jwt.ExpiresTime),
 	})
 }
 
@@ -134,11 +130,11 @@ func (c *Auth) Forget(ctx *ichat.Context) error {
 	}
 
 	// 验证短信验证码是否正确
-	if !c.smsService.Verify(ctx.Ctx(), entity.SmsForgetAccountChannel, params.Mobile, params.SmsCode) {
+	if !c.SmsService.Verify(ctx.Ctx(), entity.SmsForgetAccountChannel, params.Mobile, params.SmsCode) {
 		return ctx.InvalidParams("短信验证码填写错误！")
 	}
 
-	if _, err := c.userService.Forget(&service.UserForgetOpt{
+	if _, err := c.UserService.Forget(&service.UserForgetOpt{
 		Mobile:   params.Mobile,
 		Password: params.Password,
 		SmsCode:  params.SmsCode,
@@ -146,17 +142,17 @@ func (c *Auth) Forget(ctx *ichat.Context) error {
 		return ctx.ErrorBusiness(err.Error())
 	}
 
-	c.smsService.Delete(ctx.Ctx(), entity.SmsForgetAccountChannel, params.Mobile)
+	c.SmsService.Delete(ctx.Ctx(), entity.SmsForgetAccountChannel, params.Mobile)
 
 	return ctx.Success(&web.AuthForgetResponse{})
 }
 
 func (c *Auth) token(uid int) string {
 
-	expiresAt := time.Now().Add(time.Second * time.Duration(c.config.Jwt.ExpiresTime))
+	expiresAt := time.Now().Add(time.Second * time.Duration(c.Config.Jwt.ExpiresTime))
 
 	// 生成登录凭证
-	token := jwt.GenerateToken("api", c.config.Jwt.Secret, &jwt.Options{
+	token := jwt.GenerateToken("api", c.Config.Jwt.Secret, &jwt.Options{
 		ExpiresAt: jwt.NewNumericDate(expiresAt),
 		ID:        strconv.Itoa(uid),
 		Issuer:    "im.web",
@@ -172,7 +168,7 @@ func (c *Auth) toBlackList(ctx *ichat.Context) {
 	session := ctx.JwtSession()
 	if session != nil {
 		if ex := session.ExpiresAt - time.Now().Unix(); ex > 0 {
-			_ = c.jwtTokenStorage.SetBlackList(ctx.Ctx(), session.Token, time.Duration(ex)*time.Second)
+			_ = c.JwtTokenStorage.SetBlackList(ctx.Ctx(), session.Token, time.Duration(ex)*time.Second)
 		}
 	}
 }

@@ -17,10 +17,6 @@ func NewGroupApplyService(source *repo.Source, repo *repo.GroupApply) *GroupAppl
 	return &GroupApplyService{Source: source, apply: repo}
 }
 
-func (s *GroupApplyService) Dao() *repo.GroupApply {
-	return s.apply
-}
-
 func (s *GroupApplyService) Auth(ctx context.Context, applyId, userId int) bool {
 	info, err := s.apply.FindById(ctx, applyId)
 	if err != nil {

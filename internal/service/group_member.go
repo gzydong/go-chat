@@ -17,10 +17,6 @@ func NewGroupMemberService(source *repo.Source, repo *repo.GroupMember) *GroupMe
 	return &GroupMemberService{Source: source, member: repo}
 }
 
-func (g *GroupMemberService) Dao() *repo.GroupMember {
-	return g.member
-}
-
 // Handover 交接群主权限
 func (g *GroupMemberService) Handover(ctx context.Context, groupId int, userId int, memberId int) error {
 	return g.Db().WithContext(ctx).Transaction(func(tx *gorm.DB) error {

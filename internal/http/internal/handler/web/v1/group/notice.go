@@ -7,18 +7,18 @@ import (
 	"go-chat/internal/pkg/jsonutil"
 	"go-chat/internal/pkg/timeutil"
 	"go-chat/internal/repository/model"
+	"go-chat/internal/repository/repo"
 
 	"go-chat/internal/service"
 )
 
 type Notice struct {
-	groupNoticeService *service.GroupNoticeService
-	groupMemberService *service.GroupMemberService
-	messageService     *service.MessageService
-}
+	GroupMemberRepo *repo.GroupMember
+	GroupNoticeRepo *repo.GroupNotice
 
-func NewNotice(groupNoticeService *service.GroupNoticeService, groupMemberService *service.GroupMemberService, messageService *service.MessageService) *Notice {
-	return &Notice{groupNoticeService: groupNoticeService, groupMemberService: groupMemberService, messageService: messageService}
+	GroupNoticeService *service.GroupNoticeService
+	GroupMemberService *service.GroupMemberService
+	MessageService     *service.MessageService
 }
 
 // CreateAndUpdate 添加或编辑群公告
@@ -31,7 +31,7 @@ func (c *Notice) CreateAndUpdate(ctx *ichat.Context) error {
 
 	uid := ctx.UserId()
 
-	if !c.groupMemberService.Dao().IsLeader(ctx.Ctx(), int(params.GroupId), uid) {
+	if !c.GroupMemberRepo.IsLeader(ctx.Ctx(), int(params.GroupId), uid) {
 		return ctx.ErrorBusiness("无权限操作")
 	}
 
@@ -41,7 +41,7 @@ func (c *Notice) CreateAndUpdate(ctx *ichat.Context) error {
 	)
 
 	if params.NoticeId == 0 {
-		err = c.groupNoticeService.Create(ctx.Ctx(), &service.GroupNoticeEditOpt{
+		err = c.GroupNoticeService.Create(ctx.Ctx(), &service.GroupNoticeEditOpt{
 			UserId:    uid,
 			GroupId:   int(params.GroupId),
 			NoticeId:  int(params.NoticeId),
@@ -52,7 +52,7 @@ func (c *Notice) CreateAndUpdate(ctx *ichat.Context) error {
 		})
 		msg = "添加群公告成功！"
 	} else {
-		err = c.groupNoticeService.Update(ctx.Ctx(), &service.GroupNoticeEditOpt{
+		err = c.GroupNoticeService.Update(ctx.Ctx(), &service.GroupNoticeEditOpt{
 			GroupId:   int(params.GroupId),
 			NoticeId:  int(params.NoticeId),
 			Title:     params.Title,
@@ -67,7 +67,7 @@ func (c *Notice) CreateAndUpdate(ctx *ichat.Context) error {
 		return ctx.ErrorBusiness(err.Error())
 	}
 
-	_ = c.messageService.SendSysOther(ctx.Ctx(), &model.TalkRecords{
+	_ = c.MessageService.SendSysOther(ctx.Ctx(), &model.TalkRecords{
 		TalkType:   model.TalkRecordTalkTypeGroup,
 		MsgType:    entity.ChatMsgSysGroupNotice,
 		UserId:     uid,
@@ -91,7 +91,7 @@ func (c *Notice) Delete(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	if err := c.groupNoticeService.Delete(ctx.Ctx(), int(params.GroupId), int(params.NoticeId)); err != nil {
+	if err := c.GroupNoticeService.Delete(ctx.Ctx(), int(params.GroupId), int(params.NoticeId)); err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}
 
@@ -107,11 +107,11 @@ func (c *Notice) List(ctx *ichat.Context) error {
 	}
 
 	// 判断是否是群成员
-	if !c.groupMemberService.Dao().IsMember(ctx.Ctx(), int(params.GroupId), ctx.UserId(), true) {
+	if !c.GroupMemberRepo.IsMember(ctx.Ctx(), int(params.GroupId), ctx.UserId(), true) {
 		return ctx.ErrorBusiness("无获取数据权限！")
 	}
 
-	all, err := c.groupNoticeService.Dao().GetListAll(ctx.Ctx(), int(params.GroupId))
+	all, err := c.GroupNoticeRepo.GetListAll(ctx.Ctx(), int(params.GroupId))
 	if err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}

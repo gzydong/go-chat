@@ -18,18 +18,20 @@ import (
 )
 
 type Group struct {
-	groupService       *service.GroupService
-	groupMemberService *service.GroupMemberService
-	talkSessionService *service.TalkSessionService
-	userService        *service.UserService
-	redisLock          *cache.RedisLock
-	contactService     *service.ContactService
-	groupNoticeService *service.GroupNoticeService
-	messageService     *service.MessageService
-}
+	RedisLock *cache.RedisLock
 
-func NewGroup(groupService *service.GroupService, groupMemberService *service.GroupMemberService, talkSessionService *service.TalkSessionService, userService *service.UserService, redisLock *cache.RedisLock, contactService *service.ContactService, groupNoticeService *service.GroupNoticeService, messageService *service.MessageService) *Group {
-	return &Group{groupService: groupService, groupMemberService: groupMemberService, talkSessionService: talkSessionService, userService: userService, redisLock: redisLock, contactService: contactService, groupNoticeService: groupNoticeService, messageService: messageService}
+	UsersRepo       *repo.Users
+	GroupRepo       *repo.Group
+	GroupMemberRepo *repo.GroupMember
+	TalkSessionRepo *repo.TalkSession
+
+	GroupService       *service.GroupService
+	GroupMemberService *service.GroupMemberService
+	TalkSessionService *service.TalkSessionService
+	UserService        *service.UserService
+	ContactService     *service.ContactService
+	GroupNoticeService *service.GroupNoticeService
+	MessageService     *service.MessageService
 }
 
 // Create 创建群聊分组
@@ -40,7 +42,7 @@ func (c *Group) Create(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	gid, err := c.groupService.Create(ctx.Ctx(), &service.GroupCreateOpt{
+	gid, err := c.GroupService.Create(ctx.Ctx(), &service.GroupCreateOpt{
 		UserId:    ctx.UserId(),
 		Name:      params.Name,
 		Avatar:    params.Avatar,
@@ -62,15 +64,15 @@ func (c *Group) Dismiss(ctx *ichat.Context) error {
 	}
 
 	uid := ctx.UserId()
-	if !c.groupMemberService.Dao().IsMaster(ctx.Ctx(), int(params.GroupId), uid) {
+	if !c.GroupMemberRepo.IsMaster(ctx.Ctx(), int(params.GroupId), uid) {
 		return ctx.ErrorBusiness("暂无权限解散群组！")
 	}
 
-	if err := c.groupService.Dismiss(ctx.Ctx(), int(params.GroupId), ctx.UserId()); err != nil {
+	if err := c.GroupService.Dismiss(ctx.Ctx(), int(params.GroupId), ctx.UserId()); err != nil {
 		return ctx.ErrorBusiness("群组解散失败！")
 	}
 
-	_ = c.messageService.SendSystemText(ctx.Ctx(), uid, &message.TextMessageRequest{
+	_ = c.MessageService.SendSystemText(ctx.Ctx(), uid, &message.TextMessageRequest{
 		Content: "群组已被群主解散！",
 		Receiver: &message.MessageReceiver{
 			TalkType:   entity.ChatGroupMode,
@@ -90,13 +92,13 @@ func (c *Group) Invite(ctx *ichat.Context) error {
 	}
 
 	key := fmt.Sprintf("group-join:%d", params.GroupId)
-	if !c.redisLock.Lock(ctx.Ctx(), key, 20) {
+	if !c.RedisLock.Lock(ctx.Ctx(), key, 20) {
 		return ctx.ErrorBusiness("网络异常，请稍后再试！")
 	}
 
-	defer c.redisLock.UnLock(ctx.Ctx(), key)
+	defer c.RedisLock.UnLock(ctx.Ctx(), key)
 
-	group, err := c.groupService.Dao().FindById(ctx.Ctx(), int(params.GroupId))
+	group, err := c.GroupRepo.FindById(ctx.Ctx(), int(params.GroupId))
 	if err != nil {
 		return ctx.ErrorBusiness("网络异常，请稍后再试！")
 	}
@@ -112,11 +114,11 @@ func (c *Group) Invite(ctx *ichat.Context) error {
 		return ctx.ErrorBusiness("邀请好友列表不能为空！")
 	}
 
-	if !c.groupMemberService.Dao().IsMember(ctx.Ctx(), int(params.GroupId), uid, true) {
+	if !c.GroupMemberRepo.IsMember(ctx.Ctx(), int(params.GroupId), uid, true) {
 		return ctx.ErrorBusiness("非群组成员，无权邀请好友！")
 	}
 
-	if err := c.groupService.Invite(ctx.Ctx(), &service.GroupInviteOpt{
+	if err := c.GroupService.Invite(ctx.Ctx(), &service.GroupInviteOpt{
 		UserId:    uid,
 		GroupId:   int(params.GroupId),
 		MemberIds: uids,
@@ -136,13 +138,13 @@ func (c *Group) SignOut(ctx *ichat.Context) error {
 	}
 
 	uid := ctx.UserId()
-	if err := c.groupService.Secede(ctx.Ctx(), int(params.GroupId), uid); err != nil {
+	if err := c.GroupService.Secede(ctx.Ctx(), int(params.GroupId), uid); err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}
 
-	sid := c.talkSessionService.Dao().FindBySessionId(uid, int(params.GroupId), entity.ChatGroupMode)
+	sid := c.TalkSessionRepo.FindBySessionId(uid, int(params.GroupId), entity.ChatGroupMode)
 
-	_ = c.talkSessionService.Delete(ctx.Ctx(), ctx.UserId(), sid)
+	_ = c.TalkSessionService.Delete(ctx.Ctx(), ctx.UserId(), sid)
 
 	return ctx.Success(nil)
 }
@@ -155,7 +157,7 @@ func (c *Group) Setting(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	group, err := c.groupService.Dao().FindById(ctx.Ctx(), int(params.GroupId))
+	group, err := c.GroupRepo.FindById(ctx.Ctx(), int(params.GroupId))
 	if err != nil {
 		return ctx.ErrorBusiness("网络异常，请稍后再试！")
 	}
@@ -165,11 +167,11 @@ func (c *Group) Setting(ctx *ichat.Context) error {
 	}
 
 	uid := ctx.UserId()
-	if !c.groupMemberService.Dao().IsLeader(ctx.Ctx(), int(params.GroupId), uid) {
+	if !c.GroupMemberRepo.IsLeader(ctx.Ctx(), int(params.GroupId), uid) {
 		return ctx.ErrorBusiness("无权限操作")
 	}
 
-	if err := c.groupService.Update(ctx.Ctx(), &service.GroupUpdateOpt{
+	if err := c.GroupService.Update(ctx.Ctx(), &service.GroupUpdateOpt{
 		GroupId: int(params.GroupId),
 		Name:    params.GroupName,
 		Avatar:  params.Avatar,
@@ -178,7 +180,7 @@ func (c *Group) Setting(ctx *ichat.Context) error {
 		return ctx.ErrorBusiness(err.Error())
 	}
 
-	_ = c.messageService.SendSystemText(ctx.Ctx(), uid, &message.TextMessageRequest{
+	_ = c.MessageService.SendSystemText(ctx.Ctx(), uid, &message.TextMessageRequest{
 		Content: "群主或管理员修改了群信息！",
 		Receiver: &message.MessageReceiver{
 			TalkType:   entity.ChatGroupMode,
@@ -199,11 +201,11 @@ func (c *Group) RemoveMembers(ctx *ichat.Context) error {
 
 	uid := ctx.UserId()
 
-	if !c.groupMemberService.Dao().IsLeader(ctx.Ctx(), int(params.GroupId), uid) {
+	if !c.GroupMemberRepo.IsLeader(ctx.Ctx(), int(params.GroupId), uid) {
 		return ctx.ErrorBusiness("无权限操作")
 	}
 
-	err := c.groupService.RemoveMember(ctx.Ctx(), &service.GroupRemoveMembersOpt{
+	err := c.GroupService.RemoveMember(ctx.Ctx(), &service.GroupRemoveMembersOpt{
 		UserId:    uid,
 		GroupId:   int(params.GroupId),
 		MemberIds: sliceutil.ParseIds(params.MembersIds),
@@ -226,7 +228,7 @@ func (c *Group) Detail(ctx *ichat.Context) error {
 
 	uid := ctx.UserId()
 
-	groupInfo, err := c.groupService.Dao().FindById(ctx.Ctx(), int(params.GroupId))
+	groupInfo, err := c.GroupRepo.FindById(ctx.Ctx(), int(params.GroupId))
 	if err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}
@@ -245,10 +247,10 @@ func (c *Group) Detail(ctx *ichat.Context) error {
 		IsDisturb: 0,
 		IsMute:    int32(groupInfo.IsMute),
 		IsOvert:   int32(groupInfo.IsOvert),
-		VisitCard: c.groupMemberService.Dao().GetMemberRemark(ctx.Ctx(), int(params.GroupId), uid),
+		VisitCard: c.GroupMemberRepo.GetMemberRemark(ctx.Ctx(), int(params.GroupId), uid),
 	}
 
-	if c.talkSessionService.Dao().IsDisturb(uid, groupInfo.Id, 2) {
+	if c.TalkSessionRepo.IsDisturb(uid, groupInfo.Id, 2) {
 		resp.IsDisturb = 1
 	}
 
@@ -263,7 +265,7 @@ func (c *Group) UpdateMemberRemark(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	_, err := c.groupMemberService.Dao().UpdateWhere(ctx.Ctx(), map[string]any{
+	_, err := c.GroupMemberRepo.UpdateWhere(ctx.Ctx(), map[string]any{
 		"user_card": params.VisitCard,
 	}, "group_id = ? and user_id = ?", params.GroupId, ctx.UserId())
 	if err != nil {
@@ -280,7 +282,7 @@ func (c *Group) GetInviteFriends(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	items, err := c.contactService.List(ctx.Ctx(), ctx.UserId())
+	items, err := c.ContactService.List(ctx.Ctx(), ctx.UserId())
 	if err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}
@@ -289,7 +291,7 @@ func (c *Group) GetInviteFriends(ctx *ichat.Context) error {
 		return ctx.Success(items)
 	}
 
-	mids := c.groupMemberService.Dao().GetMemberIds(ctx.Ctx(), int(params.GroupId))
+	mids := c.GroupMemberRepo.GetMemberIds(ctx.Ctx(), int(params.GroupId))
 	if len(mids) == 0 {
 		return ctx.Success(items)
 	}
@@ -306,7 +308,7 @@ func (c *Group) GetInviteFriends(ctx *ichat.Context) error {
 
 func (c *Group) GroupList(ctx *ichat.Context) error {
 
-	items, err := c.groupService.List(ctx.UserId())
+	items, err := c.GroupService.List(ctx.UserId())
 	if err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}
@@ -338,7 +340,7 @@ func (c *Group) Members(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	group, err := c.groupService.Dao().FindById(ctx.Ctx(), int(params.GroupId))
+	group, err := c.GroupRepo.FindById(ctx.Ctx(), int(params.GroupId))
 	if err != nil {
 		return ctx.ErrorBusiness("网络异常，请稍后再试！")
 	}
@@ -347,11 +349,11 @@ func (c *Group) Members(ctx *ichat.Context) error {
 		return ctx.Success([]any{})
 	}
 
-	if !c.groupMemberService.Dao().IsMember(ctx.Ctx(), int(params.GroupId), ctx.UserId(), false) {
+	if !c.GroupMemberRepo.IsMember(ctx.Ctx(), int(params.GroupId), ctx.UserId(), false) {
 		return ctx.ErrorBusiness("非群成员无权查看成员列表！")
 	}
 
-	list := c.groupMemberService.Dao().GetMembers(ctx.Ctx(), int(params.GroupId))
+	list := c.GroupMemberRepo.GetMembers(ctx.Ctx(), int(params.GroupId))
 
 	items := make([]*web.GroupMemberListResponse_Item, 0)
 	for _, item := range list {
@@ -379,7 +381,7 @@ func (c *Group) OvertList(ctx *ichat.Context) error {
 
 	uid := ctx.UserId()
 
-	list, err := c.groupService.Dao().SearchOvertList(ctx.Ctx(), &repo.SearchOvertListOpt{
+	list, err := c.GroupRepo.SearchOvertList(ctx.Ctx(), &repo.SearchOvertListOpt{
 		Name:   params.Name,
 		UserId: uid,
 		Page:   int(params.Page),
@@ -401,7 +403,7 @@ func (c *Group) OvertList(ctx *ichat.Context) error {
 		ids = append(ids, val.Id)
 	}
 
-	count, err := c.groupMemberService.Dao().CountGroupMemberNum(ids)
+	count, err := c.GroupMemberRepo.CountGroupMemberNum(ids)
 	if err != nil {
 		return ctx.ErrorBusiness("查询异常！")
 	}
@@ -442,7 +444,7 @@ func (c *Group) Handover(ctx *ichat.Context) error {
 	}
 
 	uid := ctx.UserId()
-	if !c.groupMemberService.Dao().IsMaster(ctx.Ctx(), int(params.GroupId), uid) {
+	if !c.GroupMemberRepo.IsMaster(ctx.Ctx(), int(params.GroupId), uid) {
 		return ctx.ErrorBusiness("暂无权限！")
 	}
 
@@ -450,13 +452,13 @@ func (c *Group) Handover(ctx *ichat.Context) error {
 		return ctx.ErrorBusiness("暂无权限！")
 	}
 
-	err := c.groupMemberService.Handover(ctx.Ctx(), int(params.GroupId), uid, int(params.UserId))
+	err := c.GroupMemberService.Handover(ctx.Ctx(), int(params.GroupId), uid, int(params.UserId))
 	if err != nil {
 		return ctx.ErrorBusiness("转让群主失败！")
 	}
 
 	members := make([]model.TalkRecordExtraGroupMembers, 0)
-	c.messageService.Db().Table("users").Select("id as user_id", "nickname").Where("id in ?", []int{uid, int(params.UserId)}).Scan(&members)
+	c.MessageService.Db().Table("users").Select("id as user_id", "nickname").Where("id in ?", []int{uid, int(params.UserId)}).Scan(&members)
 
 	extra := model.TalkRecordExtraGroupTransfer{}
 	for _, member := range members {
@@ -469,7 +471,7 @@ func (c *Group) Handover(ctx *ichat.Context) error {
 		}
 	}
 
-	_ = c.messageService.SendSysOther(ctx.Ctx(), &model.TalkRecords{
+	_ = c.MessageService.SendSysOther(ctx.Ctx(), &model.TalkRecords{
 		MsgType:    entity.ChatMsgSysGroupTransfer,
 		TalkType:   model.TalkRecordTalkTypeGroup,
 		UserId:     uid,
@@ -489,7 +491,7 @@ func (c *Group) AssignAdmin(ctx *ichat.Context) error {
 	}
 
 	uid := ctx.UserId()
-	if !c.groupMemberService.Dao().IsMaster(ctx.Ctx(), int(params.GroupId), uid) {
+	if !c.GroupMemberRepo.IsMaster(ctx.Ctx(), int(params.GroupId), uid) {
 		return ctx.ErrorBusiness("暂无权限！")
 	}
 
@@ -498,7 +500,7 @@ func (c *Group) AssignAdmin(ctx *ichat.Context) error {
 		leader = 1
 	}
 
-	err := c.groupMemberService.UpdateLeaderStatus(int(params.GroupId), int(params.UserId), leader)
+	err := c.GroupMemberService.UpdateLeaderStatus(int(params.GroupId), int(params.UserId), leader)
 	if err != nil {
 		logger.Error("[Group AssignAdmin] 设置管理员信息失败 err :", err.Error())
 		return ctx.ErrorBusiness("设置管理员信息失败！")
@@ -516,7 +518,7 @@ func (c *Group) NoSpeak(ctx *ichat.Context) error {
 	}
 
 	uid := ctx.UserId()
-	if !c.groupMemberService.Dao().IsLeader(ctx.Ctx(), int(params.GroupId), uid) {
+	if !c.GroupMemberRepo.IsLeader(ctx.Ctx(), int(params.GroupId), uid) {
 		return ctx.ErrorBusiness("暂无权限！")
 	}
 
@@ -525,7 +527,7 @@ func (c *Group) NoSpeak(ctx *ichat.Context) error {
 		status = 0
 	}
 
-	err := c.groupMemberService.UpdateMuteStatus(int(params.GroupId), int(params.UserId), status)
+	err := c.GroupMemberService.UpdateMuteStatus(int(params.GroupId), int(params.UserId), status)
 	if err != nil {
 		return ctx.ErrorBusiness("设置群成员禁言状态失败！")
 	}
@@ -537,9 +539,9 @@ func (c *Group) NoSpeak(ctx *ichat.Context) error {
 	}
 
 	members := make([]model.TalkRecordExtraGroupMembers, 0)
-	c.messageService.Db().Table("users").Select("id as user_id", "nickname").Where("id = ?", params.UserId).Scan(&members)
+	c.MessageService.Db().Table("users").Select("id as user_id", "nickname").Where("id = ?", params.UserId).Scan(&members)
 
-	user, err := c.userService.Dao().FindById(ctx.Ctx(), uid)
+	user, err := c.UsersRepo.FindById(ctx.Ctx(), uid)
 	if err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}
@@ -560,7 +562,7 @@ func (c *Group) NoSpeak(ctx *ichat.Context) error {
 		})
 	}
 
-	_ = c.messageService.SendSysOther(ctx.Ctx(), data)
+	_ = c.MessageService.SendSysOther(ctx.Ctx(), data)
 
 	return ctx.Success(nil)
 }
@@ -574,7 +576,7 @@ func (c *Group) Mute(ctx *ichat.Context) error {
 
 	uid := ctx.UserId()
 
-	group, err := c.groupService.Dao().FindById(ctx.Ctx(), int(params.GroupId))
+	group, err := c.GroupRepo.FindById(ctx.Ctx(), int(params.GroupId))
 	if err != nil {
 		return ctx.ErrorBusiness("网络异常，请稍后再试！")
 	}
@@ -583,7 +585,7 @@ func (c *Group) Mute(ctx *ichat.Context) error {
 		return ctx.ErrorBusiness("此群已解散！")
 	}
 
-	if !c.groupMemberService.Dao().IsLeader(ctx.Ctx(), int(params.GroupId), uid) {
+	if !c.GroupMemberRepo.IsLeader(ctx.Ctx(), int(params.GroupId), uid) {
 		return ctx.ErrorBusiness("暂无权限！")
 	}
 
@@ -594,7 +596,7 @@ func (c *Group) Mute(ctx *ichat.Context) error {
 		data["is_mute"] = 0
 	}
 
-	affected, err := c.groupService.Dao().UpdateWhere(ctx.Ctx(), data, "id = ?", params.GroupId)
+	affected, err := c.GroupRepo.UpdateWhere(ctx.Ctx(), data, "id = ?", params.GroupId)
 	if err != nil {
 		return ctx.Error("服务器异常，请稍后再试！")
 	}
@@ -603,7 +605,7 @@ func (c *Group) Mute(ctx *ichat.Context) error {
 		return ctx.Success(web.GroupMuteResponse{})
 	}
 
-	user, err := c.userService.Dao().FindById(ctx.Ctx(), uid)
+	user, err := c.UsersRepo.FindById(ctx.Ctx(), uid)
 	if err != nil {
 		return err
 	}
@@ -624,7 +626,7 @@ func (c *Group) Mute(ctx *ichat.Context) error {
 		}
 	}
 
-	_ = c.messageService.SendSysOther(ctx.Ctx(), &model.TalkRecords{
+	_ = c.MessageService.SendSysOther(ctx.Ctx(), &model.TalkRecords{
 		MsgType:    msgType,
 		TalkType:   model.TalkRecordTalkTypeGroup,
 		UserId:     uid,
@@ -644,7 +646,7 @@ func (c *Group) Overt(ctx *ichat.Context) error {
 
 	uid := ctx.UserId()
 
-	group, err := c.groupService.Dao().FindById(ctx.Ctx(), int(params.GroupId))
+	group, err := c.GroupRepo.FindById(ctx.Ctx(), int(params.GroupId))
 	if err != nil {
 		return ctx.ErrorBusiness("网络异常，请稍后再试！")
 	}
@@ -653,7 +655,7 @@ func (c *Group) Overt(ctx *ichat.Context) error {
 		return ctx.ErrorBusiness("此群已解散！")
 	}
 
-	if !c.groupMemberService.Dao().IsMaster(ctx.Ctx(), int(params.GroupId), uid) {
+	if !c.GroupMemberRepo.IsMaster(ctx.Ctx(), int(params.GroupId), uid) {
 		return ctx.ErrorBusiness("暂无权限！")
 	}
 
@@ -664,7 +666,7 @@ func (c *Group) Overt(ctx *ichat.Context) error {
 		data["is_overt"] = 0
 	}
 
-	_, err = c.groupService.Dao().UpdateWhere(ctx.Ctx(), data, "id = ?", params.GroupId)
+	_, err = c.GroupRepo.UpdateWhere(ctx.Ctx(), data, "id = ?", params.GroupId)
 	if err != nil {
 		return ctx.Error("服务器异常，请稍后再试！")
 	}

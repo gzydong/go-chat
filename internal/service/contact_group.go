@@ -18,10 +18,6 @@ func NewContactGroupService(source *repo.Source, contactGroup *repo.ContactGroup
 	return &ContactGroupService{Source: source, contactGroup: contactGroup}
 }
 
-func (c *ContactGroupService) Repo() *repo.ContactGroup {
-	return c.contactGroup
-}
-
 func (c *ContactGroupService) Delete(ctx context.Context, id int, uid int) error {
 	return c.contactGroup.Txx(ctx, func(tx *gorm.DB) error {
 		res := tx.Delete(&model.ContactGroup{}, "id = ? and user_id = ?", id, uid)

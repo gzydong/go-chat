@@ -8,24 +8,25 @@ import (
 	"go-chat/internal/pkg/encrypt"
 	"go-chat/internal/pkg/ichat"
 	"go-chat/internal/pkg/timeutil"
+	"go-chat/internal/repository/repo"
+	organize2 "go-chat/internal/repository/repo/organize"
 	"go-chat/internal/service"
 	"go-chat/internal/service/organize"
 )
 
 type User struct {
-	service         *service.UserService
-	smsService      *service.SmsService
-	organizeService *organize.OrganizeService
-}
+	UsersRepo    *repo.Users
+	OrganizeRepo *organize2.Organize
 
-func NewUser(service *service.UserService, smsService *service.SmsService, organizeService *organize.OrganizeService) *User {
-	return &User{service: service, smsService: smsService, organizeService: organizeService}
+	UserService     *service.UserService
+	SmsService      *service.SmsService
+	OrganizeService *organize.OrganizeService
 }
 
 // Detail 个人用户信息
 func (u *User) Detail(ctx *ichat.Context) error {
 
-	user, err := u.service.Dao().FindById(ctx.Ctx(), ctx.UserId())
+	user, err := u.UsersRepo.FindById(ctx.Ctx(), ctx.UserId())
 	if err != nil {
 		return ctx.Error(err.Error())
 	}
@@ -47,12 +48,12 @@ func (u *User) Setting(ctx *ichat.Context) error {
 
 	uid := ctx.UserId()
 
-	user, err := u.service.Dao().FindById(ctx.Ctx(), uid)
+	user, err := u.UsersRepo.FindById(ctx.Ctx(), uid)
 	if err != nil {
 		return ctx.Error(err.Error())
 	}
 
-	isOk, err := u.organizeService.Dao().IsQiyeMember(ctx.Ctx(), uid)
+	isOk, err := u.OrganizeRepo.IsQiyeMember(ctx.Ctx(), uid)
 	if err != nil {
 		return ctx.Error(err.Error())
 	}
@@ -86,7 +87,7 @@ func (u *User) ChangeDetail(ctx *ichat.Context) error {
 		}
 	}
 
-	_, err := u.service.Dao().UpdateById(ctx.Ctx(), ctx.UserId(), map[string]any{
+	_, err := u.UsersRepo.UpdateById(ctx.Ctx(), ctx.UserId(), map[string]any{
 		"nickname": strings.TrimSpace(strings.Replace(params.Nickname, " ", "", -1)),
 		"avatar":   params.Avatar,
 		"gender":   params.Gender,
@@ -114,7 +115,7 @@ func (u *User) ChangePassword(ctx *ichat.Context) error {
 		return ctx.ErrorBusiness("预览账号不支持修改密码！")
 	}
 
-	if err := u.service.UpdatePassword(ctx.UserId(), params.OldPassword, params.NewPassword); err != nil {
+	if err := u.UserService.UpdatePassword(ctx.UserId(), params.OldPassword, params.NewPassword); err != nil {
 		return ctx.ErrorBusiness("密码修改失败！")
 	}
 
@@ -131,7 +132,7 @@ func (u *User) ChangeMobile(ctx *ichat.Context) error {
 
 	uid := ctx.UserId()
 
-	user, _ := u.service.Dao().FindById(ctx.Ctx(), uid)
+	user, _ := u.UsersRepo.FindById(ctx.Ctx(), uid)
 	if user.Mobile == params.Mobile {
 		return ctx.ErrorBusiness("手机号与原手机号一致无需修改！")
 	}
@@ -144,11 +145,11 @@ func (u *User) ChangeMobile(ctx *ichat.Context) error {
 		return ctx.ErrorBusiness("预览账号不支持修改手机号！")
 	}
 
-	if !u.smsService.Verify(ctx.Ctx(), entity.SmsChangeAccountChannel, params.Mobile, params.SmsCode) {
+	if !u.SmsService.Verify(ctx.Ctx(), entity.SmsChangeAccountChannel, params.Mobile, params.SmsCode) {
 		return ctx.ErrorBusiness("短信验证码填写错误！")
 	}
 
-	_, err := u.service.Dao().UpdateById(ctx.Ctx(), user.Id, map[string]any{
+	_, err := u.UsersRepo.UpdateById(ctx.Ctx(), user.Id, map[string]any{
 		"mobile": params.Mobile,
 	})
 

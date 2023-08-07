@@ -21,10 +21,6 @@ func NewGroupNoticeService(source *repo.Source, notice *repo.GroupNotice) *Group
 	}
 }
 
-func (s *GroupNoticeService) Dao() *repo.GroupNotice {
-	return s.notice
-}
-
 type GroupNoticeEditOpt struct {
 	UserId    int
 	GroupId   int

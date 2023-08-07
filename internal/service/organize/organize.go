@@ -13,7 +13,3 @@ type OrganizeService struct {
 func NewOrganizeService(source *repo.Source, dao *organize.Organize) *OrganizeService {
 	return &OrganizeService{Source: source, dao: dao}
 }
-
-func (o *OrganizeService) Dao() *organize.Organize {
-	return o.dao
-}

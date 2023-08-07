@@ -18,10 +18,6 @@ func NewUserService(repo *repo.Users) *UserService {
 	return &UserService{users: repo}
 }
 
-func (s *UserService) Dao() *repo.Users {
-	return s.users
-}
-
 type UserRegisterOpt struct {
 	Nickname string
 	Mobile   string

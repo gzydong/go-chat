@@ -17,10 +17,6 @@ func NewContactService(source *repo.Source, contact *repo.Contact) *ContactServi
 	return &ContactService{Source: source, contact: contact}
 }
 
-func (s *ContactService) Dao() *repo.Contact {
-	return s.contact
-}
-
 // UpdateRemark 编辑联系人备注
 // @params uid      用户ID
 // @params friendId 联系人ID
@@ -39,7 +35,7 @@ func (s *ContactService) UpdateRemark(ctx context.Context, uid int, friendId int
 // @params friendId 联系人ID
 func (s *ContactService) Delete(ctx context.Context, uid, friendId int) error {
 
-	find, err := s.Dao().FindByWhere(ctx, "user_id = ? and friend_id = ?", uid, friendId)
+	find, err := s.contact.FindByWhere(ctx, "user_id = ? and friend_id = ?", uid, friendId)
 	if err != nil {
 		return err
 	}
@@ -94,7 +90,7 @@ func (s *ContactService) GetContactIds(ctx context.Context, uid int) []int64 {
 }
 
 func (s *ContactService) MoveGroup(ctx context.Context, uid int, friendId int, groupId int) error {
-	contact, err := s.Dao().FindByWhere(ctx, "user_id = ? and friend_id  = ?", uid, friendId)
+	contact, err := s.contact.FindByWhere(ctx, "user_id = ? and friend_id  = ?", uid, friendId)
 	if err != nil {
 		return err
 	}

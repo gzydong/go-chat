@@ -655,6 +655,214 @@ var _ interface {
 	ErrorName() string
 } = GroupApplyAgreeResponseValidationError{}
 
+// Validate checks the field values on GroupApplyDeclineRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GroupApplyDeclineRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GroupApplyDeclineRequest with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GroupApplyDeclineRequestMultiError, or nil if none found.
+func (m *GroupApplyDeclineRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GroupApplyDeclineRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for ApplyId
+
+	// no validation rules for Remark
+
+	if len(errors) > 0 {
+		return GroupApplyDeclineRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// GroupApplyDeclineRequestMultiError is an error wrapping multiple validation
+// errors returned by GroupApplyDeclineRequest.ValidateAll() if the designated
+// constraints aren't met.
+type GroupApplyDeclineRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GroupApplyDeclineRequestMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GroupApplyDeclineRequestMultiError) AllErrors() []error { return m }
+
+// GroupApplyDeclineRequestValidationError is the validation error returned by
+// GroupApplyDeclineRequest.Validate if the designated constraints aren't met.
+type GroupApplyDeclineRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GroupApplyDeclineRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GroupApplyDeclineRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GroupApplyDeclineRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GroupApplyDeclineRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GroupApplyDeclineRequestValidationError) ErrorName() string {
+	return "GroupApplyDeclineRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GroupApplyDeclineRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGroupApplyDeclineRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GroupApplyDeclineRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GroupApplyDeclineRequestValidationError{}
+
+// Validate checks the field values on GroupApplyDeclineResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GroupApplyDeclineResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GroupApplyDeclineResponse with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GroupApplyDeclineResponseMultiError, or nil if none found.
+func (m *GroupApplyDeclineResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GroupApplyDeclineResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(errors) > 0 {
+		return GroupApplyDeclineResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// GroupApplyDeclineResponseMultiError is an error wrapping multiple validation
+// errors returned by GroupApplyDeclineResponse.ValidateAll() if the
+// designated constraints aren't met.
+type GroupApplyDeclineResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GroupApplyDeclineResponseMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GroupApplyDeclineResponseMultiError) AllErrors() []error { return m }
+
+// GroupApplyDeclineResponseValidationError is the validation error returned by
+// GroupApplyDeclineResponse.Validate if the designated constraints aren't met.
+type GroupApplyDeclineResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GroupApplyDeclineResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GroupApplyDeclineResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GroupApplyDeclineResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GroupApplyDeclineResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GroupApplyDeclineResponseValidationError) ErrorName() string {
+	return "GroupApplyDeclineResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GroupApplyDeclineResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGroupApplyDeclineResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GroupApplyDeclineResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GroupApplyDeclineResponseValidationError{}
+
 // Validate checks the field values on GroupApplyListRequest with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.

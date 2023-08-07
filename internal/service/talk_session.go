@@ -23,10 +23,6 @@ func NewTalkSessionService(source *repo.Source, talkSession *repo.TalkSession) *
 	return &TalkSessionService{source, talkSession}
 }
 
-func (s *TalkSessionService) Dao() *repo.TalkSession {
-	return s.talkSession
-}
-
 func (s *TalkSessionService) List(ctx context.Context, uid int) ([]*model.SearchTalkSession, error) {
 
 	fields := []string{
