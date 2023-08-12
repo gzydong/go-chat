@@ -18,7 +18,7 @@ type Apply struct {
 	ContactApplyService *service.ContactApplyService
 	UserService         *service.UserService
 	ContactService      *service.ContactService
-	MessageService      *service.MessageService
+	MessageService      service.IMessageService
 }
 
 // ApplyUnreadNum 获取好友申请未读数

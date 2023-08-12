@@ -18,7 +18,7 @@ type Notice struct {
 
 	GroupNoticeService *service.GroupNoticeService
 	GroupMemberService *service.GroupMemberService
-	MessageService     *service.MessageService
+	MessageService     service.IMessageService
 }
 
 // CreateAndUpdate 添加或编辑群公告

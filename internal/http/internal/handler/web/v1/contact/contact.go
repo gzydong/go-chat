@@ -27,7 +27,7 @@ type Contact struct {
 	UserService     *service.UserService
 	TalkListService *service.TalkSessionService
 	OrganizeService *organize.OrganizeService
-	MessageService  *service.MessageService
+	MessageService  service.IMessageService
 }
 
 // List 联系人列表

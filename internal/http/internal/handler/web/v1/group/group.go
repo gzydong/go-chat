@@ -20,6 +20,7 @@ import (
 type Group struct {
 	RedisLock *cache.RedisLock
 
+	Repo            *repo.Source
 	UsersRepo       *repo.Users
 	GroupRepo       *repo.Group
 	GroupMemberRepo *repo.GroupMember
@@ -31,7 +32,7 @@ type Group struct {
 	UserService        *service.UserService
 	ContactService     *service.ContactService
 	GroupNoticeService *service.GroupNoticeService
-	MessageService     *service.MessageService
+	MessageService     service.IMessageService
 }
 
 // Create 创建群聊分组
@@ -458,7 +459,7 @@ func (c *Group) Handover(ctx *ichat.Context) error {
 	}
 
 	members := make([]model.TalkRecordExtraGroupMembers, 0)
-	c.MessageService.Db().Table("users").Select("id as user_id", "nickname").Where("id in ?", []int{uid, int(params.UserId)}).Scan(&members)
+	c.Repo.Db().Table("users").Select("id as user_id", "nickname").Where("id in ?", []int{uid, int(params.UserId)}).Scan(&members)
 
 	extra := model.TalkRecordExtraGroupTransfer{}
 	for _, member := range members {
@@ -539,7 +540,7 @@ func (c *Group) NoSpeak(ctx *ichat.Context) error {
 	}
 
 	members := make([]model.TalkRecordExtraGroupMembers, 0)
-	c.MessageService.Db().Table("users").Select("id as user_id", "nickname").Where("id = ?", params.UserId).Scan(&members)
+	c.Repo.Db().Table("users").Select("id as user_id", "nickname").Where("id = ?", params.UserId).Scan(&members)
 
 	user, err := c.UsersRepo.FindById(ctx.Ctx(), uid)
 	if err != nil {

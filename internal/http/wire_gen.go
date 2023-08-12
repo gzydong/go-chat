@@ -71,7 +71,20 @@ func Initialize(conf *config.Config) *AppProvider {
 	messageStorage := cache.NewMessageStorage(client)
 	serverStorage := cache.NewSidStorage(client)
 	clientStorage := cache.NewClientStorage(client, conf, serverStorage)
-	messageService := service.NewMessageService(source, messageForwardLogic, groupMember, splitUpload, talkRecordsVote, filesystem, unreadStorage, messageStorage, serverStorage, clientStorage, repoSequence, robot)
+	messageService := &service.MessageService{
+		Source:              source,
+		MessageForwardLogic: messageForwardLogic,
+		GroupMemberRepo:     groupMember,
+		SplitUploadRepo:     splitUpload,
+		TalkRecordsVoteRepo: talkRecordsVote,
+		Filesystem:          filesystem,
+		UnreadStorage:       unreadStorage,
+		MessageStorage:      messageStorage,
+		ServerStorage:       serverStorage,
+		ClientStorage:       clientStorage,
+		Sequence:            repoSequence,
+		RobotRepo:           robot,
+	}
 	auth := &v1.Auth{
 		Config:              conf,
 		UserService:         userService,
@@ -163,6 +176,7 @@ func Initialize(conf *config.Config) *AppProvider {
 	groupNoticeService := service.NewGroupNoticeService(source, groupNotice)
 	groupGroup := &group.Group{
 		RedisLock:          redisLock,
+		Repo:               source,
 		UsersRepo:          users,
 		GroupRepo:          repoGroup,
 		GroupMemberRepo:    groupMember,
@@ -308,8 +322,4 @@ func Initialize(conf *config.Config) *AppProvider {
 
 // wire.go:
 
-var providerSet = wire.NewSet(provider.NewMySQLClient, provider.NewRedisClient, provider.NewHttpClient, provider.NewEmailClient, provider.NewFilesystem, provider.NewRequestClient, router.NewRouter, wire.Struct(new(web.Handler), "*"), wire.Struct(new(admin.Handler), "*"), wire.Struct(new(open.Handler), "*"), wire.Struct(new(handler.Handler), "*"), wire.Struct(new(AppProvider), "*"))
-
-var daoProviderSet = wire.NewSet(repo.NewSource, repo.NewContact, repo.NewContactGroup, repo.NewGroupMember, repo.NewUsers, repo.NewGroup, repo.NewGroupApply, repo.NewTalkRecords, repo.NewGroupNotice, repo.NewTalkSession, repo.NewEmoticon, repo.NewTalkRecordsVote, repo.NewFileSplitUpload, note.NewArticleClass, note.NewArticleAnnex, organize.NewDepartment, organize.NewOrganize, organize.NewPosition, repo.NewRobot, repo.NewSequence, repo.NewAdmin)
-
-var serviceProviderSet = wire.NewSet(service.NewUserService, service.NewSmsService, service.NewTalkService, service.NewGroupService, service.NewGroupMemberService, service.NewGroupNoticeService, service.NewGroupApplyService, service.NewTalkSessionService, service.NewEmoticonService, service.NewTalkRecordsService, service.NewContactService, service.NewContactApplyService, service.NewContactGroupService, service.NewSplitUploadService, service.NewIpAddressService, service.NewMessageService, note2.NewArticleService, note2.NewArticleTagService, note2.NewArticleClassService, note2.NewArticleAnnexService, organize2.NewOrganizeDeptService, organize2.NewOrganizeService, organize2.NewPositionService, service.NewTemplateService, service.NewAuthService, logic.NewMessageForwardLogic)
+var providerSet = wire.NewSet(provider.NewMySQLClient, provider.NewRedisClient, provider.NewHttpClient, provider.NewEmailClient, provider.NewFilesystem, provider.NewRequestClient, router.NewRouter, wire.Struct(new(AppProvider), "*"))

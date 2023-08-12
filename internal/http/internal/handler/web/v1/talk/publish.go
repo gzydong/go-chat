@@ -11,7 +11,7 @@ var mapping map[string]func(ctx *ichat.Context) error
 
 type Publish struct {
 	AuthService    *service.AuthService
-	MessageService *service.MessageService
+	MessageService service.IMessageService
 }
 
 type PublishBaseMessageRequest struct {

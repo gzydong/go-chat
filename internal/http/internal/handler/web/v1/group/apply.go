@@ -227,7 +227,7 @@ func (c *Apply) All(ctx *ichat.Context) error {
 
 	list, err := c.GroupApplyRepo.List(ctx.Ctx(), groupIds)
 	if err != nil {
-		return ctx.ErrorBusiness("创建群聊失败，请稍后再试！")
+		return ctx.ErrorBusiness("系统异常，请稍后再试！")
 	}
 
 	groups, err := c.GroupRepo.FindAll(ctx.Ctx(), func(db *gorm.DB) {

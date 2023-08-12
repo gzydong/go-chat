@@ -27,7 +27,7 @@ type Auth struct {
 	TalkSessionService  *service.TalkSessionService
 	ArticleClassService *note.ArticleClassService
 	RobotRepo           *repo.Robot
-	MessageService      *service.MessageService
+	MessageService      service.IMessageService
 }
 
 // Login 登录接口

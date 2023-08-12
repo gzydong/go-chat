@@ -26,6 +26,8 @@ import (
 	"gorm.io/gorm"
 )
 
+var _ IMessageService = (*MessageService)(nil)
+
 type IMessageService interface {
 	// SendSystemText 系统文本消息
 	SendSystemText(ctx context.Context, uid int, req *message.TextMessageRequest) error
@@ -57,25 +59,29 @@ type IMessageService interface {
 	SendSysOther(ctx context.Context, data *model.TalkRecords) error
 	// SendMixedMessage 图文消息
 	SendMixedMessage(ctx context.Context, uid int, req *message.MixedMessageRequest) error
+	// Revoke 撤回消息
+	Revoke(ctx context.Context, uid int, recordId int) error
+	// Vote 投票
+	Vote(ctx context.Context, uid int, recordId int, optionsValue string) (*repo.VoteStatistics, error)
 }
 
 type MessageService struct {
 	*repo.Source
-	forward             *logic.MessageForwardLogic
-	groupMemberRepo     *repo.GroupMember
-	splitUploadRepo     *repo.SplitUpload
-	talkRecordsVoteRepo *repo.TalkRecordsVote
-	fileSystem          *filesystem.Filesystem
-	unreadStorage       *cache.UnreadStorage
-	messageStorage      *cache.MessageStorage
-	sidStorage          *cache.ServerStorage
-	clientStorage       *cache.ClientStorage
-	sequence            *repo.Sequence
-	robotRepo           *repo.Robot
+	MessageForwardLogic *logic.MessageForwardLogic
+	GroupMemberRepo     *repo.GroupMember
+	SplitUploadRepo     *repo.SplitUpload
+	TalkRecordsVoteRepo *repo.TalkRecordsVote
+	Filesystem          *filesystem.Filesystem
+	UnreadStorage       *cache.UnreadStorage
+	MessageStorage      *cache.MessageStorage
+	ServerStorage       *cache.ServerStorage
+	ClientStorage       *cache.ClientStorage
+	Sequence            *repo.Sequence
+	RobotRepo           *repo.Robot
 }
 
-func NewMessageService(source *repo.Source, forward *logic.MessageForwardLogic, groupMemberRepo *repo.GroupMember, splitUploadRepo *repo.SplitUpload, talkRecordsVoteRepo *repo.TalkRecordsVote, fileSystem *filesystem.Filesystem, unreadStorage *cache.UnreadStorage, messageStorage *cache.MessageStorage, sidStorage *cache.ServerStorage, clientStorage *cache.ClientStorage, sequence *repo.Sequence, robotRepo *repo.Robot) *MessageService {
-	return &MessageService{Source: source, forward: forward, groupMemberRepo: groupMemberRepo, splitUploadRepo: splitUploadRepo, talkRecordsVoteRepo: talkRecordsVoteRepo, fileSystem: fileSystem, unreadStorage: unreadStorage, messageStorage: messageStorage, sidStorage: sidStorage, clientStorage: clientStorage, sequence: sequence, robotRepo: robotRepo}
+func NewMessageService(source *repo.Source, messageForwardLogic *logic.MessageForwardLogic, groupMemberRepo *repo.GroupMember, splitUploadRepo *repo.SplitUpload, talkRecordsVoteRepo *repo.TalkRecordsVote, filesystem *filesystem.Filesystem, unreadStorage *cache.UnreadStorage, messageStorage *cache.MessageStorage, serverStorage *cache.ServerStorage, clientStorage *cache.ClientStorage, sequence *repo.Sequence, robotRepo *repo.Robot) *MessageService {
+	return &MessageService{Source: source, MessageForwardLogic: messageForwardLogic, GroupMemberRepo: groupMemberRepo, SplitUploadRepo: splitUploadRepo, TalkRecordsVoteRepo: talkRecordsVoteRepo, Filesystem: filesystem, UnreadStorage: unreadStorage, MessageStorage: messageStorage, ServerStorage: serverStorage, ClientStorage: clientStorage, Sequence: sequence, RobotRepo: robotRepo}
 }
 
 // SendSystemText 系统文本消息
@@ -163,7 +169,7 @@ func (m *MessageService) SendVideo(ctx context.Context, uid int, req *message.Vi
 // SendFile 文件消息
 func (m *MessageService) SendFile(ctx context.Context, uid int, req *message.FileMessageRequest) error {
 
-	file, err := m.splitUploadRepo.GetFile(ctx, uid, req.UploadId)
+	file, err := m.SplitUploadRepo.GetFile(ctx, uid, req.UploadId)
 	if err != nil {
 		return err
 	}
@@ -174,10 +180,10 @@ func (m *MessageService) SendFile(ctx context.Context, uid int, req *message.Fil
 	// 公开文件
 	if entity.GetMediaType(file.FileExt) <= 3 {
 		filePath = fmt.Sprintf("public/media/%s/%s.%s", timeutil.DateNumber(), encrypt.Md5(strutil.Random(16)), file.FileExt)
-		publicUrl = m.fileSystem.Default.PublicUrl(filePath)
+		publicUrl = m.Filesystem.Default.PublicUrl(filePath)
 	}
 
-	if err := m.fileSystem.Default.Copy(file.Path, filePath); err != nil {
+	if err := m.Filesystem.Default.Copy(file.Path, filePath); err != nil {
 		return err
 	}
 
@@ -254,7 +260,7 @@ func (m *MessageService) SendVote(ctx context.Context, uid int, req *message.Vot
 		options[fmt.Sprintf("%c", 65+i)] = value
 	}
 
-	num := m.groupMemberRepo.CountMemberTotal(ctx, int(req.Receiver.ReceiverId))
+	num := m.GroupMemberRepo.CountMemberTotal(ctx, int(req.Receiver.ReceiverId))
 
 	err := m.Db().WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 
@@ -311,7 +317,7 @@ func (m *MessageService) SendEmoticon(ctx context.Context, uid int, req *message
 func (m *MessageService) SendForward(ctx context.Context, uid int, req *message.ForwardMessageRequest) error {
 
 	// 验证转发消息合法性
-	if err := m.forward.Verify(ctx, uid, req); err != nil {
+	if err := m.MessageForwardLogic.Verify(ctx, uid, req); err != nil {
 		return err
 	}
 
@@ -322,9 +328,9 @@ func (m *MessageService) SendForward(ctx context.Context, uid int, req *message.
 
 	// 发送方式 1:逐条发送 2:合并发送
 	if req.Mode == 1 {
-		items, err = m.forward.MultiSplitForward(ctx, uid, req)
+		items, err = m.MessageForwardLogic.MultiSplitForward(ctx, uid, req)
 	} else {
-		items, err = m.forward.MultiMergeForward(ctx, uid, req)
+		items, err = m.MessageForwardLogic.MultiMergeForward(ctx, uid, req)
 	}
 
 	if err != nil {
@@ -333,16 +339,16 @@ func (m *MessageService) SendForward(ctx context.Context, uid int, req *message.
 
 	for _, record := range items {
 		if record.TalkType == entity.ChatPrivateMode {
-			m.unreadStorage.Incr(ctx, entity.ChatPrivateMode, uid, record.ReceiverId)
+			m.UnreadStorage.Incr(ctx, entity.ChatPrivateMode, uid, record.ReceiverId)
 		} else if record.TalkType == entity.ChatGroupMode {
 			pipe := m.Redis().Pipeline()
-			for _, uid := range m.groupMemberRepo.GetMemberIds(ctx, record.ReceiverId) {
-				m.unreadStorage.PipeIncr(ctx, pipe, entity.ChatGroupMode, record.ReceiverId, uid)
+			for _, uid := range m.GroupMemberRepo.GetMemberIds(ctx, record.ReceiverId) {
+				m.UnreadStorage.PipeIncr(ctx, pipe, entity.ChatGroupMode, record.ReceiverId, uid)
 			}
 			_, _ = pipe.Exec(ctx)
 		}
 
-		_ = m.messageStorage.Set(ctx, record.TalkType, uid, record.ReceiverId, &cache.LastCacheMessage{
+		_ = m.MessageStorage.Set(ctx, record.TalkType, uid, record.ReceiverId, &cache.LastCacheMessage{
 			Content:  "[转发消息]",
 			Datetime: timeutil.DateTime(),
 		})
@@ -403,7 +409,7 @@ func (m *MessageService) SendBusinessCard(ctx context.Context, uid int, req *mes
 // SendLogin 推送用户登录消息
 func (m *MessageService) SendLogin(ctx context.Context, uid int, req *message.LoginMessageRequest) error {
 
-	robot, err := m.robotRepo.GetLoginRobot(ctx)
+	robot, err := m.RobotRepo.GetLoginRobot(ctx)
 	if err != nil {
 		return err
 	}
@@ -570,9 +576,9 @@ func (m *MessageService) Vote(ctx context.Context, uid int, recordId int, option
 		return nil, err
 	}
 
-	_, _ = m.talkRecordsVoteRepo.SetVoteAnswerUser(ctx, vote.VoteId)
-	_, _ = m.talkRecordsVoteRepo.SetVoteStatistics(ctx, vote.VoteId)
-	info, _ := m.talkRecordsVoteRepo.GetVoteStatistics(ctx, vote.VoteId)
+	_, _ = m.TalkRecordsVoteRepo.SetVoteAnswerUser(ctx, vote.VoteId)
+	_, _ = m.TalkRecordsVoteRepo.SetVoteStatistics(ctx, vote.VoteId)
+	info, _ := m.TalkRecordsVoteRepo.GetVoteStatistics(ctx, vote.VoteId)
 
 	return info, nil
 }
@@ -611,13 +617,13 @@ func (m *MessageService) save(ctx context.Context, data *model.TalkRecords) erro
 
 func (m *MessageService) loadSequence(ctx context.Context, data *model.TalkRecords) {
 	if data.TalkType == entity.ChatGroupMode {
-		data.Sequence = m.sequence.Get(ctx, 0, data.ReceiverId)
+		data.Sequence = m.Sequence.Get(ctx, 0, data.ReceiverId)
 	} else {
-		data.Sequence = m.sequence.Get(ctx, data.UserId, data.ReceiverId)
+		data.Sequence = m.Sequence.Get(ctx, data.UserId, data.ReceiverId)
 	}
 }
 
-func (m *MessageService) loadReply(ctx context.Context, data *model.TalkRecords) {
+func (m *MessageService) loadReply(_ context.Context, data *model.TalkRecords) {
 	// 检测是否引用消息
 	if data.QuoteId == "" {
 		return
@@ -671,21 +677,21 @@ func (m *MessageService) loadReply(ctx context.Context, data *model.TalkRecords)
 func (m *MessageService) afterHandle(ctx context.Context, record *model.TalkRecords, opt map[string]string) {
 
 	if record.TalkType == entity.ChatPrivateMode {
-		m.unreadStorage.Incr(ctx, entity.ChatPrivateMode, record.UserId, record.ReceiverId)
+		m.UnreadStorage.Incr(ctx, entity.ChatPrivateMode, record.UserId, record.ReceiverId)
 		if record.MsgType == entity.ChatMsgSysText {
-			m.unreadStorage.Incr(ctx, 1, record.ReceiverId, record.UserId)
+			m.UnreadStorage.Incr(ctx, 1, record.ReceiverId, record.UserId)
 		}
 	} else if record.TalkType == entity.ChatGroupMode {
 		pipe := m.Redis().Pipeline()
-		for _, uid := range m.groupMemberRepo.GetMemberIds(ctx, record.ReceiverId) {
+		for _, uid := range m.GroupMemberRepo.GetMemberIds(ctx, record.ReceiverId) {
 			if uid != record.UserId {
-				m.unreadStorage.PipeIncr(ctx, pipe, entity.ChatGroupMode, record.ReceiverId, uid)
+				m.UnreadStorage.PipeIncr(ctx, pipe, entity.ChatGroupMode, record.ReceiverId, uid)
 			}
 		}
 		_, _ = pipe.Exec(ctx)
 	}
 
-	_ = m.messageStorage.Set(ctx, record.TalkType, record.UserId, record.ReceiverId, &cache.LastCacheMessage{
+	_ = m.MessageStorage.Set(ctx, record.TalkType, record.UserId, record.ReceiverId, &cache.LastCacheMessage{
 		Content:  opt["text"],
 		Datetime: timeutil.DateTime(),
 	})
@@ -701,14 +707,14 @@ func (m *MessageService) afterHandle(ctx context.Context, record *model.TalkReco
 	})
 
 	if record.TalkType == entity.ChatPrivateMode {
-		sids := m.sidStorage.All(ctx, 1)
+		sids := m.ServerStorage.All(ctx, 1)
 
 		if len(sids) > 3 {
 			pipe := m.Redis().Pipeline()
 
 			for _, sid := range sids {
 				for _, uid := range []int{record.UserId, record.ReceiverId} {
-					if !m.clientStorage.IsCurrentServerOnline(ctx, sid, entity.ImChannelChat, strconv.Itoa(uid)) {
+					if !m.ClientStorage.IsCurrentServerOnline(ctx, sid, entity.ImChannelChat, strconv.Itoa(uid)) {
 						continue
 					}
 

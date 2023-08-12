@@ -18,7 +18,7 @@ import (
 type Message struct {
 	TalkService    *service.TalkService
 	AuthService    *service.AuthService
-	MessageService *service.MessageService
+	MessageService service.IMessageService
 	Filesystem     *filesystem.Filesystem
 }
 
