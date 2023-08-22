@@ -80,10 +80,6 @@ type MessageService struct {
 	RobotRepo           *repo.Robot
 }
 
-func NewMessageService(source *repo.Source, messageForwardLogic *logic.MessageForwardLogic, groupMemberRepo *repo.GroupMember, splitUploadRepo *repo.SplitUpload, talkRecordsVoteRepo *repo.TalkRecordsVote, filesystem *filesystem.Filesystem, unreadStorage *cache.UnreadStorage, messageStorage *cache.MessageStorage, serverStorage *cache.ServerStorage, clientStorage *cache.ClientStorage, sequence *repo.Sequence, robotRepo *repo.Robot) *MessageService {
-	return &MessageService{Source: source, MessageForwardLogic: messageForwardLogic, GroupMemberRepo: groupMemberRepo, SplitUploadRepo: splitUploadRepo, TalkRecordsVoteRepo: talkRecordsVoteRepo, Filesystem: filesystem, UnreadStorage: unreadStorage, MessageStorage: messageStorage, ServerStorage: serverStorage, ClientStorage: clientStorage, Sequence: sequence, RobotRepo: robotRepo}
-}
-
 // SendSystemText 系统文本消息
 func (m *MessageService) SendSystemText(ctx context.Context, uid int, req *message.TextMessageRequest) error {
 	data := &model.TalkRecords{

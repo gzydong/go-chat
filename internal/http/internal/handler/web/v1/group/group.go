@@ -501,7 +501,7 @@ func (c *Group) AssignAdmin(ctx *ichat.Context) error {
 		leader = 1
 	}
 
-	err := c.GroupMemberService.UpdateLeaderStatus(int(params.GroupId), int(params.UserId), leader)
+	err := c.GroupMemberService.SetLeaderStatus(ctx.Ctx(), int(params.GroupId), int(params.UserId), leader)
 	if err != nil {
 		logger.Error("[Group AssignAdmin] 设置管理员信息失败 err :", err.Error())
 		return ctx.ErrorBusiness("设置管理员信息失败！")
@@ -528,7 +528,7 @@ func (c *Group) NoSpeak(ctx *ichat.Context) error {
 		status = 0
 	}
 
-	err := c.GroupMemberService.UpdateMuteStatus(int(params.GroupId), int(params.UserId), status)
+	err := c.GroupMemberService.SetMuteStatus(ctx.Ctx(), int(params.GroupId), int(params.UserId), status)
 	if err != nil {
 		return ctx.ErrorBusiness("设置群成员禁言状态失败！")
 	}

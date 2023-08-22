@@ -78,9 +78,9 @@ func newApp(tx *cli.Context) error {
 	log.Printf("Server ID   :%s", conf.ServerId())
 	log.Printf("Server Pid  :%d", os.Getpid())
 	log.Printf("Websocket Listen Port :%d", conf.Server.Websocket)
-	log.Printf("Tcp Listen Port :%d", conf.Server.Tcp)
+	// log.Printf("Tcp Listen Port :%d", conf.Server.Tcp)
 
-	go NewTcpServer(app)
+	// go NewTcpServer(app)
 
 	return start(c, eg, groupCtx, app)
 }
