@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"path"
+	"strconv"
 	"strings"
 	"time"
 
@@ -51,13 +52,20 @@ func (u *Upload) Image(ctx *ichat.Context) error {
 		return ctx.InvalidParams("文件上传失败！")
 	}
 
-	ext := strings.TrimPrefix(path.Ext(file.Filename), ".")
+	var (
+		ext       = strings.TrimPrefix(path.Ext(file.Filename), ".")
+		width, _  = strconv.Atoi(ctx.Context.DefaultPostForm("width", "0"))
+		height, _ = strconv.Atoi(ctx.Context.DefaultPostForm("height", "0"))
+	)
 
 	stream, _ := filesystem.ReadMultipartStream(file)
+	if width == 0 || height == 0 {
+		meta := utils.ReadImageMeta(bytes.NewReader(stream))
+		width = meta.Width
+		height = meta.Height
+	}
 
-	meta := utils.ReadImageMeta(bytes.NewReader(stream))
-
-	object := fmt.Sprintf("public/media/image/common/%s/%s", time.Now().Format("20060102"), strutil.GenImageName(ext, meta.Width, meta.Height))
+	object := fmt.Sprintf("public/media/image/common/%s/%s", time.Now().Format("20060102"), strutil.GenImageName(ext, width, height))
 
 	if err := u.Filesystem.Default.Write(stream, object); err != nil {
 		return ctx.ErrorBusiness("文件上传失败")
