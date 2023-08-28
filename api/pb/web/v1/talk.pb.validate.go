@@ -75,7 +75,7 @@ func (m *TalkSessionItem) validate(all bool) error {
 
 	// no validation rules for Avatar
 
-	// no validation rules for RemarkName
+	// no validation rules for Remark
 
 	// no validation rules for UnreadNum
 

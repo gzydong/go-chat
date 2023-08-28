@@ -88,7 +88,7 @@ func (c *Session) Create(ctx *ichat.Context) error {
 
 	if item.TalkType == entity.ChatPrivateMode {
 		item.UnreadNum = int32(c.UnreadStorage.Get(ctx.Ctx(), 1, int(params.ReceiverId), uid))
-		item.RemarkName = c.ContactRepo.GetFriendRemark(ctx.Ctx(), uid, int(params.ReceiverId))
+		item.Remark = c.ContactRepo.GetFriendRemark(ctx.Ctx(), uid, int(params.ReceiverId))
 
 		if user, err := c.UsersRepo.FindById(ctx.Ctx(), result.ReceiverId); err == nil {
 			item.Name = user.Nickname
@@ -116,7 +116,7 @@ func (c *Session) Create(ctx *ichat.Context) error {
 		IsRobot:    item.IsRobot,
 		Name:       item.Name,
 		Avatar:     item.Avatar,
-		RemarkName: item.RemarkName,
+		RemarkName: item.Remark,
 		UnreadNum:  item.UnreadNum,
 		MsgText:    item.MsgText,
 		UpdatedAt:  item.UpdatedAt,
@@ -224,7 +224,7 @@ func (c *Session) List(ctx *ichat.Context) error {
 		if item.TalkType == 1 {
 			value.Name = item.Nickname
 			value.Avatar = item.UserAvatar
-			value.RemarkName = remarks[item.ReceiverId]
+			value.Remark = remarks[item.ReceiverId]
 			value.IsOnline = int32(strutil.BoolToInt(c.ClientStorage.IsOnline(ctx.Ctx(), entity.ImChannelChat, strconv.Itoa(int(value.ReceiverId)))))
 		} else {
 			value.Name = item.GroupName
