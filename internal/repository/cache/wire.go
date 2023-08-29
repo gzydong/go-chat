@@ -18,4 +18,5 @@ var ProviderSet = wire.NewSet(
 	NewSmsStorage,
 	NewVote,
 	NewUnreadStorage,
+	NewGroupApplyStorage,
 )

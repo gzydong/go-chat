@@ -43,10 +43,6 @@ func NewTalkRecordsService(source *repo.Source, talkVoteCache *cache.Vote, talkR
 	return &TalkRecordsService{Source: source, talkVoteCache: talkVoteCache, talkRecordsVoteRepo: talkRecordsVoteRepo, groupMemberRepo: groupMemberRepo, talkRecordsRepo: repo}
 }
 
-func (s *TalkRecordsService) Dao() *repo.TalkRecords {
-	return s.talkRecordsRepo
-}
-
 type QueryTalkRecordsOpt struct {
 	TalkType   int   // 对话类型
 	UserId     int   // 获取消息的用户
@@ -188,7 +184,7 @@ func (s *TalkRecordsService) GetForwardRecords(ctx context.Context, uid int, rec
 	// 		return nil, entity.ErrPermissionDenied
 	// 	}
 	// } else if record.TalkType == entity.ChatGroupMode {
-	// 	if !s.groupMemberRepo.IsMember(ctx, record.ReceiverId, uid, true) {
+	// 	if !s.GroupMemberRepo.IsMember(ctx, record.ReceiverId, uid, true) {
 	// 		return nil, entity.ErrPermissionDenied
 	// 	}
 	// } else {

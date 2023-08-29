@@ -8,6 +8,14 @@ import (
 	"gorm.io/gorm"
 )
 
+var _ IGroupMemberService = (*GroupMemberService)(nil)
+
+type IGroupMemberService interface {
+	Handover(ctx context.Context, groupId int, userId int, memberId int) error
+	SetLeaderStatus(ctx context.Context, groupId int, userId int, leader int) error
+	SetMuteStatus(ctx context.Context, groupId int, userId int, status int) error
+}
+
 type GroupMemberService struct {
 	*repo.Source
 	member *repo.GroupMember
@@ -17,11 +25,6 @@ func NewGroupMemberService(source *repo.Source, repo *repo.GroupMember) *GroupMe
 	return &GroupMemberService{Source: source, member: repo}
 }
 
-func (g *GroupMemberService) Dao() *repo.GroupMember {
-	return g.member
-}
-
-// Handover 交接群主权限
 func (g *GroupMemberService) Handover(ctx context.Context, groupId int, userId int, memberId int) error {
 	return g.Db().WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 
@@ -39,10 +42,10 @@ func (g *GroupMemberService) Handover(ctx context.Context, groupId int, userId i
 	})
 }
 
-func (g *GroupMemberService) UpdateLeaderStatus(groupId int, userId int, leader int) error {
-	return g.member.Model(context.TODO()).Where("group_id = ? and user_id = ?", groupId, userId).UpdateColumn("leader", leader).Error
+func (g *GroupMemberService) SetLeaderStatus(ctx context.Context, groupId int, userId int, leader int) error {
+	return g.member.Model(ctx).Where("group_id = ? and user_id = ?", groupId, userId).UpdateColumn("leader", leader).Error
 }
 
-func (g *GroupMemberService) UpdateMuteStatus(groupId int, userId int, status int) error {
-	return g.member.Model(context.TODO()).Where("group_id = ? and user_id = ?", groupId, userId).UpdateColumn("is_mute", status).Error
+func (g *GroupMemberService) SetMuteStatus(ctx context.Context, groupId int, userId int, status int) error {
+	return g.member.Model(ctx).Where("group_id = ? and user_id = ?", groupId, userId).UpdateColumn("is_mute", status).Error
 }

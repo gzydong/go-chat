@@ -13,7 +13,3 @@ type DeptService struct {
 func NewOrganizeDeptService(source *repo.Source, dao *organize.Department) *DeptService {
 	return &DeptService{Source: source, dao: dao}
 }
-
-func (s *DeptService) Dao() *organize.Department {
-	return s.dao
-}

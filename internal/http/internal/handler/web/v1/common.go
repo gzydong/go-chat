@@ -5,17 +5,16 @@ import (
 	"go-chat/config"
 	"go-chat/internal/entity"
 	"go-chat/internal/pkg/ichat"
+	"go-chat/internal/repository/repo"
 	"go-chat/internal/service"
 )
 
 type Common struct {
-	config      *config.Config
-	smsService  *service.SmsService
-	userService *service.UserService
-}
+	UsersRepo *repo.Users
 
-func NewCommon(config *config.Config, smsService *service.SmsService, userService *service.UserService) *Common {
-	return &Common{config: config, smsService: smsService, userService: userService}
+	Config      *config.Config
+	SmsService  *service.SmsService
+	UserService *service.UserService
 }
 
 // SmsCode 发送短信验证码
@@ -29,13 +28,13 @@ func (c *Common) SmsCode(ctx *ichat.Context) error {
 	switch params.Channel {
 	// 需要判断账号是否存在
 	case entity.SmsLoginChannel, entity.SmsForgetAccountChannel:
-		if !c.userService.Dao().IsMobileExist(ctx.Ctx(), params.Mobile) {
+		if !c.UsersRepo.IsMobileExist(ctx.Ctx(), params.Mobile) {
 			return ctx.ErrorBusiness("账号不存在或密码错误！")
 		}
 
 	// 需要判断账号是否存在
 	case entity.SmsRegisterChannel, entity.SmsChangeAccountChannel:
-		if c.userService.Dao().IsMobileExist(ctx.Ctx(), params.Mobile) {
+		if c.UsersRepo.IsMobileExist(ctx.Ctx(), params.Mobile) {
 			return ctx.ErrorBusiness("手机号已被他人使用！")
 		}
 
@@ -44,7 +43,7 @@ func (c *Common) SmsCode(ctx *ichat.Context) error {
 	}
 
 	// 发送短信验证码
-	code, err := c.smsService.Send(ctx.Ctx(), params.Channel, params.Mobile)
+	code, err := c.SmsService.Send(ctx.Ctx(), params.Channel, params.Mobile)
 	if err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}

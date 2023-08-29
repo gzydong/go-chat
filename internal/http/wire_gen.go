@@ -35,13 +35,18 @@ import (
 // Injectors from wire.go:
 
 func Initialize(conf *config.Config) *AppProvider {
+	db := provider.NewMySQLClient(conf)
+	users := repo.NewUsers(db)
 	client := provider.NewRedisClient(conf)
 	smsStorage := cache.NewSmsStorage(client)
 	smsService := service.NewSmsService(smsStorage)
-	db := provider.NewMySQLClient(conf)
-	users := repo.NewUsers(db)
 	userService := service.NewUserService(users)
-	common := v1.NewCommon(conf, smsService, userService)
+	common := &v1.Common{
+		UsersRepo:   users,
+		Config:      conf,
+		SmsService:  smsService,
+		UserService: userService,
+	}
 	jwtTokenStorage := cache.NewTokenSessionStorage(client)
 	redisLock := cache.NewRedisLock(client)
 	source := repo.NewSource(db, client)
@@ -66,56 +71,197 @@ func Initialize(conf *config.Config) *AppProvider {
 	messageStorage := cache.NewMessageStorage(client)
 	serverStorage := cache.NewSidStorage(client)
 	clientStorage := cache.NewClientStorage(client, conf, serverStorage)
-	messageService := service.NewMessageService(source, messageForwardLogic, groupMember, splitUpload, talkRecordsVote, filesystem, unreadStorage, messageStorage, serverStorage, clientStorage, repoSequence, robot)
-	auth := v1.NewAuth(conf, userService, smsService, jwtTokenStorage, redisLock, ipAddressService, talkSessionService, articleClassService, robot, messageService)
+	messageService := &service.MessageService{
+		Source:              source,
+		MessageForwardLogic: messageForwardLogic,
+		GroupMemberRepo:     groupMember,
+		SplitUploadRepo:     splitUpload,
+		TalkRecordsVoteRepo: talkRecordsVote,
+		Filesystem:          filesystem,
+		UnreadStorage:       unreadStorage,
+		MessageStorage:      messageStorage,
+		ServerStorage:       serverStorage,
+		ClientStorage:       clientStorage,
+		Sequence:            repoSequence,
+		RobotRepo:           robot,
+	}
+	auth := &v1.Auth{
+		Config:              conf,
+		UserService:         userService,
+		SmsService:          smsService,
+		JwtTokenStorage:     jwtTokenStorage,
+		RedisLock:           redisLock,
+		IpAddressService:    ipAddressService,
+		TalkSessionService:  talkSessionService,
+		ArticleClassService: articleClassService,
+		RobotRepo:           robot,
+		MessageService:      messageService,
+	}
 	organizeOrganize := organize.NewOrganize(db)
 	organizeService := organize2.NewOrganizeService(source, organizeOrganize)
-	user := v1.NewUser(userService, smsService, organizeService)
+	user := &v1.User{
+		UsersRepo:       users,
+		OrganizeRepo:    organizeOrganize,
+		UserService:     userService,
+		SmsService:      smsService,
+		OrganizeService: organizeService,
+	}
 	department := organize.NewDepartment(db)
-	deptService := organize2.NewOrganizeDeptService(source, department)
 	position := organize.NewPosition(db)
+	deptService := organize2.NewOrganizeDeptService(source, department)
 	positionService := organize2.NewPositionService(source, position)
-	v1Organize := v1.NewOrganize(deptService, organizeService, positionService)
-	talkService := service.NewTalkService(source, groupMember)
+	v1Organize := &v1.Organize{
+		DepartmentRepo:  department,
+		PositionRepo:    position,
+		OrganizeRepo:    organizeOrganize,
+		DeptService:     deptService,
+		OrganizeService: organizeService,
+		PositionService: positionService,
+	}
 	contactRemark := cache.NewContactRemark(client)
 	repoContact := repo.NewContact(db, contactRemark, relation)
-	contactService := service.NewContactService(source, repoContact)
 	repoGroup := repo.NewGroup(db)
+	talkService := service.NewTalkService(source, groupMember)
+	contactService := service.NewContactService(source, repoContact)
 	groupService := service.NewGroupService(source, repoGroup, groupMember, relation, repoSequence)
 	authService := service.NewAuthService(organizeOrganize, repoContact, repoGroup, groupMember)
-	session := talk.NewSession(talkService, talkSessionService, redisLock, userService, clientStorage, messageStorage, contactService, unreadStorage, contactRemark, groupService, authService)
-	message := talk.NewMessage(talkService, authService, messageService, filesystem)
+	session := &talk.Session{
+		ContactRepo:        repoContact,
+		UsersRepo:          users,
+		GroupRepo:          repoGroup,
+		TalkService:        talkService,
+		TalkSessionService: talkSessionService,
+		RedisLock:          redisLock,
+		UserService:        userService,
+		ClientStorage:      clientStorage,
+		MessageStorage:     messageStorage,
+		ContactService:     contactService,
+		UnreadStorage:      unreadStorage,
+		ContactRemark:      contactRemark,
+		GroupService:       groupService,
+		AuthService:        authService,
+	}
+	message := &talk.Message{
+		TalkService:    talkService,
+		AuthService:    authService,
+		MessageService: messageService,
+		Filesystem:     filesystem,
+	}
 	talkRecords := repo.NewTalkRecords(db)
 	talkRecordsService := service.NewTalkRecordsService(source, vote, talkRecordsVote, groupMember, talkRecords)
 	groupMemberService := service.NewGroupMemberService(source, groupMember)
-	records := talk.NewRecords(talkRecordsService, groupMemberService, filesystem, authService)
+	records := &talk.Records{
+		GroupMemberRepo:    groupMember,
+		TalkRecordsRepo:    talkRecords,
+		TalkRecordsService: talkRecordsService,
+		GroupMemberService: groupMemberService,
+		Filesystem:         filesystem,
+		AuthService:        authService,
+	}
 	emoticon := repo.NewEmoticon(db)
 	emoticonService := service.NewEmoticonService(source, emoticon, filesystem)
-	v1Emoticon := v1.NewEmoticon(filesystem, emoticonService, redisLock)
+	v1Emoticon := &v1.Emoticon{
+		EmoticonRepo:    emoticon,
+		Filesystem:      filesystem,
+		EmoticonService: emoticonService,
+		RedisLock:       redisLock,
+	}
 	splitUploadService := service.NewSplitUploadService(source, splitUpload, conf, filesystem)
-	upload := v1.NewUpload(conf, filesystem, splitUploadService)
+	upload := &v1.Upload{
+		Config:             conf,
+		Filesystem:         filesystem,
+		SplitUploadService: splitUploadService,
+	}
 	groupNotice := repo.NewGroupNotice(db)
 	groupNoticeService := service.NewGroupNoticeService(source, groupNotice)
-	groupGroup := group.NewGroup(groupService, groupMemberService, talkSessionService, userService, redisLock, contactService, groupNoticeService, messageService)
-	notice := group.NewNotice(groupNoticeService, groupMemberService, messageService)
+	groupGroup := &group.Group{
+		RedisLock:          redisLock,
+		Repo:               source,
+		UsersRepo:          users,
+		GroupRepo:          repoGroup,
+		GroupMemberRepo:    groupMember,
+		TalkSessionRepo:    talkSession,
+		GroupService:       groupService,
+		GroupMemberService: groupMemberService,
+		TalkSessionService: talkSessionService,
+		UserService:        userService,
+		ContactService:     contactService,
+		GroupNoticeService: groupNoticeService,
+		MessageService:     messageService,
+	}
+	notice := &group.Notice{
+		GroupMemberRepo:    groupMember,
+		GroupNoticeRepo:    groupNotice,
+		GroupNoticeService: groupNoticeService,
+		GroupMemberService: groupMemberService,
+		MessageService:     messageService,
+	}
+	groupApplyStorage := cache.NewGroupApplyStorage(client)
 	groupApply := repo.NewGroupApply(db)
 	groupApplyService := service.NewGroupApplyService(source, groupApply)
-	apply := group.NewApply(groupApplyService, groupMemberService, groupService)
-	contactContact := contact.NewContact(contactService, clientStorage, userService, talkSessionService, organizeService, messageService)
+	apply := &group.Apply{
+		Redis:              client,
+		GroupApplyStorage:  groupApplyStorage,
+		GroupRepo:          repoGroup,
+		GroupApplyRepo:     groupApply,
+		GroupMemberRepo:    groupMember,
+		GroupApplyService:  groupApplyService,
+		GroupMemberService: groupMemberService,
+		GroupService:       groupService,
+	}
+	contactContact := &contact.Contact{
+		ContactRepo:     repoContact,
+		UsersRepo:       users,
+		OrganizeRepo:    organizeOrganize,
+		TalkSessionRepo: talkSession,
+		ContactService:  contactService,
+		ClientStorage:   clientStorage,
+		UserService:     userService,
+		TalkListService: talkSessionService,
+		OrganizeService: organizeService,
+		MessageService:  messageService,
+	}
 	contactApplyService := service.NewContactApplyService(source)
-	contactApply := contact.NewApply(contactApplyService, userService, contactService, messageService)
+	contactApply := &contact.Apply{
+		ContactRepo:         repoContact,
+		ContactApplyService: contactApplyService,
+		UserService:         userService,
+		ContactService:      contactService,
+		MessageService:      messageService,
+	}
 	contactGroup := repo.NewContactGroup(db)
 	contactGroupService := service.NewContactGroupService(source, contactGroup)
-	group2 := contact.NewGroup(contactGroupService, contactService)
-	articleService := note2.NewArticleService(source)
+	group2 := &contact.Group{
+		ContactRepo:         repoContact,
+		ContactGroupRepo:    contactGroup,
+		ContactGroupService: contactGroupService,
+		ContactService:      contactService,
+	}
 	articleAnnex := note.NewArticleAnnex(db)
+	articleService := note2.NewArticleService(source)
 	articleAnnexService := note2.NewArticleAnnexService(source, articleAnnex, filesystem)
-	articleArticle := article.NewArticle(articleService, filesystem, articleAnnexService)
-	annex := article.NewAnnex(articleAnnexService, filesystem)
-	class := article.NewClass(articleClassService)
+	articleArticle := &article.Article{
+		ArticleAnnexRepo:    articleAnnex,
+		ArticleService:      articleService,
+		Filesystem:          filesystem,
+		ArticleAnnexService: articleAnnexService,
+	}
+	annex := &article.Annex{
+		ArticleAnnexRepo:    articleAnnex,
+		ArticleAnnexService: articleAnnexService,
+		Filesystem:          filesystem,
+	}
+	class := &article.Class{
+		ArticleClassService: articleClassService,
+	}
 	articleTagService := note2.NewArticleTagService(source)
-	tag := article.NewTag(articleTagService)
-	publish := talk.NewPublish(authService, messageService)
+	tag := &article.Tag{
+		ArticleTagService: articleTagService,
+	}
+	publish := &talk.Publish{
+		AuthService:    authService,
+		MessageService: messageService,
+	}
 	webV1 := &web.V1{
 		Common:       common,
 		Auth:         auth,
@@ -176,8 +322,4 @@ func Initialize(conf *config.Config) *AppProvider {
 
 // wire.go:
 
-var providerSet = wire.NewSet(provider.NewMySQLClient, provider.NewRedisClient, provider.NewHttpClient, provider.NewEmailClient, provider.NewFilesystem, provider.NewRequestClient, router.NewRouter, wire.Struct(new(web.Handler), "*"), wire.Struct(new(admin.Handler), "*"), wire.Struct(new(open.Handler), "*"), wire.Struct(new(handler.Handler), "*"), wire.Struct(new(AppProvider), "*"))
-
-var daoProviderSet = wire.NewSet(repo.NewSource, repo.NewContact, repo.NewContactGroup, repo.NewGroupMember, repo.NewUsers, repo.NewGroup, repo.NewGroupApply, repo.NewTalkRecords, repo.NewGroupNotice, repo.NewTalkSession, repo.NewEmoticon, repo.NewTalkRecordsVote, repo.NewFileSplitUpload, note.NewArticleClass, note.NewArticleAnnex, organize.NewDepartment, organize.NewOrganize, organize.NewPosition, repo.NewRobot, repo.NewSequence, repo.NewAdmin)
-
-var serviceProviderSet = wire.NewSet(service.NewUserService, service.NewSmsService, service.NewTalkService, service.NewGroupService, service.NewGroupMemberService, service.NewGroupNoticeService, service.NewGroupApplyService, service.NewTalkSessionService, service.NewEmoticonService, service.NewTalkRecordsService, service.NewContactService, service.NewContactApplyService, service.NewContactGroupService, service.NewSplitUploadService, service.NewIpAddressService, service.NewMessageService, note2.NewArticleService, note2.NewArticleTagService, note2.NewArticleClassService, note2.NewArticleAnnexService, organize2.NewOrganizeDeptService, organize2.NewOrganizeService, organize2.NewPositionService, service.NewTemplateService, service.NewAuthService, logic.NewMessageForwardLogic)
+var providerSet = wire.NewSet(provider.NewMySQLClient, provider.NewRedisClient, provider.NewHttpClient, provider.NewEmailClient, provider.NewFilesystem, provider.NewRequestClient, router.NewRouter, wire.Struct(new(AppProvider), "*"))

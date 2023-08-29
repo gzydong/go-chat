@@ -13,7 +13,3 @@ type PositionService struct {
 func NewPositionService(source *repo.Source, dao *organize.Position) *PositionService {
 	return &PositionService{Source: source, dao: dao}
 }
-
-func (s *PositionService) Dao() *organize.Position {
-	return s.dao
-}

@@ -11,9 +11,10 @@ import (
 	"go-chat/config"
 	"go-chat/internal/gateway/internal/consume"
 	chat2 "go-chat/internal/gateway/internal/consume/chat"
-	"go-chat/internal/gateway/internal/consume/example"
+	example2 "go-chat/internal/gateway/internal/consume/example"
 	"go-chat/internal/gateway/internal/event"
 	"go-chat/internal/gateway/internal/event/chat"
+	"go-chat/internal/gateway/internal/event/example"
 	"go-chat/internal/gateway/internal/handler"
 	"go-chat/internal/gateway/internal/process"
 	"go-chat/internal/gateway/internal/router"
@@ -33,9 +34,9 @@ func Initialize(conf *config.Config) *AppProvider {
 	clientStorage := cache.NewClientStorage(client, conf, serverStorage)
 	roomStorage := cache.NewRoomStorage(client)
 	db := provider.NewMySQLClient(conf)
-	source := repo.NewSource(db, client)
 	relation := cache.NewRelation(client)
 	groupMember := repo.NewGroupMember(db, relation)
+	source := repo.NewSource(db, client)
 	groupMemberService := service.NewGroupMemberService(source, groupMember)
 	sequence := cache.NewSequence(client)
 	repoSequence := repo.NewSequence(db, sequence)
@@ -47,12 +48,41 @@ func Initialize(conf *config.Config) *AppProvider {
 	unreadStorage := cache.NewUnreadStorage(client)
 	messageStorage := cache.NewMessageStorage(client)
 	robot := repo.NewRobot(db)
-	messageService := service.NewMessageService(source, messageForwardLogic, groupMember, splitUpload, talkRecordsVote, filesystem, unreadStorage, messageStorage, serverStorage, clientStorage, repoSequence, robot)
+	messageService := &service.MessageService{
+		Source:              source,
+		MessageForwardLogic: messageForwardLogic,
+		GroupMemberRepo:     groupMember,
+		SplitUploadRepo:     splitUpload,
+		TalkRecordsVoteRepo: talkRecordsVote,
+		Filesystem:          filesystem,
+		UnreadStorage:       unreadStorage,
+		MessageStorage:      messageStorage,
+		ServerStorage:       serverStorage,
+		ClientStorage:       clientStorage,
+		Sequence:            repoSequence,
+		RobotRepo:           robot,
+	}
 	chatHandler := chat.NewHandler(client, groupMemberService, messageService)
-	chatEvent := event.NewChatEvent(client, conf, roomStorage, groupMemberService, chatHandler)
-	chatChannel := handler.NewChatChannel(clientStorage, chatEvent)
-	exampleEvent := event.NewExampleEvent()
-	exampleChannel := handler.NewExampleChannel(clientStorage, exampleEvent)
+	chatEvent := &event.ChatEvent{
+		Redis:           client,
+		Config:          conf,
+		RoomStorage:     roomStorage,
+		GroupMemberRepo: groupMember,
+		MemberService:   groupMemberService,
+		Handler:         chatHandler,
+	}
+	chatChannel := &handler.ChatChannel{
+		Storage: clientStorage,
+		Event:   chatEvent,
+	}
+	exampleHandler := example.NewHandler()
+	exampleEvent := &event.ExampleEvent{
+		Handler: exampleHandler,
+	}
+	exampleChannel := &handler.ExampleChannel{
+		Storage: clientStorage,
+		Event:   exampleEvent,
+	}
 	handlerHandler := &handler.Handler{
 		Chat:    chatChannel,
 		Example: exampleChannel,
@@ -67,10 +97,10 @@ func Initialize(conf *config.Config) *AppProvider {
 	contact := repo.NewContact(db, contactRemark, relation)
 	contactService := service.NewContactService(source, contact)
 	organizeOrganize := organize.NewOrganize(db)
-	handler2 := chat2.NewHandler(conf, clientStorage, roomStorage, talkRecordsService, contactService, organizeOrganize)
+	handler2 := chat2.NewHandler(conf, clientStorage, roomStorage, talkRecordsService, contactService, organizeOrganize, source)
 	chatSubscribe := consume.NewChatSubscribe(handler2)
-	exampleHandler := example.NewHandler()
-	exampleSubscribe := consume.NewExampleSubscribe(exampleHandler)
+	handler3 := example2.NewHandler()
+	exampleSubscribe := consume.NewExampleSubscribe(handler3)
 	messageSubscribe := process.NewMessageSubscribe(conf, client, chatSubscribe, exampleSubscribe)
 	subServers := &process.SubServers{
 		HealthSubscribe:  healthSubscribe,
@@ -91,4 +121,4 @@ func Initialize(conf *config.Config) *AppProvider {
 
 // wire.go:
 
-var providerSet = wire.NewSet(provider.NewMySQLClient, provider.NewRedisClient, provider.NewFilesystem, provider.NewEmailClient, provider.NewProviders, router.NewRouter, wire.Struct(new(process.SubServers), "*"), process.NewServer, process.NewHealthSubscribe, process.NewMessageSubscribe, repo.NewSource, repo.NewTalkRecords, repo.NewTalkRecordsVote, repo.NewGroupMember, repo.NewContact, repo.NewFileSplitUpload, repo.NewSequence, organize.NewOrganize, repo.NewRobot, logic.NewMessageForwardLogic, service.NewTalkRecordsService, service.NewGroupMemberService, service.NewContactService, service.NewMessageService, wire.Struct(new(handler.Handler), "*"), wire.Struct(new(AppProvider), "*"))
+var providerSet = wire.NewSet(provider.NewMySQLClient, provider.NewRedisClient, provider.NewFilesystem, provider.NewEmailClient, provider.NewProviders, router.NewRouter, wire.Struct(new(process.SubServers), "*"), process.NewServer, process.NewHealthSubscribe, process.NewMessageSubscribe, repo.NewSource, repo.NewTalkRecords, repo.NewTalkRecordsVote, repo.NewGroupMember, repo.NewContact, repo.NewFileSplitUpload, repo.NewSequence, organize.NewOrganize, repo.NewRobot, logic.NewMessageForwardLogic, service.NewTalkRecordsService, service.NewGroupMemberService, service.NewContactService, wire.Struct(new(service.MessageService), "*"), wire.Bind(new(service.IMessageService), new(*service.MessageService)), wire.Struct(new(handler.Handler), "*"), wire.Struct(new(AppProvider), "*"))

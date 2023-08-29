@@ -11,12 +11,8 @@ import (
 )
 
 type ChatChannel struct {
-	storage *cache.ClientStorage
-	event   *event.ChatEvent
-}
-
-func NewChatChannel(storage *cache.ClientStorage, event *event.ChatEvent) *ChatChannel {
-	return &ChatChannel{storage: storage, event: event}
+	Storage *cache.ClientStorage
+	Event   *event.ChatEvent
 }
 
 // Conn 初始化连接
@@ -36,14 +32,14 @@ func (c *ChatChannel) NewClient(uid int, conn socket.IConn) error {
 	return socket.NewClient(conn, &socket.ClientOption{
 		Uid:     uid,
 		Channel: socket.Session.Chat,
-		Storage: c.storage,
+		Storage: c.Storage,
 		Buffer:  10,
 	}, socket.NewEvent(
 		// 连接成功回调
-		socket.WithOpenEvent(c.event.OnOpen),
+		socket.WithOpenEvent(c.Event.OnOpen),
 		// 接收消息回调
-		socket.WithMessageEvent(c.event.OnMessage),
+		socket.WithMessageEvent(c.Event.OnMessage),
 		// 关闭连接回调
-		socket.WithCloseEvent(c.event.OnClose),
+		socket.WithCloseEvent(c.Event.OnClose),
 	))
 }

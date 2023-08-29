@@ -10,26 +10,30 @@ import (
 )
 
 var ProviderSet = wire.NewSet(
-	v1.NewAuth,
-	v1.NewCommon,
-	v1.NewUser,
-	v1.NewOrganize,
-	contact.NewContact,
-	contact.NewApply,
-	contact.NewGroup,
-	group.NewGroup,
-	group.NewApply,
-	group.NewNotice,
-	talk.NewSession,
-	talk.NewMessage,
-	v1.NewUpload,
-	v1.NewEmoticon,
-	talk.NewRecords,
-	article.NewAnnex,
-	article.NewArticle,
-	article.NewClass,
-	article.NewTag,
-	talk.NewPublish,
+	wire.Struct(new(v1.Auth), "*"),
+	wire.Struct(new(v1.Common), "*"),
+	wire.Struct(new(v1.User), "*"),
+	wire.Struct(new(v1.Organize), "*"),
+	wire.Struct(new(v1.Upload), "*"),
+	wire.Struct(new(v1.Emoticon), "*"),
+
+	wire.Struct(new(contact.Contact), "*"),
+	wire.Struct(new(contact.Apply), "*"),
+	wire.Struct(new(contact.Group), "*"),
+
+	wire.Struct(new(group.Group), "*"),
+	wire.Struct(new(group.Apply), "*"),
+	wire.Struct(new(group.Notice), "*"),
+
+	wire.Struct(new(talk.Session), "*"),
+	wire.Struct(new(talk.Message), "*"),
+	wire.Struct(new(talk.Records), "*"),
+	wire.Struct(new(talk.Publish), "*"),
+
+	wire.Struct(new(article.Article), "*"),
+	wire.Struct(new(article.Annex), "*"),
+	wire.Struct(new(article.Class), "*"),
+	wire.Struct(new(article.Tag), "*"),
 
 	wire.Struct(new(V1), "*"),
 )

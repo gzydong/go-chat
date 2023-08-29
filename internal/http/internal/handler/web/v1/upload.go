@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"path"
+	"strconv"
 	"strings"
 	"time"
 
@@ -18,13 +19,9 @@ import (
 )
 
 type Upload struct {
-	config             *config.Config
-	filesystem         *filesystem.Filesystem
-	splitUploadService *service.SplitUploadService
-}
-
-func NewUpload(config *config.Config, filesystem *filesystem.Filesystem, splitUploadService *service.SplitUploadService) *Upload {
-	return &Upload{config: config, filesystem: filesystem, splitUploadService: splitUploadService}
+	Config             *config.Config
+	Filesystem         *filesystem.Filesystem
+	SplitUploadService *service.SplitUploadService
 }
 
 // Avatar 头像上传上传
@@ -38,12 +35,12 @@ func (u *Upload) Avatar(ctx *ichat.Context) error {
 	stream, _ := filesystem.ReadMultipartStream(file)
 	object := fmt.Sprintf("public/media/image/avatar/%s/%s", time.Now().Format("20060102"), strutil.GenImageName("png", 200, 200))
 
-	if err := u.filesystem.Default.Write(stream, object); err != nil {
+	if err := u.Filesystem.Default.Write(stream, object); err != nil {
 		return ctx.ErrorBusiness("文件上传失败")
 	}
 
 	return ctx.Success(web.UploadAvatarResponse{
-		Avatar: u.filesystem.Default.PublicUrl(object),
+		Avatar: u.Filesystem.Default.PublicUrl(object),
 	})
 }
 
@@ -55,20 +52,27 @@ func (u *Upload) Image(ctx *ichat.Context) error {
 		return ctx.InvalidParams("文件上传失败！")
 	}
 
-	ext := strings.TrimPrefix(path.Ext(file.Filename), ".")
+	var (
+		ext       = strings.TrimPrefix(path.Ext(file.Filename), ".")
+		width, _  = strconv.Atoi(ctx.Context.DefaultPostForm("width", "0"))
+		height, _ = strconv.Atoi(ctx.Context.DefaultPostForm("height", "0"))
+	)
 
 	stream, _ := filesystem.ReadMultipartStream(file)
+	if width == 0 || height == 0 {
+		meta := utils.ReadImageMeta(bytes.NewReader(stream))
+		width = meta.Width
+		height = meta.Height
+	}
 
-	meta := utils.ReadImageMeta(bytes.NewReader(stream))
+	object := fmt.Sprintf("public/media/image/common/%s/%s", time.Now().Format("20060102"), strutil.GenImageName(ext, width, height))
 
-	object := fmt.Sprintf("public/media/image/common/%s/%s", time.Now().Format("20060102"), strutil.GenImageName(ext, meta.Width, meta.Height))
-
-	if err := u.filesystem.Default.Write(stream, object); err != nil {
+	if err := u.Filesystem.Default.Write(stream, object); err != nil {
 		return ctx.ErrorBusiness("文件上传失败")
 	}
 
 	return ctx.Success(web.UploadImageResponse{
-		Src: u.filesystem.Default.PublicUrl(object),
+		Src: u.Filesystem.Default.PublicUrl(object),
 	})
 }
 
@@ -80,7 +84,7 @@ func (u *Upload) InitiateMultipart(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	info, err := u.splitUploadService.InitiateMultipartUpload(ctx.Ctx(), &service.MultipartInitiateOpt{
+	info, err := u.SplitUploadService.InitiateMultipartUpload(ctx.Ctx(), &service.MultipartInitiateOpt{
 		Name:   params.FileName,
 		Size:   params.FileSize,
 		UserId: ctx.UserId(),
@@ -109,7 +113,7 @@ func (u *Upload) MultipartUpload(ctx *ichat.Context) error {
 		return ctx.InvalidParams("文件上传失败！")
 	}
 
-	err = u.splitUploadService.MultipartUpload(ctx.Ctx(), &service.MultipartUploadOpt{
+	err = u.SplitUploadService.MultipartUpload(ctx.Ctx(), &service.MultipartUploadOpt{
 		UserId:     ctx.UserId(),
 		UploadId:   params.UploadId,
 		SplitIndex: int(params.SplitIndex),

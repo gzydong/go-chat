@@ -12,12 +12,8 @@ import (
 
 // ExampleChannel 案例
 type ExampleChannel struct {
-	storage *cache.ClientStorage
-	event   *event.ExampleEvent
-}
-
-func NewExampleChannel(storage *cache.ClientStorage, event *event.ExampleEvent) *ExampleChannel {
-	return &ExampleChannel{storage: storage, event: event}
+	Storage *cache.ClientStorage
+	Event   *event.ExampleEvent
 }
 
 func (c *ExampleChannel) Conn(ctx *ichat.Context) error {
@@ -33,10 +29,10 @@ func (c *ExampleChannel) Conn(ctx *ichat.Context) error {
 		Uid:     0,
 	}, socket.NewEvent(
 		// 连接成功回调
-		socket.WithOpenEvent(c.event.OnOpen),
+		socket.WithOpenEvent(c.Event.OnOpen),
 		// 接收消息回调
-		socket.WithMessageEvent(c.event.OnMessage),
+		socket.WithMessageEvent(c.Event.OnMessage),
 		// 关闭连接回调
-		socket.WithCloseEvent(c.event.OnClose),
+		socket.WithCloseEvent(c.Event.OnClose),
 	))
 }

@@ -30,10 +30,6 @@ func NewGroupService(source *repo.Source, repo *repo.Group, member *repo.GroupMe
 	return &GroupService{Source: source, group: repo, member: member, relation: relation, sequence: sequence}
 }
 
-func (g *GroupService) Dao() *repo.Group {
-	return g.group
-}
-
 type GroupCreateOpt struct {
 	UserId    int    // 操作人ID
 	Name      string // 群名称

@@ -31,7 +31,8 @@ func (g *GroupApply) List(ctx context.Context, groupIds []int) ([]*model.GroupAp
 	query := g.Db.WithContext(ctx).Table("group_apply")
 	query.Joins("left join users on users.id = group_apply.user_id")
 	query.Where("group_apply.group_id in ?", groupIds)
-	query.Order("group_apply.created_at desc")
+	query.Where("group_apply.status = ?", model.GroupApplyStatusWait)
+	query.Order("group_apply.updated_at desc,group_apply.id desc")
 
 	var items []*model.GroupApplyList
 	if err := query.Select(fields).Scan(&items).Error; err != nil {

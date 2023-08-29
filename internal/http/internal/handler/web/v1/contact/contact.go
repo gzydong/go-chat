@@ -7,6 +7,8 @@ import (
 	"go-chat/api/pb/web/v1"
 	"go-chat/internal/pkg/ichat"
 	"go-chat/internal/repository/cache"
+	"go-chat/internal/repository/repo"
+	organize2 "go-chat/internal/repository/repo/organize"
 	"go-chat/internal/service/organize"
 	"gorm.io/gorm"
 
@@ -15,22 +17,23 @@ import (
 )
 
 type Contact struct {
-	contactService  *service.ContactService
-	clientStorage   *cache.ClientStorage
-	userService     *service.UserService
-	talkListService *service.TalkSessionService
-	organizeService *organize.OrganizeService
-	messageService  *service.MessageService
-}
+	ContactRepo     *repo.Contact
+	UsersRepo       *repo.Users
+	OrganizeRepo    *organize2.Organize
+	TalkSessionRepo *repo.TalkSession
 
-func NewContact(contactService *service.ContactService, clientStorage *cache.ClientStorage, userService *service.UserService, talkListService *service.TalkSessionService, organizeService *organize.OrganizeService, messageService *service.MessageService) *Contact {
-	return &Contact{contactService: contactService, clientStorage: clientStorage, userService: userService, talkListService: talkListService, organizeService: organizeService, messageService: messageService}
+	ContactService  *service.ContactService
+	ClientStorage   *cache.ClientStorage
+	UserService     *service.UserService
+	TalkListService *service.TalkSessionService
+	OrganizeService *organize.OrganizeService
+	MessageService  service.IMessageService
 }
 
 // List 联系人列表
 func (c *Contact) List(ctx *ichat.Context) error {
 
-	list, err := c.contactService.List(ctx.Ctx(), ctx.UserId())
+	list, err := c.ContactService.List(ctx.Ctx(), ctx.UserId())
 	if err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}
@@ -60,13 +63,13 @@ func (c *Contact) Delete(ctx *ichat.Context) error {
 	}
 
 	uid := ctx.UserId()
-	if err := c.contactService.Delete(ctx.Ctx(), uid, int(params.FriendId)); err != nil {
+	if err := c.ContactService.Delete(ctx.Ctx(), uid, int(params.FriendId)); err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}
 
 	// 解除好友关系后需添加一条聊天记录
-	_ = c.messageService.SendSystemText(ctx.Ctx(), uid, &message.TextMessageRequest{
-		Content: "你与对方已经解除了好友关系！！！",
+	_ = c.MessageService.SendSystemText(ctx.Ctx(), uid, &message.TextMessageRequest{
+		Content: "你与对方已经解除了好友关系！",
 		Receiver: &message.MessageReceiver{
 			TalkType:   entity.ChatPrivateMode,
 			ReceiverId: params.FriendId,
@@ -74,8 +77,8 @@ func (c *Contact) Delete(ctx *ichat.Context) error {
 	})
 
 	// 删除聊天会话
-	sid := c.talkListService.Dao().FindBySessionId(uid, int(params.FriendId), entity.ChatPrivateMode)
-	if err := c.talkListService.Delete(ctx.Ctx(), ctx.UserId(), sid); err != nil {
+	sid := c.TalkSessionRepo.FindBySessionId(uid, int(params.FriendId), entity.ChatPrivateMode)
+	if err := c.TalkListService.Delete(ctx.Ctx(), ctx.UserId(), sid); err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}
 
@@ -90,7 +93,7 @@ func (c *Contact) Search(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	user, err := c.userService.Dao().FindByMobile(params.Mobile)
+	user, err := c.UsersRepo.FindByMobile(params.Mobile)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return ctx.ErrorBusiness("用户不存在！")
@@ -109,15 +112,15 @@ func (c *Contact) Search(ctx *ichat.Context) error {
 	})
 }
 
-// EditRemark 编辑联系人备注
-func (c *Contact) EditRemark(ctx *ichat.Context) error {
+// Remark 编辑联系人备注
+func (c *Contact) Remark(ctx *ichat.Context) error {
 
 	params := &web.ContactEditRemarkRequest{}
 	if err := ctx.Context.ShouldBind(params); err != nil {
 		return ctx.InvalidParams(err)
 	}
 
-	if err := c.contactService.UpdateRemark(ctx.Ctx(), ctx.UserId(), int(params.FriendId), params.Remark); err != nil {
+	if err := c.ContactService.UpdateRemark(ctx.Ctx(), ctx.UserId(), int(params.FriendId), params.Remark); err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}
 
@@ -134,7 +137,7 @@ func (c *Contact) Detail(ctx *ichat.Context) error {
 
 	uid := ctx.UserId()
 
-	user, err := c.userService.Dao().FindById(ctx.Ctx(), int(params.UserId))
+	user, err := c.UsersRepo.FindById(ctx.Ctx(), int(params.UserId))
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return ctx.ErrorBusiness("用户不存在！")
@@ -157,19 +160,19 @@ func (c *Contact) Detail(ctx *ichat.Context) error {
 	if uid != user.Id {
 		data.FriendStatus = 1
 
-		contact, err := c.contactService.Dao().FindByWhere(ctx.Ctx(), "user_id = ? and friend_id = ?", uid, user.Id)
+		contact, err := c.ContactRepo.FindByWhere(ctx.Ctx(), "user_id = ? and friend_id = ?", uid, user.Id)
 		if err != nil && err != gorm.ErrRecordNotFound {
 			return err
 		}
 
 		if err == nil && contact.Status == 1 {
-			if c.contactService.Dao().IsFriend(ctx.Ctx(), uid, user.Id, false) {
+			if c.ContactRepo.IsFriend(ctx.Ctx(), uid, user.Id, false) {
 				data.FriendStatus = 2
 				data.GroupId = int32(contact.GroupId)
 				data.Remark = contact.Remark
 			}
 		} else {
-			isOk, _ := c.organizeService.Dao().IsQiyeMember(ctx.Ctx(), uid, user.Id)
+			isOk, _ := c.OrganizeRepo.IsQiyeMember(ctx.Ctx(), uid, user.Id)
 			if isOk {
 				data.FriendStatus = 2
 			}
@@ -187,7 +190,7 @@ func (c *Contact) MoveGroup(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	err := c.contactService.MoveGroup(ctx.Ctx(), ctx.UserId(), int(params.UserId), int(params.GroupId))
+	err := c.ContactService.MoveGroup(ctx.Ctx(), ctx.UserId(), int(params.UserId), int(params.GroupId))
 	if err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}

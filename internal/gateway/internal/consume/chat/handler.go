@@ -7,6 +7,7 @@ import (
 	"go-chat/config"
 	"go-chat/internal/entity"
 	"go-chat/internal/repository/cache"
+	"go-chat/internal/repository/repo"
 	"go-chat/internal/repository/repo/organize"
 	"go-chat/internal/service"
 )
@@ -20,10 +21,11 @@ type Handler struct {
 	recordsService *service.TalkRecordsService
 	contactService *service.ContactService
 	organize       *organize.Organize
+	source         *repo.Source
 }
 
-func NewHandler(config *config.Config, clientStorage *cache.ClientStorage, roomStorage *cache.RoomStorage, recordsService *service.TalkRecordsService, contactService *service.ContactService, organize *organize.Organize) *Handler {
-	return &Handler{config: config, clientStorage: clientStorage, roomStorage: roomStorage, recordsService: recordsService, contactService: contactService, organize: organize}
+func NewHandler(config *config.Config, clientStorage *cache.ClientStorage, roomStorage *cache.RoomStorage, recordsService *service.TalkRecordsService, contactService *service.ContactService, organize *organize.Organize, source *repo.Source) *Handler {
+	return &Handler{config: config, clientStorage: clientStorage, roomStorage: roomStorage, recordsService: recordsService, contactService: contactService, organize: organize, source: source}
 }
 
 func (h *Handler) init() {
@@ -36,6 +38,7 @@ func (h *Handler) init() {
 	h.handlers[entity.SubEventContactStatus] = h.onConsumeContactStatus
 	h.handlers[entity.SubEventContactApply] = h.onConsumeContactApply
 	h.handlers[entity.SubEventGroupJoin] = h.onConsumeGroupJoin
+	h.handlers[entity.SubEventGroupApply] = h.onConsumeGroupApply
 }
 
 func (h *Handler) Call(ctx context.Context, event string, data []byte) {

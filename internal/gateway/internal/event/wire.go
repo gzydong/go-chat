@@ -7,9 +7,9 @@ import (
 )
 
 var ProviderSet = wire.NewSet(
-	NewChatEvent,
+	wire.Struct(new(ChatEvent), "*"),
 	chat.NewHandler,
 
-	NewExampleEvent,
+	wire.Struct(new(ExampleEvent), "*"),
 	example.NewHandler,
 )

@@ -7,22 +7,23 @@ option go_package = "message/v1;message";
 import "tagger/tagger.proto";
 
 message MessageReceiver{
-  int32 talk_type = 1;
-  int32 receiver_id = 2;
+  int32 talk_type = 1; // 对话类型
+  int32 receiver_id = 2;// 接受者ID
 }
 
 // 文本消息
 message TextMessageRequest{
+  string type = 1; // 消息类型
+  string content = 4 [(tagger.tags) = "binding:\"required\""];
 
   message Mention{
     int32 all = 1;
     repeated int32 uids = 2;
   }
 
-  string type = 1;
-  string content = 2 [(tagger.tags) = "binding:\"required\""];
-  Mention mention = 3;
-  MessageReceiver receiver = 4;// 消息接收者
+  Mention mention = 5;
+  string quote_id = 6; // 引用的消息ID
+  MessageReceiver receiver = 7;// 消息接收者
 }
 
 // 图片消息
@@ -33,6 +34,7 @@ message ImageMessageRequest{
   int32 height = 4 [(tagger.tags) = "binding:\"required\""]; // 图片高度
   int32 size = 5 [(tagger.tags) = "binding:\"required\""]; // 图片大小
   MessageReceiver receiver = 6;// 消息接收者
+  string quote_id = 7; // 引用的消息ID
 }
 
 // 语音消息
@@ -40,7 +42,7 @@ message VoiceMessageRequest{
   string type = 1;
   string url = 2 [(tagger.tags) = "binding:\"required\""];
   int32 duration = 3 [(tagger.tags) = "binding:\"required,gt=0\""];
-  int32 size = 4 [(tagger.tags) = "binding:\"required\""]; // 图片大小
+  int32 size = 4 [(tagger.tags) = "binding:\"required\""]; // 语音大小
   MessageReceiver receiver = 5;// 消息接收者
 }
 
@@ -49,8 +51,9 @@ message VideoMessageRequest{
   string type = 1;
   string url = 2 [(tagger.tags) = "binding:\"required\""];
   int32 duration = 3 [(tagger.tags) = "binding:\"required,gt=0\""];
-  int32 size = 4 [(tagger.tags) = "binding:\"required\""]; // 图片大小
+  int32 size = 4 [(tagger.tags) = "binding:\"required\""]; // 视频大小
   MessageReceiver receiver = 5;// 消息接收者
+  string cover = 6; //封面图
 }
 
 // 文件消息
@@ -131,4 +134,5 @@ message MixedMessageRequest{
   string type = 1;
   repeated Item items = 2;
   MessageReceiver receiver = 3;
+  string quote_id = 4; // 引用的消息ID
 }

@@ -21,10 +21,6 @@ func NewEmoticonService(baseService *repo.Source, repo *repo.Emoticon, fileSyste
 	return &EmoticonService{Source: baseService, emoticon: repo, filesystem: fileSystem}
 }
 
-func (s *EmoticonService) Dao() *repo.Emoticon {
-	return s.emoticon
-}
-
 func (s *EmoticonService) RemoveUserSysEmoticon(uid int, emoticonId int) error {
 	ids := s.emoticon.GetUserInstallIds(uid)
 

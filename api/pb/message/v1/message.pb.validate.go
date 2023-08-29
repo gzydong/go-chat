@@ -194,6 +194,8 @@ func (m *TextMessageRequest) validate(all bool) error {
 		}
 	}
 
+	// no validation rules for QuoteId
+
 	if all {
 		switch v := interface{}(m.GetReceiver()).(type) {
 		case interface{ ValidateAll() error }:
@@ -363,6 +365,8 @@ func (m *ImageMessageRequest) validate(all bool) error {
 			}
 		}
 	}
+
+	// no validation rules for QuoteId
 
 	if len(errors) > 0 {
 		return ImageMessageRequestMultiError(errors)
@@ -641,6 +645,8 @@ func (m *VideoMessageRequest) validate(all bool) error {
 			}
 		}
 	}
+
+	// no validation rules for Cover
 
 	if len(errors) > 0 {
 		return VideoMessageRequestMultiError(errors)
@@ -1875,6 +1881,8 @@ func (m *MixedMessageRequest) validate(all bool) error {
 			}
 		}
 	}
+
+	// no validation rules for QuoteId
 
 	if len(errors) > 0 {
 		return MixedMessageRequestMultiError(errors)

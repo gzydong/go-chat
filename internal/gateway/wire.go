@@ -54,7 +54,9 @@ var providerSet = wire.NewSet(
 	service.NewTalkRecordsService,
 	service.NewGroupMemberService,
 	service.NewContactService,
-	service.NewMessageService,
+
+	wire.Struct(new(service.MessageService), "*"),
+	wire.Bind(new(service.IMessageService), new(*service.MessageService)),
 
 	wire.Struct(new(handler.Handler), "*"),
 	wire.Struct(new(AppProvider), "*"),

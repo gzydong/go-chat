@@ -27,6 +27,13 @@ message GroupApplyAgreeRequest{
 message GroupApplyAgreeResponse{}
 
 
+message GroupApplyDeclineRequest{
+  int32 apply_id = 1 [(tagger.tags) = "binding:\"required\""];
+  string remark = 2 [(tagger.tags) = "binding:\"required\""];
+}
+
+message GroupApplyDeclineResponse{}
+
 message GroupApplyListRequest{
   int32 group_id = 1 [(tagger.tags) = "form:\"group_id\" binding:\"required\""];
 }

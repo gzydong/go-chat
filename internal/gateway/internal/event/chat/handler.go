@@ -15,7 +15,7 @@ type Handler struct {
 	redis         *redis.Client
 	memberService *service.GroupMemberService
 	handlers      map[string]func(ctx context.Context, client socket.IClient, data []byte)
-	message       *service.MessageService
+	message       service.IMessageService
 }
 
 func NewHandler(redis *redis.Client, memberService *service.GroupMemberService, message *service.MessageService) *Handler {

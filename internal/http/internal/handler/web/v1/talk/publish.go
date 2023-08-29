@@ -7,15 +7,11 @@ import (
 	"go-chat/internal/service"
 )
 
+var mapping map[string]func(ctx *ichat.Context) error
+
 type Publish struct {
-	mapping map[string]func(ctx *ichat.Context) error
-
-	authService    *service.AuthService
-	messageService *service.MessageService
-}
-
-func NewPublish(talkAuthService *service.AuthService, messageService *service.MessageService) *Publish {
-	return &Publish{authService: talkAuthService, messageService: messageService}
+	AuthService    *service.AuthService
+	MessageService service.IMessageService
 }
 
 type PublishBaseMessageRequest struct {
@@ -33,7 +29,7 @@ func (c *Publish) Publish(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	if err := c.authService.IsAuth(ctx.Ctx(), &service.AuthOption{
+	if err := c.AuthService.IsAuth(ctx.Ctx(), &service.AuthOption{
 		TalkType:          params.Receiver.TalkType,
 		UserId:            ctx.UserId(),
 		ReceiverId:        params.Receiver.ReceiverId,
@@ -53,7 +49,7 @@ func (c *Publish) onSendText(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	err := c.messageService.SendText(ctx.Ctx(), ctx.UserId(), params)
+	err := c.MessageService.SendText(ctx.Ctx(), ctx.UserId(), params)
 	if err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}
@@ -69,7 +65,39 @@ func (c *Publish) onSendImage(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	err := c.messageService.SendImage(ctx.Ctx(), ctx.UserId(), params)
+	err := c.MessageService.SendImage(ctx.Ctx(), ctx.UserId(), params)
+	if err != nil {
+		return ctx.ErrorBusiness(err.Error())
+	}
+
+	return ctx.Success(nil)
+}
+
+// 语音消息
+func (c *Publish) onSendVoice(ctx *ichat.Context) error {
+
+	params := &message.VoiceMessageRequest{}
+	if err := ctx.Context.ShouldBindBodyWith(params, binding.JSON); err != nil {
+		return ctx.InvalidParams(err)
+	}
+
+	err := c.MessageService.SendVoice(ctx.Ctx(), ctx.UserId(), params)
+	if err != nil {
+		return ctx.ErrorBusiness(err.Error())
+	}
+
+	return ctx.Success(nil)
+}
+
+// 视频消息
+func (c *Publish) onSendVideo(ctx *ichat.Context) error {
+
+	params := &message.VideoMessageRequest{}
+	if err := ctx.Context.ShouldBindBodyWith(params, binding.JSON); err != nil {
+		return ctx.InvalidParams(err)
+	}
+
+	err := c.MessageService.SendVideo(ctx.Ctx(), ctx.UserId(), params)
 	if err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}
@@ -85,7 +113,7 @@ func (c *Publish) onSendFile(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	err := c.messageService.SendFile(ctx.Ctx(), ctx.UserId(), params)
+	err := c.MessageService.SendFile(ctx.Ctx(), ctx.UserId(), params)
 	if err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}
@@ -101,7 +129,7 @@ func (c *Publish) onSendCode(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	err := c.messageService.SendCode(ctx.Ctx(), ctx.UserId(), params)
+	err := c.MessageService.SendCode(ctx.Ctx(), ctx.UserId(), params)
 	if err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}
@@ -117,7 +145,7 @@ func (c *Publish) onSendLocation(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	err := c.messageService.SendLocation(ctx.Ctx(), ctx.UserId(), params)
+	err := c.MessageService.SendLocation(ctx.Ctx(), ctx.UserId(), params)
 	if err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}
@@ -133,7 +161,7 @@ func (c *Publish) onSendForward(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	err := c.messageService.SendForward(ctx.Ctx(), ctx.UserId(), params)
+	err := c.MessageService.SendForward(ctx.Ctx(), ctx.UserId(), params)
 	if err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}
@@ -149,7 +177,7 @@ func (c *Publish) onSendEmoticon(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	err := c.messageService.SendEmoticon(ctx.Ctx(), ctx.UserId(), params)
+	err := c.MessageService.SendEmoticon(ctx.Ctx(), ctx.UserId(), params)
 	if err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}
@@ -173,7 +201,7 @@ func (c *Publish) onSendVote(ctx *ichat.Context) error {
 		return ctx.InvalidParams("options 选项不能超过6个！")
 	}
 
-	err := c.messageService.SendVote(ctx.Ctx(), ctx.UserId(), params)
+	err := c.MessageService.SendVote(ctx.Ctx(), ctx.UserId(), params)
 	if err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}
@@ -189,7 +217,7 @@ func (c *Publish) onSendCard(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	err := c.messageService.SendBusinessCard(ctx.Ctx(), ctx.UserId(), params)
+	err := c.MessageService.SendBusinessCard(ctx.Ctx(), ctx.UserId(), params)
 	if err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}
@@ -205,7 +233,7 @@ func (c *Publish) onMixedMessage(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	err := c.messageService.SendMixedMessage(ctx.Ctx(), ctx.UserId(), params)
+	err := c.MessageService.SendMixedMessage(ctx.Ctx(), ctx.UserId(), params)
 	if err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}
@@ -214,21 +242,23 @@ func (c *Publish) onMixedMessage(ctx *ichat.Context) error {
 }
 
 func (c *Publish) transfer(ctx *ichat.Context, typeValue string) error {
-	if c.mapping == nil {
-		c.mapping = make(map[string]func(ctx *ichat.Context) error)
-		c.mapping["text"] = c.onSendText
-		c.mapping["code"] = c.onSendCode
-		c.mapping["location"] = c.onSendLocation
-		c.mapping["emoticon"] = c.onSendEmoticon
-		c.mapping["vote"] = c.onSendVote
-		c.mapping["image"] = c.onSendImage
-		c.mapping["file"] = c.onSendFile
-		c.mapping["card"] = c.onSendCard
-		c.mapping["forward"] = c.onSendForward
-		c.mapping["mixed"] = c.onMixedMessage
+	if mapping == nil {
+		mapping = make(map[string]func(ctx *ichat.Context) error)
+		mapping["text"] = c.onSendText
+		mapping["code"] = c.onSendCode
+		mapping["location"] = c.onSendLocation
+		mapping["emoticon"] = c.onSendEmoticon
+		mapping["vote"] = c.onSendVote
+		mapping["image"] = c.onSendImage
+		mapping["voice"] = c.onSendVoice
+		mapping["video"] = c.onSendVideo
+		mapping["file"] = c.onSendFile
+		mapping["card"] = c.onSendCard
+		mapping["forward"] = c.onSendForward
+		mapping["mixed"] = c.onMixedMessage
 	}
 
-	if call, ok := c.mapping[typeValue]; ok {
+	if call, ok := mapping[typeValue]; ok {
 		return call(ctx)
 	}
 
