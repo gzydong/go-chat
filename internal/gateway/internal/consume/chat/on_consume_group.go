@@ -28,7 +28,7 @@ func (h *Handler) onConsumeGroupJoin(ctx context.Context, body []byte) {
 
 	var in ConsumeGroupJoin
 	if err := json.Unmarshal(body, &in); err != nil {
-		logger.Error("[ChatSubscribe] onConsumeGroupJoin Unmarshal err: ", err.Error())
+		logger.Errorf("[ChatSubscribe] onConsumeGroupJoin Unmarshal err: %s", err.Error())
 		return
 	}
 
@@ -59,7 +59,7 @@ func (h *Handler) onConsumeGroupApply(ctx context.Context, body []byte) {
 
 	var in ConsumeGroupApply
 	if err := json.Unmarshal(body, &in); err != nil {
-		logger.Error("[ChatSubscribe] onConsumeGroupApply Unmarshal err: ", err.Error())
+		logger.Errorf("[ChatSubscribe] onConsumeGroupApply Unmarshal err: %s", err.Error())
 		return
 	}
 

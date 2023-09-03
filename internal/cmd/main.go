@@ -18,7 +18,7 @@ func main() {
 	app := Initialize(ctx, config.New(parseConfigArg()))
 
 	// 设置日志输出
-	logger.SetOutput(app.Config.LogPath(), "logger-cli")
+	logger.InitLogger(fmt.Sprintf("%s/cmd.log", app.Config.LogPath()), logger.LevelWarn)
 
 	newApp(ctx, app.Commands.SubCommands())
 }
@@ -36,7 +36,7 @@ func newApp(ctx context.Context, commands []*cli.Command) {
 	cmd.Commands = commands
 
 	if err := cmd.RunContext(ctx, os.Args); err != nil {
-		fmt.Printf("Command Error : %s", err.Error())
+		logger.Std().Error(fmt.Sprintf("Command Error : %s", err.Error()))
 	}
 }
 

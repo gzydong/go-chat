@@ -2,6 +2,7 @@ package example
 
 import (
 	"context"
+	"fmt"
 
 	"go-chat/internal/pkg/ichat/socket"
 	"go-chat/internal/pkg/logger"
@@ -31,6 +32,6 @@ func (h *Handler) Call(ctx context.Context, client socket.IClient, event string,
 	if call, ok := h.handlers[event]; ok {
 		call(ctx, client, data)
 	} else {
-		logger.Warnf("Chat Event: [%s]未注册回调事件\n", event)
+		logger.Std().Warn(fmt.Sprintf("Chat Event: [%s]未注册回调事件\n", event))
 	}
 }

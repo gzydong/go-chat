@@ -1,10 +1,11 @@
 module go-chat
 
-go 1.19
+go 1.21
 
 require (
 	github.com/alicebob/miniredis/v2 v2.15.1
 	github.com/bwmarrin/snowflake v0.3.0
+	github.com/bytedance/sonic v1.10.0
 	github.com/gin-gonic/gin v1.9.0
 	github.com/go-playground/locales v0.14.1
 	github.com/go-playground/universal-translator v0.18.1
@@ -13,7 +14,6 @@ require (
 	github.com/google/uuid v1.1.2
 	github.com/google/wire v0.5.0
 	github.com/gorilla/websocket v1.5.0
-	github.com/json-iterator/go v1.1.12
 	github.com/mojocn/base64Captcha v1.3.5
 	github.com/nsqio/go-nsq v1.1.0
 	github.com/orcaman/concurrent-map/v2 v2.0.1
@@ -24,7 +24,6 @@ require (
 	github.com/srikrsna/protoc-gen-gotag v0.6.2
 	github.com/stretchr/testify v1.8.1
 	github.com/tencentyun/cos-go-sdk-v5 v0.7.33
-	github.com/tidwall/gjson v1.14.4
 	github.com/urfave/cli/v2 v2.25.0
 	golang.org/x/crypto v0.5.0
 	golang.org/x/sync v0.0.0-20220722155255-886fb9371eb4
@@ -37,9 +36,9 @@ require (
 
 require (
 	github.com/alicebob/gopher-json v0.0.0-20200520072559-a9ecdc9d1d3a // indirect
-	github.com/bytedance/sonic v1.8.0 // indirect
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
-	github.com/chenzhuoyu/base64x v0.0.0-20221115062448-fe3a3abad311 // indirect
+	github.com/chenzhuoyu/base64x v0.0.0-20230717121745-296ad89f973d // indirect
+	github.com/chenzhuoyu/iasm v0.9.0 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.2 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
@@ -53,6 +52,7 @@ require (
 	github.com/google/subcommands v1.0.1 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
+	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/klauspost/cpuid/v2 v2.0.9 // indirect
 	github.com/leodido/go-urn v1.2.1 // indirect
 	github.com/mattn/go-isatty v0.0.17 // indirect
@@ -62,8 +62,6 @@ require (
 	github.com/pelletier/go-toml/v2 v2.0.6 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
-	github.com/tidwall/match v1.1.1 // indirect
-	github.com/tidwall/pretty v1.2.0 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.2.9 // indirect
 	github.com/xrash/smetrics v0.0.0-20201216005158-039620a65673 // indirect

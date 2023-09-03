@@ -503,7 +503,7 @@ func (c *Group) AssignAdmin(ctx *ichat.Context) error {
 
 	err := c.GroupMemberService.SetLeaderStatus(ctx.Ctx(), int(params.GroupId), int(params.UserId), leader)
 	if err != nil {
-		logger.Error("[Group AssignAdmin] 设置管理员信息失败 err :", err.Error())
+		logger.Errorf("[Group AssignAdmin] 设置管理员信息失败 err :%s", err.Error())
 		return ctx.ErrorBusiness("设置管理员信息失败！")
 	}
 

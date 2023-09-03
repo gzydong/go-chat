@@ -2,6 +2,7 @@ package process
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"time"
 
@@ -29,7 +30,7 @@ func (s *HealthSubscribe) Setup(ctx context.Context) error {
 			return nil
 		case <-time.After(10 * time.Second):
 			if err := s.storage.Set(ctx, s.config.ServerId(), time.Now().Unix()); err != nil {
-				logger.Errorf("Websocket HealthSubscribe Report Err: %s \n", err.Error())
+				logger.Std().Error(fmt.Sprintf("Websocket HealthSubscribe Report Err: %s", err.Error()))
 			}
 		}
 	}

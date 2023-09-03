@@ -50,12 +50,12 @@ func (s *Sequence) try(ctx context.Context, userId int, receiverId int) error {
 		var seq int64
 		err := tx.Select("ifnull(max(sequence),0)").Scan(&seq).Error
 		if err != nil {
-			logger.Error("[Sequence Total] 加载异常 err: ", err.Error())
+			logger.Errorf("[Sequence Total] 加载异常 err: %s", err.Error())
 			return err
 		}
 
 		if err := s.cache.Set(ctx, userId, receiverId, seq); err != nil {
-			logger.Error("[Sequence Set] 加载异常 err: ", err.Error())
+			logger.Errorf("[Sequence Set] 加载异常 err: %s", err.Error())
 			return err
 		}
 	} else if result < time.Hour {

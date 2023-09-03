@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/tidwall/gjson"
+	"github.com/bytedance/sonic"
 	"go-chat/internal/gateway/internal/event/example"
 	"go-chat/internal/pkg/ichat/socket"
 )
@@ -21,7 +21,12 @@ func (e *ExampleEvent) OnMessage(client socket.IClient, message []byte) {
 
 	fmt.Println("接收消息===>>>", message)
 
-	event := gjson.GetBytes(message, "event").String()
+	val, err := sonic.Get(message, "event")
+	if err == nil {
+		return
+	}
+
+	event, _ := val.String()
 	if event != "" {
 		// 触发事件
 		e.Handler.Call(context.TODO(), client, event, message)

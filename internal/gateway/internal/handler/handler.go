@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/tidwall/gjson"
+	"github.com/bytedance/sonic"
 	"go-chat/config"
 	"go-chat/internal/entity"
 	"go-chat/internal/pkg/ichat/socket/adapter"
@@ -70,7 +70,7 @@ func (h *Handler) Dispatch(conn net.Conn) {
 func (h *Handler) auth(connect net.Conn, data chan *AuthConn) {
 	conn, err := adapter.NewTcpAdapter(connect)
 	if err != nil {
-		logger.Errorf("tcp connect error: %s", err.Error())
+		logger.Std().Error(fmt.Sprintf("tcp connect error: %s", err.Error()))
 	}
 
 	fmt.Println(connect.RemoteAddr(), "等待认证==>>>", time.Now().Unix())
@@ -80,7 +80,7 @@ func (h *Handler) auth(connect net.Conn, data chan *AuthConn) {
 		return
 	}
 
-	if !gjson.GetBytes(read, "token").Exists() {
+	if _, err := sonic.Get(read, "token"); err == nil {
 		return
 	}
 

@@ -7,8 +7,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	jsoniter "github.com/json-iterator/go"
-	"github.com/tidwall/gjson"
+	"github.com/bytedance/sonic"
 	"go-chat/internal/pkg/strutil"
 )
 
@@ -198,7 +197,7 @@ func (c *Client) loopWrite() {
 				return // channel closed
 			}
 
-			bt, err := jsoniter.Marshal(data)
+			bt, err := sonic.Marshal(data)
 			if err != nil {
 				log.Printf("[ERROR] client json marshal err: %v \n", err)
 				break
@@ -282,25 +281,28 @@ func (c *Client) handleMessage(data []byte) {
 		_ = c.Write(&ClientResponse{Event: _MsgEventPong})
 	case _MsgEventPong:
 	case _MsgEventAck:
-		ackId := gjson.GetBytes(data, "sid").String()
-		if len(ackId) > 0 {
-			ack.delete(ackId)
+		val, err := sonic.Get(data, "sid")
+		if err == nil {
+			ackId, _ := val.String()
+			if len(ackId) > 0 {
+				ack.delete(ackId)
+			}
 		}
+
 	default: // 触发消息回调
 		c.event.Message(c, data)
 	}
 }
 
 func (c *Client) validate(data []byte) (string, error) {
-
-	if !gjson.ValidBytes(data) {
+	if !sonic.Valid(data) {
 		return "", fmt.Errorf("invalid json")
 	}
 
-	event := gjson.GetBytes(data, "event").String()
-	if len(event) == 0 {
-		return "", fmt.Errorf("invalid event")
+	value, err := sonic.Get(data, "event")
+	if err != nil {
+		return "", err
 	}
 
-	return event, nil
+	return value.String()
 }

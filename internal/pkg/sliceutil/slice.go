@@ -40,28 +40,6 @@ func Unique[T IntInterface | string](data []T) []T {
 	return list
 }
 
-func Max[T IntInterface | FloatInterface](arr []T) T {
-	max := arr[0]
-	for _, v := range arr {
-		if v > max {
-			max = v
-		}
-	}
-
-	return max
-}
-
-func Min[T IntInterface | FloatInterface](arr []T) T {
-	min := arr[0]
-	for _, v := range arr {
-		if v < min {
-			min = v
-		}
-	}
-
-	return min
-}
-
 func Sum[T IntInterface | FloatInterface](arr []T) T {
 	var count T
 	for _, v := range arr {

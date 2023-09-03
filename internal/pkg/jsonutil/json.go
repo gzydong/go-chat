@@ -3,16 +3,16 @@ package jsonutil
 import (
 	"errors"
 
-	jsoniter "github.com/json-iterator/go"
+	"github.com/bytedance/sonic"
 )
 
 func Encode(value any) string {
-	data, _ := jsoniter.MarshalToString(value)
+	data, _ := sonic.MarshalString(value)
 	return data
 }
 
 func Marshal(value any) []byte {
-	data, _ := jsoniter.Marshal(value)
+	data, _ := sonic.Marshal(value)
 	return data
 }
 
@@ -20,9 +20,9 @@ func Marshal(value any) []byte {
 func Decode(data any, resp any) error {
 	switch data.(type) {
 	case string:
-		return jsoniter.UnmarshalFromString(data.(string), resp)
+		return sonic.UnmarshalString(data.(string), resp)
 	case []byte:
-		return jsoniter.Unmarshal(data.([]byte), resp)
+		return sonic.Unmarshal(data.([]byte), resp)
 	default:
 		return errors.New("未知类型")
 	}

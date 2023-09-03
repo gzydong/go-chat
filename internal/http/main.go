@@ -35,7 +35,7 @@ func main() {
 		conf := config.New(tx.String("config"))
 
 		// 设置日志输出
-		logger.SetOutput(conf.LogPath(), "logger-http")
+		logger.InitLogger(fmt.Sprintf("%s/http.log", conf.LogPath()), logger.LevelWarn)
 
 		if !conf.Debug() {
 			gin.SetMode(gin.ReleaseMode)
@@ -77,7 +77,6 @@ func run(c chan os.Signal, eg *errgroup.Group, ctx context.Context, app *AppProv
 		defer func() {
 			log.Println("Shutting down server...")
 
-			// 等待中断信号以优雅地关闭服务器（设置 5 秒的超时时间）
 			timeCtx, timeCancel := context.WithTimeout(context.Background(), 3*time.Second)
 			defer timeCancel()
 

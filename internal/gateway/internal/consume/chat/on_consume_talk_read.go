@@ -21,7 +21,7 @@ func (h *Handler) onConsumeTalkRead(ctx context.Context, body []byte) {
 
 	var in ConsumeTalkRead
 	if err := json.Unmarshal(body, &in); err != nil {
-		logger.Error("[ChatSubscribe] onConsumeContactApply Unmarshal err: ", err.Error())
+		logger.Errorf("[ChatSubscribe] onConsumeContactApply Unmarshal err: %s", err.Error())
 		return
 	}
 

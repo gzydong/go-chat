@@ -5,8 +5,8 @@ import (
 	"log"
 	"strconv"
 
+	"github.com/bytedance/sonic"
 	"github.com/redis/go-redis/v9"
-	"github.com/tidwall/gjson"
 	"go-chat/config"
 	"go-chat/internal/entity"
 	"go-chat/internal/gateway/internal/event/chat"
@@ -63,9 +63,13 @@ func (c *ChatEvent) OnOpen(client socket.IClient) {
 
 // OnMessage 消息回调事件
 func (c *ChatEvent) OnMessage(client socket.IClient, message []byte) {
+	val, err := sonic.Get(message, "event")
+	if err == nil {
+		return
+	}
 
 	// 获取事件名
-	event := gjson.GetBytes(message, "event").String()
+	event, _ := val.String()
 	if event != "" {
 		// 触发事件
 		c.Handler.Call(context.TODO(), client, event, message)

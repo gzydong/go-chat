@@ -633,7 +633,7 @@ func (m *MessageService) loadReply(_ context.Context, data *model.TalkRecords) {
 
 	err := jsonutil.Decode(data.Extra, &extra)
 	if err != nil {
-		logger.Error("MessageService Json Decode err: ", err.Error())
+		logger.Errorf("MessageService Json Decode err: %s", err.Error())
 		return
 	}
 
@@ -725,6 +725,6 @@ func (m *MessageService) afterHandle(ctx context.Context, record *model.TalkReco
 	}
 
 	if err := m.Redis().Publish(ctx, entity.ImTopicChat, content).Err(); err != nil {
-		logger.Error(fmt.Sprintf("[ALL]消息推送失败 %s", err.Error()))
+		logger.Errorf("[ALL]消息推送失败 %s", err.Error())
 	}
 }

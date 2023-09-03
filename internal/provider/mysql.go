@@ -2,13 +2,10 @@ package provider
 
 import (
 	"fmt"
-	"log"
-	"os"
 	"time"
 
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
-	"gorm.io/gorm/logger"
 	"gorm.io/gorm/schema"
 
 	"go-chat/config"
@@ -20,19 +17,6 @@ func NewMySQLClient(conf *config.Config) *gorm.DB {
 		NamingStrategy: schema.NamingStrategy{
 			SingularTable: true,
 		},
-	}
-
-	if !conf.Debug() {
-		writer, _ := os.OpenFile(fmt.Sprintf("%s/logs/sql.log", conf.Log.Path), os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0666)
-
-		gormConfig.Logger = logger.New(
-			log.New(writer, "", log.LstdFlags), // io writer（日志输出的目标，前缀和日志包含的内容——译者注）
-			logger.Config{
-				SlowThreshold:             200 * time.Millisecond,
-				LogLevel:                  logger.Warn,
-				IgnoreRecordNotFoundError: true,
-			},
-		)
 	}
 
 	db, err := gorm.Open(mysql.New(mysql.Config{

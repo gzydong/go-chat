@@ -21,7 +21,7 @@ func (h *Handler) onConsumeTalkRevoke(ctx context.Context, body []byte) {
 
 	var in ConsumeTalkRevoke
 	if err := json.Unmarshal(body, &in); err != nil {
-		logger.Error("[ChatSubscribe] onConsumeTalkRevoke Unmarshal err: ", err.Error())
+		logger.Errorf("[ChatSubscribe] onConsumeTalkRevoke Unmarshal err: %s", err.Error())
 		return
 	}
 

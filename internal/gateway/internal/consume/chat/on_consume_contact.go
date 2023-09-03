@@ -23,7 +23,7 @@ func (h *Handler) onConsumeContactStatus(ctx context.Context, body []byte) {
 
 	var in ConsumeContactStatus
 	if err := json.Unmarshal(body, &in); err != nil {
-		logger.Error("[ChatSubscribe] onConsumeContactStatus Unmarshal err: ", err.Error())
+		logger.Errorf("[ChatSubscribe] onConsumeContactStatus Unmarshal err: %s", err.Error())
 		return
 	}
 
@@ -63,7 +63,7 @@ func (h *Handler) onConsumeContactApply(ctx context.Context, body []byte) {
 
 	var in ConsumeContactApply
 	if err := json.Unmarshal(body, &in); err != nil {
-		logger.Error("[ChatSubscribe] onConsumeContactApply Unmarshal err: ", err.Error())
+		logger.Errorf("[ChatSubscribe] onConsumeContactApply Unmarshal err: %s", err.Error())
 		return
 	}
 

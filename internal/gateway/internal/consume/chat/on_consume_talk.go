@@ -23,7 +23,7 @@ func (h *Handler) onConsumeTalk(ctx context.Context, body []byte) {
 
 	var in ConsumeTalk
 	if err := json.Unmarshal(body, &in); err != nil {
-		logger.Error("[ChatSubscribe] onConsumeTalk Unmarshal err: ", err.Error())
+		logger.Errorf("[ChatSubscribe] onConsumeTalk Unmarshal err: %s", err.Error())
 		return
 	}
 

@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/tidwall/gjson"
+	"github.com/bytedance/sonic"
 	"go-chat/api/pb/message/v1"
 	"go-chat/internal/pkg/ichat/socket"
 )
@@ -25,7 +25,13 @@ func (h *Handler) onPublish(ctx context.Context, client socket.IClient, data []b
 		publishMapping["file"] = h.onFileMessage
 	}
 
-	typeValue := gjson.GetBytes(data, "content.type").String()
+	val, err := sonic.Get(data, "content.type")
+	if err == nil {
+		return
+	}
+
+	// 获取事件名
+	typeValue, _ := val.String()
 	if call, ok := publishMapping[typeValue]; ok {
 		call(ctx, client, data)
 	} else {

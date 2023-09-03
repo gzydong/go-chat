@@ -46,7 +46,7 @@ func newApp(tx *cli.Context) error {
 	conf := config.New(tx.String("config"))
 
 	// 设置日志输出
-	logger.SetOutput(conf.LogPath(), "logger-ws")
+	logger.InitLogger(fmt.Sprintf("%s/gateway.log", conf.LogPath()), logger.LevelWarn)
 
 	if !conf.Debug() {
 		gin.SetMode(gin.ReleaseMode)

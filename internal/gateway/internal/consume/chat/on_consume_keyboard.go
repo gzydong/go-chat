@@ -20,7 +20,7 @@ func (h *Handler) onConsumeTalkKeyboard(ctx context.Context, body []byte) {
 
 	var in ConsumeTalkKeyboard
 	if err := json.Unmarshal(body, &in); err != nil {
-		logger.Error("[ChatSubscribe] onConsumeTalkKeyboard Unmarshal err: ", err.Error())
+		logger.Errorf("[ChatSubscribe] onConsumeTalkKeyboard Unmarshal err: %s", err.Error())
 		return
 	}
 
