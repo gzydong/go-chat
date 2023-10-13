@@ -1,90 +1,89 @@
 # 项目配置信息
 app:
-  env: dev
-  debug: false
-  juhe_key: "xxxxxxx"
-  admin_email:
+  env: dev  # 环境配置，例如：dev（开发）、prod（生产）
+  debug: false  # 调试模式开关，true为开启，false为关闭
+  juhe_key: "xxxxxxx"  # 聚合数据API的密钥，主要用于获取IP地址
+  admin_email:  # 管理员邮箱列表
     -
-  public_key: |
+  public_key: |  # 公钥配置，用于加密或签名验证
     -----BEGIN PUBLIC KEY-----
     xxxxxxx
     -----END PUBLIC KEY-----
-  private_key: |
+  private_key: |  # 私钥配置，用于解密或签名生成
     -----BEGIN RSA PRIVATE KEY-----
     xxxxx
     -----END RSA PRIVATE KEY-----
 
 server:
-  http: 9503
-  websocket: 9504
-  tcp: 9505
+  http: 9503  # HTTP服务器监听的端口
+  websocket: 9504  # WebSocket服务器监听的端口
+  tcp: 9505  # TCP服务器监听的端口
 
 # 日志配置
 log:
-  # 日志文件路径 *请使用绝对路径*
-  path: "/path/to/.../runtime"
+  path: "/path/to/.../runtime"  # 日志文件的存储路径，*请使用绝对路径*
 
 # Redis 相关配置
 redis:
-  host: 127.0.0.1:6379
-  auth: xxxxx
-  database: 0
+  host: 127.0.0.1:6379  # Redis服务器的主机地址和端口
+  auth: xxxxx  # Redis服务器的认证密码
+  database: 0  # 使用的Redis数据库编号
 
 # Mysql 数据库配置
 mysql:
-  host: 127.0.0.1
-  port: 3306
-  charset: utf8mb4
-  username: root
-  password: xxxx
-  database: go_chat
-  collation: utf8mb4_general_ci
+  host: 127.0.0.1  # MySQL服务器的主机地址
+  port: 3306  # MySQL服务器的端口
+  charset: utf8mb4  # 数据库字符集
+  username: root  # 数据库用户名
+  password: xxxx  # 数据库密码
+  database: go_chat  # 数据库名称
+  collation: utf8mb4_general_ci  # 数据库排序规则
 
 # Jwt 配置
 jwt:
-  secret: 836c3fea9bba4e04d51bd0fbcc5
-  expires_time: 3600
-  buffer_time: 3600
+  secret: 836c3fea9bba4e04d51bd0fbcc5  # JWT的密钥
+  expires_time: 3600  # JWT的过期时间，单位秒
+  buffer_time: 3600  # JWT的缓冲时间，单位秒
 
 openai:
-  key: "xxxx"
-  proxy: "https://api.openai.com"
+  key: "xxxx"  # OpenAI的API密钥
+  proxy: "https://api.openai.com"  # OpenAI的代理服务器地址
 
 # 跨域配置
 cors:
-  origin: "*"
-  headers: "Content-Type,Cache-Control,User-Agent,Keep-Alive,DNT,AccessToken,Authorization"
-  methods: "OPTIONS,GET,POST,PUT,DELETE"
-  credentials: false
-  max_age: 600
+  origin: "*"  # 允许的跨域源
+  headers: "Content-Type,Cache-Control,User-Agent,Keep-Alive,DNT,AccessToken,Authorization"  # 允许的HTTP头
+  methods: "OPTIONS,GET,POST,PUT,DELETE"  # 允许的HTTP方法
+  credentials: false  # 是否允许凭据
+  max_age: 600  # 预检请求的结果缓存时间，单位秒
 
-# 文件系统配置【oss,qiniu 暂不支持】
+# 文件系统配置&#8203;``oaicite:{"number":1,"invalid_reason":"Malformed citation 【oss,qiniu 暂不支持】"}``&#8203;
 filesystem:
-  default: local
-  local:
-    root:
-    domain:
-  oss:
-    access_id:
-    access_secret:
-    bucket:
-    endpoint:
-    security_token:
-  qiniu:
-    access_key:
-    secret_key:
-    bucket:
-    domain:
-  cos:
-    secret_id: ""
-    secret_key: ""
-    bucket: "im-xxx"
-    region: "ap-shanghai"
+  default: local  # 默认的文件系统，local表示使用本地文件系统
+  local:  # 本地文件系统配置
+    root:  # 本地文件系统的根目录
+    domain:  # 本地文件系统的域名
+  oss:  # 阿里云OSS配置
+    access_id:  # 阿里云的Access ID
+    access_secret:  # 阿里云的Access Secret
+    bucket:  # 阿里云的Bucket名称
+    endpoint:  # 阿里云的Endpoint
+    security_token:  # 阿里云的安全令牌
+  qiniu:  # 七牛云配置
+    access_key:  # 七牛云的Access Key
+    secret_key:  # 七牛云的Secret Key
+    bucket:  # 七牛云的Bucket名称
+    domain:  # 七牛云的域名
+  cos:  # 腾讯云COS配置
+    secret_id: ""  # 腾讯云的Secret ID
+    secret_key: ""  # 腾讯云的Secret Key
+    bucket: "im-xxx"  # 腾讯云的Bucket名称
+    region: "ap-shanghai"  # 腾讯云的地区
 
 # 邮件配置
 email:
-  host: smtp.163.com
-  port: 465
-  username: xxxxx
-  password: xxxxx
-  fromname: "Lumen IM 在线聊天"
+  host: smtp.163.com  # SMTP服务器的主机地址
+  port: 465  # SMTP服务器的端口
+  username: xxxxx  # SMTP服务器的用户名
+  password: xxxxx  # SMTP服务器的密码
+  fromname: "Lumen IM 在线聊天"  # 发件人名称
