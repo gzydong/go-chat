@@ -17,7 +17,7 @@ Lumen IM 是一个网页版即时聊天系统，界面简约、美观、操作�
 
 ## 项目预览
 
-- 地址： [http://im.gzydong.com](http://im.gzydong.com)
+- 地址： [https://im.gzydong.com](https://im.gzydong.com)
 - 账号： 18798272054 或 18798272055
 - 密码： admin123
 
@@ -50,7 +50,7 @@ $ make install
 5. 初始化数据库
 
 ``` bash
-$ make migrate
+$ go run ./cmd/lumenim migrate
 ```
 
 6. 开发环境下启动服务
@@ -58,13 +58,8 @@ $ make migrate
 ``` bash
 # 打开两个终端，分别运行下面两个命令
 
-$ go run ./internal/http       # 本地启动 http 服务
-$ go run ./internal/gateway    # 本地启动 websocket 服务
-
-# 或者一下命令
-
-$ make http                    # 本地启动 http 服务
-$ make im_server               # 本地启动 websocket 服务
+$ go run ./cmd/lumenim http      # 本地启动 http 服务
+$ go run ./cmd/lumenim commet    # 本地启动 websocket 服务
 ```
 
 7. 编译后运行
@@ -72,5 +67,5 @@ $ make im_server               # 本地启动 websocket 服务
 ``` bash
 $ make build                   # 执行编译命令
 
-# 执行后可在 ./bin 目录下看到
+# 执行后可在 ./bin 目录下看到 lumenim
 ```

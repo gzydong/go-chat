@@ -24,7 +24,7 @@ test:
 	go test -v ./...
 
 http: generate
-	go run ./cmd/lumenim api
+	go run ./cmd/lumenim http
 
 commet: generate
 	go run ./cmd/lumenim commet

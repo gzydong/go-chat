@@ -78,7 +78,7 @@ func start(c chan os.Signal, eg *errgroup.Group, ctx context.Context, app *AppPr
 	}
 
 	eg.Go(func() error {
-		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		if err := server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			return err
 		}
 

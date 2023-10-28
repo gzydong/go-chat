@@ -23,7 +23,7 @@ func Std() *slog.Logger {
 	return slog.Default()
 }
 
-func InitLogger(filePath string, level slog.Level) {
+func InitLogger(filePath string, level slog.Level, topic string) {
 	if err := os.MkdirAll(path.Dir(filePath), os.ModePerm); err != nil {
 		panic(err)
 	}
@@ -33,17 +33,19 @@ func InitLogger(filePath string, level slog.Level) {
 		panic(err)
 	}
 
-	out = slog.New(slog.NewJSONHandler(src, &slog.HandlerOptions{
+	handler := slog.NewJSONHandler(src, &slog.HandlerOptions{
 		AddSource: true,
 		Level:     level,
 		ReplaceAttr: func(groups []string, a slog.Attr) slog.Attr {
 			if a.Key == slog.TimeKey {
-				a.Value = slog.StringValue(a.Value.Time().Format(time.DateTime))
+				a.Value = slog.StringValue(a.Value.Time().Format("2006-01-02 15:04:05.000"))
 			}
 
 			return a
 		},
-	}))
+	})
+
+	out = slog.New(handler).With("topic", topic)
 }
 
 func Debugf(format string, args ...any) {

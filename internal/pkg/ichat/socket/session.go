@@ -29,6 +29,7 @@ func (s *session) Channel(name string) (*Channel, bool) {
 
 func Initialize(ctx context.Context, eg *errgroup.Group, fn func(name string)) {
 	once.Do(func() {
+		InitAck()
 		initialize(ctx, eg, fn)
 	})
 }
