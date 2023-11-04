@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log/slog"
 	"net/http"
 	"net/url"
 	"os"
@@ -13,20 +14,21 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"github.com/sirupsen/logrus"
 )
 
-func AccessLog() gin.HandlerFunc {
+func AccessLog(w io.Writer) gin.HandlerFunc {
+	log := slog.New(slog.NewJSONHandler(w, &slog.HandlerOptions{
+		ReplaceAttr: func(groups []string, a slog.Attr) slog.Attr {
+			if a.Key == slog.TimeKey {
+				a.Value = slog.StringValue(a.Value.Time().Format("2006-01-02 15:04:05.000"))
+			}
 
-	lgs := logrus.New()
-	lgs.SetFormatter(&logrus.JSONFormatter{
-		TimestampFormat: "2006-01-02 15:04:05",
-	})
+			return a
+		},
+	}))
 
 	return func(c *gin.Context) {
-
-		writer := responseWriter{c.Writer, bytes.NewBuffer(nil)}
-		c.Writer = writer
+		c.Writer = responseWriter{c.Writer, bytes.NewBuffer([]byte{})}
 
 		access := newAccessLogStore(c)
 		if err := access.init(); err != nil {
@@ -37,10 +39,15 @@ func AccessLog() gin.HandlerFunc {
 
 		c.Next()
 
-		access.load(writer)
+		access.load()
 
 		if c.Request.Method != "OPTIONS" {
-			lgs.WithFields(access.data).Info("access_log")
+			items := make([]any, 0, len(access.data)*2)
+			for k, v := range access.data {
+				items = append(items, k, v)
+			}
+
+			log.With(items...).Info("access_log")
 		}
 	}
 }
@@ -70,7 +77,6 @@ func newAccessLogStore(c *gin.Context) *AccessLogStore {
 }
 
 func (a *AccessLogStore) init() error {
-
 	hostname, _ := os.Hostname()
 
 	headers := make(map[string]any)
@@ -118,7 +124,8 @@ func (a *AccessLogStore) init() error {
 	return nil
 }
 
-func (a *AccessLogStore) load(writer responseWriter) {
+func (a *AccessLogStore) load() {
+	writer := a.ctx.Writer.(responseWriter)
 
 	headers := make(map[string]any)
 	for k := range writer.Header() {
@@ -132,8 +139,10 @@ func (a *AccessLogStore) load(writer responseWriter) {
 	a.data["response_body_raw"] = writer.body.String()
 
 	if strings.HasPrefix(writer.Header().Get("Content-Type"), "application/json") {
-		a.data["response_body"] = &map[string]any{}
-		_ = json.Unmarshal(writer.body.Bytes(), a.data["response_body"])
+		var body map[string]any
+		_ = json.Unmarshal(writer.body.Bytes(), &body)
+
+		a.data["response_body"] = body
 		delete(a.data, "response_body_raw")
 	}
 }

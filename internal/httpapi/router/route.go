@@ -1,8 +1,9 @@
 package router
 
 import (
-	"log"
+	"fmt"
 	"net/http"
+	"os"
 
 	"github.com/gin-gonic/gin"
 	"go-chat/config"
@@ -15,13 +16,16 @@ import (
 func NewRouter(conf *config.Config, handler *handler.Handler, session *cache.JwtTokenStorage) *gin.Engine {
 	router := gin.New()
 
-	router.Use(gin.RecoveryWithWriter(gin.DefaultWriter, func(c *gin.Context, err any) {
-		log.Println(err)
+	src, err := os.OpenFile(fmt.Sprintf("%s/logs/access.log", conf.Log.Path), os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0666)
+	if err != nil {
+		panic(err)
+	}
 
+	router.Use(middleware.Cors(conf.Cors))
+	router.Use(middleware.AccessLog(src))
+	router.Use(gin.RecoveryWithWriter(gin.DefaultWriter, func(c *gin.Context, err any) {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, map[string]any{"code": 500, "msg": "系统错误，请重试!!!"})
 	}))
-	router.Use(middleware.Cors(conf.Cors))
-	// router.Use(middleware.AccessLog())
 
 	router.GET("/", func(c *gin.Context) {
 		c.JSON(200, map[string]any{"code": 200, "message": "hello world"})

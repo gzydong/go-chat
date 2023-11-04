@@ -1,1 +1,0 @@
-{"time":"2023-10-28 18:15:06.933","level":"ERROR","source":{"function":"main.main.NewHttpCommand.func1","file":"/Users/yuandong/www/gowork/go-chat/cmd/lumenim/main.go","line":21},"msg":"这是测试日志","topic":"http"}
