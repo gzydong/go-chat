@@ -1,4 +1,4 @@
-package note
+package repo
 
 import (
 	"context"
@@ -17,7 +17,7 @@ func NewArticleAnnex(db *gorm.DB) *ArticleAnnex {
 }
 
 func (a *ArticleAnnex) AnnexList(ctx context.Context, uid int, articleId int) ([]*model.ArticleAnnex, error) {
-	return a.FindAll(ctx, func(db *gorm.DB) {
+	return a.Repo.FindAll(ctx, func(db *gorm.DB) {
 		db.Where("user_id = ? and article_id = ? and status = 1", uid, articleId)
 	})
 }
@@ -32,7 +32,7 @@ func (a *ArticleAnnex) RecoverList(ctx context.Context, uid int) ([]*model.Recov
 		"article_annex.deleted_at",
 	}
 
-	query := a.Db.WithContext(ctx).Model(&model.ArticleAnnex{})
+	query := a.Repo.Db.WithContext(ctx).Model(&model.ArticleAnnex{})
 	query.Joins("left join article on article.id = article_annex.article_id")
 	query.Where("article_annex.user_id = ? and article_annex.status = ?", uid, 2)
 

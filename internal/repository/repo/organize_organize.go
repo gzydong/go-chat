@@ -1,4 +1,4 @@
-package organize
+package repo
 
 import (
 	"context"
@@ -26,7 +26,7 @@ type UserInfo struct {
 
 func (o *Organize) List() ([]*UserInfo, error) {
 
-	tx := o.Db.Table("organize")
+	tx := o.Repo.Db.Table("organize")
 	tx.Select([]string{
 		"organize.user_id", "organize.department", "organize.position",
 		"users.nickname", "users.gender",
@@ -44,7 +44,7 @@ func (o *Organize) List() ([]*UserInfo, error) {
 // IsQiyeMember 判断是否是企业成员
 func (o *Organize) IsQiyeMember(ctx context.Context, uid ...int) (bool, error) {
 
-	count, err := o.QueryCount(ctx, "user_id in ?", uid)
+	count, err := o.Repo.QueryCount(ctx, "user_id in ?", uid)
 	if err != nil {
 		return false, err
 	}
@@ -54,7 +54,7 @@ func (o *Organize) IsQiyeMember(ctx context.Context, uid ...int) (bool, error) {
 
 func (o *Organize) GetMemberIds(ctx context.Context) ([]int64, error) {
 	var ids []int64
-	if err := o.Db.WithContext(ctx).Table("organize").Pluck("user_id", &ids).Error; err != nil {
+	if err := o.Repo.Db.WithContext(ctx).Table("organize").Pluck("user_id", &ids).Error; err != nil {
 		return nil, err
 	}
 

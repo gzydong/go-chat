@@ -9,18 +9,16 @@ import (
 	"go-chat/internal/pkg/ichat"
 	"go-chat/internal/pkg/timeutil"
 	"go-chat/internal/repository/repo"
-	organize2 "go-chat/internal/repository/repo/organize"
 	"go-chat/internal/service"
-	"go-chat/internal/service/organize"
 )
 
 type User struct {
 	UsersRepo    *repo.Users
-	OrganizeRepo *organize2.Organize
+	OrganizeRepo *repo.Organize
 
 	UserService     *service.UserService
 	SmsService      *service.SmsService
-	OrganizeService *organize.OrganizeService
+	OrganizeService *service.OrganizeService
 }
 
 // Detail 个人用户信息

@@ -5,24 +5,23 @@ import (
 	"fmt"
 
 	"go-chat/api/pb/web/v1"
-	"go-chat/internal/pkg/ichat"
-	"go-chat/internal/repository/model"
-	note2 "go-chat/internal/repository/repo/note"
-
 	"go-chat/internal/pkg/filesystem"
+	"go-chat/internal/pkg/ichat"
 	"go-chat/internal/pkg/sliceutil"
 	"go-chat/internal/pkg/strutil"
 	"go-chat/internal/pkg/timeutil"
 	"go-chat/internal/pkg/utils"
-	"go-chat/internal/service/note"
+	"go-chat/internal/repository/model"
+	note2 "go-chat/internal/repository/repo"
+	"go-chat/internal/service"
 )
 
 type Article struct {
 	ArticleAnnexRepo *note2.ArticleAnnex
 
-	ArticleService      *note.ArticleService
+	ArticleService      *service.ArticleService
 	Filesystem          *filesystem.Filesystem
-	ArticleAnnexService *note.ArticleAnnexService
+	ArticleAnnexService *service.ArticleAnnexService
 }
 
 // List 文章列表
@@ -33,7 +32,7 @@ func (c *Article) List(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	items, err := c.ArticleService.List(ctx.Ctx(), &note.ArticleListOpt{
+	items, err := c.ArticleService.List(ctx.Ctx(), &service.ArticleListOpt{
 		UserId:   ctx.UserId(),
 		Keyword:  params.Keyword,
 		FindType: int(params.FindType),
@@ -132,7 +131,7 @@ func (c *Article) Edit(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	opt := &note.ArticleEditOpt{
+	opt := &service.ArticleEditOpt{
 		UserId:    uid,
 		ArticleId: int(params.ArticleId),
 		ClassId:   int(params.ClassId),

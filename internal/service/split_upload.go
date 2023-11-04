@@ -63,7 +63,7 @@ func (s *SplitUploadService) InitiateMultipartUpload(ctx context.Context, params
 
 	m.UploadId = uploadId
 
-	if err := s.Db().WithContext(ctx).Create(m).Error; err != nil {
+	if err := s.Source.Db().WithContext(ctx).Create(m).Error; err != nil {
 		return nil, err
 	}
 
@@ -123,7 +123,7 @@ func (s *SplitUploadService) MultipartUpload(ctx context.Context, opt *Multipart
 		return errors.New("未知文件驱动类型")
 	}
 
-	if err := s.Db().Create(data).Error; err != nil {
+	if err := s.Source.Db().Create(data).Error; err != nil {
 		return err
 	}
 

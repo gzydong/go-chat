@@ -93,7 +93,7 @@ func (s *TalkRecordsService) GetTalkRecords(ctx context.Context, opt *QueryTalkR
 		}
 	)
 
-	query := s.Db().WithContext(ctx).Table("talk_records")
+	query := s.Source.Db().WithContext(ctx).Table("talk_records")
 	query.Joins("left join users on talk_records.user_id = users.id")
 	query.Joins("left join talk_records_delete on talk_records.id = talk_records_delete.record_id and talk_records_delete.user_id = ?", opt.UserId)
 
@@ -102,7 +102,7 @@ func (s *TalkRecordsService) GetTalkRecords(ctx context.Context, opt *QueryTalkR
 	}
 
 	if opt.TalkType == entity.ChatPrivateMode {
-		subQuery := s.Db().Where("talk_records.user_id = ? and talk_records.receiver_id = ?", opt.UserId, opt.ReceiverId)
+		subQuery := s.Source.Db().Where("talk_records.user_id = ? and talk_records.receiver_id = ?", opt.UserId, opt.ReceiverId)
 		subQuery.Or("talk_records.user_id = ? and talk_records.receiver_id = ?", opt.ReceiverId, opt.UserId)
 
 		query.Where(subQuery)
@@ -155,7 +155,7 @@ func (s *TalkRecordsService) GetTalkRecord(ctx context.Context, recordId int64) 
 		}
 	)
 
-	query := s.Db().Table("talk_records")
+	query := s.Source.Db().Table("talk_records")
 	query.Joins("left join users on talk_records.user_id = users.id")
 	query.Where("talk_records.id = ?", recordId)
 
@@ -215,7 +215,7 @@ func (s *TalkRecordsService) GetForwardRecords(ctx context.Context, uid int, rec
 		}
 	)
 
-	query := s.Db().Table("talk_records")
+	query := s.Source.Db().Table("talk_records")
 	query.Select(fields)
 	query.Joins("left join users on talk_records.user_id = users.id")
 	query.Where("talk_records.id in ?", extra.MsgIds)
@@ -243,7 +243,7 @@ func (s *TalkRecordsService) HandleTalkRecords(ctx context.Context, items []*Que
 
 	hashVotes := make(map[int]*model.TalkRecordsVote)
 	if len(votes) > 0 {
-		s.Db().Model(&model.TalkRecordsVote{}).Where("record_id in ?", votes).Scan(&voteItems)
+		s.Source.Db().Model(&model.TalkRecordsVote{}).Where("record_id in ?", votes).Scan(&voteItems)
 		for i := range voteItems {
 			hashVotes[voteItems[i].RecordId] = voteItems[i]
 		}

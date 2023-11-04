@@ -1,4 +1,4 @@
-package note
+package service
 
 import (
 	"context"
@@ -23,7 +23,7 @@ func (s *ArticleTagService) Create(ctx context.Context, uid int, tag string) (in
 		Sort:    1,
 	}
 
-	if err := s.Db().WithContext(ctx).Create(data).Error; err != nil {
+	if err := s.Source.Db().WithContext(ctx).Create(data).Error; err != nil {
 		return 0, err
 	}
 
@@ -31,12 +31,12 @@ func (s *ArticleTagService) Create(ctx context.Context, uid int, tag string) (in
 }
 
 func (s *ArticleTagService) Update(ctx context.Context, uid int, tagId int, tag string) error {
-	return s.Db().WithContext(ctx).Table("article_tag").Where("id = ? and user_id = ?", tagId, uid).UpdateColumn("tag_name", tag).Error
+	return s.Source.Db().WithContext(ctx).Table("article_tag").Where("id = ? and user_id = ?", tagId, uid).UpdateColumn("tag_name", tag).Error
 }
 
 func (s *ArticleTagService) Delete(ctx context.Context, uid int, tagId int) error {
 
-	db := s.Db().WithContext(ctx)
+	db := s.Source.Db().WithContext(ctx)
 
 	var num int64
 	if err := db.Table("article").Where("user_id = ? and FIND_IN_SET(?,tags_id)", uid, tagId).Count(&num).Error; err != nil {
@@ -52,7 +52,7 @@ func (s *ArticleTagService) Delete(ctx context.Context, uid int, tagId int) erro
 
 func (s *ArticleTagService) List(ctx context.Context, uid int) ([]*model.TagItem, error) {
 
-	db := s.Db().WithContext(ctx)
+	db := s.Source.Db().WithContext(ctx)
 
 	var items []*model.TagItem
 	err := db.Table("article_tag").Select("id", "tag_name").Where("user_id = ?", uid).Scan(&items).Error

@@ -1,4 +1,4 @@
-package note
+package service
 
 import (
 	"context"
@@ -6,16 +6,15 @@ import (
 
 	"go-chat/internal/repository/model"
 	"go-chat/internal/repository/repo"
-	"go-chat/internal/repository/repo/note"
 	"gorm.io/gorm"
 )
 
 type ArticleClassService struct {
 	*repo.Source
-	articleClass *note.ArticleClass
+	articleClass *repo.ArticleClass
 }
 
-func NewArticleClassService(source *repo.Source, dao *note.ArticleClass) *ArticleClassService {
+func NewArticleClassService(source *repo.Source, dao *repo.ArticleClass) *ArticleClassService {
 	return &ArticleClassService{Source: source, articleClass: dao}
 }
 
@@ -54,7 +53,7 @@ func (s *ArticleClassService) Create(ctx context.Context, uid int, name string) 
 		Sort:      1,
 	}
 
-	err := s.Db().WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+	err := s.Source.Db().WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		if err := tx.Table("article_class").Where("user_id = ?", uid).Updates(map[string]any{
 			"sort": gorm.Expr("sort + 1"),
 		}).Error; err != nil {
@@ -78,7 +77,7 @@ func (s *ArticleClassService) Update(ctx context.Context, uid, cid int, name str
 func (s *ArticleClassService) Delete(ctx context.Context, uid, cid int) error {
 
 	var num int64
-	if err := s.Db().WithContext(ctx).Table("article").Where("user_id = ? and class_id = ?", uid, cid).Count(&num).Error; err != nil {
+	if err := s.Source.Db().WithContext(ctx).Table("article").Where("user_id = ? and class_id = ?", uid, cid).Count(&num).Error; err != nil {
 		return err
 	}
 
@@ -86,7 +85,7 @@ func (s *ArticleClassService) Delete(ctx context.Context, uid, cid int) error {
 		return errors.New("分类已被使用不能删除")
 	}
 
-	return s.Db().Delete(&model.ArticleClass{}, "id = ? and user_id = ? and is_default = 0", cid, uid).Error
+	return s.Source.Db().Delete(&model.ArticleClass{}, "id = ? and user_id = ? and is_default = 0", cid, uid).Error
 }
 
 func (s *ArticleClassService) Sort(ctx context.Context, uid, cid, mode int) error {
@@ -106,7 +105,7 @@ func (s *ArticleClassService) Sort(ctx context.Context, uid, cid, mode int) erro
 			return nil
 		}
 
-		return s.Db().Transaction(func(tx *gorm.DB) error {
+		return s.Source.Db().Transaction(func(tx *gorm.DB) error {
 			if err := tx.Table("article_class").Where("user_id = ? and sort = ?", uid, item.Sort+1).Updates(map[string]any{
 				"sort": gorm.Expr("sort - 1"),
 			}).Error; err != nil {
@@ -131,7 +130,7 @@ func (s *ArticleClassService) Sort(ctx context.Context, uid, cid, mode int) erro
 			return nil
 		}
 
-		return s.Db().Transaction(func(tx *gorm.DB) error {
+		return s.Source.Db().Transaction(func(tx *gorm.DB) error {
 			if err := tx.Table("article_class").Where("user_id = ? and sort = ?", uid, item.Sort-1).Updates(map[string]any{
 				"sort": gorm.Expr("sort + 1"),
 			}).Error; err != nil {

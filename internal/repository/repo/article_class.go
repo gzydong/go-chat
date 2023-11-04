@@ -1,4 +1,4 @@
-package note
+package repo
 
 import (
 	"context"
@@ -18,7 +18,7 @@ func NewArticleClass(db *gorm.DB) *ArticleClass {
 
 func (a *ArticleClass) MaxSort(ctx context.Context, uid int) (int, error) {
 	var sort int
-	err := a.Model(ctx).Select("max(sort)").Where("user_id = ?", uid).Scan(&sort).Error
+	err := a.Repo.Model(ctx).Select("max(sort)").Where("user_id = ?", uid).Scan(&sort).Error
 	if err != nil {
 		return 0, err
 	}
@@ -28,7 +28,7 @@ func (a *ArticleClass) MaxSort(ctx context.Context, uid int) (int, error) {
 
 func (a *ArticleClass) MinSort(ctx context.Context, uid int) (int, error) {
 	var sort int
-	err := a.Model(ctx).Select("min(sort)").Where("user_id = ?", uid).Scan(&sort).Error
+	err := a.Repo.Model(ctx).Select("min(sort)").Where("user_id = ?", uid).Scan(&sort).Error
 	if err != nil {
 		return 0, err
 	}
@@ -43,7 +43,7 @@ type ClassGroupCount struct {
 
 func (a *ArticleClass) GroupCount(uid int) (map[int]int, error) {
 	var items []ClassGroupCount
-	if err := a.Db.Debug().Table("article").
+	if err := a.Repo.Db.Debug().Table("article").
 		Select("class_id", "ifnull(count(*),0) as count").
 		Where("user_id = ? and status = 1", uid).
 		Group("class_id").

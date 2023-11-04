@@ -6,14 +6,12 @@ import (
 
 	"go-chat/api/pb/message/v1"
 	"go-chat/api/pb/web/v1"
+	"go-chat/config"
+	"go-chat/internal/entity"
 	"go-chat/internal/pkg/ichat"
 	"go-chat/internal/pkg/jwt"
 	"go-chat/internal/repository/cache"
 	"go-chat/internal/repository/repo"
-	"go-chat/internal/service/note"
-
-	"go-chat/config"
-	"go-chat/internal/entity"
 	"go-chat/internal/service"
 )
 
@@ -25,7 +23,7 @@ type Auth struct {
 	RedisLock           *cache.RedisLock
 	IpAddressService    *service.IpAddressService
 	TalkSessionService  *service.TalkSessionService
-	ArticleClassService *note.ArticleClassService
+	ArticleClassService *service.ArticleClassService
 	RobotRepo           *repo.Robot
 	MessageService      service.IMessageService
 }

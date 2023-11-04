@@ -19,7 +19,7 @@ func NewUsers(db *gorm.DB) *Users {
 
 // Create 创建数据
 func (u *Users) Create(user *model.Users) (*model.Users, error) {
-	if err := u.Db.Create(user).Error; err != nil {
+	if err := u.Repo.Db.Create(user).Error; err != nil {
 		return nil, err
 	}
 
@@ -33,7 +33,7 @@ func (u *Users) FindByMobile(mobile string) (*model.Users, error) {
 		return nil, fmt.Errorf("mobile is empty")
 	}
 
-	return u.FindByWhere(context.TODO(), "mobile = ?", mobile)
+	return u.Repo.FindByWhere(context.TODO(), "mobile = ?", mobile)
 }
 
 // IsMobileExist 判断手机号是否存在
@@ -43,6 +43,6 @@ func (u *Users) IsMobileExist(ctx context.Context, mobile string) bool {
 		return false
 	}
 
-	exist, _ := u.QueryExist(ctx, "mobile = ?", mobile)
+	exist, _ := u.Repo.QueryExist(ctx, "mobile = ?", mobile)
 	return exist
 }

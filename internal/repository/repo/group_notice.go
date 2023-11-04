@@ -32,7 +32,7 @@ func (g *GroupNotice) GetListAll(ctx context.Context, groupId int) ([]*model.Sea
 		"users.nickname",
 	}
 
-	query := g.Db.WithContext(ctx).Table("group_notice")
+	query := g.Repo.Db.WithContext(ctx).Table("group_notice")
 	query.Joins("left join users on users.id = group_notice.creator_id")
 	query.Where("group_notice.group_id = ? and group_notice.is_delete = ?", groupId, 0)
 	query.Order("group_notice.is_top desc")
@@ -49,7 +49,7 @@ func (g *GroupNotice) GetListAll(ctx context.Context, groupId int) ([]*model.Sea
 // GetLatestNotice 获取最新公告
 func (g *GroupNotice) GetLatestNotice(ctx context.Context, groupId int) (*model.GroupNotice, error) {
 	var info model.GroupNotice
-	err := g.Db.WithContext(ctx).Last(&info, "group_id = ? and is_delete = ?", groupId, 0).Error
+	err := g.Repo.Db.WithContext(ctx).Last(&info, "group_id = ? and is_delete = ?", groupId, 0).Error
 	if err != nil {
 		return nil, err
 	}

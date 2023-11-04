@@ -1,4 +1,4 @@
-package organize
+package repo
 
 import (
 	"context"
@@ -17,7 +17,7 @@ func NewPosition(db *gorm.DB) *Position {
 }
 
 func (p *Position) List(ctx context.Context) ([]*model.OrganizePost, error) {
-	return p.FindAll(ctx, func(db *gorm.DB) {
+	return p.Repo.FindAll(ctx, func(db *gorm.DB) {
 		db.Where("status = 1").Order("sort asc")
 	})
 }

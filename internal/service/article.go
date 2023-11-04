@@ -1,4 +1,4 @@
-package note
+package service
 
 import (
 	"context"
@@ -26,7 +26,7 @@ func NewArticleService(source *repo.Source) *ArticleService {
 // Detail 笔记详情
 func (s *ArticleService) Detail(ctx context.Context, uid, articleId int) (*model.ArticleDetailInfo, error) {
 
-	db := s.Db().WithContext(ctx)
+	db := s.Source.Db().WithContext(ctx)
 
 	data := &model.Article{}
 	if err := db.First(data, "id = ? and user_id = ?", articleId, uid).Error; err != nil {
@@ -78,7 +78,7 @@ func (s *ArticleService) Create(ctx context.Context, opt *ArticleEditOpt) (int, 
 		Status:   1,
 	}
 
-	err := s.Db().WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+	err := s.Source.Db().WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 
 		if err := tx.Create(data).Error; err != nil {
 			return err
@@ -106,7 +106,7 @@ func (s *ArticleService) Create(ctx context.Context, opt *ArticleEditOpt) (int, 
 func (s *ArticleService) Update(ctx context.Context, opt *ArticleEditOpt) error {
 
 	abstract := strutil.MtSubstr(opt.MdContent, 0, 200)
-	return s.Db().WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+	return s.Source.Db().WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		if err := tx.Model(&model.Article{}).Where("id = ? and user_id = ?", opt.ArticleId, opt.UserId).Updates(&model.Article{
 			Title:    opt.Title,
 			Image:    strutil.ParseHtmlImage(opt.Content),
@@ -133,7 +133,7 @@ type ArticleListOpt struct {
 // List 笔记列表
 func (s *ArticleService) List(ctx context.Context, opt *ArticleListOpt) ([]*model.ArticleListItem, error) {
 
-	query := s.Db().WithContext(ctx).Table("article").Select("article.*,article_class.class_name")
+	query := s.Source.Db().WithContext(ctx).Table("article").Select("article.*,article_class.class_name")
 	query.Joins("left join article_class on article_class.id = article.class_id")
 	query.Where("article.user_id = ?", opt.UserId)
 
@@ -176,17 +176,17 @@ func (s *ArticleService) Asterisk(ctx context.Context, uid int, articleId int, m
 		mode = 0
 	}
 
-	return s.Db().WithContext(ctx).Model(&model.Article{}).Where("id = ? and user_id = ?", articleId, uid).Update("is_asterisk", mode).Error
+	return s.Source.Db().WithContext(ctx).Model(&model.Article{}).Where("id = ? and user_id = ?", articleId, uid).Update("is_asterisk", mode).Error
 }
 
 // Tag 更新笔记标签
 func (s *ArticleService) Tag(ctx context.Context, uid int, articleId int, tags []int32) error {
-	return s.Db().WithContext(ctx).Model(&model.Article{}).Where("id = ? and user_id = ?", articleId, uid).Update("tags_id", sliceutil.ToIds(tags)).Error
+	return s.Source.Db().WithContext(ctx).Model(&model.Article{}).Where("id = ? and user_id = ?", articleId, uid).Update("tags_id", sliceutil.ToIds(tags)).Error
 }
 
 // Move 移动笔记分类
 func (s *ArticleService) Move(ctx context.Context, uid, articleId, classId int) error {
-	return s.Db().WithContext(ctx).Model(&model.Article{}).Where("id = ? and user_id = ?", articleId, uid).Update("class_id", classId).Error
+	return s.Source.Db().WithContext(ctx).Model(&model.Article{}).Where("id = ? and user_id = ?", articleId, uid).Update("class_id", classId).Error
 }
 
 // UpdateStatus 修改笔记状态
@@ -199,13 +199,13 @@ func (s *ArticleService) UpdateStatus(ctx context.Context, uid int, articleId in
 		data["deleted_at"] = timeutil.DateTime()
 	}
 
-	return s.Db().WithContext(ctx).Model(&model.Article{}).Where("id = ? and user_id = ?", articleId, uid).Updates(data).Error
+	return s.Source.Db().WithContext(ctx).Model(&model.Article{}).Where("id = ? and user_id = ?", articleId, uid).Updates(data).Error
 }
 
 // ForeverDelete 永久笔记
 func (s *ArticleService) ForeverDelete(ctx context.Context, uid int, articleId int) error {
 
-	db := s.Db().WithContext(ctx)
+	db := s.Source.Db().WithContext(ctx)
 
 	var detail model.Article
 	if err := db.First(&detail, "id = ? and user_id = ?", articleId, uid).Error; err != nil {

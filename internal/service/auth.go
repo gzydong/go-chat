@@ -7,18 +7,17 @@ import (
 	"go-chat/internal/entity"
 	"go-chat/internal/repository/model"
 	"go-chat/internal/repository/repo"
-	"go-chat/internal/repository/repo/organize"
 	"gorm.io/gorm"
 )
 
 type AuthService struct {
-	organize    *organize.Organize
+	organize    *repo.Organize
 	contact     *repo.Contact
 	group       *repo.Group
 	groupMember *repo.GroupMember
 }
 
-func NewAuthService(organize *organize.Organize, contact *repo.Contact, group *repo.Group, groupMember *repo.GroupMember) *AuthService {
+func NewAuthService(organize *repo.Organize, contact *repo.Contact, group *repo.Group, groupMember *repo.GroupMember) *AuthService {
 	return &AuthService{organize: organize, contact: contact, group: group, groupMember: groupMember}
 }
 

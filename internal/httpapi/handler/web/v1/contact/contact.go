@@ -8,8 +8,6 @@ import (
 	"go-chat/internal/pkg/ichat"
 	"go-chat/internal/repository/cache"
 	"go-chat/internal/repository/repo"
-	organize2 "go-chat/internal/repository/repo/organize"
-	"go-chat/internal/service/organize"
 	"gorm.io/gorm"
 
 	"go-chat/internal/entity"
@@ -19,14 +17,14 @@ import (
 type Contact struct {
 	ContactRepo     *repo.Contact
 	UsersRepo       *repo.Users
-	OrganizeRepo    *organize2.Organize
+	OrganizeRepo    *repo.Organize
 	TalkSessionRepo *repo.TalkSession
 
 	ContactService  *service.ContactService
 	ClientStorage   *cache.ClientStorage
 	UserService     *service.UserService
 	TalkListService *service.TalkSessionService
-	OrganizeService *organize.OrganizeService
+	OrganizeService *service.OrganizeService
 	MessageService  service.IMessageService
 }
 

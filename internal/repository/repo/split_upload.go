@@ -17,11 +17,11 @@ func NewFileSplitUpload(db *gorm.DB) *SplitUpload {
 }
 
 func (s *SplitUpload) GetSplitList(ctx context.Context, uploadId string) ([]*model.SplitUpload, error) {
-	return s.FindAll(ctx, func(db *gorm.DB) {
+	return s.Repo.FindAll(ctx, func(db *gorm.DB) {
 		db.Where("upload_id = ? and type = 2", uploadId)
 	})
 }
 
 func (s *SplitUpload) GetFile(ctx context.Context, uid int, uploadId string) (*model.SplitUpload, error) {
-	return s.FindByWhere(ctx, "user_id = ? and upload_id = ? and type = 1", uid, uploadId)
+	return s.Repo.FindByWhere(ctx, "user_id = ? and upload_id = ? and type = 1", uid, uploadId)
 }

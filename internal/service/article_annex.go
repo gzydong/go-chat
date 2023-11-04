@@ -1,4 +1,4 @@
-package note
+package service
 
 import (
 	"context"
@@ -7,16 +7,15 @@ import (
 	"go-chat/internal/pkg/timeutil"
 	"go-chat/internal/repository/model"
 	"go-chat/internal/repository/repo"
-	"go-chat/internal/repository/repo/note"
 )
 
 type ArticleAnnexService struct {
 	*repo.Source
-	annex      *note.ArticleAnnex
+	annex      *repo.ArticleAnnex
 	filesystem *filesystem.Filesystem
 }
 
-func NewArticleAnnexService(source *repo.Source, dao *note.ArticleAnnex, fileSystem *filesystem.Filesystem) *ArticleAnnexService {
+func NewArticleAnnexService(source *repo.Source, dao *repo.ArticleAnnex, fileSystem *filesystem.Filesystem) *ArticleAnnexService {
 	return &ArticleAnnexService{Source: source, annex: dao, filesystem: fileSystem}
 }
 
@@ -54,5 +53,5 @@ func (s *ArticleAnnexService) ForeverDelete(ctx context.Context, uid int, id int
 		_ = s.filesystem.Cos.Delete(annex.Path)
 	}
 
-	return s.Db().Delete(&model.ArticleAnnex{}, id).Error
+	return s.Source.Db().Delete(&model.ArticleAnnex{}, id).Error
 }

@@ -35,7 +35,7 @@ func (s *EmoticonService) RemoveUserSysEmoticon(uid int, emoticonId int) error {
 		}
 	}
 
-	return s.Db().Table("users_emoticon").Where("user_id = ?", uid).Update("emoticon_ids", strings.Join(items, ",")).Error
+	return s.Source.Db().Table("users_emoticon").Where("user_id = ?", uid).Update("emoticon_ids", strings.Join(items, ",")).Error
 }
 
 func (s *EmoticonService) AddUserSysEmoticon(uid int, emoticonId int) error {
@@ -45,10 +45,10 @@ func (s *EmoticonService) AddUserSysEmoticon(uid int, emoticonId int) error {
 	}
 
 	ids = append(ids, emoticonId)
-	return s.Db().Table("users_emoticon").Where("user_id = ?", uid).Update("emoticon_ids", sliceutil.ToIds(ids)).Error
+	return s.Source.Db().Table("users_emoticon").Where("user_id = ?", uid).Update("emoticon_ids", sliceutil.ToIds(ids)).Error
 }
 
 // DeleteCollect 删除自定义表情包
 func (s *EmoticonService) DeleteCollect(uid int, ids []int) error {
-	return s.Db().Delete(&model.EmoticonItem{}, "id in ? and emoticon_id = 0 and user_id = ?", ids, uid).Error
+	return s.Source.Db().Delete(&model.EmoticonItem{}, "id in ? and emoticon_id = 0 and user_id = ?", ids, uid).Error
 }

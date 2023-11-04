@@ -3,11 +3,11 @@ package article
 import (
 	"go-chat/api/pb/web/v1"
 	"go-chat/internal/pkg/ichat"
-	"go-chat/internal/service/note"
+	"go-chat/internal/service"
 )
 
 type Class struct {
-	ArticleClassService *note.ArticleClassService
+	ArticleClassService *service.ArticleClassService
 }
 
 // List 分类列表

@@ -26,7 +26,7 @@ func NewGroupMemberService(source *repo.Source, repo *repo.GroupMember) *GroupMe
 }
 
 func (g *GroupMemberService) Handover(ctx context.Context, groupId int, userId int, memberId int) error {
-	return g.Db().WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+	return g.Source.Db().WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 
 		err := tx.Model(&model.GroupMember{}).Where("group_id = ? and user_id = ? and leader = 2", groupId, userId).Update("leader", 0).Error
 		if err != nil {

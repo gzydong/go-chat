@@ -40,11 +40,7 @@ import (
 	"go-chat/internal/provider"
 	"go-chat/internal/repository/cache"
 	"go-chat/internal/repository/repo"
-	"go-chat/internal/repository/repo/note"
-	"go-chat/internal/repository/repo/organize"
 	"go-chat/internal/service"
-	note2 "go-chat/internal/service/note"
-	organize2 "go-chat/internal/service/organize"
 )
 
 // Injectors from wire.go:
@@ -70,8 +66,8 @@ func NewHttpInjector(conf *config.Config) *httpapi.AppProvider {
 	ipAddressService := service.NewIpAddressService(source, conf, requestClient)
 	talkSession := repo.NewTalkSession(db)
 	talkSessionService := service.NewTalkSessionService(source, talkSession)
-	articleClass := note.NewArticleClass(db)
-	articleClassService := note2.NewArticleClassService(source, articleClass)
+	articleClass := repo.NewArticleClass(db)
+	articleClassService := service.NewArticleClassService(source, articleClass)
 	robot := repo.NewRobot(db)
 	sequence := cache.NewSequence(client)
 	repoSequence := repo.NewSequence(db, sequence)
@@ -112,8 +108,8 @@ func NewHttpInjector(conf *config.Config) *httpapi.AppProvider {
 		RobotRepo:           robot,
 		MessageService:      messageService,
 	}
-	organizeOrganize := organize.NewOrganize(db)
-	organizeService := organize2.NewOrganizeService(source, organizeOrganize)
+	organizeOrganize := repo.NewOrganize(db)
+	organizeService := service.NewOrganizeService(source, organizeOrganize)
 	user := &v1.User{
 		UsersRepo:       users,
 		OrganizeRepo:    organizeOrganize,
@@ -121,10 +117,10 @@ func NewHttpInjector(conf *config.Config) *httpapi.AppProvider {
 		SmsService:      smsService,
 		OrganizeService: organizeService,
 	}
-	department := organize.NewDepartment(db)
-	position := organize.NewPosition(db)
-	deptService := organize2.NewOrganizeDeptService(source, department)
-	positionService := organize2.NewPositionService(source, position)
+	department := repo.NewDepartment(db)
+	position := repo.NewPosition(db)
+	deptService := service.NewOrganizeDeptService(source, department)
+	positionService := service.NewPositionService(source, position)
 	v1Organize := &v1.Organize{
 		DepartmentRepo:  department,
 		PositionRepo:    position,
@@ -252,9 +248,9 @@ func NewHttpInjector(conf *config.Config) *httpapi.AppProvider {
 		ContactGroupService: contactGroupService,
 		ContactService:      contactService,
 	}
-	articleAnnex := note.NewArticleAnnex(db)
-	articleService := note2.NewArticleService(source)
-	articleAnnexService := note2.NewArticleAnnexService(source, articleAnnex, filesystem)
+	articleAnnex := repo.NewArticleAnnex(db)
+	articleService := service.NewArticleService(source)
+	articleAnnexService := service.NewArticleAnnexService(source, articleAnnex, filesystem)
 	articleArticle := &article.Article{
 		ArticleAnnexRepo:    articleAnnex,
 		ArticleService:      articleService,
@@ -269,7 +265,7 @@ func NewHttpInjector(conf *config.Config) *httpapi.AppProvider {
 	class := &article.Class{
 		ArticleClassService: articleClassService,
 	}
-	articleTagService := note2.NewArticleTagService(source)
+	articleTagService := service.NewArticleTagService(source)
 	tag := &article.Tag{
 		ArticleTagService: articleTagService,
 	}
@@ -403,7 +399,7 @@ func NewCommetInjector(conf *config.Config) *commet.AppProvider {
 	contactRemark := cache.NewContactRemark(client)
 	repoContact := repo.NewContact(db, contactRemark, relation)
 	contactService := service.NewContactService(source, repoContact)
-	organizeOrganize := organize.NewOrganize(db)
+	organizeOrganize := repo.NewOrganize(db)
 	handler3 := chat2.NewHandler(conf, clientStorage, roomStorage, talkRecordsService, contactService, organizeOrganize, source)
 	chatSubscribe := consume.NewChatSubscribe(handler3)
 	handler4 := example2.NewHandler()

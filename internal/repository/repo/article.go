@@ -1,4 +1,4 @@
-package note
+package repo
 
 import (
 	"go-chat/internal/pkg/ichat"
