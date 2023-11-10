@@ -17,13 +17,13 @@ func NewTalkSession(db *gorm.DB) *TalkSession {
 }
 
 func (t *TalkSession) IsDisturb(uid int, receiverId int, talkType int) bool {
-	resp, err := t.FindByWhere(context.TODO(), "user_id = ? and receiver_id = ? and talk_type = ?", uid, receiverId, talkType)
+	resp, err := t.Repo.FindByWhere(context.TODO(), "user_id = ? and receiver_id = ? and talk_type = ?", uid, receiverId, talkType)
 	return err == nil && resp.IsDisturb == 1
 }
 
 func (t *TalkSession) FindBySessionId(uid int, receiverId int, talkType int) int {
 
-	resp, err := t.FindByWhere(context.TODO(), "user_id = ? and receiver_id = ? and talk_type = ?", uid, receiverId, talkType)
+	resp, err := t.Repo.FindByWhere(context.TODO(), "user_id = ? and receiver_id = ? and talk_type = ?", uid, receiverId, talkType)
 	if err != nil {
 		return 0
 	}

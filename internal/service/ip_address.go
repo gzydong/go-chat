@@ -68,9 +68,9 @@ func (i *IpAddressService) FindAddress(ip string) (string, error) {
 }
 
 func (i *IpAddressService) getCache(ip string) (string, error) {
-	return i.Redis().HGet(context.TODO(), "rds:hash:ip-address", ip).Result()
+	return i.Source.Redis().HGet(context.TODO(), "rds:hash:ip-address", ip).Result()
 }
 
 func (i *IpAddressService) setCache(ip string, value string) error {
-	return i.Redis().HSet(context.TODO(), "rds:hash:ip-address", ip, value).Err()
+	return i.Source.Redis().HSet(context.TODO(), "rds:hash:ip-address", ip, value).Err()
 }

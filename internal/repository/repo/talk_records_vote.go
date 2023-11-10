@@ -41,7 +41,7 @@ func (t *TalkRecordsVote) GetVoteAnswerUser(ctx context.Context, vid int) ([]int
 func (t *TalkRecordsVote) SetVoteAnswerUser(ctx context.Context, vid int) ([]int, error) {
 	uids := make([]int, 0)
 
-	err := t.Db.WithContext(ctx).Table("talk_records_vote_answer").Where("vote_id = ?", vid).Pluck("user_id", &uids).Error
+	err := t.Repo.Db.WithContext(ctx).Table("talk_records_vote_answer").Where("vote_id = ?", vid).Pluck("user_id", &uids).Error
 
 	if err != nil {
 		return nil, err
@@ -72,7 +72,7 @@ func (t *TalkRecordsVote) SetVoteStatistics(ctx context.Context, vid int) (*Vote
 		options      = make([]string, 0)
 	)
 
-	tx := t.Db.WithContext(ctx)
+	tx := t.Repo.Db.WithContext(ctx)
 	if err := tx.Table("talk_records_vote").First(&vote, vid).Error; err != nil {
 		return nil, err
 	}

@@ -40,7 +40,7 @@ func (s *ContactService) Delete(ctx context.Context, uid, friendId int) error {
 		return err
 	}
 
-	return s.Db().WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+	return s.Source.Db().WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		if find.GroupId > 0 {
 			err := tx.Table("contact_group").
 				Where("id = ? and user_id = ?", find.GroupId, uid).
@@ -95,7 +95,7 @@ func (s *ContactService) MoveGroup(ctx context.Context, uid int, friendId int, g
 		return err
 	}
 
-	return s.Db().WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+	return s.Source.Db().WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		if contact.GroupId > 0 {
 			err := tx.Table("contact_group").Where("id = ? and user_id = ?", contact.GroupId, uid).Updates(map[string]any{
 				"num": gorm.Expr("num - 1"),

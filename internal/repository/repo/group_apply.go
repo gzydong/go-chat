@@ -28,7 +28,7 @@ func (g *GroupApply) List(ctx context.Context, groupIds []int) ([]*model.GroupAp
 		"users.nickname",
 	}
 
-	query := g.Db.WithContext(ctx).Table("group_apply")
+	query := g.Repo.Db.WithContext(ctx).Table("group_apply")
 	query.Joins("left join users on users.id = group_apply.user_id")
 	query.Where("group_apply.group_id in ?", groupIds)
 	query.Where("group_apply.status = ?", model.GroupApplyStatusWait)

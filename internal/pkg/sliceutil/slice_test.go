@@ -19,14 +19,6 @@ func TestSlice_ParseIds(t *testing.T) {
 	assert.Equal(t, 3, len(ParseIds("3,3,3")))
 }
 
-func TestMax(t *testing.T) {
-	assert.Equal(t, 7, Max([]int{1, 2, 3, 4, 5, 6, 7}))
-}
-
-func TestMin(t *testing.T) {
-	assert.Equal(t, 1, Min([]int{1, 2, 3, 4, 5, 6, 7}))
-}
-
 func TestSum(t *testing.T) {
 	assert.Equal(t, 28, Sum([]int{1, 2, 3, 4, 5, 6, 7}))
 }

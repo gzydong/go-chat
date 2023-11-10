@@ -36,7 +36,7 @@ func (s *ContactApplyService) Create(ctx context.Context, opt *ContactApplyCreat
 		Remark:   opt.Remarks,
 	}
 
-	if err := s.Db().WithContext(ctx).Create(apply).Error; err != nil {
+	if err := s.Source.Db().WithContext(ctx).Create(apply).Error; err != nil {
 		return err
 	}
 
@@ -48,7 +48,7 @@ func (s *ContactApplyService) Create(ctx context.Context, opt *ContactApplyCreat
 		}),
 	}
 
-	_, _ = s.Redis().Pipelined(ctx, func(pipe redis.Pipeliner) error {
+	_, _ = s.Source.Redis().Pipelined(ctx, func(pipe redis.Pipeliner) error {
 		pipe.Incr(ctx, fmt.Sprintf("im:contact:apply:%d", opt.FriendId))
 		pipe.Publish(ctx, entity.ImTopicChat, jsonutil.Encode(body))
 		return nil
@@ -66,7 +66,7 @@ type ContactApplyAcceptOpt struct {
 // Accept 同意好友申请
 func (s *ContactApplyService) Accept(ctx context.Context, opt *ContactApplyAcceptOpt) (*model.ContactApply, error) {
 
-	db := s.Db().WithContext(ctx)
+	db := s.Source.Db().WithContext(ctx)
 
 	var applyInfo model.ContactApply
 	if err := db.First(&applyInfo, "id = ? and friend_id = ?", opt.ApplyId, opt.UserId).Error; err != nil {
@@ -125,7 +125,7 @@ type ContactApplyDeclineOpt struct {
 
 // Decline 拒绝好友申请
 func (s *ContactApplyService) Decline(ctx context.Context, opt *ContactApplyDeclineOpt) error {
-	err := s.Db().WithContext(ctx).Delete(&model.ContactApply{}, "id = ? and friend_id = ?", opt.ApplyId, opt.UserId).Error
+	err := s.Source.Db().WithContext(ctx).Delete(&model.ContactApply{}, "id = ? and friend_id = ?", opt.ApplyId, opt.UserId).Error
 	if err != nil {
 		return err
 	}
@@ -138,7 +138,7 @@ func (s *ContactApplyService) Decline(ctx context.Context, opt *ContactApplyDecl
 		}),
 	}
 
-	s.Redis().Publish(ctx, entity.ImTopicChat, jsonutil.Encode(body))
+	s.Source.Redis().Publish(ctx, entity.ImTopicChat, jsonutil.Encode(body))
 	return nil
 }
 
@@ -155,7 +155,7 @@ func (s *ContactApplyService) List(ctx context.Context, uid int) ([]*model.Apply
 		"contact_apply.created_at",
 	}
 
-	tx := s.Db().WithContext(ctx).Table("contact_apply")
+	tx := s.Source.Db().WithContext(ctx).Table("contact_apply")
 	tx.Joins("left join `users` ON `users`.id = contact_apply.user_id")
 	tx.Where("contact_apply.friend_id = ?", uid)
 	tx.Order("contact_apply.id desc")
@@ -170,7 +170,7 @@ func (s *ContactApplyService) List(ctx context.Context, uid int) ([]*model.Apply
 
 func (s *ContactApplyService) GetApplyUnreadNum(ctx context.Context, uid int) int {
 
-	num, err := s.Redis().Get(ctx, fmt.Sprintf("im:contact:apply:%d", uid)).Int()
+	num, err := s.Source.Redis().Get(ctx, fmt.Sprintf("im:contact:apply:%d", uid)).Int()
 	if err != nil {
 		return 0
 	}
@@ -179,5 +179,5 @@ func (s *ContactApplyService) GetApplyUnreadNum(ctx context.Context, uid int) in
 }
 
 func (s *ContactApplyService) ClearApplyUnreadNum(ctx context.Context, uid int) {
-	s.Redis().Del(ctx, fmt.Sprintf("im:contact:apply:%d", uid))
+	s.Source.Redis().Del(ctx, fmt.Sprintf("im:contact:apply:%d", uid))
 }

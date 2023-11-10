@@ -32,7 +32,7 @@ func (s *TalkSessionService) List(ctx context.Context, uid int) ([]*model.Search
 		"`group`.group_name", "`group`.avatar as group_avatar",
 	}
 
-	query := s.Db().WithContext(ctx).Table("talk_session list")
+	query := s.Source.Db().WithContext(ctx).Table("talk_session list")
 	query.Joins("left join `users` ON list.receiver_id = `users`.id AND list.talk_type = 1")
 	query.Joins("left join `group` ON list.receiver_id = `group`.id AND list.talk_type = 2")
 	query.Where("list.user_id = ? and list.is_delete = 0", uid)
@@ -72,7 +72,7 @@ func (s *TalkSessionService) Create(ctx context.Context, opt *TalkSessionCreateO
 			result.IsRobot = 1
 		}
 
-		s.Db().WithContext(ctx).Create(result)
+		s.Source.Db().WithContext(ctx).Create(result)
 	} else {
 		result.IsTop = 0
 		result.IsDelete = 0
@@ -82,7 +82,7 @@ func (s *TalkSessionService) Create(ctx context.Context, opt *TalkSessionCreateO
 			result.IsRobot = 1
 		}
 
-		s.Db().WithContext(ctx).Save(result)
+		s.Source.Db().WithContext(ctx).Save(result)
 	}
 
 	return result, nil
@@ -148,5 +148,5 @@ func (s *TalkSessionService) BatchAddList(ctx context.Context, uid int, values m
 		return
 	}
 
-	s.Db().WithContext(ctx).Exec(fmt.Sprintf("INSERT INTO talk_session ( `talk_type`, `user_id`, `receiver_id`, created_at, updated_at ) VALUES %s ON DUPLICATE KEY UPDATE is_delete = 0, updated_at = '%s'", strings.Join(data, ","), ctime))
+	s.Source.Db().WithContext(ctx).Exec(fmt.Sprintf("INSERT INTO talk_session ( `talk_type`, `user_id`, `receiver_id`, created_at, updated_at ) VALUES %s ON DUPLICATE KEY UPDATE is_delete = 0, updated_at = '%s'", strings.Join(data, ","), ctime))
 }

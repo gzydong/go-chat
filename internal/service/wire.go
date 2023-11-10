@@ -2,13 +2,14 @@ package service
 
 import (
 	"github.com/google/wire"
-	"go-chat/internal/service/note"
-	"go-chat/internal/service/organize"
 )
 
 var ProviderSet = wire.NewSet(
 	NewUserService,
-	NewSmsService,
+
+	wire.Struct(new(SmsService), "*"),
+	wire.Bind(new(ISmsService), new(*SmsService)),
+
 	NewTalkService,
 	NewGroupService,
 	NewGroupMemberService,
@@ -26,13 +27,15 @@ var ProviderSet = wire.NewSet(
 	wire.Struct(new(MessageService), "*"),
 	wire.Bind(new(IMessageService), new(*MessageService)),
 
-	note.NewArticleService,
-	note.NewArticleTagService,
-	note.NewArticleClassService,
-	note.NewArticleAnnexService,
-	organize.NewOrganizeDeptService,
-	organize.NewOrganizeService,
-	organize.NewPositionService,
+	wire.Struct(new(ArticleService), "*"),
+	wire.Bind(new(IArticleService), new(*ArticleService)),
+
+	NewArticleTagService,
+	NewArticleClassService,
+	NewArticleAnnexService,
+	NewOrganizeDeptService,
+	NewOrganizeService,
+	NewPositionService,
 	NewTemplateService,
 	NewAuthService,
 )

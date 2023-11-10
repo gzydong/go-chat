@@ -23,7 +23,7 @@ type AckBufferContent struct {
 	response *ClientResponse
 }
 
-func init() {
+func InitAck() {
 	ack = &AckBuffer{}
 	ack.timeWheel = timewheel.NewSimpleTimeWheel[*AckBufferContent](1*time.Second, 30, ack.handle)
 }

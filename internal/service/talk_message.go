@@ -258,7 +258,7 @@ func (m *MessageService) SendVote(ctx context.Context, uid int, req *message.Vot
 
 	num := m.GroupMemberRepo.CountMemberTotal(ctx, int(req.Receiver.ReceiverId))
 
-	err := m.Db().WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+	err := m.Source.Db().WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 
 		if err := tx.Create(data).Error; err != nil {
 			return err
@@ -286,8 +286,8 @@ func (m *MessageService) SendVote(ctx context.Context, uid int, req *message.Vot
 func (m *MessageService) SendEmoticon(ctx context.Context, uid int, req *message.EmoticonMessageRequest) error {
 
 	var emoticon model.EmoticonItem
-	if err := m.Db().First(&emoticon, "id = ? and user_id = ?", req.EmoticonId, uid).Error; err != nil {
-		if err == gorm.ErrRecordNotFound {
+	if err := m.Source.Db().First(&emoticon, "id = ? and user_id = ?", req.EmoticonId, uid).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return errors.New("表情信息不存在")
 		}
 
@@ -337,7 +337,7 @@ func (m *MessageService) SendForward(ctx context.Context, uid int, req *message.
 		if record.TalkType == entity.ChatPrivateMode {
 			m.UnreadStorage.Incr(ctx, entity.ChatPrivateMode, uid, record.ReceiverId)
 		} else if record.TalkType == entity.ChatGroupMode {
-			pipe := m.Redis().Pipeline()
+			pipe := m.Source.Redis().Pipeline()
 			for _, uid := range m.GroupMemberRepo.GetMemberIds(ctx, record.ReceiverId) {
 				m.UnreadStorage.PipeIncr(ctx, pipe, entity.ChatGroupMode, record.ReceiverId, uid)
 			}
@@ -350,7 +350,7 @@ func (m *MessageService) SendForward(ctx context.Context, uid int, req *message.
 		})
 	}
 
-	_, _ = m.Redis().Pipelined(ctx, func(pipe redis.Pipeliner) error {
+	_, _ = m.Source.Redis().Pipelined(ctx, func(pipe redis.Pipeliner) error {
 		for _, item := range items {
 			data := jsonutil.Encode(map[string]any{
 				"event": entity.SubEventImMessage,
@@ -461,7 +461,7 @@ func (m *MessageService) SendSysOther(ctx context.Context, data *model.TalkRecor
 func (m *MessageService) Revoke(ctx context.Context, uid int, recordId int) error {
 
 	var record model.TalkRecords
-	if err := m.Db().First(&record, recordId).Error; err != nil {
+	if err := m.Source.Db().First(&record, recordId).Error; err != nil {
 		return err
 	}
 
@@ -477,7 +477,7 @@ func (m *MessageService) Revoke(ctx context.Context, uid int, recordId int) erro
 		return errors.New("超出有效撤回时间范围，无法进行撤销！")
 	}
 
-	if err := m.Db().Model(&model.TalkRecords{Id: recordId}).Update("is_revoke", 1).Error; err != nil {
+	if err := m.Source.Db().Model(&model.TalkRecords{Id: recordId}).Update("is_revoke", 1).Error; err != nil {
 		return err
 	}
 
@@ -488,7 +488,7 @@ func (m *MessageService) Revoke(ctx context.Context, uid int, recordId int) erro
 		}),
 	}
 
-	m.Redis().Publish(ctx, entity.ImTopicChat, jsonutil.Encode(body))
+	m.Source.Redis().Publish(ctx, entity.ImTopicChat, jsonutil.Encode(body))
 
 	return nil
 }
@@ -496,7 +496,7 @@ func (m *MessageService) Revoke(ctx context.Context, uid int, recordId int) erro
 // Vote 投票
 func (m *MessageService) Vote(ctx context.Context, uid int, recordId int, optionsValue string) (*repo.VoteStatistics, error) {
 
-	db := m.Db().WithContext(ctx)
+	db := m.Source.Db().WithContext(ctx)
 
 	query := db.Table("talk_records")
 	query.Select([]string{
@@ -557,7 +557,7 @@ func (m *MessageService) Vote(ctx context.Context, uid int, recordId int, option
 		})
 	}
 
-	err := m.Db().Transaction(func(tx *gorm.DB) error {
+	err := m.Source.Db().Transaction(func(tx *gorm.DB) error {
 		if err := tx.Table("talk_records_vote").Where("id = ?", vote.VoteId).Updates(map[string]any{
 			"answered_num": gorm.Expr("answered_num + 1"),
 			"status":       gorm.Expr("if(answered_num >= answer_num, 1, 0)"),
@@ -589,7 +589,7 @@ func (m *MessageService) save(ctx context.Context, data *model.TalkRecords) erro
 
 	m.loadSequence(ctx, data)
 
-	if err := m.Db().WithContext(ctx).Create(data).Error; err != nil {
+	if err := m.Source.Db().WithContext(ctx).Create(data).Error; err != nil {
 		return err
 	}
 
@@ -633,18 +633,18 @@ func (m *MessageService) loadReply(_ context.Context, data *model.TalkRecords) {
 
 	err := jsonutil.Decode(data.Extra, &extra)
 	if err != nil {
-		logger.Error("MessageService Json Decode err: ", err.Error())
+		logger.Errorf("MessageService Json Decode err: %s", err.Error())
 		return
 	}
 
 	var record model.TalkRecords
-	err = m.Db().Table("talk_records").Find(&record, "msg_id = ?", data.QuoteId).Error
+	err = m.Source.Db().Table("talk_records").Find(&record, "msg_id = ?", data.QuoteId).Error
 	if err != nil {
 		return
 	}
 
 	var user model.Users
-	err = m.Db().Table("users").Select("nickname").Find(&user, "id = ?", record.UserId).Error
+	err = m.Source.Db().Table("users").Select("nickname").Find(&user, "id = ?", record.UserId).Error
 	if err != nil {
 		return
 	}
@@ -678,7 +678,7 @@ func (m *MessageService) afterHandle(ctx context.Context, record *model.TalkReco
 			m.UnreadStorage.Incr(ctx, 1, record.ReceiverId, record.UserId)
 		}
 	} else if record.TalkType == entity.ChatGroupMode {
-		pipe := m.Redis().Pipeline()
+		pipe := m.Source.Redis().Pipeline()
 		for _, uid := range m.GroupMemberRepo.GetMemberIds(ctx, record.ReceiverId) {
 			if uid != record.UserId {
 				m.UnreadStorage.PipeIncr(ctx, pipe, entity.ChatGroupMode, record.ReceiverId, uid)
@@ -706,7 +706,7 @@ func (m *MessageService) afterHandle(ctx context.Context, record *model.TalkReco
 		sids := m.ServerStorage.All(ctx, 1)
 
 		if len(sids) > 3 {
-			pipe := m.Redis().Pipeline()
+			pipe := m.Source.Redis().Pipeline()
 
 			for _, sid := range sids {
 				for _, uid := range []int{record.UserId, record.ReceiverId} {
@@ -724,7 +724,7 @@ func (m *MessageService) afterHandle(ctx context.Context, record *model.TalkReco
 		}
 	}
 
-	if err := m.Redis().Publish(ctx, entity.ImTopicChat, content).Err(); err != nil {
-		logger.Error(fmt.Sprintf("[ALL]消息推送失败 %s", err.Error()))
+	if err := m.Source.Redis().Publish(ctx, entity.ImTopicChat, content).Err(); err != nil {
+		logger.Errorf("[ALL]消息推送失败 %s", err.Error())
 	}
 }

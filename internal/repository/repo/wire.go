@@ -2,8 +2,6 @@ package repo
 
 import (
 	"github.com/google/wire"
-	note3 "go-chat/internal/repository/repo/note"
-	organize3 "go-chat/internal/repository/repo/organize"
 )
 
 var ProviderSet = wire.NewSet(
@@ -20,11 +18,11 @@ var ProviderSet = wire.NewSet(
 	NewEmoticon,
 	NewTalkRecordsVote,
 	NewFileSplitUpload,
-	note3.NewArticleClass,
-	note3.NewArticleAnnex,
-	organize3.NewDepartment,
-	organize3.NewOrganize,
-	organize3.NewPosition,
+	NewArticleClass,
+	NewArticleAnnex,
+	NewDepartment,
+	NewOrganize,
+	NewPosition,
 	NewRobot,
 	NewSequence,
 	NewAdmin,

@@ -37,7 +37,7 @@ func (c *ContactGroupService) Delete(ctx context.Context, id int, uid int) error
 func (c *ContactGroupService) GetUserGroup(ctx context.Context, uid int) ([]*model.ContactGroup, error) {
 
 	var items []*model.ContactGroup
-	err := c.Db().WithContext(ctx).Table("contact_group").Where("user_id = ?", uid).Order("sort asc").Scan(&items).Error
+	err := c.Source.Db().WithContext(ctx).Table("contact_group").Where("user_id = ?", uid).Order("sort asc").Scan(&items).Error
 	if err != nil {
 		return nil, err
 	}

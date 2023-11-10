@@ -32,7 +32,7 @@ type RemoveRecordListOpt struct {
 func (t *TalkService) DeleteRecordList(ctx context.Context, opt *RemoveRecordListOpt) error {
 
 	var (
-		db      = t.Db().WithContext(ctx)
+		db      = t.Source.Db().WithContext(ctx)
 		findIds []int64
 		ids     = sliceutil.Unique(sliceutil.ParseIds(opt.RecordIds))
 	)
@@ -68,7 +68,7 @@ func (t *TalkService) DeleteRecordList(ctx context.Context, opt *RemoveRecordLis
 func (t *TalkService) Collect(ctx context.Context, uid int, recordId int) error {
 
 	var record model.TalkRecords
-	if err := t.Db().First(&record, recordId).Error; err != nil {
+	if err := t.Source.Db().First(&record, recordId).Error; err != nil {
 		return err
 	}
 
@@ -95,7 +95,7 @@ func (t *TalkService) Collect(ctx context.Context, uid int, recordId int) error 
 		return err
 	}
 
-	return t.Db().Create(&model.EmoticonItem{
+	return t.Source.Db().Create(&model.EmoticonItem{
 		UserId:     uid,
 		Url:        file.Url,
 		FileSuffix: file.Suffix,

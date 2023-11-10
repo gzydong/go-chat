@@ -8,7 +8,6 @@ import (
 
 	"go-chat/internal/pkg/ichat/socket/adapter/encoding"
 	"go-chat/internal/pkg/jsonutil"
-	"go-chat/internal/pkg/logger"
 	"go-chat/internal/pkg/strutil"
 )
 
@@ -29,7 +28,7 @@ func TestTcp_Server(t *testing.T) {
 		go func() {
 			conn, err := NewTcpAdapter(conn)
 			if err != nil {
-				logger.Errorf("tcp connect error: %s", err.Error())
+				return
 			}
 
 			for {

@@ -2,6 +2,7 @@ package ichat
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"runtime"
@@ -9,7 +10,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"go-chat/internal/pkg/ichat/middleware"
 	"go-chat/internal/pkg/ichat/validator"
-	"go-chat/internal/pkg/jsonutil"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
 )
@@ -117,12 +117,9 @@ func (c *Context) Success(data any, message ...string) error {
 	if value, ok := data.(proto.Message); ok {
 		bt, _ := MarshalOptions.Marshal(value)
 
-		var data any
-		if err := jsonutil.Decode(string(bt), &data); err != nil {
-			return c.Error(err.Error())
-		}
-
-		resp.Data = data
+		var body map[string]any
+		_ = json.Unmarshal(bt, &body)
+		resp.Data = body
 	}
 
 	c.Context.AbortWithStatusJSON(http.StatusOK, resp)
