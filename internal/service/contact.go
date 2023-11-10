@@ -8,13 +8,19 @@ import (
 	"gorm.io/gorm"
 )
 
-type ContactService struct {
-	*repo.Source
-	contact *repo.Contact
+var _ IContactService = (*ContactService)(nil)
+
+type IContactService interface {
+	UpdateRemark(ctx context.Context, uid int, friendId int, remark string) error
+	Delete(ctx context.Context, uid, friendId int) error
+	List(ctx context.Context, uid int) ([]*model.ContactListItem, error)
+	GetContactIds(ctx context.Context, uid int) []int64
+	MoveGroup(ctx context.Context, uid int, friendId int, groupId int) error
 }
 
-func NewContactService(source *repo.Source, contact *repo.Contact) *ContactService {
-	return &ContactService{Source: source, contact: contact}
+type ContactService struct {
+	*repo.Source
+	ContactRepo *repo.Contact
 }
 
 // UpdateRemark 编辑联系人备注
@@ -22,9 +28,9 @@ func NewContactService(source *repo.Source, contact *repo.Contact) *ContactServi
 // @params friendId 联系人ID
 func (s *ContactService) UpdateRemark(ctx context.Context, uid int, friendId int, remark string) error {
 
-	_, err := s.contact.UpdateWhere(ctx, map[string]any{"remark": remark}, "user_id = ? and friend_id = ?", uid, friendId)
+	_, err := s.ContactRepo.UpdateWhere(ctx, map[string]any{"remark": remark}, "user_id = ? and friend_id = ?", uid, friendId)
 	if err == nil {
-		_ = s.contact.SetFriendRemark(ctx, uid, friendId, remark)
+		_ = s.ContactRepo.SetFriendRemark(ctx, uid, friendId, remark)
 	}
 
 	return err
@@ -35,7 +41,7 @@ func (s *ContactService) UpdateRemark(ctx context.Context, uid int, friendId int
 // @params friendId 联系人ID
 func (s *ContactService) Delete(ctx context.Context, uid, friendId int) error {
 
-	find, err := s.contact.FindByWhere(ctx, "user_id = ? and friend_id = ?", uid, friendId)
+	find, err := s.ContactRepo.FindByWhere(ctx, "user_id = ? and friend_id = ?", uid, friendId)
 	if err != nil {
 		return err
 	}
@@ -60,7 +66,7 @@ func (s *ContactService) Delete(ctx context.Context, uid, friendId int) error {
 // @params uid      用户ID
 func (s *ContactService) List(ctx context.Context, uid int) ([]*model.ContactListItem, error) {
 
-	tx := s.contact.Model(ctx)
+	tx := s.ContactRepo.Model(ctx)
 	tx.Select([]string{
 		"users.id",
 		"users.nickname",
@@ -84,13 +90,13 @@ func (s *ContactService) List(ctx context.Context, uid int) ([]*model.ContactLis
 func (s *ContactService) GetContactIds(ctx context.Context, uid int) []int64 {
 
 	var ids []int64
-	s.contact.Model(ctx).Where("user_id = ? and status = ?", uid, model.ContactStatusNormal).Pluck("friend_id", &ids)
+	s.ContactRepo.Model(ctx).Where("user_id = ? and status = ?", uid, model.ContactStatusNormal).Pluck("friend_id", &ids)
 
 	return ids
 }
 
 func (s *ContactService) MoveGroup(ctx context.Context, uid int, friendId int, groupId int) error {
-	contact, err := s.contact.FindByWhere(ctx, "user_id = ? and friend_id  = ?", uid, friendId)
+	contact, err := s.ContactRepo.FindByWhere(ctx, "user_id = ? and friend_id  = ?", uid, friendId)
 	if err != nil {
 		return err
 	}

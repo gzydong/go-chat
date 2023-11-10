@@ -2,13 +2,13 @@ package talk
 
 import (
 	"net/http"
+	"slices"
 	"time"
 
 	"go-chat/internal/entity"
 	"go-chat/internal/pkg/filesystem"
 	"go-chat/internal/pkg/ichat"
 	"go-chat/internal/pkg/jsonutil"
-	"go-chat/internal/pkg/sliceutil"
 	"go-chat/internal/pkg/strutil"
 	"go-chat/internal/pkg/timeutil"
 	"go-chat/internal/repository/model"
@@ -20,10 +20,10 @@ type Records struct {
 	GroupMemberRepo *repo.GroupMember
 	TalkRecordsRepo *repo.TalkRecords
 
-	TalkRecordsService *service.TalkRecordsService
-	GroupMemberService *service.GroupMemberService
+	TalkRecordsService service.ITalkRecordsService
+	GroupMemberService service.IGroupMemberService
 	Filesystem         *filesystem.Filesystem
-	AuthService        *service.AuthService
+	AuthService        service.IAuthService
 }
 
 type GetTalkRecordsRequest struct {
@@ -133,7 +133,7 @@ func (c *Records) SearchHistoryRecords(ctx *ichat.Context) error {
 		entity.ChatMsgTypeVote,
 	}
 
-	if sliceutil.Include(params.MsgType, m) {
+	if slices.Contains(m, params.MsgType) {
 		m = []int{params.MsgType}
 	}
 

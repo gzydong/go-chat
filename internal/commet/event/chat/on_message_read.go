@@ -27,11 +27,11 @@ func (h *Handler) onReadMessage(ctx context.Context, client socket.IClient, data
 		return
 	}
 
-	h.memberService.Db().Model(&model.TalkRecords{}).
+	h.Source.Db().Model(&model.TalkRecords{}).
 		Where("id in ? and receiver_id = ? and is_read = 0", in.Content.MsgIds, client.Uid()).
 		Update("is_read", 1)
 
-	h.redis.Publish(ctx, entity.ImTopicChat, jsonutil.Encode(map[string]any{
+	h.Redis.Publish(ctx, entity.ImTopicChat, jsonutil.Encode(map[string]any{
 		"event": entity.SubEventImMessageRead,
 		"data": jsonutil.Encode(map[string]any{
 			"sender_id":   client.Uid(),

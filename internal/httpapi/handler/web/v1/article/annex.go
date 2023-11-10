@@ -20,7 +20,7 @@ import (
 
 type Annex struct {
 	ArticleAnnexRepo    *note2.ArticleAnnex
-	ArticleAnnexService *service.ArticleAnnexService
+	ArticleAnnexService service.IArticleAnnexService
 	Filesystem          *filesystem.Filesystem
 }
 

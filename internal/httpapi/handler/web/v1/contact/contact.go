@@ -20,11 +20,10 @@ type Contact struct {
 	OrganizeRepo    *repo.Organize
 	TalkSessionRepo *repo.TalkSession
 
-	ContactService  *service.ContactService
+	ContactService  service.IContactService
 	ClientStorage   *cache.ClientStorage
-	UserService     *service.UserService
-	TalkListService *service.TalkSessionService
-	OrganizeService *service.OrganizeService
+	UserService     service.IUserService
+	TalkListService service.ITalkSessionService
 	MessageService  service.IMessageService
 }
 
@@ -159,7 +158,7 @@ func (c *Contact) Detail(ctx *ichat.Context) error {
 		data.FriendStatus = 1
 
 		contact, err := c.ContactRepo.FindByWhere(ctx.Ctx(), "user_id = ? and friend_id = ?", uid, user.Id)
-		if err != nil && err != gorm.ErrRecordNotFound {
+		if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 			return err
 		}
 

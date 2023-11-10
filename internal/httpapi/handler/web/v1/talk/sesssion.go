@@ -22,16 +22,16 @@ type Session struct {
 	GroupRepo   *repo.Group
 
 	TalkService        *service.TalkService
-	TalkSessionService *service.TalkSessionService
+	TalkSessionService service.ITalkSessionService
 	RedisLock          *cache.RedisLock
-	UserService        *service.UserService
+	UserService        service.IUserService
 	ClientStorage      *cache.ClientStorage
 	MessageStorage     *cache.MessageStorage
-	ContactService     *service.ContactService
+	ContactService     service.IContactService
 	UnreadStorage      *cache.UnreadStorage
 	ContactRemark      *cache.ContactRemark
-	GroupService       *service.GroupService
-	AuthService        *service.AuthService
+	GroupService       service.IGroupService
+	AuthService        service.IAuthService
 }
 
 // Create 创建会话列表

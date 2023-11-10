@@ -26,7 +26,7 @@ func (h *Handler) onConsumeTalkRevoke(ctx context.Context, body []byte) {
 	}
 
 	var record model.TalkRecords
-	if err := h.recordsService.Db().First(&record, in.RecordId).Error; err != nil {
+	if err := h.source.Db().First(&record, in.RecordId).Error; err != nil {
 		return
 	}
 

@@ -5,11 +5,13 @@ import (
 	"go-chat/resource"
 )
 
-type TemplateService struct {
+var _ ITemplateService = (*TemplateService)(nil)
+
+type ITemplateService interface {
+	CodeTemplate(data map[string]string) (string, error)
 }
 
-func NewTemplateService() *TemplateService {
-	return &TemplateService{}
+type TemplateService struct {
 }
 
 // CodeTemplate 验证码通知模板

@@ -14,12 +14,19 @@ import (
 	"go-chat/internal/pkg/jsonutil"
 )
 
-type ContactApplyService struct {
-	*repo.Source
+var _ IContactApplyService = (*ContactApplyService)(nil)
+
+type IContactApplyService interface {
+	Create(ctx context.Context, opt *ContactApplyCreateOpt) error
+	Accept(ctx context.Context, opt *ContactApplyAcceptOpt) (*model.ContactApply, error)
+	Decline(ctx context.Context, opt *ContactApplyDeclineOpt) error
+	List(ctx context.Context, uid int) ([]*model.ApplyItem, error)
+	GetApplyUnreadNum(ctx context.Context, uid int) int
+	ClearApplyUnreadNum(ctx context.Context, uid int)
 }
 
-func NewContactApplyService(source *repo.Source) *ContactApplyService {
-	return &ContactApplyService{Source: source}
+type ContactApplyService struct {
+	*repo.Source
 }
 
 type ContactApplyCreateOpt struct {

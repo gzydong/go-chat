@@ -58,7 +58,7 @@ func (h *Handler) onTextMessage(ctx context.Context, client socket.IClient, data
 		return
 	}
 
-	err := h.message.SendText(ctx, client.Uid(), &message.TextMessageRequest{
+	err := h.MessageService.SendText(ctx, client.Uid(), &message.TextMessageRequest{
 		Content: in.Content.Content,
 		Receiver: &message.MessageReceiver{
 			TalkType:   in.Content.Receiver.TalkType,
@@ -99,7 +99,7 @@ func (h *Handler) onCodeMessage(ctx context.Context, client socket.IClient, data
 		return
 	}
 
-	err := h.message.SendCode(ctx, client.Uid(), &message.CodeMessageRequest{
+	err := h.MessageService.SendCode(ctx, client.Uid(), &message.CodeMessageRequest{
 		Lang: m.Content.Lang,
 		Code: m.Content.Code,
 		Receiver: &message.MessageReceiver{

@@ -8,7 +8,8 @@ import (
 
 var ProviderSet = wire.NewSet(
 	wire.Struct(new(ChatEvent), "*"),
-	chat.NewHandler,
+
+	wire.Struct(new(chat.Handler), "*"),
 
 	wire.Struct(new(ExampleEvent), "*"),
 	example.NewHandler,

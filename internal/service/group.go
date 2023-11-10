@@ -18,16 +18,24 @@ import (
 	"go-chat/internal/pkg/timeutil"
 )
 
-type GroupService struct {
-	*repo.Source
-	group    *repo.Group
-	member   *repo.GroupMember
-	relation *cache.Relation
-	sequence *repo.Sequence
+var _ IGroupService = (*GroupService)(nil)
+
+type IGroupService interface {
+	Create(ctx context.Context, opt *GroupCreateOpt) (int, error)
+	Update(ctx context.Context, opt *GroupUpdateOpt) error
+	Dismiss(ctx context.Context, groupId int, uid int) error
+	Secede(ctx context.Context, groupId int, uid int) error
+	Invite(ctx context.Context, opt *GroupInviteOpt) error
+	RemoveMember(ctx context.Context, opt *GroupRemoveMembersOpt) error
+	List(userId int) ([]*model.GroupItem, error)
 }
 
-func NewGroupService(source *repo.Source, repo *repo.Group, member *repo.GroupMember, relation *cache.Relation, sequence *repo.Sequence) *GroupService {
-	return &GroupService{Source: source, group: repo, member: member, relation: relation, sequence: sequence}
+type GroupService struct {
+	*repo.Source
+	GroupRepo       *repo.Group
+	GroupMemberRepo *repo.GroupMember
+	Relation        *cache.Relation
+	Sequence        *repo.Sequence
 }
 
 type GroupCreateOpt struct {
@@ -106,7 +114,7 @@ func (g *GroupService) Create(ctx context.Context, opt *GroupCreateOpt) (int, er
 			TalkType:   entity.ChatGroupMode,
 			ReceiverId: group.Id,
 			MsgType:    entity.ChatMsgSysGroupCreate,
-			Sequence:   g.sequence.Get(ctx, 0, group.Id),
+			Sequence:   g.Sequence.Get(ctx, 0, group.Id),
 			Extra: jsonutil.Encode(model.TalkRecordExtraGroupCreate{
 				OwnerId:   user.Id,
 				OwnerName: user.Nickname,
@@ -145,7 +153,7 @@ type GroupUpdateOpt struct {
 // Update 更新群信息
 func (g *GroupService) Update(ctx context.Context, opt *GroupUpdateOpt) error {
 
-	_, err := g.group.UpdateById(ctx, opt.GroupId, map[string]any{
+	_, err := g.GroupRepo.UpdateById(ctx, opt.GroupId, map[string]any{
 		"group_name": opt.Name,
 		"avatar":     opt.Avatar,
 		"profile":    opt.Profile,
@@ -202,7 +210,7 @@ func (g *GroupService) Secede(ctx context.Context, groupId int, uid int) error {
 		TalkType:   entity.ChatGroupMode,
 		ReceiverId: groupId,
 		MsgType:    entity.ChatMsgSysGroupMemberQuit,
-		Sequence:   g.sequence.Get(ctx, 0, groupId),
+		Sequence:   g.Sequence.Get(ctx, 0, groupId),
 		Extra: jsonutil.Encode(&model.TalkRecordExtraGroupMemberQuit{
 			OwnerId:   user.Id,
 			OwnerName: user.Nickname,
@@ -228,7 +236,7 @@ func (g *GroupService) Secede(ctx context.Context, groupId int, uid int) error {
 		return err
 	}
 
-	g.relation.DelGroupRelation(ctx, uid, groupId)
+	g.Relation.DelGroupRelation(ctx, uid, groupId)
 
 	g.Source.Redis().Publish(ctx, entity.ImTopicChat, jsonutil.Encode(map[string]any{
 		"event": entity.SubEventGroupJoin,
@@ -270,7 +278,7 @@ func (g *GroupService) Invite(ctx context.Context, opt *GroupInviteOpt) error {
 	)
 
 	m := make(map[int]struct{})
-	for _, value := range g.member.GetMemberIds(ctx, opt.GroupId) {
+	for _, value := range g.GroupMemberRepo.GetMemberIds(ctx, opt.GroupId) {
 		m[value] = struct{}{}
 	}
 
@@ -330,7 +338,7 @@ func (g *GroupService) Invite(ctx context.Context, opt *GroupInviteOpt) error {
 		TalkType:   entity.ChatGroupMode,
 		ReceiverId: opt.GroupId,
 		MsgType:    entity.ChatMsgSysGroupMemberJoin,
-		Sequence:   g.sequence.Get(ctx, 0, opt.GroupId),
+		Sequence:   g.Sequence.Get(ctx, 0, opt.GroupId),
 	}
 
 	record.Extra = jsonutil.Encode(&model.TalkRecordExtraGroupJoin{
@@ -438,7 +446,7 @@ func (g *GroupService) RemoveMember(ctx context.Context, opt *GroupRemoveMembers
 
 	record := &model.TalkRecords{
 		MsgId:      strutil.NewMsgId(),
-		Sequence:   g.sequence.Get(ctx, 0, opt.GroupId),
+		Sequence:   g.Sequence.Get(ctx, 0, opt.GroupId),
 		TalkType:   entity.ChatGroupMode,
 		ReceiverId: opt.GroupId,
 		MsgType:    entity.ChatMsgSysGroupMemberKicked,
@@ -466,7 +474,7 @@ func (g *GroupService) RemoveMember(ctx context.Context, opt *GroupRemoveMembers
 		return err
 	}
 
-	g.relation.BatchDelGroupRelation(ctx, opt.MemberIds, opt.GroupId)
+	g.Relation.BatchDelGroupRelation(ctx, opt.MemberIds, opt.GroupId)
 
 	_, _ = g.Source.Redis().Pipelined(ctx, func(pipe redis.Pipeliner) error {
 		pipe.Publish(ctx, entity.ImTopicChat, jsonutil.Encode(map[string]any{

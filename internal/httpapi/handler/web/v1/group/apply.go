@@ -25,8 +25,8 @@ type Apply struct {
 	GroupMemberRepo *repo.GroupMember
 
 	GroupApplyService  *service.GroupApplyService
-	GroupMemberService *service.GroupMemberService
-	GroupService       *service.GroupService
+	GroupMemberService service.IGroupMemberService
+	GroupService       service.IGroupService
 }
 
 func (c *Apply) Create(ctx *ichat.Context) error {

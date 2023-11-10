@@ -17,13 +17,13 @@ type Handler struct {
 	config         *config.Config
 	clientStorage  *cache.ClientStorage
 	roomStorage    *cache.RoomStorage
-	recordsService *service.TalkRecordsService
-	contactService *service.ContactService
+	recordsService service.ITalkRecordsService
+	contactService service.IContactService
 	organize       *repo.Organize
 	source         *repo.Source
 }
 
-func NewHandler(config *config.Config, clientStorage *cache.ClientStorage, roomStorage *cache.RoomStorage, recordsService *service.TalkRecordsService, contactService *service.ContactService, organize *repo.Organize, source *repo.Source) *Handler {
+func NewHandler(config *config.Config, clientStorage *cache.ClientStorage, roomStorage *cache.RoomStorage, recordsService service.ITalkRecordsService, contactService service.IContactService, organize *repo.Organize, source *repo.Source) *Handler {
 	return &Handler{config: config, clientStorage: clientStorage, roomStorage: roomStorage, recordsService: recordsService, contactService: contactService, organize: organize, source: source}
 }
 

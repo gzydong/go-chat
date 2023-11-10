@@ -10,15 +10,17 @@ import (
 	"gorm.io/gorm"
 )
 
-type AuthService struct {
-	organize    *repo.Organize
-	contact     *repo.Contact
-	group       *repo.Group
-	groupMember *repo.GroupMember
+var _ IAuthService = (*AuthService)(nil)
+
+type IAuthService interface {
+	IsAuth(ctx context.Context, opt *AuthOption) error
 }
 
-func NewAuthService(organize *repo.Organize, contact *repo.Contact, group *repo.Group, groupMember *repo.GroupMember) *AuthService {
-	return &AuthService{organize: organize, contact: contact, group: group, groupMember: groupMember}
+type AuthService struct {
+	OrganizeRepo    *repo.Organize
+	ContactRepo     *repo.Contact
+	GroupRepo       *repo.Group
+	GroupMemberRepo *repo.GroupMember
 }
 
 type AuthOption struct {
@@ -31,20 +33,20 @@ type AuthOption struct {
 func (a *AuthService) IsAuth(ctx context.Context, opt *AuthOption) error {
 
 	if opt.TalkType == entity.ChatPrivateMode {
-		if isOk, err := a.organize.IsQiyeMember(ctx, opt.UserId, opt.ReceiverId); err != nil {
+		if isOk, err := a.OrganizeRepo.IsQiyeMember(ctx, opt.UserId, opt.ReceiverId); err != nil {
 			return errors.New("系统繁忙，请稍后再试！！！")
 		} else if isOk {
 			return nil
 		}
 
-		if a.contact.IsFriend(ctx, opt.UserId, opt.ReceiverId, false) {
+		if a.ContactRepo.IsFriend(ctx, opt.UserId, opt.ReceiverId, false) {
 			return nil
 		}
 
 		return errors.New("暂无权限发送消息！")
 	}
 
-	groupInfo, err := a.group.FindById(ctx, opt.ReceiverId)
+	groupInfo, err := a.GroupRepo.FindById(ctx, opt.ReceiverId)
 	if err != nil {
 		return err
 	}
@@ -53,9 +55,9 @@ func (a *AuthService) IsAuth(ctx context.Context, opt *AuthOption) error {
 		return errors.New("此群聊已解散！")
 	}
 
-	memberInfo, err := a.groupMember.FindByUserId(ctx, opt.ReceiverId, opt.UserId)
+	memberInfo, err := a.GroupMemberRepo.FindByUserId(ctx, opt.ReceiverId, opt.UserId)
 	if err != nil {
-		if err == gorm.ErrRecordNotFound {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return errors.New("暂无权限发送消息！")
 		}
 

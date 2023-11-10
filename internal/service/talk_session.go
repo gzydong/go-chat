@@ -14,13 +14,20 @@ import (
 	"gorm.io/gorm"
 )
 
-type TalkSessionService struct {
-	*repo.Source
-	talkSession *repo.TalkSession
+var _ ITalkSessionService = (*TalkSessionService)(nil)
+
+type ITalkSessionService interface {
+	List(ctx context.Context, uid int) ([]*model.SearchTalkSession, error)
+	Create(ctx context.Context, opt *TalkSessionCreateOpt) (*model.TalkSession, error)
+	Delete(ctx context.Context, uid int, id int) error
+	Top(ctx context.Context, opt *TalkSessionTopOpt) error
+	Disturb(ctx context.Context, opt *TalkSessionDisturbOpt) error
+	BatchAddList(ctx context.Context, uid int, values map[string]int)
 }
 
-func NewTalkSessionService(source *repo.Source, talkSession *repo.TalkSession) *TalkSessionService {
-	return &TalkSessionService{source, talkSession}
+type TalkSessionService struct {
+	*repo.Source
+	TalkSessionRepo *repo.TalkSession
 }
 
 func (s *TalkSessionService) List(ctx context.Context, uid int) ([]*model.SearchTalkSession, error) {
@@ -56,7 +63,7 @@ type TalkSessionCreateOpt struct {
 // Create 创建会话列表
 func (s *TalkSessionService) Create(ctx context.Context, opt *TalkSessionCreateOpt) (*model.TalkSession, error) {
 
-	result, err := s.talkSession.FindByWhere(ctx, "talk_type = ? and user_id = ? and receiver_id = ?", opt.TalkType, opt.UserId, opt.ReceiverId)
+	result, err := s.TalkSessionRepo.FindByWhere(ctx, "talk_type = ? and user_id = ? and receiver_id = ?", opt.TalkType, opt.UserId, opt.ReceiverId)
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, err
 	}
@@ -90,7 +97,7 @@ func (s *TalkSessionService) Create(ctx context.Context, opt *TalkSessionCreateO
 
 // Delete 删除会话
 func (s *TalkSessionService) Delete(ctx context.Context, uid int, id int) error {
-	_, err := s.talkSession.UpdateWhere(ctx, map[string]any{"is_delete": 1, "updated_at": time.Now()}, "id = ? and user_id = ?", id, uid)
+	_, err := s.TalkSessionRepo.UpdateWhere(ctx, map[string]any{"is_delete": 1, "updated_at": time.Now()}, "id = ? and user_id = ?", id, uid)
 	return err
 }
 
@@ -102,7 +109,7 @@ type TalkSessionTopOpt struct {
 
 // Top 会话置顶
 func (s *TalkSessionService) Top(ctx context.Context, opt *TalkSessionTopOpt) error {
-	_, err := s.talkSession.UpdateWhere(ctx, map[string]any{
+	_, err := s.TalkSessionRepo.UpdateWhere(ctx, map[string]any{
 		"is_top":     strutil.BoolToInt(opt.Type == 1),
 		"updated_at": time.Now(),
 	}, "id = ? and user_id = ?", opt.Id, opt.UserId)
@@ -118,7 +125,7 @@ type TalkSessionDisturbOpt struct {
 
 // Disturb 会话免打扰
 func (s *TalkSessionService) Disturb(ctx context.Context, opt *TalkSessionDisturbOpt) error {
-	_, err := s.talkSession.UpdateWhere(ctx, map[string]any{
+	_, err := s.TalkSessionRepo.UpdateWhere(ctx, map[string]any{
 		"is_disturb": opt.IsDisturb,
 		"updated_at": time.Now(),
 	}, "user_id = ? and receiver_id = ? and talk_type = ?", opt.UserId, opt.ReceiverId, opt.TalkType)

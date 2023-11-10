@@ -3,6 +3,7 @@ package talk
 import (
 	"bytes"
 	"fmt"
+	"slices"
 
 	"go-chat/api/pb/message/v1"
 	"go-chat/internal/entity"
@@ -17,7 +18,7 @@ import (
 
 type Message struct {
 	TalkService    *service.TalkService
-	AuthService    *service.AuthService
+	AuthService    service.IAuthService
 	MessageService service.IMessageService
 	Filesystem     *filesystem.Filesystem
 }
@@ -122,7 +123,7 @@ func (c *Message) Image(ctx *ichat.Context) error {
 		return ctx.InvalidParams("image 字段必传！")
 	}
 
-	if !sliceutil.Include(strutil.FileSuffix(file.Filename), []string{"png", "jpg", "jpeg", "gif", "webp"}) {
+	if !slices.Contains([]string{"png", "jpg", "jpeg", "gif", "webp"}, strutil.FileSuffix(file.Filename)) {
 		return ctx.InvalidParams("上传文件格式不正确,仅支持 png、jpg、jpeg、gif 及 webp")
 	}
 

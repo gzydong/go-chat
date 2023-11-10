@@ -2,6 +2,7 @@ package group
 
 import (
 	"fmt"
+	"slices"
 
 	"go-chat/api/pb/message/v1"
 	"go-chat/api/pb/web/v1"
@@ -26,12 +27,12 @@ type Group struct {
 	GroupMemberRepo *repo.GroupMember
 	TalkSessionRepo *repo.TalkSession
 
-	GroupService       *service.GroupService
-	GroupMemberService *service.GroupMemberService
-	TalkSessionService *service.TalkSessionService
-	UserService        *service.UserService
-	ContactService     *service.ContactService
-	GroupNoticeService *service.GroupNoticeService
+	GroupService       service.IGroupService
+	GroupMemberService service.IGroupMemberService
+	TalkSessionService service.ITalkSessionService
+	UserService        service.IUserService
+	ContactService     service.IContactService
+	GroupNoticeService service.IGroupNoticeService
 	MessageService     service.IMessageService
 }
 
@@ -299,7 +300,7 @@ func (c *Group) GetInviteFriends(ctx *ichat.Context) error {
 
 	data := make([]*model.ContactListItem, 0)
 	for i := 0; i < len(items); i++ {
-		if !sliceutil.Include(items[i].Id, mids) {
+		if !slices.Contains(mids, items[i].Id) {
 			data = append(data, items[i])
 		}
 	}

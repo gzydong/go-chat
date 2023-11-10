@@ -6,41 +6,37 @@ import (
 
 	"github.com/redis/go-redis/v9"
 	"go-chat/internal/pkg/ichat/socket"
+	"go-chat/internal/repository/repo"
 	"go-chat/internal/service"
 )
 
 type handle func(ctx context.Context, client socket.IClient, data []byte)
 
-type Handler struct {
-	redis         *redis.Client
-	memberService *service.GroupMemberService
-	handlers      map[string]func(ctx context.Context, client socket.IClient, data []byte)
-	message       service.IMessageService
-}
+var handlers map[string]handle
 
-func NewHandler(redis *redis.Client, memberService *service.GroupMemberService, message *service.MessageService) *Handler {
-	return &Handler{redis: redis, memberService: memberService, message: message}
+type Handler struct {
+	Redis          *redis.Client
+	Source         *repo.Source
+	MemberService  service.IGroupMemberService
+	MessageService service.IMessageService
 }
 
 func (h *Handler) init() {
-
-	h.handlers = make(map[string]func(ctx context.Context, client socket.IClient, data []byte))
-
 	// 注册自定义绑定事件
-	h.handlers["im.message.publish"] = h.onPublish
-	h.handlers["im.message.revoke"] = h.onRevokeMessage
-	h.handlers["im.message.delete"] = h.onDeleteMessage
-	h.handlers["im.message.read"] = h.onReadMessage
-	h.handlers["im.message.keyboard"] = h.onKeyboardMessage
+	handlers["im.message.publish"] = h.onPublish
+	handlers["im.message.revoke"] = h.onRevokeMessage
+	handlers["im.message.delete"] = h.onDeleteMessage
+	handlers["im.message.read"] = h.onReadMessage
+	handlers["im.message.keyboard"] = h.onKeyboardMessage
 }
 
 func (h *Handler) Call(ctx context.Context, client socket.IClient, event string, data []byte) {
 
-	if h.handlers == nil {
+	if handlers == nil {
 		h.init()
 	}
 
-	if call, ok := h.handlers[event]; ok {
+	if call, ok := handlers[event]; ok {
 		call(ctx, client, data)
 	} else {
 		log.Printf("Chat Event: [%s]未注册回调事件\n", event)

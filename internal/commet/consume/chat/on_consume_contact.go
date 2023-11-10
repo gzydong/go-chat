@@ -35,6 +35,7 @@ func (h *Handler) onConsumeContactStatus(ctx context.Context, body []byte) {
 	}
 
 	clientIds := make([]int64, 0)
+
 	for _, uid := range sliceutil.Unique(contactIds) {
 		ids := h.clientStorage.GetUidFromClientIds(ctx, h.config.ServerId(), socket.Session.Chat.Name(), strconv.FormatInt(uid, 10))
 		if len(ids) > 0 {
@@ -68,7 +69,7 @@ func (h *Handler) onConsumeContactApply(ctx context.Context, body []byte) {
 	}
 
 	var apply model.ContactApply
-	if err := h.contactService.Db().First(&apply, in.ApplyId).Error; err != nil {
+	if err := h.source.Db().First(&apply, in.ApplyId).Error; err != nil {
 		return
 	}
 
@@ -78,7 +79,7 @@ func (h *Handler) onConsumeContactApply(ctx context.Context, body []byte) {
 	}
 
 	var user model.Users
-	if err := h.contactService.Db().First(&user, apply.FriendId).Error; err != nil {
+	if err := h.source.Db().First(&user, apply.FriendId).Error; err != nil {
 		return
 	}
 

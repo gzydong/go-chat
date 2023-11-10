@@ -23,7 +23,7 @@ type ChatEvent struct {
 	RoomStorage     *cache.RoomStorage
 	GroupMemberRepo *repo.GroupMember
 
-	MemberService *service.GroupMemberService
+	MemberService service.IGroupMemberService
 	Handler       *chat.Handler
 }
 

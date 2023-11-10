@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -11,20 +12,24 @@ import (
 	"go-chat/internal/repository/repo"
 )
 
-type EmoticonService struct {
-	*repo.Source
-	emoticon   *repo.Emoticon
-	filesystem *filesystem.Filesystem
+var _ IEmoticonService = (*EmoticonService)(nil)
+
+type IEmoticonService interface {
+	AddUserSysEmoticon(uid int, emoticonId int) error
+	RemoveUserSysEmoticon(uid int, emoticonId int) error
+	DeleteCollect(uid int, ids []int) error
 }
 
-func NewEmoticonService(baseService *repo.Source, repo *repo.Emoticon, fileSystem *filesystem.Filesystem) *EmoticonService {
-	return &EmoticonService{Source: baseService, emoticon: repo, filesystem: fileSystem}
+type EmoticonService struct {
+	*repo.Source
+	EmoticonRepo *repo.Emoticon
+	Filesystem   *filesystem.Filesystem
 }
 
 func (s *EmoticonService) RemoveUserSysEmoticon(uid int, emoticonId int) error {
-	ids := s.emoticon.GetUserInstallIds(uid)
+	ids := s.EmoticonRepo.GetUserInstallIds(uid)
 
-	if !sliceutil.Include(emoticonId, ids) {
+	if !slices.Contains(ids, emoticonId) {
 		return fmt.Errorf("数据不存在！")
 	}
 
@@ -39,8 +44,8 @@ func (s *EmoticonService) RemoveUserSysEmoticon(uid int, emoticonId int) error {
 }
 
 func (s *EmoticonService) AddUserSysEmoticon(uid int, emoticonId int) error {
-	ids := s.emoticon.GetUserInstallIds(uid)
-	if sliceutil.Include(emoticonId, ids) {
+	ids := s.EmoticonRepo.GetUserInstallIds(uid)
+	if slices.Contains(ids, emoticonId) {
 		return nil
 	}
 

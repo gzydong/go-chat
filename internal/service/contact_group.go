@@ -9,17 +9,20 @@ import (
 	"gorm.io/gorm"
 )
 
-type ContactGroupService struct {
-	*repo.Source
-	contactGroup *repo.ContactGroup
+var _ IContactGroupService = (*ContactGroupService)(nil)
+
+type IContactGroupService interface {
+	Delete(ctx context.Context, id int, uid int) error
+	GetUserGroup(ctx context.Context, uid int) ([]*model.ContactGroup, error)
 }
 
-func NewContactGroupService(source *repo.Source, contactGroup *repo.ContactGroup) *ContactGroupService {
-	return &ContactGroupService{Source: source, contactGroup: contactGroup}
+type ContactGroupService struct {
+	*repo.Source
+	ContactGroupRepo *repo.ContactGroup
 }
 
 func (c *ContactGroupService) Delete(ctx context.Context, id int, uid int) error {
-	return c.contactGroup.Txx(ctx, func(tx *gorm.DB) error {
+	return c.ContactGroupRepo.Txx(ctx, func(tx *gorm.DB) error {
 		res := tx.Delete(&model.ContactGroup{}, "id = ? and user_id = ?", id, uid)
 		if err := res.Error; err != nil {
 			return err

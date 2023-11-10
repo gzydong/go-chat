@@ -13,6 +13,15 @@ import (
 	"go-chat/internal/repository/repo"
 )
 
+var _ ITalkRecordsService = (*TalkRecordsService)(nil)
+
+type ITalkRecordsService interface {
+	GetTalkRecord(ctx context.Context, recordId int64) (*TalkRecordsItem, error)
+	GetForwardRecords(ctx context.Context, uid int, recordId int64) ([]*TalkRecordsItem, error)
+	HandleTalkRecords(ctx context.Context, items []*QueryTalkRecordsItem) ([]*TalkRecordsItem, error)
+	GetTalkRecords(ctx context.Context, opt *QueryTalkRecordsOpt) ([]*TalkRecordsItem, error)
+}
+
 type TalkRecordsItem struct {
 	Id         int    `json:"id"`
 	Sequence   int    `json:"sequence"`
@@ -33,14 +42,10 @@ type TalkRecordsItem struct {
 
 type TalkRecordsService struct {
 	*repo.Source
-	talkVoteCache       *cache.Vote
-	talkRecordsVoteRepo *repo.TalkRecordsVote
-	groupMemberRepo     *repo.GroupMember
-	talkRecordsRepo     *repo.TalkRecords
-}
-
-func NewTalkRecordsService(source *repo.Source, talkVoteCache *cache.Vote, talkRecordsVoteRepo *repo.TalkRecordsVote, groupMemberRepo *repo.GroupMember, repo *repo.TalkRecords) *TalkRecordsService {
-	return &TalkRecordsService{Source: source, talkVoteCache: talkVoteCache, talkRecordsVoteRepo: talkRecordsVoteRepo, groupMemberRepo: groupMemberRepo, talkRecordsRepo: repo}
+	TalkVoteCache       *cache.Vote
+	TalkRecordsVoteRepo *repo.TalkRecordsVote
+	GroupMemberRepo     *repo.GroupMember
+	TalkRecordsRepo     *repo.TalkRecords
 }
 
 type QueryTalkRecordsOpt struct {
@@ -174,7 +179,7 @@ func (s *TalkRecordsService) GetTalkRecord(ctx context.Context, recordId int64) 
 // GetForwardRecords 获取转发消息记录
 func (s *TalkRecordsService) GetForwardRecords(ctx context.Context, uid int, recordId int64) ([]*TalkRecordsItem, error) {
 
-	record, err := s.talkRecordsRepo.FindById(ctx, int(recordId))
+	record, err := s.TalkRecordsRepo.FindById(ctx, int(recordId))
 	if err != nil {
 		return nil, err
 	}
@@ -294,13 +299,13 @@ func (s *TalkRecordsService) HandleTalkRecords(ctx context.Context, items []*Que
 				}
 
 				users := make([]int, 0)
-				if uids, err := s.talkRecordsVoteRepo.GetVoteAnswerUser(ctx, value.Id); err == nil {
+				if uids, err := s.TalkRecordsVoteRepo.GetVoteAnswerUser(ctx, value.Id); err == nil {
 					users = uids
 				}
 
 				var statistics any
 
-				if res, err := s.talkRecordsVoteRepo.GetVoteStatistics(ctx, value.Id); err != nil {
+				if res, err := s.TalkRecordsVoteRepo.GetVoteStatistics(ctx, value.Id); err != nil {
 					statistics = map[string]any{
 						"count":   0,
 						"options": map[string]int{},
