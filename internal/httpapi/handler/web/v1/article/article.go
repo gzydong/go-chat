@@ -12,14 +12,16 @@ import (
 	"go-chat/internal/pkg/timeutil"
 	"go-chat/internal/pkg/utils"
 	"go-chat/internal/repository/model"
-	note2 "go-chat/internal/repository/repo"
+	"go-chat/internal/repository/repo"
 	"go-chat/internal/service"
 )
 
 type Article struct {
-	ArticleAnnexRepo *note2.ArticleAnnex
+	Source *repo.Source
 
-	ArticleService      *service.ArticleService
+	ArticleAnnexRepo *repo.ArticleAnnex
+
+	ArticleService      service.IArticleService
 	Filesystem          *filesystem.Filesystem
 	ArticleAnnexService *service.ArticleAnnexService
 }
@@ -154,7 +156,7 @@ func (c *Article) Edit(ctx *ichat.Context) error {
 	}
 
 	var info *model.Article
-	if err := c.ArticleService.Db().First(&info, params.ArticleId).Error; err != nil {
+	if err := c.Source.Db().First(&info, params.ArticleId).Error; err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}
 

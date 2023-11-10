@@ -13,7 +13,7 @@ type Common struct {
 	UsersRepo *repo.Users
 
 	Config      *config.Config
-	SmsService  *service.SmsService
+	SmsService  service.ISmsService
 	UserService *service.UserService
 }
 

@@ -17,15 +17,15 @@ import (
 
 type Auth struct {
 	Config              *config.Config
-	UserService         *service.UserService
-	SmsService          *service.SmsService
 	JwtTokenStorage     *cache.JwtTokenStorage
 	RedisLock           *cache.RedisLock
+	RobotRepo           *repo.Robot
+	SmsService          service.ISmsService
+	MessageService      service.IMessageService
+	UserService         *service.UserService
 	IpAddressService    *service.IpAddressService
 	TalkSessionService  *service.TalkSessionService
 	ArticleClassService *service.ArticleClassService
-	RobotRepo           *repo.Robot
-	MessageService      service.IMessageService
 }
 
 // Login 登录接口

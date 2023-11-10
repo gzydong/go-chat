@@ -9,22 +9,26 @@ import (
 	"go-chat/internal/repository/cache"
 )
 
-type SmsService struct {
-	sms *cache.SmsStorage
+var _ ISmsService = (*SmsService)(nil)
+
+type ISmsService interface {
+	Verify(ctx context.Context, channel string, mobile string, code string) bool
+	Delete(ctx context.Context, channel string, mobile string)
+	Send(ctx context.Context, channel string, mobile string) (string, error)
 }
 
-func NewSmsService(codeCache *cache.SmsStorage) *SmsService {
-	return &SmsService{sms: codeCache}
+type SmsService struct {
+	Storage *cache.SmsStorage
 }
 
 // Verify 验证短信验证码是否正确
 func (s *SmsService) Verify(ctx context.Context, channel string, mobile string, code string) bool {
-	return s.sms.Verify(ctx, channel, mobile, code)
+	return s.Storage.Verify(ctx, channel, mobile, code)
 }
 
 // Delete 删除短信验证码记录
 func (s *SmsService) Delete(ctx context.Context, channel string, mobile string) {
-	_ = s.sms.Del(ctx, channel, mobile)
+	_ = s.Storage.Del(ctx, channel, mobile)
 }
 
 // Send 发送短信
@@ -33,7 +37,7 @@ func (s *SmsService) Send(ctx context.Context, channel string, mobile string) (s
 	code := strutil.GenValidateCode(6)
 
 	// 添加发送记录
-	if err := s.sms.Set(ctx, channel, mobile, code, 15*time.Minute); err != nil {
+	if err := s.Storage.Set(ctx, channel, mobile, code, 15*time.Minute); err != nil {
 		return "", err
 	}
 

@@ -6,7 +6,10 @@ import (
 
 var ProviderSet = wire.NewSet(
 	NewUserService,
-	NewSmsService,
+
+	wire.Struct(new(SmsService), "*"),
+	wire.Bind(new(ISmsService), new(*SmsService)),
+
 	NewTalkService,
 	NewGroupService,
 	NewGroupMemberService,
@@ -24,7 +27,9 @@ var ProviderSet = wire.NewSet(
 	wire.Struct(new(MessageService), "*"),
 	wire.Bind(new(IMessageService), new(*MessageService)),
 
-	NewArticleService,
+	wire.Struct(new(ArticleService), "*"),
+	wire.Bind(new(IArticleService), new(*ArticleService)),
+
 	NewArticleTagService,
 	NewArticleClassService,
 	NewArticleAnnexService,

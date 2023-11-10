@@ -15,12 +15,22 @@ import (
 	"go-chat/internal/pkg/timeutil"
 )
 
-type ArticleService struct {
-	*repo.Source
+var _ IArticleService = (*ArticleService)(nil)
+
+type IArticleService interface {
+	Detail(ctx context.Context, uid int, articleId int) (*model.ArticleDetailInfo, error)
+	Create(ctx context.Context, opt *ArticleEditOpt) (int, error)
+	Update(ctx context.Context, opt *ArticleEditOpt) error
+	List(ctx context.Context, opt *ArticleListOpt) ([]*model.ArticleListItem, error)
+	Asterisk(ctx context.Context, uid int, articleId int, mode int) error
+	Tag(ctx context.Context, uid int, articleId int, tags []int32) error
+	Move(ctx context.Context, uid int, articleId int, classId int) error
+	UpdateStatus(ctx context.Context, uid int, articleId int, status int) error
+	ForeverDelete(ctx context.Context, uid int, articleId int) error
 }
 
-func NewArticleService(source *repo.Source) *ArticleService {
-	return &ArticleService{Source: source}
+type ArticleService struct {
+	*repo.Source
 }
 
 // Detail 笔记详情
