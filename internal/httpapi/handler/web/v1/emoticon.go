@@ -20,10 +20,10 @@ import (
 )
 
 type Emoticon struct {
-	EmoticonRepo    *repo.Emoticon
-	Filesystem      *filesystem.Filesystem
-	EmoticonService service.IEmoticonService
 	RedisLock       *cache.RedisLock
+	EmoticonRepo    *repo.Emoticon
+	EmoticonService service.IEmoticonService
+	Filesystem      *filesystem.Filesystem
 }
 
 // CollectList 收藏列表

@@ -18,13 +18,11 @@ import (
 )
 
 type Article struct {
-	Source *repo.Source
-
-	ArticleAnnexRepo *repo.ArticleAnnex
-
+	Source              *repo.Source
+	ArticleAnnexRepo    *repo.ArticleAnnex
 	ArticleService      service.IArticleService
-	Filesystem          *filesystem.Filesystem
 	ArticleAnnexService service.IArticleAnnexService
+	Filesystem          *filesystem.Filesystem
 }
 
 // List 文章列表

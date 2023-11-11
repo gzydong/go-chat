@@ -24,6 +24,7 @@ var providerSet = wire.NewSet(
 	provider.NewEmailClient,
 	provider.NewFilesystem,
 	provider.NewRequestClient,
+	provider.NewBase64Captcha,
 	wire.Struct(new(provider.Providers), "*"),
 
 	cache.ProviderSet,   // 注入 Cache 依赖

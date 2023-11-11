@@ -10,9 +10,8 @@ import (
 )
 
 type Group struct {
-	ContactRepo      *repo.Contact
-	ContactGroupRepo *repo.ContactGroup
-
+	ContactRepo         *repo.Contact
+	ContactGroupRepo    *repo.ContactGroup
 	ContactGroupService service.IContactGroupService
 	ContactService      service.IContactService
 }

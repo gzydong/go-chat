@@ -15,13 +15,12 @@ import (
 )
 
 type Contact struct {
+	ClientStorage   *cache.ClientStorage
 	ContactRepo     *repo.Contact
 	UsersRepo       *repo.Users
 	OrganizeRepo    *repo.Organize
 	TalkSessionRepo *repo.TalkSession
-
 	ContactService  service.IContactService
-	ClientStorage   *cache.ClientStorage
 	UserService     service.IUserService
 	TalkListService service.ITalkSessionService
 	MessageService  service.IMessageService

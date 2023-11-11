@@ -13,9 +13,8 @@ import (
 )
 
 type Notice struct {
-	GroupMemberRepo *repo.GroupMember
-	GroupNoticeRepo *repo.GroupNotice
-
+	GroupMemberRepo    *repo.GroupMember
+	GroupNoticeRepo    *repo.GroupNotice
 	GroupNoticeService service.IGroupNoticeService
 	GroupMemberService service.IGroupMemberService
 	MessageService     service.IMessageService

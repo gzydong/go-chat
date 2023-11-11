@@ -8,6 +8,7 @@ import (
 	"reflect"
 	"syscall"
 
+	"github.com/jedib0t/go-pretty/v6/table"
 	crontab "github.com/robfig/cron/v3"
 	"github.com/urfave/cli/v2"
 	"go-chat/config"
@@ -42,7 +43,11 @@ type Crontab struct {
 func Cron(ctx *cli.Context, app *CronProvider) error {
 	c := crontab.New()
 
-	for _, exec := range toCrontab(app.Crontab) {
+	tbl := table.NewWriter()
+	tbl.SetOutputMirror(os.Stdout)
+	tbl.AppendHeader(table.Row{"#", "Name", "Time"})
+
+	for i, exec := range toCrontab(app.Crontab) {
 		job := exec
 
 		_, _ = c.AddFunc(job.Spec(), func() {
@@ -55,8 +60,10 @@ func Cron(ctx *cli.Context, app *CronProvider) error {
 			_ = job.Handle(ctx.Context)
 		})
 
-		log.Printf("已启动 %s ~ %s \n", job.Spec(), job.Name())
+		tbl.AppendRow([]any{i + 1, job.Name(), job.Spec()})
 	}
+
+	tbl.Render()
 
 	return run(c, ctx.Context)
 }

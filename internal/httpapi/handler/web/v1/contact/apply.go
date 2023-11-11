@@ -13,8 +13,7 @@ import (
 )
 
 type Apply struct {
-	ContactRepo *repo.Contact
-
+	ContactRepo         *repo.Contact
 	ContactApplyService service.IContactApplyService
 	UserService         service.IUserService
 	ContactService      service.IContactService

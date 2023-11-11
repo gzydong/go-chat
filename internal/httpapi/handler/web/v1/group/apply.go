@@ -16,15 +16,12 @@ import (
 )
 
 type Apply struct {
-	Redis *redis.Client
-
-	GroupApplyStorage *cache.GroupApplyStorage
-
-	GroupRepo       *repo.Group
-	GroupApplyRepo  *repo.GroupApply
-	GroupMemberRepo *repo.GroupMember
-
-	GroupApplyService  *service.GroupApplyService
+	Redis              *redis.Client
+	GroupApplyStorage  *cache.GroupApplyStorage
+	GroupRepo          *repo.Group
+	GroupApplyRepo     *repo.GroupApply
+	GroupMemberRepo    *repo.GroupMember
+	GroupApplyService  service.IGroupApplyService
 	GroupMemberService service.IGroupMemberService
 	GroupService       service.IGroupService
 }

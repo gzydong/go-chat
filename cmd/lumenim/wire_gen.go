@@ -143,10 +143,6 @@ func NewHttpInjector(conf *config.Config) *httpapi.AppProvider {
 		Source:          source,
 		GroupMemberRepo: groupMember,
 	}
-	contactService := &service.ContactService{
-		Source:      source,
-		ContactRepo: repoContact,
-	}
 	groupService := &service.GroupService{
 		Source:          source,
 		GroupRepo:       repoGroup,
@@ -160,21 +156,25 @@ func NewHttpInjector(conf *config.Config) *httpapi.AppProvider {
 		GroupRepo:       repoGroup,
 		GroupMemberRepo: groupMember,
 	}
+	contactService := &service.ContactService{
+		Source:      source,
+		ContactRepo: repoContact,
+	}
 	session := &talk.Session{
+		RedisLock:          redisLock,
+		MessageStorage:     messageStorage,
+		ClientStorage:      clientStorage,
+		UnreadStorage:      unreadStorage,
+		ContactRemark:      contactRemark,
 		ContactRepo:        repoContact,
 		UsersRepo:          users,
 		GroupRepo:          repoGroup,
 		TalkService:        talkService,
 		TalkSessionService: talkSessionService,
-		RedisLock:          redisLock,
 		UserService:        userService,
-		ClientStorage:      clientStorage,
-		MessageStorage:     messageStorage,
-		ContactService:     contactService,
-		UnreadStorage:      unreadStorage,
-		ContactRemark:      contactRemark,
 		GroupService:       groupService,
 		AuthService:        authService,
+		ContactService:     contactService,
 	}
 	message := &talk.Message{
 		TalkService:    talkService,
@@ -199,8 +199,8 @@ func NewHttpInjector(conf *config.Config) *httpapi.AppProvider {
 		TalkRecordsRepo:    talkRecords,
 		TalkRecordsService: talkRecordsService,
 		GroupMemberService: groupMemberService,
-		Filesystem:         filesystem,
 		AuthService:        authService,
+		Filesystem:         filesystem,
 	}
 	emoticon := repo.NewEmoticon(db)
 	emoticonService := &service.EmoticonService{
@@ -209,10 +209,10 @@ func NewHttpInjector(conf *config.Config) *httpapi.AppProvider {
 		Filesystem:   filesystem,
 	}
 	v1Emoticon := &v1.Emoticon{
-		EmoticonRepo:    emoticon,
-		Filesystem:      filesystem,
-		EmoticonService: emoticonService,
 		RedisLock:       redisLock,
+		EmoticonRepo:    emoticon,
+		EmoticonService: emoticonService,
+		Filesystem:      filesystem,
 	}
 	splitUploadService := &service.SplitUploadService{
 		Source:          source,
@@ -269,12 +269,12 @@ func NewHttpInjector(conf *config.Config) *httpapi.AppProvider {
 		GroupService:       groupService,
 	}
 	contactContact := &contact.Contact{
+		ClientStorage:   clientStorage,
 		ContactRepo:     repoContact,
 		UsersRepo:       users,
 		OrganizeRepo:    organize,
 		TalkSessionRepo: talkSession,
 		ContactService:  contactService,
-		ClientStorage:   clientStorage,
 		UserService:     userService,
 		TalkListService: talkSessionService,
 		MessageService:  messageService,
@@ -313,8 +313,8 @@ func NewHttpInjector(conf *config.Config) *httpapi.AppProvider {
 		Source:              source,
 		ArticleAnnexRepo:    articleAnnex,
 		ArticleService:      articleService,
-		Filesystem:          filesystem,
 		ArticleAnnexService: articleAnnexService,
+		Filesystem:          filesystem,
 	}
 	annex := &article.Annex{
 		ArticleAnnexRepo:    articleAnnex,
@@ -361,8 +361,14 @@ func NewHttpInjector(conf *config.Config) *httpapi.AppProvider {
 	}
 	index := v1_2.NewIndex()
 	captchaStorage := cache.NewCaptchaStorage(client)
+	captcha := provider.NewBase64Captcha(captchaStorage)
 	repoAdmin := repo.NewAdmin(db)
-	v1Auth := v1_2.NewAuth(conf, captchaStorage, repoAdmin, jwtTokenStorage)
+	v1Auth := &v1_2.Auth{
+		Config:          conf,
+		ICaptcha:        captcha,
+		AdminRepo:       repoAdmin,
+		JwtTokenStorage: jwtTokenStorage,
+	}
 	adminV1 := &admin.V1{
 		Index: index,
 		Auth:  v1Auth,
@@ -569,4 +575,4 @@ func NewMigrateInjector(conf *config.Config) *job.MigrateProvider {
 
 // wire.go:
 
-var providerSet = wire.NewSet(provider.NewMySQLClient, provider.NewRedisClient, provider.NewHttpClient, provider.NewEmailClient, provider.NewFilesystem, provider.NewRequestClient, wire.Struct(new(provider.Providers), "*"), cache.ProviderSet, repo.ProviderSet, logic.ProviderSet, service.ProviderSet)
+var providerSet = wire.NewSet(provider.NewMySQLClient, provider.NewRedisClient, provider.NewHttpClient, provider.NewEmailClient, provider.NewFilesystem, provider.NewRequestClient, provider.NewBase64Captcha, wire.Struct(new(provider.Providers), "*"), cache.ProviderSet, repo.ProviderSet, logic.ProviderSet, service.ProviderSet)

@@ -19,14 +19,12 @@ import (
 )
 
 type Group struct {
-	RedisLock *cache.RedisLock
-
-	Repo            *repo.Source
-	UsersRepo       *repo.Users
-	GroupRepo       *repo.Group
-	GroupMemberRepo *repo.GroupMember
-	TalkSessionRepo *repo.TalkSession
-
+	RedisLock          *cache.RedisLock
+	Repo               *repo.Source
+	UsersRepo          *repo.Users
+	GroupRepo          *repo.Group
+	GroupMemberRepo    *repo.GroupMember
+	TalkSessionRepo    *repo.TalkSession
 	GroupService       service.IGroupService
 	GroupMemberService service.IGroupMemberService
 	TalkSessionService service.ITalkSessionService

@@ -1,6 +1,7 @@
 package v1
 
 import (
+	"errors"
 	"strconv"
 	"time"
 
@@ -17,14 +18,10 @@ import (
 )
 
 type Auth struct {
-	config          *config.Config
-	captcha         *base64Captcha.Captcha
-	admin           *repo.Admin
-	jwtTokenStorage *cache.JwtTokenStorage
-}
-
-func NewAuth(config *config.Config, captcha *cache.CaptchaStorage, admin *repo.Admin, jwtTokenStorage *cache.JwtTokenStorage) *Auth {
-	return &Auth{config: config, captcha: base64Captcha.NewCaptcha(base64Captcha.DefaultDriverDigit, captcha), admin: admin, jwtTokenStorage: jwtTokenStorage}
+	Config          *config.Config
+	ICaptcha        *base64Captcha.Captcha
+	AdminRepo       *repo.Admin
+	JwtTokenStorage *cache.JwtTokenStorage
 }
 
 // Login 登录接口
@@ -35,20 +32,20 @@ func (c *Auth) Login(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	if !c.captcha.Verify(in.CaptchaVoucher, in.Captcha, true) {
+	if !c.ICaptcha.Verify(in.CaptchaVoucher, in.Captcha, true) {
 		return ctx.InvalidParams("验证码填写不正确")
 	}
 
-	adminInfo, err := c.admin.FindByWhere(ctx.Ctx(), "username = ? or email = ?", in.Username, in.Username)
+	adminInfo, err := c.AdminRepo.FindByWhere(ctx.Ctx(), "username = ? or email = ?", in.Username, in.Username)
 	if err != nil {
-		if err == gorm.ErrRecordNotFound {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return ctx.InvalidParams("账号不存在或密码填写错误!")
 		}
 
 		return ctx.Error(err.Error())
 	}
 
-	password, err := encrypt.RsaDecrypt(in.Password, c.config.App.PrivateKey)
+	password, err := encrypt.RsaDecrypt(in.Password, c.Config.App.PrivateKey)
 	if err != nil {
 		return ctx.Error(err.Error())
 	}
@@ -64,7 +61,7 @@ func (c *Auth) Login(ctx *ichat.Context) error {
 	expiresAt := time.Now().Add(12 * time.Hour)
 
 	// 生成登录凭证
-	token := jwt.GenerateToken("admin", c.config.Jwt.Secret, &jwt.Options{
+	token := jwt.GenerateToken("admin", c.Config.Jwt.Secret, &jwt.Options{
 		ExpiresAt: jwt.NewNumericDate(expiresAt),
 		ID:        strconv.Itoa(adminInfo.Id),
 		Issuer:    "im.admin",
@@ -83,7 +80,7 @@ func (c *Auth) Login(ctx *ichat.Context) error {
 // Captcha 图形验证码
 func (c *Auth) Captcha(ctx *ichat.Context) error {
 
-	generate, base64, err := c.captcha.Generate()
+	generate, base64, err := c.ICaptcha.Generate()
 	if err != nil {
 		return ctx.ErrorBusiness(err)
 	}
@@ -100,7 +97,7 @@ func (c *Auth) Logout(ctx *ichat.Context) error {
 	session := ctx.JwtSession()
 	if session != nil {
 		if ex := session.ExpiresAt - time.Now().Unix(); ex > 0 {
-			_ = c.jwtTokenStorage.SetBlackList(ctx.Ctx(), session.Token, time.Duration(ex)*time.Second)
+			_ = c.JwtTokenStorage.SetBlackList(ctx.Ctx(), session.Token, time.Duration(ex)*time.Second)
 		}
 	}
 

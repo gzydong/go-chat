@@ -17,13 +17,12 @@ import (
 )
 
 type Records struct {
-	GroupMemberRepo *repo.GroupMember
-	TalkRecordsRepo *repo.TalkRecords
-
+	GroupMemberRepo    *repo.GroupMember
+	TalkRecordsRepo    *repo.TalkRecords
 	TalkRecordsService service.ITalkRecordsService
 	GroupMemberService service.IGroupMemberService
-	Filesystem         *filesystem.Filesystem
 	AuthService        service.IAuthService
+	Filesystem         *filesystem.Filesystem
 }
 
 type GetTalkRecordsRequest struct {
