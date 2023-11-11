@@ -24,7 +24,7 @@ func (h *Handler) onConsumeTalkKeyboard(ctx context.Context, body []byte) {
 		return
 	}
 
-	ids := h.clientStorage.GetUidFromClientIds(ctx, h.config.ServerId(), socket.Session.Chat.Name(), strconv.Itoa(in.ReceiverID))
+	ids := h.ClientStorage.GetUidFromClientIds(ctx, h.Config.ServerId(), socket.Session.Chat.Name(), strconv.Itoa(in.ReceiverID))
 	if len(ids) == 0 {
 		return
 	}

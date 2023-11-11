@@ -30,16 +30,16 @@ func (h *Handler) onConsumeTalk(ctx context.Context, body []byte) {
 	var clientIds []int64
 	if in.TalkType == entity.ChatPrivateMode {
 		for _, val := range [2]int64{in.SenderID, in.ReceiverID} {
-			ids := h.clientStorage.GetUidFromClientIds(ctx, h.config.ServerId(), socket.Session.Chat.Name(), strconv.FormatInt(val, 10))
+			ids := h.ClientStorage.GetUidFromClientIds(ctx, h.Config.ServerId(), socket.Session.Chat.Name(), strconv.FormatInt(val, 10))
 
 			clientIds = append(clientIds, ids...)
 		}
 	} else if in.TalkType == entity.ChatGroupMode {
-		ids := h.roomStorage.All(ctx, &cache.RoomOption{
+		ids := h.RoomStorage.All(ctx, &cache.RoomOption{
 			Channel:  socket.Session.Chat.Name(),
 			RoomType: entity.RoomImGroup,
 			Number:   strconv.Itoa(int(in.ReceiverID)),
-			Sid:      h.config.ServerId(),
+			Sid:      h.Config.ServerId(),
 		})
 
 		clientIds = append(clientIds, ids...)
@@ -49,7 +49,7 @@ func (h *Handler) onConsumeTalk(ctx context.Context, body []byte) {
 		return
 	}
 
-	data, err := h.recordsService.GetTalkRecord(ctx, in.RecordID)
+	data, err := h.TalkRecordsService.GetTalkRecord(ctx, in.RecordID)
 	if err != nil {
 		return
 	}

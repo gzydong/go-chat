@@ -4,11 +4,12 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"strings"
 	"sync/atomic"
 	"time"
 
 	"github.com/bytedance/sonic"
-	"go-chat/internal/pkg/strutil"
+	"github.com/google/uuid"
 )
 
 const (
@@ -156,7 +157,7 @@ func (c *Client) Write(data *ClientResponse) error {
 	}
 
 	if data.IsAck {
-		data.Sid = strutil.NewMsgId()
+		data.Sid = strings.ReplaceAll(uuid.New().String(), "-", "")
 	}
 
 	c.outChan <- data

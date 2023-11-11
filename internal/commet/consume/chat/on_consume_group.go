@@ -32,23 +32,23 @@ func (h *Handler) onConsumeGroupJoin(ctx context.Context, body []byte) {
 		return
 	}
 
-	sid := h.config.ServerId()
+	sid := h.Config.ServerId()
 	for _, uid := range in.Uids {
-		ids := h.clientStorage.GetUidFromClientIds(ctx, sid, socket.Session.Chat.Name(), strconv.Itoa(uid))
+		ids := h.ClientStorage.GetUidFromClientIds(ctx, sid, socket.Session.Chat.Name(), strconv.Itoa(uid))
 
 		for _, cid := range ids {
 			opt := &cache.RoomOption{
 				Channel:  socket.Session.Chat.Name(),
 				RoomType: entity.RoomImGroup,
 				Number:   strconv.Itoa(in.Gid),
-				Sid:      h.config.ServerId(),
+				Sid:      h.Config.ServerId(),
 				Cid:      cid,
 			}
 
 			if in.Type == 2 {
-				_ = h.roomStorage.Del(ctx, opt)
+				_ = h.RoomStorage.Del(ctx, opt)
 			} else {
-				_ = h.roomStorage.Add(ctx, opt)
+				_ = h.RoomStorage.Add(ctx, opt)
 			}
 		}
 	}
@@ -64,17 +64,17 @@ func (h *Handler) onConsumeGroupApply(ctx context.Context, body []byte) {
 	}
 
 	var groupMember model.GroupMember
-	if err := h.source.Db().First(&groupMember, "group_id = ? and leader = ?", in.GroupId, 2).Error; err != nil {
+	if err := h.Source.Db().First(&groupMember, "group_id = ? and leader = ?", in.GroupId, 2).Error; err != nil {
 		return
 	}
 
 	var groupDetail model.Group
-	if err := h.source.Db().First(&groupDetail, in.GroupId).Error; err != nil {
+	if err := h.Source.Db().First(&groupDetail, in.GroupId).Error; err != nil {
 		return
 	}
 
 	var user model.Users
-	if err := h.source.Db().First(&user, in.UserId).Error; err != nil {
+	if err := h.Source.Db().First(&user, in.UserId).Error; err != nil {
 		return
 	}
 
@@ -82,7 +82,7 @@ func (h *Handler) onConsumeGroupApply(ctx context.Context, body []byte) {
 	data["group_name"] = groupDetail.Name
 	data["nickname"] = user.Nickname
 
-	clientIds := h.clientStorage.GetUidFromClientIds(ctx, h.config.ServerId(), socket.Session.Chat.Name(), strconv.Itoa(groupMember.UserId))
+	clientIds := h.ClientStorage.GetUidFromClientIds(ctx, h.Config.ServerId(), socket.Session.Chat.Name(), strconv.Itoa(groupMember.UserId))
 
 	c := socket.NewSenderContent()
 	c.SetReceive(clientIds...)

@@ -27,17 +27,17 @@ func (h *Handler) onConsumeContactStatus(ctx context.Context, body []byte) {
 		return
 	}
 
-	contactIds := h.contactService.GetContactIds(ctx, in.UserId)
+	contactIds := h.ContactService.GetContactIds(ctx, in.UserId)
 
-	if isOk, _ := h.organize.IsQiyeMember(ctx, in.UserId); isOk {
-		ids, _ := h.organize.GetMemberIds(ctx)
+	if isOk, _ := h.OrganizeRepo.IsQiyeMember(ctx, in.UserId); isOk {
+		ids, _ := h.OrganizeRepo.GetMemberIds(ctx)
 		contactIds = append(contactIds, ids...)
 	}
 
 	clientIds := make([]int64, 0)
 
 	for _, uid := range sliceutil.Unique(contactIds) {
-		ids := h.clientStorage.GetUidFromClientIds(ctx, h.config.ServerId(), socket.Session.Chat.Name(), strconv.FormatInt(uid, 10))
+		ids := h.ClientStorage.GetUidFromClientIds(ctx, h.Config.ServerId(), socket.Session.Chat.Name(), strconv.FormatInt(uid, 10))
 		if len(ids) > 0 {
 			clientIds = append(clientIds, ids...)
 		}
@@ -69,17 +69,17 @@ func (h *Handler) onConsumeContactApply(ctx context.Context, body []byte) {
 	}
 
 	var apply model.ContactApply
-	if err := h.source.Db().First(&apply, in.ApplyId).Error; err != nil {
+	if err := h.Source.Db().First(&apply, in.ApplyId).Error; err != nil {
 		return
 	}
 
-	clientIds := h.clientStorage.GetUidFromClientIds(ctx, h.config.ServerId(), socket.Session.Chat.Name(), strconv.Itoa(apply.FriendId))
+	clientIds := h.ClientStorage.GetUidFromClientIds(ctx, h.Config.ServerId(), socket.Session.Chat.Name(), strconv.Itoa(apply.FriendId))
 	if len(clientIds) == 0 {
 		return
 	}
 
 	var user model.Users
-	if err := h.source.Db().First(&user, apply.FriendId).Error; err != nil {
+	if err := h.Source.Db().First(&user, apply.FriendId).Error; err != nil {
 		return
 	}
 

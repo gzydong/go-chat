@@ -478,7 +478,15 @@ func NewCommetInjector(conf *config.Config) *commet.AppProvider {
 		ContactRepo: repoContact,
 	}
 	organize := repo.NewOrganize(db)
-	handler3 := chat2.NewHandler(conf, clientStorage, roomStorage, talkRecordsService, contactService, organize, source)
+	handler3 := &chat2.Handler{
+		Config:             conf,
+		ClientStorage:      clientStorage,
+		RoomStorage:        roomStorage,
+		TalkRecordsService: talkRecordsService,
+		ContactService:     contactService,
+		OrganizeRepo:       organize,
+		Source:             source,
+	}
 	chatSubscribe := consume.NewChatSubscribe(handler3)
 	handler4 := example2.NewHandler()
 	exampleSubscribe := consume.NewExampleSubscribe(handler4)

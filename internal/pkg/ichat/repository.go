@@ -107,7 +107,7 @@ func (r *Repo[T]) UpdateById(ctx context.Context, id any, data map[string]any) (
 }
 
 // UpdateWhere 批量更新
-func (r *Repo[T]) UpdateWhere(ctx context.Context, data map[string]any, where string, args ...any) (int64, error) {
+func (r *Repo[T]) UpdateWhere(ctx context.Context, data any, where string, args ...any) (int64, error) {
 	res := r.Model(ctx).Where(where, args...).Updates(data)
 	return res.RowsAffected, res.Error
 }

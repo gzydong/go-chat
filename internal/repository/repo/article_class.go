@@ -43,7 +43,7 @@ type ClassGroupCount struct {
 
 func (a *ArticleClass) GroupCount(uid int) (map[int]int, error) {
 	var items []ClassGroupCount
-	if err := a.Repo.Db.Debug().Table("article").
+	if err := a.Repo.Db.Table("article").
 		Select("class_id", "ifnull(count(*),0) as count").
 		Where("user_id = ? and status = 1", uid).
 		Group("class_id").

@@ -8,7 +8,7 @@ import (
 
 var ProviderSet = wire.NewSet(
 	NewChatSubscribe,
-	chat.NewHandler,
+	wire.Struct(new(chat.Handler), "*"),
 
 	NewExampleSubscribe,
 	example.NewHandler,

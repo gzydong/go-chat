@@ -25,7 +25,7 @@ func (h *Handler) onConsumeTalkRead(ctx context.Context, body []byte) {
 		return
 	}
 
-	clientIds := h.clientStorage.GetUidFromClientIds(ctx, h.config.ServerId(), socket.Session.Chat.Name(), strconv.Itoa(in.ReceiverId))
+	clientIds := h.ClientStorage.GetUidFromClientIds(ctx, h.Config.ServerId(), socket.Session.Chat.Name(), strconv.Itoa(in.ReceiverId))
 	if len(clientIds) == 0 {
 		return
 	}
