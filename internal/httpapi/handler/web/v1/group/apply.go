@@ -1,6 +1,8 @@
 package group
 
 import (
+	"errors"
+
 	"github.com/redis/go-redis/v9"
 	"go-chat/api/pb/web/v1"
 	"go-chat/internal/entity"
@@ -33,7 +35,7 @@ func (c *Apply) Create(ctx *ichat.Context) error {
 	}
 
 	apply, err := c.GroupApplyRepo.FindByWhere(ctx.Ctx(), "group_id = ? and status = ?", params.GroupId, model.GroupApplyStatusWait)
-	if err != nil && err != gorm.ErrRecordNotFound {
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return ctx.Error(err.Error())
 	}
 

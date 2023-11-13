@@ -19,9 +19,9 @@ import (
 
 type Auth struct {
 	Config          *config.Config
-	ICaptcha        *base64Captcha.Captcha
 	AdminRepo       *repo.Admin
 	JwtTokenStorage *cache.JwtTokenStorage
+	ICaptcha        *base64Captcha.Captcha
 }
 
 // Login 登录接口
