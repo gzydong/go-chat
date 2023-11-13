@@ -12,13 +12,16 @@ import (
 	"go-chat/internal/repository/repo"
 )
 
-type TalkService struct {
-	*repo.Source
-	groupMemberRepo *repo.GroupMember
+var _ ITalkService = (*TalkService)(nil)
+
+type ITalkService interface {
+	Collect(ctx context.Context, uid int, recordId int) error
+	DeleteRecordList(ctx context.Context, opt *RemoveRecordListOpt) error
 }
 
-func NewTalkService(source *repo.Source, groupMemberRepo *repo.GroupMember) *TalkService {
-	return &TalkService{Source: source, groupMemberRepo: groupMemberRepo}
+type TalkService struct {
+	*repo.Source
+	GroupMemberRepo *repo.GroupMember
 }
 
 type RemoveRecordListOpt struct {
@@ -41,7 +44,7 @@ func (t *TalkService) DeleteRecordList(ctx context.Context, opt *RemoveRecordLis
 		subQuery := db.Where("user_id = ? and receiver_id = ?", opt.UserId, opt.ReceiverId).Or("user_id = ? and receiver_id = ?", opt.ReceiverId, opt.UserId)
 		db.Model(&model.TalkRecords{}).Where("id in ?", ids).Where("talk_type = ?", entity.ChatPrivateMode).Where(subQuery).Pluck("id", &findIds)
 	} else {
-		if !t.groupMemberRepo.IsMember(ctx, opt.ReceiverId, opt.UserId, false) {
+		if !t.GroupMemberRepo.IsMember(ctx, opt.ReceiverId, opt.UserId, false) {
 			return entity.ErrPermissionDenied
 		}
 
@@ -85,7 +88,7 @@ func (t *TalkService) Collect(ctx context.Context, uid int, recordId int) error 
 			return entity.ErrPermissionDenied
 		}
 	} else if record.TalkType == entity.ChatGroupMode {
-		if !t.groupMemberRepo.IsMember(ctx, record.ReceiverId, uid, true) {
+		if !t.GroupMemberRepo.IsMember(ctx, record.ReceiverId, uid, true) {
 			return entity.ErrPermissionDenied
 		}
 	}

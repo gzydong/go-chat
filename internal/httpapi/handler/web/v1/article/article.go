@@ -3,6 +3,7 @@ package article
 import (
 	"bytes"
 	"fmt"
+	"slices"
 
 	"go-chat/api/pb/web/v1"
 	"go-chat/internal/pkg/filesystem"
@@ -17,13 +18,11 @@ import (
 )
 
 type Article struct {
-	Source *repo.Source
-
-	ArticleAnnexRepo *repo.ArticleAnnex
-
+	Source              *repo.Source
+	ArticleAnnexRepo    *repo.ArticleAnnex
 	ArticleService      service.IArticleService
+	ArticleAnnexService service.IArticleAnnexService
 	Filesystem          *filesystem.Filesystem
-	ArticleAnnexService *service.ArticleAnnexService
 }
 
 // List 文章列表
@@ -208,7 +207,7 @@ func (c *Article) Upload(ctx *ichat.Context) error {
 		return ctx.InvalidParams("image 字段必传！")
 	}
 
-	if !sliceutil.Include(strutil.FileSuffix(file.Filename), []string{"png", "jpg", "jpeg", "gif", "webp"}) {
+	if !slices.Contains([]string{"png", "jpg", "jpeg", "gif", "webp"}, strutil.FileSuffix(file.Filename)) {
 		return ctx.InvalidParams("上传文件格式不正确,仅支持 png、jpg、jpeg、gif 和 webp")
 	}
 

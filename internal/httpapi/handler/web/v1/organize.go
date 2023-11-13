@@ -8,17 +8,12 @@ import (
 	"go-chat/internal/pkg/ichat"
 	"go-chat/internal/repository/model"
 	"go-chat/internal/repository/repo"
-	"go-chat/internal/service"
 )
 
 type Organize struct {
 	DepartmentRepo *repo.Department
 	PositionRepo   *repo.Position
 	OrganizeRepo   *repo.Organize
-
-	DeptService     *service.DeptService
-	OrganizeService *service.OrganizeService
-	PositionService *service.PositionService
 }
 
 func (o *Organize) DepartmentList(ctx *ichat.Context) error {

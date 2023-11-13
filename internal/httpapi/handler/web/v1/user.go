@@ -16,9 +16,8 @@ type User struct {
 	UsersRepo    *repo.Users
 	OrganizeRepo *repo.Organize
 
-	UserService     *service.UserService
-	SmsService      *service.SmsService
-	OrganizeService *service.OrganizeService
+	UserService service.IUserService
+	SmsService  service.ISmsService
 }
 
 // Detail 个人用户信息

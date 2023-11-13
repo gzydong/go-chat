@@ -11,41 +11,37 @@ import (
 	"go-chat/internal/service"
 )
 
+var handlers map[string]func(ctx context.Context, data []byte)
+
 type Handler struct {
-	handlers map[string]func(ctx context.Context, data []byte)
-
-	config         *config.Config
-	clientStorage  *cache.ClientStorage
-	roomStorage    *cache.RoomStorage
-	recordsService *service.TalkRecordsService
-	contactService *service.ContactService
-	organize       *repo.Organize
-	source         *repo.Source
-}
-
-func NewHandler(config *config.Config, clientStorage *cache.ClientStorage, roomStorage *cache.RoomStorage, recordsService *service.TalkRecordsService, contactService *service.ContactService, organize *repo.Organize, source *repo.Source) *Handler {
-	return &Handler{config: config, clientStorage: clientStorage, roomStorage: roomStorage, recordsService: recordsService, contactService: contactService, organize: organize, source: source}
+	Config             *config.Config
+	ClientStorage      *cache.ClientStorage
+	RoomStorage        *cache.RoomStorage
+	TalkRecordsService service.ITalkRecordsService
+	ContactService     service.IContactService
+	OrganizeRepo       *repo.Organize
+	Source             *repo.Source
 }
 
 func (h *Handler) init() {
-	h.handlers = make(map[string]func(ctx context.Context, data []byte))
+	handlers = make(map[string]func(ctx context.Context, data []byte))
 
-	h.handlers[entity.SubEventImMessage] = h.onConsumeTalk
-	h.handlers[entity.SubEventImMessageKeyboard] = h.onConsumeTalkKeyboard
-	h.handlers[entity.SubEventImMessageRead] = h.onConsumeTalkRead
-	h.handlers[entity.SubEventImMessageRevoke] = h.onConsumeTalkRevoke
-	h.handlers[entity.SubEventContactStatus] = h.onConsumeContactStatus
-	h.handlers[entity.SubEventContactApply] = h.onConsumeContactApply
-	h.handlers[entity.SubEventGroupJoin] = h.onConsumeGroupJoin
-	h.handlers[entity.SubEventGroupApply] = h.onConsumeGroupApply
+	handlers[entity.SubEventImMessage] = h.onConsumeTalk
+	handlers[entity.SubEventImMessageKeyboard] = h.onConsumeTalkKeyboard
+	handlers[entity.SubEventImMessageRead] = h.onConsumeTalkRead
+	handlers[entity.SubEventImMessageRevoke] = h.onConsumeTalkRevoke
+	handlers[entity.SubEventContactStatus] = h.onConsumeContactStatus
+	handlers[entity.SubEventContactApply] = h.onConsumeContactApply
+	handlers[entity.SubEventGroupJoin] = h.onConsumeGroupJoin
+	handlers[entity.SubEventGroupApply] = h.onConsumeGroupApply
 }
 
 func (h *Handler) Call(ctx context.Context, event string, data []byte) {
-	if h.handlers == nil {
+	if handlers == nil {
 		h.init()
 	}
 
-	if call, ok := h.handlers[event]; ok {
+	if call, ok := handlers[event]; ok {
 		call(ctx, data)
 	} else {
 		log.Printf("consume chat event: [%s]未注册回调事件\n", event)

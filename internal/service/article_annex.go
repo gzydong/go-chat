@@ -9,18 +9,20 @@ import (
 	"go-chat/internal/repository/repo"
 )
 
-type ArticleAnnexService struct {
-	*repo.Source
-	annex      *repo.ArticleAnnex
-	filesystem *filesystem.Filesystem
+type IArticleAnnexService interface {
+	Create(ctx context.Context, data *model.ArticleAnnex) error
+	UpdateStatus(ctx context.Context, uid int, id int, status int) error
+	ForeverDelete(ctx context.Context, uid int, id int) error
 }
 
-func NewArticleAnnexService(source *repo.Source, dao *repo.ArticleAnnex, fileSystem *filesystem.Filesystem) *ArticleAnnexService {
-	return &ArticleAnnexService{Source: source, annex: dao, filesystem: fileSystem}
+type ArticleAnnexService struct {
+	*repo.Source
+	ArticleAnnex *repo.ArticleAnnex
+	FileSystem   *filesystem.Filesystem
 }
 
 func (s *ArticleAnnexService) Create(ctx context.Context, data *model.ArticleAnnex) error {
-	return s.annex.Create(ctx, data)
+	return s.ArticleAnnex.Create(ctx, data)
 }
 
 // UpdateStatus 更新附件状态
@@ -34,23 +36,23 @@ func (s *ArticleAnnexService) UpdateStatus(ctx context.Context, uid int, id int,
 		data["deleted_at"] = timeutil.DateTime()
 	}
 
-	_, err := s.annex.UpdateWhere(ctx, data, "id = ? and user_id = ?", id, uid)
+	_, err := s.ArticleAnnex.UpdateWhere(ctx, data, "id = ? and user_id = ?", id, uid)
 	return err
 }
 
 // ForeverDelete 永久删除笔记附件
 func (s *ArticleAnnexService) ForeverDelete(ctx context.Context, uid int, id int) error {
 
-	annex, err := s.annex.FindByWhere(ctx, "id = ? and user_id = ?", id, uid)
+	annex, err := s.ArticleAnnex.FindByWhere(ctx, "id = ? and user_id = ?", id, uid)
 	if err != nil {
 		return err
 	}
 
 	switch annex.Drive {
 	case 1:
-		_ = s.filesystem.Local.Delete(annex.Path)
+		_ = s.FileSystem.Local.Delete(annex.Path)
 	case 2:
-		_ = s.filesystem.Cos.Delete(annex.Path)
+		_ = s.FileSystem.Cos.Delete(annex.Path)
 	}
 
 	return s.Source.Db().Delete(&model.ArticleAnnex{}, id).Error

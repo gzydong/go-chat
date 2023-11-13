@@ -7,7 +7,7 @@ import (
 )
 
 type Class struct {
-	ArticleClassService *service.ArticleClassService
+	ArticleClassService service.IArticleClassService
 }
 
 // List 分类列表

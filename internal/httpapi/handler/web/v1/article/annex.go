@@ -14,13 +14,13 @@ import (
 	"go-chat/internal/pkg/strutil"
 	"go-chat/internal/pkg/timeutil"
 	"go-chat/internal/repository/model"
-	note2 "go-chat/internal/repository/repo"
+	"go-chat/internal/repository/repo"
 	"go-chat/internal/service"
 )
 
 type Annex struct {
-	ArticleAnnexRepo    *note2.ArticleAnnex
-	ArticleAnnexService *service.ArticleAnnexService
+	ArticleAnnexRepo    *repo.ArticleAnnex
+	ArticleAnnexService service.IArticleAnnexService
 	Filesystem          *filesystem.Filesystem
 }
 

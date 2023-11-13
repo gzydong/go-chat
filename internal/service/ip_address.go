@@ -13,14 +13,16 @@ import (
 	"go-chat/internal/repository/repo"
 )
 
-type IpAddressService struct {
-	*repo.Source
-	config     *config.Config
-	httpClient *client.RequestClient
+var _ IIpAddressService = (*IpAddressService)(nil)
+
+type IIpAddressService interface {
+	FindAddress(ip string) (string, error)
 }
 
-func NewIpAddressService(source *repo.Source, conf *config.Config, httpClient *client.RequestClient) *IpAddressService {
-	return &IpAddressService{Source: source, config: conf, httpClient: httpClient}
+type IpAddressService struct {
+	*repo.Source
+	Config *config.Config
+	Client *client.RequestClient
 }
 
 type IpAddressResponse struct {
@@ -41,10 +43,10 @@ func (i *IpAddressService) FindAddress(ip string) (string, error) {
 	}
 
 	params := &url.Values{}
-	params.Add("key", i.config.App.JuheKey)
+	params.Add("key", i.Config.App.JuheKey)
 	params.Add("ip", ip)
 
-	resp, err := i.httpClient.Get("http://apis.juhe.cn/ip/ipNew", params)
+	resp, err := i.Client.Get("https://apis.juhe.cn/ip/ipNew", params)
 	if err != nil {
 		return "", err
 	}

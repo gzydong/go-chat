@@ -17,21 +17,20 @@ import (
 )
 
 type Session struct {
-	ContactRepo *repo.Contact
-	UsersRepo   *repo.Users
-	GroupRepo   *repo.Group
-
-	TalkService        *service.TalkService
-	TalkSessionService *service.TalkSessionService
 	RedisLock          *cache.RedisLock
-	UserService        *service.UserService
-	ClientStorage      *cache.ClientStorage
 	MessageStorage     *cache.MessageStorage
-	ContactService     *service.ContactService
+	ClientStorage      *cache.ClientStorage
 	UnreadStorage      *cache.UnreadStorage
 	ContactRemark      *cache.ContactRemark
-	GroupService       *service.GroupService
-	AuthService        *service.AuthService
+	ContactRepo        *repo.Contact
+	UsersRepo          *repo.Users
+	GroupRepo          *repo.Group
+	TalkService        service.ITalkService
+	TalkSessionService service.ITalkSessionService
+	UserService        service.IUserService
+	GroupService       service.IGroupService
+	AuthService        service.IAuthService
+	ContactService     service.IContactService
 }
 
 // Create 创建会话列表

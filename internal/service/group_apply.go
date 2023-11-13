@@ -8,17 +8,21 @@ import (
 	"go-chat/internal/repository/repo"
 )
 
-type GroupApplyService struct {
-	*repo.Source
-	apply *repo.GroupApply
+var _ IGroupApplyService = (*GroupApplyService)(nil)
+
+type IGroupApplyService interface {
+	Auth(ctx context.Context, applyId, userId int) bool
+	Insert(ctx context.Context, groupId, userId int, remark string) error
+	Delete(ctx context.Context, applyId, userId int) error
 }
 
-func NewGroupApplyService(source *repo.Source, repo *repo.GroupApply) *GroupApplyService {
-	return &GroupApplyService{Source: source, apply: repo}
+type GroupApplyService struct {
+	*repo.Source
+	GroupApplyRepo *repo.GroupApply
 }
 
 func (s *GroupApplyService) Auth(ctx context.Context, applyId, userId int) bool {
-	info, err := s.apply.FindById(ctx, applyId)
+	info, err := s.GroupApplyRepo.FindById(ctx, applyId)
 	if err != nil {
 		return false
 	}
@@ -30,7 +34,7 @@ func (s *GroupApplyService) Auth(ctx context.Context, applyId, userId int) bool 
 }
 
 func (s *GroupApplyService) Insert(ctx context.Context, groupId, userId int, remark string) error {
-	return s.apply.Create(ctx, &model.GroupApply{
+	return s.GroupApplyRepo.Create(ctx, &model.GroupApply{
 		GroupId: groupId,
 		UserId:  userId,
 		Remark:  remark,

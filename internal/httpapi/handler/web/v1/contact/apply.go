@@ -13,11 +13,10 @@ import (
 )
 
 type Apply struct {
-	ContactRepo *repo.Contact
-
-	ContactApplyService *service.ContactApplyService
-	UserService         *service.UserService
-	ContactService      *service.ContactService
+	ContactRepo         *repo.Contact
+	ContactApplyService service.IContactApplyService
+	UserService         service.IUserService
+	ContactService      service.IContactService
 	MessageService      service.IMessageService
 }
 

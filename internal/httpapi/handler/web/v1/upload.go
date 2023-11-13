@@ -21,7 +21,7 @@ import (
 type Upload struct {
 	Config             *config.Config
 	Filesystem         *filesystem.Filesystem
-	SplitUploadService *service.SplitUploadService
+	SplitUploadService service.ISplitUploadService
 }
 
 // Avatar 头像上传上传

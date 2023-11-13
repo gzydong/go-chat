@@ -22,15 +22,18 @@ import (
 	"go-chat/internal/pkg/timeutil"
 )
 
-type SplitUploadService struct {
-	*repo.Source
-	splitUpload *repo.SplitUpload
-	config      *config.Config
-	fileSystem  *filesystem.Filesystem
+var _ ISplitUploadService = (*SplitUploadService)(nil)
+
+type ISplitUploadService interface {
+	InitiateMultipartUpload(ctx context.Context, params *MultipartInitiateOpt) (*model.SplitUpload, error)
+	MultipartUpload(ctx context.Context, opt *MultipartUploadOpt) error
 }
 
-func NewSplitUploadService(source *repo.Source, repo *repo.SplitUpload, conf *config.Config, fileSystem *filesystem.Filesystem) *SplitUploadService {
-	return &SplitUploadService{Source: source, splitUpload: repo, config: conf, fileSystem: fileSystem}
+type SplitUploadService struct {
+	*repo.Source
+	SplitUploadRepo *repo.SplitUpload
+	Config          *config.Config
+	FileSystem      *filesystem.Filesystem
 }
 
 type MultipartInitiateOpt struct {
@@ -46,7 +49,7 @@ func (s *SplitUploadService) InitiateMultipartUpload(ctx context.Context, params
 
 	m := &model.SplitUpload{
 		Type:         1,
-		Drive:        entity.FileDriveMode(s.fileSystem.Driver()),
+		Drive:        entity.FileDriveMode(s.FileSystem.Driver()),
 		UserId:       params.UserId,
 		OriginalName: params.Name,
 		SplitNum:     int(num),
@@ -56,7 +59,7 @@ func (s *SplitUploadService) InitiateMultipartUpload(ctx context.Context, params
 		Attr:         "{}",
 	}
 
-	uploadId, err := s.fileSystem.Default.InitiateMultipartUpload(m.Path, m.OriginalName)
+	uploadId, err := s.FileSystem.Default.InitiateMultipartUpload(m.Path, m.OriginalName)
 	if err != nil {
 		return nil, err
 	}
@@ -80,7 +83,7 @@ type MultipartUploadOpt struct {
 
 func (s *SplitUploadService) MultipartUpload(ctx context.Context, opt *MultipartUploadOpt) error {
 
-	info, err := s.splitUpload.FindByWhere(ctx, "upload_id = ? and type = 1", opt.UploadId)
+	info, err := s.SplitUploadRepo.FindByWhere(ctx, "upload_id = ? and type = 1", opt.UploadId)
 	if err != nil {
 		return err
 	}
@@ -108,9 +111,9 @@ func (s *SplitUploadService) MultipartUpload(ctx context.Context, opt *Multipart
 
 	switch data.Drive {
 	case entity.FileDriveLocal:
-		_ = s.fileSystem.Default.Write(stream, data.Path)
+		_ = s.FileSystem.Default.Write(stream, data.Path)
 	case entity.FileDriveCos:
-		etag, err := s.fileSystem.Cos.UploadPart(info.Path, data.UploadId, data.SplitIndex+1, stream)
+		etag, err := s.FileSystem.Cos.UploadPart(info.Path, data.UploadId, data.SplitIndex+1, stream)
 		if err != nil {
 			return err
 		}
@@ -137,7 +140,7 @@ func (s *SplitUploadService) MultipartUpload(ctx context.Context, opt *Multipart
 
 // combine
 func (s *SplitUploadService) merge(info *model.SplitUpload) error {
-	items, err := s.splitUpload.GetSplitList(context.TODO(), info.UploadId)
+	items, err := s.SplitUploadRepo.GetSplitList(context.TODO(), info.UploadId)
 	if err != nil {
 		return err
 	}
@@ -145,12 +148,12 @@ func (s *SplitUploadService) merge(info *model.SplitUpload) error {
 	switch info.Drive {
 	case entity.FileDriveLocal:
 		for _, item := range items {
-			stream, err := s.fileSystem.Default.ReadStream(item.Path)
+			stream, err := s.FileSystem.Default.ReadStream(item.Path)
 			if err != nil {
 				return err
 			}
 
-			if err := s.fileSystem.Local.AppendWrite(stream, info.Path); err != nil {
+			if err := s.FileSystem.Local.AppendWrite(stream, info.Path); err != nil {
 				return err
 			}
 		}
@@ -169,7 +172,7 @@ func (s *SplitUploadService) merge(info *model.SplitUpload) error {
 			})
 		}
 
-		if err := s.fileSystem.Cos.CompleteMultipartUpload(info.Path, info.UploadId, opt); err != nil {
+		if err := s.FileSystem.Cos.CompleteMultipartUpload(info.Path, info.UploadId, opt); err != nil {
 			return err
 		}
 	default:

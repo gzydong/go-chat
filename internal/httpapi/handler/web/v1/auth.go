@@ -22,10 +22,10 @@ type Auth struct {
 	RobotRepo           *repo.Robot
 	SmsService          service.ISmsService
 	MessageService      service.IMessageService
-	UserService         *service.UserService
-	IpAddressService    *service.IpAddressService
-	TalkSessionService  *service.TalkSessionService
-	ArticleClassService *service.ArticleClassService
+	UserService         service.IUserService
+	IpAddressService    service.IIpAddressService
+	TalkSessionService  service.ITalkSessionService
+	ArticleClassService service.IArticleClassService
 }
 
 // Login 登录接口

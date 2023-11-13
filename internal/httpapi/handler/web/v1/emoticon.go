@@ -3,6 +3,7 @@ package v1
 import (
 	"bytes"
 	"fmt"
+	"slices"
 	"time"
 
 	"go-chat/api/pb/web/v1"
@@ -19,10 +20,10 @@ import (
 )
 
 type Emoticon struct {
-	EmoticonRepo    *repo.Emoticon
-	Filesystem      *filesystem.Filesystem
-	EmoticonService *service.EmoticonService
 	RedisLock       *cache.RedisLock
+	EmoticonRepo    *repo.Emoticon
+	EmoticonService service.IEmoticonService
+	Filesystem      *filesystem.Filesystem
 }
 
 // CollectList 收藏列表
@@ -95,7 +96,7 @@ func (c *Emoticon) Upload(ctx *ichat.Context) error {
 		return ctx.InvalidParams("emoticon 字段必传！")
 	}
 
-	if !sliceutil.Include(strutil.FileSuffix(file.Filename), []string{"png", "jpg", "jpeg", "gif"}) {
+	if !slices.Contains([]string{"png", "jpg", "jpeg", "gif"}, strutil.FileSuffix(file.Filename)) {
 		return ctx.InvalidParams("上传文件格式不正确,仅支持 png、jpg、jpeg 和 gif")
 	}
 
@@ -124,7 +125,7 @@ func (c *Emoticon) Upload(ctx *ichat.Context) error {
 		FileSize:   int(file.Size),
 	}
 
-	if err := c.EmoticonService.Db().Create(m).Error; err != nil {
+	if err := c.EmoticonRepo.Db.Create(m).Error; err != nil {
 		return ctx.ErrorBusiness("上传失败！")
 	}
 
@@ -151,7 +152,7 @@ func (c *Emoticon) SystemList(ctx *ichat.Context) error {
 			Id:     int32(item.Id),
 			Name:   item.Name,
 			Icon:   item.Icon,
-			Status: int32(strutil.BoolToInt(sliceutil.Include(item.Id, ids))), // 查询用户是否使用
+			Status: int32(strutil.BoolToInt(slices.Contains(ids, item.Id))), // 查询用户是否使用
 		})
 	}
 

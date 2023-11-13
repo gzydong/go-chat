@@ -9,16 +9,17 @@ import (
 	"go-chat/internal/repository/repo"
 )
 
-type GroupNoticeService struct {
-	*repo.Source
-	notice *repo.GroupNotice
+var _ IGroupNoticeService = (*GroupNoticeService)(nil)
+
+type IGroupNoticeService interface {
+	Create(ctx context.Context, opt *GroupNoticeEditOpt) error
+	Update(ctx context.Context, opt *GroupNoticeEditOpt) error
+	Delete(ctx context.Context, groupId, noticeId int) error
 }
 
-func NewGroupNoticeService(source *repo.Source, notice *repo.GroupNotice) *GroupNoticeService {
-	return &GroupNoticeService{
-		Source: source,
-		notice: notice,
-	}
+type GroupNoticeService struct {
+	*repo.Source
+	GroupNoticeRepo *repo.GroupNotice
 }
 
 type GroupNoticeEditOpt struct {
@@ -33,7 +34,7 @@ type GroupNoticeEditOpt struct {
 
 // Create 创建群公告
 func (s *GroupNoticeService) Create(ctx context.Context, opt *GroupNoticeEditOpt) error {
-	return s.notice.Create(ctx, &model.GroupNotice{
+	return s.GroupNoticeRepo.Create(ctx, &model.GroupNotice{
 		GroupId:      opt.GroupId,
 		CreatorId:    opt.UserId,
 		Title:        opt.Title,
@@ -46,7 +47,7 @@ func (s *GroupNoticeService) Create(ctx context.Context, opt *GroupNoticeEditOpt
 
 // Update 更新群公告
 func (s *GroupNoticeService) Update(ctx context.Context, opt *GroupNoticeEditOpt) error {
-	_, err := s.notice.UpdateWhere(ctx, map[string]any{
+	_, err := s.GroupNoticeRepo.UpdateWhere(ctx, map[string]any{
 		"title":      opt.Title,
 		"content":    opt.Content,
 		"is_top":     opt.IsTop,
@@ -57,7 +58,7 @@ func (s *GroupNoticeService) Update(ctx context.Context, opt *GroupNoticeEditOpt
 }
 
 func (s *GroupNoticeService) Delete(ctx context.Context, groupId, noticeId int) error {
-	_, err := s.notice.UpdateWhere(ctx, map[string]any{
+	_, err := s.GroupNoticeRepo.UpdateWhere(ctx, map[string]any{
 		"is_delete":  1,
 		"deleted_at": timeutil.DateTime(),
 		"updated_at": time.Now(),

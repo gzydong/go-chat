@@ -7,7 +7,7 @@ import (
 
 var ProviderSet = wire.NewSet(
 	v12.NewIndex,
-	v12.NewAuth,
+	wire.Struct(new(v12.Auth), "*"),
 
 	wire.Struct(new(V1), "*"),
 	wire.Struct(new(V2), "*"),

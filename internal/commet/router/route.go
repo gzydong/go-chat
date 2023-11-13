@@ -15,7 +15,7 @@ import (
 )
 
 // NewRouter 初始化配置路由
-func NewRouter(conf *config.Config, handle *handler.Handler, session *cache.JwtTokenStorage) *gin.Engine {
+func NewRouter(conf *config.Config, handle *handler.Handler, storage *cache.JwtTokenStorage) *gin.Engine {
 
 	router := gin.New()
 	router.Use(gin.RecoveryWithWriter(gin.DefaultWriter, func(c *gin.Context, err any) {
@@ -24,7 +24,7 @@ func NewRouter(conf *config.Config, handle *handler.Handler, session *cache.JwtT
 	}))
 
 	// 授权验证中间件
-	authorize := middleware.Auth(conf.Jwt.Secret, "api", session)
+	authorize := middleware.Auth(conf.Jwt.Secret, "api", storage)
 
 	// 查看客户端连接状态
 	router.GET("/wss/connect/detail", func(ctx *gin.Context) {

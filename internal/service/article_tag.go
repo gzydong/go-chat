@@ -8,12 +8,17 @@ import (
 	"go-chat/internal/repository/repo"
 )
 
-type ArticleTagService struct {
-	*repo.Source
+var _ IArticleTagService = (*ArticleTagService)(nil)
+
+type IArticleTagService interface {
+	Create(ctx context.Context, uid int, tag string) (int, error)
+	Update(ctx context.Context, uid int, tagId int, tag string) error
+	Delete(ctx context.Context, uid int, tagId int) error
+	List(ctx context.Context, uid int) ([]*model.TagItem, error)
 }
 
-func NewArticleTagService(source *repo.Source) *ArticleTagService {
-	return &ArticleTagService{Source: source}
+type ArticleTagService struct {
+	*repo.Source
 }
 
 func (s *ArticleTagService) Create(ctx context.Context, uid int, tag string) (int, error) {

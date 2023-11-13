@@ -10,12 +10,17 @@ import (
 	"gorm.io/gorm"
 )
 
-type UserService struct {
-	users *repo.Users
+var _ IUserService = (*UserService)(nil)
+
+type IUserService interface {
+	Register(ctx context.Context, opt *UserRegisterOpt) (*model.Users, error)
+	Login(mobile string, password string) (*model.Users, error)
+	Forget(opt *UserForgetOpt) (bool, error)
+	UpdatePassword(uid int, oldPassword string, password string) error
 }
 
-func NewUserService(repo *repo.Users) *UserService {
-	return &UserService{users: repo}
+type UserService struct {
+	UsersRepo *repo.Users
 }
 
 type UserRegisterOpt struct {
@@ -27,11 +32,11 @@ type UserRegisterOpt struct {
 
 // Register 注册用户
 func (s *UserService) Register(ctx context.Context, opt *UserRegisterOpt) (*model.Users, error) {
-	if s.users.IsMobileExist(ctx, opt.Mobile) {
+	if s.UsersRepo.IsMobileExist(ctx, opt.Mobile) {
 		return nil, errors.New("账号已存在! ")
 	}
 
-	return s.users.Create(&model.Users{
+	return s.UsersRepo.Create(&model.Users{
 		Mobile:   opt.Mobile,
 		Nickname: opt.Nickname,
 		Password: encrypt.HashPassword(opt.Password),
@@ -41,9 +46,9 @@ func (s *UserService) Register(ctx context.Context, opt *UserRegisterOpt) (*mode
 // Login 登录处理
 func (s *UserService) Login(mobile string, password string) (*model.Users, error) {
 
-	user, err := s.users.FindByMobile(mobile)
+	user, err := s.UsersRepo.FindByMobile(mobile)
 	if err != nil {
-		if err == gorm.ErrRecordNotFound {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errors.New("登录账号不存在! ")
 		}
 
@@ -67,12 +72,12 @@ type UserForgetOpt struct {
 // Forget 账号找回
 func (s *UserService) Forget(opt *UserForgetOpt) (bool, error) {
 
-	user, err := s.users.FindByMobile(opt.Mobile)
+	user, err := s.UsersRepo.FindByMobile(opt.Mobile)
 	if err != nil || user.Id == 0 {
 		return false, errors.New("账号不存在! ")
 	}
 
-	affected, err := s.users.UpdateById(context.TODO(), user.Id, map[string]any{
+	affected, err := s.UsersRepo.UpdateById(context.TODO(), user.Id, map[string]any{
 		"password": encrypt.HashPassword(opt.Password),
 	})
 
@@ -82,7 +87,7 @@ func (s *UserService) Forget(opt *UserForgetOpt) (bool, error) {
 // UpdatePassword 修改用户密码
 func (s *UserService) UpdatePassword(uid int, oldPassword string, password string) error {
 
-	user, err := s.users.FindById(context.TODO(), uid)
+	user, err := s.UsersRepo.FindById(context.TODO(), uid)
 	if err != nil {
 		return errors.New("用户不存在！")
 	}
@@ -91,7 +96,7 @@ func (s *UserService) UpdatePassword(uid int, oldPassword string, password strin
 		return errors.New("密码验证不正确！")
 	}
 
-	_, err = s.users.UpdateById(context.TODO(), user.Id, map[string]any{
+	_, err = s.UsersRepo.UpdateById(context.TODO(), user.Id, map[string]any{
 		"password": encrypt.HashPassword(password),
 	})
 

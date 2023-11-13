@@ -7,7 +7,7 @@ import (
 )
 
 type Tag struct {
-	ArticleTagService *service.ArticleTagService
+	ArticleTagService service.IArticleTagService
 }
 
 // List 标签列表

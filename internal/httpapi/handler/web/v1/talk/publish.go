@@ -10,7 +10,7 @@ import (
 var mapping map[string]func(ctx *ichat.Context) error
 
 type Publish struct {
-	AuthService    *service.AuthService
+	AuthService    service.IAuthService
 	MessageService service.IMessageService
 }
 

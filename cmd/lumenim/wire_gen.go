@@ -53,7 +53,9 @@ func NewHttpInjector(conf *config.Config) *httpapi.AppProvider {
 	smsService := &service.SmsService{
 		Storage: smsStorage,
 	}
-	userService := service.NewUserService(users)
+	userService := &service.UserService{
+		UsersRepo: users,
+	}
 	common := &v1.Common{
 		UsersRepo:   users,
 		Config:      conf,
@@ -93,11 +95,21 @@ func NewHttpInjector(conf *config.Config) *httpapi.AppProvider {
 	}
 	httpClient := provider.NewHttpClient()
 	requestClient := provider.NewRequestClient(httpClient)
-	ipAddressService := service.NewIpAddressService(source, conf, requestClient)
+	ipAddressService := &service.IpAddressService{
+		Source: source,
+		Config: conf,
+		Client: requestClient,
+	}
 	talkSession := repo.NewTalkSession(db)
-	talkSessionService := service.NewTalkSessionService(source, talkSession)
+	talkSessionService := &service.TalkSessionService{
+		Source:          source,
+		TalkSessionRepo: talkSession,
+	}
 	articleClass := repo.NewArticleClass(db)
-	articleClassService := service.NewArticleClassService(source, articleClass)
+	articleClassService := &service.ArticleClassService{
+		Source:       source,
+		ArticleClass: articleClass,
+	}
 	auth := &v1.Auth{
 		Config:              conf,
 		JwtTokenStorage:     jwtTokenStorage,
@@ -111,48 +123,58 @@ func NewHttpInjector(conf *config.Config) *httpapi.AppProvider {
 		ArticleClassService: articleClassService,
 	}
 	organize := repo.NewOrganize(db)
-	organizeService := service.NewOrganizeService(source, organize)
 	user := &v1.User{
-		UsersRepo:       users,
-		OrganizeRepo:    organize,
-		UserService:     userService,
-		SmsService:      smsService,
-		OrganizeService: organizeService,
+		UsersRepo:    users,
+		OrganizeRepo: organize,
+		UserService:  userService,
+		SmsService:   smsService,
 	}
 	department := repo.NewDepartment(db)
 	position := repo.NewPosition(db)
-	deptService := service.NewOrganizeDeptService(source, department)
-	positionService := service.NewPositionService(source, position)
 	v1Organize := &v1.Organize{
-		DepartmentRepo:  department,
-		PositionRepo:    position,
-		OrganizeRepo:    organize,
-		DeptService:     deptService,
-		OrganizeService: organizeService,
-		PositionService: positionService,
+		DepartmentRepo: department,
+		PositionRepo:   position,
+		OrganizeRepo:   organize,
 	}
 	contactRemark := cache.NewContactRemark(client)
 	repoContact := repo.NewContact(db, contactRemark, relation)
 	repoGroup := repo.NewGroup(db)
-	talkService := service.NewTalkService(source, groupMember)
-	contactService := service.NewContactService(source, repoContact)
-	groupService := service.NewGroupService(source, repoGroup, groupMember, relation, repoSequence)
-	authService := service.NewAuthService(organize, repoContact, repoGroup, groupMember)
+	talkService := &service.TalkService{
+		Source:          source,
+		GroupMemberRepo: groupMember,
+	}
+	groupService := &service.GroupService{
+		Source:          source,
+		GroupRepo:       repoGroup,
+		GroupMemberRepo: groupMember,
+		Relation:        relation,
+		Sequence:        repoSequence,
+	}
+	authService := &service.AuthService{
+		OrganizeRepo:    organize,
+		ContactRepo:     repoContact,
+		GroupRepo:       repoGroup,
+		GroupMemberRepo: groupMember,
+	}
+	contactService := &service.ContactService{
+		Source:      source,
+		ContactRepo: repoContact,
+	}
 	session := &talk.Session{
+		RedisLock:          redisLock,
+		MessageStorage:     messageStorage,
+		ClientStorage:      clientStorage,
+		UnreadStorage:      unreadStorage,
+		ContactRemark:      contactRemark,
 		ContactRepo:        repoContact,
 		UsersRepo:          users,
 		GroupRepo:          repoGroup,
 		TalkService:        talkService,
 		TalkSessionService: talkSessionService,
-		RedisLock:          redisLock,
 		UserService:        userService,
-		ClientStorage:      clientStorage,
-		MessageStorage:     messageStorage,
-		ContactService:     contactService,
-		UnreadStorage:      unreadStorage,
-		ContactRemark:      contactRemark,
 		GroupService:       groupService,
 		AuthService:        authService,
+		ContactService:     contactService,
 	}
 	message := &talk.Message{
 		TalkService:    talkService,
@@ -161,32 +183,53 @@ func NewHttpInjector(conf *config.Config) *httpapi.AppProvider {
 		Filesystem:     filesystem,
 	}
 	talkRecords := repo.NewTalkRecords(db)
-	talkRecordsService := service.NewTalkRecordsService(source, vote, talkRecordsVote, groupMember, talkRecords)
-	groupMemberService := service.NewGroupMemberService(source, groupMember)
+	talkRecordsService := &service.TalkRecordsService{
+		Source:              source,
+		TalkVoteCache:       vote,
+		TalkRecordsVoteRepo: talkRecordsVote,
+		GroupMemberRepo:     groupMember,
+		TalkRecordsRepo:     talkRecords,
+	}
+	groupMemberService := &service.GroupMemberService{
+		Source:          source,
+		GroupMemberRepo: groupMember,
+	}
 	records := &talk.Records{
 		GroupMemberRepo:    groupMember,
 		TalkRecordsRepo:    talkRecords,
 		TalkRecordsService: talkRecordsService,
 		GroupMemberService: groupMemberService,
-		Filesystem:         filesystem,
 		AuthService:        authService,
+		Filesystem:         filesystem,
 	}
 	emoticon := repo.NewEmoticon(db)
-	emoticonService := service.NewEmoticonService(source, emoticon, filesystem)
-	v1Emoticon := &v1.Emoticon{
-		EmoticonRepo:    emoticon,
-		Filesystem:      filesystem,
-		EmoticonService: emoticonService,
-		RedisLock:       redisLock,
+	emoticonService := &service.EmoticonService{
+		Source:       source,
+		EmoticonRepo: emoticon,
+		Filesystem:   filesystem,
 	}
-	splitUploadService := service.NewSplitUploadService(source, splitUpload, conf, filesystem)
+	v1Emoticon := &v1.Emoticon{
+		RedisLock:       redisLock,
+		EmoticonRepo:    emoticon,
+		EmoticonService: emoticonService,
+		Filesystem:      filesystem,
+	}
+	splitUploadService := &service.SplitUploadService{
+		Source:          source,
+		SplitUploadRepo: splitUpload,
+		Config:          conf,
+		FileSystem:      filesystem,
+	}
 	upload := &v1.Upload{
 		Config:             conf,
 		Filesystem:         filesystem,
 		SplitUploadService: splitUploadService,
 	}
 	groupNotice := repo.NewGroupNotice(db)
-	groupNoticeService := service.NewGroupNoticeService(source, groupNotice)
+	groupNoticeService := &service.GroupNoticeService{
+		Source:          source,
+		GroupNoticeRepo: groupNotice,
+	}
 	groupGroup := &group.Group{
 		RedisLock:          redisLock,
 		Repo:               source,
@@ -211,7 +254,10 @@ func NewHttpInjector(conf *config.Config) *httpapi.AppProvider {
 	}
 	groupApplyStorage := cache.NewGroupApplyStorage(client)
 	groupApply := repo.NewGroupApply(db)
-	groupApplyService := service.NewGroupApplyService(source, groupApply)
+	groupApplyService := &service.GroupApplyService{
+		Source:         source,
+		GroupApplyRepo: groupApply,
+	}
 	apply := &group.Apply{
 		Redis:              client,
 		GroupApplyStorage:  groupApplyStorage,
@@ -223,18 +269,19 @@ func NewHttpInjector(conf *config.Config) *httpapi.AppProvider {
 		GroupService:       groupService,
 	}
 	contactContact := &contact.Contact{
+		ClientStorage:   clientStorage,
 		ContactRepo:     repoContact,
 		UsersRepo:       users,
 		OrganizeRepo:    organize,
 		TalkSessionRepo: talkSession,
 		ContactService:  contactService,
-		ClientStorage:   clientStorage,
 		UserService:     userService,
 		TalkListService: talkSessionService,
-		OrganizeService: organizeService,
 		MessageService:  messageService,
 	}
-	contactApplyService := service.NewContactApplyService(source)
+	contactApplyService := &service.ContactApplyService{
+		Source: source,
+	}
 	contactApply := &contact.Apply{
 		ContactRepo:         repoContact,
 		ContactApplyService: contactApplyService,
@@ -243,7 +290,10 @@ func NewHttpInjector(conf *config.Config) *httpapi.AppProvider {
 		MessageService:      messageService,
 	}
 	contactGroup := repo.NewContactGroup(db)
-	contactGroupService := service.NewContactGroupService(source, contactGroup)
+	contactGroupService := &service.ContactGroupService{
+		Source:           source,
+		ContactGroupRepo: contactGroup,
+	}
 	group2 := &contact.Group{
 		ContactRepo:         repoContact,
 		ContactGroupRepo:    contactGroup,
@@ -254,13 +304,17 @@ func NewHttpInjector(conf *config.Config) *httpapi.AppProvider {
 	articleService := &service.ArticleService{
 		Source: source,
 	}
-	articleAnnexService := service.NewArticleAnnexService(source, articleAnnex, filesystem)
+	articleAnnexService := &service.ArticleAnnexService{
+		Source:       source,
+		ArticleAnnex: articleAnnex,
+		FileSystem:   filesystem,
+	}
 	articleArticle := &article.Article{
 		Source:              source,
 		ArticleAnnexRepo:    articleAnnex,
 		ArticleService:      articleService,
-		Filesystem:          filesystem,
 		ArticleAnnexService: articleAnnexService,
+		Filesystem:          filesystem,
 	}
 	annex := &article.Annex{
 		ArticleAnnexRepo:    articleAnnex,
@@ -270,7 +324,9 @@ func NewHttpInjector(conf *config.Config) *httpapi.AppProvider {
 	class := &article.Class{
 		ArticleClassService: articleClassService,
 	}
-	articleTagService := service.NewArticleTagService(source)
+	articleTagService := &service.ArticleTagService{
+		Source: source,
+	}
 	tag := &article.Tag{
 		ArticleTagService: articleTagService,
 	}
@@ -305,8 +361,14 @@ func NewHttpInjector(conf *config.Config) *httpapi.AppProvider {
 	}
 	index := v1_2.NewIndex()
 	captchaStorage := cache.NewCaptchaStorage(client)
+	captcha := provider.NewBase64Captcha(captchaStorage)
 	repoAdmin := repo.NewAdmin(db)
-	v1Auth := v1_2.NewAuth(conf, captchaStorage, repoAdmin, jwtTokenStorage)
+	v1Auth := &v1_2.Auth{
+		Config:          conf,
+		ICaptcha:        captcha,
+		AdminRepo:       repoAdmin,
+		JwtTokenStorage: jwtTokenStorage,
+	}
 	adminV1 := &admin.V1{
 		Index: index,
 		Auth:  v1Auth,
@@ -345,7 +407,10 @@ func NewCommetInjector(conf *config.Config) *commet.AppProvider {
 	relation := cache.NewRelation(client)
 	groupMember := repo.NewGroupMember(db, relation)
 	source := repo.NewSource(db, client)
-	groupMemberService := service.NewGroupMemberService(source, groupMember)
+	groupMemberService := &service.GroupMemberService{
+		Source:          source,
+		GroupMemberRepo: groupMember,
+	}
 	sequence := cache.NewSequence(client)
 	repoSequence := repo.NewSequence(db, sequence)
 	messageForwardLogic := logic.NewMessageForwardLogic(db, repoSequence)
@@ -370,7 +435,12 @@ func NewCommetInjector(conf *config.Config) *commet.AppProvider {
 		Sequence:            repoSequence,
 		RobotRepo:           robot,
 	}
-	chatHandler := chat.NewHandler(client, groupMemberService, messageService)
+	chatHandler := &chat.Handler{
+		Redis:          client,
+		Source:         source,
+		MemberService:  groupMemberService,
+		MessageService: messageService,
+	}
 	chatEvent := &event.ChatEvent{
 		Redis:           client,
 		Config:          conf,
@@ -400,12 +470,29 @@ func NewCommetInjector(conf *config.Config) *commet.AppProvider {
 	engine := router2.NewRouter(conf, handlerHandler, jwtTokenStorage)
 	healthSubscribe := process.NewHealthSubscribe(conf, serverStorage)
 	talkRecords := repo.NewTalkRecords(db)
-	talkRecordsService := service.NewTalkRecordsService(source, vote, talkRecordsVote, groupMember, talkRecords)
+	talkRecordsService := &service.TalkRecordsService{
+		Source:              source,
+		TalkVoteCache:       vote,
+		TalkRecordsVoteRepo: talkRecordsVote,
+		GroupMemberRepo:     groupMember,
+		TalkRecordsRepo:     talkRecords,
+	}
 	contactRemark := cache.NewContactRemark(client)
 	repoContact := repo.NewContact(db, contactRemark, relation)
-	contactService := service.NewContactService(source, repoContact)
+	contactService := &service.ContactService{
+		Source:      source,
+		ContactRepo: repoContact,
+	}
 	organize := repo.NewOrganize(db)
-	handler3 := chat2.NewHandler(conf, clientStorage, roomStorage, talkRecordsService, contactService, organize, source)
+	handler3 := &chat2.Handler{
+		Config:             conf,
+		ClientStorage:      clientStorage,
+		RoomStorage:        roomStorage,
+		TalkRecordsService: talkRecordsService,
+		ContactService:     contactService,
+		OrganizeRepo:       organize,
+		Source:             source,
+	}
 	chatSubscribe := consume.NewChatSubscribe(handler3)
 	handler4 := example2.NewHandler()
 	exampleSubscribe := consume.NewExampleSubscribe(handler4)
@@ -488,4 +575,4 @@ func NewMigrateInjector(conf *config.Config) *job.MigrateProvider {
 
 // wire.go:
 
-var providerSet = wire.NewSet(provider.NewMySQLClient, provider.NewRedisClient, provider.NewHttpClient, provider.NewEmailClient, provider.NewFilesystem, provider.NewRequestClient, wire.Struct(new(provider.Providers), "*"), cache.ProviderSet, repo.ProviderSet, logic.ProviderSet, service.ProviderSet)
+var providerSet = wire.NewSet(provider.NewMySQLClient, provider.NewRedisClient, provider.NewHttpClient, provider.NewEmailClient, provider.NewFilesystem, provider.NewRequestClient, provider.NewBase64Captcha, wire.Struct(new(provider.Providers), "*"), cache.ProviderSet, repo.ProviderSet, logic.ProviderSet, service.ProviderSet)

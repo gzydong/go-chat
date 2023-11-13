@@ -10,11 +10,10 @@ import (
 )
 
 type Group struct {
-	ContactRepo      *repo.Contact
-	ContactGroupRepo *repo.ContactGroup
-
-	ContactGroupService *service.ContactGroupService
-	ContactService      *service.ContactService
+	ContactRepo         *repo.Contact
+	ContactGroupRepo    *repo.ContactGroup
+	ContactGroupService service.IContactGroupService
+	ContactService      service.IContactService
 }
 
 // List 联系人分组列表
@@ -92,7 +91,7 @@ func (c *Group) Save(ctx *ichat.Context) error {
 		}
 	}
 
-	err = c.ContactGroupService.Db().Transaction(func(tx *gorm.DB) error {
+	err = c.ContactGroupRepo.Db.Transaction(func(tx *gorm.DB) error {
 
 		if len(insertItems) > 0 {
 			if err := tx.Create(insertItems).Error; err != nil {

@@ -9,25 +9,31 @@ import (
 	"gorm.io/gorm"
 )
 
-type ArticleClassService struct {
-	*repo.Source
-	articleClass *repo.ArticleClass
+var _ IArticleClassService = (*ArticleClassService)(nil)
+
+type IArticleClassService interface {
+	List(ctx context.Context, uid int) ([]*model.ArticleClassItem, error)
+	Create(ctx context.Context, uid int, name string) (int, error)
+	Update(ctx context.Context, uid, cid int, name string) error
+	Delete(ctx context.Context, uid, cid int) error
+	Sort(ctx context.Context, uid, cid, mode int) error
 }
 
-func NewArticleClassService(source *repo.Source, dao *repo.ArticleClass) *ArticleClassService {
-	return &ArticleClassService{Source: source, articleClass: dao}
+type ArticleClassService struct {
+	*repo.Source
+	ArticleClass *repo.ArticleClass
 }
 
 // List 分类列表
 func (s *ArticleClassService) List(ctx context.Context, uid int) ([]*model.ArticleClassItem, error) {
 	items := make([]*model.ArticleClassItem, 0)
 
-	err := s.articleClass.Model(ctx).Select("id", "class_name", "is_default").Where("user_id = ?", uid).Order("sort asc").Scan(&items).Error
+	err := s.ArticleClass.Model(ctx).Select("id", "class_name", "is_default").Where("user_id = ?", uid).Order("sort asc").Scan(&items).Error
 	if err != nil {
 		return nil, err
 	}
 
-	data, err := s.articleClass.GroupCount(uid)
+	data, err := s.ArticleClass.GroupCount(uid)
 	if err != nil {
 		return nil, err
 	}
@@ -70,7 +76,7 @@ func (s *ArticleClassService) Create(ctx context.Context, uid int, name string) 
 }
 
 func (s *ArticleClassService) Update(ctx context.Context, uid, cid int, name string) error {
-	_, err := s.articleClass.UpdateWhere(ctx, map[string]any{"class_name": name}, "id = ? and user_id = ?", cid, uid)
+	_, err := s.ArticleClass.UpdateWhere(ctx, map[string]any{"class_name": name}, "id = ? and user_id = ?", cid, uid)
 	return err
 }
 
@@ -90,13 +96,13 @@ func (s *ArticleClassService) Delete(ctx context.Context, uid, cid int) error {
 
 func (s *ArticleClassService) Sort(ctx context.Context, uid, cid, mode int) error {
 
-	item, err := s.articleClass.FindByWhere(ctx, "id = ? and user_id = ?", cid, uid)
+	item, err := s.ArticleClass.FindByWhere(ctx, "id = ? and user_id = ?", cid, uid)
 	if err != nil {
 		return err
 	}
 
 	if mode == 1 {
-		maxSort, err := s.articleClass.MaxSort(ctx, uid)
+		maxSort, err := s.ArticleClass.MaxSort(ctx, uid)
 		if err != nil {
 			return err
 		}
@@ -121,7 +127,7 @@ func (s *ArticleClassService) Sort(ctx context.Context, uid, cid, mode int) erro
 			return nil
 		})
 	} else {
-		minSort, err := s.articleClass.MinSort(ctx, uid)
+		minSort, err := s.ArticleClass.MinSort(ctx, uid)
 		if err != nil {
 			return err
 		}
@@ -151,12 +157,12 @@ func (s *ArticleClassService) Sort(ctx context.Context, uid, cid, mode int) erro
 // SetDefaultClass 设置默认分类
 func (s *ArticleClassService) SetDefaultClass(ctx context.Context, uid int) {
 
-	_, err := s.articleClass.QueryExist(ctx, "id = ? and is_default = ?", uid, 1)
+	_, err := s.ArticleClass.QueryExist(ctx, "id = ? and is_default = ?", uid, 1)
 	if !errors.Is(err, gorm.ErrRecordNotFound) {
 		return
 	}
 
-	_ = s.articleClass.Create(ctx, &model.ArticleClass{
+	_ = s.ArticleClass.Create(ctx, &model.ArticleClass{
 		UserId:    uid,
 		ClassName: "默认分类",
 		Sort:      1,

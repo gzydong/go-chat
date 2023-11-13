@@ -14,7 +14,7 @@ type Common struct {
 
 	Config      *config.Config
 	SmsService  service.ISmsService
-	UserService *service.UserService
+	UserService service.IUserService
 }
 
 // SmsCode 发送短信验证码

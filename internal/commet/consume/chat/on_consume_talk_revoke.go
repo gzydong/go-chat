@@ -26,22 +26,22 @@ func (h *Handler) onConsumeTalkRevoke(ctx context.Context, body []byte) {
 	}
 
 	var record model.TalkRecords
-	if err := h.recordsService.Db().First(&record, in.RecordId).Error; err != nil {
+	if err := h.Source.Db().First(&record, in.RecordId).Error; err != nil {
 		return
 	}
 
 	var clientIds []int64
 	if record.TalkType == entity.ChatPrivateMode {
 		for _, uid := range [2]int{record.UserId, record.ReceiverId} {
-			ids := h.clientStorage.GetUidFromClientIds(ctx, h.config.ServerId(), socket.Session.Chat.Name(), strconv.Itoa(uid))
+			ids := h.ClientStorage.GetUidFromClientIds(ctx, h.Config.ServerId(), socket.Session.Chat.Name(), strconv.Itoa(uid))
 			clientIds = append(clientIds, ids...)
 		}
 	} else if record.TalkType == entity.ChatGroupMode {
-		clientIds = h.roomStorage.All(ctx, &cache.RoomOption{
+		clientIds = h.RoomStorage.All(ctx, &cache.RoomOption{
 			Channel:  socket.Session.Chat.Name(),
 			RoomType: entity.RoomImGroup,
 			Number:   strconv.Itoa(record.ReceiverId),
-			Sid:      h.config.ServerId(),
+			Sid:      h.Config.ServerId(),
 		})
 	}
 

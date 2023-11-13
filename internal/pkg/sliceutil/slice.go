@@ -14,17 +14,6 @@ type FloatInterface interface {
 	float32 | float64
 }
 
-// Include 检测给定的值是否包含在切片中
-func Include[T IntInterface | string](find T, arr []T) bool {
-	for _, value := range arr {
-		if value == find {
-			return true
-		}
-	}
-
-	return false
-}
-
 // Unique 切片去重
 func Unique[T IntInterface | string](data []T) []T {
 
