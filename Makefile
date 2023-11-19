@@ -68,6 +68,6 @@ proto:
 
 .PHONY: deploy
 deploy:
-	git pull && make build && supervisorctl reload
+	git reset --hard origin/develop && git pull && make build && supervisorctl reload
 
 #--go-grpc_out=paths=source_relative:./api/pb/ \
