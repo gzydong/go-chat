@@ -36,18 +36,19 @@ const (
 // 1-999    自定义消息类型
 // 1000-1999 系统消息类型
 const (
-	ChatMsgTypeText     = 1  // 文本消息
-	ChatMsgTypeCode     = 2  // 代码消息
-	ChatMsgTypeImage    = 3  // 图片文件
-	ChatMsgTypeAudio    = 4  // 语音文件
-	ChatMsgTypeVideo    = 5  // 视频文件
-	ChatMsgTypeFile     = 6  // 其它文件
-	ChatMsgTypeLocation = 7  // 位置消息
-	ChatMsgTypeCard     = 8  // 名片消息
-	ChatMsgTypeForward  = 9  // 转发消息
-	ChatMsgTypeLogin    = 10 // 登录消息
-	ChatMsgTypeVote     = 11 // 投票消息
-	ChatMsgTypeMixed    = 12 // 图文消息
+	ChatMsgTypeText        = 1  // 文本消息
+	ChatMsgTypeCode        = 2  // 代码消息
+	ChatMsgTypeImage       = 3  // 图片文件
+	ChatMsgTypeAudio       = 4  // 语音文件
+	ChatMsgTypeVideo       = 5  // 视频文件
+	ChatMsgTypeFile        = 6  // 其它文件
+	ChatMsgTypeLocation    = 7  // 位置消息
+	ChatMsgTypeCard        = 8  // 名片消息
+	ChatMsgTypeForward     = 9  // 转发消息
+	ChatMsgTypeLogin       = 10 // 登录消息
+	ChatMsgTypeVote        = 11 // 投票消息
+	ChatMsgTypeMixed       = 12 // 图文消息
+	ChatMsgTypeGroupNotice = 13 // 群公告消息
 
 	ChatMsgSysText                   = 1000 // 系统文本消息
 	ChatMsgSysGroupCreate            = 1101 // 创建群聊消息
@@ -76,6 +77,7 @@ var ChatMsgTypeMapping = map[int]string{
 	ChatMsgTypeVote:                  "[投票消息]",
 	ChatMsgTypeCode:                  "[代码消息]",
 	ChatMsgTypeMixed:                 "[图文消息]",
+	ChatMsgTypeGroupNotice:           "[群公告]",
 	ChatMsgSysText:                   "[系统消息]",
 	ChatMsgSysGroupCreate:            "[创建群消息]",
 	ChatMsgSysGroupMemberJoin:        "[加入群消息]",

@@ -68,7 +68,7 @@ func (c *Notice) CreateAndUpdate(ctx *ichat.Context) error {
 
 	_ = c.MessageService.SendSysOther(ctx.Ctx(), &model.TalkRecords{
 		TalkType:   model.TalkRecordTalkTypeGroup,
-		MsgType:    entity.ChatMsgSysGroupNotice,
+		MsgType:    entity.ChatMsgTypeGroupNotice,
 		UserId:     uid,
 		ReceiverId: int(params.GroupId),
 		Extra: jsonutil.Encode(model.TalkRecordExtraGroupNotice{
