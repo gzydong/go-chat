@@ -34,7 +34,6 @@ type TalkRecord struct {
 	IsRevoke   int    `json:"is_revoke"`
 	IsMark     int    `json:"is_mark"`
 	IsRead     int    `json:"is_read"`
-	Content    string `json:"content"`
 	CreatedAt  string `json:"created_at"`
 	Extra      any    `json:"extra"` // 额外参数
 }
@@ -66,9 +65,7 @@ type QueryTalkRecord struct {
 	ReceiverId int       `json:"receiver_id"`
 	IsRevoke   int       `json:"is_revoke"`
 	IsMark     int       `json:"is_mark"`
-	IsRead     int       `json:"is_read"`
 	QuoteId    int       `json:"quote_id"`
-	Content    string    `json:"content"`
 	Nickname   string    `json:"nickname"`
 	Avatar     string    `json:"avatar"`
 	Extra      string    `json:"extra"`
@@ -89,7 +86,6 @@ func (s *TalkRecordsService) FindTalkRecord(ctx context.Context, recordId int64)
 			"talk_records.user_id",
 			"talk_records.receiver_id",
 			"talk_records.is_revoke",
-			"talk_records.content",
 			"talk_records.extra",
 			"talk_records.created_at",
 			"users.nickname",
@@ -126,7 +122,6 @@ func (s *TalkRecordsService) FindAllTalkRecords(ctx context.Context, opt *FindAl
 			"talk_records.user_id",
 			"talk_records.receiver_id",
 			"talk_records.is_revoke",
-			"talk_records.content",
 			"talk_records.extra",
 			"talk_records.created_at",
 			"users.nickname",
@@ -198,7 +193,6 @@ func (s *TalkRecordsService) FindForwardRecords(ctx context.Context, uid int, re
 			"talk_records.user_id",
 			"talk_records.receiver_id",
 			"talk_records.is_revoke",
-			"talk_records.content",
 			"talk_records.extra",
 			"talk_records.created_at",
 			"users.nickname",
@@ -255,8 +249,6 @@ func (s *TalkRecordsService) handleTalkRecords(ctx context.Context, items []*Que
 			Avatar:     item.Avatar,
 			IsRevoke:   item.IsRevoke,
 			IsMark:     item.IsMark,
-			IsRead:     item.IsRead,
-			Content:    item.Content,
 			CreatedAt:  timeutil.FormatDatetime(item.CreatedAt),
 			Extra:      make(map[string]any),
 		}
