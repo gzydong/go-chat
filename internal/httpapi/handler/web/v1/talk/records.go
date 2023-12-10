@@ -64,7 +64,6 @@ func (c *Records) GetRecords(ctx *ichat.Context) error {
 			})
 
 			return ctx.Success(map[string]any{
-				"limit":  params.Limit,
 				"cursor": 1,
 				"items":  items,
 			})
@@ -95,7 +94,6 @@ func (c *Records) GetRecords(ctx *ichat.Context) error {
 	}
 
 	return ctx.Success(map[string]any{
-		"limit":  params.Limit,
 		"cursor": cursor,
 		"items":  records,
 	})
@@ -120,9 +118,8 @@ func (c *Records) SearchHistoryRecords(ctx *ichat.Context) error {
 
 		if err != nil {
 			return ctx.Success(map[string]any{
-				"limit":     params.Limit,
-				"record_id": 0,
-				"items":     make([]map[string]any, 0),
+				"cursor": 0,
+				"items":  make([]map[string]any, 0),
 			})
 		}
 	}
@@ -168,7 +165,6 @@ func (c *Records) SearchHistoryRecords(ctx *ichat.Context) error {
 	}
 
 	return ctx.Success(map[string]any{
-		"limit":  params.Limit,
 		"cursor": cursor,
 		"items":  records,
 	})
