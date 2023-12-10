@@ -17,7 +17,6 @@ type TalkRecords struct {
 	ReceiverId int       `gorm:"column:receiver_id;default:0;NOT NULL" json:"receiver_id"` // 接收者ID（用户ID 或 群ID）
 	IsRevoke   int       `gorm:"column:is_revoke;default:0;NOT NULL" json:"is_revoke"`     // 是否撤回消息[0:否;1:是;]
 	IsMark     int       `gorm:"column:is_mark;default:0;NOT NULL" json:"is_mark"`         // 是否重要消息[0:否;1:是;]
-	IsRead     int       `gorm:"column:is_read;default:0;NOT NULL" json:"is_read"`         // 是否已读[0:否;1:是;]
 	QuoteId    string    `gorm:"column:quote_id;NOT NULL" json:"quote_id"`                 // 引用消息ID
 	Content    string    `gorm:"column:content" json:"content"`                            // 文本消息
 	Extra      string    `gorm:"column:extra;default:{}" json:"extra"`                     // 扩展信信息
@@ -44,7 +43,8 @@ type Reply struct {
 
 // TalkRecordExtraText 文本消息
 type TalkRecordExtraText struct {
-	Content string `json:"content"` // 文本消息
+	Content  string  `json:"content"`            // 文本消息
+	Mentions []int32 `json:"mentions,omitempty"` // @用户ID列表
 }
 
 type TalkRecordExtraCode struct {
@@ -205,4 +205,8 @@ type TalkRecordExtraMixedItem struct {
 type TalkRecordExtraMixed struct {
 	// 消息内容。可包含图片、文字、等消息。
 	Items []*TalkRecordExtraMixedItem `json:"items"` // 消息内容。可包含图片、文字、表情等多种消息。
+}
+
+type TalkRecordExtraRevoke struct {
+	MessageId string `json:"message_id"`
 }

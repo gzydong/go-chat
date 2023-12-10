@@ -3,6 +3,7 @@ package chat
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"strconv"
 
 	"go-chat/internal/entity"
@@ -49,6 +50,11 @@ func (h *Handler) onConsumeTalkRevoke(ctx context.Context, body []byte) {
 		return
 	}
 
+	var user model.Users
+	if err := h.Source.Db().WithContext(ctx).Select("id,nickname").First(&user, record.UserId).Error; err != nil {
+		return
+	}
+
 	c := socket.NewSenderContent()
 	c.SetAck(true)
 	c.SetReceive(clientIds...)
@@ -57,6 +63,7 @@ func (h *Handler) onConsumeTalkRevoke(ctx context.Context, body []byte) {
 		"sender_id":   record.UserId,
 		"receiver_id": record.ReceiverId,
 		"record_id":   record.Id,
+		"text":        fmt.Sprintf("%s: 撤回了一条消息", user.Nickname),
 	})
 
 	socket.Session.Chat.Write(c)

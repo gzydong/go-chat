@@ -12,7 +12,7 @@ type Group struct {
 	Id        int       `gorm:"column:id;primary_key;AUTO_INCREMENT" json:"id"`         // 群ID
 	Type      int       `gorm:"column:type;default:1;NOT NULL" json:"type"`             // 群类型[1:普通群;2:企业群;]
 	CreatorId int       `gorm:"column:creator_id;default:0;NOT NULL" json:"creator_id"` // 创建者ID(群主ID)
-	Name      string    `gorm:"column:group_name;NOT NULL" json:"group_name"`           // 群名称
+	Name      string    `gorm:"column:name;NOT NULL" json:"name"`                       // 群名称
 	Profile   string    `gorm:"column:profile;NOT NULL" json:"profile"`                 // 群介绍
 	IsDismiss int       `gorm:"column:is_dismiss;default:0;NOT NULL" json:"is_dismiss"` // 是否已解散[0:否;1:是;]
 	Avatar    string    `gorm:"column:avatar;NOT NULL" json:"avatar"`                   // 群头像

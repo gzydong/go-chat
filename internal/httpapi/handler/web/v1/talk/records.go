@@ -29,13 +29,12 @@ type GetTalkRecordsRequest struct {
 	TalkType   int `form:"talk_type" json:"talk_type" binding:"required,oneof=1 2"`         // 对话类型
 	MsgType    int `form:"msg_type" json:"msg_type" binding:"numeric"`                      // 消息类型
 	ReceiverId int `form:"receiver_id" json:"receiver_id" binding:"required,numeric,min=1"` // 接收者ID
-	RecordId   int `form:"record_id" json:"record_id" binding:"min=0,numeric"`              // 上次查询的最小消息ID
+	Cursor     int `form:"cursor" json:"cursor" binding:"min=0,numeric"`                    // 上次查询的游标
 	Limit      int `form:"limit" json:"limit" binding:"required,numeric,max=100"`           // 数据行数
 }
 
 // GetRecords 获取会话记录
 func (c *Records) GetRecords(ctx *ichat.Context) error {
-
 	params := &GetTalkRecordsRequest{}
 	if err := ctx.Context.ShouldBindQuery(params); err != nil {
 		return ctx.InvalidParams(err)
@@ -50,31 +49,33 @@ func (c *Records) GetRecords(ctx *ichat.Context) error {
 		})
 
 		if err != nil {
-			items := make([]map[string]any, 0)
-			items = append(items, map[string]any{
-				"content":     "暂无权限查看群消息",
-				"created_at":  timeutil.DateTime(),
-				"id":          1,
-				"msg_id":      strutil.NewMsgId(),
-				"msg_type":    entity.ChatMsgSysText,
-				"receiver_id": params.ReceiverId,
-				"talk_type":   params.TalkType,
-				"user_id":     0,
+			items := make([]entity.TalkRecord, 0)
+			items = append(items, entity.TalkRecord{
+				Id:         1,
+				MsgId:      strutil.NewMsgId(),
+				Sequence:   1,
+				TalkType:   params.TalkType,
+				MsgType:    entity.ChatMsgSysText,
+				ReceiverId: params.ReceiverId,
+				Extra: model.TalkRecordExtraText{
+					Content: "暂无权限查看群消息",
+				},
+				CreatedAt: timeutil.DateTime(),
 			})
 
 			return ctx.Success(map[string]any{
-				"limit":     params.Limit,
-				"record_id": 0,
-				"items":     items,
+				"limit":  params.Limit,
+				"cursor": 1,
+				"items":  items,
 			})
 		}
 	}
 
-	records, err := c.TalkRecordsService.GetTalkRecords(ctx.Ctx(), &service.QueryTalkRecordsOpt{
+	records, err := c.TalkRecordsService.FindAllTalkRecords(ctx.Ctx(), &service.FindAllTalkRecordsOpt{
 		TalkType:   params.TalkType,
 		UserId:     ctx.UserId(),
 		ReceiverId: params.ReceiverId,
-		RecordId:   params.RecordId,
+		Cursor:     params.Cursor,
 		Limit:      params.Limit,
 	})
 
@@ -82,15 +83,21 @@ func (c *Records) GetRecords(ctx *ichat.Context) error {
 		return ctx.ErrorBusiness(err.Error())
 	}
 
-	rid := 0
+	cursor := 0
 	if length := len(records); length > 0 {
-		rid = records[length-1].Sequence
+		cursor = records[length-1].Sequence
+	}
+
+	for i, record := range records {
+		if record.IsRevoke == 1 {
+			records[i].Extra = make(map[string]any)
+		}
 	}
 
 	return ctx.Success(map[string]any{
-		"limit":     params.Limit,
-		"record_id": rid,
-		"items":     records,
+		"limit":  params.Limit,
+		"cursor": cursor,
+		"items":  records,
 	})
 }
 
@@ -136,12 +143,12 @@ func (c *Records) SearchHistoryRecords(ctx *ichat.Context) error {
 		m = []int{params.MsgType}
 	}
 
-	records, err := c.TalkRecordsService.GetTalkRecords(ctx.Ctx(), &service.QueryTalkRecordsOpt{
+	records, err := c.TalkRecordsService.FindAllTalkRecords(ctx.Ctx(), &service.FindAllTalkRecordsOpt{
 		TalkType:   params.TalkType,
 		MsgType:    m,
 		UserId:     ctx.UserId(),
 		ReceiverId: params.ReceiverId,
-		RecordId:   params.RecordId,
+		Cursor:     params.Cursor,
 		Limit:      params.Limit,
 	})
 
@@ -149,15 +156,21 @@ func (c *Records) SearchHistoryRecords(ctx *ichat.Context) error {
 		return ctx.ErrorBusiness(err.Error())
 	}
 
-	rid := 0
+	cursor := 0
 	if length := len(records); length > 0 {
-		rid = records[length-1].Sequence
+		cursor = records[length-1].Sequence
+	}
+
+	for i, record := range records {
+		if record.IsRevoke == 1 {
+			records[i].Extra = make(map[string]any)
+		}
 	}
 
 	return ctx.Success(map[string]any{
-		"limit":     params.Limit,
-		"record_id": rid,
-		"items":     records,
+		"limit":  params.Limit,
+		"cursor": cursor,
+		"items":  records,
 	})
 }
 
@@ -173,7 +186,7 @@ func (c *Records) GetForwardRecords(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	records, err := c.TalkRecordsService.GetForwardRecords(ctx.Ctx(), ctx.UserId(), int64(params.RecordId))
+	records, err := c.TalkRecordsService.FindForwardRecords(ctx.Ctx(), ctx.UserId(), int64(params.RecordId))
 	if err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}

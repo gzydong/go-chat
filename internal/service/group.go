@@ -154,9 +154,9 @@ type GroupUpdateOpt struct {
 func (g *GroupService) Update(ctx context.Context, opt *GroupUpdateOpt) error {
 
 	_, err := g.GroupRepo.UpdateById(ctx, opt.GroupId, map[string]any{
-		"group_name": opt.Name,
-		"avatar":     opt.Avatar,
-		"profile":    opt.Profile,
+		"name":    opt.Name,
+		"avatar":  opt.Avatar,
+		"profile": opt.Profile,
 	})
 
 	return err
@@ -508,7 +508,7 @@ type session struct {
 
 func (g *GroupService) List(userId int) ([]*model.GroupItem, error) {
 	tx := g.Source.Db().Table("group_member")
-	tx.Select("`group`.id,`group`.group_name,`group`.avatar,`group`.profile,group_member.leader,`group`.creator_id")
+	tx.Select("`group`.id,`group`.name as group_name,`group`.avatar,`group`.profile,group_member.leader,`group`.creator_id")
 	tx.Joins("left join `group` on `group`.id = group_member.group_id")
 	tx.Where("group_member.user_id = ? and group_member.is_quit = ?", userId, 0)
 	tx.Order("group_member.created_at desc")

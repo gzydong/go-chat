@@ -49,7 +49,7 @@ func (h *Handler) onConsumeTalk(ctx context.Context, body []byte) {
 		return
 	}
 
-	data, err := h.TalkRecordsService.GetTalkRecord(ctx, in.RecordID)
+	data, err := h.TalkRecordsService.FindTalkRecord(ctx, in.RecordID)
 	if err != nil {
 		return
 	}

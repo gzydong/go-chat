@@ -16,16 +16,15 @@ import (
 var _ ITalkRecordsService = (*TalkRecordsService)(nil)
 
 type ITalkRecordsService interface {
-	GetTalkRecord(ctx context.Context, recordId int64) (*TalkRecordsItem, error)
-	GetForwardRecords(ctx context.Context, uid int, recordId int64) ([]*TalkRecordsItem, error)
-	HandleTalkRecords(ctx context.Context, items []*QueryTalkRecordsItem) ([]*TalkRecordsItem, error)
-	GetTalkRecords(ctx context.Context, opt *QueryTalkRecordsOpt) ([]*TalkRecordsItem, error)
+	FindTalkRecord(ctx context.Context, recordId int64) (*TalkRecord, error)
+	FindAllTalkRecords(ctx context.Context, opt *FindAllTalkRecordsOpt) ([]*TalkRecord, error)
+	FindForwardRecords(ctx context.Context, uid int, recordId int64) ([]*TalkRecord, error)
 }
 
-type TalkRecordsItem struct {
+type TalkRecord struct {
 	Id         int    `json:"id"`
-	Sequence   int    `json:"sequence"`
 	MsgId      string `json:"msg_id"`
+	Sequence   int    `json:"sequence"`
 	TalkType   int    `json:"talk_type"`
 	MsgType    int    `json:"msg_type"`
 	UserId     int    `json:"user_id"`
@@ -48,16 +47,16 @@ type TalkRecordsService struct {
 	TalkRecordsRepo     *repo.TalkRecords
 }
 
-type QueryTalkRecordsOpt struct {
+type FindAllTalkRecordsOpt struct {
 	TalkType   int   // 对话类型
 	UserId     int   // 获取消息的用户
 	ReceiverId int   // 接收者ID
 	MsgType    []int // 消息类型
-	RecordId   int   // 上次查询的最小消息ID
+	Cursor     int   // 上次查询的游标
 	Limit      int   // 数据行数
 }
 
-type QueryTalkRecordsItem struct {
+type QueryTalkRecord struct {
 	Id         int       `json:"id"`
 	MsgId      string    `json:"msg_id"`
 	Sequence   int64     `json:"sequence"`
@@ -70,79 +69,17 @@ type QueryTalkRecordsItem struct {
 	IsRead     int       `json:"is_read"`
 	QuoteId    int       `json:"quote_id"`
 	Content    string    `json:"content"`
-	CreatedAt  time.Time `json:"created_at"`
 	Nickname   string    `json:"nickname"`
 	Avatar     string    `json:"avatar"`
 	Extra      string    `json:"extra"`
+	CreatedAt  time.Time `json:"created_at"`
 }
 
-// GetTalkRecords 获取对话消息
-func (s *TalkRecordsService) GetTalkRecords(ctx context.Context, opt *QueryTalkRecordsOpt) ([]*TalkRecordsItem, error) {
-	var (
-		items  = make([]*QueryTalkRecordsItem, 0, opt.Limit)
-		fields = []string{
-			"talk_records.id",
-			"talk_records.sequence",
-			"talk_records.talk_type",
-			"talk_records.msg_type",
-			"talk_records.msg_id",
-			"talk_records.user_id",
-			"talk_records.receiver_id",
-			"talk_records.is_revoke",
-			"talk_records.is_read",
-			"talk_records.content",
-			"talk_records.extra",
-			"talk_records.created_at",
-			"users.nickname",
-			"users.avatar as avatar",
-		}
-	)
-
-	query := s.Source.Db().WithContext(ctx).Table("talk_records")
-	query.Joins("left join users on talk_records.user_id = users.id")
-	query.Joins("left join talk_records_delete on talk_records.id = talk_records_delete.record_id and talk_records_delete.user_id = ?", opt.UserId)
-
-	if opt.RecordId > 0 {
-		query.Where("talk_records.sequence < ?", opt.RecordId)
-	}
-
-	if opt.TalkType == entity.ChatPrivateMode {
-		subQuery := s.Source.Db().Where("talk_records.user_id = ? and talk_records.receiver_id = ?", opt.UserId, opt.ReceiverId)
-		subQuery.Or("talk_records.user_id = ? and talk_records.receiver_id = ?", opt.ReceiverId, opt.UserId)
-
-		query.Where(subQuery)
-	} else {
-		query.Where("talk_records.receiver_id = ?", opt.ReceiverId)
-	}
-
-	if opt.MsgType != nil && len(opt.MsgType) > 0 {
-		query.Where("talk_records.msg_type in ?", opt.MsgType)
-	}
-
-	query.Where("talk_records.talk_type = ?", opt.TalkType)
-	query.Where("ifnull(talk_records_delete.id,0) = 0")
-	query.Select(fields).Order("talk_records.sequence desc").Limit(opt.Limit)
-
-	if err := query.Scan(&items).Error; err != nil {
-		return nil, err
-	}
-
-	if len(items) == 0 {
-		return make([]*TalkRecordsItem, 0), nil
-	}
-
-	return s.HandleTalkRecords(ctx, items)
-}
-
-// SearchTalkRecords 对话搜索消息
-func (s *TalkRecordsService) SearchTalkRecords() {
-
-}
-
-func (s *TalkRecordsService) GetTalkRecord(ctx context.Context, recordId int64) (*TalkRecordsItem, error) {
+// FindTalkRecord 获取对话消息
+func (s *TalkRecordsService) FindTalkRecord(ctx context.Context, recordId int64) (*TalkRecord, error) {
 	var (
 		err    error
-		item   *QueryTalkRecordsItem
+		item   *QueryTalkRecord
 		fields = []string{
 			"talk_records.id",
 			"talk_records.msg_id",
@@ -168,7 +105,7 @@ func (s *TalkRecordsService) GetTalkRecord(ctx context.Context, recordId int64) 
 		return nil, err
 	}
 
-	list, err := s.HandleTalkRecords(ctx, []*QueryTalkRecordsItem{item})
+	list, err := s.handleTalkRecords(ctx, []*QueryTalkRecord{item})
 	if err != nil {
 		return nil, err
 	}
@@ -176,25 +113,74 @@ func (s *TalkRecordsService) GetTalkRecord(ctx context.Context, recordId int64) 
 	return list[0], nil
 }
 
-// GetForwardRecords 获取转发消息记录
-func (s *TalkRecordsService) GetForwardRecords(ctx context.Context, uid int, recordId int64) ([]*TalkRecordsItem, error) {
+// FindAllTalkRecords 获取所有对话消息
+func (s *TalkRecordsService) FindAllTalkRecords(ctx context.Context, opt *FindAllTalkRecordsOpt) ([]*TalkRecord, error) {
+	var (
+		items  = make([]*QueryTalkRecord, 0, opt.Limit)
+		fields = []string{
+			"talk_records.id",
+			"talk_records.sequence",
+			"talk_records.talk_type",
+			"talk_records.msg_type",
+			"talk_records.msg_id",
+			"talk_records.user_id",
+			"talk_records.receiver_id",
+			"talk_records.is_revoke",
+			"talk_records.content",
+			"talk_records.extra",
+			"talk_records.created_at",
+			"users.nickname",
+			"users.avatar as avatar",
+		}
+	)
 
+	query := s.Source.Db().WithContext(ctx).Table("talk_records")
+	query.Joins("left join users on talk_records.user_id = users.id")
+	query.Joins("left join talk_records_delete on talk_records.id = talk_records_delete.record_id and talk_records_delete.user_id = ?", opt.UserId)
+
+	if opt.Cursor > 0 {
+		query.Where("talk_records.sequence < ?", opt.Cursor)
+	}
+
+	if opt.TalkType == entity.ChatPrivateMode {
+		subQuery := s.Source.Db().Where("talk_records.user_id = ? and talk_records.receiver_id = ?", opt.UserId, opt.ReceiverId)
+		subQuery.Or("talk_records.user_id = ? and talk_records.receiver_id = ?", opt.ReceiverId, opt.UserId)
+
+		query.Where(subQuery)
+	} else {
+		query.Where("talk_records.receiver_id = ?", opt.ReceiverId)
+	}
+
+	if opt.MsgType != nil && len(opt.MsgType) > 0 {
+		query.Where("talk_records.msg_type in ?", opt.MsgType)
+	}
+
+	query.Where("talk_records.talk_type = ?", opt.TalkType)
+	query.Where("ifnull(talk_records_delete.id,0) = 0")
+	query.Select(fields).Order("talk_records.sequence desc").Limit(opt.Limit)
+
+	if err := query.Scan(&items).Error; err != nil {
+		return nil, err
+	}
+
+	if len(items) == 0 {
+		return make([]*TalkRecord, 0), nil
+	}
+
+	msgIds := make([]string, 0, len(items))
+	for _, v := range items {
+		msgIds = append(msgIds, v.MsgId)
+	}
+
+	return s.handleTalkRecords(ctx, items)
+}
+
+// FindForwardRecords 获取转发消息记录
+func (s *TalkRecordsService) FindForwardRecords(ctx context.Context, uid int, recordId int64) ([]*TalkRecord, error) {
 	record, err := s.TalkRecordsRepo.FindById(ctx, int(recordId))
 	if err != nil {
 		return nil, err
 	}
-
-	// if record.TalkType == entity.ChatPrivateMode {
-	// 	if record.UserId != uid && record.ReceiverId != uid {
-	// 		return nil, entity.ErrPermissionDenied
-	// 	}
-	// } else if record.TalkType == entity.ChatGroupMode {
-	// 	if !s.GroupMemberRepo.IsMember(ctx, record.ReceiverId, uid, true) {
-	// 		return nil, entity.ErrPermissionDenied
-	// 	}
-	// } else {
-	// 	return nil, entity.ErrPermissionDenied
-	// }
 
 	var extra model.TalkRecordExtraForward
 	if err := jsonutil.Decode(record.Extra, &extra); err != nil {
@@ -202,7 +188,7 @@ func (s *TalkRecordsService) GetForwardRecords(ctx context.Context, uid int, rec
 	}
 
 	var (
-		items  = make([]*QueryTalkRecordsItem, 0)
+		items  = make([]*QueryTalkRecord, 0)
 		fields = []string{
 			"talk_records.id",
 			"talk_records.msg_id",
@@ -230,10 +216,11 @@ func (s *TalkRecordsService) GetForwardRecords(ctx context.Context, uid int, rec
 		return nil, err
 	}
 
-	return s.HandleTalkRecords(ctx, items)
+	return s.handleTalkRecords(ctx, items)
 }
 
-func (s *TalkRecordsService) HandleTalkRecords(ctx context.Context, items []*QueryTalkRecordsItem) ([]*TalkRecordsItem, error) {
+// HandleTalkRecords 处理消息
+func (s *TalkRecordsService) handleTalkRecords(ctx context.Context, items []*QueryTalkRecord) ([]*TalkRecord, error) {
 	var (
 		votes     []int
 		voteItems []*model.TalkRecordsVote
@@ -254,9 +241,9 @@ func (s *TalkRecordsService) HandleTalkRecords(ctx context.Context, items []*Que
 		}
 	}
 
-	newItems := make([]*TalkRecordsItem, 0, len(items))
+	newItems := make([]*TalkRecord, 0, len(items))
 	for _, item := range items {
-		data := &TalkRecordsItem{
+		data := &TalkRecord{
 			Id:         item.Id,
 			MsgId:      item.MsgId,
 			Sequence:   int(item.Sequence),

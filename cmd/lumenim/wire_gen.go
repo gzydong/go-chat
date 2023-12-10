@@ -555,8 +555,10 @@ func NewQueueInjector(conf *config.Config) *job.QueueProvider {
 func NewOtherInjector(conf *config.Config) *job.TempProvider {
 	db := provider.NewMySQLClient(conf)
 	users := repo.NewUsers(db)
+	talkRecords := repo.NewTalkRecords(db)
 	testCommand := temp.TestCommand{
-		UserRepo: users,
+		UserRepo:        users,
+		TalkRecordsRepo: talkRecords,
 	}
 	tempProvider := &job.TempProvider{
 		TestCommand: testCommand,
