@@ -160,7 +160,6 @@ func (m *MessageForwardLogic) MultiSplitForward(ctx context.Context, uid int, re
 				MsgType:    item.MsgType,
 				UserId:     uid,
 				ReceiverId: v["receiver_id"],
-				Content:    item.Content,
 				Sequence:   sequences[i],
 				Extra:      item.Extra,
 			})

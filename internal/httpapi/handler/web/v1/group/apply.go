@@ -230,7 +230,7 @@ func (c *Apply) All(ctx *ichat.Context) error {
 	}
 
 	groups, err := c.GroupRepo.FindAll(ctx.Ctx(), func(db *gorm.DB) {
-		db.Select("id,group_name")
+		db.Select("id,name")
 		db.Where("id in ?", groupIds)
 	})
 	if err != nil {

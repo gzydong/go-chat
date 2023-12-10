@@ -7,14 +7,15 @@ import (
 	"go-chat/internal/entity"
 	"go-chat/internal/pkg/ichat/socket"
 	"go-chat/internal/pkg/jsonutil"
+	"go-chat/internal/pkg/logger"
 	"go-chat/internal/repository/model"
 )
 
 type TalkReadMessage struct {
 	Event   string `json:"event"`
 	Content struct {
-		MsgIds     []int `json:"msg_id"`
-		ReceiverId int   `json:"receiver_id"`
+		MsgIds     []string `json:"msg_id"`
+		ReceiverId int      `json:"receiver_id"`
 	} `json:"content"`
 }
 
@@ -27,9 +28,19 @@ func (h *Handler) onReadMessage(ctx context.Context, client socket.IClient, data
 		return
 	}
 
-	h.Source.Db().Model(&model.TalkRecords{}).
-		Where("id in ? and receiver_id = ? and is_read = 0", in.Content.MsgIds, client.Uid()).
-		Update("is_read", 1)
+	items := make([]model.TalkRecordsRead, 0, len(in.Content.MsgIds))
+	for _, v := range in.Content.MsgIds {
+		items = append(items, model.TalkRecordsRead{
+			MsgId:      v,
+			UserId:     client.Uid(),
+			ReceiverId: in.Content.ReceiverId,
+		})
+	}
+
+	if err := h.Source.Db().Create(items).Error; err != nil {
+		logger.Errorf("TalkRecordsRead batch creation failed", err.Error())
+		return
+	}
 
 	h.Redis.Publish(ctx, entity.ImTopicChat, jsonutil.Encode(map[string]any{
 		"event": entity.SubEventImMessageRead,

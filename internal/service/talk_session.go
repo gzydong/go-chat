@@ -36,7 +36,7 @@ func (s *TalkSessionService) List(ctx context.Context, uid int) ([]*model.Search
 		"list.id", "list.talk_type", "list.receiver_id", "list.updated_at",
 		"list.is_disturb", "list.is_top", "list.is_robot",
 		"`users`.avatar as user_avatar", "`users`.nickname",
-		"`group`.group_name", "`group`.avatar as group_avatar",
+		"`group`.name as group_name", "`group`.avatar as group_avatar",
 	}
 
 	query := s.Source.Db().WithContext(ctx).Table("talk_session list")

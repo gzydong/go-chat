@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"html"
 	"sort"
 	"strconv"
 	"strings"
@@ -87,7 +86,9 @@ func (m *MessageService) SendSystemText(ctx context.Context, uid int, req *messa
 		MsgType:    entity.ChatMsgSysText,
 		UserId:     uid,
 		ReceiverId: int(req.Receiver.ReceiverId),
-		Content:    html.EscapeString(req.Content),
+		Extra: jsonutil.Encode(model.TalkRecordExtraText{
+			Content: strutil.EscapeHtml(req.Content),
+		}),
 	}
 
 	return m.save(ctx, data)
@@ -101,7 +102,10 @@ func (m *MessageService) SendText(ctx context.Context, uid int, req *message.Tex
 		QuoteId:    req.QuoteId,
 		UserId:     uid,
 		ReceiverId: int(req.Receiver.ReceiverId),
-		Content:    strutil.EscapeHtml(req.Content),
+		Extra: jsonutil.Encode(model.TalkRecordExtraText{
+			Content:  strutil.EscapeHtml(req.Content),
+			Mentions: req.Mentions,
+		}),
 	}
 
 	return m.save(ctx, data)
@@ -276,7 +280,15 @@ func (m *MessageService) SendVote(ctx context.Context, uid int, req *message.Vot
 	})
 
 	if err == nil {
-		m.afterHandle(ctx, data, map[string]string{"text": "[投票消息]"})
+		m.afterHandle(ctx, data, entity.TalkLastMessage{
+			MsgId:      data.MsgId,
+			Sequence:   int(data.Sequence),
+			MsgType:    data.MsgType,
+			UserId:     data.UserId,
+			ReceiverId: data.ReceiverId,
+			CreatedAt:  time.Now().Format(time.DateTime),
+			Content:    "投票消息",
+		})
 	}
 
 	return err
@@ -481,6 +493,16 @@ func (m *MessageService) Revoke(ctx context.Context, uid int, recordId int) erro
 		return err
 	}
 
+	var user model.Users
+	if err := m.Db().WithContext(ctx).Select("id,nickname").First(&user, record.UserId).Error; err != nil {
+		return err
+	}
+
+	_ = m.MessageStorage.Set(ctx, record.TalkType, record.UserId, record.ReceiverId, &cache.LastCacheMessage{
+		Content:  fmt.Sprintf("%s: 撤回了一条消息", user.Nickname),
+		Datetime: timeutil.DateTime(),
+	})
+
 	body := map[string]any{
 		"event": entity.SubEventImMessageRevoke,
 		"data": jsonutil.Encode(map[string]any{
@@ -593,20 +615,33 @@ func (m *MessageService) save(ctx context.Context, data *model.TalkRecords) erro
 		return err
 	}
 
-	option := make(map[string]string)
+	lastMessage := entity.TalkLastMessage{
+		MsgId:      data.MsgId,
+		Sequence:   int(data.Sequence),
+		MsgType:    data.MsgType,
+		UserId:     data.UserId,
+		ReceiverId: data.ReceiverId,
+		CreatedAt:  time.Now().Format(time.DateTime),
+	}
 
 	switch data.MsgType {
 	case entity.ChatMsgTypeText:
-		option["text"] = strutil.MtSubstr(strutil.ReplaceImgAll(data.Content), 0, 300)
+		extra := model.TalkRecordExtraText{}
+		if err := jsonutil.Decode(data.Extra, &extra); err != nil {
+			logger.Errorf("MessageService Json Decode err: %s", err.Error())
+			return err
+		}
+
+		lastMessage.Content = strutil.MtSubstr(strutil.ReplaceImgAll(extra.Content), 0, 300)
 	default:
 		if value, ok := entity.ChatMsgTypeMapping[data.MsgType]; ok {
-			option["text"] = value
+			lastMessage.Content = value
 		} else {
-			option["text"] = "[未知消息]"
+			lastMessage.Content = "[未知消息]"
 		}
 	}
 
-	m.afterHandle(ctx, data, option)
+	m.afterHandle(ctx, data, lastMessage)
 
 	return nil
 }
@@ -653,7 +688,6 @@ func (m *MessageService) loadReply(_ context.Context, data *model.TalkRecords) {
 		UserId:   record.UserId,
 		Nickname: user.Nickname,
 		MsgType:  1,
-		Content:  record.Content,
 		MsgId:    record.MsgId,
 	}
 
@@ -662,6 +696,14 @@ func (m *MessageService) loadReply(_ context.Context, data *model.TalkRecords) {
 		if value, ok := entity.ChatMsgTypeMapping[record.MsgType]; ok {
 			reply.Content = value
 		}
+	} else {
+		extra := model.TalkRecordExtraText{}
+		if err := jsonutil.Decode(record.Extra, &extra); err != nil {
+			logger.Errorf("loadReply Json Decode err: %s", err.Error())
+			return
+		}
+
+		reply.Content = extra.Content
 	}
 
 	extra["reply"] = reply
@@ -670,7 +712,7 @@ func (m *MessageService) loadReply(_ context.Context, data *model.TalkRecords) {
 }
 
 // 发送消息后置处理
-func (m *MessageService) afterHandle(ctx context.Context, record *model.TalkRecords, opt map[string]string) {
+func (m *MessageService) afterHandle(ctx context.Context, record *model.TalkRecords, opt entity.TalkLastMessage) {
 
 	if record.TalkType == entity.ChatPrivateMode {
 		m.UnreadStorage.Incr(ctx, entity.ChatPrivateMode, record.UserId, record.ReceiverId)
@@ -688,8 +730,8 @@ func (m *MessageService) afterHandle(ctx context.Context, record *model.TalkReco
 	}
 
 	_ = m.MessageStorage.Set(ctx, record.TalkType, record.UserId, record.ReceiverId, &cache.LastCacheMessage{
-		Content:  opt["text"],
-		Datetime: timeutil.DateTime(),
+		Content:  opt.Content,
+		Datetime: opt.CreatedAt,
 	})
 
 	content := jsonutil.Encode(map[string]any{

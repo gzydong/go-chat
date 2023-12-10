@@ -26,7 +26,7 @@ type SearchOvertListOpt struct {
 func (g *Group) SearchOvertList(ctx context.Context, opt *SearchOvertListOpt) ([]*model.Group, error) {
 	return g.Repo.FindAll(ctx, func(db *gorm.DB) {
 		if opt.Name != "" {
-			db.Where("group_name like ?", "%"+opt.Name+"%")
+			db.Where("name like ?", "%"+opt.Name+"%")
 		}
 
 		db.Where("is_overt = ?", 1)

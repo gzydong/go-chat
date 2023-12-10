@@ -360,14 +360,14 @@ func NewHttpInjector(conf *config.Config) *httpapi.AppProvider {
 		V1: webV1,
 	}
 	index := v1_2.NewIndex()
+	repoAdmin := repo.NewAdmin(db)
 	captchaStorage := cache.NewCaptchaStorage(client)
 	captcha := provider.NewBase64Captcha(captchaStorage)
-	repoAdmin := repo.NewAdmin(db)
 	v1Auth := &v1_2.Auth{
 		Config:          conf,
-		ICaptcha:        captcha,
 		AdminRepo:       repoAdmin,
 		JwtTokenStorage: jwtTokenStorage,
+		ICaptcha:        captcha,
 	}
 	adminV1 := &admin.V1{
 		Index: index,
@@ -555,8 +555,10 @@ func NewQueueInjector(conf *config.Config) *job.QueueProvider {
 func NewOtherInjector(conf *config.Config) *job.TempProvider {
 	db := provider.NewMySQLClient(conf)
 	users := repo.NewUsers(db)
+	talkRecords := repo.NewTalkRecords(db)
 	testCommand := temp.TestCommand{
-		UserRepo: users,
+		UserRepo:        users,
+		TalkRecordsRepo: talkRecords,
 	}
 	tempProvider := &job.TempProvider{
 		TestCommand: testCommand,

@@ -15,15 +15,9 @@ message MessageReceiver{
 message TextMessageRequest{
   string type = 1; // 消息类型
   string content = 4 [(tagger.tags) = "binding:\"required\""];
-
-  message Mention{
-    int32 all = 1;
-    repeated int32 uids = 2;
-  }
-
-  Mention mention = 5;
   string quote_id = 6; // 引用的消息ID
   MessageReceiver receiver = 7;// 消息接收者
+  repeated int32 mentions = 8;
 }
 
 // 图片消息
