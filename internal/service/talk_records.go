@@ -7,6 +7,7 @@ import (
 
 	"go-chat/internal/entity"
 	"go-chat/internal/pkg/jsonutil"
+	"go-chat/internal/pkg/sliceutil"
 	"go-chat/internal/pkg/timeutil"
 	"go-chat/internal/repository/cache"
 	"go-chat/internal/repository/model"
@@ -40,10 +41,11 @@ type TalkRecord struct {
 
 type TalkRecordsService struct {
 	*repo.Source
-	TalkVoteCache       *cache.Vote
-	TalkRecordsVoteRepo *repo.TalkRecordsVote
-	GroupMemberRepo     *repo.GroupMember
-	TalkRecordsRepo     *repo.TalkRecords
+	TalkVoteCache         *cache.Vote
+	TalkRecordsVoteRepo   *repo.TalkRecordsVote
+	GroupMemberRepo       *repo.GroupMember
+	TalkRecordsRepo       *repo.TalkRecords
+	TalkRecordsDeleteRepo *repo.TalkRecordsDelete
 }
 
 type FindAllTalkRecordsOpt struct {
@@ -88,13 +90,10 @@ func (s *TalkRecordsService) FindTalkRecord(ctx context.Context, recordId int64)
 			"talk_records.is_revoke",
 			"talk_records.extra",
 			"talk_records.created_at",
-			"users.nickname",
-			"users.avatar as avatar",
 		}
 	)
 
 	query := s.Source.Db().Table("talk_records")
-	query.Joins("left join users on talk_records.user_id = users.id")
 	query.Where("talk_records.id = ?", recordId)
 
 	if err = query.Select(fields).Take(&item).Error; err != nil {
@@ -113,25 +112,80 @@ func (s *TalkRecordsService) FindTalkRecord(ctx context.Context, recordId int64)
 func (s *TalkRecordsService) FindAllTalkRecords(ctx context.Context, opt *FindAllTalkRecordsOpt) ([]*TalkRecord, error) {
 	var (
 		items  = make([]*QueryTalkRecord, 0, opt.Limit)
-		fields = []string{
-			"talk_records.id",
-			"talk_records.sequence",
-			"talk_records.talk_type",
-			"talk_records.msg_type",
-			"talk_records.msg_id",
-			"talk_records.user_id",
-			"talk_records.receiver_id",
-			"talk_records.is_revoke",
-			"talk_records.extra",
-			"talk_records.created_at",
-			"users.nickname",
-			"users.avatar as avatar",
-		}
+		cursor = opt.Cursor
 	)
 
+	for {
+		// 这里查询数据放弃了关联查询，所以这里需要查询多次，防止查询中存在用户已删除的数据需要过滤掉
+		list, err := s.findAllRecords(ctx, &FindAllTalkRecordsOpt{
+			TalkType:   opt.TalkType,
+			UserId:     opt.UserId,
+			ReceiverId: opt.ReceiverId,
+			MsgType:    opt.MsgType,
+			Cursor:     cursor,
+			Limit:      opt.Limit + 10, // 多查几条数据
+		})
+
+		if err != nil {
+			return nil, err
+		}
+
+		if len(list) == 0 {
+			break
+		}
+
+		recordIds := make([]int, 0, len(list))
+		for _, v := range list {
+			recordIds = append(recordIds, v.Id)
+		}
+
+		ids, err := s.TalkRecordsDeleteRepo.FindAllRecordIds(ctx, recordIds, opt.UserId)
+		if err != nil {
+			return nil, err
+		}
+
+		hashIds := make(map[int]struct{}, len(ids))
+		for _, id := range ids {
+			hashIds[id] = struct{}{}
+		}
+
+		for _, v := range list {
+			if _, ok := hashIds[v.Id]; ok {
+				continue
+			}
+
+			items = append(items, v)
+		}
+
+		if len(items) >= opt.Limit || len(list) < opt.Limit {
+			break
+		}
+
+		// 设置游标继续往下执行
+		cursor = int(list[len(list)-1].Sequence)
+	}
+
+	if len(items) > opt.Limit {
+		items = items[:opt.Limit]
+	}
+
+	return s.handleTalkRecords(ctx, items)
+}
+
+func (s *TalkRecordsService) findAllRecords(ctx context.Context, opt *FindAllTalkRecordsOpt) ([]*QueryTalkRecord, error) {
 	query := s.Source.Db().WithContext(ctx).Table("talk_records")
-	query.Joins("left join users on talk_records.user_id = users.id")
-	query.Joins("left join talk_records_delete on talk_records.id = talk_records_delete.record_id and talk_records_delete.user_id = ?", opt.UserId)
+	query.Select([]string{
+		"talk_records.id",
+		"talk_records.sequence",
+		"talk_records.talk_type",
+		"talk_records.msg_type",
+		"talk_records.msg_id",
+		"talk_records.user_id",
+		"talk_records.receiver_id",
+		"talk_records.is_revoke",
+		"talk_records.extra",
+		"talk_records.created_at",
+	})
 
 	if opt.Cursor > 0 {
 		query.Where("talk_records.sequence < ?", opt.Cursor)
@@ -151,23 +205,14 @@ func (s *TalkRecordsService) FindAllTalkRecords(ctx context.Context, opt *FindAl
 	}
 
 	query.Where("talk_records.talk_type = ?", opt.TalkType)
-	query.Where("ifnull(talk_records_delete.id,0) = 0")
-	query.Select(fields).Order("talk_records.sequence desc").Limit(opt.Limit)
+	query.Order("talk_records.sequence desc").Limit(opt.Limit)
 
+	var items []*QueryTalkRecord
 	if err := query.Scan(&items).Error; err != nil {
 		return nil, err
 	}
 
-	if len(items) == 0 {
-		return make([]*TalkRecord, 0), nil
-	}
-
-	msgIds := make([]string, 0, len(items))
-	for _, v := range items {
-		msgIds = append(msgIds, v.MsgId)
-	}
-
-	return s.handleTalkRecords(ctx, items)
+	return items, nil
 }
 
 // FindForwardRecords 获取转发消息记录
@@ -195,14 +240,11 @@ func (s *TalkRecordsService) FindForwardRecords(ctx context.Context, uid int, re
 			"talk_records.is_revoke",
 			"talk_records.extra",
 			"talk_records.created_at",
-			"users.nickname",
-			"users.avatar as avatar",
 		}
 	)
 
 	query := s.Source.Db().Table("talk_records")
 	query.Select(fields)
-	query.Joins("left join users on talk_records.user_id = users.id")
 	query.Where("talk_records.id in ?", extra.MsgIds)
 	query.Order("talk_records.sequence asc")
 
@@ -215,16 +257,34 @@ func (s *TalkRecordsService) FindForwardRecords(ctx context.Context, uid int, re
 
 // HandleTalkRecords 处理消息
 func (s *TalkRecordsService) handleTalkRecords(ctx context.Context, items []*QueryTalkRecord) ([]*TalkRecord, error) {
+	if len(items) == 0 {
+		return make([]*TalkRecord, 0), nil
+	}
+
 	var (
 		votes     []int
 		voteItems []*model.TalkRecordsVote
 	)
 
+	uids := make([]int, 0, len(items))
 	for _, item := range items {
+		uids = append(uids, item.UserId)
+
 		switch item.MsgType {
 		case entity.ChatMsgTypeVote:
 			votes = append(votes, item.Id)
 		}
+	}
+
+	var usersItems []*model.Users
+	err := s.Source.Db().Model(&model.Users{}).Select("id,nickname,avatar").Where("id in ?", sliceutil.Unique(uids)).Scan(&usersItems).Error
+	if err != nil {
+		return nil, err
+	}
+
+	hashUser := make(map[int]*model.Users)
+	for _, user := range usersItems {
+		hashUser[user.Id] = user
 	}
 
 	hashVotes := make(map[int]*model.TalkRecordsVote)
@@ -251,6 +311,11 @@ func (s *TalkRecordsService) handleTalkRecords(ctx context.Context, items []*Que
 			IsMark:     item.IsMark,
 			CreatedAt:  timeutil.FormatDatetime(item.CreatedAt),
 			Extra:      make(map[string]any),
+		}
+
+		if user, ok := hashUser[item.UserId]; ok {
+			data.Nickname = user.Nickname
+			data.Avatar = user.Avatar
 		}
 
 		_ = jsonutil.Decode(item.Extra, &data.Extra)

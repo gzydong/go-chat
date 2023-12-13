@@ -183,12 +183,14 @@ func NewHttpInjector(conf *config.Config) *httpapi.AppProvider {
 		Filesystem:     filesystem,
 	}
 	talkRecords := repo.NewTalkRecords(db)
+	talkRecordsDelete := repo.NewTalkRecordsDelete(db)
 	talkRecordsService := &service.TalkRecordsService{
-		Source:              source,
-		TalkVoteCache:       vote,
-		TalkRecordsVoteRepo: talkRecordsVote,
-		GroupMemberRepo:     groupMember,
-		TalkRecordsRepo:     talkRecords,
+		Source:                source,
+		TalkVoteCache:         vote,
+		TalkRecordsVoteRepo:   talkRecordsVote,
+		GroupMemberRepo:       groupMember,
+		TalkRecordsRepo:       talkRecords,
+		TalkRecordsDeleteRepo: talkRecordsDelete,
 	}
 	groupMemberService := &service.GroupMemberService{
 		Source:          source,
@@ -470,12 +472,14 @@ func NewCommetInjector(conf *config.Config) *commet.AppProvider {
 	engine := router2.NewRouter(conf, handlerHandler, jwtTokenStorage)
 	healthSubscribe := process.NewHealthSubscribe(conf, serverStorage)
 	talkRecords := repo.NewTalkRecords(db)
+	talkRecordsDelete := repo.NewTalkRecordsDelete(db)
 	talkRecordsService := &service.TalkRecordsService{
-		Source:              source,
-		TalkVoteCache:       vote,
-		TalkRecordsVoteRepo: talkRecordsVote,
-		GroupMemberRepo:     groupMember,
-		TalkRecordsRepo:     talkRecords,
+		Source:                source,
+		TalkVoteCache:         vote,
+		TalkRecordsVoteRepo:   talkRecordsVote,
+		GroupMemberRepo:       groupMember,
+		TalkRecordsRepo:       talkRecords,
+		TalkRecordsDeleteRepo: talkRecordsDelete,
 	}
 	contactRemark := cache.NewContactRemark(client)
 	repoContact := repo.NewContact(db, contactRemark, relation)

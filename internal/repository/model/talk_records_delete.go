@@ -8,3 +8,7 @@ type TalkRecordsDelete struct {
 	UserId    int       `gorm:"column:user_id;default:0;NOT NULL" json:"user_id"`     // 用户ID
 	CreatedAt time.Time `gorm:"column:created_at;NOT NULL" json:"created_at"`         // 创建时间
 }
+
+func (t TalkRecordsDelete) TableName() string {
+	return "talk_records_delete"
+}
