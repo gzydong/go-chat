@@ -2,6 +2,7 @@ package chat
 
 import (
 	"context"
+	"fmt"
 	"log"
 
 	"github.com/redis/go-redis/v9"
@@ -22,6 +23,7 @@ type Handler struct {
 }
 
 func (h *Handler) init() {
+	handlers = make(map[string]handle)
 	// 注册自定义绑定事件
 	handlers["im.message.publish"] = h.onPublish
 	handlers["im.message.revoke"] = h.onRevokeMessage
@@ -35,6 +37,8 @@ func (h *Handler) Call(ctx context.Context, client socket.IClient, event string,
 	if handlers == nil {
 		h.init()
 	}
+
+	fmt.Println(event, string(data))
 
 	if call, ok := handlers[event]; ok {
 		call(ctx, client, data)
