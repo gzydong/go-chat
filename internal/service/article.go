@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"html"
 
 	"go-chat/internal/repository/model"
 	"go-chat/internal/repository/repo"
@@ -60,7 +59,7 @@ func (s *ArticleService) Create(ctx context.Context, opt *ArticleEditOpt) (int, 
 		Image:     strutil.ParseHtmlImage(opt.Content),
 		Abstract:  strutil.Strip(abstract),
 		Status:    1,
-		MdContent: html.EscapeString(opt.MdContent),
+		MdContent: opt.MdContent,
 	}
 
 	err := s.Source.Db().WithContext(ctx).Create(data).Error
@@ -79,7 +78,7 @@ func (s *ArticleService) Update(ctx context.Context, opt *ArticleEditOpt) error 
 		Title:     opt.Title,
 		Image:     strutil.ParseHtmlImage(opt.Content),
 		Abstract:  strutil.Strip(abstract),
-		MdContent: html.EscapeString(opt.MdContent),
+		MdContent: opt.MdContent,
 	}
 
 	_, err := s.ArticleRepo.UpdateWhere(ctx, data, "id = ? and user_id = ?", opt.ArticleId, opt.UserId)

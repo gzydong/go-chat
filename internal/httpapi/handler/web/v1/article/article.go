@@ -3,6 +3,7 @@ package article
 import (
 	"bytes"
 	"fmt"
+	"html"
 	"slices"
 
 	"go-chat/api/pb/web/v1"
@@ -109,7 +110,7 @@ func (c *Article) Detail(ctx *ichat.Context) error {
 		Id:         int32(detail.Id),
 		ClassId:    int32(detail.ClassId),
 		Title:      detail.Title,
-		MdContent:  detail.MdContent,
+		MdContent:  html.UnescapeString(detail.MdContent),
 		IsAsterisk: int32(detail.IsAsterisk),
 		CreatedAt:  timeutil.FormatDatetime(detail.CreatedAt),
 		UpdatedAt:  timeutil.FormatDatetime(detail.UpdatedAt),
