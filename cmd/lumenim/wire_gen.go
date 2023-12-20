@@ -303,8 +303,10 @@ func NewHttpInjector(conf *config.Config) *httpapi.AppProvider {
 		ContactService:      contactService,
 	}
 	articleAnnex := repo.NewArticleAnnex(db)
+	repoArticle := repo.NewArticle(db)
 	articleService := &service.ArticleService{
-		Source: source,
+		Source:      source,
+		ArticleRepo: repoArticle,
 	}
 	articleAnnexService := &service.ArticleAnnexService{
 		Source:       source,

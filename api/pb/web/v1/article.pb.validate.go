@@ -63,8 +63,6 @@ func (m *ArticleEditRequest) validate(all bool) error {
 
 	// no validation rules for Title
 
-	// no validation rules for Content
-
 	// no validation rules for MdContent
 
 	if len(errors) > 0 {
@@ -388,8 +386,6 @@ func (m *ArticleDetailResponse) validate(all bool) error {
 	// no validation rules for ClassId
 
 	// no validation rules for Title
-
-	// no validation rules for Content
 
 	// no validation rules for MdContent
 

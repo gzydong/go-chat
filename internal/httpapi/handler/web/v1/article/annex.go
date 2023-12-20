@@ -138,7 +138,7 @@ func (c *Annex) RecoverList(ctx *ichat.Context) error {
 	}
 
 	return ctx.Success(&web.ArticleAnnexRecoverListResponse{
-		Items: nil,
+		Items: data,
 		Paginate: &web.Paginate{
 			Page:  1,
 			Size:  10000,

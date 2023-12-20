@@ -20,6 +20,7 @@ var ProviderSet = wire.NewSet(
 	NewTalkRecordsVote,
 	NewFileSplitUpload,
 	NewArticleClass,
+	NewArticle,
 	NewArticleAnnex,
 	NewDepartment,
 	NewOrganize,

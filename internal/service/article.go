@@ -18,7 +18,7 @@ import (
 var _ IArticleService = (*ArticleService)(nil)
 
 type IArticleService interface {
-	Detail(ctx context.Context, uid int, articleId int) (*model.ArticleDetailInfo, error)
+	Detail(ctx context.Context, uid int, articleId int) (*model.Article, error)
 	Create(ctx context.Context, opt *ArticleEditOpt) (int, error)
 	Update(ctx context.Context, opt *ArticleEditOpt) error
 	List(ctx context.Context, opt *ArticleListOpt) ([]*model.ArticleListItem, error)
@@ -31,38 +31,12 @@ type IArticleService interface {
 
 type ArticleService struct {
 	*repo.Source
+	ArticleRepo *repo.Article
 }
 
 // Detail 笔记详情
-func (s *ArticleService) Detail(ctx context.Context, uid, articleId int) (*model.ArticleDetailInfo, error) {
-
-	db := s.Source.Db().WithContext(ctx)
-
-	data := &model.Article{}
-	if err := db.First(data, "id = ? and user_id = ?", articleId, uid).Error; err != nil {
-		return nil, err
-	}
-
-	detail := &model.ArticleDetail{}
-	if err := db.First(detail, "article_id = ?", articleId).Error; err != nil {
-		return nil, err
-	}
-
-	return &model.ArticleDetailInfo{
-		Id:         data.Id,
-		UserId:     data.UserId,
-		ClassId:    data.ClassId,
-		TagsId:     data.TagsId,
-		Title:      data.Title,
-		Abstract:   data.Abstract,
-		Image:      data.Image,
-		IsAsterisk: data.IsAsterisk,
-		Status:     data.Status,
-		CreatedAt:  data.CreatedAt,
-		UpdatedAt:  data.UpdatedAt,
-		MdContent:  html.UnescapeString(detail.MdContent),
-		Content:    html.UnescapeString(detail.Content),
-	}, nil
+func (s *ArticleService) Detail(ctx context.Context, uid, articleId int) (*model.Article, error) {
+	return s.ArticleRepo.FindByWhere(ctx, "id = ? and user_id = ?", articleId, uid)
 }
 
 type ArticleEditOpt struct {
@@ -80,31 +54,16 @@ func (s *ArticleService) Create(ctx context.Context, opt *ArticleEditOpt) (int, 
 	abstract := strutil.MtSubstr(opt.MdContent, 0, 200)
 
 	data := &model.Article{
-		UserId:   opt.UserId,
-		ClassId:  opt.ClassId,
-		Title:    opt.Title,
-		Image:    strutil.ParseHtmlImage(opt.Content),
-		Abstract: strutil.Strip(abstract),
-		Status:   1,
+		UserId:    opt.UserId,
+		ClassId:   opt.ClassId,
+		Title:     opt.Title,
+		Image:     strutil.ParseHtmlImage(opt.Content),
+		Abstract:  strutil.Strip(abstract),
+		Status:    1,
+		MdContent: html.EscapeString(opt.MdContent),
 	}
 
-	err := s.Source.Db().WithContext(ctx).Transaction(func(tx *gorm.DB) error {
-
-		if err := tx.Create(data).Error; err != nil {
-			return err
-		}
-
-		if err := tx.Create(&model.ArticleDetail{
-			ArticleId: data.Id,
-			MdContent: html.EscapeString(opt.MdContent),
-			Content:   html.EscapeString(opt.Content),
-		}).Error; err != nil {
-			return err
-		}
-
-		return nil
-	})
-
+	err := s.Source.Db().WithContext(ctx).Create(data).Error
 	if err != nil {
 		return 0, err
 	}
@@ -114,22 +73,17 @@ func (s *ArticleService) Create(ctx context.Context, opt *ArticleEditOpt) (int, 
 
 // Update 更新笔记信息
 func (s *ArticleService) Update(ctx context.Context, opt *ArticleEditOpt) error {
-
 	abstract := strutil.MtSubstr(opt.MdContent, 0, 200)
-	return s.Source.Db().WithContext(ctx).Transaction(func(tx *gorm.DB) error {
-		if err := tx.Model(&model.Article{}).Where("id = ? and user_id = ?", opt.ArticleId, opt.UserId).Updates(&model.Article{
-			Title:    opt.Title,
-			Image:    strutil.ParseHtmlImage(opt.Content),
-			Abstract: strutil.Strip(abstract),
-		}).Error; err != nil {
-			return err
-		}
 
-		return tx.Model(&model.ArticleDetail{}).Where("article_id = ?", opt.ArticleId).Updates(&model.ArticleDetail{
-			MdContent: html.EscapeString(opt.MdContent),
-			Content:   html.EscapeString(opt.Content),
-		}).Error
-	})
+	data := &model.Article{
+		Title:     opt.Title,
+		Image:     strutil.ParseHtmlImage(opt.Content),
+		Abstract:  strutil.Strip(abstract),
+		MdContent: html.EscapeString(opt.MdContent),
+	}
+
+	_, err := s.ArticleRepo.UpdateWhere(ctx, data, "id = ? and user_id = ?", opt.ArticleId, opt.UserId)
+	return err
 }
 
 type ArticleListOpt struct {
@@ -214,11 +168,8 @@ func (s *ArticleService) UpdateStatus(ctx context.Context, uid int, articleId in
 
 // ForeverDelete 永久笔记
 func (s *ArticleService) ForeverDelete(ctx context.Context, uid int, articleId int) error {
-
-	db := s.Source.Db().WithContext(ctx)
-
-	var detail model.Article
-	if err := db.First(&detail, "id = ? and user_id = ?", articleId, uid).Error; err != nil {
+	detail, err := s.ArticleRepo.FindByWhere(ctx, "id = ? and user_id = ?", articleId, uid)
+	if err != nil {
 		return err
 	}
 
@@ -226,12 +177,8 @@ func (s *ArticleService) ForeverDelete(ctx context.Context, uid int, articleId i
 		return errors.New("文章不能被删除")
 	}
 
+	db := s.Source.Db().WithContext(ctx)
 	return db.Transaction(func(tx *gorm.DB) error {
-
-		if err := tx.Delete(&model.ArticleDetail{}, "article_id = ?", detail.Id).Error; err != nil {
-			return err
-		}
-
 		if err := tx.Delete(&model.Article{}, detail.Id).Error; err != nil {
 			return err
 		}

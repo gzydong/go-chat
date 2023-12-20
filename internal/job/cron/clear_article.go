@@ -104,7 +104,6 @@ func (c *ClearArticle) clearNote() {
 			}
 
 			c.db.Delete(&model.Article{}, item.Id)
-			c.db.Delete(&model.ArticleDetail{}, "article_id = ?", item.Id)
 		}
 
 		if len(items) < size {

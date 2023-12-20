@@ -109,7 +109,6 @@ func (c *Article) Detail(ctx *ichat.Context) error {
 		Id:         int32(detail.Id),
 		ClassId:    int32(detail.ClassId),
 		Title:      detail.Title,
-		Content:    detail.Content,
 		MdContent:  detail.MdContent,
 		IsAsterisk: int32(detail.IsAsterisk),
 		CreatedAt:  timeutil.FormatDatetime(detail.CreatedAt),
@@ -137,7 +136,6 @@ func (c *Article) Edit(ctx *ichat.Context) error {
 		ArticleId: int(params.ArticleId),
 		ClassId:   int(params.ClassId),
 		Title:     params.Title,
-		Content:   params.Content,
 		MdContent: params.MdContent,
 	}
 

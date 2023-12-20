@@ -86,11 +86,11 @@ func (c *Apply) Agree(ctx *ichat.Context) error {
 	}
 
 	apply, err := c.GroupApplyRepo.FindById(ctx.Ctx(), int(params.ApplyId))
-	if err != nil && err != gorm.ErrRecordNotFound {
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return ctx.Error(err.Error())
 	}
 
-	if err == gorm.ErrRecordNotFound {
+	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return ctx.ErrorBusiness("申请信息不存在")
 	}
 
@@ -136,11 +136,11 @@ func (c *Apply) Decline(ctx *ichat.Context) error {
 	uid := ctx.UserId()
 
 	apply, err := c.GroupApplyRepo.FindById(ctx.Ctx(), int(params.ApplyId))
-	if err != nil && err != gorm.ErrRecordNotFound {
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return ctx.Error(err.Error())
 	}
 
-	if err == gorm.ErrRecordNotFound {
+	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return ctx.ErrorBusiness("申请信息不存在")
 	}
 

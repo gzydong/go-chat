@@ -15,6 +15,7 @@ type Article struct {
 	Image      string       `gorm:"column:image;NOT NULL" json:"image"`                       // 文章首图
 	IsAsterisk int          `gorm:"column:is_asterisk;default:0;NOT NULL" json:"is_asterisk"` // 是否星标文章[0:否;1:是;]
 	Status     int          `gorm:"column:status;default:1;NOT NULL" json:"status"`           // 笔记状态[1:正常;2:已删除;]
+	MdContent  string       `gorm:"column:md_content;NOT NULL" json:"md_content"`             // Markdown 内容
 	CreatedAt  time.Time    `gorm:"column:created_at;NOT NULL" json:"created_at"`             // 创建时间
 	UpdatedAt  time.Time    `gorm:"column:updated_at;NOT NULL" json:"updated_at"`             // 更新时间
 	DeletedAt  sql.NullTime `gorm:"column:deleted_at" json:"deleted_at"`                      // 删除时间
@@ -52,5 +53,4 @@ type ArticleDetailInfo struct {
 	CreatedAt  time.Time `json:"created_at"`  // 添加时间
 	UpdatedAt  time.Time `json:"updated_at"`  // 最后一次更新时间
 	MdContent  string    `json:"md_content"`  // Markdown 内容
-	Content    string    `json:"content"`     // Markdown 解析HTML内容
 }
