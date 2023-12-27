@@ -24,20 +24,21 @@ CREATE TABLE `article`
     `id`          int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT '文章ID',
     `user_id`     int(11) unsigned NOT NULL COMMENT '用户ID',
     `class_id`    int(11) unsigned NOT NULL DEFAULT '0' COMMENT '分类ID',
-    `tags_id`     varchar(50)  NOT NULL DEFAULT '' COMMENT '笔记关联标签',
+    `tags_id`    varchar(128) NOT NULL DEFAULT '' COMMENT '笔记关联标签',
     `title`       varchar(80)  NOT NULL DEFAULT '' COMMENT '文章标题',
     `abstract`    varchar(200) NOT NULL DEFAULT '' COMMENT '文章摘要',
     `image`       varchar(255) NOT NULL DEFAULT '' COMMENT '文章首图',
     `is_asterisk` tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '是否星标文章[0:否;1:是;]',
     `status`      tinyint(3) unsigned NOT NULL DEFAULT '1' COMMENT '笔记状态[1:正常;2:已删除;]',
+    `md_content` longtext CHARACTER SET utf8mb4 NOT NULL COMMENT 'markdown 内容',
     `created_at`  datetime     NOT NULL COMMENT '创建时间',
     `updated_at`  datetime     NOT NULL COMMENT '更新时间',
     `deleted_at`  datetime              DEFAULT NULL COMMENT '删除时间',
     PRIMARY KEY (`id`),
-    KEY `idx_userid_classid_title` (`user_id`,`class_id`,`title`),
-    KEY `idx_updated_at` (`updated_at`) USING BTREE,
-    KEY `idx_created_at` (`created_at`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='用户文章表';;
+    KEY          `idx_userid_classid_title` (`user_id`,`class_id`,`title`),
+    KEY          `idx_updated_at` (`updated_at`) USING BTREE,
+    KEY          `idx_created_at` (`created_at`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=411 DEFAULT CHARSET=utf8 COMMENT='用户文章表';;
 
 CREATE TABLE `article_annex`
 (
@@ -74,16 +75,6 @@ CREATE TABLE `article_class`
     KEY `idx_created_at` (`created_at`) USING BTREE,
     KEY `idx_updated_at` (`updated_at`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='文章分类表';;
-
-CREATE TABLE `article_detail`
-(
-    `id`         int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT '文章详情ID',
-    `article_id` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '文章ID',
-    `md_content` longtext CHARACTER SET utf8mb4 NOT NULL COMMENT 'Markdown 内容',
-    `content`    longtext CHARACTER SET utf8mb4 NOT NULL COMMENT 'Markdown 解析HTML内容',
-    PRIMARY KEY (`id`),
-    UNIQUE KEY `idx_article_id` (`article_id`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='文章详情表';;
 
 CREATE TABLE `article_tag`
 (
