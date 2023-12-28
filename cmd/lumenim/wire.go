@@ -6,8 +6,8 @@ package main
 import (
 	"github.com/google/wire"
 	"go-chat/config"
+	"go-chat/internal/apis"
 	"go-chat/internal/commet"
-	"go-chat/internal/httpapi"
 	"go-chat/internal/job"
 	"go-chat/internal/logic"
 	"go-chat/internal/provider"
@@ -33,11 +33,11 @@ var providerSet = wire.NewSet(
 	service.ProviderSet, // 注入 Service 依赖
 )
 
-func NewHttpInjector(conf *config.Config) *httpapi.AppProvider {
+func NewHttpInjector(conf *config.Config) *apis.AppProvider {
 	panic(
 		wire.Build(
 			providerSet,
-			httpapi.ProviderSet,
+			apis.ProviderSet,
 		),
 	)
 }

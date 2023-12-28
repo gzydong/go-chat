@@ -1,7 +1,7 @@
 package admin
 
 import (
-	v12 "go-chat/internal/httpapi/handler/admin/v1"
+	v12 "go-chat/internal/apis/handler/admin/v1"
 )
 
 type V1 struct {

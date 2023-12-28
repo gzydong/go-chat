@@ -9,6 +9,19 @@ package main
 import (
 	"github.com/google/wire"
 	"go-chat/config"
+	"go-chat/internal/apis"
+	"go-chat/internal/apis/handler"
+	"go-chat/internal/apis/handler/admin"
+	v1_2 "go-chat/internal/apis/handler/admin/v1"
+	"go-chat/internal/apis/handler/open"
+	v1_3 "go-chat/internal/apis/handler/open/v1"
+	"go-chat/internal/apis/handler/web"
+	"go-chat/internal/apis/handler/web/v1"
+	"go-chat/internal/apis/handler/web/v1/article"
+	"go-chat/internal/apis/handler/web/v1/contact"
+	"go-chat/internal/apis/handler/web/v1/group"
+	"go-chat/internal/apis/handler/web/v1/talk"
+	"go-chat/internal/apis/router"
 	"go-chat/internal/commet"
 	"go-chat/internal/commet/consume"
 	chat2 "go-chat/internal/commet/consume/chat"
@@ -19,19 +32,6 @@ import (
 	handler2 "go-chat/internal/commet/handler"
 	"go-chat/internal/commet/process"
 	router2 "go-chat/internal/commet/router"
-	"go-chat/internal/httpapi"
-	"go-chat/internal/httpapi/handler"
-	"go-chat/internal/httpapi/handler/admin"
-	v1_2 "go-chat/internal/httpapi/handler/admin/v1"
-	"go-chat/internal/httpapi/handler/open"
-	v1_3 "go-chat/internal/httpapi/handler/open/v1"
-	"go-chat/internal/httpapi/handler/web"
-	"go-chat/internal/httpapi/handler/web/v1"
-	"go-chat/internal/httpapi/handler/web/v1/article"
-	"go-chat/internal/httpapi/handler/web/v1/contact"
-	"go-chat/internal/httpapi/handler/web/v1/group"
-	"go-chat/internal/httpapi/handler/web/v1/talk"
-	"go-chat/internal/httpapi/router"
 	"go-chat/internal/job"
 	"go-chat/internal/job/cron"
 	"go-chat/internal/job/queue"
@@ -45,7 +45,7 @@ import (
 
 // Injectors from wire.go:
 
-func NewHttpInjector(conf *config.Config) *httpapi.AppProvider {
+func NewHttpInjector(conf *config.Config) *apis.AppProvider {
 	db := provider.NewMySQLClient(conf)
 	users := repo.NewUsers(db)
 	client := provider.NewRedisClient(conf)
@@ -395,7 +395,7 @@ func NewHttpInjector(conf *config.Config) *httpapi.AppProvider {
 		Open:  openHandler,
 	}
 	engine := router.NewRouter(conf, handlerHandler, jwtTokenStorage)
-	appProvider := &httpapi.AppProvider{
+	appProvider := &apis.AppProvider{
 		Config: conf,
 		Engine: engine,
 	}

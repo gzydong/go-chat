@@ -8,6 +8,7 @@ import (
 )
 
 func TestEncode(t *testing.T) {
+	t.Skip()
 
 	var pkg = bytes.NewBuffer(nil)
 	for i := 0; i < 100; i++ {

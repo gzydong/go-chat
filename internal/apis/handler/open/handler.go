@@ -1,7 +1,7 @@
 package open
 
 import (
-	"go-chat/internal/httpapi/handler/open/v1"
+	"go-chat/internal/apis/handler/open/v1"
 )
 
 type V1 struct {

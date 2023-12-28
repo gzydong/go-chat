@@ -79,15 +79,14 @@ func (c *Auth) Login(ctx *ichat.Context) error {
 
 // Captcha 图形验证码
 func (c *Auth) Captcha(ctx *ichat.Context) error {
-
-	generate, base64, err := c.ICaptcha.Generate()
+	voucher, captcha, _, err := c.ICaptcha.Generate()
 	if err != nil {
 		return ctx.ErrorBusiness(err)
 	}
 
 	return ctx.Success(&admin.AuthCaptchaResponse{
-		Voucher: generate,
-		Captcha: base64,
+		Voucher: voucher,
+		Captcha: captcha,
 	})
 }
 

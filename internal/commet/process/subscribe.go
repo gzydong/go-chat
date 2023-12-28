@@ -9,7 +9,7 @@ import (
 	"github.com/redis/go-redis/v9"
 	"github.com/sourcegraph/conc/pool"
 	"go-chat/config"
-	consume2 "go-chat/internal/commet/consume"
+	"go-chat/internal/commet/consume"
 	"go-chat/internal/entity"
 	"go-chat/internal/pkg/utils"
 )
@@ -17,11 +17,11 @@ import (
 type MessageSubscribe struct {
 	config         *config.Config
 	redis          *redis.Client
-	defaultConsume *consume2.ChatSubscribe
-	exampleConsume *consume2.ExampleSubscribe
+	defaultConsume *consume.ChatSubscribe
+	exampleConsume *consume.ExampleSubscribe
 }
 
-func NewMessageSubscribe(config *config.Config, redis *redis.Client, defaultConsume *consume2.ChatSubscribe, exampleConsume *consume2.ExampleSubscribe) *MessageSubscribe {
+func NewMessageSubscribe(config *config.Config, redis *redis.Client, defaultConsume *consume.ChatSubscribe, exampleConsume *consume.ExampleSubscribe) *MessageSubscribe {
 	return &MessageSubscribe{config: config, redis: redis, defaultConsume: defaultConsume, exampleConsume: exampleConsume}
 }
 

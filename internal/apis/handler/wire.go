@@ -2,9 +2,9 @@ package handler
 
 import (
 	"github.com/google/wire"
-	"go-chat/internal/httpapi/handler/admin"
-	"go-chat/internal/httpapi/handler/open"
-	"go-chat/internal/httpapi/handler/web"
+	"go-chat/internal/apis/handler/admin"
+	"go-chat/internal/apis/handler/open"
+	"go-chat/internal/apis/handler/web"
 )
 
 var ProviderSet = wire.NewSet(

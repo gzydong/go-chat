@@ -5,8 +5,8 @@ import (
 
 	"github.com/urfave/cli/v2"
 	"go-chat/config"
+	"go-chat/internal/apis"
 	"go-chat/internal/commet"
-	"go-chat/internal/httpapi"
 	"go-chat/internal/job"
 	"go-chat/internal/pkg/ichat"
 	"go-chat/internal/pkg/logger"
@@ -18,7 +18,7 @@ func NewHttpCommand() ichat.Command {
 		Usage: "Http Command - Http API 接口服务",
 		Action: func(ctx *cli.Context, conf *config.Config) error {
 			logger.InitLogger(fmt.Sprintf("%s/logs/app.log", conf.Log.Path), logger.LevelInfo, "http")
-			return httpapi.Run(ctx, NewHttpInjector(conf))
+			return apis.Run(ctx, NewHttpInjector(conf))
 		},
 	}
 }

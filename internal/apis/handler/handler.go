@@ -1,9 +1,9 @@
 package handler
 
 import (
-	"go-chat/internal/httpapi/handler/admin"
-	"go-chat/internal/httpapi/handler/open"
-	"go-chat/internal/httpapi/handler/web"
+	"go-chat/internal/apis/handler/admin"
+	"go-chat/internal/apis/handler/open"
+	"go-chat/internal/apis/handler/web"
 )
 
 type Handler struct {

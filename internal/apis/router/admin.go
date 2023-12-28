@@ -2,17 +2,16 @@ package router
 
 import (
 	"github.com/gin-gonic/gin"
-	"go-chat/internal/httpapi/handler/admin"
+	"go-chat/internal/apis/handler/admin"
 	"go-chat/internal/pkg/ichat"
 	"go-chat/internal/pkg/ichat/middleware"
-	"go-chat/internal/repository/cache"
 )
 
 // RegisterAdminRoute 注册 Admin 路由
-func RegisterAdminRoute(secret string, router *gin.Engine, handler *admin.Handler, session *cache.JwtTokenStorage) {
+func RegisterAdminRoute(secret string, router *gin.Engine, handler *admin.Handler, storage middleware.IStorage) {
 
 	// 授权验证中间件
-	authorize := middleware.Auth(secret, "admin", session)
+	authorize := middleware.Auth(secret, "admin", storage)
 
 	// v1 接口
 	v1 := router.Group("/admin/v1")

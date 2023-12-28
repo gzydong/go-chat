@@ -8,8 +8,7 @@ import (
 )
 
 type App struct {
-	app  *cli.App
-	cmds []*cli.Command
+	app *cli.App
 }
 
 type Action func(ctx *cli.Context, conf *config.Config) error

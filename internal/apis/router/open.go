@@ -2,7 +2,7 @@ package router
 
 import (
 	"github.com/gin-gonic/gin"
-	"go-chat/internal/httpapi/handler/open"
+	"go-chat/internal/apis/handler/open"
 	"go-chat/internal/pkg/ichat"
 )
 

@@ -38,7 +38,7 @@ func (h *Handler) onReadMessage(ctx context.Context, client socket.IClient, data
 	}
 
 	if err := h.Source.Db().Create(items).Error; err != nil {
-		logger.Errorf("TalkRecordsRead batch creation failed", err.Error())
+		logger.Error("TalkRecordsRead batch creation failed", err.Error())
 		return
 	}
 

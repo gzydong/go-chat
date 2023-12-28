@@ -1,14 +1,14 @@
-package httpapi
+package apis
 
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/wire"
 	"go-chat/config"
-	"go-chat/internal/httpapi/handler"
-	"go-chat/internal/httpapi/handler/admin"
-	"go-chat/internal/httpapi/handler/open"
-	"go-chat/internal/httpapi/handler/web"
-	"go-chat/internal/httpapi/router"
+	"go-chat/internal/apis/handler"
+	"go-chat/internal/apis/handler/admin"
+	"go-chat/internal/apis/handler/open"
+	"go-chat/internal/apis/handler/web"
+	"go-chat/internal/apis/router"
 )
 
 type AppProvider struct {

@@ -7,7 +7,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"go-chat/config"
-	"go-chat/internal/httpapi/handler"
+	"go-chat/internal/apis/handler"
 	"go-chat/internal/pkg/ichat/middleware"
 	"go-chat/internal/repository/cache"
 )
