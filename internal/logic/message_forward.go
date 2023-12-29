@@ -233,6 +233,8 @@ func (m *MessageForwardLogic) aggregation(ctx context.Context, req *message.Forw
 			item["text"] = "【文件消息】"
 		case entity.ChatMsgTypeLocation:
 			item["text"] = "【位置消息】"
+		default:
+			item["text"] = "【其它消息】"
 		}
 
 		data = append(data, item)
