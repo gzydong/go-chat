@@ -184,7 +184,7 @@ func (m *MessageForwardLogic) MultiSplitForward(ctx context.Context, uid int, re
 
 type forwardItem struct {
 	MsgType  int    `json:"msg_type"`
-	Content  string `json:"content"`
+	Extra    string `json:"extra"`
 	Nickname string `json:"nickname"`
 }
 
@@ -193,7 +193,7 @@ func (m *MessageForwardLogic) aggregation(ctx context.Context, req *message.Forw
 
 	rows := make([]*forwardItem, 0, 3)
 
-	query := m.db.WithContext(ctx).Table("talk_records")
+	query := m.db.WithContext(ctx).Table("talk_records").Select("talk_records.msg_type,talk_records.extra,users.nickname")
 	query.Joins("left join users on users.id = talk_records.user_id")
 
 	ids := req.MessageIds
@@ -215,7 +215,12 @@ func (m *MessageForwardLogic) aggregation(ctx context.Context, req *message.Forw
 
 		switch row.MsgType {
 		case entity.ChatMsgTypeText:
-			item["text"] = strutil.MtSubstr(strings.TrimSpace(row.Content), 0, 30)
+			extra := &model.TalkRecordExtraText{}
+			if err := jsonutil.Decode(row.Extra, extra); err != nil {
+				return nil, err
+			}
+
+			item["text"] = strutil.MtSubstr(strings.TrimSpace(extra.Content), 0, 30)
 		case entity.ChatMsgTypeCode:
 			item["text"] = "【代码消息】"
 		case entity.ChatMsgTypeImage:
