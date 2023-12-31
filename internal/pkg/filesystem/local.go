@@ -151,7 +151,7 @@ func (l LocalFilesystem) PublicUrl(bucketName, objectName string) string {
 	)
 }
 
-func (l LocalFilesystem) PrivateUrl(bucketName, objectName string, _ time.Duration) string {
+func (l LocalFilesystem) PrivateUrl(bucketName, objectName string, _ string, _ time.Duration) string {
 	return l.PublicUrl(bucketName, objectName)
 }
 
@@ -187,6 +187,11 @@ func (l LocalFilesystem) CompleteMultipartUpload(bucketName, objectName, _ strin
 	}
 
 	return nil
+}
+
+func (l LocalFilesystem) AbortMultipartUpload(bucketName, objectName, uploadID string) error {
+	// TODO implement me
+	panic("implement me")
 }
 
 func (l LocalFilesystem) appendWrite(bucketName, objectName string, stream []byte) error {

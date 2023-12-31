@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"net/url"
 	"path"
 	"strings"
 	"time"
@@ -114,8 +115,13 @@ func (m MinioFilesystem) PublicUrl(bucketName, objectName string) string {
 	return uri.String()
 }
 
-func (m MinioFilesystem) PrivateUrl(bucketName, objectName string, expire time.Duration) string {
-	uri, err := m.core.Client.PresignedGetObject(context.Background(), bucketName, objectName, expire, nil)
+func (m MinioFilesystem) PrivateUrl(bucketName, objectName string, filename string, expire time.Duration) string {
+
+	// Set request parameters for content-disposition.
+	reqParams := make(url.Values)
+	reqParams.Set("response-content-disposition", fmt.Sprintf("attachment; filename=\"%s\"", filename))
+
+	uri, err := m.core.Client.PresignedGetObject(context.Background(), bucketName, objectName, expire, reqParams)
 	if err != nil {
 		panic(err)
 	}
@@ -151,4 +157,8 @@ func (m MinioFilesystem) CompleteMultipartUpload(bucketName, objectName, uploadI
 
 	_, err := m.core.CompleteMultipartUpload(context.Background(), bucketName, objectName, uploadID, completeParts, minio.PutObjectOptions{})
 	return err
+}
+
+func (m MinioFilesystem) AbortMultipartUpload(bucketName, objectName, uploadID string) error {
+	return m.core.AbortMultipartUpload(context.Background(), bucketName, objectName, uploadID)
 }

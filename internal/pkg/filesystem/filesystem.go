@@ -42,7 +42,7 @@ type IFilesystem interface {
 	PublicUrl(bucketName, objectName string) string
 
 	// PrivateUrl 获取私有文件的访问地址
-	PrivateUrl(bucketName, objectName string, expire time.Duration) string
+	PrivateUrl(bucketName, objectName string, filename string, expire time.Duration) string
 
 	// InitiateMultipartUpload 初始化分片上传
 	InitiateMultipartUpload(bucketName, objectName string) (string, error)
@@ -52,6 +52,9 @@ type IFilesystem interface {
 
 	// CompleteMultipartUpload 完成分片上传
 	CompleteMultipartUpload(bucketName, objectName, uploadID string, parts []ObjectPart) error
+
+	// AbortMultipartUpload 取消分片上传
+	AbortMultipartUpload(bucketName, objectName, uploadID string) error
 }
 
 // FileStatInfo 文件信息

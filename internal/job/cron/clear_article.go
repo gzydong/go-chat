@@ -79,7 +79,7 @@ func (c *ClearArticle) clearNote() {
 		for _, item := range items {
 			subItems := make([]*model.ArticleAnnex, 0)
 
-			if err := c.DB.Model(&model.ArticleAnnex{}).Select("drive", "path").Where("article_id = ?", item.Id).Scan(&subItems).Error; err != nil {
+			if err := c.DB.Model(&model.ArticleAnnex{}).Select("path").Where("article_id = ?", item.Id).Scan(&subItems).Error; err != nil {
 				continue
 			}
 

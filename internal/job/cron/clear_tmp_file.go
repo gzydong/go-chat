@@ -2,6 +2,7 @@ package cron
 
 import (
 	"context"
+	"path"
 	"time"
 
 	"go-chat/internal/pkg/filesystem"
@@ -17,7 +18,7 @@ type ClearTmpFile struct {
 // Spec 配置定时任务规则
 // 每天凌晨1点10分执行
 func (c *ClearTmpFile) Spec() string {
-	return "20 1 * * *"
+	return "0 0 * * *"
 }
 
 func (c *ClearTmpFile) Name() string {
@@ -29,24 +30,33 @@ func (c *ClearTmpFile) Enable() bool {
 }
 
 func (c *ClearTmpFile) Handle(ctx context.Context) error {
-
 	lastId, size := 0, 100
 
 	for {
 		items := make([]*model.SplitUpload, 0)
 
-		err := c.DB.Model(&model.SplitUpload{}).Where("id > ? and type = 1 and drive = 1 and created_at <= ?", lastId, time.Now().Add(-24*time.Hour)).Order("id asc").Limit(size).Scan(&items).Error
+		err := c.DB.Model(&model.SplitUpload{}).Where("id > ? and type = 1 and created_at <= ?", lastId, time.Now().AddDate(0, 0, -1)).Order("id asc").Limit(size).Scan(&items).Error
 		if err != nil {
 			return err
 		}
 
 		for _, item := range items {
-			list := make([]*model.SplitUpload, 0)
-			c.DB.Table("split_upload").Where("user_id = ? and upload_id = ? and type = 2", item.UserId, item.UploadId).Scan(&list)
+			if item.Drive == 2 {
+				_ = c.Filesystem.AbortMultipartUpload(c.Filesystem.BucketPrivateName(), item.Path, item.UploadId)
 
-			for _, value := range list {
-				if err := c.Filesystem.Delete(c.Filesystem.BucketPrivateName(), value.Path); err == nil {
+				c.DB.Delete(model.SplitUpload{}, "user_id = ? and upload_id = ? and type = 2", item.UserId, item.UploadId)
+			} else {
+				list := make([]*model.SplitUpload, 0)
+				c.DB.Table("split_upload").Where("user_id = ? and upload_id = ? and type = 2", item.UserId, item.UploadId).Scan(&list)
+
+				for _, value := range list {
+					_ = c.Filesystem.Delete(c.Filesystem.BucketPublicName(), value.Path)
 					c.DB.Delete(model.SplitUpload{}, value.Id)
+				}
+
+				if len(list) > 0 {
+					// 删除空文件夹
+					_ = c.Filesystem.Delete(c.Filesystem.BucketPrivateName(), path.Dir(item.Path))
 				}
 			}
 

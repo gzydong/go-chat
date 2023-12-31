@@ -236,7 +236,7 @@ func (c *Records) Download(ctx *ichat.Context) error {
 		filePath := c.Filesystem.(*filesystem.LocalFilesystem).Path(c.Filesystem.BucketPrivateName(), fileInfo.Path)
 		ctx.Context.FileAttachment(filePath, fileInfo.Name)
 	case entity.FileDriveMinio:
-		ctx.Context.Redirect(http.StatusFound, c.Filesystem.PrivateUrl(c.Filesystem.BucketPrivateName(), fileInfo.Path, 60*time.Second))
+		ctx.Context.Redirect(http.StatusFound, c.Filesystem.PrivateUrl(c.Filesystem.BucketPrivateName(), fileInfo.Path, fileInfo.Name, 60*time.Second))
 	default:
 		return ctx.ErrorBusiness("未知文件驱动类型")
 	}
