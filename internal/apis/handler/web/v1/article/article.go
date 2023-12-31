@@ -2,7 +2,6 @@ package article
 
 import (
 	"bytes"
-	"fmt"
 	"html"
 	"slices"
 
@@ -23,7 +22,7 @@ type Article struct {
 	ArticleAnnexRepo    *repo.ArticleAnnex
 	ArticleService      service.IArticleService
 	ArticleAnnexService service.IArticleAnnexService
-	Filesystem          *filesystem.Filesystem
+	Filesystem          filesystem.IFilesystem
 }
 
 // List 文章列表
@@ -223,13 +222,12 @@ func (c *Article) Upload(ctx *ichat.Context) error {
 	ext := strutil.FileSuffix(file.Filename)
 	meta := utils.ReadImageMeta(bytes.NewReader(stream))
 
-	filePath := fmt.Sprintf("public/media/image/note/%s/%s", timeutil.DateNumber(), strutil.GenImageName(ext, meta.Width, meta.Height))
-
-	if err := c.Filesystem.Default.Write(stream, filePath); err != nil {
+	filePath := strutil.GenMediaObjectName(ext, meta.Width, meta.Height)
+	if err := c.Filesystem.Write(c.Filesystem.BucketPublicName(), filePath, stream); err != nil {
 		return ctx.ErrorBusiness("文件上传失败")
 	}
 
-	return ctx.Success(map[string]any{"url": c.Filesystem.Default.PublicUrl(filePath)})
+	return ctx.Success(map[string]any{"url": c.Filesystem.PublicUrl(c.Filesystem.BucketPublicName(), filePath)})
 }
 
 // Move 文章移动

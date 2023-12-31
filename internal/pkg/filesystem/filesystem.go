@@ -1,83 +1,90 @@
 package filesystem
 
 import (
+	"io"
 	"time"
-
-	"go-chat/config"
 )
 
-type IAdapter interface {
-	// Write 文件写入
-	Write(data []byte, filePath string) error
+const (
+	MinioDriver = "minio"
+	LocalDriver = "local"
+)
 
-	// WriteLocal 本地文件上传
-	WriteLocal(localFile string, filePath string) error
+type IFilesystem interface {
+	// Driver 驱动方式
+	Driver() string
 
-	// Copy 文件拷贝
-	Copy(srcPath, filePath string) error
+	// BucketPublicName 获取公开桶名
+	BucketPublicName() string
 
-	// Delete 删除一个文件或空文件夹
-	Delete(filePath string) error
-
-	// DeleteDir 删除文件夹
-	DeleteDir(path string) error
-
-	// CreateDir 递归创建文件夹
-	CreateDir(path string) error
+	// BucketPrivateName 获取私有桶名
+	BucketPrivateName() string
 
 	// Stat 文件信息
-	Stat(filePath string) (*FileStat, error)
+	Stat(bucketName string, objectName string) (*FileStatInfo, error)
+
+	// Write 文件写入
+	Write(bucketName string, objectName string, stream []byte) error
+
+	// Copy 文件拷贝
+	Copy(bucketName string, srcObjectName, objectName string) error
+
+	// CopyObject 文件拷贝
+	CopyObject(srcBucketName string, srcObjectName, dstBucketName string, dstObjectName string) error
+
+	// Delete 删除文件
+	Delete(bucketName string, objectName string) error
+
+	// GetObject 读取文件内容
+	GetObject(bucketName string, objectName string) ([]byte, error)
 
 	// PublicUrl 获取公开文件的访问地址
-	PublicUrl(filePath string) string
+	PublicUrl(bucketName, objectName string) string
 
 	// PrivateUrl 获取私有文件的访问地址
-	PrivateUrl(filePath string, timeout time.Duration) string
+	PrivateUrl(bucketName, objectName string, expire time.Duration) string
 
-	// ReadStream 读取文件内容
-	ReadStream(filePath string) ([]byte, error)
+	// InitiateMultipartUpload 初始化分片上传
+	InitiateMultipartUpload(bucketName, objectName string) (string, error)
 
-	InitiateMultipartUpload(filePath string, fileName string) (string, error)
+	// PutObjectPart 分片上传
+	PutObjectPart(bucketName, objectName string, uploadID string, index int, data io.Reader, size int64) (ObjectPart, error)
+
+	// CompleteMultipartUpload 完成分片上传
+	CompleteMultipartUpload(bucketName, objectName, uploadID string, parts []ObjectPart) error
 }
 
-// FileStat 文件信息
-type FileStat struct {
+// FileStatInfo 文件信息
+type FileStatInfo struct {
 	Name        string    // 文件名
 	Size        int64     // 文件大小
 	Ext         string    // 文件后缀
-	LastModTime time.Time // 最后修改时间
 	MimeType    string    // 媒体类型
+	LastModTime time.Time // 最后修改时间
 }
 
-type Filesystem struct {
-	driver  string
-	Default IAdapter
-	Local   *LocalFilesystem
-	Cos     *CosFilesystem
+// ObjectPart container for particular part of an object.
+type ObjectPart struct {
+	PartNumber     int
+	ETag           string
+	PartObjectName string
 }
 
-func NewFilesystem(conf *config.Config) *Filesystem {
-	s := &Filesystem{}
-
-	s.driver = conf.Filesystem.Default
-
-	s.Local = NewLocalFilesystem(conf)
-	s.Cos = NewCosFilesystem(conf)
-
-	switch s.driver {
-	case "cos":
-		s.Default = s.Cos
-	default:
-		s.Default = s.Local
-	}
-
-	return s
+// LocalSystemConfig 本地存储 配置信息
+type LocalSystemConfig struct {
+	Root          string `json:"root" yaml:"root"`
+	SSL           bool   `json:"ssl" yaml:"ssl"`
+	BucketPublic  string `json:"bucket_public" yaml:"bucket_public"`
+	BucketPrivate string `json:"bucket_private" yaml:"bucket_private"`
+	Endpoint      string `json:"endpoint" yaml:"endpoint"`
 }
 
-func (f *Filesystem) Driver() string {
-	return f.driver
-}
-
-func (f *Filesystem) SetDriver(value string) {
-	f.driver = value
+// MinioSystemConfig 私有化 Minio 配置信息
+type MinioSystemConfig struct {
+	SSL           bool   `json:"ssl" yaml:"ssl"`
+	SecretId      string `json:"secret_id" yaml:"secret_id"`
+	SecretKey     string `json:"secret_key" yaml:"secret_key"`
+	BucketPublic  string `json:"bucket_public" yaml:"bucket_public"`
+	BucketPrivate string `json:"bucket_private" yaml:"bucket_private"`
+	Endpoint      string `json:"endpoint" yaml:"endpoint"`
 }

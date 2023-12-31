@@ -9,43 +9,50 @@ import (
 	"strings"
 	"time"
 
-	"go-chat/config"
-	"go-chat/internal/pkg/encrypt"
-	"go-chat/internal/pkg/strutil"
+	"github.com/google/uuid"
 )
 
+var _ IFilesystem = (*LocalFilesystem)(nil)
+
 type LocalFilesystem struct {
-	conf *config.Config
+	config LocalSystemConfig
 }
 
-func NewLocalFilesystem(conf *config.Config) *LocalFilesystem {
-	return &LocalFilesystem{
-		conf: conf,
+func NewLocalFilesystem(config LocalSystemConfig) *LocalFilesystem {
+	return &LocalFilesystem{config}
+}
+
+func (l LocalFilesystem) Driver() string {
+	return LocalDriver
+}
+
+func (l LocalFilesystem) BucketPublicName() string {
+	return l.config.BucketPublic
+}
+
+func (l LocalFilesystem) BucketPrivateName() string {
+	return l.config.BucketPrivate
+}
+
+func (l LocalFilesystem) Stat(bucketName string, objectName string) (*FileStatInfo, error) {
+	info, err := os.Stat(l.Path(bucketName, objectName))
+	if err != nil {
+		return nil, err
 	}
+
+	return &FileStatInfo{
+		Name:        filepath.Base(objectName),
+		Size:        info.Size(),
+		Ext:         filepath.Ext(objectName),
+		MimeType:    "",
+		LastModTime: info.ModTime(),
+	}, nil
 }
 
-// isDirExist 判断目录是否存在
-func isDirExist(fileAddr string) bool {
-	s, err := os.Stat(fileAddr)
-
-	return err == nil && s.IsDir()
-}
-
-// Path 获取文件地址绝对路径
-func (s *LocalFilesystem) Path(path string) string {
-	return fmt.Sprintf(
-		"%s/%s",
-		strings.TrimRight(s.conf.Filesystem.Local.Root, "/"),
-		strings.TrimLeft(path, "/"),
-	)
-}
-
-// Write 上传 Byte 数组
-func (s *LocalFilesystem) Write(data []byte, filePath string) error {
-	filePath = s.Path(filePath)
+func (l LocalFilesystem) Write(bucketName string, objectName string, stream []byte) error {
+	filePath := l.Path(bucketName, objectName)
 
 	dir := path.Dir(filePath)
-
 	if len(dir) > 0 && !isDirExist(dir) {
 		if err := os.MkdirAll(dir, 0777); err != nil {
 			return err
@@ -57,15 +64,14 @@ func (s *LocalFilesystem) Write(data []byte, filePath string) error {
 		return err
 	}
 
-	_, err = f.Write(data)
+	defer f.Close()
+
+	_, err = f.Write(stream)
 	return err
 }
 
 // WriteLocal 本地文件上传
-func (s *LocalFilesystem) WriteLocal(localFile string, filePath string) error {
-
-	filePath = s.Path(filePath)
-
+func (l LocalFilesystem) WriteLocal(bucketName string, localFile string, objectName string) error {
 	srcFile, err := os.Open(localFile)
 	if err != nil {
 		return err
@@ -73,14 +79,15 @@ func (s *LocalFilesystem) WriteLocal(localFile string, filePath string) error {
 
 	defer srcFile.Close()
 
-	dir := path.Dir(filePath)
+	objectName = l.Path(bucketName, objectName)
+	dir := path.Dir(objectName)
 	if len(dir) > 0 && !isDirExist(dir) {
 		if err := os.MkdirAll(dir, 0755); err != nil {
 			return err
 		}
 	}
 
-	dstFile, err := os.OpenFile(filePath, os.O_WRONLY|os.O_CREATE, 0755)
+	dstFile, err := os.OpenFile(objectName, os.O_WRONLY|os.O_CREATE, 0755)
 	if err != nil {
 		return err
 	}
@@ -88,12 +95,102 @@ func (s *LocalFilesystem) WriteLocal(localFile string, filePath string) error {
 	defer dstFile.Close()
 
 	_, err = io.Copy(dstFile, srcFile)
-
 	return err
 }
 
-func (s *LocalFilesystem) AppendWrite(data []byte, filePath string) error {
-	filePath = s.Path(filePath)
+func (l LocalFilesystem) Copy(bucketName string, srcObjectName, objectName string) error {
+	return l.WriteLocal(bucketName, l.Path(bucketName, srcObjectName), objectName)
+}
+
+func (l LocalFilesystem) CopyObject(srcBucketName string, srcObjectName, dstBucketName string, dstObjectName string) error {
+	srcFile, err := os.Open(l.Path(srcBucketName, srcObjectName))
+	if err != nil {
+		return err
+	}
+
+	defer srcFile.Close()
+
+	dstObjectName = l.Path(dstBucketName, dstObjectName)
+
+	if dir := path.Dir(dstObjectName); len(dir) > 0 && !isDirExist(dir) {
+		if err := os.MkdirAll(dir, 0755); err != nil {
+			return err
+		}
+	}
+
+	dstFile, err := os.OpenFile(dstObjectName, os.O_WRONLY|os.O_CREATE, 0755)
+	if err != nil {
+		return err
+	}
+
+	defer dstFile.Close()
+
+	_, err = io.Copy(dstFile, srcFile)
+	return err
+}
+
+func (l LocalFilesystem) Delete(bucketName string, objectName string) error {
+	return os.Remove(l.Path(bucketName, objectName))
+}
+
+func (l LocalFilesystem) GetObject(bucketName string, objectName string) ([]byte, error) {
+	return os.ReadFile(l.Path(bucketName, objectName))
+}
+
+func (l LocalFilesystem) PublicUrl(bucketName, objectName string) string {
+	domain := fmt.Sprintf("http://%s", l.config.Endpoint)
+	if l.config.SSL {
+		domain = fmt.Sprintf("https://%s", l.config.Endpoint)
+	}
+
+	return fmt.Sprintf(
+		"%s/%s/%s",
+		strings.TrimRight(domain, "/"),
+		bucketName,
+		strings.Trim(objectName, "/"),
+	)
+}
+
+func (l LocalFilesystem) PrivateUrl(bucketName, objectName string, _ time.Duration) string {
+	return l.PublicUrl(bucketName, objectName)
+}
+
+func (l LocalFilesystem) InitiateMultipartUpload(_, _ string) (string, error) {
+	return uuid.New().String(), nil
+}
+
+func (l LocalFilesystem) PutObjectPart(bucketName, _ string, uploadID string, index int, data io.Reader, _ int64) (ObjectPart, error) {
+	stream, _ := io.ReadAll(data)
+
+	objectName := fmt.Sprintf("multipart/%s/%d_%s.tmp", uploadID, index, uploadID)
+	if err := l.Write(bucketName, objectName, stream); err != nil {
+		return ObjectPart{}, err
+	}
+
+	return ObjectPart{
+		ETag:           "",
+		PartNumber:     index,
+		PartObjectName: objectName,
+	}, nil
+}
+
+func (l LocalFilesystem) CompleteMultipartUpload(bucketName, objectName, _ string, parts []ObjectPart) error {
+	for _, part := range parts {
+		stream, err := l.GetObject(bucketName, part.PartObjectName)
+		if err != nil {
+			return err
+		}
+
+		if err := l.appendWrite(bucketName, objectName, stream); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (l LocalFilesystem) appendWrite(bucketName, objectName string, stream []byte) error {
+	filePath := l.Path(bucketName, objectName)
 
 	dir := path.Dir(filePath)
 	if len(dir) > 0 && !isDirExist(dir) {
@@ -107,68 +204,16 @@ func (s *LocalFilesystem) AppendWrite(data []byte, filePath string) error {
 		return err
 	}
 
-	_, err = f.Write(data)
+	_, err = f.Write(stream)
 	return err
 }
 
-// Copy 文件拷贝
-func (s *LocalFilesystem) Copy(srcPath, filePath string) error {
-	return s.WriteLocal(s.Path(srcPath), filePath)
-}
-
-// Delete 文件删除
-func (s *LocalFilesystem) Delete(filePath string) error {
-	return os.Remove(s.Path(filePath))
-}
-
-// CreateDir 递归创建文件夹
-func (s *LocalFilesystem) CreateDir(dir string) error {
-	return os.MkdirAll(s.Path(dir), 0766)
-}
-
-// DeleteDir 删除文件夹
-func (s *LocalFilesystem) DeleteDir(dir string) error {
-	return os.RemoveAll(s.Path(dir))
-}
-
-// Stat 文件信息
-func (s *LocalFilesystem) Stat(filePath string) (*FileStat, error) {
-	info, err := os.Stat(s.Path(filePath))
-
-	if err != nil {
-		return nil, err
-	}
-
-	return &FileStat{
-		Name:        filepath.Base(filePath),
-		Size:        info.Size(),
-		Ext:         filepath.Ext(filePath),
-		MimeType:    "",
-		LastModTime: info.ModTime(),
-	}, nil
-}
-
-// PublicUrl 获取公共URL
-func (s *LocalFilesystem) PublicUrl(filePath string) string {
+// Path 获取文件地址绝对路径
+func (l LocalFilesystem) Path(bucketName string, objectName string) string {
 	return fmt.Sprintf(
-		"%s/%s",
-		strings.TrimRight(s.conf.Filesystem.Local.Domain, "/"),
-		strings.Trim(filePath, "/"),
+		"%s/%s/%s",
+		strings.TrimRight(l.config.Root, "/"),
+		bucketName,
+		strings.TrimLeft(objectName, "/"),
 	)
-}
-
-// PrivateUrl 获取私有URL
-func (s *LocalFilesystem) PrivateUrl(filePath string, timeout time.Duration) string {
-	return ""
-}
-
-// ReadStream 读取文件流
-func (s *LocalFilesystem) ReadStream(filePath string) ([]byte, error) {
-	return os.ReadFile(s.Path(filePath))
-}
-
-func (s *LocalFilesystem) InitiateMultipartUpload(_ string, _ string) (string, error) {
-	str := fmt.Sprintf("%d%s", time.Now().Unix(), encrypt.Md5(strutil.Random(20)))
-
-	return str, nil
 }

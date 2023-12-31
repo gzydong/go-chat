@@ -99,9 +99,8 @@ func (t *TalkService) Collect(ctx context.Context, uid int, recordId int) error 
 	}
 
 	return t.Source.Db().Create(&model.EmoticonItem{
-		UserId:     uid,
-		Url:        file.Url,
-		FileSuffix: file.Suffix,
-		FileSize:   file.Size,
+		UserId:   uid,
+		Url:      file.Url,
+		FileSize: file.Size,
 	}).Error
 }

@@ -32,11 +32,3 @@ func Base64Encode(str string) string {
 func Base64Decode(str string) ([]byte, error) {
 	return base64.StdEncoding.DecodeString(str)
 }
-
-func AesEncrypt(token, data string) (string, error) {
-	return "", nil
-}
-
-func AesDecrypt(token, data string) (string, error) {
-	return "", nil
-}

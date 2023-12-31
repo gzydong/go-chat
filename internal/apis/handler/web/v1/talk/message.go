@@ -12,7 +12,7 @@ type Message struct {
 	TalkService    service.ITalkService
 	AuthService    service.IAuthService
 	MessageService service.IMessageService
-	Filesystem     *filesystem.Filesystem
+	Filesystem     filesystem.IFilesystem
 }
 
 type AuthorityOption struct {

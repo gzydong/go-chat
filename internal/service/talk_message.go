@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
 	"go-chat/api/pb/message/v1"
 	"go-chat/internal/entity"
@@ -70,7 +71,7 @@ type MessageService struct {
 	GroupMemberRepo     *repo.GroupMember
 	SplitUploadRepo     *repo.SplitUpload
 	TalkRecordsVoteRepo *repo.TalkRecordsVote
-	Filesystem          *filesystem.Filesystem
+	Filesystem          filesystem.IFilesystem
 	UnreadStorage       *cache.UnreadStorage
 	MessageStorage      *cache.MessageStorage
 	ServerStorage       *cache.ServerStorage
@@ -138,7 +139,6 @@ func (m *MessageService) SendVoice(ctx context.Context, uid int, req *message.Vo
 		UserId:     uid,
 		ReceiverId: int(req.Receiver.ReceiverId),
 		Extra: jsonutil.Encode(&model.TalkRecordExtraAudio{
-			Suffix:   strutil.FileSuffix(req.Url),
 			Size:     int(req.Size),
 			Url:      req.Url,
 			Duration: 0,
@@ -168,6 +168,7 @@ func (m *MessageService) SendVideo(ctx context.Context, uid int, req *message.Vi
 
 // SendFile 文件消息
 func (m *MessageService) SendFile(ctx context.Context, uid int, req *message.FileMessageRequest) error {
+	now := time.Now()
 
 	file, err := m.SplitUploadRepo.GetFile(ctx, uid, req.UploadId)
 	if err != nil {
@@ -175,16 +176,24 @@ func (m *MessageService) SendFile(ctx context.Context, uid int, req *message.Fil
 	}
 
 	publicUrl := ""
-	filePath := fmt.Sprintf("private/files/talks/%s/%s.%s", timeutil.DateNumber(), encrypt.Md5(strutil.Random(16)), file.FileExt)
+	filePath := fmt.Sprintf("talk-files/%s/%s.%s", now.Format("200601"), uuid.New().String(), file.FileExt)
 
 	// 公开文件
 	if entity.GetMediaType(file.FileExt) <= 3 {
-		filePath = fmt.Sprintf("public/media/%s/%s.%s", timeutil.DateNumber(), encrypt.Md5(strutil.Random(16)), file.FileExt)
-		publicUrl = m.Filesystem.Default.PublicUrl(filePath)
-	}
+		filePath = strutil.GenMediaObjectName(file.FileExt, 0, 0)
+		// 如果是多媒体文件，则将私有文件转移到公开文件
+		if err := m.Filesystem.CopyObject(
+			m.Filesystem.BucketPrivateName(), file.Path,
+			m.Filesystem.BucketPublicName(), filePath,
+		); err != nil {
+			return err
+		}
 
-	if err := m.Filesystem.Default.Copy(file.Path, filePath); err != nil {
-		return err
+		publicUrl = m.Filesystem.PublicUrl(m.Filesystem.BucketPublicName(), filePath)
+	} else {
+		if err := m.Filesystem.Copy(m.Filesystem.BucketPrivateName(), file.Path, filePath); err != nil {
+			return err
+		}
 	}
 
 	data := &model.TalkRecords{
@@ -198,7 +207,6 @@ func (m *MessageService) SendFile(ctx context.Context, uid int, req *message.Fil
 	case entity.MediaFileAudio:
 		data.MsgType = entity.ChatMsgTypeAudio
 		data.Extra = jsonutil.Encode(&model.TalkRecordExtraAudio{
-			Suffix:   file.FileExt,
 			Size:     int(file.FileSize),
 			Url:      publicUrl,
 			Duration: 0,
@@ -207,7 +215,6 @@ func (m *MessageService) SendFile(ctx context.Context, uid int, req *message.Fil
 		data.MsgType = entity.ChatMsgTypeVideo
 		data.Extra = jsonutil.Encode(&model.TalkRecordExtraVideo{
 			Cover:    "",
-			Suffix:   file.FileExt,
 			Size:     int(file.FileSize),
 			Url:      publicUrl,
 			Duration: 0,
@@ -215,11 +222,10 @@ func (m *MessageService) SendFile(ctx context.Context, uid int, req *message.Fil
 	case entity.MediaFileOther:
 		data.MsgType = entity.ChatMsgTypeFile
 		data.Extra = jsonutil.Encode(&model.TalkRecordExtraFile{
-			Drive:  file.Drive,
-			Name:   file.OriginalName,
-			Suffix: file.FileExt,
-			Size:   int(file.FileSize),
-			Path:   filePath,
+			Drive: file.Drive,
+			Name:  file.OriginalName,
+			Size:  int(file.FileSize),
+			Path:  filePath,
 		})
 	}
 

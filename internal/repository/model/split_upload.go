@@ -7,7 +7,7 @@ import (
 type SplitUpload struct {
 	Id           int       `gorm:"column:id;primary_key;AUTO_INCREMENT" json:"id"`           // 临时文件ID
 	Type         int       `gorm:"column:type;default:1;NOT NULL" json:"type"`               // 文件属性[1:合并文件;2:拆分文件]
-	Drive        int       `gorm:"column:drive;default:1;NOT NULL" json:"drive"`             // 驱动类型[1:local;2:cos;]
+	Drive        int       `gorm:"column:drive;default:1;NOT NULL" json:"drive"`             // 驱动类型[1:local;2:minio;]
 	UploadId     string    `gorm:"column:upload_id;NOT NULL" json:"upload_id"`               // 临时文件hash名
 	UserId       int       `gorm:"column:user_id;default:0;NOT NULL" json:"user_id"`         // 上传的用户ID
 	OriginalName string    `gorm:"column:original_name;NOT NULL" json:"original_name"`       // 原文件名

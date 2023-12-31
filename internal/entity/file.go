@@ -29,12 +29,12 @@ func GetMediaType(ext string) int {
 // 文件系统相关
 const (
 	FileDriveLocal = 1
-	FileDriveCos   = 2
+	FileDriveMinio = 2
 )
 
 var fileSystemDriveMap = map[string]int{
 	"local": FileDriveLocal,
-	"cos":   FileDriveCos,
+	"minio": FileDriveMinio,
 }
 
 func FileDriveMode(drive string) int {

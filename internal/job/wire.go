@@ -10,9 +10,9 @@ import (
 var CronProviderSet = wire.NewSet(
 	wire.Struct(new(CronProvider), "*"),
 	wire.Struct(new(Crontab), "*"),
+	wire.Struct(new(cron.ClearArticle), "*"),
+	wire.Struct(new(cron.ClearTmpFile), "*"),
 	cron.NewClearWsCache,
-	cron.NewClearArticle,
-	cron.NewClearTmpFile,
 	cron.NewClearExpireServer,
 )
 

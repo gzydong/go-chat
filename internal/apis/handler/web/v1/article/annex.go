@@ -12,7 +12,6 @@ import (
 	"go-chat/internal/pkg/filesystem"
 	"go-chat/internal/pkg/ichat"
 	"go-chat/internal/pkg/strutil"
-	"go-chat/internal/pkg/timeutil"
 	"go-chat/internal/repository/model"
 	"go-chat/internal/repository/repo"
 	"go-chat/internal/service"
@@ -21,7 +20,7 @@ import (
 type Annex struct {
 	ArticleAnnexRepo    *repo.ArticleAnnex
 	ArticleAnnexService service.IArticleAnnexService
-	Filesystem          *filesystem.Filesystem
+	Filesystem          filesystem.IFilesystem
 }
 
 // Upload 上传附件
@@ -49,9 +48,8 @@ func (c *Annex) Upload(ctx *ichat.Context) error {
 
 	ext := strutil.FileSuffix(file.Filename)
 
-	filePath := fmt.Sprintf("private/files/note/%s/%s", timeutil.DateNumber(), strutil.GenFileName(ext))
-
-	if err := c.Filesystem.Default.Write(stream, filePath); err != nil {
+	filePath := fmt.Sprintf("article-files/%s/%s", time.Now().Format("200601"), strutil.GenFileName(ext))
+	if err := c.Filesystem.Write(c.Filesystem.BucketPrivateName(), filePath, stream); err != nil {
 		return ctx.ErrorBusiness("附件上传失败")
 	}
 
@@ -181,9 +179,14 @@ func (c *Annex) Download(ctx *ichat.Context) error {
 
 	switch info.Drive {
 	case entity.FileDriveLocal:
-		ctx.Context.FileAttachment(c.Filesystem.Local.Path(info.Path), info.OriginalName)
-	case entity.FileDriveCos:
-		ctx.Context.Redirect(http.StatusFound, c.Filesystem.Cos.PrivateUrl(info.Path, 60*time.Second))
+		if c.Filesystem.Driver() != filesystem.LocalDriver {
+			return ctx.ErrorBusiness("未知文件驱动类型")
+		}
+
+		filePath := c.Filesystem.(*filesystem.LocalFilesystem).Path(c.Filesystem.BucketPrivateName(), info.Path)
+		ctx.Context.FileAttachment(filePath, info.OriginalName)
+	case entity.FileDriveMinio:
+		ctx.Context.Redirect(http.StatusFound, c.Filesystem.PrivateUrl(c.Filesystem.BucketPrivateName(), info.Path, 60*time.Second))
 	default:
 		return ctx.ErrorBusiness("未知文件驱动类型")
 	}

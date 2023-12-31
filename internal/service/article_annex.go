@@ -18,7 +18,7 @@ type IArticleAnnexService interface {
 type ArticleAnnexService struct {
 	*repo.Source
 	ArticleAnnex *repo.ArticleAnnex
-	FileSystem   *filesystem.Filesystem
+	FileSystem   filesystem.IFilesystem
 }
 
 func (s *ArticleAnnexService) Create(ctx context.Context, data *model.ArticleAnnex) error {
@@ -48,12 +48,7 @@ func (s *ArticleAnnexService) ForeverDelete(ctx context.Context, uid int, id int
 		return err
 	}
 
-	switch annex.Drive {
-	case 1:
-		_ = s.FileSystem.Local.Delete(annex.Path)
-	case 2:
-		_ = s.FileSystem.Cos.Delete(annex.Path)
-	}
+	_ = s.FileSystem.Delete(s.FileSystem.BucketPrivateName(), annex.Path)
 
 	return s.Source.Db().Delete(&model.ArticleAnnex{}, id).Error
 }

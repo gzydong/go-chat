@@ -1,7 +1,6 @@
 package strutil
 
 import (
-	"crypto/md5"
 	"fmt"
 	"math/rand"
 	"path"
@@ -35,19 +34,6 @@ func Random(length int) string {
 	}
 
 	return string(result)
-}
-
-// GenImageName 随机生成指定后缀的图片名
-func GenImageName(ext string, width, height int) string {
-	str := fmt.Sprintf("%d%s", time.Now().Unix(), Random(10))
-
-	return fmt.Sprintf("%x_%dx%d.%s", md5.Sum([]byte(str)), width, height, ext)
-}
-
-func GenFileName(ext string) string {
-	str := fmt.Sprintf("%d%s", time.Now().Unix(), Random(10))
-
-	return fmt.Sprintf("%x.%s", md5.Sum([]byte(str)), ext)
 }
 
 // MtSubstr 字符串截取

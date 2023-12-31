@@ -79,16 +79,14 @@ type TalkRecordExtraCard struct {
 }
 
 type TalkRecordExtraFile struct {
-	Name   string `json:"name"`   // 文件名称
-	Drive  int    `json:"drive"`  // 文件存储方式
-	Suffix string `json:"suffix"` // 文件后缀
-	Size   int    `json:"size"`   // 文件大小
-	Path   string `json:"path"`   // 文件路径
+	Name  string `json:"name"`  // 文件名称
+	Drive int    `json:"drive"` // 文件存储方式
+	Size  int    `json:"size"`  // 文件大小
+	Path  string `json:"path"`  // 文件路径
 }
 
 type TalkRecordExtraImage struct {
 	Name   string `json:"name"`   // 图片名称
-	Suffix string `json:"suffix"` // 图片后缀
 	Size   int    `json:"size"`   // 图片大小
 	Url    string `json:"url"`    // 图片地址
 	Width  int    `json:"width"`  // 图片宽度
@@ -97,7 +95,6 @@ type TalkRecordExtraImage struct {
 
 type TalkRecordExtraAudio struct {
 	Name     string `json:"name"`     // 语音名称
-	Suffix   string `json:"suffix"`   // 文件后缀
 	Size     int    `json:"size"`     // 语音大小
 	Url      string `json:"url"`      // 语音地址
 	Duration int    `json:"duration"` // 语音时长
@@ -106,7 +103,6 @@ type TalkRecordExtraAudio struct {
 type TalkRecordExtraVideo struct {
 	Name     string `json:"name"`     // 视频名称
 	Cover    string `json:"cover"`    // 视频封面
-	Suffix   string `json:"suffix"`   // 文件后缀
 	Size     int    `json:"size"`     // 视频大小
 	Url      string `json:"url"`      // 视频地址
 	Duration int    `json:"duration"` // 视频时长

@@ -62,24 +62,23 @@ cors:
 filesystem:
   default: local
   local:
-    root:
-    domain:
-  oss:
-    access_id:
-    access_secret:
-    bucket:
-    endpoint:
-    security_token:
-  qiniu:
-    access_key:
-    secret_key:
-    bucket:
-    domain:
-  cos:
-    secret_id: ""
-    secret_key: ""
-    bucket: "im-xxx"
-    region: "ap-shanghai"
+    # 文件保存的根目录
+    root: "/path/xx/lumenim/"
+    # 公开的 bucket
+    bucket_public: "im-static"
+    # 私有的 bucket
+    bucket_private: "im-private"
+    endpoint: "im-cdn.gzydong.com"
+    ssl: false
+  minio:
+    secret_id: "xxxxxx"
+    secret_key: "xxxxx"
+    # 公开的 bucket
+    bucket_public: "im-static"
+    # 私有的 bucket
+    bucket_private: "im-private"
+    endpoint: "im-cdn.gzydong.com:9000"
+    ssl: false
 
 # 邮件配置
 email:

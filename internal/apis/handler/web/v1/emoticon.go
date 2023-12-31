@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"slices"
-	"time"
 
 	"go-chat/api/pb/web/v1"
 	"go-chat/internal/pkg/ichat"
@@ -23,7 +22,7 @@ type Emoticon struct {
 	RedisLock       *cache.RedisLock
 	EmoticonRepo    *repo.Emoticon
 	EmoticonService service.IEmoticonService
-	Filesystem      *filesystem.Filesystem
+	Filesystem      filesystem.IFilesystem
 }
 
 // CollectList 收藏列表
@@ -112,15 +111,16 @@ func (c *Emoticon) Upload(ctx *ichat.Context) error {
 
 	meta := utils.ReadImageMeta(bytes.NewReader(stream))
 	ext := strutil.FileSuffix(file.Filename)
-	src := fmt.Sprintf("public/media/image/emoticon/%s/%s", time.Now().Format("20060102"), strutil.GenImageName(ext, meta.Width, meta.Height))
-	if err = c.Filesystem.Default.Write(stream, src); err != nil {
+
+	src := strutil.GenMediaObjectName(ext, meta.Width, meta.Height)
+	if err = c.Filesystem.Write(c.Filesystem.BucketPublicName(), src, stream); err != nil {
 		return ctx.ErrorBusiness("上传失败！")
 	}
 
 	m := &model.EmoticonItem{
 		UserId:     ctx.UserId(),
 		Describe:   "自定义表情包",
-		Url:        c.Filesystem.Default.PublicUrl(src),
+		Url:        c.Filesystem.PublicUrl(c.Filesystem.BucketPublicName(), src),
 		FileSuffix: ext,
 		FileSize:   int(file.Size),
 	}

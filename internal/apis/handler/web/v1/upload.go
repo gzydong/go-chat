@@ -2,11 +2,9 @@ package v1
 
 import (
 	"bytes"
-	"fmt"
 	"path"
 	"strconv"
 	"strings"
-	"time"
 
 	"go-chat/api/pb/web/v1"
 	"go-chat/config"
@@ -20,27 +18,26 @@ import (
 
 type Upload struct {
 	Config             *config.Config
-	Filesystem         *filesystem.Filesystem
+	Filesystem         filesystem.IFilesystem
 	SplitUploadService service.ISplitUploadService
 }
 
 // Avatar 头像上传上传
 func (u *Upload) Avatar(ctx *ichat.Context) error {
-
 	file, err := ctx.Context.FormFile("file")
 	if err != nil {
 		return ctx.InvalidParams("文件上传失败！")
 	}
 
 	stream, _ := filesystem.ReadMultipartStream(file)
-	object := fmt.Sprintf("public/media/image/avatar/%s/%s", time.Now().Format("20060102"), strutil.GenImageName("png", 200, 200))
 
-	if err := u.Filesystem.Default.Write(stream, object); err != nil {
+	object := strutil.GenMediaObjectName("png", 200, 200)
+	if err := u.Filesystem.Write(u.Filesystem.BucketPublicName(), object, stream); err != nil {
 		return ctx.ErrorBusiness("文件上传失败")
 	}
 
 	return ctx.Success(web.UploadAvatarResponse{
-		Avatar: u.Filesystem.Default.PublicUrl(object),
+		Avatar: u.Filesystem.PublicUrl(u.Filesystem.BucketPublicName(), object),
 	})
 }
 
@@ -65,14 +62,13 @@ func (u *Upload) Image(ctx *ichat.Context) error {
 		height = meta.Height
 	}
 
-	object := fmt.Sprintf("public/media/image/common/%s/%s", time.Now().Format("20060102"), strutil.GenImageName(ext, width, height))
-
-	if err := u.Filesystem.Default.Write(stream, object); err != nil {
+	object := strutil.GenMediaObjectName(ext, width, height)
+	if err := u.Filesystem.Write(u.Filesystem.BucketPublicName(), object, stream); err != nil {
 		return ctx.ErrorBusiness("文件上传失败")
 	}
 
 	return ctx.Success(web.UploadImageResponse{
-		Src: u.Filesystem.Default.PublicUrl(object),
+		Src: u.Filesystem.PublicUrl(u.Filesystem.BucketPublicName(), object),
 	})
 }
 
@@ -96,7 +92,7 @@ func (u *Upload) InitiateMultipart(ctx *ichat.Context) error {
 	return ctx.Success(&web.UploadInitiateMultipartResponse{
 		UploadId:    info.UploadId,
 		UploadIdMd5: encrypt.Md5(info.UploadId),
-		SplitSize:   2 << 20,
+		SplitSize:   5 << 20,
 	})
 }
 

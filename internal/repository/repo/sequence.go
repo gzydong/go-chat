@@ -71,7 +71,7 @@ func (s *Sequence) Get(ctx context.Context, userId int, receiverId int) int64 {
 	if err := utils.Retry(5, 100*time.Millisecond, func() error {
 		return s.try(ctx, userId, receiverId)
 	}); err != nil {
-		log.Println("Sequence Get Err :", err.Error())
+		log.Println("Sequence GetObject Err :", err.Error())
 	}
 
 	return s.cache.Get(ctx, userId, receiverId)

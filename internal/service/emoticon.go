@@ -23,7 +23,7 @@ type IEmoticonService interface {
 type EmoticonService struct {
 	*repo.Source
 	EmoticonRepo *repo.Emoticon
-	Filesystem   *filesystem.Filesystem
+	Filesystem   filesystem.IFilesystem
 }
 
 func (s *EmoticonService) RemoveUserSysEmoticon(uid int, emoticonId int) error {

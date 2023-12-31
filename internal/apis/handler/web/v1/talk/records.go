@@ -22,7 +22,7 @@ type Records struct {
 	TalkRecordsService service.ITalkRecordsService
 	GroupMemberService service.IGroupMemberService
 	AuthService        service.IAuthService
-	Filesystem         *filesystem.Filesystem
+	Filesystem         filesystem.IFilesystem
 }
 
 type GetTalkRecordsRequest struct {
@@ -229,9 +229,14 @@ func (c *Records) Download(ctx *ichat.Context) error {
 
 	switch fileInfo.Drive {
 	case entity.FileDriveLocal:
-		ctx.Context.FileAttachment(c.Filesystem.Local.Path(fileInfo.Path), fileInfo.Name)
-	case entity.FileDriveCos:
-		ctx.Context.Redirect(http.StatusFound, c.Filesystem.Cos.PrivateUrl(fileInfo.Path, 60*time.Second))
+		if c.Filesystem.Driver() != filesystem.LocalDriver {
+			return ctx.ErrorBusiness("未知文件驱动类型")
+		}
+
+		filePath := c.Filesystem.(*filesystem.LocalFilesystem).Path(c.Filesystem.BucketPrivateName(), fileInfo.Path)
+		ctx.Context.FileAttachment(filePath, fileInfo.Name)
+	case entity.FileDriveMinio:
+		ctx.Context.Redirect(http.StatusFound, c.Filesystem.PrivateUrl(c.Filesystem.BucketPrivateName(), fileInfo.Path, 60*time.Second))
 	default:
 		return ctx.ErrorBusiness("未知文件驱动类型")
 	}

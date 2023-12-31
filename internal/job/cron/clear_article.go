@@ -4,19 +4,14 @@ import (
 	"context"
 	"time"
 
-	"go-chat/internal/entity"
 	"go-chat/internal/pkg/filesystem"
 	"go-chat/internal/repository/model"
 	"gorm.io/gorm"
 )
 
 type ClearArticle struct {
-	db         *gorm.DB
-	fileSystem *filesystem.Filesystem
-}
-
-func NewClearArticle(db *gorm.DB, fileSystem *filesystem.Filesystem) *ClearArticle {
-	return &ClearArticle{db: db, fileSystem: fileSystem}
+	DB         *gorm.DB
+	Filesystem filesystem.IFilesystem
 }
 
 func (c *ClearArticle) Name() string {
@@ -50,19 +45,14 @@ func (c *ClearArticle) clearAnnex() {
 	for {
 		items := make([]*model.ArticleAnnex, 0)
 
-		err := c.db.Model(&model.ArticleAnnex{}).Where("id > ? and status = 2 and deleted_at <= ?", lastId, time.Now().AddDate(0, 0, -30)).Order("id asc").Limit(size).Scan(&items).Error
+		err := c.DB.Model(&model.ArticleAnnex{}).Where("id > ? and status = 2 and deleted_at <= ?", lastId, time.Now().AddDate(0, 0, -30)).Order("id asc").Limit(size).Scan(&items).Error
 		if err != nil {
 			break
 		}
 
 		for _, item := range items {
-			if item.Drive == entity.FileDriveLocal {
-				_ = c.fileSystem.Local.Delete(item.Path)
-			} else if item.Drive == entity.FileDriveCos {
-				_ = c.fileSystem.Cos.Delete(item.Path)
-			}
-
-			c.db.Delete(&model.ArticleAnnex{}, item.Id)
+			_ = c.Filesystem.Delete(c.Filesystem.BucketPrivateName(), item.Path)
+			c.DB.Delete(&model.ArticleAnnex{}, item.Id)
 		}
 
 		if len(items) < size {
@@ -81,7 +71,7 @@ func (c *ClearArticle) clearNote() {
 	for {
 		items := make([]*model.Article, 0)
 
-		err := c.db.Model(&model.Article{}).Where("id > ? and status = 2 and deleted_at <= ?", lastId, time.Now().AddDate(0, 0, -30)).Order("id asc").Limit(size).Scan(&items).Error
+		err := c.DB.Model(&model.Article{}).Where("id > ? and status = 2 and deleted_at <= ?", lastId, time.Now().AddDate(0, 0, -30)).Order("id asc").Limit(size).Scan(&items).Error
 		if err != nil {
 			break
 		}
@@ -89,21 +79,17 @@ func (c *ClearArticle) clearNote() {
 		for _, item := range items {
 			subItems := make([]*model.ArticleAnnex, 0)
 
-			if err := c.db.Model(&model.ArticleAnnex{}).Select("drive", "path").Where("article_id = ?", item.Id).Scan(&subItems).Error; err != nil {
+			if err := c.DB.Model(&model.ArticleAnnex{}).Select("drive", "path").Where("article_id = ?", item.Id).Scan(&subItems).Error; err != nil {
 				continue
 			}
 
 			for _, subItem := range subItems {
-				if subItem.Drive == entity.FileDriveLocal {
-					_ = c.fileSystem.Local.Delete(subItem.Path)
-				} else if subItem.Drive == entity.FileDriveCos {
-					_ = c.fileSystem.Cos.Delete(subItem.Path)
-				}
+				_ = c.Filesystem.Delete(c.Filesystem.BucketPrivateName(), subItem.Path)
 
-				c.db.Delete(&model.ArticleAnnex{}, subItem.Id)
+				c.DB.Delete(&model.ArticleAnnex{}, subItem.Id)
 			}
 
-			c.db.Delete(&model.Article{}, item.Id)
+			c.DB.Delete(&model.Article{}, item.Id)
 		}
 
 		if len(items) < size {

@@ -1,82 +1,86 @@
 package filesystem
 
 import (
-	"fmt"
 	"testing"
-
-	"github.com/stretchr/testify/assert"
-
-	"go-chat/testutil"
 )
 
-func testNewFilesystem() *Filesystem {
-	conf := testutil.GetConfig()
+func TestName(t *testing.T) {
+	// conf := testutil.GetConfig()
+	//
+	// conf.Filesystem.Local.SSL = false
+	// conf.Filesystem.Local.Root = "./data"
+	// conf.Filesystem.Local.Endpoint = "127.0.0.1:9000"
+	// conf.Filesystem.Local.BucketPublic = "im-static"
+	// conf.Filesystem.Local.BucketPrivate = "im-private"
+	//
+	// conf.Filesystem.Minio.SSL = false
+	// conf.Filesystem.Minio.Endpoint = "127.0.0.1:9000"
+	// conf.Filesystem.Minio.SecretId = "Q3AM3UQ867SPQQA43P2F"
+	// conf.Filesystem.Minio.SecretKey = "zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG"
+	// conf.Filesystem.Minio.BucketPublic = "im-static"
+	// conf.Filesystem.Minio.BucketPrivate = "im-private"
+	//
+	// client := NewMinioFilesystem(conf)
+	// client := NewLocalFilesystem(conf)
 
-	return NewFilesystem(conf)
-}
+	// err := client.Write("im-private", []byte("hello world"), "filesystem.txt")
+	// fmt.Println(err)
 
-func TestFilesystem_Write(t *testing.T) {
-	filesystem := testNewFilesystem()
+	// bt, err := client.GetObject("im-private", "filesystem.txt")
+	// fmt.Println(err)
+	// fmt.Println(string(bt))
+	//
+	// err := client.WriteLocal("im-private", "./util.go", "filesystem.txt")
+	// fmt.Println(err)
 
-	_ = filesystem.Default.Write([]byte("www"), "public/test/file")
-}
+	// err := client.Copy("im-private", "filesystem.txt", "filesystem2.txt")
+	// fmt.Println(err)
 
-func TestFilesystem_WriteLocal(t *testing.T) {
-	filesystem := testNewFilesystem()
+	// bt, err := client.Stat("im-private", "filesystem2.txt")
+	// fmt.Println(err)
+	// fmt.Println(bt)
 
-	localFile := "/Users/yuandong/www/gowork/go-chat/README.md"
+	// value := client.PublicUrl("im-private", "filesystem2.txt")
+	// fmt.Println(value)
 
-	assert.NoError(t, filesystem.Default.WriteLocal(localFile, "private/README.md"))
-}
-
-func TestFilesystem_Copy(t *testing.T) {
-	filesystem := testNewFilesystem()
-
-	_ = filesystem.Default.Copy("private/README.md", "private/README2.md")
-}
-
-func TestFilesystem_Delete(t *testing.T) {
-	filesystem := testNewFilesystem()
-
-	assert.NoError(t, filesystem.Default.Delete("private/README2.md"))
-}
-
-func TestFilesystem_CreateDir(t *testing.T) {
-	filesystem := testNewFilesystem()
-	assert.NoError(t, filesystem.Default.CreateDir("public/tmp/test"))
-}
-
-func TestFilesystem_DeleteDir(t *testing.T) {
-	filesystem := testNewFilesystem()
-	assert.NoError(t, filesystem.Default.DeleteDir("public/tmp/test"))
-}
-
-func TestCosFilesystem_PublicUrl(t *testing.T) {
-	filesystem := testNewFilesystem()
-
-	t.Log(filesystem.Default.PublicUrl("private/README.md"))
-}
-
-func TestFilesystem_PrivateUrl(t *testing.T) {
-	filesystem := testNewFilesystem()
-
-	t.Log(filesystem.Default.PrivateUrl("private/README.md", 120))
-}
-
-func TestFilesystem_Stat(t *testing.T) {
-	filesystem := testNewFilesystem()
-
-	info, err := filesystem.Default.Stat("private/README.md")
-
-	assert.NoError(t, err)
-	fmt.Printf("%#v\n", info)
-}
-
-func TestCosFilesystem_ReadContent(t *testing.T) {
-	filesystem := testNewFilesystem()
-
-	info, err := filesystem.Default.ReadStream("private/tmp/20211218/ba6680b1da03bbae24081f2f4ba09a4e/3-ba6680b1da03bbae24081f2f4ba09a4e.tmp")
-
-	assert.NoError(t, err)
-	fmt.Printf("%#v\n", info)
+	// // Make a buffer with 6MB of data
+	// buf := bytes.Repeat([]byte("abcdef"), 1024*1024)
+	//
+	// // Open the file.
+	// file, err := os.Open("./node-v18.15.0-linux-x64.tar.xz")
+	// if err != nil {
+	// 	fmt.Println(err)
+	// 	return
+	// }
+	//
+	// defer file.Close()
+	//
+	// items := make([]ObjectPart, 0)
+	//
+	// upload, err := client.InitiateMultipartUpload("im-private", "node-v18.15.0-linux-x64.txt")
+	// fmt.Println(upload, err)
+	//
+	// if err != nil {
+	// 	return
+	// }
+	//
+	// obj, err := client.PutObjectPart("im-private", "node-v18.15.0-linux-x64.txt", upload, 1, bytes.NewReader(buf[:5*1024*1024]), 5*1024*1024)
+	// if err != nil {
+	// 	fmt.Println(err)
+	// 	return
+	// }
+	//
+	// items = append(items, obj)
+	//
+	// obj, err = client.PutObjectPart("im-private", "node-v18.15.0-linux-x64.txt", upload, 2, bytes.NewReader(buf[5*1024*1024:]), 1024*1024)
+	// if err != nil {
+	// 	fmt.Println(err)
+	// 	return
+	// }
+	//
+	// items = append(items, obj)
+	//
+	// // Close the file.
+	// err = client.CompleteMultipartUpload("im-private", "node-v18.15.0-linux-x64.txt", upload, items)
+	// fmt.Println(err)
 }

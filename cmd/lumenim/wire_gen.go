@@ -74,7 +74,7 @@ func NewHttpInjector(conf *config.Config) *apis.AppProvider {
 	splitUpload := repo.NewFileSplitUpload(db)
 	vote := cache.NewVote(client)
 	talkRecordsVote := repo.NewTalkRecordsVote(db, vote)
-	filesystem := provider.NewFilesystem(conf)
+	iFilesystem := provider.NewFilesystem(conf)
 	unreadStorage := cache.NewUnreadStorage(client)
 	messageStorage := cache.NewMessageStorage(client)
 	serverStorage := cache.NewSidStorage(client)
@@ -85,7 +85,7 @@ func NewHttpInjector(conf *config.Config) *apis.AppProvider {
 		GroupMemberRepo:     groupMember,
 		SplitUploadRepo:     splitUpload,
 		TalkRecordsVoteRepo: talkRecordsVote,
-		Filesystem:          filesystem,
+		Filesystem:          iFilesystem,
 		UnreadStorage:       unreadStorage,
 		MessageStorage:      messageStorage,
 		ServerStorage:       serverStorage,
@@ -180,7 +180,7 @@ func NewHttpInjector(conf *config.Config) *apis.AppProvider {
 		TalkService:    talkService,
 		AuthService:    authService,
 		MessageService: messageService,
-		Filesystem:     filesystem,
+		Filesystem:     iFilesystem,
 	}
 	talkRecords := repo.NewTalkRecords(db)
 	talkRecordsDelete := repo.NewTalkRecordsDelete(db)
@@ -202,29 +202,29 @@ func NewHttpInjector(conf *config.Config) *apis.AppProvider {
 		TalkRecordsService: talkRecordsService,
 		GroupMemberService: groupMemberService,
 		AuthService:        authService,
-		Filesystem:         filesystem,
+		Filesystem:         iFilesystem,
 	}
 	emoticon := repo.NewEmoticon(db)
 	emoticonService := &service.EmoticonService{
 		Source:       source,
 		EmoticonRepo: emoticon,
-		Filesystem:   filesystem,
+		Filesystem:   iFilesystem,
 	}
 	v1Emoticon := &v1.Emoticon{
 		RedisLock:       redisLock,
 		EmoticonRepo:    emoticon,
 		EmoticonService: emoticonService,
-		Filesystem:      filesystem,
+		Filesystem:      iFilesystem,
 	}
 	splitUploadService := &service.SplitUploadService{
 		Source:          source,
 		SplitUploadRepo: splitUpload,
 		Config:          conf,
-		FileSystem:      filesystem,
+		FileSystem:      iFilesystem,
 	}
 	upload := &v1.Upload{
 		Config:             conf,
-		Filesystem:         filesystem,
+		Filesystem:         iFilesystem,
 		SplitUploadService: splitUploadService,
 	}
 	groupNotice := repo.NewGroupNotice(db)
@@ -311,19 +311,19 @@ func NewHttpInjector(conf *config.Config) *apis.AppProvider {
 	articleAnnexService := &service.ArticleAnnexService{
 		Source:       source,
 		ArticleAnnex: articleAnnex,
-		FileSystem:   filesystem,
+		FileSystem:   iFilesystem,
 	}
 	articleArticle := &article.Article{
 		Source:              source,
 		ArticleAnnexRepo:    articleAnnex,
 		ArticleService:      articleService,
 		ArticleAnnexService: articleAnnexService,
-		Filesystem:          filesystem,
+		Filesystem:          iFilesystem,
 	}
 	annex := &article.Annex{
 		ArticleAnnexRepo:    articleAnnex,
 		ArticleAnnexService: articleAnnexService,
-		Filesystem:          filesystem,
+		Filesystem:          iFilesystem,
 	}
 	class := &article.Class{
 		ArticleClassService: articleClassService,
@@ -421,7 +421,7 @@ func NewCommetInjector(conf *config.Config) *commet.AppProvider {
 	splitUpload := repo.NewFileSplitUpload(db)
 	vote := cache.NewVote(client)
 	talkRecordsVote := repo.NewTalkRecordsVote(db, vote)
-	filesystem := provider.NewFilesystem(conf)
+	iFilesystem := provider.NewFilesystem(conf)
 	unreadStorage := cache.NewUnreadStorage(client)
 	messageStorage := cache.NewMessageStorage(client)
 	robot := repo.NewRobot(db)
@@ -431,7 +431,7 @@ func NewCommetInjector(conf *config.Config) *commet.AppProvider {
 		GroupMemberRepo:     groupMember,
 		SplitUploadRepo:     splitUpload,
 		TalkRecordsVoteRepo: talkRecordsVote,
-		Filesystem:          filesystem,
+		Filesystem:          iFilesystem,
 		UnreadStorage:       unreadStorage,
 		MessageStorage:      messageStorage,
 		ServerStorage:       serverStorage,
@@ -527,9 +527,15 @@ func NewCronInjector(conf *config.Config) *job.CronProvider {
 	serverStorage := cache.NewSidStorage(client)
 	clearWsCache := cron.NewClearWsCache(serverStorage)
 	db := provider.NewMySQLClient(conf)
-	filesystem := provider.NewFilesystem(conf)
-	clearArticle := cron.NewClearArticle(db, filesystem)
-	clearTmpFile := cron.NewClearTmpFile(db, filesystem)
+	iFilesystem := provider.NewFilesystem(conf)
+	clearArticle := &cron.ClearArticle{
+		DB:         db,
+		Filesystem: iFilesystem,
+	}
+	clearTmpFile := &cron.ClearTmpFile{
+		DB:         db,
+		Filesystem: iFilesystem,
+	}
 	clearExpireServer := cron.NewClearExpireServer(serverStorage)
 	crontab := &job.Crontab{
 		ClearWsCache:      clearWsCache,
