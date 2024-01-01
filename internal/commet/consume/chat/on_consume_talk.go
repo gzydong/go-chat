@@ -12,10 +12,10 @@ import (
 )
 
 type ConsumeTalk struct {
-	TalkType   int   `json:"talk_type"`
-	SenderID   int64 `json:"sender_id"`
-	ReceiverID int64 `json:"receiver_id"`
-	RecordID   int64 `json:"record_id"`
+	TalkType   int    `json:"talk_type"`
+	SenderID   int64  `json:"sender_id"`
+	ReceiverID int64  `json:"receiver_id"`
+	MsgId      string `json:"msg_id"`
 }
 
 // 聊天消息事件
@@ -49,7 +49,7 @@ func (h *Handler) onConsumeTalk(ctx context.Context, body []byte) {
 		return
 	}
 
-	data, err := h.TalkRecordsService.FindTalkRecord(ctx, in.RecordID)
+	data, err := h.TalkRecordsService.FindTalkRecord(ctx, in.MsgId)
 	if err != nil {
 		return
 	}

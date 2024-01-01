@@ -253,7 +253,7 @@ func (g *GroupService) Secede(ctx context.Context, groupId int, uid int) error {
 			"sender_id":   record.UserId,
 			"receiver_id": record.ReceiverId,
 			"talk_type":   record.TalkType,
-			"record_id":   record.Id,
+			"msg_id":      record.MsgId,
 		}),
 	}))
 
@@ -397,7 +397,7 @@ func (g *GroupService) Invite(ctx context.Context, opt *GroupInviteOpt) error {
 			"sender_id":   record.UserId,
 			"receiver_id": record.ReceiverId,
 			"talk_type":   record.TalkType,
-			"record_id":   record.Id,
+			"msg_id":      record.MsgId,
 		}),
 	}))
 
@@ -492,7 +492,7 @@ func (g *GroupService) RemoveMember(ctx context.Context, opt *GroupRemoveMembers
 				"sender_id":   int64(record.UserId),
 				"receiver_id": int64(record.ReceiverId),
 				"talk_type":   record.TalkType,
-				"record_id":   int64(record.Id),
+				"msg_id":      record.MsgId,
 			}),
 		}))
 		return nil

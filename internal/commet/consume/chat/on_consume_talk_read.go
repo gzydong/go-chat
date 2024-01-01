@@ -11,14 +11,13 @@ import (
 )
 
 type ConsumeTalkRead struct {
-	SenderId   int   `json:"sender_id"`
-	ReceiverId int   `json:"receiver_id"`
-	Ids        []int `json:"ids"`
+	SenderId   int      `json:"sender_id"`
+	ReceiverId int      `json:"receiver_id"`
+	MsgIds     []string `json:"msg_ids"`
 }
 
 // 消息已读事件
 func (h *Handler) onConsumeTalkRead(ctx context.Context, body []byte) {
-
 	var in ConsumeTalkRead
 	if err := json.Unmarshal(body, &in); err != nil {
 		logger.Errorf("[ChatSubscribe] onConsumeContactApply Unmarshal err: %s", err.Error())
@@ -36,7 +35,7 @@ func (h *Handler) onConsumeTalkRead(ctx context.Context, body []byte) {
 	c.SetMessage(entity.PushEventImMessageRead, map[string]any{
 		"sender_id":   in.SenderId,
 		"receiver_id": in.ReceiverId,
-		"ids":         in.Ids,
+		"msg_ids":     in.MsgIds,
 	})
 
 	socket.Session.Chat.Write(c)

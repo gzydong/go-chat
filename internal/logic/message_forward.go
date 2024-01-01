@@ -24,7 +24,7 @@ func NewMessageForwardLogic(db *gorm.DB, sequence *repo.Sequence) *MessageForwar
 }
 
 type ForwardRecord struct {
-	RecordId   int
+	MsgId      string
 	ReceiverId int
 	TalkType   int
 }
@@ -107,7 +107,7 @@ func (m *MessageForwardLogic) MultiMergeForward(ctx context.Context, uid int, re
 	list := make([]*ForwardRecord, 0, len(records))
 	for _, record := range records {
 		list = append(list, &ForwardRecord{
-			RecordId:   record.Id,
+			MsgId:      record.MsgId,
 			ReceiverId: record.ReceiverId,
 			TalkType:   record.TalkType,
 		})
@@ -168,7 +168,7 @@ func (m *MessageForwardLogic) MultiSplitForward(ctx context.Context, uid int, re
 	list := make([]*ForwardRecord, 0, len(items))
 	for _, item := range items {
 		list = append(list, &ForwardRecord{
-			RecordId:   item.Id,
+			MsgId:      item.MsgId,
 			ReceiverId: item.ReceiverId,
 			TalkType:   item.TalkType,
 		})

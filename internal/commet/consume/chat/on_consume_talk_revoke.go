@@ -14,12 +14,11 @@ import (
 )
 
 type ConsumeTalkRevoke struct {
-	RecordId int `json:"record_id"`
+	MsgId string `json:"msg_id"`
 }
 
 // 撤销聊天消息
 func (h *Handler) onConsumeTalkRevoke(ctx context.Context, body []byte) {
-
 	var in ConsumeTalkRevoke
 	if err := json.Unmarshal(body, &in); err != nil {
 		logger.Errorf("[ChatSubscribe] onConsumeTalkRevoke Unmarshal err: %s", err.Error())
@@ -27,7 +26,7 @@ func (h *Handler) onConsumeTalkRevoke(ctx context.Context, body []byte) {
 	}
 
 	var record model.TalkRecords
-	if err := h.Source.Db().First(&record, in.RecordId).Error; err != nil {
+	if err := h.Source.Db().First(&record, "msg_id = ?", in.MsgId).Error; err != nil {
 		return
 	}
 
@@ -62,7 +61,7 @@ func (h *Handler) onConsumeTalkRevoke(ctx context.Context, body []byte) {
 		"talk_type":   record.TalkType,
 		"sender_id":   record.UserId,
 		"receiver_id": record.ReceiverId,
-		"record_id":   record.Id,
+		"msg_id":      record.MsgId,
 		"text":        fmt.Sprintf("%s: 撤回了一条消息", user.Nickname),
 	})
 

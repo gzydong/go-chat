@@ -203,5 +203,5 @@ type TalkRecordExtraMixed struct {
 }
 
 type TalkRecordExtraRevoke struct {
-	MessageId string `json:"message_id"`
+	MsgId string `json:"msg_id"`
 }

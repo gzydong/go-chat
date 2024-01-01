@@ -376,7 +376,7 @@ func (m *MessageService) SendForward(ctx context.Context, uid int, req *message.
 					"sender_id":   uid,
 					"receiver_id": item.ReceiverId,
 					"talk_type":   item.TalkType,
-					"record_id":   item.RecordId,
+					"msg_id":      item.MsgId,
 				}),
 			})
 
@@ -511,7 +511,7 @@ func (m *MessageService) Revoke(ctx context.Context, uid int, msgId string) erro
 	body := map[string]any{
 		"event": entity.SubEventImMessageRevoke,
 		"data": jsonutil.Encode(map[string]any{
-			"record_id": record.Id,
+			"msg_id": record.MsgId,
 		}),
 	}
 
@@ -745,7 +745,7 @@ func (m *MessageService) afterHandle(ctx context.Context, record *model.TalkReco
 			"sender_id":   record.UserId,
 			"receiver_id": record.ReceiverId,
 			"talk_type":   record.TalkType,
-			"record_id":   record.Id,
+			"msg_id":      record.MsgId,
 		}),
 	})
 

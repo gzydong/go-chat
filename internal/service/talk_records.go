@@ -17,13 +17,12 @@ import (
 var _ ITalkRecordsService = (*TalkRecordsService)(nil)
 
 type ITalkRecordsService interface {
-	FindTalkRecord(ctx context.Context, recordId int64) (*TalkRecord, error)
+	FindTalkRecord(ctx context.Context, msgId string) (*TalkRecord, error)
 	FindAllTalkRecords(ctx context.Context, opt *FindAllTalkRecordsOpt) ([]*TalkRecord, error)
 	FindForwardRecords(ctx context.Context, uid int, msgId string) ([]*TalkRecord, error)
 }
 
 type TalkRecord struct {
-	Id         int    `json:"id"`
 	MsgId      string `json:"msg_id"`
 	Sequence   int    `json:"sequence"`
 	TalkType   int    `json:"talk_type"`
@@ -58,7 +57,6 @@ type FindAllTalkRecordsOpt struct {
 }
 
 type QueryTalkRecord struct {
-	Id         int       `json:"id"`
 	MsgId      string    `json:"msg_id"`
 	Sequence   int64     `json:"sequence"`
 	TalkType   int       `json:"talk_type"`
@@ -75,12 +73,11 @@ type QueryTalkRecord struct {
 }
 
 // FindTalkRecord 获取对话消息
-func (s *TalkRecordsService) FindTalkRecord(ctx context.Context, recordId int64) (*TalkRecord, error) {
+func (s *TalkRecordsService) FindTalkRecord(ctx context.Context, msgId string) (*TalkRecord, error) {
 	var (
 		err    error
 		item   *QueryTalkRecord
 		fields = []string{
-			"talk_records.id",
 			"talk_records.msg_id",
 			"talk_records.sequence",
 			"talk_records.talk_type",
@@ -94,7 +91,7 @@ func (s *TalkRecordsService) FindTalkRecord(ctx context.Context, recordId int64)
 	)
 
 	query := s.Source.Db().Table("talk_records")
-	query.Where("talk_records.id = ?", recordId)
+	query.Where("talk_records.msg_id = ?", msgId)
 
 	if err = query.Select(fields).Take(&item).Error; err != nil {
 		return nil, err
@@ -175,7 +172,6 @@ func (s *TalkRecordsService) FindAllTalkRecords(ctx context.Context, opt *FindAl
 func (s *TalkRecordsService) findAllRecords(ctx context.Context, opt *FindAllTalkRecordsOpt) ([]*QueryTalkRecord, error) {
 	query := s.Source.Db().WithContext(ctx).Table("talk_records")
 	query.Select([]string{
-		"talk_records.id",
 		"talk_records.sequence",
 		"talk_records.talk_type",
 		"talk_records.msg_type",
@@ -230,7 +226,6 @@ func (s *TalkRecordsService) FindForwardRecords(ctx context.Context, uid int, ms
 	var (
 		items  = make([]*QueryTalkRecord, 0)
 		fields = []string{
-			"talk_records.id",
 			"talk_records.msg_id",
 			"talk_records.sequence",
 			"talk_records.talk_type",
@@ -298,7 +293,6 @@ func (s *TalkRecordsService) handleTalkRecords(ctx context.Context, items []*Que
 	newItems := make([]*TalkRecord, 0, len(items))
 	for _, item := range items {
 		data := &TalkRecord{
-			Id:         item.Id,
 			MsgId:      item.MsgId,
 			Sequence:   int(item.Sequence),
 			TalkType:   item.TalkType,
