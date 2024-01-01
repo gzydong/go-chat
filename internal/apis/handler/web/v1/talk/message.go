@@ -109,7 +109,7 @@ func (c *Message) Vote(ctx *ichat.Context) error {
 }
 
 type CollectMessageRequest struct {
-	RecordId int `form:"record_id" json:"record_id" binding:"required,numeric,gt=0" label:"record_id"`
+	MsgId string `form:"msg_id" json:"msg_id" binding:"required" label:"msg_id"`
 }
 
 // Collect 收藏聊天图片
@@ -120,7 +120,7 @@ func (c *Message) Collect(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	if err := c.TalkService.Collect(ctx.Ctx(), ctx.UserId(), params.RecordId); err != nil {
+	if err := c.TalkService.Collect(ctx.Ctx(), ctx.UserId(), params.MsgId); err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}
 
@@ -128,7 +128,7 @@ func (c *Message) Collect(ctx *ichat.Context) error {
 }
 
 type RevokeMessageRequest struct {
-	RecordId int `form:"record_id" json:"record_id" binding:"required,numeric,gt=0" label:"record_id"`
+	MsgId string `form:"msg_id" json:"msg_id" binding:"required" label:"msg_id"`
 }
 
 // Revoke 撤销聊天记录
@@ -139,7 +139,7 @@ func (c *Message) Revoke(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	if err := c.MessageService.Revoke(ctx.Ctx(), ctx.UserId(), params.RecordId); err != nil {
+	if err := c.MessageService.Revoke(ctx.Ctx(), ctx.UserId(), params.MsgId); err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}
 
@@ -147,9 +147,9 @@ func (c *Message) Revoke(ctx *ichat.Context) error {
 }
 
 type DeleteMessageRequest struct {
-	TalkType   int    `form:"talk_type" json:"talk_type" binding:"required,oneof=1 2" label:"talk_type"`
-	ReceiverId int    `form:"receiver_id" json:"receiver_id" binding:"required,numeric,gt=0" label:"receiver_id"`
-	RecordIds  string `form:"record_id" json:"record_id" binding:"required,ids" label:"record_id"`
+	TalkType   int      `form:"talk_type" json:"talk_type" binding:"required,oneof=1 2" label:"talk_type"`
+	ReceiverId int      `form:"receiver_id" json:"receiver_id" binding:"required,numeric,gt=0" label:"receiver_id"`
+	MsgIds     []string `form:"msg_ids" json:"msg_ids" binding:"required" label:"msg_ids"`
 }
 
 // Delete 删除聊天记录
@@ -164,7 +164,7 @@ func (c *Message) Delete(ctx *ichat.Context) error {
 		UserId:     ctx.UserId(),
 		TalkType:   params.TalkType,
 		ReceiverId: params.ReceiverId,
-		RecordIds:  params.RecordIds,
+		MsgIds:     params.MsgIds,
 	}); err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}
@@ -173,8 +173,8 @@ func (c *Message) Delete(ctx *ichat.Context) error {
 }
 
 type VoteMessageHandleRequest struct {
-	RecordId int    `form:"record_id" json:"record_id" binding:"required,gt=0"`
-	Options  string `form:"options" json:"options" binding:"required"`
+	MsgId   string `form:"msg_id" json:"msg_id" binding:"required"`
+	Options string `form:"options" json:"options" binding:"required"`
 }
 
 // HandleVote 投票处理
@@ -185,7 +185,7 @@ func (c *Message) HandleVote(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	data, err := c.MessageService.Vote(ctx.Ctx(), ctx.UserId(), params.RecordId, params.Options)
+	data, err := c.MessageService.Vote(ctx.Ctx(), ctx.UserId(), params.MsgId, params.Options)
 	if err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}

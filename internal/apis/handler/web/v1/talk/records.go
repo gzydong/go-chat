@@ -171,7 +171,7 @@ func (c *Records) SearchHistoryRecords(ctx *ichat.Context) error {
 }
 
 type GetForwardTalkRecordRequest struct {
-	RecordId int `form:"record_id" json:"record_id" binding:"min=0,numeric"` // 上次查询的最小消息ID
+	MsgId string `form:"msg_id" json:"msg_id" binding:"required"`
 }
 
 // GetForwardRecords 获取转发记录
@@ -182,7 +182,7 @@ func (c *Records) GetForwardRecords(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	records, err := c.TalkRecordsService.FindForwardRecords(ctx.Ctx(), ctx.UserId(), int64(params.RecordId))
+	records, err := c.TalkRecordsService.FindForwardRecords(ctx.Ctx(), ctx.UserId(), params.MsgId)
 	if err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}
@@ -193,18 +193,17 @@ func (c *Records) GetForwardRecords(ctx *ichat.Context) error {
 }
 
 type DownloadChatFileRequest struct {
-	RecordId int `form:"cr_id" json:"cr_id" binding:"required,min=1"`
+	MsgId string `form:"msg_id" json:"msg_id" binding:"required"`
 }
 
 // Download 聊天文件下载
 func (c *Records) Download(ctx *ichat.Context) error {
-
 	params := &DownloadChatFileRequest{}
 	if err := ctx.Context.ShouldBindQuery(params); err != nil {
 		return ctx.InvalidParams(err)
 	}
 
-	record, err := c.TalkRecordsRepo.FindById(ctx.Ctx(), params.RecordId)
+	record, err := c.TalkRecordsRepo.FindByMsgId(ctx.Ctx(), params.MsgId)
 	if err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}

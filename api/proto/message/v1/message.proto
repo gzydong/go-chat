@@ -78,7 +78,7 @@ message LocationMessageRequest{
 message ForwardMessageRequest{
   string type = 1;
   int32 mode = 2 [(tagger.tags) = "binding:\"required\""];   // 转发模式
-  repeated int32 message_ids = 3 [(tagger.tags) = "binding:\"required\""];  // 消息ID
+  repeated string message_ids = 3 [(tagger.tags) = "binding:\"required\""];  // 消息ID
   repeated int32 gids = 4; // 群ID列表
   repeated int32 uids = 5; // 好友ID列表
   MessageReceiver receiver = 6;// 消息接收者

@@ -9,7 +9,7 @@ const (
 
 type TalkRecordsVote struct {
 	Id           int       `gorm:"column:id;primary_key;AUTO_INCREMENT" json:"id"`             // 投票ID
-	RecordId     int       `gorm:"column:record_id;default:0;NOT NULL" json:"record_id"`       // 消息记录ID
+	MsgId        string    `gorm:"column:msg_id;default:'';NOT NULL" json:"msg_id"`            // 消息记录ID
 	UserId       int       `gorm:"column:user_id;default:0;NOT NULL" json:"user_id"`           // 用户ID
 	Title        string    `gorm:"column:title;NOT NULL" json:"title"`                         // 投票标题
 	AnswerMode   int       `gorm:"column:answer_mode;default:0;NOT NULL" json:"answer_mode"`   // 答题模式[0:单选;1:多选;]
@@ -27,7 +27,7 @@ func (TalkRecordsVote) TableName() string {
 }
 
 type QueryVoteModel struct {
-	RecordId     int    `json:"record_id"`
+	MsgId        string `json:"msg_id"`
 	ReceiverId   int    `json:"receiver_id"`
 	TalkType     int    `json:"talk_type"`
 	MsgType      int    `json:"msg_type"`

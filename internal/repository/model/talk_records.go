@@ -61,7 +61,7 @@ type TalkRecordExtraForward struct {
 	TalkType   int              `json:"talk_type"`   // 对话类型
 	UserId     int              `json:"user_id"`     // 发送者ID
 	ReceiverId int              `json:"receiver_id"` // 接收者ID
-	MsgIds     []int            `json:"msg_ids"`     // 消息列表
+	MsgIds     []string         `json:"msg_ids"`     // 消息列表
 	Records    []map[string]any `json:"records"`     // 消息快照
 }
 

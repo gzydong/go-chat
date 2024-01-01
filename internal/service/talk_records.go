@@ -19,7 +19,7 @@ var _ ITalkRecordsService = (*TalkRecordsService)(nil)
 type ITalkRecordsService interface {
 	FindTalkRecord(ctx context.Context, recordId int64) (*TalkRecord, error)
 	FindAllTalkRecords(ctx context.Context, opt *FindAllTalkRecordsOpt) ([]*TalkRecord, error)
-	FindForwardRecords(ctx context.Context, uid int, recordId int64) ([]*TalkRecord, error)
+	FindForwardRecords(ctx context.Context, uid int, msgId string) ([]*TalkRecord, error)
 }
 
 type TalkRecord struct {
@@ -134,23 +134,23 @@ func (s *TalkRecordsService) FindAllTalkRecords(ctx context.Context, opt *FindAl
 			break
 		}
 
-		recordIds := make([]int, 0, len(list))
+		tmpMsgIds := make([]string, 0, len(list))
 		for _, v := range list {
-			recordIds = append(recordIds, v.Id)
+			tmpMsgIds = append(tmpMsgIds, v.MsgId)
 		}
 
-		ids, err := s.TalkRecordsDeleteRepo.FindAllRecordIds(ctx, recordIds, opt.UserId)
+		msgIds, err := s.TalkRecordsDeleteRepo.FindAllMsgIds(ctx, tmpMsgIds, opt.UserId)
 		if err != nil {
 			return nil, err
 		}
 
-		hashIds := make(map[int]struct{}, len(ids))
-		for _, id := range ids {
-			hashIds[id] = struct{}{}
+		hashIds := make(map[string]struct{}, len(msgIds))
+		for _, msgId := range msgIds {
+			hashIds[msgId] = struct{}{}
 		}
 
 		for _, v := range list {
-			if _, ok := hashIds[v.Id]; ok {
+			if _, ok := hashIds[v.MsgId]; ok {
 				continue
 			}
 
@@ -216,8 +216,8 @@ func (s *TalkRecordsService) findAllRecords(ctx context.Context, opt *FindAllTal
 }
 
 // FindForwardRecords 获取转发消息记录
-func (s *TalkRecordsService) FindForwardRecords(ctx context.Context, uid int, recordId int64) ([]*TalkRecord, error) {
-	record, err := s.TalkRecordsRepo.FindById(ctx, int(recordId))
+func (s *TalkRecordsService) FindForwardRecords(ctx context.Context, uid int, msgId string) ([]*TalkRecord, error) {
+	record, err := s.TalkRecordsRepo.FindByMsgId(ctx, msgId)
 	if err != nil {
 		return nil, err
 	}
@@ -245,7 +245,7 @@ func (s *TalkRecordsService) FindForwardRecords(ctx context.Context, uid int, re
 
 	query := s.Source.Db().Table("talk_records")
 	query.Select(fields)
-	query.Where("talk_records.id in ?", extra.MsgIds)
+	query.Where("talk_records.msg_id in ?", extra.MsgIds)
 	query.Order("talk_records.sequence asc")
 
 	if err := query.Scan(&items).Error; err != nil {
@@ -262,7 +262,7 @@ func (s *TalkRecordsService) handleTalkRecords(ctx context.Context, items []*Que
 	}
 
 	var (
-		votes     []int
+		votes     []string
 		voteItems []*model.TalkRecordsVote
 	)
 
@@ -272,7 +272,7 @@ func (s *TalkRecordsService) handleTalkRecords(ctx context.Context, items []*Que
 
 		switch item.MsgType {
 		case entity.ChatMsgTypeVote:
-			votes = append(votes, item.Id)
+			votes = append(votes, item.MsgId)
 		}
 	}
 
@@ -287,11 +287,11 @@ func (s *TalkRecordsService) handleTalkRecords(ctx context.Context, items []*Que
 		hashUser[user.Id] = user
 	}
 
-	hashVotes := make(map[int]*model.TalkRecordsVote)
+	hashVotes := make(map[string]*model.TalkRecordsVote)
 	if len(votes) > 0 {
-		s.Source.Db().Model(&model.TalkRecordsVote{}).Where("record_id in ?", votes).Scan(&voteItems)
+		s.Source.Db().Model(&model.TalkRecordsVote{}).Where("msg_id in ?", votes).Scan(&voteItems)
 		for i := range voteItems {
-			hashVotes[voteItems[i].RecordId] = voteItems[i]
+			hashVotes[voteItems[i].MsgId] = voteItems[i]
 		}
 	}
 
@@ -322,7 +322,7 @@ func (s *TalkRecordsService) handleTalkRecords(ctx context.Context, items []*Que
 
 		switch item.MsgType {
 		case entity.ChatMsgTypeVote:
-			if value, ok := hashVotes[item.Id]; ok {
+			if value, ok := hashVotes[item.MsgId]; ok {
 				options := make(map[string]any)
 				opts := make([]any, 0)
 
@@ -361,7 +361,7 @@ func (s *TalkRecordsService) handleTalkRecords(ctx context.Context, items []*Que
 				data.Extra = map[string]any{
 					"detail": map[string]any{
 						"id":            value.Id,
-						"record_id":     value.RecordId,
+						"msg_id":        value.MsgId,
 						"title":         value.Title,
 						"answer_mode":   value.AnswerMode,
 						"status":        value.Status,

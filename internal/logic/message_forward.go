@@ -33,7 +33,7 @@ type ForwardRecord struct {
 func (m *MessageForwardLogic) Verify(ctx context.Context, uid int, req *message.ForwardMessageRequest) error {
 
 	query := m.db.WithContext(ctx).Model(&model.TalkRecords{})
-	query.Where("id in ?", req.MessageIds)
+	query.Where("msg_id in ?", req.MessageIds)
 
 	if req.Receiver.TalkType == entity.ChatPrivateMode {
 		subWhere := m.db.Where("user_id = ? and receiver_id = ?", uid, req.Receiver.ReceiverId)
@@ -75,13 +75,8 @@ func (m *MessageForwardLogic) MultiMergeForward(ctx context.Context, uid int, re
 		return nil, err
 	}
 
-	ids := make([]int, 0)
-	for _, id := range req.MessageIds {
-		ids = append(ids, int(id))
-	}
-
 	extra := jsonutil.Encode(model.TalkRecordExtraForward{
-		MsgIds:  ids,
+		MsgIds:  req.MessageIds,
 		Records: tmpRecords,
 	})
 
@@ -196,12 +191,12 @@ func (m *MessageForwardLogic) aggregation(ctx context.Context, req *message.Forw
 	query := m.db.WithContext(ctx).Table("talk_records").Select("talk_records.msg_type,talk_records.extra,users.nickname")
 	query.Joins("left join users on users.id = talk_records.user_id")
 
-	ids := req.MessageIds
-	if len(ids) > 3 {
-		ids = ids[:3]
+	msgIds := req.MessageIds
+	if len(msgIds) > 3 {
+		msgIds = msgIds[:3]
 	}
 
-	query.Where("talk_records.id in ?", ids)
+	query.Where("talk_records.msg_id in ?", msgIds)
 
 	if err := query.Limit(3).Scan(&rows).Error; err != nil {
 		return nil, err

@@ -56,10 +56,15 @@ func (s *ArticleService) Create(ctx context.Context, opt *ArticleEditOpt) (int, 
 		UserId:    opt.UserId,
 		ClassId:   opt.ClassId,
 		Title:     opt.Title,
-		Image:     strutil.ParseHtmlImage(opt.Content),
+		Image:     "",
 		Abstract:  strutil.Strip(abstract),
 		Status:    1,
 		MdContent: opt.MdContent,
+	}
+
+	images := strutil.ParseMarkdownImages(opt.MdContent)
+	if len(images) > 0 {
+		data.Image = images[0]
 	}
 
 	err := s.Source.Db().WithContext(ctx).Create(data).Error
@@ -74,11 +79,16 @@ func (s *ArticleService) Create(ctx context.Context, opt *ArticleEditOpt) (int, 
 func (s *ArticleService) Update(ctx context.Context, opt *ArticleEditOpt) error {
 	abstract := strutil.MtSubstr(opt.MdContent, 0, 200)
 
-	data := &model.Article{
-		Title:     opt.Title,
-		Image:     strutil.ParseHtmlImage(opt.Content),
-		Abstract:  strutil.Strip(abstract),
-		MdContent: opt.MdContent,
+	data := map[string]any{
+		"title":      opt.Title,
+		"image":      "",
+		"abstract":   strutil.Strip(abstract),
+		"md_content": opt.MdContent,
+	}
+
+	images := strutil.ParseMarkdownImages(opt.MdContent)
+	if len(images) > 0 {
+		data["image"] = images[0]
 	}
 
 	_, err := s.ArticleRepo.UpdateWhere(ctx, data, "id = ? and user_id = ?", opt.ArticleId, opt.UserId)

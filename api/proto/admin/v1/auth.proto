@@ -38,7 +38,7 @@ message AuthCaptchaRequest{}
 // 图形验证接口响应参数
 message AuthCaptchaResponse{
   // 验证码唯一凭证
-  string answer = 1;
+  string voucher = 1;
   // 验证码图像 base64
   string captcha = 2;
 }

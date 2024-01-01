@@ -7,31 +7,6 @@ import (
 	"strings"
 )
 
-// ParseHtmlImage 解析 Md 文本中的图片信息
-func ParseHtmlImage(text string) string {
-	reg, _ := regexp.Compile(`<img src=[\'|\"](.*?)[\'|\"].*?[\/]?>`)
-
-	items := reg.FindAllStringSubmatch(text, 1)
-	for _, item := range items {
-		return item[1]
-	}
-
-	return ""
-}
-
-// ParseHtmlImageAll 解析 Md 文本中的所有图片信息
-func ParseHtmlImageAll(text string) []string {
-	reg, _ := regexp.Compile(`<img src=[\'|\"](.*?)[\'|\"].*?[\/]?>`)
-
-	list := make([]string, 0)
-
-	for _, item := range reg.FindAllStringSubmatch(text, -1) {
-		list = append(list, item[1])
-	}
-
-	return list
-}
-
 var amReg = regexp.MustCompile(`<a href="([^"]*)" alt="link"[^>]*>(.*?)</a>|<img src="([^"]*)" alt="img"[^>]*/>`)
 
 func EscapeHtml(value string) string {
@@ -58,4 +33,17 @@ var imgReg = regexp.MustCompile(`<img .*?>`)
 
 func ReplaceImgAll(value string) string {
 	return strings.TrimSpace(string(imgReg.ReplaceAll([]byte(value), []byte(""))))
+}
+
+var matchMdImageReg = regexp.MustCompile(`\!\[(.*?)\]\((.*?)\)`)
+
+func ParseMarkdownImages(content string) []string {
+	matches := matchMdImageReg.FindAllStringSubmatch(content, -1)
+
+	items := make([]string, 0)
+	for _, match := range matches {
+		items = append(items, match[2])
+	}
+
+	return items
 }

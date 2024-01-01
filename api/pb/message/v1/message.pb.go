@@ -643,11 +643,11 @@ type ForwardMessageRequest struct {
 	unknownFields protoimpl.UnknownFields
 
 	Type       string           `protobuf:"bytes,1,opt,name=type,proto3" json:"type,omitempty"`
-	Mode       int32            `protobuf:"varint,2,opt,name=mode,proto3" json:"mode,omitempty" binding:"required"`                                      // 转发模式
-	MessageIds []int32          `protobuf:"varint,3,rep,packed,name=message_ids,json=messageIds,proto3" json:"message_ids,omitempty" binding:"required"` // 消息ID
-	Gids       []int32          `protobuf:"varint,4,rep,packed,name=gids,proto3" json:"gids,omitempty"`                                                  // 群ID列表
-	Uids       []int32          `protobuf:"varint,5,rep,packed,name=uids,proto3" json:"uids,omitempty"`                                                  // 好友ID列表
-	Receiver   *MessageReceiver `protobuf:"bytes,6,opt,name=receiver,proto3" json:"receiver,omitempty"`                                                  // 消息接收者
+	Mode       int32            `protobuf:"varint,2,opt,name=mode,proto3" json:"mode,omitempty" binding:"required"`                              // 转发模式
+	MessageIds []string         `protobuf:"bytes,3,rep,name=message_ids,json=messageIds,proto3" json:"message_ids,omitempty" binding:"required"` // 消息ID
+	Gids       []int32          `protobuf:"varint,4,rep,packed,name=gids,proto3" json:"gids,omitempty"`                                          // 群ID列表
+	Uids       []int32          `protobuf:"varint,5,rep,packed,name=uids,proto3" json:"uids,omitempty"`                                          // 好友ID列表
+	Receiver   *MessageReceiver `protobuf:"bytes,6,opt,name=receiver,proto3" json:"receiver,omitempty"`                                          // 消息接收者
 }
 
 func (x *ForwardMessageRequest) Reset() {
@@ -696,7 +696,7 @@ func (x *ForwardMessageRequest) GetMode() int32 {
 	return 0
 }
 
-func (x *ForwardMessageRequest) GetMessageIds() []int32 {
+func (x *ForwardMessageRequest) GetMessageIds() []string {
 	if x != nil {
 		return x.MessageIds
 	}
@@ -1267,7 +1267,7 @@ var file_message_v1_message_proto_rawDesc = []byte{
 	0x05, 0x42, 0x17, 0x9a, 0x84, 0x9e, 0x03, 0x12, 0x62, 0x69, 0x6e, 0x64, 0x69, 0x6e, 0x67, 0x3a,
 	0x22, 0x72, 0x65, 0x71, 0x75, 0x69, 0x72, 0x65, 0x64, 0x22, 0x52, 0x04, 0x6d, 0x6f, 0x64, 0x65,
 	0x12, 0x38, 0x0a, 0x0b, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x5f, 0x69, 0x64, 0x73, 0x18,
-	0x03, 0x20, 0x03, 0x28, 0x05, 0x42, 0x17, 0x9a, 0x84, 0x9e, 0x03, 0x12, 0x62, 0x69, 0x6e, 0x64,
+	0x03, 0x20, 0x03, 0x28, 0x09, 0x42, 0x17, 0x9a, 0x84, 0x9e, 0x03, 0x12, 0x62, 0x69, 0x6e, 0x64,
 	0x69, 0x6e, 0x67, 0x3a, 0x22, 0x72, 0x65, 0x71, 0x75, 0x69, 0x72, 0x65, 0x64, 0x22, 0x52, 0x0a,
 	0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x49, 0x64, 0x73, 0x12, 0x12, 0x0a, 0x04, 0x67, 0x69,
 	0x64, 0x73, 0x18, 0x04, 0x20, 0x03, 0x28, 0x05, 0x52, 0x04, 0x67, 0x69, 0x64, 0x73, 0x12, 0x12,

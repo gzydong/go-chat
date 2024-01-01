@@ -118,11 +118,9 @@ func (c *Emoticon) Upload(ctx *ichat.Context) error {
 	}
 
 	m := &model.EmoticonItem{
-		UserId:     ctx.UserId(),
-		Describe:   "自定义表情包",
-		Url:        c.Filesystem.PublicUrl(c.Filesystem.BucketPublicName(), src),
-		FileSuffix: ext,
-		FileSize:   int(file.Size),
+		UserId:   ctx.UserId(),
+		Describe: "自定义表情包",
+		Url:      c.Filesystem.PublicUrl(c.Filesystem.BucketPublicName(), src),
 	}
 
 	if err := c.EmoticonRepo.Db.Create(m).Error; err != nil {

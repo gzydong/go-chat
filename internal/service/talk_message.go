@@ -60,9 +60,9 @@ type IMessageService interface {
 	// SendMixedMessage 图文消息
 	SendMixedMessage(ctx context.Context, uid int, req *message.MixedMessageRequest) error
 	// Revoke 撤回消息
-	Revoke(ctx context.Context, uid int, recordId int) error
+	Revoke(ctx context.Context, uid int, msgId string) error
 	// Vote 投票
-	Vote(ctx context.Context, uid int, recordId int, optionsValue string) (*repo.VoteStatistics, error)
+	Vote(ctx context.Context, uid int, msgId string, optionsValue string) (*repo.VoteStatistics, error)
 }
 
 type MessageService struct {
@@ -275,7 +275,7 @@ func (m *MessageService) SendVote(ctx context.Context, uid int, req *message.Vot
 		}
 
 		return tx.Create(&model.TalkRecordsVote{
-			RecordId:     data.Id,
+			MsgId:        data.MsgId,
 			UserId:       uid,
 			Title:        req.Title,
 			AnswerMode:   int(req.Mode),
@@ -476,10 +476,9 @@ func (m *MessageService) SendSysOther(ctx context.Context, data *model.TalkRecor
 }
 
 // Revoke 撤回消息
-func (m *MessageService) Revoke(ctx context.Context, uid int, recordId int) error {
-
+func (m *MessageService) Revoke(ctx context.Context, uid int, msgId string) error {
 	var record model.TalkRecords
-	if err := m.Source.Db().First(&record, recordId).Error; err != nil {
+	if err := m.Source.Db().First(&record, "msg_id = ?", msgId).Error; err != nil {
 		return err
 	}
 
@@ -495,7 +494,7 @@ func (m *MessageService) Revoke(ctx context.Context, uid int, recordId int) erro
 		return errors.New("超出有效撤回时间范围，无法进行撤销！")
 	}
 
-	if err := m.Source.Db().Model(&model.TalkRecords{Id: recordId}).Update("is_revoke", 1).Error; err != nil {
+	if err := m.Source.Db().Model(&model.TalkRecords{Id: record.Id}).Update("is_revoke", 1).Error; err != nil {
 		return err
 	}
 
@@ -522,18 +521,18 @@ func (m *MessageService) Revoke(ctx context.Context, uid int, recordId int) erro
 }
 
 // Vote 投票
-func (m *MessageService) Vote(ctx context.Context, uid int, recordId int, optionsValue string) (*repo.VoteStatistics, error) {
+func (m *MessageService) Vote(ctx context.Context, uid int, msgId string, optionsValue string) (*repo.VoteStatistics, error) {
 
 	db := m.Source.Db().WithContext(ctx)
 
 	query := db.Table("talk_records")
 	query.Select([]string{
 		"talk_records.receiver_id", "talk_records.talk_type", "talk_records.msg_type",
-		"vote.id as vote_id", "vote.id as record_id", "vote.answer_mode", "vote.answer_option",
+		"vote.id as vote_id", "vote.msg_id as msg_id", "vote.answer_mode", "vote.answer_option",
 		"vote.answer_num", "vote.status as vote_status",
 	})
-	query.Joins("left join talk_records_vote as vote on vote.record_id = talk_records.id")
-	query.Where("talk_records.id = ?", recordId)
+	query.Joins("left join talk_records_vote as vote on vote.msg_id = talk_records.msg_id")
+	query.Where("talk_records.msg_id = ?", msgId)
 
 	var vote model.QueryVoteModel
 	if err := query.Take(&vote).Error; err != nil {
