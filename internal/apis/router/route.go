@@ -18,6 +18,10 @@ func NewRouter(conf *config.Config, handler *handler.Handler, session *cache.Jwt
 	router := gin.New()
 
 	accessFilterRule := middleware.NewAccessFilterRule()
+	accessFilterRule.Exclude("/api/v1/talk/records")
+	accessFilterRule.Exclude("/api/v1/talk/history")
+	accessFilterRule.Exclude("/api/v1/talk/forward")
+	accessFilterRule.Exclude("/api/v1/talk/publish")
 	accessFilterRule.AddRule("/api/v1/auth/login", func(info *middleware.RequestInfo) {
 		info.RequestBody, _ = sjson.Set(info.RequestBody, `password`, "过滤敏感字段")
 	})
