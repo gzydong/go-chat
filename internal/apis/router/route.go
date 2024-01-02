@@ -18,8 +18,8 @@ func NewRouter(conf *config.Config, handler *handler.Handler, session *cache.Jwt
 	router := gin.New()
 
 	accessFilterRule := middleware.NewAccessFilterRule()
-	accessFilterRule.AddRule("/api/v1/auth/login", func(access *middleware.RequestInfo) {
-		access.RequestBody, _ = sjson.Set(access.RequestBody, `password`, "过滤敏感字段")
+	accessFilterRule.AddRule("/api/v1/auth/login", func(info *middleware.RequestInfo) {
+		info.RequestBody, _ = sjson.Set(info.RequestBody, `password`, "过滤敏感字段")
 	})
 
 	router.Use(middleware.Cors(conf.Cors))
