@@ -65,9 +65,9 @@ filesystem:
     # 文件保存的根目录
     root: "/path/xx/lumenim/"
     # 公开的 bucket
-    bucket_public: "im-static"
+    bucket_public: "public"
     # 私有的 bucket
-    bucket_private: "im-private"
+    bucket_private: "private"
     endpoint: "im-cdn.gzydong.com"
     ssl: false
   minio:
