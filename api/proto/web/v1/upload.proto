@@ -39,7 +39,7 @@ message UploadInitiateMultipartResponse{
 // 批量上传文件接口请求参数
 message UploadMultipartRequest{
   string upload_id = 1 [(tagger.tags) = "form:\"upload_id\" binding:\"required\""];
-  int32 split_index = 2 [(tagger.tags) = "form:\"split_index\" binding:\"min=0\""];
+  int32 split_index = 2 [(tagger.tags) = "form:\"split_index\" binding:\"min=1\""];
   int32 split_num = 3 [(tagger.tags) = "form:\"split_num\" binding:\"required,min=1\""];
 }
 

@@ -111,7 +111,7 @@ func (s *SplitUploadService) MultipartUpload(ctx context.Context, opt *Multipart
 		s.FileSystem.BucketPrivateName(),
 		info.Path,
 		info.UploadId,
-		opt.SplitIndex+1,
+		opt.SplitIndex,
 		read,
 		read.Size(),
 	)
@@ -131,7 +131,7 @@ func (s *SplitUploadService) MultipartUpload(ctx context.Context, opt *Multipart
 	}
 
 	// 判断是否为最后一个分片上传
-	if opt.SplitNum == opt.SplitIndex+1 {
+	if opt.SplitNum == opt.SplitIndex {
 		err = s.merge(info)
 	}
 

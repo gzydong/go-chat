@@ -120,7 +120,7 @@ func (u *Upload) MultipartUpload(ctx *ichat.Context) error {
 		return ctx.ErrorBusiness(err.Error())
 	}
 
-	if params.SplitIndex != params.SplitNum-1 {
+	if params.SplitIndex != params.SplitNum {
 		return ctx.Success(&web.UploadMultipartResponse{
 			IsMerge: false,
 		})
