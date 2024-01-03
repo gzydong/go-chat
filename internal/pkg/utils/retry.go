@@ -2,7 +2,7 @@ package utils
 
 import "time"
 
-func Retry(num int, sleep time.Duration, fn func() error) error {
+func Retry(num int, duration time.Duration, fn func() error) error {
 
 	var err error
 	for i := 0; i < num; i++ {
@@ -10,7 +10,7 @@ func Retry(num int, sleep time.Duration, fn func() error) error {
 			return nil
 		}
 
-		time.Sleep(sleep)
+		time.Sleep(duration)
 	}
 
 	return err

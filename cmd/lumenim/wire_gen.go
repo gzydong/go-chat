@@ -553,13 +553,13 @@ func NewCronInjector(conf *config.Config) *mission.CronProvider {
 func NewQueueInjector(conf *config.Config) *mission.QueueProvider {
 	db := provider.NewMySQLClient(conf)
 	exampleQueue := queue.ExampleQueue{}
-	missionQueue := &mission.QueueJobs{
+	queueJobs := &mission.QueueJobs{
 		ExampleQueue: exampleQueue,
 	}
 	queueProvider := &mission.QueueProvider{
 		Config: conf,
 		DB:     db,
-		Jobs:   missionQueue,
+		Jobs:   queueJobs,
 	}
 	return queueProvider
 }

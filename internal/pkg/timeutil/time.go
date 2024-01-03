@@ -17,14 +17,6 @@ func Date() string {
 	return time.Now().Format(DateFormat)
 }
 
-func DateNumber() string {
-	return time.Now().Format(DateDayFormat)
-}
-
-func Time() string {
-	return time.Now().Format(TimeFormat)
-}
-
 func Location() *time.Location {
 	lo, _ := time.LoadLocation("Asia/Shanghai")
 	return lo
