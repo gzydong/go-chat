@@ -1,4 +1,4 @@
-package job
+package mission
 
 import (
 	"fmt"
@@ -15,7 +15,7 @@ type MigrateProvider struct {
 	DB     *gorm.DB
 }
 
-func RunMigrate(ctx *cli.Context, app *MigrateProvider) error {
+func Migrate(ctx *cli.Context, app *MigrateProvider) error {
 	fmt.Println("数据库初始化中...")
 
 	content, err := os.ReadFile("./doc/sql/go-chat.sql")

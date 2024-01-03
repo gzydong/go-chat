@@ -32,11 +32,11 @@ import (
 	handler2 "go-chat/internal/commet/handler"
 	"go-chat/internal/commet/process"
 	router2 "go-chat/internal/commet/router"
-	"go-chat/internal/job"
-	"go-chat/internal/job/cron"
-	"go-chat/internal/job/queue"
-	"go-chat/internal/job/temp"
 	"go-chat/internal/logic"
+	"go-chat/internal/mission"
+	"go-chat/internal/mission/cron"
+	"go-chat/internal/mission/queue"
+	"go-chat/internal/mission/temp"
 	"go-chat/internal/provider"
 	"go-chat/internal/repository/cache"
 	"go-chat/internal/repository/repo"
@@ -522,7 +522,7 @@ func NewCommetInjector(conf *config.Config) *commet.AppProvider {
 	return appProvider
 }
 
-func NewCronInjector(conf *config.Config) *job.CronProvider {
+func NewCronInjector(conf *config.Config) *mission.CronProvider {
 	client := provider.NewRedisClient(conf)
 	serverStorage := cache.NewSidStorage(client)
 	clearWsCache := cron.NewClearWsCache(serverStorage)
@@ -537,34 +537,34 @@ func NewCronInjector(conf *config.Config) *job.CronProvider {
 		Filesystem: iFilesystem,
 	}
 	clearExpireServer := cron.NewClearExpireServer(serverStorage)
-	crontab := &job.Crontab{
+	crontab := &mission.Crontab{
 		ClearWsCache:      clearWsCache,
 		ClearArticle:      clearArticle,
 		ClearTmpFile:      clearTmpFile,
 		ClearExpireServer: clearExpireServer,
 	}
-	cronProvider := &job.CronProvider{
+	cronProvider := &mission.CronProvider{
 		Config:  conf,
 		Crontab: crontab,
 	}
 	return cronProvider
 }
 
-func NewQueueInjector(conf *config.Config) *job.QueueProvider {
+func NewQueueInjector(conf *config.Config) *mission.QueueProvider {
 	db := provider.NewMySQLClient(conf)
 	exampleQueue := queue.ExampleQueue{}
-	jobQueue := &job.Queue{
+	missionQueue := &mission.QueueJobs{
 		ExampleQueue: exampleQueue,
 	}
-	queueProvider := &job.QueueProvider{
+	queueProvider := &mission.QueueProvider{
 		Config: conf,
 		DB:     db,
-		Queue:  jobQueue,
+		Jobs:   missionQueue,
 	}
 	return queueProvider
 }
 
-func NewOtherInjector(conf *config.Config) *job.TempProvider {
+func NewOtherInjector(conf *config.Config) *mission.TempProvider {
 	db := provider.NewMySQLClient(conf)
 	users := repo.NewUsers(db)
 	talkRecords := repo.NewTalkRecords(db)
@@ -572,15 +572,15 @@ func NewOtherInjector(conf *config.Config) *job.TempProvider {
 		UserRepo:        users,
 		TalkRecordsRepo: talkRecords,
 	}
-	tempProvider := &job.TempProvider{
+	tempProvider := &mission.TempProvider{
 		TestCommand: testCommand,
 	}
 	return tempProvider
 }
 
-func NewMigrateInjector(conf *config.Config) *job.MigrateProvider {
+func NewMigrateInjector(conf *config.Config) *mission.MigrateProvider {
 	db := provider.NewMySQLClient(conf)
-	migrateProvider := &job.MigrateProvider{
+	migrateProvider := &mission.MigrateProvider{
 		Config: conf,
 		DB:     db,
 	}

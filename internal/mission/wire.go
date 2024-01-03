@@ -1,10 +1,10 @@
-package job
+package mission
 
 import (
 	"github.com/google/wire"
-	"go-chat/internal/job/cron"
-	"go-chat/internal/job/queue"
-	"go-chat/internal/job/temp"
+	"go-chat/internal/mission/cron"
+	"go-chat/internal/mission/queue"
+	"go-chat/internal/mission/temp"
 )
 
 var CronProviderSet = wire.NewSet(
@@ -18,7 +18,7 @@ var CronProviderSet = wire.NewSet(
 
 var QueueProviderSet = wire.NewSet(
 	wire.Struct(new(QueueProvider), "*"),
-	wire.Struct(new(Queue), "*"),
+	wire.Struct(new(QueueJobs), "*"),
 	wire.Struct(new(queue.ExampleQueue), "*"),
 )
 

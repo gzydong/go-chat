@@ -8,8 +8,8 @@ import (
 	"go-chat/config"
 	"go-chat/internal/apis"
 	"go-chat/internal/commet"
-	"go-chat/internal/job"
 	"go-chat/internal/logic"
+	"go-chat/internal/mission"
 	"go-chat/internal/provider"
 	"go-chat/internal/repository/cache"
 	"go-chat/internal/repository/repo"
@@ -51,38 +51,38 @@ func NewCommetInjector(conf *config.Config) *commet.AppProvider {
 	)
 }
 
-func NewCronInjector(conf *config.Config) *job.CronProvider {
+func NewCronInjector(conf *config.Config) *mission.CronProvider {
 	panic(
 		wire.Build(
 			providerSet,
-			job.CronProviderSet,
+			mission.CronProviderSet,
 		),
 	)
 }
 
-func NewQueueInjector(conf *config.Config) *job.QueueProvider {
+func NewQueueInjector(conf *config.Config) *mission.QueueProvider {
 	panic(
 		wire.Build(
 			providerSet,
-			job.QueueProviderSet,
+			mission.QueueProviderSet,
 		),
 	)
 }
 
-func NewOtherInjector(conf *config.Config) *job.TempProvider {
+func NewOtherInjector(conf *config.Config) *mission.TempProvider {
 	panic(
 		wire.Build(
 			providerSet,
-			job.TempProviderSet,
+			mission.TempProviderSet,
 		),
 	)
 }
 
-func NewMigrateInjector(conf *config.Config) *job.MigrateProvider {
+func NewMigrateInjector(conf *config.Config) *mission.MigrateProvider {
 	panic(
 		wire.Build(
 			providerSet,
-			job.MigrateProviderSet,
+			mission.MigrateProviderSet,
 		),
 	)
 }

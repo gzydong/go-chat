@@ -7,7 +7,7 @@ import (
 	"go-chat/config"
 	"go-chat/internal/apis"
 	"go-chat/internal/commet"
-	"go-chat/internal/job"
+	"go-chat/internal/mission"
 	"go-chat/internal/pkg/ichat"
 	"go-chat/internal/pkg/logger"
 )
@@ -40,7 +40,7 @@ func NewCrontabCommand() ichat.Command {
 		Usage: "Crontab Command - 定时任务",
 		Action: func(ctx *cli.Context, conf *config.Config) error {
 			logger.InitLogger(fmt.Sprintf("%s/logs/app.log", conf.Log.Path), logger.LevelInfo, "crontab")
-			return job.Cron(ctx, NewCronInjector(conf))
+			return mission.Cron(ctx, NewCronInjector(conf))
 		},
 	}
 }
@@ -48,10 +48,10 @@ func NewCrontabCommand() ichat.Command {
 func NewQueueCommand() ichat.Command {
 	return ichat.Command{
 		Name:  "queue",
-		Usage: "Queue Command - 队列任务",
+		Usage: "Jobs Command - 队列任务",
 		Action: func(ctx *cli.Context, conf *config.Config) error {
 			logger.InitLogger(fmt.Sprintf("%s/logs/app.log", conf.Log.Path), logger.LevelInfo, "queue")
-			return job.RunQueue(ctx, NewQueueInjector(conf))
+			return mission.Queue(ctx, NewQueueInjector(conf))
 		},
 	}
 }
@@ -62,7 +62,7 @@ func NewMigrateCommand() ichat.Command {
 		Usage: "Migrate Command - 数据库初始化",
 		Action: func(ctx *cli.Context, conf *config.Config) error {
 			logger.InitLogger(fmt.Sprintf("%s/logs/app.log", conf.Log.Path), logger.LevelInfo, "migrate")
-			return job.RunMigrate(ctx, NewMigrateInjector(conf))
+			return mission.Migrate(ctx, NewMigrateInjector(conf))
 		},
 	}
 }

@@ -1,7 +1,7 @@
-package job
+package mission
 
 import (
-	"go-chat/internal/job/temp"
+	"go-chat/internal/mission/temp"
 )
 
 type TempProvider struct {

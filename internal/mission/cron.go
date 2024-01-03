@@ -1,4 +1,4 @@
-package job
+package mission
 
 import (
 	"context"
@@ -12,7 +12,7 @@ import (
 	crontab "github.com/robfig/cron/v3"
 	"github.com/urfave/cli/v2"
 	"go-chat/config"
-	"go-chat/internal/job/cron"
+	"go-chat/internal/mission/cron"
 )
 
 type ICrontab interface {

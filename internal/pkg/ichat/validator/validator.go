@@ -1,6 +1,7 @@
 package validator
 
 import (
+	"errors"
 	"reflect"
 
 	"github.com/gin-gonic/gin/binding"
@@ -37,7 +38,8 @@ func Initialize() error {
 }
 
 func Translate(err error) string {
-	if errs, ok := err.(validator.ValidationErrors); ok {
+	var errs validator.ValidationErrors
+	if errors.As(err, &errs) {
 		for _, err := range errs {
 			return err.Translate(trans)
 		}

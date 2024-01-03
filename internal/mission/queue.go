@@ -1,4 +1,4 @@
-package job
+package mission
 
 import (
 	"fmt"
@@ -9,24 +9,24 @@ import (
 
 	"github.com/urfave/cli/v2"
 	"go-chat/config"
-	"go-chat/internal/job/queue"
+	"go-chat/internal/mission/queue"
 	"gorm.io/gorm"
 )
 
 type QueueProvider struct {
 	Config *config.Config
 	DB     *gorm.DB
-	Queue  *Queue
+	Jobs   *QueueJobs
 }
 
-type Queue struct {
+type QueueJobs struct {
 	queue.ExampleQueue
 }
 
-func RunQueue(ctx *cli.Context, app *QueueProvider) error {
+func Queue(ctx *cli.Context, app *QueueProvider) error {
 	log.Println("队列运行中...")
 
-	err := app.Queue.ExampleQueue.Handle(ctx.Context)
+	err := app.Jobs.ExampleQueue.Handle(ctx.Context)
 	if err != nil {
 		fmt.Println("ExampleQueue>>", err)
 	}
