@@ -20,33 +20,28 @@ func (s *Sequence) Redis() *redis.Client {
 	return s.redis
 }
 
-func (s *Sequence) Name(userId int, receiverId int) string {
-
-	if userId == 0 {
-		return fmt.Sprintf("im:sequence:chat:%d", receiverId)
+func (s *Sequence) Name(id int, isUserId bool) string {
+	if isUserId {
+		return fmt.Sprintf("im:sequence:chat:uid:%d", id)
 	}
 
-	if receiverId < userId {
-		receiverId, userId = userId, receiverId
-	}
-
-	return fmt.Sprintf("im:sequence:chat:%d_%d", userId, receiverId)
+	return fmt.Sprintf("im:sequence:chat:group:%d", id)
 }
 
 // Set 初始化发号器
-func (s *Sequence) Set(ctx context.Context, userId int, receiverId int, value int64) error {
-	return s.redis.SetEx(ctx, s.Name(userId, receiverId), value, 12*time.Hour).Err()
+func (s *Sequence) Set(ctx context.Context, id int, isUserId bool, value int64) error {
+	return s.redis.SetEx(ctx, s.Name(id, isUserId), value, 12*time.Hour).Err()
 }
 
 // Get 获取消息时序ID
-func (s *Sequence) Get(ctx context.Context, userId int, receiverId int) int64 {
-	return s.redis.Incr(ctx, s.Name(userId, receiverId)).Val()
+func (s *Sequence) Get(ctx context.Context, id int, isUserId bool) int64 {
+	return s.redis.Incr(ctx, s.Name(id, isUserId)).Val()
 }
 
 // BatchGet 批量获取消息时序ID
-func (s *Sequence) BatchGet(ctx context.Context, userId int, receiverId int, num int64) []int64 {
+func (s *Sequence) BatchGet(ctx context.Context, id int, isUserId bool, num int64) []int64 {
 
-	value := s.redis.IncrBy(ctx, s.Name(userId, receiverId), num).Val()
+	value := s.redis.IncrBy(ctx, s.Name(id, isUserId), num).Val()
 
 	items := make([]int64, 0, num)
 	for i := num; i > 0; i-- {

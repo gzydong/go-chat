@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"fmt"
 	"testing"
 )
 
@@ -43,4 +44,9 @@ func TestMtRand(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestName(t *testing.T) {
+	fmt.Println(12<<32 | 123)
+	fmt.Println(123<<32 | 12)
 }

@@ -2,49 +2,49 @@ package service
 
 import (
 	"context"
+	"errors"
 	"sort"
 	"time"
 
 	"go-chat/internal/entity"
 	"go-chat/internal/pkg/jsonutil"
 	"go-chat/internal/pkg/sliceutil"
-	"go-chat/internal/pkg/timeutil"
 	"go-chat/internal/repository/cache"
 	"go-chat/internal/repository/model"
 	"go-chat/internal/repository/repo"
+	"gorm.io/gorm"
 )
 
 var _ ITalkRecordsService = (*TalkRecordsService)(nil)
 
 type ITalkRecordsService interface {
-	FindTalkRecord(ctx context.Context, msgId string) (*TalkRecord, error)
+	FindTalkPrivateRecord(ctx context.Context, uid int, msgId string) (*TalkRecord, error)
+	FindTalkGroupRecord(ctx context.Context, msgId string) (*TalkRecord, error)
 	FindAllTalkRecords(ctx context.Context, opt *FindAllTalkRecordsOpt) ([]*TalkRecord, error)
 	FindForwardRecords(ctx context.Context, uid int, msgId string) ([]*TalkRecord, error)
 }
 
 type TalkRecord struct {
-	MsgId      string `json:"msg_id"`
-	Sequence   int    `json:"sequence"`
-	TalkType   int    `json:"talk_type"`
-	MsgType    int    `json:"msg_type"`
-	UserId     int    `json:"user_id"`
-	ReceiverId int    `json:"receiver_id"`
-	Nickname   string `json:"nickname"`
-	Avatar     string `json:"avatar"`
-	IsRevoke   int    `json:"is_revoke"`
-	IsMark     int    `json:"is_mark"`
-	IsRead     int    `json:"is_read"`
-	CreatedAt  string `json:"created_at"`
-	Extra      any    `json:"extra"` // 额外参数
+	MsgId     string `json:"msg_id"`
+	Sequence  int    `json:"sequence"`
+	TalkType  int    `json:"talk_type"`
+	MsgType   int    `json:"msg_type"`
+	UserId    int    `json:"user_id"`
+	Nickname  string `json:"nickname"`
+	Avatar    string `json:"avatar"`
+	IsRevoke  int    `json:"is_revoke"`
+	CreatedAt string `json:"created_at"`
+	Extra     any    `json:"extra"` // 额外参数
 }
 
 type TalkRecordsService struct {
 	*repo.Source
 	TalkVoteCache         *cache.Vote
-	TalkRecordsVoteRepo   *repo.TalkRecordsVote
+	TalkRecordsVoteRepo   *repo.GroupVote
 	GroupMemberRepo       *repo.GroupMember
-	TalkRecordsRepo       *repo.TalkRecords
-	TalkRecordsDeleteRepo *repo.TalkRecordsDelete
+	TalkRecordFriendRepo  *repo.TalkRecordFriend
+	TalkRecordGroupRepo   *repo.TalkRecordGroup
+	TalkRecordsDeleteRepo *repo.TalkRecordGroupDel
 }
 
 type FindAllTalkRecordsOpt struct {
@@ -57,47 +57,72 @@ type FindAllTalkRecordsOpt struct {
 }
 
 type QueryTalkRecord struct {
-	MsgId      string    `json:"msg_id"`
-	Sequence   int64     `json:"sequence"`
-	TalkType   int       `json:"talk_type"`
-	MsgType    int       `json:"msg_type"`
-	UserId     int       `json:"user_id"`
-	ReceiverId int       `json:"receiver_id"`
-	IsRevoke   int       `json:"is_revoke"`
-	IsMark     int       `json:"is_mark"`
-	QuoteId    int       `json:"quote_id"`
-	Nickname   string    `json:"nickname"`
-	Avatar     string    `json:"avatar"`
-	Extra      string    `json:"extra"`
-	CreatedAt  time.Time `json:"created_at"`
+	MsgId     string    `json:"msg_id"`
+	Sequence  int64     `json:"sequence"`
+	TalkType  int       `json:"talk_type"`
+	MsgType   int       `json:"msg_type"`
+	UserId    int       `json:"user_id"`
+	IsRevoke  int       `json:"is_revoke"`
+	QuoteId   string    `json:"quote_id"`
+	Nickname  string    `json:"nickname"`
+	Avatar    string    `json:"avatar"`
+	Extra     string    `json:"extra"`
+	CreatedAt time.Time `json:"created_at"`
 }
 
-// FindTalkRecord 获取对话消息
-func (s *TalkRecordsService) FindTalkRecord(ctx context.Context, msgId string) (*TalkRecord, error) {
-	var (
-		err    error
-		item   *QueryTalkRecord
-		fields = []string{
-			"talk_records.msg_id",
-			"talk_records.sequence",
-			"talk_records.talk_type",
-			"talk_records.msg_type",
-			"talk_records.user_id",
-			"talk_records.receiver_id",
-			"talk_records.is_revoke",
-			"talk_records.extra",
-			"talk_records.created_at",
-		}
-	)
-
-	query := s.Source.Db().Table("talk_records")
-	query.Where("talk_records.msg_id = ?", msgId)
-
-	if err = query.Select(fields).Take(&item).Error; err != nil {
+func (s *TalkRecordsService) FindTalkPrivateRecord(ctx context.Context, uid int, msgId string) (*TalkRecord, error) {
+	talkRecordFriendInfo, err := s.TalkRecordFriendRepo.FindByWhere(ctx, "msg_id = ? and user_id = ?", msgId, uid)
+	if err != nil {
 		return nil, err
 	}
 
-	list, err := s.handleTalkRecords(ctx, []*QueryTalkRecord{item})
+	record := &QueryTalkRecord{
+		MsgId:     talkRecordFriendInfo.MsgId,
+		Sequence:  talkRecordFriendInfo.Sequence,
+		TalkType:  1,
+		MsgType:   talkRecordFriendInfo.MsgType,
+		UserId:    talkRecordFriendInfo.FromUserId,
+		IsRevoke:  talkRecordFriendInfo.IsRevoke,
+		QuoteId:   talkRecordFriendInfo.QuoteId,
+		Nickname:  "",
+		Avatar:    "",
+		Extra:     talkRecordFriendInfo.Extra,
+		CreatedAt: talkRecordFriendInfo.CreatedAt,
+	}
+
+	list, err := s.handleTalkRecords(ctx, []*QueryTalkRecord{record})
+	if err != nil {
+		return nil, err
+	}
+
+	return list[0], nil
+}
+
+func (s *TalkRecordsService) FindTalkGroupRecord(ctx context.Context, msgId string) (*TalkRecord, error) {
+	talkRecordGroupInfo, err := s.TalkRecordGroupRepo.FindByMsgId(ctx, msgId)
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, err
+	}
+
+	if talkRecordGroupInfo == nil {
+		return nil, gorm.ErrRecordNotFound
+	}
+
+	record := &QueryTalkRecord{
+		MsgId:     talkRecordGroupInfo.MsgId,
+		Sequence:  talkRecordGroupInfo.Sequence,
+		TalkType:  2,
+		MsgType:   talkRecordGroupInfo.MsgType,
+		UserId:    talkRecordGroupInfo.FromUserId,
+		IsRevoke:  talkRecordGroupInfo.IsRevoke,
+		QuoteId:   talkRecordGroupInfo.QuoteId,
+		Nickname:  "",
+		Avatar:    "",
+		Extra:     talkRecordGroupInfo.Extra,
+		CreatedAt: talkRecordGroupInfo.CreatedAt,
+	}
+
+	list, err := s.handleTalkRecords(ctx, []*QueryTalkRecord{record})
 	if err != nil {
 		return nil, err
 	}
@@ -136,7 +161,7 @@ func (s *TalkRecordsService) FindAllTalkRecords(ctx context.Context, opt *FindAl
 			tmpMsgIds = append(tmpMsgIds, v.MsgId)
 		}
 
-		msgIds, err := s.TalkRecordsDeleteRepo.FindAllMsgIds(ctx, tmpMsgIds, opt.UserId)
+		msgIds, err := s.TalkRecordsDeleteRepo.FindAllMsgIds(ctx, opt.UserId, tmpMsgIds)
 		if err != nil {
 			return nil, err
 		}
@@ -170,38 +195,40 @@ func (s *TalkRecordsService) FindAllTalkRecords(ctx context.Context, opt *FindAl
 }
 
 func (s *TalkRecordsService) findAllRecords(ctx context.Context, opt *FindAllTalkRecordsOpt) ([]*QueryTalkRecord, error) {
-	query := s.Source.Db().WithContext(ctx).Table("talk_records")
-	query.Select([]string{
-		"talk_records.sequence",
-		"talk_records.talk_type",
-		"talk_records.msg_type",
-		"talk_records.msg_id",
-		"talk_records.user_id",
-		"talk_records.receiver_id",
-		"talk_records.is_revoke",
-		"talk_records.extra",
-		"talk_records.created_at",
-	})
+	query := s.Source.Db().WithContext(ctx)
 
-	if opt.Cursor > 0 {
-		query.Where("talk_records.sequence < ?", opt.Cursor)
+	fields := []string{
+		"msg_id",
+		"sequence",
+		"msg_type",
+		"quote_id",
+		"is_revoke",
+		"extra",
+		"created_at",
 	}
 
-	if opt.TalkType == entity.ChatPrivateMode {
-		subQuery := s.Source.Db().Where("talk_records.user_id = ? and talk_records.receiver_id = ?", opt.UserId, opt.ReceiverId)
-		subQuery.Or("talk_records.user_id = ? and talk_records.receiver_id = ?", opt.ReceiverId, opt.UserId)
-
-		query.Where(subQuery)
+	if opt.TalkType == 1 {
+		query = query.Table("talk_record_friend")
+		fields = append(fields, "from_user_id as user_id")
+		query.Where("user_id = ?", opt.UserId)
+		query.Where("friend_id = ?", opt.ReceiverId)
 	} else {
-		query.Where("talk_records.receiver_id = ?", opt.ReceiverId)
+		query = query.Table("talk_record_group")
+		fields = append(fields, "from_user_id as user_id")
+		query.Where("group_id = ?", opt.ReceiverId)
+	}
+
+	query.Select(fields)
+
+	if opt.Cursor > 0 {
+		query.Where("sequence < ?", opt.Cursor)
 	}
 
 	if opt.MsgType != nil && len(opt.MsgType) > 0 {
-		query.Where("talk_records.msg_type in ?", opt.MsgType)
+		query.Where("msg_type in ?", opt.MsgType)
 	}
 
-	query.Where("talk_records.talk_type = ?", opt.TalkType)
-	query.Order("talk_records.sequence desc").Limit(opt.Limit)
+	query.Order("sequence desc").Limit(opt.Limit)
 
 	var items []*QueryTalkRecord
 	if err := query.Scan(&items).Error; err != nil {
@@ -212,36 +239,47 @@ func (s *TalkRecordsService) findAllRecords(ctx context.Context, opt *FindAllTal
 }
 
 // FindForwardRecords 获取转发消息记录
-func (s *TalkRecordsService) FindForwardRecords(ctx context.Context, uid int, msgId string) ([]*TalkRecord, error) {
-	record, err := s.TalkRecordsRepo.FindByMsgId(ctx, msgId)
-	if err != nil {
-		return nil, err
-	}
-
-	var extra model.TalkRecordExtraForward
-	if err := jsonutil.Decode(record.Extra, &extra); err != nil {
-		return nil, err
-	}
-
+func (s *TalkRecordsService) FindForwardRecords(ctx context.Context, talkType int, msgId string) ([]*TalkRecord, error) {
 	var (
-		items  = make([]*QueryTalkRecord, 0)
 		fields = []string{
-			"talk_records.msg_id",
-			"talk_records.sequence",
-			"talk_records.talk_type",
-			"talk_records.msg_type",
-			"talk_records.user_id",
-			"talk_records.receiver_id",
-			"talk_records.is_revoke",
-			"talk_records.extra",
-			"talk_records.created_at",
+			"msg_id",
+			"sequence",
+			"msg_type",
+			"from_user_id as user_id",
+			"is_revoke",
+			"extra",
+			"created_at",
 		}
+
+		extra     model.TalkRecordExtraForward
+		items     = make([]*QueryTalkRecord, 0)
+		tableName = "talk_record_friend"
 	)
 
-	query := s.Source.Db().Table("talk_records")
+	if talkType == 1 {
+		record, err := s.TalkRecordFriendRepo.FindByMsgId(ctx, msgId)
+		if err != nil {
+			return nil, err
+		}
+
+		if err := jsonutil.Decode(record.Extra, &extra); err != nil {
+			return nil, err
+		}
+	} else {
+		record, err := s.TalkRecordGroupRepo.FindByMsgId(ctx, msgId)
+		if err != nil {
+			return nil, err
+		}
+
+		if err := jsonutil.Decode(record.Extra, &extra); err != nil {
+			return nil, err
+		}
+	}
+
+	query := s.Source.Db().Table(tableName)
 	query.Select(fields)
-	query.Where("talk_records.msg_id in ?", extra.MsgIds)
-	query.Order("talk_records.sequence asc")
+	query.Where("msg_id in ?", extra.MsgIds)
+	query.Order("sequence asc")
 
 	if err := query.Scan(&items).Error; err != nil {
 		return nil, err
@@ -258,7 +296,7 @@ func (s *TalkRecordsService) handleTalkRecords(ctx context.Context, items []*Que
 
 	var (
 		votes     []string
-		voteItems []*model.TalkRecordsVote
+		voteItems []*model.GroupVote
 	)
 
 	uids := make([]int, 0, len(items))
@@ -282,29 +320,24 @@ func (s *TalkRecordsService) handleTalkRecords(ctx context.Context, items []*Que
 		hashUser[user.Id] = user
 	}
 
-	hashVotes := make(map[string]*model.TalkRecordsVote)
+	hashVotes := make(map[string]*model.GroupVote)
 	if len(votes) > 0 {
-		s.Source.Db().Model(&model.TalkRecordsVote{}).Where("msg_id in ?", votes).Scan(&voteItems)
-		for i := range voteItems {
-			hashVotes[voteItems[i].MsgId] = voteItems[i]
-		}
+		s.Source.Db().Model(&model.GroupVote{}).Where("msg_id in ?", votes).Scan(&voteItems)
 	}
 
 	newItems := make([]*TalkRecord, 0, len(items))
 	for _, item := range items {
 		data := &TalkRecord{
-			MsgId:      item.MsgId,
-			Sequence:   int(item.Sequence),
-			TalkType:   item.TalkType,
-			MsgType:    item.MsgType,
-			UserId:     item.UserId,
-			ReceiverId: item.ReceiverId,
-			Nickname:   item.Nickname,
-			Avatar:     item.Avatar,
-			IsRevoke:   item.IsRevoke,
-			IsMark:     item.IsMark,
-			CreatedAt:  timeutil.FormatDatetime(item.CreatedAt),
-			Extra:      make(map[string]any),
+			MsgId:     item.MsgId,
+			Sequence:  int(item.Sequence),
+			TalkType:  item.TalkType,
+			MsgType:   item.MsgType,
+			UserId:    item.UserId,
+			Nickname:  item.Nickname,
+			Avatar:    item.Avatar,
+			IsRevoke:  item.IsRevoke,
+			CreatedAt: item.CreatedAt.Format(time.DateTime),
+			Extra:     make(map[string]any),
 		}
 
 		if user, ok := hashUser[item.UserId]; ok {
@@ -355,7 +388,6 @@ func (s *TalkRecordsService) handleTalkRecords(ctx context.Context, items []*Que
 				data.Extra = map[string]any{
 					"detail": map[string]any{
 						"id":            value.Id,
-						"msg_id":        value.MsgId,
 						"title":         value.Title,
 						"answer_mode":   value.AnswerMode,
 						"status":        value.Status,

@@ -86,9 +86,9 @@ func (c *Session) Create(ctx *ichat.Context) error {
 	}
 
 	if item.TalkType == entity.ChatPrivateMode {
-		item.UnreadNum = int32(c.UnreadStorage.Get(ctx.Ctx(), 1, int(params.ReceiverId), uid))
-		item.Remark = c.ContactRepo.GetFriendRemark(ctx.Ctx(), uid, int(params.ReceiverId))
+		item.UnreadNum = int32(c.UnreadStorage.Get(ctx.Ctx(), uid, 1, int(params.ReceiverId)))
 
+		item.Remark = c.ContactRepo.GetFriendRemark(ctx.Ctx(), uid, int(params.ReceiverId))
 		if user, err := c.UsersRepo.FindById(ctx.Ctx(), result.ReceiverId); err == nil {
 			item.Name = user.Nickname
 			item.Avatar = user.Avatar
@@ -178,14 +178,7 @@ func (c *Session) Disturb(ctx *ichat.Context) error {
 
 // List 会话列表
 func (c *Session) List(ctx *ichat.Context) error {
-
 	uid := ctx.UserId()
-
-	// 获取未读消息数
-	unReads := c.UnreadStorage.All(ctx.Ctx(), uid)
-	if len(unReads) > 0 {
-		c.TalkSessionService.BatchAddList(ctx.Ctx(), uid, unReads)
-	}
 
 	data, err := c.TalkSessionService.List(ctx.Ctx(), uid)
 	if err != nil {
@@ -216,9 +209,7 @@ func (c *Session) List(ctx *ichat.Context) error {
 			UpdatedAt:  timeutil.FormatDatetime(item.UpdatedAt),
 		}
 
-		if num, ok := unReads[fmt.Sprintf("%d_%d", item.TalkType, item.ReceiverId)]; ok {
-			value.UnreadNum = int32(num)
-		}
+		value.UnreadNum = int32(c.UnreadStorage.Get(ctx.Ctx(), uid, item.TalkType, item.ReceiverId))
 
 		if item.TalkType == 1 {
 			value.Name = item.Nickname
@@ -249,7 +240,7 @@ func (c *Session) ClearUnreadMessage(ctx *ichat.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	c.UnreadStorage.Reset(ctx.Ctx(), int(params.TalkType), int(params.ReceiverId), ctx.UserId())
+	c.UnreadStorage.Reset(ctx.Ctx(), ctx.UserId(), int(params.TalkType), int(params.ReceiverId))
 
 	return ctx.Success(&web.TalkSessionClearUnreadNumResponse{})
 }

@@ -10,8 +10,8 @@ import (
 	"gorm.io/gorm"
 )
 
-type TalkRecordsVote struct {
-	ichat.Repo[model.TalkRecordsVote]
+type GroupVote struct {
+	ichat.Repo[model.GroupVote]
 	cache *cache.Vote
 }
 
@@ -20,11 +20,11 @@ type VoteStatistics struct {
 	Options map[string]int `json:"options"`
 }
 
-func NewTalkRecordsVote(db *gorm.DB, cache *cache.Vote) *TalkRecordsVote {
-	return &TalkRecordsVote{Repo: ichat.NewRepo[model.TalkRecordsVote](db), cache: cache}
+func NewGroupVote(db *gorm.DB, cache *cache.Vote) *GroupVote {
+	return &GroupVote{Repo: ichat.NewRepo[model.GroupVote](db), cache: cache}
 }
 
-func (t *TalkRecordsVote) GetVoteAnswerUser(ctx context.Context, vid int) ([]int, error) {
+func (t *GroupVote) GetVoteAnswerUser(ctx context.Context, vid int) ([]int, error) {
 	// 读取缓存
 	if uids, err := t.cache.GetVoteAnswerUser(ctx, vid); err == nil {
 		return uids, nil
@@ -38,10 +38,10 @@ func (t *TalkRecordsVote) GetVoteAnswerUser(ctx context.Context, vid int) ([]int
 	return uids, nil
 }
 
-func (t *TalkRecordsVote) SetVoteAnswerUser(ctx context.Context, vid int) ([]int, error) {
+func (t *GroupVote) SetVoteAnswerUser(ctx context.Context, vid int) ([]int, error) {
 	uids := make([]int, 0)
 
-	err := t.Repo.Db.WithContext(ctx).Table("talk_records_vote_answer").Where("vote_id = ?", vid).Pluck("user_id", &uids).Error
+	err := t.Repo.Db.WithContext(ctx).Table("group_vote_answer").Where("vote_id = ?", vid).Pluck("user_id", &uids).Error
 
 	if err != nil {
 		return nil, err
@@ -52,7 +52,7 @@ func (t *TalkRecordsVote) SetVoteAnswerUser(ctx context.Context, vid int) ([]int
 	return uids, nil
 }
 
-func (t *TalkRecordsVote) GetVoteStatistics(ctx context.Context, vid int) (*VoteStatistics, error) {
+func (t *GroupVote) GetVoteStatistics(ctx context.Context, vid int) (*VoteStatistics, error) {
 	value, err := t.cache.GetVoteStatistics(ctx, vid)
 	if err != nil {
 		return t.SetVoteStatistics(ctx, vid)
@@ -65,15 +65,15 @@ func (t *TalkRecordsVote) GetVoteStatistics(ctx context.Context, vid int) (*Vote
 	return statistic, nil
 }
 
-func (t *TalkRecordsVote) SetVoteStatistics(ctx context.Context, vid int) (*VoteStatistics, error) {
+func (t *GroupVote) SetVoteStatistics(ctx context.Context, vid int) (*VoteStatistics, error) {
 	var (
-		vote         model.TalkRecordsVote
+		vote         model.GroupVote
 		answerOption map[string]any
 		options      = make([]string, 0)
 	)
 
 	tx := t.Repo.Db.WithContext(ctx)
-	if err := tx.Table("talk_records_vote").First(&vote, vid).Error; err != nil {
+	if err := tx.Table("group_vote").First(&vote, vid).Error; err != nil {
 		return nil, err
 	}
 
@@ -81,7 +81,7 @@ func (t *TalkRecordsVote) SetVoteStatistics(ctx context.Context, vid int) (*Vote
 		return nil, err
 	}
 
-	err := tx.Table("talk_records_vote_answer").Where("vote_id = ?", vid).Pluck("option", &options).Error
+	err := tx.Table("group_vote_answer").Where("vote_id = ?", vid).Pluck("option", &options).Error
 	if err != nil {
 		return nil, err
 	}
@@ -103,4 +103,15 @@ func (t *TalkRecordsVote) SetVoteStatistics(ctx context.Context, vid int) (*Vote
 	_ = t.cache.SetVoteStatistics(ctx, vid, jsonutil.Encode(statistic))
 
 	return statistic, nil
+}
+
+func (t *GroupVote) FindAllAnsweredUserList(ctx context.Context, viteId int) ([]model.GroupVoteAnswer, error) {
+	var items []model.GroupVoteAnswer
+
+	err := t.Repo.Db.Table("group_vote_answer").Where("vote_id = ?", viteId).Scan(&items).Error
+	if err == nil {
+		return items, nil
+	}
+
+	return nil, err
 }

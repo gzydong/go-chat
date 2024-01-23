@@ -33,3 +33,9 @@ type SearchTalkSession struct {
 	GroupAvatar string    `json:"group_avatar"`
 	UpdatedAt   time.Time `json:"updated_at"`
 }
+
+type TalkSessionCache struct {
+	TalkType int `json:"talk_type"`  // 聊天类型[1:私信;2:群聊;]
+	UserId   int `json:"user_id"`    // 用户ID
+	ToUserId int `json:"to_user_id"` // 接收者ID（用户ID 或 群ID）
+}

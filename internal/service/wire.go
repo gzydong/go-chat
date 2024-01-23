@@ -26,6 +26,9 @@ var ProviderSet = wire.NewSet(
 	wire.Struct(new(GroupApplyService), "*"),
 	wire.Bind(new(IGroupApplyService), new(*GroupApplyService)),
 
+	wire.Struct(new(GroupVoteService), "*"),
+	wire.Bind(new(IGroupVoteService), new(*GroupVoteService)),
+
 	wire.Struct(new(TalkSessionService), "*"),
 	wire.Bind(new(ITalkSessionService), new(*TalkSessionService)),
 
@@ -44,8 +47,8 @@ var ProviderSet = wire.NewSet(
 	wire.Struct(new(ContactGroupService), "*"),
 	wire.Bind(new(IContactGroupService), new(*ContactGroupService)),
 
-	wire.Struct(new(SplitUploadService), "*"),
-	wire.Bind(new(ISplitUploadService), new(*SplitUploadService)),
+	wire.Struct(new(FileSplitUploadService), "*"),
+	wire.Bind(new(ISplitUploadService), new(*FileSplitUploadService)),
 
 	wire.Struct(new(IpAddressService), "*"),
 	wire.Bind(new(IIpAddressService), new(*IpAddressService)),

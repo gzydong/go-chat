@@ -1,4 +1,4 @@
-package logic
+package business
 
 import (
 	"context"
@@ -14,13 +14,9 @@ import (
 	"gorm.io/gorm"
 )
 
-type MessageForwardLogic struct {
-	db       *gorm.DB
-	sequence *repo.Sequence
-}
-
-func NewMessageForwardLogic(db *gorm.DB, sequence *repo.Sequence) *MessageForwardLogic {
-	return &MessageForwardLogic{db: db, sequence: sequence}
+type ForwardMessage struct {
+	DB       *gorm.DB
+	Sequence *repo.Sequence
 }
 
 type ForwardRecord struct {
@@ -30,13 +26,13 @@ type ForwardRecord struct {
 }
 
 // Verify 验证转发消息合法性
-func (m *MessageForwardLogic) Verify(ctx context.Context, uid int, req *message.ForwardMessageRequest) error {
+func (m *ForwardMessage) Verify(ctx context.Context, uid int, req *message.ForwardMessageRequest) error {
 
-	query := m.db.WithContext(ctx).Model(&model.TalkRecords{})
+	query := m.DB.WithContext(ctx).Model(&model.TalkRecords{})
 	query.Where("msg_id in ?", req.MessageIds)
 
 	if req.Receiver.TalkType == entity.ChatPrivateMode {
-		subWhere := m.db.Where("user_id = ? and receiver_id = ?", uid, req.Receiver.ReceiverId)
+		subWhere := m.DB.Where("user_id = ? and receiver_id = ?", uid, req.Receiver.ReceiverId)
 		subWhere.Or("user_id = ? and receiver_id = ?", req.Receiver.ReceiverId, uid)
 		query.Where(subWhere)
 	}
@@ -58,7 +54,7 @@ func (m *MessageForwardLogic) Verify(ctx context.Context, uid int, req *message.
 }
 
 // MultiMergeForward 批量合并转发
-func (m *MessageForwardLogic) MultiMergeForward(ctx context.Context, uid int, req *message.ForwardMessageRequest) ([]*ForwardRecord, error) {
+func (m *ForwardMessage) MultiMergeForward(ctx context.Context, uid int, req *message.ForwardMessageRequest) ([]*ForwardRecord, error) {
 
 	receives := make([]map[string]int, 0)
 
@@ -92,15 +88,15 @@ func (m *MessageForwardLogic) MultiMergeForward(ctx context.Context, uid int, re
 		}
 
 		if data.TalkType == entity.ChatGroupMode {
-			data.Sequence = m.sequence.Get(ctx, 0, data.ReceiverId)
+			data.Sequence = m.Sequence.Get(ctx, data.ReceiverId, false)
 		} else {
-			data.Sequence = m.sequence.Get(ctx, uid, data.ReceiverId)
+			data.Sequence = m.Sequence.Get(ctx, data.UserId, false)
 		}
 
 		records = append(records, data)
 	}
 
-	if err := m.db.WithContext(ctx).Create(records).Error; err != nil {
+	if err := m.DB.WithContext(ctx).Create(records).Error; err != nil {
 		return nil, err
 	}
 
@@ -117,11 +113,11 @@ func (m *MessageForwardLogic) MultiMergeForward(ctx context.Context, uid int, re
 }
 
 // MultiSplitForward 批量逐条转发
-func (m *MessageForwardLogic) MultiSplitForward(ctx context.Context, uid int, req *message.ForwardMessageRequest) ([]*ForwardRecord, error) {
+func (m *ForwardMessage) MultiSplitForward(ctx context.Context, uid int, req *message.ForwardMessageRequest) ([]*ForwardRecord, error) {
 	var (
 		receives = make([]map[string]int, 0)
 		records  = make([]*model.TalkRecords, 0)
-		db       = m.db.WithContext(ctx)
+		db       = m.DB.WithContext(ctx)
 	)
 
 	for _, userId := range req.Uids {
@@ -138,15 +134,15 @@ func (m *MessageForwardLogic) MultiSplitForward(ctx context.Context, uid int, re
 
 	items := make([]*model.TalkRecords, 0, len(receives)*len(records))
 
-	recordsLen := int64(len(records))
+	// recordsLen := int64(len(records))
 	for _, v := range receives {
 		var sequences []int64
 
-		if v["talk_type"] == model.TalkRecordTalkTypeGroup {
-			sequences = m.sequence.BatchGet(ctx, 0, v["receiver_id"], recordsLen)
-		} else {
-			sequences = m.sequence.BatchGet(ctx, uid, v["receiver_id"], recordsLen)
-		}
+		// if v["talk_type"] == model.TalkRecordTalkTypeGroup {
+		// 	sequences = m.Sequence.BatchGet(ctx,  v["receiver_id"], recordsLen)
+		// } else {
+		// 	sequences = m.Sequence.BatchGet(ctx, uid, v["receiver_id"], recordsLen)
+		// }
 
 		for i, item := range records {
 			items = append(items, &model.TalkRecords{
@@ -184,11 +180,11 @@ type forwardItem struct {
 }
 
 // 聚合转发数据
-func (m *MessageForwardLogic) aggregation(ctx context.Context, req *message.ForwardMessageRequest) ([]map[string]any, error) {
+func (m *ForwardMessage) aggregation(ctx context.Context, req *message.ForwardMessageRequest) ([]map[string]any, error) {
 
 	rows := make([]*forwardItem, 0, 3)
 
-	query := m.db.WithContext(ctx).Table("talk_records").Select("talk_records.msg_type,talk_records.extra,users.nickname")
+	query := m.DB.WithContext(ctx).Table("talk_records").Select("talk_records.msg_type,talk_records.extra,users.nickname")
 	query.Joins("left join users on users.id = talk_records.user_id")
 
 	msgIds := req.MessageIds

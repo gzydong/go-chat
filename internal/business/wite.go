@@ -1,7 +1,7 @@
-package logic
+package business
 
 import "github.com/google/wire"
 
 var ProviderSet = wire.NewSet(
-	NewMessageForwardLogic,
+	wire.Struct(new(ForwardMessage), "*"),
 )

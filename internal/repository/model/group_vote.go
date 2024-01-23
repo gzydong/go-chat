@@ -3,13 +3,16 @@ package model
 import "time"
 
 const (
-	VoteAnswerModeSingleChoice   = 0
-	VoteAnswerModeMultipleChoice = 1
+	VoteAnswerModeSingle   = 0 // 单选
+	VoteAnswerModeMultiple = 1 // 多选
+
+	VoteStatusWait   = 1 // 等待中
+	VoteStatusFinish = 2 // 已结束
 )
 
-type TalkRecordsVote struct {
+type GroupVote struct {
 	Id           int       `gorm:"column:id;primary_key;AUTO_INCREMENT" json:"id"`             // 投票ID
-	MsgId        string    `gorm:"column:msg_id;default:'';NOT NULL" json:"msg_id"`            // 消息记录ID
+	GroupId      int       `gorm:"column:group_id;default:0;NOT NULL" json:"group_id"`         // 群组ID
 	UserId       int       `gorm:"column:user_id;default:0;NOT NULL" json:"user_id"`           // 用户ID
 	Title        string    `gorm:"column:title;NOT NULL" json:"title"`                         // 投票标题
 	AnswerMode   int       `gorm:"column:answer_mode;default:0;NOT NULL" json:"answer_mode"`   // 答题模式[0:单选;1:多选;]
@@ -22,8 +25,13 @@ type TalkRecordsVote struct {
 	UpdatedAt    time.Time `gorm:"column:updated_at;NOT NULL" json:"updated_at"`               // 更新时间
 }
 
-func (TalkRecordsVote) TableName() string {
-	return "talk_records_vote"
+func (GroupVote) TableName() string {
+	return "group_vote"
+}
+
+type GroupVoteOption struct {
+	Key   string `json:"key"`
+	Value string `json:"value"`
 }
 
 type QueryVoteModel struct {

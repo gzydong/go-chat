@@ -33,9 +33,9 @@ func (c *ClearTmpFile) Handle(ctx context.Context) error {
 	lastId, size := 0, 100
 
 	for {
-		items := make([]*model.SplitUpload, 0)
+		items := make([]*model.FileUpload, 0)
 
-		err := c.DB.Model(&model.SplitUpload{}).Where("id > ? and type = 1 and created_at <= ?", lastId, time.Now().AddDate(0, 0, -1)).Order("id asc").Limit(size).Scan(&items).Error
+		err := c.DB.Model(&model.FileUpload{}).Where("id > ? and type = 1 and created_at <= ?", lastId, time.Now().AddDate(0, 0, -1)).Order("id asc").Limit(size).Scan(&items).Error
 		if err != nil {
 			return err
 		}
@@ -44,14 +44,14 @@ func (c *ClearTmpFile) Handle(ctx context.Context) error {
 			if item.Drive == 2 {
 				_ = c.Filesystem.AbortMultipartUpload(c.Filesystem.BucketPrivateName(), item.Path, item.UploadId)
 
-				c.DB.Delete(model.SplitUpload{}, "user_id = ? and upload_id = ? and type = 2", item.UserId, item.UploadId)
+				c.DB.Delete(model.FileUpload{}, "user_id = ? and upload_id = ? and type = 2", item.UserId, item.UploadId)
 			} else {
-				list := make([]*model.SplitUpload, 0)
-				c.DB.Table("split_upload").Where("user_id = ? and upload_id = ? and type = 2", item.UserId, item.UploadId).Scan(&list)
+				list := make([]*model.FileUpload, 0)
+				c.DB.Table("file_upload").Where("user_id = ? and upload_id = ? and type = 2", item.UserId, item.UploadId).Scan(&list)
 
 				for _, value := range list {
 					_ = c.Filesystem.Delete(c.Filesystem.BucketPublicName(), value.Path)
-					c.DB.Delete(model.SplitUpload{}, value.Id)
+					c.DB.Delete(model.FileUpload{}, value.Id)
 				}
 
 				if len(list) > 0 {
@@ -61,7 +61,7 @@ func (c *ClearTmpFile) Handle(ctx context.Context) error {
 			}
 
 			if err := c.Filesystem.Delete(c.Filesystem.BucketPrivateName(), item.Path); err == nil {
-				c.DB.Delete(model.SplitUpload{}, item.Id)
+				c.DB.Delete(model.FileUpload{}, item.Id)
 			}
 		}
 

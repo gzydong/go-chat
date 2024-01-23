@@ -21,16 +21,16 @@ import (
 	"go-chat/internal/pkg/filesystem"
 )
 
-var _ ISplitUploadService = (*SplitUploadService)(nil)
+var _ ISplitUploadService = (*FileSplitUploadService)(nil)
 
 type ISplitUploadService interface {
-	InitiateMultipartUpload(ctx context.Context, params *MultipartInitiateOpt) (*model.SplitUpload, error)
+	InitiateMultipartUpload(ctx context.Context, params *MultipartInitiateOpt) (*model.FileUpload, error)
 	MultipartUpload(ctx context.Context, opt *MultipartUploadOpt) error
 }
 
-type SplitUploadService struct {
+type FileSplitUploadService struct {
 	*repo.Source
-	SplitUploadRepo *repo.SplitUpload
+	SplitUploadRepo *repo.FileUpload
 	Config          *config.Config
 	FileSystem      filesystem.IFilesystem
 }
@@ -41,12 +41,12 @@ type MultipartInitiateOpt struct {
 	Size   int64
 }
 
-func (s *SplitUploadService) InitiateMultipartUpload(ctx context.Context, params *MultipartInitiateOpt) (*model.SplitUpload, error) {
+func (s *FileSplitUploadService) InitiateMultipartUpload(ctx context.Context, params *MultipartInitiateOpt) (*model.FileUpload, error) {
 	// 计算拆分数量 5M
 	num := math.Ceil(float64(params.Size) / float64(5*1024*1024))
 
 	now := time.Now()
-	m := &model.SplitUpload{
+	m := &model.FileUpload{
 		Type:         1,
 		Drive:        entity.FileDriveMode(s.FileSystem.Driver()),
 		UserId:       params.UserId,
@@ -80,7 +80,7 @@ type MultipartUploadOpt struct {
 	File       *multipart.FileHeader
 }
 
-func (s *SplitUploadService) MultipartUpload(ctx context.Context, opt *MultipartUploadOpt) error {
+func (s *FileSplitUploadService) MultipartUpload(ctx context.Context, opt *MultipartUploadOpt) error {
 	info, err := s.SplitUploadRepo.FindByWhere(ctx, "upload_id = ? and type = 1", opt.UploadId)
 	if err != nil {
 		return err
@@ -91,7 +91,7 @@ func (s *SplitUploadService) MultipartUpload(ctx context.Context, opt *Multipart
 		return err
 	}
 
-	data := &model.SplitUpload{
+	data := &model.FileUpload{
 		Type:         2,
 		Drive:        info.Drive,
 		UserId:       opt.UserId,
@@ -139,7 +139,7 @@ func (s *SplitUploadService) MultipartUpload(ctx context.Context, opt *Multipart
 }
 
 // combine
-func (s *SplitUploadService) merge(info *model.SplitUpload) error {
+func (s *FileSplitUploadService) merge(info *model.FileUpload) error {
 	items, err := s.SplitUploadRepo.FindAll(context.Background(), func(db *gorm.DB) {
 		db.Where("upload_id =? and type = 2", info.UploadId).Order("split_index asc")
 	})

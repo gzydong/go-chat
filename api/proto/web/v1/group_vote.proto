@@ -1,0 +1,51 @@
+syntax = "proto3";
+package web;
+
+option go_package = "web/v1;web";
+
+import "tagger/tagger.proto";
+
+message GroupVoteCreateRequest{
+  int32 group_id = 1 [(tagger.tags) = "binding:\"required\""];
+  string title = 3 [(tagger.tags) = "binding:\"required\""];  // 标题
+  int32 mode = 4 [(tagger.tags) = "binding:\"required\""]; // 投票模式
+  int32 is_anonymous = 5 [(tagger.tags) = "binding:\"required\""]; // 匿名投票
+  repeated string options = 6 [(tagger.tags) = "binding:\"required\""]; // 投票选项
+}
+
+message GroupVoteCreateResponse{}
+
+
+message GroupVoteSubmitRequest{
+  int32 vote_id = 1 [(tagger.tags) = "binding:\"required\""];
+  repeated string options = 6 [(tagger.tags) = "binding:\"required\""]; // 投票选项
+}
+
+message GroupVoteSubmitResponse{}
+
+message GroupVoteDetailRequest{
+  int32 vote_id = 1 [(tagger.tags) = "binding:\"required\""];
+}
+
+message GroupVoteDetailResponse{
+  int32 vote_id = 1; // 投票ID
+  string title = 2;  // 标题
+  int32 answer_mode = 3;
+  repeated AnswerOption answer_options = 4;
+  int32 answer_num = 5;
+  int32 answered_num = 6;
+  int32 is_anonymous = 7;
+  repeated AnsweredUser answered_users = 8;
+
+  message AnswerOption{
+    string key = 1;
+    string value = 2;
+  }
+
+  message AnsweredUser{
+    int32 user_id = 1;
+    string nickname = 2;
+    repeated string options = 3; // 答题选项
+    string answer_time = 4; // 答题时间
+  }
+}

@@ -28,7 +28,6 @@ func (h *Handler) init() {
 	handlers["im.message.publish"] = h.onPublish
 	handlers["im.message.revoke"] = h.onRevokeMessage
 	handlers["im.message.delete"] = h.onDeleteMessage
-	handlers["im.message.read"] = h.onReadMessage
 	handlers["im.message.keyboard"] = h.onKeyboardMessage
 }
 

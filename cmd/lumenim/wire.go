@@ -7,8 +7,8 @@ import (
 	"github.com/google/wire"
 	"go-chat/config"
 	"go-chat/internal/apis"
+	"go-chat/internal/business"
 	"go-chat/internal/commet"
-	"go-chat/internal/logic"
 	"go-chat/internal/mission"
 	"go-chat/internal/provider"
 	"go-chat/internal/repository/cache"
@@ -27,10 +27,10 @@ var providerSet = wire.NewSet(
 	provider.NewBase64Captcha,
 	wire.Struct(new(provider.Providers), "*"),
 
-	cache.ProviderSet,   // 注入 Cache 依赖
-	repo.ProviderSet,    // 注入 Repo 依赖
-	logic.ProviderSet,   // 注入 Logic 依赖
-	service.ProviderSet, // 注入 Service 依赖
+	cache.ProviderSet,    // 注入 Cache 依赖
+	repo.ProviderSet,     // 注入 Repo 依赖
+	business.ProviderSet, // 注入 Logic 依赖
+	service.ProviderSet,  // 注入 Service 依赖
 )
 
 func NewHttpInjector(conf *config.Config) *apis.AppProvider {

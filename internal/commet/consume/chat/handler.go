@@ -28,7 +28,6 @@ func (h *Handler) init() {
 
 	handlers[entity.SubEventImMessage] = h.onConsumeTalk
 	handlers[entity.SubEventImMessageKeyboard] = h.onConsumeTalkKeyboard
-	handlers[entity.SubEventImMessageRead] = h.onConsumeTalkRead
 	handlers[entity.SubEventImMessageRevoke] = h.onConsumeTalkRevoke
 	handlers[entity.SubEventContactStatus] = h.onConsumeContactStatus
 	handlers[entity.SubEventContactApply] = h.onConsumeContactApply

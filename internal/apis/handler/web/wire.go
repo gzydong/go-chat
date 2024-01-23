@@ -24,6 +24,7 @@ var ProviderSet = wire.NewSet(
 	wire.Struct(new(group.Group), "*"),
 	wire.Struct(new(group.Apply), "*"),
 	wire.Struct(new(group.Notice), "*"),
+	wire.Struct(new(group.Vote), "*"),
 
 	wire.Struct(new(talk.Session), "*"),
 	wire.Struct(new(talk.Message), "*"),

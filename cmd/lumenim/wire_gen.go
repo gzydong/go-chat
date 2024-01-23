@@ -22,6 +22,7 @@ import (
 	"go-chat/internal/apis/handler/web/v1/group"
 	"go-chat/internal/apis/handler/web/v1/talk"
 	"go-chat/internal/apis/router"
+	"go-chat/internal/business"
 	"go-chat/internal/commet"
 	"go-chat/internal/commet/consume"
 	chat2 "go-chat/internal/commet/consume/chat"
@@ -32,7 +33,6 @@ import (
 	handler2 "go-chat/internal/commet/handler"
 	"go-chat/internal/commet/process"
 	router2 "go-chat/internal/commet/router"
-	"go-chat/internal/logic"
 	"go-chat/internal/mission"
 	"go-chat/internal/mission/cron"
 	"go-chat/internal/mission/queue"
@@ -68,30 +68,34 @@ func NewHttpInjector(conf *config.Config) *apis.AppProvider {
 	source := repo.NewSource(db, client)
 	sequence := cache.NewSequence(client)
 	repoSequence := repo.NewSequence(db, sequence)
-	messageForwardLogic := logic.NewMessageForwardLogic(db, repoSequence)
+	forwardMessage := &business.ForwardMessage{
+		DB:       db,
+		Sequence: repoSequence,
+	}
 	relation := cache.NewRelation(client)
 	groupMember := repo.NewGroupMember(db, relation)
-	splitUpload := repo.NewFileSplitUpload(db)
+	fileUpload := repo.NewFileUpload(db)
 	vote := cache.NewVote(client)
-	talkRecordsVote := repo.NewTalkRecordsVote(db, vote)
+	groupVote := repo.NewGroupVote(db, vote)
 	iFilesystem := provider.NewFilesystem(conf)
 	unreadStorage := cache.NewUnreadStorage(client)
 	messageStorage := cache.NewMessageStorage(client)
 	serverStorage := cache.NewSidStorage(client)
 	clientStorage := cache.NewClientStorage(client, conf, serverStorage)
 	messageService := &service.MessageService{
-		Source:              source,
-		MessageForwardLogic: messageForwardLogic,
-		GroupMemberRepo:     groupMember,
-		SplitUploadRepo:     splitUpload,
-		TalkRecordsVoteRepo: talkRecordsVote,
-		Filesystem:          iFilesystem,
-		UnreadStorage:       unreadStorage,
-		MessageStorage:      messageStorage,
-		ServerStorage:       serverStorage,
-		ClientStorage:       clientStorage,
-		Sequence:            repoSequence,
-		RobotRepo:           robot,
+		Source:                 source,
+		MessageForwardBusiness: forwardMessage,
+		GroupMemberRepo:        groupMember,
+		SplitUploadRepo:        fileUpload,
+		TalkRecordsVoteRepo:    groupVote,
+		UsersRepo:              users,
+		Filesystem:             iFilesystem,
+		UnreadStorage:          unreadStorage,
+		MessageStorage:         messageStorage,
+		ServerStorage:          serverStorage,
+		ClientStorage:          clientStorage,
+		Sequence:               repoSequence,
+		RobotRepo:              robot,
 	}
 	httpClient := provider.NewHttpClient()
 	requestClient := provider.NewRequestClient(httpClient)
@@ -183,14 +187,17 @@ func NewHttpInjector(conf *config.Config) *apis.AppProvider {
 		Filesystem:     iFilesystem,
 	}
 	talkRecords := repo.NewTalkRecords(db)
-	talkRecordsDelete := repo.NewTalkRecordsDelete(db)
+	talkRecordFriend := repo.NewTalkRecordFriend(db)
+	talkRecordGroup := repo.NewTalkRecordGroup(db)
+	talkRecordGroupDel := repo.NewTalkRecordGroupDel(db)
 	talkRecordsService := &service.TalkRecordsService{
 		Source:                source,
 		TalkVoteCache:         vote,
-		TalkRecordsVoteRepo:   talkRecordsVote,
+		TalkRecordsVoteRepo:   groupVote,
 		GroupMemberRepo:       groupMember,
-		TalkRecordsRepo:       talkRecords,
-		TalkRecordsDeleteRepo: talkRecordsDelete,
+		TalkRecordFriendRepo:  talkRecordFriend,
+		TalkRecordGroupRepo:   talkRecordGroup,
+		TalkRecordsDeleteRepo: talkRecordGroupDel,
 	}
 	groupMemberService := &service.GroupMemberService{
 		Source:          source,
@@ -216,16 +223,16 @@ func NewHttpInjector(conf *config.Config) *apis.AppProvider {
 		EmoticonService: emoticonService,
 		Filesystem:      iFilesystem,
 	}
-	splitUploadService := &service.SplitUploadService{
+	fileSplitUploadService := &service.FileSplitUploadService{
 		Source:          source,
-		SplitUploadRepo: splitUpload,
+		SplitUploadRepo: fileUpload,
 		Config:          conf,
 		FileSystem:      iFilesystem,
 	}
 	upload := &v1.Upload{
 		Config:             conf,
 		Filesystem:         iFilesystem,
-		SplitUploadService: splitUploadService,
+		SplitUploadService: fileSplitUploadService,
 	}
 	groupNotice := repo.NewGroupNotice(db)
 	groupNoticeService := &service.GroupNoticeService{
@@ -269,6 +276,16 @@ func NewHttpInjector(conf *config.Config) *apis.AppProvider {
 		GroupApplyService:  groupApplyService,
 		GroupMemberService: groupMemberService,
 		GroupService:       groupService,
+	}
+	groupVoteService := &service.GroupVoteService{
+		Source:          source,
+		GroupMemberRepo: groupMember,
+		GroupVoteRepo:   groupVote,
+	}
+	vote2 := &group.Vote{
+		GroupMemberRepo:  groupMember,
+		GroupVoteRepo:    groupVote,
+		GroupVoteService: groupVoteService,
 	}
 	contactContact := &contact.Contact{
 		ClientStorage:   clientStorage,
@@ -351,6 +368,7 @@ func NewHttpInjector(conf *config.Config) *apis.AppProvider {
 		Group:        groupGroup,
 		GroupNotice:  notice,
 		GroupApply:   apply,
+		GroupVote:    vote2,
 		Contact:      contactContact,
 		ContactApply: contactApply,
 		ContactGroup: group2,
@@ -417,27 +435,32 @@ func NewCommetInjector(conf *config.Config) *commet.AppProvider {
 	}
 	sequence := cache.NewSequence(client)
 	repoSequence := repo.NewSequence(db, sequence)
-	messageForwardLogic := logic.NewMessageForwardLogic(db, repoSequence)
-	splitUpload := repo.NewFileSplitUpload(db)
+	forwardMessage := &business.ForwardMessage{
+		DB:       db,
+		Sequence: repoSequence,
+	}
+	fileUpload := repo.NewFileUpload(db)
 	vote := cache.NewVote(client)
-	talkRecordsVote := repo.NewTalkRecordsVote(db, vote)
+	groupVote := repo.NewGroupVote(db, vote)
+	users := repo.NewUsers(db)
 	iFilesystem := provider.NewFilesystem(conf)
 	unreadStorage := cache.NewUnreadStorage(client)
 	messageStorage := cache.NewMessageStorage(client)
 	robot := repo.NewRobot(db)
 	messageService := &service.MessageService{
-		Source:              source,
-		MessageForwardLogic: messageForwardLogic,
-		GroupMemberRepo:     groupMember,
-		SplitUploadRepo:     splitUpload,
-		TalkRecordsVoteRepo: talkRecordsVote,
-		Filesystem:          iFilesystem,
-		UnreadStorage:       unreadStorage,
-		MessageStorage:      messageStorage,
-		ServerStorage:       serverStorage,
-		ClientStorage:       clientStorage,
-		Sequence:            repoSequence,
-		RobotRepo:           robot,
+		Source:                 source,
+		MessageForwardBusiness: forwardMessage,
+		GroupMemberRepo:        groupMember,
+		SplitUploadRepo:        fileUpload,
+		TalkRecordsVoteRepo:    groupVote,
+		UsersRepo:              users,
+		Filesystem:             iFilesystem,
+		UnreadStorage:          unreadStorage,
+		MessageStorage:         messageStorage,
+		ServerStorage:          serverStorage,
+		ClientStorage:          clientStorage,
+		Sequence:               repoSequence,
+		RobotRepo:              robot,
 	}
 	chatHandler := &chat.Handler{
 		Redis:          client,
@@ -473,15 +496,17 @@ func NewCommetInjector(conf *config.Config) *commet.AppProvider {
 	jwtTokenStorage := cache.NewTokenSessionStorage(client)
 	engine := router2.NewRouter(conf, handlerHandler, jwtTokenStorage)
 	healthSubscribe := process.NewHealthSubscribe(conf, serverStorage)
-	talkRecords := repo.NewTalkRecords(db)
-	talkRecordsDelete := repo.NewTalkRecordsDelete(db)
+	talkRecordFriend := repo.NewTalkRecordFriend(db)
+	talkRecordGroup := repo.NewTalkRecordGroup(db)
+	talkRecordGroupDel := repo.NewTalkRecordGroupDel(db)
 	talkRecordsService := &service.TalkRecordsService{
 		Source:                source,
 		TalkVoteCache:         vote,
-		TalkRecordsVoteRepo:   talkRecordsVote,
+		TalkRecordsVoteRepo:   groupVote,
 		GroupMemberRepo:       groupMember,
-		TalkRecordsRepo:       talkRecords,
-		TalkRecordsDeleteRepo: talkRecordsDelete,
+		TalkRecordFriendRepo:  talkRecordFriend,
+		TalkRecordGroupRepo:   talkRecordGroup,
+		TalkRecordsDeleteRepo: talkRecordGroupDel,
 	}
 	contactRemark := cache.NewContactRemark(client)
 	repoContact := repo.NewContact(db, contactRemark, relation)
@@ -589,4 +614,4 @@ func NewMigrateInjector(conf *config.Config) *mission.MigrateProvider {
 
 // wire.go:
 
-var providerSet = wire.NewSet(provider.NewMySQLClient, provider.NewRedisClient, provider.NewHttpClient, provider.NewEmailClient, provider.NewFilesystem, provider.NewRequestClient, provider.NewBase64Captcha, wire.Struct(new(provider.Providers), "*"), cache.ProviderSet, repo.ProviderSet, logic.ProviderSet, service.ProviderSet)
+var providerSet = wire.NewSet(provider.NewMySQLClient, provider.NewRedisClient, provider.NewHttpClient, provider.NewEmailClient, provider.NewFilesystem, provider.NewRequestClient, provider.NewBase64Captcha, wire.Struct(new(provider.Providers), "*"), cache.ProviderSet, repo.ProviderSet, business.ProviderSet, service.ProviderSet)

@@ -81,6 +81,9 @@ func RegisterWebRoute(secret string, router *gin.Engine, handler *web.Handler, s
 			userGroup.POST("/no-speak", ichat.HandlerFunc(handler.V1.Group.NoSpeak))         // 修改禁言状态
 			userGroup.POST("/mute", ichat.HandlerFunc(handler.V1.Group.Mute))                // 修改禁言状态
 			userGroup.POST("/overt", ichat.HandlerFunc(handler.V1.Group.Overt))              // 修改禁言状态
+			userGroup.POST("/vote/create", ichat.HandlerFunc(handler.V1.GroupVote.Create))   // 创建群投票
+			userGroup.POST("/vote/submit", ichat.HandlerFunc(handler.V1.GroupVote.Submit))   // 投票提交
+			userGroup.POST("/vote/detail", ichat.HandlerFunc(handler.V1.GroupVote.Detail))   // 投票详情
 
 			// 群成员相关
 			userGroup.GET("/member/list", ichat.HandlerFunc(handler.V1.Group.Members))               // 群成员列表
@@ -118,13 +121,10 @@ func RegisterWebRoute(secret string, router *gin.Engine, handler *web.Handler, s
 
 		talkMsg := v1.Group("/talk/message").Use(authorize)
 		{
-			talkMsg.POST("/publish", ichat.HandlerFunc(handler.V1.Message.Publish))            // 发送文本消息
-			talkMsg.POST("/file", ichat.HandlerFunc(handler.V1.TalkMessage.File))              // 发送文件消息
-			talkMsg.POST("/collect", ichat.HandlerFunc(handler.V1.TalkMessage.Collect))        // 收藏会话表情图片
-			talkMsg.POST("/revoke", ichat.HandlerFunc(handler.V1.TalkMessage.Revoke))          // 撤销聊天消息
-			talkMsg.POST("/delete", ichat.HandlerFunc(handler.V1.TalkMessage.Delete))          // 删除聊天消息
-			talkMsg.POST("/vote", ichat.HandlerFunc(handler.V1.TalkMessage.Vote))              // 发送投票消息
-			talkMsg.POST("/vote/handle", ichat.HandlerFunc(handler.V1.TalkMessage.HandleVote)) // 投票消息处理
+			talkMsg.POST("/publish", ichat.HandlerFunc(handler.V1.Message.Publish))     // 发送文本消息
+			talkMsg.POST("/collect", ichat.HandlerFunc(handler.V1.TalkMessage.Collect)) // 收藏会话表情图片
+			talkMsg.POST("/revoke", ichat.HandlerFunc(handler.V1.TalkMessage.Revoke))   // 撤销聊天消息
+			talkMsg.POST("/delete", ichat.HandlerFunc(handler.V1.TalkMessage.Delete))   // 删除聊天消息
 		}
 
 		emoticon := v1.Group("/emoticon").Use(authorize)

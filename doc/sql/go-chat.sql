@@ -315,19 +315,6 @@ CREATE TABLE `robot`
     KEY          `idx_updated_at` (`updated_at`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='聊天机器人表';;
 
-CREATE TABLE `robot_install_user`
-(
-    `id`         int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT '自增ID',
-    `robot_id`   int(11) unsigned NOT NULL DEFAULT '0' COMMENT '机器人ID',
-    `user_id`    int(11) unsigned NOT NULL DEFAULT '0' COMMENT '用户ID',
-    `created_at` datetime NOT NULL COMMENT '创建时间',
-    `updated_at` datetime NOT NULL COMMENT '更新时间',
-    PRIMARY KEY (`id`),
-    UNIQUE KEY `uk_user_id` (`user_id`) USING BTREE,
-    KEY          `idx_created_at` (`created_at`) USING BTREE,
-    KEY          `idx_updated_at` (`updated_at`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='聊天机器人-用户关联表';;
-
 CREATE TABLE `split_upload`
 (
     `id`            int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT '临时文件ID',

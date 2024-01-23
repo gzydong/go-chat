@@ -21,6 +21,7 @@ type V1 struct {
 	Group        *group.Group
 	GroupNotice  *group.Notice
 	GroupApply   *group.Apply
+	GroupVote    *group.Vote
 	Contact      *contact.Contact
 	ContactApply *contact.Apply
 	ContactGroup *contact.Group

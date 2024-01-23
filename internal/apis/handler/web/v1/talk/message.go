@@ -15,42 +15,69 @@ type Message struct {
 	Filesystem     filesystem.IFilesystem
 }
 
-type AuthorityOption struct {
-	TalkType   int // 对话类型
-	UserId     int // 发送者ID
-	ReceiverId int // 接收者ID
+type CollectMessageRequest struct {
+	TalkType   int    `form:"talk_type" json:"talk_type" binding:"required"`
+	ReceiverId int    `form:"receiver_id" json:"receiver_id" binding:"required"`
+	MsgId      string `form:"msg_id" json:"msg_id" binding:"required"`
 }
 
-type FileMessageRequest struct {
-	TalkType   int    `form:"talk_type" json:"talk_type" binding:"required,oneof=1 2" label:"talk_type"`
-	ReceiverId int    `form:"receiver_id" json:"receiver_id" binding:"required,numeric,gt=0" label:"receiver_id"`
-	UploadId   string `form:"upload_id" json:"upload_id" binding:"required"`
-}
-
-// File 发送文件消息
-func (c *Message) File(ctx *ichat.Context) error {
-
-	params := &FileMessageRequest{}
+// Collect 收藏聊天图片
+func (c *Message) Collect(ctx *ichat.Context) error {
+	params := &CollectMessageRequest{}
 	if err := ctx.Context.ShouldBind(params); err != nil {
 		return ctx.InvalidParams(err)
 	}
 
-	uid := ctx.UserId()
-	if err := c.AuthService.IsAuth(ctx.Ctx(), &service.AuthOption{
-		TalkType:          params.TalkType,
-		UserId:            uid,
-		ReceiverId:        params.ReceiverId,
-		IsVerifyGroupMute: true,
+	if err := c.TalkService.Collect(ctx.Ctx(), &service.CollectOpt{
+		UserId:     ctx.UserId(),
+		TalkType:   params.TalkType,
+		ReceiverId: params.ReceiverId,
+		MsgId:      params.MsgId,
 	}); err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}
 
-	if err := c.MessageService.SendFile(ctx.Ctx(), uid, &message.FileMessageRequest{
-		UploadId: params.UploadId,
-		Receiver: &message.MessageReceiver{
-			TalkType:   int32(params.TalkType),
-			ReceiverId: int32(params.ReceiverId),
-		},
+	return ctx.Success(nil)
+}
+
+type RevokeMessageRequest struct {
+	TalkType   int    `form:"talk_type" json:"talk_type" binding:"required"`
+	ReceiverId int    `form:"receiver_id" json:"receiver_id" binding:"required"`
+	MsgId      string `form:"msg_id" json:"msg_id" binding:"required"`
+}
+
+// Revoke 撤销聊天记录
+func (c *Message) Revoke(ctx *ichat.Context) error {
+	params := &RevokeMessageRequest{}
+	if err := ctx.Context.ShouldBind(params); err != nil {
+		return ctx.InvalidParams(err)
+	}
+
+	if err := c.MessageService.Revoke(ctx.Ctx(), ctx.UserId(), params.MsgId); err != nil {
+		return ctx.ErrorBusiness(err.Error())
+	}
+
+	return ctx.Success(nil)
+}
+
+type DeleteMessageRequest struct {
+	TalkType   int      `form:"talk_type" json:"talk_type" binding:"required,oneof=1 2"`
+	ReceiverId int      `form:"receiver_id" json:"receiver_id" binding:"required,numeric,gt=0"`
+	MsgIds     []string `form:"msg_ids" json:"msg_ids" binding:"required"`
+}
+
+// Delete 删除聊天记录
+func (c *Message) Delete(ctx *ichat.Context) error {
+	params := &DeleteMessageRequest{}
+	if err := ctx.Context.ShouldBind(params); err != nil {
+		return ctx.InvalidParams(err)
+	}
+
+	if err := c.TalkService.DeleteRecordList(ctx.Ctx(), &service.RemoveRecordListOpt{
+		UserId:     ctx.UserId(),
+		TalkType:   params.TalkType,
+		ReceiverId: params.ReceiverId,
+		MsgIds:     params.MsgIds,
 	}); err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}
@@ -59,7 +86,7 @@ func (c *Message) File(ctx *ichat.Context) error {
 }
 
 type VoteMessageRequest struct {
-	ReceiverId int      `form:"receiver_id" json:"receiver_id" binding:"required,numeric,gt=0" label:"receiver_id"`
+	ReceiverId int      `form:"receiver_id" json:"receiver_id" binding:"required,numeric,gt=0"`
 	Mode       int      `form:"mode" json:"mode" binding:"oneof=0 1"`
 	Anonymous  int      `form:"anonymous" json:"anonymous" binding:"oneof=0 1"`
 	Title      string   `form:"title" json:"title" binding:"required"`
@@ -68,7 +95,6 @@ type VoteMessageRequest struct {
 
 // Vote 发送投票消息
 func (c *Message) Vote(ctx *ichat.Context) error {
-
 	params := &VoteMessageRequest{}
 	if err := ctx.Context.ShouldBind(params); err != nil {
 		return ctx.InvalidParams(err)
@@ -108,84 +134,19 @@ func (c *Message) Vote(ctx *ichat.Context) error {
 	return ctx.Success(nil)
 }
 
-type CollectMessageRequest struct {
-	MsgId string `form:"msg_id" json:"msg_id" binding:"required" label:"msg_id"`
-}
-
-// Collect 收藏聊天图片
-func (c *Message) Collect(ctx *ichat.Context) error {
-
-	params := &CollectMessageRequest{}
-	if err := ctx.Context.ShouldBind(params); err != nil {
-		return ctx.InvalidParams(err)
-	}
-
-	if err := c.TalkService.Collect(ctx.Ctx(), ctx.UserId(), params.MsgId); err != nil {
-		return ctx.ErrorBusiness(err.Error())
-	}
-
-	return ctx.Success(nil)
-}
-
-type RevokeMessageRequest struct {
-	MsgId string `form:"msg_id" json:"msg_id" binding:"required" label:"msg_id"`
-}
-
-// Revoke 撤销聊天记录
-func (c *Message) Revoke(ctx *ichat.Context) error {
-
-	params := &RevokeMessageRequest{}
-	if err := ctx.Context.ShouldBind(params); err != nil {
-		return ctx.InvalidParams(err)
-	}
-
-	if err := c.MessageService.Revoke(ctx.Ctx(), ctx.UserId(), params.MsgId); err != nil {
-		return ctx.ErrorBusiness(err.Error())
-	}
-
-	return ctx.Success(nil)
-}
-
-type DeleteMessageRequest struct {
-	TalkType   int      `form:"talk_type" json:"talk_type" binding:"required,oneof=1 2" label:"talk_type"`
-	ReceiverId int      `form:"receiver_id" json:"receiver_id" binding:"required,numeric,gt=0" label:"receiver_id"`
-	MsgIds     []string `form:"msg_ids" json:"msg_ids" binding:"required" label:"msg_ids"`
-}
-
-// Delete 删除聊天记录
-func (c *Message) Delete(ctx *ichat.Context) error {
-
-	params := &DeleteMessageRequest{}
-	if err := ctx.Context.ShouldBind(params); err != nil {
-		return ctx.InvalidParams(err)
-	}
-
-	if err := c.TalkService.DeleteRecordList(ctx.Ctx(), &service.RemoveRecordListOpt{
-		UserId:     ctx.UserId(),
-		TalkType:   params.TalkType,
-		ReceiverId: params.ReceiverId,
-		MsgIds:     params.MsgIds,
-	}); err != nil {
-		return ctx.ErrorBusiness(err.Error())
-	}
-
-	return ctx.Success(nil)
-}
-
 type VoteMessageHandleRequest struct {
-	MsgId   string `form:"msg_id" json:"msg_id" binding:"required"`
+	VoteId  int    `form:"vote_id" json:"vote_id" binding:"required,numeric,gt=0"`
 	Options string `form:"options" json:"options" binding:"required"`
 }
 
-// HandleVote 投票处理
-func (c *Message) HandleVote(ctx *ichat.Context) error {
-
+// SubmitVote 提交投票
+func (c *Message) SubmitVote(ctx *ichat.Context) error {
 	params := &VoteMessageHandleRequest{}
 	if err := ctx.Context.ShouldBind(params); err != nil {
 		return ctx.InvalidParams(err)
 	}
 
-	data, err := c.MessageService.Vote(ctx.Ctx(), ctx.UserId(), params.MsgId, params.Options)
+	data, err := c.MessageService.Vote(ctx.Ctx(), ctx.UserId(), params.VoteId, params.Options)
 	if err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}
