@@ -282,6 +282,8 @@ func (m *MessageService) SendVote(ctx context.Context, uid int, req *message.Vot
 			AnswerOption: jsonutil.Encode(options),
 			AnswerNum:    int(num),
 			IsAnonymous:  int(req.Anonymous),
+			CreatedAt:    time.Now(),
+			UpdatedAt:    time.Now(),
 		}).Error
 	})
 

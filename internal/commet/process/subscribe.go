@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/redis/go-redis/v9"
 	"github.com/sourcegraph/conc/pool"
@@ -53,7 +54,7 @@ func (m *MessageSubscribe) subscribe(ctx context.Context, topic []string, consum
 
 	worker := pool.New().WithMaxGoroutines(10)
 
-	for data := range sub.Channel() {
+	for data := range sub.Channel(redis.WithChannelHealthCheckInterval(10 * time.Second)) {
 		m.handle(worker, data, consume)
 	}
 
