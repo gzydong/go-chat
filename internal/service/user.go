@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"errors"
+	"time"
 
 	"go-chat/internal/pkg/encrypt"
 	"go-chat/internal/repository/model"
@@ -37,9 +38,11 @@ func (s *UserService) Register(ctx context.Context, opt *UserRegisterOpt) (*mode
 	}
 
 	return s.UsersRepo.Create(&model.Users{
-		Mobile:   opt.Mobile,
-		Nickname: opt.Nickname,
-		Password: encrypt.HashPassword(opt.Password),
+		Mobile:    opt.Mobile,
+		Nickname:  opt.Nickname,
+		Password:  encrypt.HashPassword(opt.Password),
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
 	})
 }
 

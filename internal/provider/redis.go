@@ -14,7 +14,7 @@ func NewRedisClient(conf *config.Config) *redis.Client {
 		Addr:        conf.Redis.Host,
 		Password:    conf.Redis.Auth,
 		DB:          conf.Redis.Database,
-		ReadTimeout: -1,
+		ReadTimeout: 0,
 	})
 
 	if _, err := client.Ping(context.TODO()).Result(); err != nil {

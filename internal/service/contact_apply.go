@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/redis/go-redis/v9"
 	"go-chat/internal/repository/model"
@@ -98,10 +99,13 @@ func (s *ContactApplyService) Accept(ctx context.Context, opt *ContactApplyAccep
 			}
 
 			return tx.Create(&model.Contact{
-				UserId:   uid,
-				FriendId: fid,
-				Remark:   remark,
-				Status:   1,
+				UserId:    uid,
+				FriendId:  fid,
+				Remark:    remark,
+				Status:    1,
+				GroupId:   0,
+				CreatedAt: time.Now(),
+				UpdatedAt: time.Now(),
 			}).Error
 		}
 
