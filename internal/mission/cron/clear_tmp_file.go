@@ -5,10 +5,13 @@ import (
 	"path"
 	"time"
 
+	"go-chat/internal/pkg/core/crontab"
 	"go-chat/internal/pkg/filesystem"
 	"go-chat/internal/repository/model"
 	"gorm.io/gorm"
 )
+
+var _ crontab.ICrontab = (*ClearTmpFile)(nil)
 
 type ClearTmpFile struct {
 	DB         *gorm.DB
@@ -22,14 +25,14 @@ func (c *ClearTmpFile) Spec() string {
 }
 
 func (c *ClearTmpFile) Name() string {
-	return "clear.tmp.file"
+	return "tmp.file.clear"
 }
 
 func (c *ClearTmpFile) Enable() bool {
 	return true
 }
 
-func (c *ClearTmpFile) Handle(ctx context.Context) error {
+func (c *ClearTmpFile) Do(ctx context.Context) error {
 	lastId, size := 0, 100
 
 	for {

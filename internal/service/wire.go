@@ -2,6 +2,7 @@ package service
 
 import (
 	"github.com/google/wire"
+	"go-chat/internal/service/message"
 )
 
 var ProviderSet = wire.NewSet(
@@ -35,8 +36,8 @@ var ProviderSet = wire.NewSet(
 	wire.Struct(new(EmoticonService), "*"),
 	wire.Bind(new(IEmoticonService), new(*EmoticonService)),
 
-	wire.Struct(new(TalkRecordsService), "*"),
-	wire.Bind(new(ITalkRecordsService), new(*TalkRecordsService)),
+	wire.Struct(new(TalkRecordService), "*"),
+	wire.Bind(new(ITalkRecordService), new(*TalkRecordService)),
 
 	wire.Struct(new(ContactService), "*"),
 	wire.Bind(new(IContactService), new(*ContactService)),
@@ -52,9 +53,6 @@ var ProviderSet = wire.NewSet(
 
 	wire.Struct(new(IpAddressService), "*"),
 	wire.Bind(new(IIpAddressService), new(*IpAddressService)),
-
-	wire.Struct(new(MessageService), "*"),
-	wire.Bind(new(IMessageService), new(*MessageService)),
 
 	wire.Struct(new(ArticleService), "*"),
 	wire.Bind(new(IArticleService), new(*ArticleService)),
@@ -73,4 +71,13 @@ var ProviderSet = wire.NewSet(
 
 	wire.Struct(new(AuthService), "*"),
 	wire.Bind(new(IAuthService), new(*AuthService)),
+
+	wire.Struct(new(ClientConnectService), "*"),
+	wire.Bind(new(IClientConnectService), new(*ClientConnectService)),
+
+	wire.Struct(new(RoomService), "*"),
+	wire.Bind(new(IRoomService), new(*RoomService)),
+
+	wire.Struct(new(message.Service), "*"),
+	wire.Bind(new(message.IService), new(*message.Service)),
 )

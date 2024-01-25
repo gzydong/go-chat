@@ -8,8 +8,8 @@ import (
 	"github.com/mojocn/base64Captcha"
 	"go-chat/api/pb/admin/v1"
 	"go-chat/config"
+	"go-chat/internal/pkg/core"
 	"go-chat/internal/pkg/encrypt"
-	"go-chat/internal/pkg/ichat"
 	"go-chat/internal/pkg/jwt"
 	"go-chat/internal/repository/cache"
 	"go-chat/internal/repository/model"
@@ -25,7 +25,7 @@ type Auth struct {
 }
 
 // Login 登录接口
-func (c *Auth) Login(ctx *ichat.Context) error {
+func (c *Auth) Login(ctx *core.Context) error {
 
 	var in admin.AuthLoginRequest
 	if err := ctx.Context.ShouldBindJSON(&in); err != nil {
@@ -78,7 +78,7 @@ func (c *Auth) Login(ctx *ichat.Context) error {
 }
 
 // Captcha 图形验证码
-func (c *Auth) Captcha(ctx *ichat.Context) error {
+func (c *Auth) Captcha(ctx *core.Context) error {
 	voucher, captcha, _, err := c.ICaptcha.Generate()
 	if err != nil {
 		return ctx.ErrorBusiness(err)
@@ -91,7 +91,7 @@ func (c *Auth) Captcha(ctx *ichat.Context) error {
 }
 
 // Logout 退出登录接口
-func (c *Auth) Logout(ctx *ichat.Context) error {
+func (c *Auth) Logout(ctx *core.Context) error {
 
 	session := ctx.JwtSession()
 	if session != nil {
@@ -104,7 +104,7 @@ func (c *Auth) Logout(ctx *ichat.Context) error {
 }
 
 // Refresh Token 刷新接口
-func (c *Auth) Refresh(ctx *ichat.Context) error {
+func (c *Auth) Refresh(ctx *core.Context) error {
 
 	// TODO 业务逻辑 ...
 

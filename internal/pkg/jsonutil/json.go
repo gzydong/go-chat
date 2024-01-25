@@ -16,6 +16,7 @@ func Marshal(value any) []byte {
 	return data
 }
 
+// Decode
 // nolint
 func Decode(data any, resp any) error {
 	switch data.(type) {

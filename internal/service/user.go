@@ -40,7 +40,13 @@ func (s *UserService) Register(ctx context.Context, opt *UserRegisterOpt) (*mode
 	return s.UsersRepo.Create(&model.Users{
 		Mobile:    opt.Mobile,
 		Nickname:  opt.Nickname,
+		Avatar:    "",
+		Gender:    model.UsersGenderDefault,
 		Password:  encrypt.HashPassword(opt.Password),
+		Motto:     "",
+		Email:     "",
+		Birthday:  "",
+		IsRobot:   model.No,
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	})
@@ -49,7 +55,7 @@ func (s *UserService) Register(ctx context.Context, opt *UserRegisterOpt) (*mode
 // Login 登录处理
 func (s *UserService) Login(mobile string, password string) (*model.Users, error) {
 
-	user, err := s.UsersRepo.FindByMobile(mobile)
+	user, err := s.UsersRepo.FindByMobile(context.Background(), mobile)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errors.New("登录账号不存在! ")
@@ -75,7 +81,7 @@ type UserForgetOpt struct {
 // Forget 账号找回
 func (s *UserService) Forget(opt *UserForgetOpt) (bool, error) {
 
-	user, err := s.UsersRepo.FindByMobile(opt.Mobile)
+	user, err := s.UsersRepo.FindByMobile(context.Background(), opt.Mobile)
 	if err != nil || user.Id == 0 {
 		return false, errors.New("账号不存在! ")
 	}

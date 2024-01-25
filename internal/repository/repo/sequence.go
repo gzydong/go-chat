@@ -37,24 +37,20 @@ func (s *Sequence) try(ctx context.Context, id int, isUserId bool) error {
 		defer s.cache.Redis().Del(ctx, lockName)
 
 		tx := s.db.WithContext(ctx).Select("ifnull(max(sequence),0)")
-
 		if isUserId {
-			tx.Table("talk_record_friend")
-			tx = tx.Where("user_id = ?", id)
+			tx.Table("talk_user_message").Where("user_id = ?", id)
 		} else {
-			tx.Table("talk_record_friend")
-			tx = tx.Where("group_id = ?", id)
+			tx.Table("talk_group_message").Where("group_id = ?", id)
 		}
 
 		var seq int64
-		err := tx.Select("ifnull(max(sequence),0)").Scan(&seq).Error
-		if err != nil {
+		if err := tx.Scan(&seq).Error; err != nil {
 			logger.Errorf("[Sequence Total] 加载异常 err: %s", err.Error())
 			return err
 		}
 
-		if err := s.cache.Set(ctx, id, isUserId, seq); err != nil {
-			logger.Errorf("[Sequence Set] 加载异常 err: %s", err.Error())
+		if err := s.cache.Set(ctx, id, isUserId, seq+100); err != nil {
+			logger.Errorf("[Sequence set] 加载异常 err: %s", err.Error())
 			return err
 		}
 	} else if result < time.Hour {

@@ -4,9 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"go-chat/internal/business"
 	"time"
 
-	"github.com/redis/go-redis/v9"
 	"go-chat/internal/repository/model"
 	"go-chat/internal/repository/repo"
 	"gorm.io/gorm"
@@ -28,6 +28,7 @@ type IContactApplyService interface {
 
 type ContactApplyService struct {
 	*repo.Source
+	PushMessage *business.PushMessage
 }
 
 type ContactApplyCreateOpt struct {
@@ -48,20 +49,15 @@ func (s *ContactApplyService) Create(ctx context.Context, opt *ContactApplyCreat
 		return err
 	}
 
-	body := map[string]any{
-		"event": entity.SubEventContactApply,
-		"data": jsonutil.Encode(map[string]any{
-			"apply_id": apply.Id,
-			"type":     1,
+	_ = s.PushMessage.Push(ctx, entity.ImTopicChat, &entity.SubscribeMessage{
+		Event: entity.SubEventContactApply,
+		Payload: jsonutil.Encode(entity.SubEventContactApplyPayload{
+			ApplyId: apply.Id,
+			Type:    1,
 		}),
-	}
-
-	_, _ = s.Source.Redis().Pipelined(ctx, func(pipe redis.Pipeliner) error {
-		pipe.Incr(ctx, fmt.Sprintf("im:contact:apply:%d", opt.FriendId))
-		pipe.Publish(ctx, entity.ImTopicChat, jsonutil.Encode(body))
-		return nil
 	})
 
+	s.Source.Redis().Incr(ctx, fmt.Sprintf("im:contact:apply:%d", opt.FriendId))
 	return nil
 }
 
@@ -141,15 +137,13 @@ func (s *ContactApplyService) Decline(ctx context.Context, opt *ContactApplyDecl
 		return err
 	}
 
-	body := map[string]any{
-		"event": entity.SubEventContactApply,
-		"data": jsonutil.Encode(map[string]any{
-			"apply_id": opt.ApplyId,
-			"type":     2,
+	_ = s.PushMessage.Push(ctx, entity.ImTopicChat, &entity.SubscribeMessage{
+		Event: entity.SubEventContactApply,
+		Payload: jsonutil.Encode(entity.SubEventContactApplyPayload{
+			ApplyId: opt.ApplyId,
+			Type:    2,
 		}),
-	}
-
-	s.Source.Redis().Publish(ctx, entity.ImTopicChat, jsonutil.Encode(body))
+	})
 	return nil
 }
 

@@ -1,20 +1,18 @@
 package repo
 
 import (
-	"context"
-
-	"go-chat/internal/pkg/ichat"
+	"go-chat/internal/pkg/core"
 	"go-chat/internal/pkg/sliceutil"
 	"go-chat/internal/repository/model"
 	"gorm.io/gorm"
 )
 
 type Emoticon struct {
-	ichat.Repo[model.Emoticon]
+	core.Repo[model.Emoticon]
 }
 
 func NewEmoticon(db *gorm.DB) *Emoticon {
-	return &Emoticon{Repo: ichat.NewRepo[model.Emoticon](db)}
+	return &Emoticon{Repo: core.NewRepo[model.Emoticon](db)}
 }
 
 // GetUserInstallIds 获取用户激活的表情包
@@ -27,17 +25,10 @@ func (e *Emoticon) GetUserInstallIds(uid int) []int {
 	return sliceutil.ParseIds(data.EmoticonIds)
 }
 
-// GetSystemEmoticonList 获取系统表情包分组列表
-func (e *Emoticon) GetSystemEmoticonList(ctx context.Context) ([]*model.Emoticon, error) {
-	return e.Repo.FindAll(ctx, func(db *gorm.DB) {
-		db.Where("status = ?", 0)
-	})
-}
-
-// GetDetailsAll 获取系统表情包分组详情列表
-func (e *Emoticon) GetDetailsAll(emoticonId, uid int) ([]*model.EmoticonItem, error) {
+// GetCustomizeList 获取自定义表情包
+func (e *Emoticon) GetCustomizeList(uid int) ([]*model.EmoticonItem, error) {
 	var items []*model.EmoticonItem
-	if err := e.Repo.Db.Model(model.EmoticonItem{}).Where("emoticon_id = ? and user_id = ? order by id desc", emoticonId, uid).Scan(&items).Error; err != nil {
+	if err := e.Repo.Db.Model(model.EmoticonItem{}).Where("emoticon_id = ? and user_id = ? order by id desc", 0, uid).Scan(&items).Error; err != nil {
 		return nil, err
 	}
 

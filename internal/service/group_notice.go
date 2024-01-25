@@ -47,7 +47,7 @@ func (s *GroupNoticeService) Create(ctx context.Context, opt *GroupNoticeEditOpt
 
 // Update 更新群公告
 func (s *GroupNoticeService) Update(ctx context.Context, opt *GroupNoticeEditOpt) error {
-	_, err := s.GroupNoticeRepo.UpdateWhere(ctx, map[string]any{
+	_, err := s.GroupNoticeRepo.UpdateByWhere(ctx, map[string]any{
 		"title":      opt.Title,
 		"content":    opt.Content,
 		"is_top":     opt.IsTop,
@@ -58,8 +58,8 @@ func (s *GroupNoticeService) Update(ctx context.Context, opt *GroupNoticeEditOpt
 }
 
 func (s *GroupNoticeService) Delete(ctx context.Context, groupId, noticeId int) error {
-	_, err := s.GroupNoticeRepo.UpdateWhere(ctx, map[string]any{
-		"is_delete":  1,
+	_, err := s.GroupNoticeRepo.UpdateByWhere(ctx, map[string]any{
+		"is_delete":  model.GroupNoticeIsDeleteYes,
 		"deleted_at": timeutil.DateTime(),
 		"updated_at": time.Now(),
 	}, "id = ? and group_id = ?", noticeId, groupId)

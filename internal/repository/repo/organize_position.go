@@ -3,17 +3,17 @@ package repo
 import (
 	"context"
 
-	"go-chat/internal/pkg/ichat"
+	"go-chat/internal/pkg/core"
 	"go-chat/internal/repository/model"
 	"gorm.io/gorm"
 )
 
 type Position struct {
-	ichat.Repo[model.OrganizePost]
+	core.Repo[model.OrganizePost]
 }
 
 func NewPosition(db *gorm.DB) *Position {
-	return &Position{Repo: ichat.NewRepo[model.OrganizePost](db)}
+	return &Position{Repo: core.NewRepo[model.OrganizePost](db)}
 }
 
 func (p *Position) List(ctx context.Context) ([]*model.OrganizePost, error) {

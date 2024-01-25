@@ -26,36 +26,36 @@ type AuthService struct {
 type AuthOption struct {
 	TalkType          int
 	UserId            int
-	ReceiverId        int
+	ToFromId          int
 	IsVerifyGroupMute bool
 }
 
 func (a *AuthService) IsAuth(ctx context.Context, opt *AuthOption) error {
 
 	if opt.TalkType == entity.ChatPrivateMode {
-		if isOk, err := a.OrganizeRepo.IsQiyeMember(ctx, opt.UserId, opt.ReceiverId); err != nil {
+		if isOk, err := a.OrganizeRepo.IsQiyeMember(ctx, opt.UserId, opt.ToFromId); err != nil {
 			return errors.New("系统繁忙，请稍后再试！！！")
 		} else if isOk {
 			return nil
 		}
 
-		if a.ContactRepo.IsFriend(ctx, opt.UserId, opt.ReceiverId, false) {
+		if a.ContactRepo.IsFriend(ctx, opt.UserId, opt.ToFromId, false) {
 			return nil
 		}
 
 		return errors.New("暂无权限发送消息！")
 	}
 
-	groupInfo, err := a.GroupRepo.FindById(ctx, opt.ReceiverId)
+	groupInfo, err := a.GroupRepo.FindById(ctx, opt.ToFromId)
 	if err != nil {
 		return err
 	}
 
-	if groupInfo.IsDismiss == 1 {
+	if groupInfo.IsDismiss == model.Yes {
 		return errors.New("此群聊已解散！")
 	}
 
-	memberInfo, err := a.GroupMemberRepo.FindByUserId(ctx, opt.ReceiverId, opt.UserId)
+	memberInfo, err := a.GroupMemberRepo.FindByUserId(ctx, opt.ToFromId, opt.UserId)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return errors.New("暂无权限发送消息！")
@@ -64,15 +64,15 @@ func (a *AuthService) IsAuth(ctx context.Context, opt *AuthOption) error {
 		return errors.New("系统繁忙，请稍后再试！！！")
 	}
 
-	if memberInfo.IsQuit == model.GroupMemberQuitStatusYes {
+	if memberInfo.IsQuit == model.Yes {
 		return errors.New("暂无权限发送消息！")
 	}
 
-	if memberInfo.IsMute == model.GroupMemberMuteStatusYes {
+	if memberInfo.IsMute == model.Yes {
 		return errors.New("已被群主或管理员禁言！")
 	}
 
-	if opt.IsVerifyGroupMute && groupInfo.IsMute == 1 && memberInfo.Leader == 0 {
+	if opt.IsVerifyGroupMute && groupInfo.IsMute == model.Yes && memberInfo.Leader == model.GroupMemberLeaderOrdinary {
 		return errors.New("此群聊已开启全员禁言！")
 	}
 

@@ -1,0 +1,12 @@
+syntax = "proto3";
+package queue;
+
+option go_package = "queue/v1;queue";
+
+message UserLoginRequest{
+  int32 user_id = 1;
+  string ip_addr = 2;
+  string platform = 3;
+  string agent = 4;
+  string login_at = 5;
+}

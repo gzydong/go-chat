@@ -3,17 +3,17 @@ package repo
 import (
 	"context"
 
-	"go-chat/internal/pkg/ichat"
+	"go-chat/internal/pkg/core"
 	"go-chat/internal/repository/model"
 	"gorm.io/gorm"
 )
 
 type FileUpload struct {
-	ichat.Repo[model.FileUpload]
+	core.Repo[model.FileUpload]
 }
 
 func NewFileUpload(db *gorm.DB) *FileUpload {
-	return &FileUpload{Repo: ichat.NewRepo[model.FileUpload](db)}
+	return &FileUpload{Repo: core.NewRepo[model.FileUpload](db)}
 }
 
 func (s *FileUpload) GetSplitList(ctx context.Context, uploadId string) ([]*model.FileUpload, error) {

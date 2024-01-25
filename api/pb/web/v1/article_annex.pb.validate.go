@@ -161,15 +161,13 @@ func (m *ArticleAnnexUploadResponse) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for Id
+	// no validation rules for AnnexId
 
-	// no validation rules for Size
+	// no validation rules for AnnexSize
 
-	// no validation rules for Path
+	// no validation rules for AnnexName
 
-	// no validation rules for Suffix
-
-	// no validation rules for OriginalName
+	// no validation rules for CreatedAt
 
 	if len(errors) > 0 {
 		return ArticleAnnexUploadResponseMultiError(errors)
@@ -1106,6 +1104,8 @@ func (m *ArticleAnnexRecoverListRequest) validate(all bool) error {
 
 	var errors []error
 
+	// no validation rules for Page
+
 	if len(errors) > 0 {
 		return ArticleAnnexRecoverListRequestMultiError(errors)
 	}
@@ -1376,13 +1376,17 @@ func (m *ArticleAnnexRecoverListResponse_Item) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for Id
+	// no validation rules for AnnexId
+
+	// no validation rules for AnnexName
 
 	// no validation rules for ArticleId
 
-	// no validation rules for Title
+	// no validation rules for ArticleTitle
 
-	// no validation rules for OriginalName
+	// no validation rules for CreatedAt
+
+	// no validation rules for DeletedAt
 
 	// no validation rules for Day
 

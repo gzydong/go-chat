@@ -3,17 +3,17 @@ package repo
 import (
 	"context"
 
-	"go-chat/internal/pkg/ichat"
+	"go-chat/internal/pkg/core"
 	"go-chat/internal/repository/model"
 	"gorm.io/gorm"
 )
 
 type GroupApply struct {
-	ichat.Repo[model.GroupApply]
+	core.Repo[model.GroupApply]
 }
 
 func NewGroupApply(db *gorm.DB) *GroupApply {
-	return &GroupApply{Repo: ichat.NewRepo[model.GroupApply](db)}
+	return &GroupApply{Repo: core.NewRepo[model.GroupApply](db)}
 }
 
 func (g *GroupApply) List(ctx context.Context, groupIds []int) ([]*model.GroupApplyList, error) {

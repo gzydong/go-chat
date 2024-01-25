@@ -126,7 +126,6 @@ func (s *FileSplitUploadService) MultipartUpload(ctx context.Context, opt *Multi
 	data.Attr = jsonutil.Encode(objectPart)
 
 	if err = s.Source.Db().Create(data).Error; err != nil {
-		fmt.Println("ERR====>", err)
 		return err
 	}
 

@@ -57,7 +57,7 @@ func (m *ContactApplyCreateRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for FriendId
+	// no validation rules for UserId
 
 	// no validation rules for Remark
 

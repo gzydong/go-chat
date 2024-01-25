@@ -2,7 +2,7 @@ package article
 
 import (
 	"go-chat/api/pb/web/v1"
-	"go-chat/internal/pkg/ichat"
+	"go-chat/internal/pkg/core"
 	"go-chat/internal/service"
 )
 
@@ -11,7 +11,7 @@ type Class struct {
 }
 
 // List 分类列表
-func (c *Class) List(ctx *ichat.Context) error {
+func (c *Class) List(ctx *core.Context) error {
 
 	list, err := c.ArticleClassService.List(ctx.Ctx(), ctx.UserId())
 	if err != nil {
@@ -39,25 +39,25 @@ func (c *Class) List(ctx *ichat.Context) error {
 }
 
 // Edit 添加或修改分类
-func (c *Class) Edit(ctx *ichat.Context) error {
+func (c *Class) Edit(ctx *core.Context) error {
 
 	var (
-		err    error
-		params = &web.ArticleClassEditRequest{}
-		uid    = ctx.UserId()
+		err error
+		in  = &web.ArticleClassEditRequest{}
+		uid = ctx.UserId()
 	)
 
-	if err = ctx.Context.ShouldBindJSON(params); err != nil {
+	if err = ctx.Context.ShouldBindJSON(in); err != nil {
 		return ctx.InvalidParams(err)
 	}
 
-	if params.ClassId == 0 {
-		id, err := c.ArticleClassService.Create(ctx.Ctx(), uid, params.ClassName)
+	if in.ClassifyId == 0 {
+		id, err := c.ArticleClassService.Create(ctx.Ctx(), uid, in.Name)
 		if err == nil {
-			params.ClassId = int32(id)
+			in.ClassifyId = int32(id)
 		}
 	} else {
-		err = c.ArticleClassService.Update(ctx.Ctx(), uid, int(params.ClassId), params.ClassName)
+		err = c.ArticleClassService.Update(ctx.Ctx(), uid, int(in.ClassifyId), in.Name)
 	}
 
 	if err != nil {
@@ -65,19 +65,19 @@ func (c *Class) Edit(ctx *ichat.Context) error {
 	}
 
 	return ctx.Success(&web.ArticleClassEditResponse{
-		Id: params.ClassId,
+		ClassifyId: in.ClassifyId,
 	})
 }
 
 // Delete 删除分类
-func (c *Class) Delete(ctx *ichat.Context) error {
+func (c *Class) Delete(ctx *core.Context) error {
 
-	params := &web.ArticleClassDeleteRequest{}
-	if err := ctx.Context.ShouldBind(params); err != nil {
+	in := &web.ArticleClassDeleteRequest{}
+	if err := ctx.Context.ShouldBind(in); err != nil {
 		return ctx.InvalidParams(err)
 	}
 
-	err := c.ArticleClassService.Delete(ctx.Ctx(), ctx.UserId(), int(params.ClassId))
+	err := c.ArticleClassService.Delete(ctx.Ctx(), ctx.UserId(), int(in.ClassifyId))
 	if err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}
@@ -86,14 +86,14 @@ func (c *Class) Delete(ctx *ichat.Context) error {
 }
 
 // Sort 删除分类
-func (c *Class) Sort(ctx *ichat.Context) error {
+func (c *Class) Sort(ctx *core.Context) error {
 
-	params := &web.ArticleClassSortRequest{}
-	if err := ctx.Context.ShouldBind(params); err != nil {
+	in := &web.ArticleClassSortRequest{}
+	if err := ctx.Context.ShouldBind(in); err != nil {
 		return ctx.InvalidParams(err)
 	}
 
-	err := c.ArticleClassService.Sort(ctx.Ctx(), ctx.UserId(), int(params.ClassId), int(params.SortType))
+	err := c.ArticleClassService.Sort(ctx.Ctx(), ctx.UserId(), int(in.ClassifyId), int(in.SortType))
 	if err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}

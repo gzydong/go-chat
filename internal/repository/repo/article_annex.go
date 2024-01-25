@@ -3,17 +3,17 @@ package repo
 import (
 	"context"
 
-	"go-chat/internal/pkg/ichat"
+	"go-chat/internal/pkg/core"
 	"go-chat/internal/repository/model"
 	"gorm.io/gorm"
 )
 
 type ArticleAnnex struct {
-	ichat.Repo[model.ArticleAnnex]
+	core.Repo[model.ArticleAnnex]
 }
 
 func NewArticleAnnex(db *gorm.DB) *ArticleAnnex {
-	return &ArticleAnnex{Repo: ichat.NewRepo[model.ArticleAnnex](db)}
+	return &ArticleAnnex{Repo: core.NewRepo[model.ArticleAnnex](db)}
 }
 
 func (a *ArticleAnnex) AnnexList(ctx context.Context, uid int, articleId int) ([]*model.ArticleAnnex, error) {
@@ -25,11 +25,12 @@ func (a *ArticleAnnex) AnnexList(ctx context.Context, uid int, articleId int) ([
 func (a *ArticleAnnex) RecoverList(ctx context.Context, uid int) ([]*model.RecoverAnnexItem, error) {
 
 	fields := []string{
+		"article.title",
 		"article_annex.id",
 		"article_annex.article_id",
-		"article.title",
 		"article_annex.original_name",
 		"article_annex.deleted_at",
+		"article_annex.created_at",
 	}
 
 	query := a.Repo.Db.WithContext(ctx).Model(&model.ArticleAnnex{})

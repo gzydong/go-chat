@@ -3,17 +3,17 @@ package repo
 import (
 	"context"
 
-	"go-chat/internal/pkg/ichat"
+	"go-chat/internal/pkg/core"
 	"go-chat/internal/repository/model"
 	"gorm.io/gorm"
 )
 
 type ArticleClass struct {
-	ichat.Repo[model.ArticleClass]
+	core.Repo[model.ArticleClass]
 }
 
 func NewArticleClass(db *gorm.DB) *ArticleClass {
-	return &ArticleClass{Repo: ichat.NewRepo[model.ArticleClass](db)}
+	return &ArticleClass{Repo: core.NewRepo[model.ArticleClass](db)}
 }
 
 func (a *ArticleClass) MaxSort(ctx context.Context, uid int) (int, error) {

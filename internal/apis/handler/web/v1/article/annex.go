@@ -9,8 +9,8 @@ import (
 
 	"go-chat/api/pb/web/v1"
 	"go-chat/internal/entity"
+	"go-chat/internal/pkg/core"
 	"go-chat/internal/pkg/filesystem"
-	"go-chat/internal/pkg/ichat"
 	"go-chat/internal/pkg/strutil"
 	"go-chat/internal/repository/model"
 	"go-chat/internal/repository/repo"
@@ -24,10 +24,9 @@ type Annex struct {
 }
 
 // Upload 上传附件
-func (c *Annex) Upload(ctx *ichat.Context) error {
-
-	params := &web.ArticleAnnexUploadRequest{}
-	if err := ctx.Context.ShouldBind(params); err != nil {
+func (c *Annex) Upload(ctx *core.Context) error {
+	in := &web.ArticleAnnexUploadRequest{}
+	if err := ctx.Context.ShouldBind(in); err != nil {
 		return ctx.InvalidParams(err)
 	}
 
@@ -55,7 +54,7 @@ func (c *Annex) Upload(ctx *ichat.Context) error {
 
 	data := &model.ArticleAnnex{
 		UserId:       ctx.UserId(),
-		ArticleId:    int(params.ArticleId),
+		ArticleId:    int(in.ArticleId),
 		Drive:        entity.FileDriveMode(c.Filesystem.Driver()),
 		Suffix:       ext,
 		Size:         int(file.Size),
@@ -72,23 +71,22 @@ func (c *Annex) Upload(ctx *ichat.Context) error {
 	}
 
 	return ctx.Success(&web.ArticleAnnexUploadResponse{
-		Id:           int32(data.Id),
-		Size:         int32(data.Size),
-		Path:         data.Path,
-		Suffix:       data.Suffix,
-		OriginalName: data.OriginalName,
+		AnnexId:   int32(data.Id),
+		AnnexSize: int32(data.Size),
+		AnnexName: data.OriginalName,
+		CreatedAt: data.CreatedAt.Format(time.DateTime),
 	})
 }
 
 // Delete 删除附件
-func (c *Annex) Delete(ctx *ichat.Context) error {
+func (c *Annex) Delete(ctx *core.Context) error {
 
-	params := &web.ArticleAnnexDeleteRequest{}
-	if err := ctx.Context.ShouldBind(params); err != nil {
+	in := &web.ArticleAnnexDeleteRequest{}
+	if err := ctx.Context.ShouldBind(in); err != nil {
 		return ctx.InvalidParams(err)
 	}
 
-	err := c.ArticleAnnexService.UpdateStatus(ctx.Ctx(), ctx.UserId(), int(params.AnnexId), 2)
+	err := c.ArticleAnnexService.UpdateStatus(ctx.Ctx(), ctx.UserId(), int(in.AnnexId), 2)
 	if err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}
@@ -97,14 +95,14 @@ func (c *Annex) Delete(ctx *ichat.Context) error {
 }
 
 // Recover 恢复附件
-func (c *Annex) Recover(ctx *ichat.Context) error {
+func (c *Annex) Recover(ctx *core.Context) error {
 
-	params := &web.ArticleAnnexRecoverRequest{}
-	if err := ctx.Context.ShouldBind(params); err != nil {
+	in := &web.ArticleAnnexRecoverRequest{}
+	if err := ctx.Context.ShouldBind(in); err != nil {
 		return ctx.InvalidParams(err)
 	}
 
-	err := c.ArticleAnnexService.UpdateStatus(ctx.Ctx(), ctx.UserId(), int(params.AnnexId), 1)
+	err := c.ArticleAnnexService.UpdateStatus(ctx.Ctx(), ctx.UserId(), int(in.AnnexId), 1)
 	if err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}
@@ -112,9 +110,8 @@ func (c *Annex) Recover(ctx *ichat.Context) error {
 	return ctx.Success(&web.ArticleAnnexRecoverResponse{})
 }
 
-// RecoverList 附件回收站列表
-func (c *Annex) RecoverList(ctx *ichat.Context) error {
-
+// RecycleList 附件回收站列表
+func (c *Annex) RecycleList(ctx *core.Context) error {
 	items, err := c.ArticleAnnexRepo.RecoverList(ctx.Ctx(), ctx.UserId())
 
 	if err != nil {
@@ -127,10 +124,12 @@ func (c *Annex) RecoverList(ctx *ichat.Context) error {
 		at := time.Until(item.DeletedAt.Add(time.Hour * 24 * 30))
 
 		data = append(data, &web.ArticleAnnexRecoverListResponse_Item{
-			Id:           int32(item.Id),
+			AnnexId:      int32(item.Id),
+			AnnexName:    item.OriginalName,
 			ArticleId:    int32(item.ArticleId),
-			Title:        item.Title,
-			OriginalName: item.OriginalName,
+			ArticleTitle: item.Title,
+			CreatedAt:    item.CreatedAt.Format(time.DateTime),
+			DeletedAt:    item.DeletedAt.Format(time.DateTime),
 			Day:          int32(math.Ceil(at.Seconds() / 86400)),
 		})
 	}
@@ -146,14 +145,14 @@ func (c *Annex) RecoverList(ctx *ichat.Context) error {
 }
 
 // ForeverDelete 永久删除附件
-func (c *Annex) ForeverDelete(ctx *ichat.Context) error {
+func (c *Annex) ForeverDelete(ctx *core.Context) error {
 
-	params := &web.ArticleAnnexForeverDeleteRequest{}
-	if err := ctx.Context.ShouldBind(params); err != nil {
+	in := &web.ArticleAnnexForeverDeleteRequest{}
+	if err := ctx.Context.ShouldBind(in); err != nil {
 		return ctx.InvalidParams(err)
 	}
 
-	if err := c.ArticleAnnexService.ForeverDelete(ctx.Ctx(), ctx.UserId(), int(params.AnnexId)); err != nil {
+	if err := c.ArticleAnnexService.ForeverDelete(ctx.Ctx(), ctx.UserId(), int(in.AnnexId)); err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}
 
@@ -161,14 +160,14 @@ func (c *Annex) ForeverDelete(ctx *ichat.Context) error {
 }
 
 // Download 下载笔记附件
-func (c *Annex) Download(ctx *ichat.Context) error {
+func (c *Annex) Download(ctx *core.Context) error {
 
-	params := &web.ArticleAnnexDownloadRequest{}
-	if err := ctx.Context.ShouldBindQuery(params); err != nil {
+	in := &web.ArticleAnnexDownloadRequest{}
+	if err := ctx.Context.ShouldBindQuery(in); err != nil {
 		return ctx.InvalidParams(err)
 	}
 
-	info, err := c.ArticleAnnexRepo.FindById(ctx.Ctx(), int(params.AnnexId))
+	info, err := c.ArticleAnnexRepo.FindById(ctx.Ctx(), int(in.AnnexId))
 	if err != nil {
 		return ctx.ErrorBusiness(err.Error())
 	}

@@ -8,14 +8,14 @@ import "tagger/tagger.proto";
 // 文章编辑接口请求参数
 message ArticleEditRequest{
   int32 article_id = 1;
-  int32 class_id = 2;
+  int32 classify_id = 2;
   string title = 3 [(tagger.tags) = "binding:\"required\""];
   string md_content = 5 [(tagger.tags) = "binding:\"required\""];
 }
 
 // 文章编辑接口响应参数
 message ArticleEditResponse{
-  int32 id = 1;
+  int32 article_id = 1;
   string title = 2;
   string abstract = 3;
   string image = 4;
@@ -33,40 +33,40 @@ message ArticleDetailResponse{
     int32 id = 1;
   }
 
-  message File{
-    int32 id = 1;
-    string original_name = 2;
-    int32 size = 3;
-    string suffix = 4;
+  message AnnexFile{
+    int32 annex_id = 1;
+    string annex_name = 2;
+    int32 annex_size = 3;
     string created_at = 5;
   }
 
-  int32 id = 1;
-  int32 class_id = 2;
+  int32 article_id = 1;
+  int32 classify_id = 2;
   string title = 3;
   string md_content = 5;
   int32 is_asterisk = 6;
   string created_at = 7;
   string updated_at = 8;
   // 标签列表
-  repeated Tag tags = 9;
+  repeated Tag tag_ids = 9;
   // 附件列表
-  repeated File files = 10;
+  repeated AnnexFile annex_list = 10;
 }
 
 // 文章列表接口请求参数
 message ArticleListRequest{
   string keyword = 1 [(tagger.tags) = "form:\"keyword\""];
+  // 查找类型 1:关键字查询 2:分类查询 3:标签查询 4:最近修改
   int32 find_type = 2 [(tagger.tags) = "form:\"find_type\""];
-  int32 cid = 3 [(tagger.tags) = "form:\"cid\""];
-  int32 page = 4 [(tagger.tags) = "form:\"page\""];
+  int32 classify_id = 3 [(tagger.tags) = "form:\"classify_id\""];
+  int32 tag_id = 4 [(tagger.tags) = "form:\"tag_id\""];
 }
 
 // 文章列表请求接口响应参数
 message ArticleListResponse{
   message Item{
-    int32 id = 1;
-    int32 class_id = 2;
+    int32 article_id = 1;
+    int32 classify_id = 2;
     string tags_id = 3;
     string title = 4;
     string class_name = 5;
@@ -106,22 +106,24 @@ message ArticleRecoverResponse{}
 // 文章移动分类接口请求参数
 message ArticleMoveRequest{
   int32 article_id = 1 [(tagger.tags) = "binding:\"required,gt=0\""];
-  int32 class_id = 2 [(tagger.tags) = "binding:\"required,gt=0\""];
+  int32 classify_id = 2 [(tagger.tags) = "binding:\"required,gt=0\""];
 }
 
 // 文章移动分类接口响应参数
 message ArticleMoveResponse{}
 
 message ArticleAsteriskRequest{
+  // 文章ID
   int32 article_id = 1 [(tagger.tags) = "binding:\"required,gt=0\""];
-  int32 type = 2 [(tagger.tags) = "binding:\"required,oneof=1 2\""];
+  // 操作方式 1:收藏 2:取消收藏
+  int32 action = 2 [(tagger.tags) = "binding:\"required,oneof=1 2\""];
 }
 
 message ArticleAsteriskResponse{}
 
 message ArticleTagsRequest{
   int32 article_id = 1 [(tagger.tags) = "binding:\"required,gt=0\""];
-  repeated int32 tags = 2;
+  repeated int32 tag_ids = 2;
 }
 
 message ArticleTagsResponse{}
@@ -133,3 +135,24 @@ message ArticleForeverDeleteRequest{
 
 message ArticleForeverDeleteResponse{}
 
+
+// 文章附件回收站列表接口请求参数
+message ArticleRecoverListRequest{
+  int32 page = 1;
+}
+
+// 文章附件回收站列表接口响应参数
+message ArticleRecoverListResponse{
+  message Item {
+    int32 article_id = 1;
+    int32 classify_id = 2;
+    string classify_name = 3;
+    string title = 4;
+    string abstract = 5;
+    string image = 6;
+    string created_at = 7;
+    string deleted_at = 8;
+  }
+
+  repeated Item items = 1;
+}

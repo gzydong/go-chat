@@ -2,7 +2,7 @@ package contact
 
 import (
 	"go-chat/api/pb/web/v1"
-	"go-chat/internal/pkg/ichat"
+	"go-chat/internal/pkg/core"
 	"go-chat/internal/repository/model"
 	"go-chat/internal/repository/repo"
 	"go-chat/internal/service"
@@ -17,13 +17,13 @@ type Group struct {
 }
 
 // List 联系人分组列表
-func (c *Group) List(ctx *ichat.Context) error {
+func (c *Group) List(ctx *core.Context) error {
 
 	uid := ctx.UserId()
 
 	items := make([]*web.ContactGroupListResponse_Item, 0)
 
-	count, err := c.ContactRepo.QueryCount(ctx.Ctx(), "user_id = ? and status = 1", uid)
+	count, err := c.ContactRepo.FindCount(ctx.Ctx(), "user_id = ? and status = ?", uid, model.Yes)
 	if err != nil {
 		return ctx.Error(err.Error())
 	}
@@ -50,9 +50,9 @@ func (c *Group) List(ctx *ichat.Context) error {
 	return ctx.Success(&web.ContactGroupListResponse{Items: items})
 }
 
-func (c *Group) Save(ctx *ichat.Context) error {
-	params := &web.ContactGroupSaveRequest{}
-	if err := ctx.Context.ShouldBind(params); err != nil {
+func (c *Group) Save(ctx *core.Context) error {
+	in := &web.ContactGroupSaveRequest{}
+	if err := ctx.Context.ShouldBind(in); err != nil {
 		return ctx.InvalidParams(err)
 	}
 
@@ -63,7 +63,7 @@ func (c *Group) Save(ctx *ichat.Context) error {
 	insertItems := make([]*model.ContactGroup, 0)
 
 	ids := make(map[int]struct{})
-	for i, item := range params.GetItems() {
+	for i, item := range in.GetItems() {
 		if item.Id > 0 {
 			ids[int(item.Id)] = struct{}{}
 			updateItems = append(updateItems, &model.ContactGroup{

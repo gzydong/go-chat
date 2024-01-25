@@ -27,7 +27,7 @@ message ArticleTagEditRequest{
 
 // 文章标签编辑接口请求参数
 message ArticleTagEditResponse{
-  int32 id = 1;
+  int32 tag_id = 1;
 }
 
 // 文章标签删除接口请求参数

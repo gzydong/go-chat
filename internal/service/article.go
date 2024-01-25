@@ -4,10 +4,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
-
 	"go-chat/internal/repository/model"
 	"go-chat/internal/repository/repo"
 	"gorm.io/gorm"
+	"slices"
 
 	"go-chat/internal/pkg/sliceutil"
 	"go-chat/internal/pkg/strutil"
@@ -30,7 +30,8 @@ type IArticleService interface {
 
 type ArticleService struct {
 	*repo.Source
-	ArticleRepo *repo.Article
+	ArticleRepo  *repo.Article
+	ArticleClass *repo.ArticleClass
 }
 
 // Detail 笔记详情
@@ -53,13 +54,38 @@ func (s *ArticleService) Create(ctx context.Context, opt *ArticleEditOpt) (int, 
 	abstract := strutil.MtSubstr(opt.MdContent, 0, 200)
 
 	data := &model.Article{
-		UserId:    opt.UserId,
-		ClassId:   opt.ClassId,
-		Title:     opt.Title,
-		Image:     "",
-		Abstract:  strutil.Strip(abstract),
-		Status:    1,
-		MdContent: opt.MdContent,
+		UserId:     opt.UserId,
+		ClassId:    opt.ClassId,
+		TagsId:     "",
+		Title:      opt.Title,
+		Abstract:   strutil.Strip(abstract),
+		Image:      "",
+		IsAsterisk: model.No,
+		Status:     model.ArticleStatusNormal,
+		MdContent:  opt.MdContent,
+	}
+
+	if opt.ClassId == 0 {
+		detail, err := s.ArticleClass.FindByWhere(ctx, "user_id = ? and is_default = ?", opt.UserId, model.Yes)
+		if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+			return 0, err
+		}
+
+		if detail != nil {
+			data.ClassId = detail.Id
+		} else {
+			modelClass := &model.ArticleClass{
+				UserId:    opt.UserId,
+				ClassName: "默认分类",
+				IsDefault: model.Yes,
+			}
+
+			if err := s.ArticleClass.Create(ctx, modelClass); err != nil {
+				return 0, err
+			}
+
+			data.ClassId = modelClass.Id
+		}
 	}
 
 	images := strutil.ParseMarkdownImages(opt.MdContent)
@@ -91,16 +117,17 @@ func (s *ArticleService) Update(ctx context.Context, opt *ArticleEditOpt) error 
 		data["image"] = images[0]
 	}
 
-	_, err := s.ArticleRepo.UpdateWhere(ctx, data, "id = ? and user_id = ?", opt.ArticleId, opt.UserId)
+	_, err := s.ArticleRepo.UpdateByWhere(ctx, data, "id = ? and user_id = ?", opt.ArticleId, opt.UserId)
 	return err
 }
 
 type ArticleListOpt struct {
-	UserId   int
-	Keyword  string
-	FindType int
-	Cid      int
-	Page     int
+	UserId     int
+	FindType   int
+	Keyword    string
+	ClassifyId int
+	TagId      int
+	Page       int
 }
 
 // List 笔记列表
@@ -109,28 +136,23 @@ func (s *ArticleService) List(ctx context.Context, opt *ArticleListOpt) ([]*mode
 	query := s.Source.Db().WithContext(ctx).Table("article").Select("article.*,article_class.class_name")
 	query.Joins("left join article_class on article_class.id = article.class_id")
 	query.Where("article.user_id = ?", opt.UserId)
-
-	if opt.FindType == 2 {
-		query.Where("article.is_asterisk = ?", 1)
-	} else if opt.FindType == 3 {
-		query.Where("article.class_id = ?", opt.Cid)
-	} else if opt.FindType == 4 {
-		query.Where("FIND_IN_SET(?,article.tags_id)", opt.Cid)
-	}
-
-	if opt.FindType == 5 {
-		query.Where("article.status = ?", 2)
-	} else {
-		query.Where("article.status = ?", 1)
-	}
+	query.Where("article.status = ?", model.ArticleStatusNormal)
 
 	if opt.Keyword != "" {
 		query.Where("article.title like ?", fmt.Sprintf("%%%s%%", opt.Keyword))
 	}
 
-	if opt.FindType == 1 {
+	// 查找类型 1:最近修改 2:我的收藏 3:分类查询 4:标签查询
+	switch opt.FindType {
+	case 1:
 		query.Order("article.updated_at desc").Limit(20)
-	} else {
+	case 2:
+		query.Where("article.is_asterisk = ?", model.Yes)
+	case 3:
+		query.Where("article.class_id = ?", opt.ClassifyId)
+	case 4:
+		query.Where("FIND_IN_SET(?,article.tags_id)", opt.TagId)
+	default:
 		query.Order("article.id desc")
 	}
 
@@ -143,13 +165,12 @@ func (s *ArticleService) List(ctx context.Context, opt *ArticleListOpt) ([]*mode
 }
 
 // Asterisk 笔记标记星号
-func (s *ArticleService) Asterisk(ctx context.Context, uid int, articleId int, mode int) error {
-
-	if mode != 1 {
-		mode = 0
+func (s *ArticleService) Asterisk(ctx context.Context, uid int, articleId int, isAsterisk int) error {
+	if !slices.Contains([]int{model.No, model.Yes}, isAsterisk) {
+		return errors.New("mode参数错误")
 	}
 
-	return s.Source.Db().WithContext(ctx).Model(&model.Article{}).Where("id = ? and user_id = ?", articleId, uid).Update("is_asterisk", mode).Error
+	return s.Source.Db().WithContext(ctx).Model(&model.Article{}).Where("id = ? and user_id = ?", articleId, uid).Update("is_asterisk", isAsterisk).Error
 }
 
 // Tag 更新笔记标签
@@ -168,7 +189,7 @@ func (s *ArticleService) UpdateStatus(ctx context.Context, uid int, articleId in
 		"status": status,
 	}
 
-	if status == 2 {
+	if status == model.ArticleStatusDelete {
 		data["deleted_at"] = timeutil.DateTime()
 	}
 
@@ -182,7 +203,7 @@ func (s *ArticleService) ForeverDelete(ctx context.Context, uid int, articleId i
 		return err
 	}
 
-	if detail.Status != 2 {
+	if detail.Status != model.ArticleStatusDelete {
 		return errors.New("文章不能被删除")
 	}
 

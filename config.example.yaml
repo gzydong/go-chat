@@ -2,7 +2,6 @@
 app:
   env: dev
   debug: false
-  juhe_key: "xxxxxxx"
   admin_email:
     -
   public_key: |
@@ -27,7 +26,7 @@ log:
 # Redis 相关配置
 redis:
   host: 127.0.0.1:6379
-  auth: xxxxx
+  auth: xxx
   database: 0
 
 # Mysql 数据库配置
@@ -39,6 +38,7 @@ mysql:
   password: xxxx
   database: go_chat
   collation: utf8mb4_general_ci
+  dsn: "charset=utf8mb4&parseTime=True&loc=Local"
 
 # Jwt 配置
 jwt:

@@ -14,27 +14,28 @@ import (
 var _ IGroupVoteService = (*GroupVoteService)(nil)
 
 type IGroupVoteService interface {
-	Create(ctx context.Context, opt *GroupVoteCreateOpt) error
+	Create(ctx context.Context, opt *GroupVoteCreateOpt) (int, error)
 	Submit(ctx context.Context, opt *GroupVoteSubmitOpt) error
-	Detail(ctx context.Context, opt *GroupVoteSubmitOpt) error
+	Detail(ctx context.Context, opt *GroupVoteDetailOpt) error
 }
 
 type GroupVoteService struct {
 	*repo.Source
 	GroupMemberRepo *repo.GroupMember
 	GroupVoteRepo   *repo.GroupVote
+	Sequence        *repo.Sequence
 }
 
 type GroupVoteCreateOpt struct {
 	GroupId       int      // 群组ID
-	UserID        int      // 用户ID(创建人)
+	UserId        int      // 用户ID(创建人)
 	Title         string   // 投票标题
-	AnswerMode    int      // 答题模式[0:单选;1:多选;]
+	AnswerMode    int      // 答题模式[1:单选;2:多选;]
 	AnswerOptions []string // 答题选项
 	IsAnonymous   bool     // 匿名投票
 }
 
-func (g *GroupVoteService) Create(ctx context.Context, opt *GroupVoteCreateOpt) error {
+func (g *GroupVoteService) Create(ctx context.Context, opt *GroupVoteCreateOpt) (int, error) {
 	options := make([]model.GroupVoteOption, 0)
 	for i, value := range opt.AnswerOptions {
 		options = append(options, model.GroupVoteOption{
@@ -45,7 +46,7 @@ func (g *GroupVoteService) Create(ctx context.Context, opt *GroupVoteCreateOpt) 
 
 	vote := &model.GroupVote{
 		GroupId:      opt.GroupId,
-		UserId:       opt.UserID,
+		UserId:       opt.UserId,
 		Title:        opt.Title,
 		AnswerMode:   opt.AnswerMode,
 		AnswerOption: jsonutil.Encode(options),
@@ -58,12 +59,10 @@ func (g *GroupVoteService) Create(ctx context.Context, opt *GroupVoteCreateOpt) 
 	}
 
 	if err := g.Source.Db().Create(vote).Error; err != nil {
-		return err
+		return 0, err
 	}
 
-	// TODO 投递消息
-
-	return nil
+	return vote.Id, nil
 }
 
 type GroupVoteSubmitOpt struct {
@@ -85,7 +84,7 @@ func (g *GroupVoteService) Submit(ctx context.Context, opt *GroupVoteSubmitOpt) 
 	}
 
 	var count int64
-	db.Table("group_vote_answer").Where("vote_id = ? and user_id = ？", opt.VoteId, opt.UserId).Count(&count)
+	db.Table("group_vote_answer").Where("vote_id = ? and user_id = ?", opt.VoteId, opt.UserId).Count(&count)
 	if count > 0 {
 		return fmt.Errorf("重复投票[%d]", opt.VoteId)
 	}
@@ -131,6 +130,6 @@ type GroupVoteDetailOpt struct {
 	VoteId int // 投票ID
 }
 
-func (g *GroupVoteService) Detail(ctx context.Context, opt *GroupVoteSubmitOpt) error {
+func (g *GroupVoteService) Detail(ctx context.Context, opt *GroupVoteDetailOpt) error {
 	return nil
 }

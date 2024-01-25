@@ -3,11 +3,12 @@ package logger
 import (
 	"context"
 	"fmt"
+	"io"
 	"log/slog"
-	"os"
-	"path"
 	"runtime"
 	"time"
+
+	"github.com/natefinch/lumberjack"
 )
 
 const (
@@ -23,17 +24,19 @@ func Std() *slog.Logger {
 	return slog.Default()
 }
 
-func InitLogger(filePath string, level slog.Level, topic string) {
-	if err := os.MkdirAll(path.Dir(filePath), os.ModePerm); err != nil {
-		panic(err)
+func CreateFileWriter(filePath string) io.Writer {
+	return &lumberjack.Logger{
+		Filename:   filePath, // 日志文件的位置
+		MaxSize:    100,      // 文件最大尺寸（以MB为单位）
+		MaxBackups: 3,        // 保留的最大旧文件数量
+		MaxAge:     7,        // 保留旧文件的最大天数
+		Compress:   true,     // 是否压缩/归档旧文件
+		LocalTime:  true,     // 使用本地时间创建时间戳
 	}
+}
 
-	src, err := os.OpenFile(filePath, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0666)
-	if err != nil {
-		panic(err)
-	}
-
-	handler := slog.NewJSONHandler(src, &slog.HandlerOptions{
+func Init(filePath string, level slog.Level, topic string) {
+	handler := slog.NewJSONHandler(CreateFileWriter(filePath), &slog.HandlerOptions{
 		AddSource: true,
 		Level:     level,
 		ReplaceAttr: func(groups []string, a slog.Attr) slog.Attr {
@@ -49,57 +52,77 @@ func InitLogger(filePath string, level slog.Level, topic string) {
 }
 
 func Debugf(format string, args ...any) {
-	logf(slog.LevelDebug, format, args...)
+	logf(context.Background(), slog.LevelDebug, format, args...)
 }
 
-func Debug(msg string, args ...any) {
-	log(slog.LevelDebug, msg, args...)
+func Debug(msg string) {
+	logf(context.Background(), slog.LevelDebug, msg)
 }
 
 func Infof(format string, args ...any) {
-	logf(slog.LevelInfo, format, args...)
+	logf(context.Background(), slog.LevelInfo, format, args...)
 }
 
-func Info(msg string, args ...any) {
-	log(slog.LevelInfo, msg, args...)
+func Info(msg string) {
+	logf(context.Background(), slog.LevelInfo, msg)
 }
 
 func Warnf(format string, args ...any) {
-	logf(slog.LevelWarn, format, args...)
+	logf(context.Background(), slog.LevelWarn, format, args...)
 }
 
-func Warn(msg string, args ...any) {
-	log(slog.LevelWarn, msg, args...)
+func Warn(msg string) {
+	logf(context.Background(), slog.LevelWarn, msg)
 }
 
 func Errorf(format string, args ...any) {
-	logf(slog.LevelError, format, args...)
+	logf(context.Background(), slog.LevelError, format, args...)
 }
 
-func Error(msg string, args ...any) {
-	log(slog.LevelError, msg, args...)
+func Error(msg string) {
+	logf(context.Background(), slog.LevelError, msg)
 }
 
-func logf(level slog.Level, format string, args ...any) {
-	if !out.Enabled(context.Background(), level) {
+func logf(ctx context.Context, level slog.Level, format string, args ...any) {
+	if !out.Enabled(ctx, level) {
 		return
 	}
 
 	var pcs [1]uintptr
 	runtime.Callers(3, pcs[:])
+
 	r := slog.NewRecord(time.Now(), level, fmt.Sprintf(format, args...), pcs[0])
-	_ = out.Handler().Handle(context.Background(), r)
+
+	_ = out.Handler().Handle(ctx, r)
 }
 
-func log(level slog.Level, msg string, args ...any) {
+func WithFields(level slog.Level, msg string, fields any) {
 	if !out.Enabled(context.Background(), level) {
 		return
 	}
 
 	var pcs [1]uintptr
-	runtime.Callers(3, pcs[:])
+	runtime.Callers(2, pcs[:])
+
 	r := slog.NewRecord(time.Now(), level, msg, pcs[0])
-	r.Add(args...)
+	r.Add("extra", fields)
 
 	_ = out.Handler().Handle(context.Background(), r)
+}
+
+func ErrorWithFields(msg string, err error, fields any) {
+	ctx := context.Background()
+
+	if !out.Enabled(ctx, slog.LevelError) {
+		return
+	}
+
+	var pcs [1]uintptr
+	runtime.Callers(2, pcs[:])
+
+	r := slog.NewRecord(time.Now(), slog.LevelError, msg, pcs[0])
+	r.Add("error", err.Error())
+	r.Add("extra", fields)
+
+	_ = out.Handler().Handle(ctx, r)
 }

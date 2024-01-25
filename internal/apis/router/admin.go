@@ -3,8 +3,8 @@ package router
 import (
 	"github.com/gin-gonic/gin"
 	"go-chat/internal/apis/handler/admin"
-	"go-chat/internal/pkg/ichat"
-	"go-chat/internal/pkg/ichat/middleware"
+	"go-chat/internal/pkg/core"
+	"go-chat/internal/pkg/core/middleware"
 )
 
 // RegisterAdminRoute 注册 Admin 路由
@@ -18,15 +18,15 @@ func RegisterAdminRoute(secret string, router *gin.Engine, handler *admin.Handle
 	{
 		index := v1.Group("/index")
 		{
-			index.GET("", ichat.HandlerFunc(handler.V1.Index.Index))
+			index.GET("", core.HandlerFunc(handler.V1.Index.Index))
 		}
 
 		auth := v1.Group("/auth")
 		{
-			auth.POST("/login", ichat.HandlerFunc(handler.V1.Auth.Login))
-			auth.GET("/captcha", ichat.HandlerFunc(handler.V1.Auth.Captcha))
-			auth.GET("/logout", authorize, ichat.HandlerFunc(handler.V1.Auth.Logout))
-			auth.POST("/refresh", authorize, ichat.HandlerFunc(handler.V1.Auth.Refresh))
+			auth.POST("/login", core.HandlerFunc(handler.V1.Auth.Login))
+			auth.GET("/captcha", core.HandlerFunc(handler.V1.Auth.Captcha))
+			auth.GET("/logout", authorize, core.HandlerFunc(handler.V1.Auth.Logout))
+			auth.POST("/refresh", authorize, core.HandlerFunc(handler.V1.Auth.Refresh))
 		}
 	}
 }

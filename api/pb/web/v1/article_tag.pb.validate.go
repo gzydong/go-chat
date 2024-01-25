@@ -401,7 +401,7 @@ func (m *ArticleTagEditResponse) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for Id
+	// no validation rules for TagId
 
 	if len(errors) > 0 {
 		return ArticleTagEditResponseMultiError(errors)

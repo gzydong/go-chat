@@ -12,7 +12,7 @@ message ContactListRequest{}
 message ContactListResponse{
   message Item{
     // 用户ID
-    int32 id = 1;
+    int32 user_id = 1;
     // 昵称
     string nickname = 2;
     // 性别[0:未知;1:男;2:女;]
@@ -22,9 +22,7 @@ message ContactListResponse{
     // 头像
     string avatar = 5;
     // 备注
-    string remark = 6;
-    // 是否在线
-    int32 is_online = 7;
+    string remark = 7;
     // 联系人分组ID
     int32 group_id = 8;
   }
@@ -34,7 +32,7 @@ message ContactListResponse{
 
 // 联系人删除接口请求参数
 message ContactDeleteRequest{
-  int32 friend_id = 1 [(tagger.tags) = "binding:\"required\""];
+  int32 user_id = 1 [(tagger.tags) = "binding:\"required\""];
 }
 
 // 联系人删除接口响应参数
@@ -42,7 +40,7 @@ message ContactDeleteResponse{}
 
 // 联系人备注修改接口请求参数
 message ContactEditRemarkRequest{
-  int32 friend_id = 1 [(tagger.tags) = "binding:\"required\""];
+  int32 user_id = 1 [(tagger.tags) = "binding:\"required\""];
   string remark = 2;
 }
 
@@ -56,17 +54,20 @@ message ContactDetailRequest{
 
 // 联系人详情接口响应参数
 message ContactDetailResponse{
-  int32 id = 1;
+  int32 user_id = 1;
   string mobile = 2;
   string nickname = 3;
-  string remark = 4;
   string avatar = 5;
   int32 gender = 6;
   string motto = 7;
-  int32 friend_apply = 8;
-  int32 friend_status = 9;
-  int32 group_id = 10;
-  int32 email = 11;
+  string email = 11;
+  FriendInfo friend_info = 8;
+
+  message FriendInfo{
+    string is_friend = 1;
+    int32 group_id = 2;
+    string remark = 3;
+  }
 }
 
 // 联系人搜索接口请求参数
@@ -76,7 +77,7 @@ message ContactSearchRequest{
 
 // 联系人搜索接口响应参数
 message ContactSearchResponse{
-  int32 id = 1;
+  int32 user_id = 1;
   string mobile = 2;
   string nickname = 3;
   string avatar = 5;

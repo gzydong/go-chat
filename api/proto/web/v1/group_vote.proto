@@ -8,8 +8,8 @@ import "tagger/tagger.proto";
 message GroupVoteCreateRequest{
   int32 group_id = 1 [(tagger.tags) = "binding:\"required\""];
   string title = 3 [(tagger.tags) = "binding:\"required\""];  // 标题
-  int32 mode = 4 [(tagger.tags) = "binding:\"required\""]; // 投票模式
-  int32 is_anonymous = 5 [(tagger.tags) = "binding:\"required\""]; // 匿名投票
+  int32 mode = 4 [(tagger.tags) = "binding:\"oneof=1 2\""]; // 投票模式
+  int32 is_anonymous = 5 [(tagger.tags) = "binding:\"oneof=1 2\""]; // 匿名投票
   repeated string options = 6 [(tagger.tags) = "binding:\"required\""]; // 投票选项
 }
 
@@ -36,6 +36,7 @@ message GroupVoteDetailResponse{
   int32 answered_num = 6;
   int32 is_anonymous = 7;
   repeated AnsweredUser answered_users = 8;
+  bool is_submit = 9;
 
   message AnswerOption{
     string key = 1;

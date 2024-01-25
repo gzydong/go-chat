@@ -578,9 +578,9 @@ func (m *UploadInitiateMultipartResponse) validate(all bool) error {
 
 	// no validation rules for UploadId
 
-	// no validation rules for SplitSize
+	// no validation rules for ShardSize
 
-	// no validation rules for UploadIdMd5
+	// no validation rules for ShardNum
 
 	if len(errors) > 0 {
 		return UploadInitiateMultipartResponseMultiError(errors)

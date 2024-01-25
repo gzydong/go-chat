@@ -19,33 +19,12 @@ func NewClientStorage(redis *redis.Client, config *config.Config, storage *Serve
 	return &ClientStorage{redis: redis, config: config, storage: storage}
 }
 
-// Set 设置客户端与用户绑定关系
-// @params channel  渠道分组
-// @params fd       客户端连接ID
-// @params id       用户ID
-func (c *ClientStorage) Set(ctx context.Context, channel string, fd string, uid int) error {
-	sid := c.config.ServerId()
-	_, err := c.redis.Pipelined(ctx, func(pipe redis.Pipeliner) error {
-		pipe.HSet(ctx, c.clientKey(sid, channel), fd, uid)
-		pipe.SAdd(ctx, c.userKey(sid, channel, strconv.Itoa(uid)), fd)
-		return nil
-	})
-	return err
+func (c *ClientStorage) Bind(ctx context.Context, sid, channel string, clientId int64, uid int) error {
+	return c.set(ctx, sid, channel, clientId, uid)
 }
 
-// Del 删除客户端与用户绑定关系
-// @params channel  渠道分组
-// @params fd       客户端连接ID
-func (c *ClientStorage) Del(ctx context.Context, channel, fd string) error {
-	sid := c.config.ServerId()
-	key := c.clientKey(sid, channel)
-	uid, _ := c.redis.HGet(ctx, key, fd).Result()
-	_, err := c.redis.Pipelined(ctx, func(pipe redis.Pipeliner) error {
-		pipe.HDel(ctx, key, fd)
-		pipe.SRem(ctx, c.userKey(sid, channel, uid), fd)
-		return nil
-	})
-	return err
+func (c *ClientStorage) UnBind(ctx context.Context, sid, channel string, clientId int64) error {
+	return c.del(ctx, sid, channel, strconv.FormatInt(clientId, 10))
 }
 
 // IsOnline 判断客户端是否在线[所有部署机器]
@@ -95,8 +74,8 @@ func (c *ClientStorage) GetUidFromClientIds(ctx context.Context, sid, channel, u
 // @params sid     服务节点ID
 // @params channel 渠道分组
 // @params cid     客户端ID
-func (c *ClientStorage) GetClientIdFromUid(ctx context.Context, sid, channel, cid string) (int64, error) {
-	uid, err := c.redis.HGet(ctx, c.clientKey(sid, channel), cid).Result()
+func (c *ClientStorage) GetClientIdFromUid(ctx context.Context, sid, channel string, clientId int64) (int64, error) {
+	uid, err := c.redis.HGet(ctx, c.clientKey(sid, channel), fmt.Sprintf("%d", clientId)).Result()
 	if err != nil {
 		return 0, err
 	}
@@ -104,12 +83,31 @@ func (c *ClientStorage) GetClientIdFromUid(ctx context.Context, sid, channel, ci
 	return strconv.ParseInt(uid, 10, 64)
 }
 
-func (c *ClientStorage) Bind(ctx context.Context, channel string, clientId int64, uid int) error {
-	return c.Set(ctx, channel, strconv.FormatInt(clientId, 10), uid)
+// 设置客户端与用户绑定关系
+// @params channel  渠道分组
+// @params fd       客户端连接ID
+// @params id       用户ID
+func (c *ClientStorage) set(ctx context.Context, sid, channel string, clientId int64, uid int) error {
+	_, err := c.redis.Pipelined(ctx, func(pipe redis.Pipeliner) error {
+		pipe.HSet(ctx, c.clientKey(sid, channel), clientId, uid)
+		pipe.SAdd(ctx, c.userKey(sid, channel, strconv.Itoa(uid)), clientId)
+		return nil
+	})
+	return err
 }
 
-func (c *ClientStorage) UnBind(ctx context.Context, channel string, clientId int64) error {
-	return c.Del(ctx, channel, strconv.FormatInt(clientId, 10))
+// 删除客户端与用户绑定关系
+// @params channel  渠道分组
+// @params fd       客户端连接ID
+func (c *ClientStorage) del(ctx context.Context, sid, channel, fd string) error {
+	key := c.clientKey(sid, channel)
+	uid, _ := c.redis.HGet(ctx, key, fd).Result()
+	_, err := c.redis.Pipelined(ctx, func(pipe redis.Pipeliner) error {
+		pipe.HDel(ctx, key, fd)
+		pipe.SRem(ctx, c.userKey(sid, channel, uid), fd)
+		return nil
+	})
+	return err
 }
 
 func (c *ClientStorage) clientKey(sid, channel string) string {

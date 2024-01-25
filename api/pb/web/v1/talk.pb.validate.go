@@ -59,9 +59,9 @@ func (m *TalkSessionItem) validate(all bool) error {
 
 	// no validation rules for Id
 
-	// no validation rules for TalkType
+	// no validation rules for TalkMode
 
-	// no validation rules for ReceiverId
+	// no validation rules for ToFromId
 
 	// no validation rules for IsTop
 
@@ -183,9 +183,9 @@ func (m *TalkSessionCreateRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for TalkType
+	// no validation rules for TalkMode
 
-	// no validation rules for ReceiverId
+	// no validation rules for ToFromId
 
 	if len(errors) > 0 {
 		return TalkSessionCreateRequestMultiError(errors)
@@ -291,9 +291,9 @@ func (m *TalkSessionCreateResponse) validate(all bool) error {
 
 	// no validation rules for Id
 
-	// no validation rules for TalkType
+	// no validation rules for TalkMode
 
-	// no validation rules for ReceiverId
+	// no validation rules for ToFromId
 
 	// no validation rules for IsTop
 
@@ -417,7 +417,9 @@ func (m *TalkSessionDeleteRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for ListId
+	// no validation rules for TalkMode
+
+	// no validation rules for ToFromId
 
 	if len(errors) > 0 {
 		return TalkSessionDeleteRequestMultiError(errors)
@@ -623,9 +625,11 @@ func (m *TalkSessionTopRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for ListId
+	// no validation rules for TalkMode
 
-	// no validation rules for Type
+	// no validation rules for ToFromId
+
+	// no validation rules for Action
 
 	if len(errors) > 0 {
 		return TalkSessionTopRequestMultiError(errors)
@@ -831,11 +835,11 @@ func (m *TalkSessionDisturbRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for TalkType
+	// no validation rules for TalkMode
 
-	// no validation rules for ReceiverId
+	// no validation rules for ToFromId
 
-	// no validation rules for IsDisturb
+	// no validation rules for Action
 
 	if len(errors) > 0 {
 		return TalkSessionDisturbRequestMultiError(errors)
@@ -1280,9 +1284,9 @@ func (m *TalkSessionClearUnreadNumRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for TalkType
+	// no validation rules for TalkMode
 
-	// no validation rules for ReceiverId
+	// no validation rules for ToFromId
 
 	if len(errors) > 0 {
 		return TalkSessionClearUnreadNumRequestMultiError(errors)

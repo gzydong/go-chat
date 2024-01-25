@@ -3,5 +3,5 @@ package business
 import "github.com/google/wire"
 
 var ProviderSet = wire.NewSet(
-	wire.Struct(new(ForwardMessage), "*"),
+	wire.Struct(new(PushMessage), "*"),
 )

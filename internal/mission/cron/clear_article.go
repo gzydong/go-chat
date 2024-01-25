@@ -4,10 +4,13 @@ import (
 	"context"
 	"time"
 
+	"go-chat/internal/pkg/core/crontab"
 	"go-chat/internal/pkg/filesystem"
 	"go-chat/internal/repository/model"
 	"gorm.io/gorm"
 )
+
+var _ crontab.ICrontab = (*ClearArticle)(nil)
 
 type ClearArticle struct {
 	DB         *gorm.DB
@@ -15,7 +18,7 @@ type ClearArticle struct {
 }
 
 func (c *ClearArticle) Name() string {
-	return "clear.article"
+	return "article.clear"
 }
 
 // Spec 配置定时任务规则
@@ -28,7 +31,7 @@ func (c *ClearArticle) Enable() bool {
 	return true
 }
 
-func (c *ClearArticle) Handle(ctx context.Context) error {
+func (c *ClearArticle) Do(ctx context.Context) error {
 
 	c.clearAnnex()
 

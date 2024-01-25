@@ -117,7 +117,7 @@ func (m MinioFilesystem) PublicUrl(bucketName, objectName string) string {
 
 func (m MinioFilesystem) PrivateUrl(bucketName, objectName string, filename string, expire time.Duration) string {
 
-	// Set request parameters for content-disposition.
+	// set request parameters for content-disposition.
 	reqParams := make(url.Values)
 	reqParams.Set("response-content-disposition", fmt.Sprintf("attachment; filename=\"%s\"", filename))
 

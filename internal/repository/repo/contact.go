@@ -4,20 +4,20 @@ import (
 	"context"
 	"strconv"
 
-	"go-chat/internal/pkg/ichat"
+	"go-chat/internal/pkg/core"
 	"go-chat/internal/repository/cache"
 	"go-chat/internal/repository/model"
 	"gorm.io/gorm"
 )
 
 type Contact struct {
-	ichat.Repo[model.Contact]
+	core.Repo[model.Contact]
 	cache    *cache.ContactRemark
 	relation *cache.Relation
 }
 
 func NewContact(db *gorm.DB, cache *cache.ContactRemark, relation *cache.Relation) *Contact {
-	return &Contact{Repo: ichat.NewRepo[model.Contact](db), cache: cache, relation: relation}
+	return &Contact{Repo: core.NewRepo[model.Contact](db), cache: cache, relation: relation}
 }
 
 func (c *Contact) Remarks(ctx context.Context, uid int, fids []int) (map[int]string, error) {
@@ -36,7 +36,7 @@ func (c *Contact) IsFriend(ctx context.Context, uid int, friendId int, cache boo
 		return true
 	}
 
-	count, err := c.Repo.QueryCount(ctx, "((user_id = ? and friend_id = ?) or (user_id = ? and friend_id = ?)) and status = ?", uid, friendId, friendId, uid, model.ContactStatusNormal)
+	count, err := c.Repo.FindCount(ctx, "((user_id = ? and friend_id = ?) or (user_id = ? and friend_id = ?)) and status = ?", uid, friendId, friendId, uid, model.ContactStatusNormal)
 	if err != nil {
 		return false
 	}

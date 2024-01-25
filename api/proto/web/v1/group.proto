@@ -11,12 +11,11 @@ message GroupListRequest{}
 // 群列表接口响应参数
 message GroupListResponse{
   message Item{
-    int32 id = 1;
+    int32 group_id = 1;
     string group_name = 2;
     string avatar = 3;
     string profile = 4;
     int32 leader = 5;
-    int32 is_disturb = 6;
     int32 creator_id = 7;
   }
 
@@ -27,8 +26,7 @@ message GroupListResponse{
 // 创建群聊接口请求参数
 message GroupCreateRequest{
   string name = 1 [(tagger.tags) = "binding:\"required\""];
-  string ids = 2 [(tagger.tags) = "binding:\"required,ids\""];
-  string avatar = 3;
+  repeated int32 user_ids = 2 [(tagger.tags) = "binding:\"required\""];
 }
 
 // 创建群聊接口响应参数
@@ -72,6 +70,7 @@ message GroupMemberListResponse{
     int32 leader = 5;
     int32 is_mute = 6;
     string remark = 7;
+    string motto = 8;
   }
 
   repeated Item items = 1;
@@ -90,7 +89,7 @@ message GroupDismissResponse{}
 // 加入群聊接口请求参数
 message GroupInviteRequest{
   int32 group_id = 1 [(tagger.tags) = "binding:\"required\""];
-  string ids = 2 [(tagger.tags) = "binding:\"required,ids\""];
+  repeated int32 user_ids = 2 [(tagger.tags) = "binding:\"required\""];
 }
 
 // 加入群聊接口响应参数
@@ -101,7 +100,17 @@ message GetInviteFriendsRequest{
   int32 group_id = 1 [(tagger.tags) = "form:\"group_id\""];
 }
 
-message GetInviteFriendsResponse{}
+message GetInviteFriendsResponse{
+  message Item{
+    int32 user_id = 1;
+    string nickname = 2;
+    string avatar = 3;
+    int32 gender = 4;
+    string remark = 5;
+  }
+
+  repeated Item items = 1;
+}
 
 
 // 退出群聊接口请求参数
@@ -128,7 +137,7 @@ message GroupSettingResponse{}
 // 群聊名片更新接口请求参数
 message GroupRemarkUpdateRequest{
   int32 group_id = 1 [(tagger.tags) = "binding:\"required\""];
-  string visit_card = 2;
+  string remark = 2;
 }
 
 // 群聊名片更新接口响应参数
@@ -137,7 +146,7 @@ message GroupRemarkUpdateResponse{}
 // 移出群成员接口请求参数
 message GroupRemoveMemberRequest{
   int32 group_id = 1 [(tagger.tags) = "binding:\"required\""];
-  string members_ids = 2 [(tagger.tags) = "binding:\"required,ids\""];
+  repeated int32 user_ids = 2 [(tagger.tags) = "binding:\"required\""];
 }
 
 // 移出群成员接口响应参数
@@ -153,7 +162,7 @@ message GroupOvertListRequest{
 // 公开群聊列表响应参数
 message GroupOvertListResponse{
   message Item{
-    int32 id = 1;
+    int32 group_id = 1;
     int32 type = 2;
     string name = 3;
     string avatar = 4;
@@ -183,7 +192,7 @@ message GroupHandoverResponse{}
 message GroupAssignAdminRequest{
   int32 group_id = 1 [(tagger.tags) = "binding:\"required\""];
   int32 user_id = 2 [(tagger.tags) = "binding:\"required\""];
-  int32 mode = 3 [(tagger.tags) = "binding:\"required,oneof=1 2\""];
+  int32 action = 3 [(tagger.tags) = "binding:\"required,oneof=1 2\""];
 }
 
 // 分配管理员接口响应参数
@@ -194,7 +203,7 @@ message GroupAssignAdminResponse{}
 message GroupNoSpeakRequest{
   int32 group_id = 1 [(tagger.tags) = "binding:\"required\""];
   int32 user_id = 2 [(tagger.tags) = "binding:\"required\""];
-  int32 mode = 3 [(tagger.tags) = "binding:\"required,oneof=1 2\""];
+  int32 action = 3 [(tagger.tags) = "binding:\"required,oneof=1 2\""];
 }
 
 // 群成员禁言接口响应参数
@@ -206,7 +215,7 @@ message GroupNoSpeakResponse{}
 message GroupMuteRequest{
   int32 group_id = 1 [(tagger.tags) = "binding:\"required\""];
   // 操作方式  1:开启全员禁言  2:解除全员禁言
-  int32 mode = 3 [(tagger.tags) = "binding:\"required,oneof=1 2\""];
+  int32 action = 3 [(tagger.tags) = "binding:\"required,oneof=1 2\""];
 }
 
 // 群禁言接口响应参数
@@ -215,8 +224,8 @@ message GroupMuteResponse{}
 // 群公开修改接口请求参数
 message GroupOvertRequest{
   int32 group_id = 1 [(tagger.tags) = "binding:\"required\""];
-  // 操作方式  1:开启公开可见  2:关闭公开可见
-  int32 mode = 3 [(tagger.tags) = "binding:\"required,oneof=1 2\""];
+  // 操作方式 1:关闭  2:开启
+  int32 action = 3 [(tagger.tags) = "binding:\"required,oneof=1 2\""];
 }
 
 // 群公开修改接口响应参数

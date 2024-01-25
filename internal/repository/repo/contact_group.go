@@ -1,15 +1,15 @@
 package repo
 
 import (
-	"go-chat/internal/pkg/ichat"
+	"go-chat/internal/pkg/core"
 	"go-chat/internal/repository/model"
 	"gorm.io/gorm"
 )
 
 type ContactGroup struct {
-	ichat.Repo[model.ContactGroup]
+	core.Repo[model.ContactGroup]
 }
 
 func NewContactGroup(db *gorm.DB) *ContactGroup {
-	return &ContactGroup{Repo: ichat.NewRepo[model.ContactGroup](db)}
+	return &ContactGroup{Repo: core.NewRepo[model.ContactGroup](db)}
 }

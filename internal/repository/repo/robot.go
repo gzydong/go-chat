@@ -3,17 +3,17 @@ package repo
 import (
 	"context"
 
-	"go-chat/internal/pkg/ichat"
+	"go-chat/internal/pkg/core"
 	"go-chat/internal/repository/model"
 	"gorm.io/gorm"
 )
 
 type Robot struct {
-	ichat.Repo[model.Robot]
+	core.Repo[model.Robot]
 }
 
 func NewRobot(db *gorm.DB) *Robot {
-	return &Robot{Repo: ichat.NewRepo[model.Robot](db)}
+	return &Robot{Repo: core.NewRepo[model.Robot](db)}
 }
 
 // GetLoginRobot 获取登录机器的信息

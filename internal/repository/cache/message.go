@@ -8,7 +8,7 @@ import (
 	"go-chat/internal/pkg/jsonutil"
 )
 
-const lastMessageCacheKey = "redis:hash:last-message"
+const lastMessageCacheKey = "im:message:last_message"
 
 type MessageStorage struct {
 	redis *redis.Client

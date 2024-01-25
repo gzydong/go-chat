@@ -2,11 +2,11 @@ package group
 
 import (
 	"errors"
-
 	"github.com/redis/go-redis/v9"
 	"go-chat/api/pb/web/v1"
+	"go-chat/internal/business"
 	"go-chat/internal/entity"
-	"go-chat/internal/pkg/ichat"
+	"go-chat/internal/pkg/core"
 	"go-chat/internal/pkg/jsonutil"
 	"go-chat/internal/pkg/sliceutil"
 	"go-chat/internal/pkg/timeutil"
@@ -26,66 +26,75 @@ type Apply struct {
 	GroupApplyService  service.IGroupApplyService
 	GroupMemberService service.IGroupMemberService
 	GroupService       service.IGroupService
+	PushMessage        *business.PushMessage
 }
 
-func (c *Apply) Create(ctx *ichat.Context) error {
-	params := &web.GroupApplyCreateRequest{}
-	if err := ctx.Context.ShouldBind(params); err != nil {
+func (c *Apply) Create(ctx *core.Context) error {
+	in := &web.GroupApplyCreateRequest{}
+	if err := ctx.Context.ShouldBind(in); err != nil {
 		return ctx.InvalidParams(err)
 	}
 
-	apply, err := c.GroupApplyRepo.FindByWhere(ctx.Ctx(), "group_id = ? and status = ?", params.GroupId, model.GroupApplyStatusWait)
+	apply, err := c.GroupApplyRepo.FindByWhere(ctx.Ctx(), "group_id = ? and user_id = ? and status = ?", in.GroupId, ctx.UserId(), model.GroupApplyStatusWait)
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return ctx.Error(err.Error())
 	}
 
 	uid := ctx.UserId()
 
+	applyId := 0
 	if apply == nil {
-		err = c.GroupApplyRepo.Create(ctx.Ctx(), &model.GroupApply{
-			GroupId: int(params.GroupId),
+		data := &model.GroupApply{
+			GroupId: int(in.GroupId),
 			UserId:  uid,
 			Status:  model.GroupApplyStatusWait,
-			Remark:  params.Remark,
-		})
+			Remark:  in.Remark,
+		}
+
+		err = c.GroupApplyRepo.Create(ctx.Ctx(), data)
+		if err == nil {
+			applyId = data.Id
+		}
 	} else {
+		applyId = apply.Id
 		data := map[string]any{
-			"remark":     params.Remark,
+			"remark":     in.Remark,
 			"updated_at": timeutil.DateTime(),
 		}
 
-		_, err = c.GroupApplyRepo.UpdateWhere(ctx.Ctx(), data, "id = ?", apply.Id)
+		_, err = c.GroupApplyRepo.UpdateByWhere(ctx.Ctx(), data, "id = ?", apply.Id)
 	}
 
 	if err != nil {
 		return ctx.Error(err.Error())
 	}
 
-	find, err := c.GroupMemberRepo.FindByWhere(ctx.Ctx(), "group_id = ? and leader = ?", params.GroupId, 2)
+	find, err := c.GroupMemberRepo.FindByWhere(ctx.Ctx(), "group_id = ? and leader = ?", in.GroupId, model.GroupMemberLeaderOwner)
 	if err == nil && find != nil {
 		c.GroupApplyStorage.Incr(ctx.Ctx(), find.UserId)
 	}
 
-	c.Redis.Publish(ctx.Ctx(), entity.ImTopicChat, jsonutil.Encode(map[string]any{
-		"event": entity.SubEventGroupApply,
-		"data": jsonutil.Encode(map[string]any{
-			"group_id": params.GroupId,
-			"user_id":  ctx.UserId(),
+	_ = c.PushMessage.Push(ctx.Ctx(), entity.ImChannelChat, &entity.SubscribeMessage{
+		Event: entity.SubEventGroupApply,
+		Payload: jsonutil.Encode(entity.SubEventGroupApplyPayload{
+			GroupId: int(in.GroupId),
+			UserId:  ctx.UserId(),
+			ApplyId: applyId,
 		}),
-	}))
+	})
 
 	return ctx.Success(nil)
 }
 
-func (c *Apply) Agree(ctx *ichat.Context) error {
+func (c *Apply) Agree(ctx *core.Context) error {
 	uid := ctx.UserId()
 
-	params := &web.GroupApplyAgreeRequest{}
-	if err := ctx.Context.ShouldBind(params); err != nil {
+	in := &web.GroupApplyAgreeRequest{}
+	if err := ctx.Context.ShouldBind(in); err != nil {
 		return ctx.InvalidParams(err)
 	}
 
-	apply, err := c.GroupApplyRepo.FindById(ctx.Ctx(), int(params.ApplyId))
+	apply, err := c.GroupApplyRepo.FindById(ctx.Ctx(), int(in.ApplyId))
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return ctx.Error(err.Error())
 	}
@@ -119,7 +128,7 @@ func (c *Apply) Agree(ctx *ichat.Context) error {
 		"updated_at": timeutil.DateTime(),
 	}
 
-	_, err = c.GroupApplyRepo.UpdateWhere(ctx.Ctx(), data, "id = ?", params.ApplyId)
+	_, err = c.GroupApplyRepo.UpdateByWhere(ctx.Ctx(), data, "id = ?", in.ApplyId)
 	if err != nil {
 		return ctx.Error(err.Error())
 	}
@@ -127,15 +136,15 @@ func (c *Apply) Agree(ctx *ichat.Context) error {
 	return ctx.Success(nil)
 }
 
-func (c *Apply) Decline(ctx *ichat.Context) error {
-	params := &web.GroupApplyDeclineRequest{}
-	if err := ctx.Context.ShouldBind(params); err != nil {
+func (c *Apply) Decline(ctx *core.Context) error {
+	in := &web.GroupApplyDeclineRequest{}
+	if err := ctx.Context.ShouldBind(in); err != nil {
 		return ctx.InvalidParams(err)
 	}
 
 	uid := ctx.UserId()
 
-	apply, err := c.GroupApplyRepo.FindById(ctx.Ctx(), int(params.ApplyId))
+	apply, err := c.GroupApplyRepo.FindById(ctx.Ctx(), int(in.ApplyId))
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return ctx.Error(err.Error())
 	}
@@ -154,11 +163,11 @@ func (c *Apply) Decline(ctx *ichat.Context) error {
 
 	data := map[string]any{
 		"status":     model.GroupApplyStatusRefuse,
-		"reason":     params.Remark,
+		"reason":     in.Remark,
 		"updated_at": timeutil.DateTime(),
 	}
 
-	_, err = c.GroupApplyRepo.UpdateWhere(ctx.Ctx(), data, "id = ?", params.ApplyId)
+	_, err = c.GroupApplyRepo.UpdateByWhere(ctx.Ctx(), data, "id = ?", in.ApplyId)
 	if err != nil {
 		return ctx.Error(err.Error())
 	}
@@ -166,18 +175,17 @@ func (c *Apply) Decline(ctx *ichat.Context) error {
 	return ctx.Success(&web.GroupApplyDeclineResponse{})
 }
 
-func (c *Apply) List(ctx *ichat.Context) error {
-
-	params := &web.GroupApplyListRequest{}
-	if err := ctx.Context.ShouldBind(params); err != nil {
+func (c *Apply) List(ctx *core.Context) error {
+	in := &web.GroupApplyListRequest{}
+	if err := ctx.Context.ShouldBind(in); err != nil {
 		return ctx.InvalidParams(err)
 	}
 
-	if !c.GroupMemberRepo.IsLeader(ctx.Ctx(), int(params.GroupId), ctx.UserId()) {
+	if !c.GroupMemberRepo.IsLeader(ctx.Ctx(), int(in.GroupId), ctx.UserId()) {
 		return ctx.Forbidden("无权限访问")
 	}
 
-	list, err := c.GroupApplyRepo.List(ctx.Ctx(), []int{int(params.GroupId)})
+	list, err := c.GroupApplyRepo.List(ctx.Ctx(), []int{int(in.GroupId)})
 	if err != nil {
 		return ctx.ErrorBusiness("创建群聊失败，请稍后再试！")
 	}
@@ -198,15 +206,17 @@ func (c *Apply) List(ctx *ichat.Context) error {
 	return ctx.Success(&web.GroupApplyListResponse{Items: items})
 }
 
-func (c *Apply) All(ctx *ichat.Context) error {
-
+func (c *Apply) All(ctx *core.Context) error {
 	uid := ctx.UserId()
 
 	all, err := c.GroupMemberRepo.FindAll(ctx.Ctx(), func(db *gorm.DB) {
 		db.Select("group_id")
 		db.Where("user_id = ?", uid)
-		db.Where("leader = ?", 2)
-		db.Where("is_quit = ?", 0)
+		db.Where("leader in ?", []int{
+			model.GroupMemberLeaderOwner,
+			model.GroupMemberLeaderAdmin,
+		})
+		db.Where("is_quit = ?", model.No)
 	})
 
 	if err != nil {
@@ -221,6 +231,7 @@ func (c *Apply) All(ctx *ichat.Context) error {
 	resp := &web.GroupApplyAllResponse{Items: make([]*web.GroupApplyAllResponse_Item, 0)}
 
 	if len(groupIds) == 0 {
+		c.GroupApplyStorage.Del(ctx.Ctx(), ctx.UserId())
 		return ctx.Success(resp)
 	}
 
@@ -259,7 +270,7 @@ func (c *Apply) All(ctx *ichat.Context) error {
 	return ctx.Success(resp)
 }
 
-func (c *Apply) ApplyUnreadNum(ctx *ichat.Context) error {
+func (c *Apply) ApplyUnreadNum(ctx *core.Context) error {
 	return ctx.Success(map[string]any{
 		"unread_num": c.GroupApplyStorage.Get(ctx.Ctx(), ctx.UserId()),
 	})

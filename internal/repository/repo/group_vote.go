@@ -3,7 +3,7 @@ package repo
 import (
 	"context"
 
-	"go-chat/internal/pkg/ichat"
+	"go-chat/internal/pkg/core"
 	"go-chat/internal/pkg/jsonutil"
 	"go-chat/internal/repository/cache"
 	"go-chat/internal/repository/model"
@@ -11,7 +11,7 @@ import (
 )
 
 type GroupVote struct {
-	ichat.Repo[model.GroupVote]
+	core.Repo[model.GroupVote]
 	cache *cache.Vote
 }
 
@@ -21,7 +21,7 @@ type VoteStatistics struct {
 }
 
 func NewGroupVote(db *gorm.DB, cache *cache.Vote) *GroupVote {
-	return &GroupVote{Repo: ichat.NewRepo[model.GroupVote](db), cache: cache}
+	return &GroupVote{Repo: core.NewRepo[model.GroupVote](db), cache: cache}
 }
 
 func (t *GroupVote) GetVoteAnswerUser(ctx context.Context, vid int) ([]int, error) {

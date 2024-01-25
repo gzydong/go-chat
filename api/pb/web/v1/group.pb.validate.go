@@ -295,10 +295,6 @@ func (m *GroupCreateRequest) validate(all bool) error {
 
 	// no validation rules for Name
 
-	// no validation rules for Ids
-
-	// no validation rules for Avatar
-
 	if len(errors) > 0 {
 		return GroupCreateRequestMultiError(errors)
 	}
@@ -1179,8 +1175,6 @@ func (m *GroupInviteRequest) validate(all bool) error {
 
 	// no validation rules for GroupId
 
-	// no validation rules for Ids
-
 	if len(errors) > 0 {
 		return GroupInviteRequestMultiError(errors)
 	}
@@ -1488,6 +1482,40 @@ func (m *GetInviteFriendsResponse) validate(all bool) error {
 	}
 
 	var errors []error
+
+	for idx, item := range m.GetItems() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, GetInviteFriendsResponseValidationError{
+						field:  fmt.Sprintf("Items[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, GetInviteFriendsResponseValidationError{
+						field:  fmt.Sprintf("Items[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return GetInviteFriendsResponseValidationError{
+					field:  fmt.Sprintf("Items[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
 
 	if len(errors) > 0 {
 		return GetInviteFriendsResponseMultiError(errors)
@@ -2011,7 +2039,7 @@ func (m *GroupRemarkUpdateRequest) validate(all bool) error {
 
 	// no validation rules for GroupId
 
-	// no validation rules for VisitCard
+	// no validation rules for Remark
 
 	if len(errors) > 0 {
 		return GroupRemarkUpdateRequestMultiError(errors)
@@ -2218,8 +2246,6 @@ func (m *GroupRemoveMemberRequest) validate(all bool) error {
 	var errors []error
 
 	// no validation rules for GroupId
-
-	// no validation rules for MembersIds
 
 	if len(errors) > 0 {
 		return GroupRemoveMemberRequestMultiError(errors)
@@ -2881,7 +2907,7 @@ func (m *GroupAssignAdminRequest) validate(all bool) error {
 
 	// no validation rules for UserId
 
-	// no validation rules for Mode
+	// no validation rules for Action
 
 	if len(errors) > 0 {
 		return GroupAssignAdminRequestMultiError(errors)
@@ -3091,7 +3117,7 @@ func (m *GroupNoSpeakRequest) validate(all bool) error {
 
 	// no validation rules for UserId
 
-	// no validation rules for Mode
+	// no validation rules for Action
 
 	if len(errors) > 0 {
 		return GroupNoSpeakRequestMultiError(errors)
@@ -3299,7 +3325,7 @@ func (m *GroupMuteRequest) validate(all bool) error {
 
 	// no validation rules for GroupId
 
-	// no validation rules for Mode
+	// no validation rules for Action
 
 	if len(errors) > 0 {
 		return GroupMuteRequestMultiError(errors)
@@ -3505,7 +3531,7 @@ func (m *GroupOvertRequest) validate(all bool) error {
 
 	// no validation rules for GroupId
 
-	// no validation rules for Mode
+	// no validation rules for Action
 
 	if len(errors) > 0 {
 		return GroupOvertRequestMultiError(errors)
@@ -3711,7 +3737,7 @@ func (m *GroupListResponse_Item) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for Id
+	// no validation rules for GroupId
 
 	// no validation rules for GroupName
 
@@ -3720,8 +3746,6 @@ func (m *GroupListResponse_Item) validate(all bool) error {
 	// no validation rules for Profile
 
 	// no validation rules for Leader
-
-	// no validation rules for IsDisturb
 
 	// no validation rules for CreatorId
 
@@ -3841,6 +3865,8 @@ func (m *GroupMemberListResponse_Item) validate(all bool) error {
 
 	// no validation rules for Remark
 
+	// no validation rules for Motto
+
 	if len(errors) > 0 {
 		return GroupMemberListResponse_ItemMultiError(errors)
 	}
@@ -3922,6 +3948,119 @@ var _ interface {
 	ErrorName() string
 } = GroupMemberListResponse_ItemValidationError{}
 
+// Validate checks the field values on GetInviteFriendsResponse_Item with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetInviteFriendsResponse_Item) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetInviteFriendsResponse_Item with
+// the rules defined in the proto definition for this message. If any rules
+// are violated, the result is a list of violation errors wrapped in
+// GetInviteFriendsResponse_ItemMultiError, or nil if none found.
+func (m *GetInviteFriendsResponse_Item) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetInviteFriendsResponse_Item) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for UserId
+
+	// no validation rules for Nickname
+
+	// no validation rules for Avatar
+
+	// no validation rules for Gender
+
+	// no validation rules for Remark
+
+	if len(errors) > 0 {
+		return GetInviteFriendsResponse_ItemMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetInviteFriendsResponse_ItemMultiError is an error wrapping multiple
+// validation errors returned by GetInviteFriendsResponse_Item.ValidateAll()
+// if the designated constraints aren't met.
+type GetInviteFriendsResponse_ItemMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetInviteFriendsResponse_ItemMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetInviteFriendsResponse_ItemMultiError) AllErrors() []error { return m }
+
+// GetInviteFriendsResponse_ItemValidationError is the validation error
+// returned by GetInviteFriendsResponse_Item.Validate if the designated
+// constraints aren't met.
+type GetInviteFriendsResponse_ItemValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetInviteFriendsResponse_ItemValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetInviteFriendsResponse_ItemValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetInviteFriendsResponse_ItemValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetInviteFriendsResponse_ItemValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetInviteFriendsResponse_ItemValidationError) ErrorName() string {
+	return "GetInviteFriendsResponse_ItemValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetInviteFriendsResponse_ItemValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetInviteFriendsResponse_Item.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetInviteFriendsResponse_ItemValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetInviteFriendsResponse_ItemValidationError{}
+
 // Validate checks the field values on GroupOvertListResponse_Item with the
 // rules defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
@@ -3944,7 +4083,7 @@ func (m *GroupOvertListResponse_Item) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for Id
+	// no validation rules for GroupId
 
 	// no validation rules for Type
 

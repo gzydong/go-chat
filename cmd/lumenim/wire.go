@@ -8,7 +8,7 @@ import (
 	"go-chat/config"
 	"go-chat/internal/apis"
 	"go-chat/internal/business"
-	"go-chat/internal/commet"
+	"go-chat/internal/comet"
 	"go-chat/internal/mission"
 	"go-chat/internal/provider"
 	"go-chat/internal/repository/cache"
@@ -23,8 +23,8 @@ var providerSet = wire.NewSet(
 	provider.NewHttpClient,
 	provider.NewEmailClient,
 	provider.NewFilesystem,
-	provider.NewRequestClient,
 	provider.NewBase64Captcha,
+	provider.NewIpAddressClient,
 	wire.Struct(new(provider.Providers), "*"),
 
 	cache.ProviderSet,    // 注入 Cache 依赖
@@ -42,11 +42,11 @@ func NewHttpInjector(conf *config.Config) *apis.AppProvider {
 	)
 }
 
-func NewCommetInjector(conf *config.Config) *commet.AppProvider {
+func NewCommetInjector(conf *config.Config) *comet.AppProvider {
 	panic(
 		wire.Build(
 			providerSet,
-			commet.ProviderSet,
+			comet.ProviderSet,
 		),
 	)
 }

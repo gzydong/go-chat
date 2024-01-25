@@ -295,7 +295,7 @@ func (m *ContactDeleteRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for FriendId
+	// no validation rules for UserId
 
 	if len(errors) > 0 {
 		return ContactDeleteRequestMultiError(errors)
@@ -501,7 +501,7 @@ func (m *ContactEditRemarkRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for FriendId
+	// no validation rules for UserId
 
 	// no validation rules for Remark
 
@@ -813,13 +813,11 @@ func (m *ContactDetailResponse) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for Id
+	// no validation rules for UserId
 
 	// no validation rules for Mobile
 
 	// no validation rules for Nickname
-
-	// no validation rules for Remark
 
 	// no validation rules for Avatar
 
@@ -827,13 +825,36 @@ func (m *ContactDetailResponse) validate(all bool) error {
 
 	// no validation rules for Motto
 
-	// no validation rules for FriendApply
-
-	// no validation rules for FriendStatus
-
-	// no validation rules for GroupId
-
 	// no validation rules for Email
+
+	if all {
+		switch v := interface{}(m.GetFriendInfo()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, ContactDetailResponseValidationError{
+					field:  "FriendInfo",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, ContactDetailResponseValidationError{
+					field:  "FriendInfo",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetFriendInfo()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return ContactDetailResponseValidationError{
+				field:  "FriendInfo",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
 
 	if len(errors) > 0 {
 		return ContactDetailResponseMultiError(errors)
@@ -1041,7 +1062,7 @@ func (m *ContactSearchResponse) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for Id
+	// no validation rules for UserId
 
 	// no validation rules for Mobile
 
@@ -1363,7 +1384,7 @@ func (m *ContactListResponse_Item) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for Id
+	// no validation rules for UserId
 
 	// no validation rules for Nickname
 
@@ -1374,8 +1395,6 @@ func (m *ContactListResponse_Item) validate(all bool) error {
 	// no validation rules for Avatar
 
 	// no validation rules for Remark
-
-	// no validation rules for IsOnline
 
 	// no validation rules for GroupId
 
@@ -1458,3 +1477,114 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = ContactListResponse_ItemValidationError{}
+
+// Validate checks the field values on ContactDetailResponse_FriendInfo with
+// the rules defined in the proto definition for this message. If any rules
+// are violated, the first error encountered is returned, or nil if there are
+// no violations.
+func (m *ContactDetailResponse_FriendInfo) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ContactDetailResponse_FriendInfo with
+// the rules defined in the proto definition for this message. If any rules
+// are violated, the result is a list of violation errors wrapped in
+// ContactDetailResponse_FriendInfoMultiError, or nil if none found.
+func (m *ContactDetailResponse_FriendInfo) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ContactDetailResponse_FriendInfo) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for IsFriend
+
+	// no validation rules for GroupId
+
+	// no validation rules for Remark
+
+	if len(errors) > 0 {
+		return ContactDetailResponse_FriendInfoMultiError(errors)
+	}
+
+	return nil
+}
+
+// ContactDetailResponse_FriendInfoMultiError is an error wrapping multiple
+// validation errors returned by
+// ContactDetailResponse_FriendInfo.ValidateAll() if the designated
+// constraints aren't met.
+type ContactDetailResponse_FriendInfoMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ContactDetailResponse_FriendInfoMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ContactDetailResponse_FriendInfoMultiError) AllErrors() []error { return m }
+
+// ContactDetailResponse_FriendInfoValidationError is the validation error
+// returned by ContactDetailResponse_FriendInfo.Validate if the designated
+// constraints aren't met.
+type ContactDetailResponse_FriendInfoValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ContactDetailResponse_FriendInfoValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ContactDetailResponse_FriendInfoValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ContactDetailResponse_FriendInfoValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ContactDetailResponse_FriendInfoValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ContactDetailResponse_FriendInfoValidationError) ErrorName() string {
+	return "ContactDetailResponse_FriendInfoValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e ContactDetailResponse_FriendInfoValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sContactDetailResponse_FriendInfo.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ContactDetailResponse_FriendInfoValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ContactDetailResponse_FriendInfoValidationError{}

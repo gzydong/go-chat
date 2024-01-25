@@ -6,11 +6,10 @@ Lumen IM 是一个网页版即时聊天系统，界面简约、美观、操作�
 
 ##### 使用技术
 
-- Golang 1.21+
+- Golang 1.22+
 - MySQL 5.7+
 - Redis 5.0+
 - Minio
-- Nsq
 
 ##### 功能介绍
 
@@ -19,7 +18,6 @@ Lumen IM 是一个网页版即时聊天系统，界面简约、美观、操作�
 - 支持服务水平扩展
 - 支持聊天消息类型有 文本、代码块、图片及其它类型文件
 - 支持聊天消息撤回、删除或批量删除、转发消息（逐条转发、合并转发）及群投票功能
-- 支持编写个人笔记、支持笔记分享(好友或群)
 
 [查看前端代码](https://github.com/gzydong/LumenIM)
 
@@ -68,6 +66,8 @@ $ go run ./cmd/lumenim migrate
 
 $ go run ./cmd/lumenim http      # 本地启动 http 服务
 $ go run ./cmd/lumenim commet    # 本地启动 websocket 服务
+$ go run ./cmd/lumenim queue     # 启动异步队列
+$ go run ./cmd/lumenim cron      # 启动定时任务
 ```
 
 7. 编译后运行

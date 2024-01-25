@@ -1,5 +1,5 @@
 package config
 
 type Nsq struct {
-	Address string
+	Addr string `json:"addr" yaml:"addr"`
 }

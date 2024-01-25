@@ -222,9 +222,9 @@ func (m *ArticleClassEditRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for ClassId
+	// no validation rules for ClassifyId
 
-	// no validation rules for ClassName
+	// no validation rules for Name
 
 	if len(errors) > 0 {
 		return ArticleClassEditRequestMultiError(errors)
@@ -328,7 +328,7 @@ func (m *ArticleClassEditResponse) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for Id
+	// no validation rules for ClassifyId
 
 	if len(errors) > 0 {
 		return ArticleClassEditResponseMultiError(errors)
@@ -432,7 +432,7 @@ func (m *ArticleClassDeleteRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for ClassId
+	// no validation rules for ClassifyId
 
 	if len(errors) > 0 {
 		return ArticleClassDeleteRequestMultiError(errors)
@@ -638,7 +638,7 @@ func (m *ArticleClassSortRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for ClassId
+	// no validation rules for ClassifyId
 
 	// no validation rules for SortType
 

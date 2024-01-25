@@ -3,17 +3,17 @@ package repo
 import (
 	"context"
 
-	"go-chat/internal/pkg/ichat"
+	"go-chat/internal/pkg/core"
 	"go-chat/internal/repository/model"
 	"gorm.io/gorm"
 )
 
 type Organize struct {
-	ichat.Repo[model.Organize]
+	core.Repo[model.Organize]
 }
 
 func NewOrganize(db *gorm.DB) *Organize {
-	return &Organize{Repo: ichat.NewRepo[model.Organize](db)}
+	return &Organize{Repo: core.NewRepo[model.Organize](db)}
 }
 
 type UserInfo struct {
@@ -28,7 +28,7 @@ func (o *Organize) List() ([]*UserInfo, error) {
 
 	tx := o.Repo.Db.Table("organize")
 	tx.Select([]string{
-		"organize.user_id", "organize.department", "organize.position",
+		"organize.user_id", "organize.dept_id as department", "organize.position_id as position",
 		"users.nickname", "users.gender",
 	})
 	tx.Joins("left join users on users.id = organize.user_id")
@@ -44,7 +44,7 @@ func (o *Organize) List() ([]*UserInfo, error) {
 // IsQiyeMember 判断是否是企业成员
 func (o *Organize) IsQiyeMember(ctx context.Context, uid ...int) (bool, error) {
 
-	count, err := o.Repo.QueryCount(ctx, "user_id in ?", uid)
+	count, err := o.Repo.FindCount(ctx, "user_id in ?", uid)
 	if err != nil {
 		return false, err
 	}

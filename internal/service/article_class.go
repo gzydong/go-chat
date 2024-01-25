@@ -3,7 +3,6 @@ package service
 import (
 	"context"
 	"errors"
-
 	"go-chat/internal/repository/model"
 	"go-chat/internal/repository/repo"
 	"gorm.io/gorm"
@@ -54,9 +53,11 @@ func (s *ArticleClassService) List(ctx context.Context, uid int) ([]*model.Artic
 // Create 创建分类
 func (s *ArticleClassService) Create(ctx context.Context, uid int, name string) (int, error) {
 	data := &model.ArticleClass{
+		Id:        0,
 		UserId:    uid,
 		ClassName: name,
 		Sort:      1,
+		IsDefault: model.No,
 	}
 
 	err := s.Source.Db().WithContext(ctx).Transaction(func(tx *gorm.DB) error {
@@ -76,7 +77,7 @@ func (s *ArticleClassService) Create(ctx context.Context, uid int, name string) 
 }
 
 func (s *ArticleClassService) Update(ctx context.Context, uid, cid int, name string) error {
-	_, err := s.ArticleClass.UpdateWhere(ctx, map[string]any{"class_name": name}, "id = ? and user_id = ?", cid, uid)
+	_, err := s.ArticleClass.UpdateByWhere(ctx, map[string]any{"class_name": name}, "id = ? and user_id = ?", cid, uid)
 	return err
 }
 
@@ -91,7 +92,7 @@ func (s *ArticleClassService) Delete(ctx context.Context, uid, cid int) error {
 		return errors.New("分类已被使用不能删除")
 	}
 
-	return s.Source.Db().Delete(&model.ArticleClass{}, "id = ? and user_id = ? and is_default = 0", cid, uid).Error
+	return s.Source.Db().Delete(&model.ArticleClass{}, "id = ? and user_id = ? and is_default = ?", cid, uid, model.No).Error
 }
 
 func (s *ArticleClassService) Sort(ctx context.Context, uid, cid, mode int) error {
@@ -157,7 +158,7 @@ func (s *ArticleClassService) Sort(ctx context.Context, uid, cid, mode int) erro
 // SetDefaultClass 设置默认分类
 func (s *ArticleClassService) SetDefaultClass(ctx context.Context, uid int) {
 
-	_, err := s.ArticleClass.QueryExist(ctx, "id = ? and is_default = ?", uid, 1)
+	_, err := s.ArticleClass.IsExist(ctx, "id = ? and is_default = ?", uid, model.Yes)
 	if !errors.Is(err, gorm.ErrRecordNotFound) {
 		return
 	}

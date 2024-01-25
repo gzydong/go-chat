@@ -24,12 +24,12 @@ type GroupMemberService struct {
 func (g *GroupMemberService) Handover(ctx context.Context, groupId int, userId int, memberId int) error {
 	return g.Source.Db().WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 
-		err := tx.Model(&model.GroupMember{}).Where("group_id = ? and user_id = ? and leader = 2", groupId, userId).Update("leader", 0).Error
+		err := tx.Model(&model.GroupMember{}).Where("group_id = ? and user_id = ? and leader = ?", groupId, userId, model.GroupMemberLeaderOwner).Update("leader", model.GroupMemberLeaderOrdinary).Error
 		if err != nil {
 			return err
 		}
 
-		err = tx.Model(&model.GroupMember{}).Where("group_id = ? and user_id = ?", groupId, memberId).Update("leader", 2).Error
+		err = tx.Model(&model.GroupMember{}).Where("group_id = ? and user_id = ?", groupId, memberId).Update("leader", model.GroupMemberLeaderOwner).Error
 		if err != nil {
 			return err
 		}

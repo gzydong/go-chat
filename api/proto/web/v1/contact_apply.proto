@@ -7,7 +7,7 @@ import "tagger/tagger.proto";
 
 // 添加联系人申请接口请求参数
 message ContactApplyCreateRequest{
-  int32 friend_id = 1 [(tagger.tags) = "binding:\"required\""];
+  int32 user_id = 1 [(tagger.tags) = "binding:\"required\""];
   string remark = 2 [(tagger.tags) = "binding:\"required\""];
 }
 

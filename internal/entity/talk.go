@@ -4,32 +4,15 @@ package entity
 const (
 	ChatPrivateMode = 1 // 私信模式
 	ChatGroupMode   = 2 // 群聊模式
-	ChatRoomMode    = 3 // 房间模式
 )
 
 const (
-	SubEventImMessage         = "sub.im.message"          // 对话消息通知
-	SubEventImMessageKeyboard = "sub.im.message.keyboard" // 键盘输入事件通知
-	SubEventImMessageRevoke   = "sub.im.message.revoke"   // 聊天消息撤销通知
-	SubEventImMessageRead     = "sub.im.message.read"     // 对话消息读事件
-	SubEventContactStatus     = "sub.im.contact.status"   // 用户在线状态通知
-	SubEventContactApply      = "sub.im.contact.apply"    // 好友申请消息通知
-	SubEventGroupJoin         = "sub.im.group.join"       // 邀请加入群聊通知
-	SubEventGroupApply        = "sub.im.group.apply"      // 入群申请通知
-
 	PushEventImMessage         = "im.message"          // 对话消息推送
 	PushEventImMessageKeyboard = "im.message.keyboard" // 键盘输入事件推送
-	PushEventImMessageRead     = "im.message.read"     // 对话消息读事件推送
 	PushEventImMessageRevoke   = "im.message.revoke"   // 聊天消息撤销推送
 	PushEventContactApply      = "im.contact.apply"    // 好友申请消息推送
 	PushEventContactStatus     = "im.contact.status"   // 用户在线状态推送
 	PushEventGroupApply        = "im.group.apply"      // 用户在线状态推送
-)
-
-const (
-	BusinessCodeTalk = 101
-
-	BusinessCodeExample = 102
 )
 
 // IM消息类型
@@ -48,7 +31,7 @@ const (
 	ChatMsgTypeLogin       = 10 // 登录消息
 	ChatMsgTypeVote        = 11 // 投票消息
 	ChatMsgTypeMixed       = 12 // 图文消息
-	ChatMsgTypeGroupNotice = 13 // 撤回消息
+	ChatMsgTypeGroupNotice = 13 // 群公告消息
 
 	ChatMsgSysText                   = 1000 // 系统文本消息
 	ChatMsgSysGroupCreate            = 1101 // 创建群聊消息
@@ -88,17 +71,7 @@ var ChatMsgTypeMapping = map[int]string{
 	ChatMsgSysGroupCancelMuted:       "[群解除禁言消息]",
 	ChatMsgSysGroupMemberMuted:       "[群成员禁言消息]",
 	ChatMsgSysGroupMemberCancelMuted: "[群成员解除禁言消息]",
-	ChatMsgSysGroupNotice:            "[群公告]",
 }
-
-const (
-	EventChatTalkMessage    = 101001 // IM对话消息事件
-	EventChatTalkKeyboard   = 101002 // IM键盘输入消息事件
-	EventChatTalkRevoke     = 101002 // IM消息撤回事件
-	EventChatOnlineStatus   = 101003 // IM在线状态事件
-	EventChatContactApply   = 101004 // IM好友申请事件
-	EventChatGroupJoinApply = 101005 // IM群加入申请事件
-)
 
 type TalkLastMessage struct {
 	MsgId      string // 消息ID
@@ -112,18 +85,12 @@ type TalkLastMessage struct {
 }
 
 type TalkRecord struct {
-	Id         int    `json:"id"`
 	MsgId      string `json:"msg_id"`
 	Sequence   int    `json:"sequence"`
-	TalkType   int    `json:"talk_type"`
 	MsgType    int    `json:"msg_type"`
-	UserId     int    `json:"user_id"`
-	ReceiverId int    `json:"receiver_id"`
+	FromUserId int    `json:"from_user_id"`
 	Nickname   string `json:"nickname"`
 	Avatar     string `json:"avatar"`
-	IsRevoke   int    `json:"is_revoke"`
-	IsMark     int    `json:"is_mark"`
-	IsRead     int    `json:"is_read"`
 	Extra      any    `json:"extra"`
 	CreatedAt  string `json:"created_at"`
 }

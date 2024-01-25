@@ -659,6 +659,8 @@ func (m *GroupVoteDetailResponse) validate(all bool) error {
 
 	}
 
+	// no validation rules for IsSubmit
+
 	if len(errors) > 0 {
 		return GroupVoteDetailResponseMultiError(errors)
 	}

@@ -36,7 +36,7 @@ func (s *ArticleAnnexService) UpdateStatus(ctx context.Context, uid int, id int,
 		data["deleted_at"] = timeutil.DateTime()
 	}
 
-	_, err := s.ArticleAnnex.UpdateWhere(ctx, data, "id = ? and user_id = ?", id, uid)
+	_, err := s.ArticleAnnex.UpdateByWhere(ctx, data, "id = ? and user_id = ?", id, uid)
 	return err
 }
 

@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"go-chat/api/pb/web/v1"
-	"go-chat/internal/pkg/ichat"
+	"go-chat/internal/pkg/core"
 	"go-chat/internal/repository/model"
 	"go-chat/internal/repository/repo"
 )
@@ -16,8 +16,7 @@ type Organize struct {
 	OrganizeRepo   *repo.Organize
 }
 
-func (o *Organize) DepartmentList(ctx *ichat.Context) error {
-
+func (o *Organize) DepartmentList(ctx *core.Context) error {
 	uid := ctx.UserId()
 	if isOk, _ := o.OrganizeRepo.IsQiyeMember(ctx.Ctx(), uid); !isOk {
 		return ctx.Success(&web.OrganizeDepartmentListResponse{})
@@ -41,8 +40,9 @@ func (o *Organize) DepartmentList(ctx *ichat.Context) error {
 	return ctx.Success(&web.OrganizeDepartmentListResponse{Items: items})
 }
 
-func (o *Organize) PersonnelList(ctx *ichat.Context) error {
+func (o *Organize) PersonnelList(ctx *core.Context) error {
 
+	// 判断是否是企业成员
 	uid := ctx.UserId()
 	if isOk, _ := o.OrganizeRepo.IsQiyeMember(ctx.Ctx(), uid); !isOk {
 		return ctx.Success(&web.OrganizePersonnelListResponse{})

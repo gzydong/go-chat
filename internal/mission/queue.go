@@ -1,41 +1,30 @@
 package mission
 
 import (
-	"fmt"
-	"log"
-	"os"
-	"os/signal"
-	"syscall"
-
+	"context"
+	"github.com/redis/go-redis/v9"
 	"github.com/urfave/cli/v2"
-	"go-chat/config"
 	"go-chat/internal/mission/queue"
-	"gorm.io/gorm"
+	"time"
 )
 
 type QueueProvider struct {
-	Config *config.Config
-	DB     *gorm.DB
-	Jobs   *QueueJobs
-}
-
-type QueueJobs struct {
-	queue.ExampleQueue
+	Consumers *queue.Consumers
+	Redis     *redis.Client
 }
 
 func Queue(ctx *cli.Context, app *QueueProvider) error {
-	log.Println("队列运行中...")
+	topics := []string{"im.user.login"}
 
-	err := app.Jobs.ExampleQueue.Handle(ctx.Context)
-	if err != nil {
-		fmt.Println("ExampleQueue>>", err)
+	sub := app.Redis.Subscribe(ctx.Context, topics...)
+	defer sub.Close()
+
+	for data := range sub.Channel(redis.WithChannelHealthCheckInterval(10 * time.Second)) {
+		switch data.Channel {
+		case "im.user.login":
+			_ = app.Consumers.UserLoginConsumer.Do(context.Background(), []byte(data.Payload), 1)
+		}
 	}
-
-	ch := make(chan os.Signal, 1)     // 定义一个信号的通道
-	signal.Notify(ch, syscall.SIGINT) // 转发键盘中断信号到c
-	<-ch                              // 阻塞
-
-	log.Println("队列已结束...")
 
 	return nil
 }

@@ -2,14 +2,14 @@ package router
 
 import (
 	"fmt"
+	"go-chat/internal/pkg/logger"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/natefinch/lumberjack"
 	"github.com/tidwall/sjson"
 	"go-chat/config"
 	"go-chat/internal/apis/handler"
-	"go-chat/internal/pkg/ichat/middleware"
+	"go-chat/internal/pkg/core/middleware"
 	"go-chat/internal/repository/cache"
 )
 
@@ -27,14 +27,11 @@ func NewRouter(conf *config.Config, handler *handler.Handler, session *cache.Jwt
 	})
 
 	router.Use(middleware.Cors(conf.Cors))
-	router.Use(middleware.AccessLog(&lumberjack.Logger{
-		Filename:   fmt.Sprintf("%s/logs/access.log", conf.Log.Path), // 日志文件的位置
-		MaxSize:    100,                                              // 文件最大尺寸（以MB为单位）
-		MaxBackups: 3,                                                // 保留的最大旧文件数量
-		MaxAge:     7,                                                // 保留旧文件的最大天数
-		Compress:   true,                                             // 是否压缩/归档旧文件
-		LocalTime:  true,                                             // 使用本地时间创建时间戳
-	}, accessFilterRule))
+
+	router.Use(middleware.AccessLog(
+		logger.CreateFileWriter(fmt.Sprintf("%s/logs/access.log", conf.Log.Path)),
+		accessFilterRule,
+	))
 
 	router.Use(gin.RecoveryWithWriter(gin.DefaultWriter, func(c *gin.Context, err any) {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, map[string]any{"code": 500, "msg": "系统错误，请重试!!!"})

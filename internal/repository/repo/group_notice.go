@@ -3,17 +3,17 @@ package repo
 import (
 	"context"
 
-	"go-chat/internal/pkg/ichat"
+	"go-chat/internal/pkg/core"
 	"go-chat/internal/repository/model"
 	"gorm.io/gorm"
 )
 
 type GroupNotice struct {
-	ichat.Repo[model.GroupNotice]
+	core.Repo[model.GroupNotice]
 }
 
 func NewGroupNotice(db *gorm.DB) *GroupNotice {
-	return &GroupNotice{Repo: ichat.NewRepo[model.GroupNotice](db)}
+	return &GroupNotice{Repo: core.NewRepo[model.GroupNotice](db)}
 }
 
 func (g *GroupNotice) GetListAll(ctx context.Context, groupId int) ([]*model.SearchNoticeItem, error) {
@@ -34,7 +34,7 @@ func (g *GroupNotice) GetListAll(ctx context.Context, groupId int) ([]*model.Sea
 
 	query := g.Repo.Db.WithContext(ctx).Table("group_notice")
 	query.Joins("left join users on users.id = group_notice.creator_id")
-	query.Where("group_notice.group_id = ? and group_notice.is_delete = ?", groupId, 0)
+	query.Where("group_notice.group_id = ? and group_notice.is_delete = ?", groupId, model.GroupNoticeIsDeleteNo)
 	query.Order("group_notice.is_top desc")
 	query.Order("group_notice.created_at desc")
 
@@ -49,7 +49,7 @@ func (g *GroupNotice) GetListAll(ctx context.Context, groupId int) ([]*model.Sea
 // GetLatestNotice 获取最新公告
 func (g *GroupNotice) GetLatestNotice(ctx context.Context, groupId int) (*model.GroupNotice, error) {
 	var info model.GroupNotice
-	err := g.Repo.Db.WithContext(ctx).Last(&info, "group_id = ? and is_delete = ?", groupId, 0).Error
+	err := g.Repo.Db.WithContext(ctx).Last(&info, "group_id = ? and is_delete = ?", groupId, model.GroupNoticeIsDeleteNo).Error
 	if err != nil {
 		return nil, err
 	}

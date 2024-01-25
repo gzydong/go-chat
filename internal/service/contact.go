@@ -28,7 +28,7 @@ type ContactService struct {
 // @params friendId 联系人ID
 func (s *ContactService) UpdateRemark(ctx context.Context, uid int, friendId int, remark string) error {
 
-	_, err := s.ContactRepo.UpdateWhere(ctx, map[string]any{"remark": remark}, "user_id = ? and friend_id = ?", uid, friendId)
+	_, err := s.ContactRepo.UpdateByWhere(ctx, map[string]any{"remark": remark}, "user_id = ? and friend_id = ?", uid, friendId)
 	if err == nil {
 		_ = s.ContactRepo.SetFriendRemark(ctx, uid, friendId, remark)
 	}

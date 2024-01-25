@@ -2,7 +2,7 @@ package service
 
 import (
 	"go-chat/internal/pkg/utils"
-	"go-chat/resource"
+	"go-chat/internal/resource"
 )
 
 var _ ITemplateService = (*TemplateService)(nil)
