@@ -457,10 +457,10 @@ func (c *Group) Handover(ctx *ichat.Context) error {
 		return ctx.ErrorBusiness("转让群主失败！")
 	}
 
-	members := make([]model.TalkRecordExtraGroupMembers, 0)
+	members := make([]model.TalkRecordExtraGroupMember, 0)
 	c.Repo.Db().Table("users").Select("id as user_id", "nickname").Where("id in ?", []int{uid, int(params.UserId)}).Scan(&members)
 
-	extra := model.TalkRecordExtraGroupTransfer{}
+	extra := model.TalkRecordExtraTransferGroup{}
 	for _, member := range members {
 		if member.UserId == uid {
 			extra.OldOwnerId = member.UserId
@@ -538,7 +538,7 @@ func (c *Group) NoSpeak(ctx *ichat.Context) error {
 		ReceiverId: int(params.GroupId),
 	}
 
-	members := make([]model.TalkRecordExtraGroupMembers, 0)
+	members := make([]model.TalkRecordExtraGroupMember, 0)
 	c.Repo.Db().Table("users").Select("id as user_id", "nickname").Where("id = ?", params.UserId).Scan(&members)
 
 	user, err := c.UsersRepo.FindById(ctx.Ctx(), uid)

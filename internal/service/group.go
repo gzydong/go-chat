@@ -72,7 +72,7 @@ func (g *GroupService) Create(ctx context.Context, opt *GroupCreateOpt) (int, er
 			return err
 		}
 
-		addMembers := make([]model.TalkRecordExtraGroupMembers, 0, len(opt.MemberIds))
+		addMembers := make([]model.TalkRecordExtraGroupMember, 0, len(opt.MemberIds))
 		tx.Table("users").Select("id as user_id", "nickname").Where("id in ?", opt.MemberIds).Scan(&addMembers)
 
 		for _, val := range uids {
@@ -303,9 +303,9 @@ func (g *GroupService) Invite(ctx context.Context, opt *GroupInviteOpt) error {
 		memberMaps[item.Id] = item
 	}
 
-	members := make([]model.TalkRecordExtraGroupMembers, 0)
+	members := make([]model.TalkRecordExtraGroupMember, 0)
 	for _, value := range opt.MemberIds {
-		members = append(members, model.TalkRecordExtraGroupMembers{
+		members = append(members, model.TalkRecordExtraGroupMember{
 			UserId:   value,
 			Nickname: memberMaps[value].Nickname,
 		})
@@ -436,9 +436,9 @@ func (g *GroupService) RemoveMember(ctx context.Context, opt *GroupRemoveMembers
 		memberMaps[item.Id] = item
 	}
 
-	members := make([]model.TalkRecordExtraGroupMembers, 0)
+	members := make([]model.TalkRecordExtraGroupMember, 0)
 	for _, value := range opt.MemberIds {
-		members = append(members, model.TalkRecordExtraGroupMembers{
+		members = append(members, model.TalkRecordExtraGroupMember{
 			UserId:   value,
 			Nickname: memberMaps[value].Nickname,
 		})

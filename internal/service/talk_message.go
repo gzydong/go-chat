@@ -223,10 +223,9 @@ func (m *MessageService) SendFile(ctx context.Context, uid int, req *message.Fil
 	case entity.MediaFileOther:
 		data.MsgType = entity.ChatMsgTypeFile
 		data.Extra = jsonutil.Encode(&model.TalkRecordExtraFile{
-			Drive: file.Drive,
-			Name:  file.OriginalName,
-			Size:  int(file.FileSize),
-			Path:  filePath,
+			Name: file.OriginalName,
+			Size: int(file.FileSize),
+			Path: filePath,
 		})
 	}
 
@@ -412,7 +411,7 @@ func (m *MessageService) SendBusinessCard(ctx context.Context, uid int, req *mes
 		MsgType:    entity.ChatMsgTypeCard,
 		UserId:     uid,
 		ReceiverId: int(req.Receiver.ReceiverId),
-		Extra: jsonutil.Encode(&model.TalkRecordExtraCard{
+		Extra: jsonutil.Encode(&model.TalkRecordExtraUserCard{
 			UserId: int(req.UserId),
 		}),
 	}

@@ -180,7 +180,7 @@ type forwardItem struct {
 }
 
 // 聚合转发数据
-func (m *ForwardMessage) aggregation(ctx context.Context, req *message.ForwardMessageRequest) ([]map[string]any, error) {
+func (m *ForwardMessage) aggregation(ctx context.Context, req *message.ForwardMessageRequest) ([]model.TalkRecordExtraForwardRecord, error) {
 
 	rows := make([]*forwardItem, 0, 3)
 
@@ -198,10 +198,11 @@ func (m *ForwardMessage) aggregation(ctx context.Context, req *message.ForwardMe
 		return nil, err
 	}
 
-	data := make([]map[string]any, 0)
+	data := make([]model.TalkRecordExtraForwardRecord, 0)
 	for _, row := range rows {
-		item := map[string]any{
-			"nickname": row.Nickname,
+		item := model.TalkRecordExtraForwardRecord{
+			Nickname: row.Nickname,
+			Content:  "",
 		}
 
 		switch row.MsgType {
@@ -211,21 +212,21 @@ func (m *ForwardMessage) aggregation(ctx context.Context, req *message.ForwardMe
 				return nil, err
 			}
 
-			item["text"] = strutil.MtSubstr(strings.TrimSpace(extra.Content), 0, 30)
+			item.Content = strutil.MtSubstr(strings.TrimSpace(extra.Content), 0, 30)
 		case entity.ChatMsgTypeCode:
-			item["text"] = "【代码消息】"
+			item.Content = "【代码消息】"
 		case entity.ChatMsgTypeImage:
-			item["text"] = "【图片消息】"
+			item.Content = "【图片消息】"
 		case entity.ChatMsgTypeAudio:
-			item["text"] = "【语音消息】"
+			item.Content = "【语音消息】"
 		case entity.ChatMsgTypeVideo:
-			item["text"] = "【视频消息】"
+			item.Content = "【视频消息】"
 		case entity.ChatMsgTypeFile:
-			item["text"] = "【文件消息】"
+			item.Content = "【文件消息】"
 		case entity.ChatMsgTypeLocation:
-			item["text"] = "【位置消息】"
+			item.Content = "【位置消息】"
 		default:
-			item["text"] = "【其它消息】"
+			item.Content = "【其它消息】"
 		}
 
 		data = append(data, item)
