@@ -4,7 +4,7 @@ import "time"
 
 const (
 	ContactStatusNormal = 1
-	ContactStatusDelete = 0
+	ContactStatusDelete = 2
 )
 
 // Contact 用户好友关系表

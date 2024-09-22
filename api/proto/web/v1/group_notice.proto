@@ -14,11 +14,7 @@ message GroupNoticeDeleteResponse{}
 
 message GroupNoticeEditRequest{
   int32 group_id = 1 [(tagger.tags) = "binding:\"required\""];
-  int32 notice_id = 2;
-  string title = 3 [(tagger.tags) = "binding:\"required\""];
   string content = 4 [(tagger.tags) = "binding:\"required\""];
-  int32 is_top = 5 [(tagger.tags) = "binding:\"oneof=1 2\""];
-  int32 is_confirm = 6 [(tagger.tags) = "binding:\"oneof=1 2\""];
 }
 
 message GroupNoticeEditResponse{}

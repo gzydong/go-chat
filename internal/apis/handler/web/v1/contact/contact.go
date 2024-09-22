@@ -2,7 +2,6 @@ package contact
 
 import (
 	"errors"
-
 	"go-chat/api/pb/web/v1"
 	"go-chat/internal/pkg/core"
 	"go-chat/internal/repository/cache"
@@ -28,7 +27,6 @@ type Contact struct {
 
 // List 联系人列表
 func (c *Contact) List(ctx *core.Context) error {
-
 	list, err := c.ContactService.List(ctx.Ctx(), ctx.UserId())
 	if err != nil {
 		return ctx.ErrorBusiness(err.Error())

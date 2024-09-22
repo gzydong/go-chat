@@ -104,6 +104,7 @@ func (c *Session) Create(ctx *core.Context) error {
 	} else if result.TalkMode == entity.ChatGroupMode {
 		if group, err := c.GroupRepo.FindById(ctx.Ctx(), int(in.ToFromId)); err == nil {
 			item.Name = group.Name
+			item.Avatar = group.Avatar
 		}
 	}
 
@@ -114,19 +115,19 @@ func (c *Session) Create(ctx *core.Context) error {
 	}
 
 	return ctx.Success(&web.TalkSessionCreateResponse{
-		Id:         item.Id,
-		TalkMode:   item.TalkMode,
-		ToFromId:   item.ToFromId,
-		IsTop:      item.IsTop,
-		IsDisturb:  item.IsDisturb,
-		IsOnline:   item.IsOnline,
-		IsRobot:    item.IsRobot,
-		Name:       item.Name,
-		Avatar:     item.Avatar,
-		RemarkName: item.Remark,
-		UnreadNum:  item.UnreadNum,
-		MsgText:    item.MsgText,
-		UpdatedAt:  item.UpdatedAt,
+		Id:        item.Id,
+		TalkMode:  item.TalkMode,
+		ToFromId:  item.ToFromId,
+		IsTop:     item.IsTop,
+		IsDisturb: item.IsDisturb,
+		IsOnline:  item.IsOnline,
+		IsRobot:   item.IsRobot,
+		Name:      item.Name,
+		Avatar:    item.Avatar,
+		Remark:    item.Remark,
+		UnreadNum: item.UnreadNum,
+		MsgText:   item.MsgText,
+		UpdatedAt: item.UpdatedAt,
 	})
 }
 

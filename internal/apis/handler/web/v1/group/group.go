@@ -1,8 +1,10 @@
 package group
 
 import (
+	"errors"
 	"fmt"
 	"github.com/samber/lo"
+	"gorm.io/gorm"
 	"slices"
 	"time"
 
@@ -26,13 +28,13 @@ type Group struct {
 	UsersRepo          *repo.Users
 	GroupRepo          *repo.Group
 	GroupMemberRepo    *repo.GroupMember
+	GroupNoticeRepo    *repo.GroupNotice
 	TalkSessionRepo    *repo.TalkSession
 	GroupService       service.IGroupService
 	GroupMemberService service.IGroupMemberService
 	TalkSessionService service.ITalkSessionService
 	UserService        service.IUserService
 	ContactService     service.IContactService
-	GroupNoticeService service.IGroupNoticeService
 	Message            message.IService
 }
 
@@ -50,6 +52,10 @@ func (c *Group) Create(ctx *core.Context) error {
 
 	if len(uids) < 2 {
 		return ctx.InvalidParams("创建群聊失败，至少需要两个用户！")
+	}
+
+	if len(uids)+1 > model.GroupMemberMaxNum {
+		return ctx.InvalidParams(fmt.Sprintf("群成员数量已达到%d上限！", model.GroupMemberMaxNum))
 	}
 
 	gid, err := c.GroupService.Create(ctx.Ctx(), &service.GroupCreateOpt{
@@ -105,6 +111,10 @@ func (c *Group) Invite(ctx *core.Context) error {
 		return ctx.InvalidParams("邀请好友列表不能为空！")
 	}
 
+	if len(uids) > model.GroupMemberMaxNum {
+		return ctx.InvalidParams(fmt.Sprintf("当前群成员数量已达到%d上限！", model.GroupMemberMaxNum))
+	}
+
 	key := fmt.Sprintf("group_join:%d", in.GroupId)
 	if !c.RedisLock.Lock(ctx.Ctx(), key, 20) {
 		return ctx.ErrorBusiness("网络异常，请稍后再试！")
@@ -112,18 +122,27 @@ func (c *Group) Invite(ctx *core.Context) error {
 
 	defer c.RedisLock.UnLock(ctx.Ctx(), key)
 
+	uid := ctx.UserId()
+	if !c.GroupMemberRepo.IsMember(ctx.Ctx(), int(in.GroupId), uid, true) {
+		return ctx.ErrorBusiness("暂无权限操作！")
+	}
+
 	group, err := c.GroupRepo.FindById(ctx.Ctx(), int(in.GroupId))
 	if err != nil {
-		return ctx.ErrorBusiness("网络异常，请稍后再试！")
+		return ctx.Error("网络异常，请稍后再试！")
 	}
 
 	if group != nil && group.IsDismiss == model.Yes {
 		return ctx.ErrorBusiness("该群已解散！")
 	}
 
-	uid := ctx.UserId()
-	if !c.GroupMemberRepo.IsMember(ctx.Ctx(), int(in.GroupId), uid, true) {
-		return ctx.ErrorBusiness("非群组成员，无权邀请好友！")
+	count, err := c.GroupMemberRepo.FindCount(ctx.Ctx(), "group_id = ? and is_quit = ?", in.GroupId, model.No)
+	if err != nil {
+		return ctx.Error("网络异常，请稍后再试！")
+	}
+
+	if int(count)+len(uids) >= model.GroupMemberMaxNum {
+		return ctx.ErrorBusiness("当前群成员数量已达到上限！")
 	}
 
 	if err := c.GroupService.Invite(ctx.Ctx(), &service.GroupInviteOpt{
@@ -255,6 +274,26 @@ func (c *Group) Detail(ctx *core.Context) error {
 		IsMute:    int32(groupInfo.IsMute),
 		IsOvert:   int32(groupInfo.IsOvert),
 		VisitCard: c.GroupMemberRepo.GetMemberRemark(ctx.Ctx(), int(in.GroupId), uid),
+		Notice: &web.GroupDetailResponse_Notice{
+			Content:        "",
+			CreatedAt:      "",
+			UpdatedAt:      "",
+			ModifyUserName: "",
+		},
+	}
+
+	notice, err := c.GroupNoticeRepo.GetLatestNotice(ctx.Ctx(), int(in.GroupId))
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return err
+	}
+
+	if notice != nil {
+		resp.Notice = &web.GroupDetailResponse_Notice{
+			Content:        notice.Content,
+			CreatedAt:      timeutil.FormatDatetime(notice.CreatedAt),
+			UpdatedAt:      timeutil.FormatDatetime(notice.UpdatedAt),
+			ModifyUserName: "马克思",
+		}
 	}
 
 	if c.TalkSessionRepo.IsDisturb(uid, groupInfo.Id, 2) {

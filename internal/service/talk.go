@@ -84,7 +84,7 @@ func (t *TalkService) Revoke(ctx context.Context, opt *TalkRevokeOption) error {
 	case entity.ChatPrivateMode:
 		var record model.TalkUserMessage
 
-		err := db.First(&record, "msg_id = ? and send_from_id = ?", opt.MsgId, opt.UserId).Error
+		err := db.First(&record, "msg_id = ? and from_id = ?", opt.MsgId, opt.UserId).Error
 		if err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
 				return errors.New("消息ID不存在")
@@ -108,7 +108,7 @@ func (t *TalkService) Revoke(ctx context.Context, opt *TalkRevokeOption) error {
 	case entity.ChatGroupMode:
 		var record model.TalkGroupMessage
 
-		err := db.First(&record, "msg_id = ? and send_from_id = ?", opt.MsgId, opt.UserId).Error
+		err := db.First(&record, "msg_id = ? and from_id = ?", opt.MsgId, opt.UserId).Error
 		if err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
 				return errors.New("消息ID不存在")

@@ -2,6 +2,7 @@ package talk
 
 import (
 	"context"
+	"html"
 
 	"github.com/gin-gonic/gin/binding"
 	"go-chat/internal/pkg/core"
@@ -62,7 +63,7 @@ func (c *Publish) onSendText(ctx *core.Context) error {
 		TalkMode: in.TalkMode,
 		FromId:   ctx.UserId(),
 		ToFromId: in.ToFromId,
-		Content:  in.Body.Text,
+		Content:  html.EscapeString(in.Body.Text),
 		QuoteId:  in.QuoteId,
 		Mentions: in.Body.Mentions,
 	})

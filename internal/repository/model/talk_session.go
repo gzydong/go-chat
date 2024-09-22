@@ -27,7 +27,7 @@ type SearchTalkSession struct {
 	IsTop       int       `json:"is_top"`
 	IsRobot     int       `json:"is_robot"`
 	IsDisturb   int       `json:"is_disturb"`
-	Avatar      string    `json:"user_avatar"`
+	Avatar      string    `json:"avatar"`
 	Nickname    string    `json:"nickname"`
 	GroupName   string    `json:"group_name"`
 	GroupAvatar string    `json:"group_avatar"`

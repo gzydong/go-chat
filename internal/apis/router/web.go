@@ -93,9 +93,7 @@ func RegisterWebRoute(secret string, router *gin.Engine, handler *web.Handler, s
 			userGroup.POST("/member/update-remark", core.HandlerFunc(handler.V1.Group.UpdateMemberRemark)) // 设置群名片
 
 			// 群公告相关
-			userGroup.GET("/notice/list", core.HandlerFunc(handler.V1.GroupNotice.List))             // 群公告列表
 			userGroup.POST("/notice/edit", core.HandlerFunc(handler.V1.GroupNotice.CreateAndUpdate)) // 添加或编辑群公告
-			userGroup.POST("/notice/delete", core.HandlerFunc(handler.V1.GroupNotice.Delete))        // 删除群公告
 
 			// 群申请
 			userGroup.POST("/apply/create", core.HandlerFunc(handler.V1.GroupApply.Create))        // 提交入群申请

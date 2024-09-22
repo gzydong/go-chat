@@ -1,11 +1,11 @@
 module go-chat
 
-go 1.22
+go 1.23
 
 require (
 	github.com/alicebob/miniredis/v2 v2.32.1
 	github.com/bwmarrin/snowflake v0.3.0
-	github.com/bytedance/sonic v1.11.7
+	github.com/bytedance/sonic v1.12.2
 	github.com/gin-gonic/gin v1.10.0
 	github.com/go-playground/locales v0.14.1
 	github.com/go-playground/universal-translator v0.18.1
@@ -39,7 +39,7 @@ require (
 
 require (
 	github.com/alicebob/gopher-json v0.0.0-20200520072559-a9ecdc9d1d3a // indirect
-	github.com/bytedance/sonic/loader v0.1.1 // indirect
+	github.com/bytedance/sonic/loader v0.2.0 // indirect
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
 	github.com/cloudwego/base64x v0.1.4 // indirect
 	github.com/cloudwego/iasm v0.2.0 // indirect

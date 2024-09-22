@@ -64,7 +64,6 @@ func (g *GroupService) Create(ctx context.Context, opt *GroupCreateOpt) (int, er
 		CreatorId: opt.UserId,
 		Name:      opt.Name,
 		Profile:   opt.Profile,
-		Notice:    "",
 		IsDismiss: model.No,
 		Avatar:    opt.Avatar,
 		MaxNum:    model.GroupMemberMaxNum,
@@ -291,6 +290,10 @@ func (g *GroupService) Invite(ctx context.Context, opt *GroupInviteOpt) error {
 		m[value] = struct{}{}
 	}
 
+	if len(opt.MemberIds) == 0 {
+		return errors.New("请选择要邀请的成员！")
+	}
+
 	listHash := make(map[int]*model.TalkSession)
 	db.Select("id", "user_id", "is_delete").Where("user_id in ? and to_from_id = ? and talk_mode = ?", opt.MemberIds, opt.GroupId, entity.ChatGroupMode).Find(&talkList)
 	for _, item := range talkList {
@@ -321,15 +324,13 @@ func (g *GroupService) Invite(ctx context.Context, opt *GroupInviteOpt) error {
 
 		if _, ok := m[value]; !ok {
 			addMembers = append(addMembers, &model.GroupMember{
-				GroupId:   opt.GroupId,
-				UserId:    value,
-				Leader:    model.GroupMemberLeaderOrdinary,
-				UserCard:  "",
-				IsQuit:    model.No,
-				IsMute:    model.No,
-				JoinTime:  time.Now(),
-				CreatedAt: time.Time{},
-				UpdatedAt: time.Time{},
+				GroupId:  opt.GroupId,
+				UserId:   value,
+				Leader:   model.GroupMemberLeaderOrdinary,
+				UserCard: "",
+				IsQuit:   model.No,
+				IsMute:   model.No,
+				JoinTime: time.Now(),
 			})
 		}
 

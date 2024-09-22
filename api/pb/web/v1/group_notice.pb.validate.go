@@ -267,15 +267,7 @@ func (m *GroupNoticeEditRequest) validate(all bool) error {
 
 	// no validation rules for GroupId
 
-	// no validation rules for NoticeId
-
-	// no validation rules for Title
-
 	// no validation rules for Content
-
-	// no validation rules for IsTop
-
-	// no validation rules for IsConfirm
 
 	if len(errors) > 0 {
 		return GroupNoticeEditRequestMultiError(errors)

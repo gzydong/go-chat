@@ -21,9 +21,6 @@ var ProviderSet = wire.NewSet(
 	wire.Struct(new(GroupMemberService), "*"),
 	wire.Bind(new(IGroupMemberService), new(*GroupMemberService)),
 
-	wire.Struct(new(GroupNoticeService), "*"),
-	wire.Bind(new(IGroupNoticeService), new(*GroupNoticeService)),
-
 	wire.Struct(new(GroupApplyService), "*"),
 	wire.Bind(new(IGroupApplyService), new(*GroupApplyService)),
 

@@ -20,7 +20,7 @@ func NewMySQLClient(conf *config.Config) *gorm.DB {
 			SingularTable: true,
 		},
 		Logger: logger.New(log.New(os.Stdout, "\r\n", log.LstdFlags), logger.Config{
-			SlowThreshold:             500 * time.Millisecond,
+			SlowThreshold:             10 * time.Millisecond,
 			LogLevel:                  logger.Warn,
 			IgnoreRecordNotFoundError: true,
 		}),
@@ -44,9 +44,9 @@ func NewMySQLClient(conf *config.Config) *gorm.DB {
 
 	sqlDB, _ := db.DB()
 
-	sqlDB.SetMaxIdleConns(10)
-	sqlDB.SetMaxOpenConns(50)
-	sqlDB.SetConnMaxLifetime(time.Hour)
+	sqlDB.SetMaxIdleConns(conf.MySQL.MaxIdleConnNum)
+	sqlDB.SetMaxOpenConns(conf.MySQL.MaxOpenConnNum)
+	sqlDB.SetConnMaxLifetime(time.Duration(conf.MySQL.ConnMaxLifetime) * time.Second)
 
 	return db
 }

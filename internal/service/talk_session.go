@@ -36,7 +36,7 @@ func (s *TalkSessionService) List(ctx context.Context, uid int) ([]*model.Search
 	fields := []string{
 		"list.id", "list.talk_mode", "list.to_from_id", "list.updated_at",
 		"list.is_disturb", "list.is_top", "list.is_robot",
-		"`users`.avatar as user_avatar", "`users`.nickname",
+		"`users`.avatar", "`users`.nickname",
 		"`group`.name as group_name", "`group`.avatar as group_avatar",
 	}
 

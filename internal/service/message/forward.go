@@ -78,8 +78,7 @@ func (s *Service) toSplitForward(ctx context.Context, req ForwardMessageOpt) err
 		}
 
 		if err := db.Create(items).Error; err == nil {
-
-			_ = s.PushMessage.MultiPush(ctx, entity.ImTopicChat,
+			err = s.PushMessage.MultiPush(ctx, entity.ImTopicChat,
 				lo.Map(items, func(item model.TalkGroupMessage, index int) *entity.SubscribeMessage {
 					return &entity.SubscribeMessage{
 						Event: entity.SubEventImMessage,
@@ -90,6 +89,10 @@ func (s *Service) toSplitForward(ctx context.Context, req ForwardMessageOpt) err
 					}
 				}),
 			)
+
+			if err != nil {
+				logger.Errorf("split forward message failed :%s", err.Error())
+			}
 		}
 	} else {
 		sequence1 := s.Sequence.BatchGet(ctx, req.ToUserId, true, int64(len(messageItems)))
@@ -157,9 +160,9 @@ func (s *Service) toSplitForward(ctx context.Context, req ForwardMessageOpt) err
 // CombineForward 合并转发
 func (s *Service) toCombineForward(ctx context.Context, req ForwardMessageOpt) error {
 	var (
-		now   = time.Now()
-		db    = s.Source.Db().WithContext(ctx)
-		msgId = strutil.NewMsgId()
+		now = time.Now()
+		db  = s.Source.Db().WithContext(ctx)
+
 		extra = model.TalkRecordExtraForward{
 			TalkType:   req.TalkMode,
 			UserId:     req.UserId,
@@ -224,9 +227,11 @@ func (s *Service) toCombineForward(ctx context.Context, req ForwardMessageOpt) e
 	case entity.ChatPrivateMode: // 好友发送消息
 		items := make([]model.TalkUserMessage, 0)
 
+		msgId := strutil.NewMsgId()
+
 		// 向好友发送消息
 		items = append(items, model.TalkUserMessage{
-			MsgId:     msgId,
+			MsgId:     strutil.NewMsgId(),
 			OrgMsgId:  msgId,
 			Sequence:  s.Sequence.Get(ctx, req.ToUserId, true),
 			MsgType:   entity.ChatMsgTypeForward,
@@ -242,7 +247,7 @@ func (s *Service) toCombineForward(ctx context.Context, req ForwardMessageOpt) e
 
 		// 向自己发送消息
 		items = append(items, model.TalkUserMessage{
-			MsgId:     msgId,
+			MsgId:     strutil.NewMsgId(),
 			OrgMsgId:  msgId,
 			Sequence:  s.Sequence.Get(ctx, req.UserId, true),
 			MsgType:   entity.ChatMsgTypeForward,
@@ -266,6 +271,7 @@ func (s *Service) toCombineForward(ctx context.Context, req ForwardMessageOpt) e
 				Message:  jsonutil.Encode(item),
 			})
 		}
+
 	case entity.ChatGroupMode: // 向群发送消息
 		record := model.TalkGroupMessage{
 			MsgId:     strutil.NewMsgId(),
@@ -290,14 +296,22 @@ func (s *Service) toCombineForward(ctx context.Context, req ForwardMessageOpt) e
 	}
 
 	if len(pushMessageItems) > 0 {
-		_ = s.PushMessage.MultiPush(ctx, entity.ImTopicChat,
+		err := s.PushMessage.MultiPush(ctx,
+			entity.ImTopicChat,
 			lo.Map(pushMessageItems, func(item entity.SubEventImMessagePayload, index int) *entity.SubscribeMessage {
 				return &entity.SubscribeMessage{
-					Event:   entity.SubEventImMessage,
-					Payload: jsonutil.Encode(item.Message),
+					Event: entity.SubEventImMessage,
+					Payload: jsonutil.Encode(entity.SubEventImMessagePayload{
+						TalkMode: item.TalkMode,
+						Message:  item.Message,
+					}),
 				}
 			}),
 		)
+
+		if err != nil {
+			logger.Errorf("forward message failed :%s", err.Error())
+		}
 	}
 
 	return nil

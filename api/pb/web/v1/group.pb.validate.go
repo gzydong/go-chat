@@ -625,6 +625,35 @@ func (m *GroupDetailResponse) validate(all bool) error {
 
 	// no validation rules for IsOvert
 
+	if all {
+		switch v := interface{}(m.GetNotice()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, GroupDetailResponseValidationError{
+					field:  "Notice",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, GroupDetailResponseValidationError{
+					field:  "Notice",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetNotice()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return GroupDetailResponseValidationError{
+				field:  "Notice",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
 	if len(errors) > 0 {
 		return GroupDetailResponseMultiError(errors)
 	}
@@ -3828,6 +3857,116 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = GroupListResponse_ItemValidationError{}
+
+// Validate checks the field values on GroupDetailResponse_Notice with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GroupDetailResponse_Notice) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GroupDetailResponse_Notice with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GroupDetailResponse_NoticeMultiError, or nil if none found.
+func (m *GroupDetailResponse_Notice) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GroupDetailResponse_Notice) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Content
+
+	// no validation rules for CreatedAt
+
+	// no validation rules for UpdatedAt
+
+	// no validation rules for ModifyUserName
+
+	if len(errors) > 0 {
+		return GroupDetailResponse_NoticeMultiError(errors)
+	}
+
+	return nil
+}
+
+// GroupDetailResponse_NoticeMultiError is an error wrapping multiple
+// validation errors returned by GroupDetailResponse_Notice.ValidateAll() if
+// the designated constraints aren't met.
+type GroupDetailResponse_NoticeMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GroupDetailResponse_NoticeMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GroupDetailResponse_NoticeMultiError) AllErrors() []error { return m }
+
+// GroupDetailResponse_NoticeValidationError is the validation error returned
+// by GroupDetailResponse_Notice.Validate if the designated constraints aren't met.
+type GroupDetailResponse_NoticeValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GroupDetailResponse_NoticeValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GroupDetailResponse_NoticeValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GroupDetailResponse_NoticeValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GroupDetailResponse_NoticeValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GroupDetailResponse_NoticeValidationError) ErrorName() string {
+	return "GroupDetailResponse_NoticeValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GroupDetailResponse_NoticeValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGroupDetailResponse_Notice.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GroupDetailResponse_NoticeValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GroupDetailResponse_NoticeValidationError{}
 
 // Validate checks the field values on GroupMemberListResponse_Item with the
 // rules defined in the proto definition for this message. If any rules are

@@ -52,6 +52,14 @@ message GroupDetailResponse{
   string visit_card = 8;
   int32 is_mute = 9;
   int32 is_overt = 10;
+  Notice notice = 11;
+
+  message Notice{
+    string content = 1;
+    string created_at = 2;
+    string updated_at = 3;
+    string modify_user_name = 5;
+  }
 }
 
 

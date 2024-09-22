@@ -18,6 +18,7 @@ import (
 func (h *Handler) onConsumeTalk(ctx context.Context, body []byte) {
 	var in entity.SubEventImMessagePayload
 	if err := json.Unmarshal(body, &in); err != nil {
+		fmt.Println("Err SubEventImMessagePayload===>", err)
 		logger.Errorf("[ChatSubscribe] onConsumeTalk Unmarshal err: %s", err.Error())
 		return
 	}

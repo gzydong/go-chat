@@ -38,7 +38,6 @@ mysql:
   password: xxxx
   database: go_chat
   collation: utf8mb4_general_ci
-  dsn: "charset=utf8mb4&parseTime=True&loc=Local"
 
 # Jwt 配置
 jwt:

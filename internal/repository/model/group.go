@@ -5,7 +5,7 @@ import (
 )
 
 const (
-	GroupMemberMaxNum = 200 // 最大成员数量
+	GroupMemberMaxNum = 500 // 最大成员数量
 
 	GroupTypeNormal     = 1
 	GroupTypeEnterprise = 2
@@ -17,7 +17,6 @@ type Group struct {
 	CreatorId int       `gorm:"column:creator_id;" json:"creator_id"`           // 创建者ID(群主ID)
 	Name      string    `gorm:"column:name;" json:"name"`                       // 群名称
 	Profile   string    `gorm:"column:profile;" json:"profile"`                 // 群介绍
-	Notice    string    `gorm:"column:notice;" json:"notice"`                   // 群公告
 	IsDismiss int       `gorm:"column:is_dismiss;" json:"is_dismiss"`           // 是否已解散[1:否;2:是;]
 	Avatar    string    `gorm:"column:avatar;" json:"avatar"`                   // 群头像
 	MaxNum    int       `gorm:"column:max_num;" json:"max_num"`                 // 最大群成员数量
