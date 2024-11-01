@@ -5,7 +5,7 @@ go 1.23
 require (
 	github.com/alicebob/miniredis/v2 v2.32.1
 	github.com/bwmarrin/snowflake v0.3.0
-	github.com/bytedance/sonic v1.12.2
+	github.com/bytedance/sonic v1.12.3
 	github.com/gin-gonic/gin v1.10.0
 	github.com/go-playground/locales v0.14.1
 	github.com/go-playground/universal-translator v0.18.1
