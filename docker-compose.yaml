@@ -1,0 +1,63 @@
+## 定义 docker-compose 版本号[根据docker版本选择]
+version: '3.6'
+
+## 定义一组服务(或容器)
+services:
+
+  ## 定义服务名称[注意:这里不是容器名]
+  lumenim_http:
+    ## 定义镜像名称
+    image: gzydong/lumenim:latest
+    ## 定义创建后的容器名称
+    container_name: lumenim-http
+    ## 定义容器端口映射[宿主机端口:容器端口]
+    ports:
+      - '9503:9501'
+    ## 定义容器退出后的重启策略为始终重启
+    restart: always
+    ## 定义数据卷映射
+    volumes:
+      - ./config.yaml:/work/config.yaml
+      - ./uploads/:/work/uploads/:rw
+    command: http --config=/work/config.yaml
+
+  lumenim_comet:
+    ## 定义镜像名称
+    image: gzydong/lumenim:latest
+    ## 定义创建后的容器名称
+    container_name: lumenim-comet
+    ## 定义容器端口映射[宿主机端口:容器端口]
+    ports:
+      - '9504:9502'
+    ## 定义容器退出后的重启策略为始终重启
+    restart: always
+    ## 定义数据卷映射
+    volumes:
+      - ./config.yaml:/work/config.yaml
+    command: comet
+
+  lumenim_queue:
+    ## 定义镜像名称
+    image: gzydong/lumenim:latest
+    ## 定义创建后的容器名称
+    container_name: lumenim-queue
+    ## 定义容器退出后的重启策略为始终重启
+    restart: always
+    ## 定义数据卷映射
+    volumes:
+      - ./config.yaml:/work/config.yaml
+      - ./uploads/:/work/uploads/:rw
+    command: queue
+
+  lumenim_cron:
+    ## 定义镜像名称
+    image: gzydong/lumenim:latest
+    ## 定义创建后的容器名称
+    container_name: lumenim-cron
+    ## 定义容器退出后的重启策略为始终重启
+    restart: always
+    ## 定义数据卷映射
+    volumes:
+      - ./config.yaml:/work/config.yaml
+      - ./uploads/:/work/uploads/:rw
+    command: crontab

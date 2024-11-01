@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"errors"
+
 	"go-chat/internal/repository/model"
 	"go-chat/internal/repository/repo"
 	"gorm.io/gorm"
@@ -37,9 +38,9 @@ func (s *ArticleClassService) List(ctx context.Context, uid int) ([]*model.Artic
 		return nil, err
 	}
 
-	items = append(items, &model.ArticleClassItem{
-		ClassName: "默认分类",
-	})
+	//items = append(items, &model.ArticleClassItem{
+	//	ClassName: "默认分类",
+	//})
 
 	for i := range items {
 		if num, ok := data[items[i].Id]; ok {

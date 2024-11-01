@@ -632,12 +632,8 @@ func NewOtherInjector(conf *config.Config) *mission.TempProvider {
 	db := provider.NewMySQLClient(conf)
 	client := provider.NewRedisClient(conf)
 	users := repo.NewUsers(db, client)
-	contactRemark := cache.NewContactRemark(client)
-	relation := cache.NewRelation(client)
-	repoContact := repo.NewContact(db, contactRemark, relation)
 	testCommand := temp.TestCommand{
 		UserRepo: users,
-		Contact:  repoContact,
 	}
 	tempProvider := &mission.TempProvider{
 		TestCommand: testCommand,

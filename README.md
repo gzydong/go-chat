@@ -2,21 +2,22 @@
 
 ## 项目简介
 
+
 Lumen IM 是一个网页版即时聊天系统，界面简约、美观、操作简单且容易进行二次开发。
 
 ##### 使用技术
 
-- Golang 1.22+
-- MySQL 5.7+
+- Golang 1.23+
+- MySQL 8.0
 - Redis 5.0+
-- Minio
+- Minio1
 
 ##### 功能介绍
 
 - 支持 WebSocket 通信
 - 支持私聊及群聊以及房间聊天场景
 - 支持服务水平扩展
-- 支持聊天消息类型有 文本、代码块、图片及其它类型文件
+- 支持聊天消息类型有 文本、代码块、 图片及其它类型文件
 - 支持聊天消息撤回、删除或批量删除、转发消息（逐条转发、合并转发）及群投票功能
 
 [查看前端代码](https://github.com/gzydong/LumenIM)
@@ -76,4 +77,41 @@ $ go run ./cmd/lumenim cron      # 启动定时任务
 $ make build                   # 执行编译命令
 
 # 执行后可在 ./bin 目录下看到 lumenim
+```
+
+# 可通过 docker 安装部署
+
+```shell
+# 初始化数据库
+docker run --rm -v $(pwd)/config.yaml:/work/config.yaml lumenim migrate --config=/work/config.yaml
+```
+
+##### 启动 http 服务
+
+```shell
+# 初始化数据库
+docker run -itd --name lumenim-http-server -p 9503:9501 -v $(pwd)/config.yaml:/work/config.yaml lumenim:1.0.1 http --config=/work/config.yaml
+# 或者后台运行
+docker run -d --name lumenim-http-server -v $(pwd)/config.yaml:/work/config.yaml lumenim:1.0.1 http --config=/work/config.yaml
+```
+
+##### 启动 Comet 服务 [Websocket]
+
+```shell
+# 初始化数据库
+docker run -d -p 9504:9502 $(pwd)/config.yaml:/work/config.yaml lumenim comet --config=/work/config.yaml
+```
+
+##### 启动 Cron 服务 [定时任务]
+
+```shell
+# 初始化数据库
+docker run -d $(pwd)/config.yaml:/work/config.yaml lumenim cron --config=/work/config.yaml
+```
+
+##### 启动 Queue 服务 [队列任务]
+
+```shell
+# 初始化数据库
+docker run -d $(pwd)/config.yaml:/work/config.yaml lumenim queue --config=/work/config.yaml
 ```

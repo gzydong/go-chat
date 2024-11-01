@@ -14,9 +14,8 @@ app:
     -----END RSA PRIVATE KEY-----
 
 server:
-  http: 9503
-  websocket: 9504
-  tcp: 9505
+  http: 9501
+  websocket: 9502
 
 # 日志配置
 log:
@@ -45,10 +44,6 @@ jwt:
   expires_time: 3600
   buffer_time: 3600
 
-openai:
-  key: "xxxx"
-  proxy: "https://api.openai.com"
-
 # 跨域配置
 cors:
   origin: "*"
@@ -67,7 +62,7 @@ filesystem:
     bucket_public: "public"
     # 私有的 bucket
     bucket_private: "private"
-    endpoint: "im-cdn.gzydong.com"
+    endpoint: "im-cdn.xxx.com"
     ssl: false
   minio:
     secret_id: "xxxxxx"
@@ -76,7 +71,7 @@ filesystem:
     bucket_public: "im-static"
     # 私有的 bucket
     bucket_private: "im-private"
-    endpoint: "im-cdn.gzydong.com:9000"
+    endpoint: "im-cdn.xxx.com"
     ssl: false
 
 # 邮件配置
