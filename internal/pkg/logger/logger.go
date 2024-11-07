@@ -91,7 +91,11 @@ func logf(ctx context.Context, level slog.Level, format string, args ...any) {
 	var pcs [1]uintptr
 	runtime.Callers(3, pcs[:])
 
-	r := slog.NewRecord(time.Now(), level, fmt.Sprintf(format, args...), pcs[0])
+	if len(args) > 0 {
+		format = fmt.Sprintf(format, args...)
+	}
+
+	r := slog.NewRecord(time.Now(), level, format, pcs[0])
 
 	_ = out.Handler().Handle(ctx, r)
 }

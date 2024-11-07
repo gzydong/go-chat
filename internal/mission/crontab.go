@@ -3,11 +3,13 @@ package mission
 import (
 	"context"
 	"fmt"
-	"go-chat/internal/mission/cron"
 	"log/slog"
 	"os"
 	"os/signal"
 	"syscall"
+
+	"go-chat/internal/mission/cron"
+	"go-chat/internal/pkg/logger"
 
 	ctb "github.com/robfig/cron/v3"
 	"github.com/urfave/cli/v2"
@@ -29,14 +31,18 @@ func Cron(ctx *cli.Context, app *CronProvider) error {
 		_, _ = c.AddFunc(job.Spec(), func() {
 			defer func() {
 				if err := recover(); err != nil {
-					slog.Log(ctx.Context, slog.LevelError, fmt.Sprintf("panic crontab %s %s", job.Name(), job.Spec()))
+					slog.ErrorContext(ctx.Context, fmt.Sprintf("panic crontab %s", job.Name()))
+					logger.Errorf(fmt.Sprintf("panic crontab %s error: %s", job.Name(), err.(error).Error()))
 				}
 			}()
 
-			_ = job.Do(ctx.Context)
+			if err := job.Do(ctx.Context); err != nil {
+				logger.Errorf(fmt.Sprintf("crontab %s %s error: %s", job.Name(), job.Spec(), err.Error()))
+				slog.ErrorContext(ctx.Context, fmt.Sprintf("crontab %s %s error: %s", job.Name(), job.Spec(), err.Error()))
+			}
 		})
 
-		slog.Log(ctx.Context, slog.LevelInfo, fmt.Sprintf("start crontab %s [%s]", job.Name(), job.Spec()))
+		slog.InfoContext(ctx.Context, fmt.Sprintf("add crontab %s [%s]", job.Name(), job.Spec()))
 	}
 
 	return run(c, ctx.Context)

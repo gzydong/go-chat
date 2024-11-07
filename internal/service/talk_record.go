@@ -225,7 +225,7 @@ func (s *TalkRecordService) findAllRecords(ctx context.Context, opt *FindAllTalk
 		query.Where("sequence < ?", opt.Cursor)
 	}
 
-	if opt.MsgType != nil && len(opt.MsgType) > 0 {
+	if len(opt.MsgType) > 0 {
 		query.Where("msg_type in ?", opt.MsgType)
 	}
 

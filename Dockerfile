@@ -21,7 +21,7 @@ RUN go mod download
 COPY . .
 
 # 构建可执行文件
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -p 4 -o lumenim ./cmd/lumenim
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o lumenim ./cmd/lumenim
 
 # 使用一个更小的基础镜像来减小最终镜像的大小
 FROM alpine:latest

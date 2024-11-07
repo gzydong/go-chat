@@ -2,6 +2,7 @@ package repo
 
 import (
 	"context"
+
 	"github.com/redis/go-redis/v9"
 	"go-chat/internal/pkg/core"
 	"go-chat/internal/repository/model"
@@ -18,15 +19,6 @@ func NewUsers(db *gorm.DB, rds *redis.Client) *Users {
 		Repo:       core.NewRepo[model.Users](db),
 		tableCache: core.NewTableCache[model.Users, int](rds),
 	}
-}
-
-// Create 创建数据
-func (u *Users) Create(user *model.Users) (*model.Users, error) {
-	if err := u.Repo.Db.Create(user).Error; err != nil {
-		return nil, err
-	}
-
-	return user, nil
 }
 
 // FindByMobile 手机号查询

@@ -11,7 +11,7 @@ import (
 	"gorm.io/gorm"
 )
 
-//go:embed sql.sql
+//go:embed resource/lumenim.sql
 var file embed.FS
 
 type MigrateProvider struct {

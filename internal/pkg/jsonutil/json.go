@@ -1,18 +1,17 @@
 package jsonutil
 
 import (
+	"encoding/json"
 	"errors"
-
-	"github.com/bytedance/sonic"
 )
 
 func Encode(value any) string {
-	data, _ := sonic.MarshalString(value)
-	return data
+	data, _ := json.Marshal(value)
+	return string(data)
 }
 
 func Marshal(value any) []byte {
-	data, _ := sonic.Marshal(value)
+	data, _ := json.Marshal(value)
 	return data
 }
 
@@ -21,9 +20,9 @@ func Marshal(value any) []byte {
 func Decode(data any, resp any) error {
 	switch data.(type) {
 	case string:
-		return sonic.UnmarshalString(data.(string), resp)
+		return json.Unmarshal([]byte(data.(string)), resp)
 	case []byte:
-		return sonic.Unmarshal(data.([]byte), resp)
+		return json.Unmarshal(data.([]byte), resp)
 	default:
 		return errors.New("未知类型")
 	}

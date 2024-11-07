@@ -1,8 +1,6 @@
 package main
 
 import (
-	"fmt"
-
 	"github.com/urfave/cli/v2"
 	"go-chat/config"
 	"go-chat/internal/apis"
@@ -18,7 +16,7 @@ func NewHttpCommand() core.Command {
 		Name:  "http",
 		Usage: "Http Command - Http API 接口服务",
 		Action: func(ctx *cli.Context, conf *config.Config) error {
-			logger.Init(fmt.Sprintf("%s/logs/app.log", conf.Log.Path), logger.LevelInfo, "http")
+			logger.Init(conf.Log.LogFilePath("app.log"), logger.LevelInfo, "http")
 			return apis.Run(ctx, NewHttpInjector(conf))
 		},
 	}
@@ -29,7 +27,7 @@ func NewCometCommand() core.Command {
 		Name:  "comet",
 		Usage: "Comet Command - Websocket、TCP 服务",
 		Action: func(ctx *cli.Context, conf *config.Config) error {
-			logger.Init(fmt.Sprintf("%s/logs/app.log", conf.Log.Path), logger.LevelInfo, "comet")
+			logger.Init(conf.Log.LogFilePath("app.log"), logger.LevelInfo, "comet")
 			return comet.Run(ctx, NewCommetInjector(conf))
 		},
 	}
@@ -40,7 +38,7 @@ func NewCrontabCommand() core.Command {
 		Name:  "crontab",
 		Usage: "Crontab Command - 定时任务",
 		Action: func(ctx *cli.Context, conf *config.Config) error {
-			logger.Init(fmt.Sprintf("%s/logs/app.log", conf.Log.Path), logger.LevelInfo, "crontab")
+			logger.Init(conf.Log.LogFilePath("app.log"), logger.LevelInfo, "crontab")
 			return mission.Cron(ctx, NewCronInjector(conf))
 		},
 	}
@@ -58,7 +56,7 @@ func NewQueueCommand() core.Command {
 			},
 		},
 		Action: func(ctx *cli.Context, conf *config.Config) error {
-			logger.Init(fmt.Sprintf("%s/logs/app.log", conf.Log.Path), logger.LevelInfo, "queue")
+			logger.Init(conf.Log.LogFilePath("app.log"), logger.LevelInfo, "queue")
 			return mission.Queue(ctx, NewQueueInjector(conf))
 		},
 	}
@@ -69,23 +67,23 @@ func NewMigrateCommand() core.Command {
 		Name:  "migrate",
 		Usage: "Migrate Command - 数据库初始化",
 		Action: func(ctx *cli.Context, conf *config.Config) error {
-			logger.Init(fmt.Sprintf("%s/logs/app.log", conf.Log.Path), logger.LevelInfo, "migrate")
+			logger.Init(conf.Log.LogFilePath("app.log"), logger.LevelInfo, "migrate")
 			return mission.Migrate(ctx, NewMigrateInjector(conf))
 		},
 	}
 }
 
-func NewOtherCommand() core.Command {
+func NewTempCommand() core.Command {
 	return core.Command{
-		Name:  "other",
-		Usage: "Other Command - 其它临时命令",
+		Name:  "temp",
+		Usage: "Temp Command - 临时命令",
 		Subcommands: []core.Command{
 			{
 				Name:  "test",
 				Usage: "Test Command",
 				Action: func(ctx *cli.Context, conf *config.Config) error {
-					logger.Init(fmt.Sprintf("%s/logs/app.log", conf.Log.Path), logger.LevelInfo, "other")
-					return NewOtherInjector(conf).TestCommand.Run(ctx, conf)
+					logger.Init(conf.Log.LogFilePath("app.log"), logger.LevelInfo, "temp")
+					return NewTempInjector(conf).TestCommand.Do(ctx)
 				},
 			},
 		},
@@ -93,12 +91,12 @@ func NewOtherCommand() core.Command {
 }
 
 func main() {
-	app := core.NewApp()
-	app.Register(NewHttpCommand())
-	app.Register(NewCometCommand())
-	app.Register(NewCrontabCommand())
-	app.Register(NewQueueCommand())
-	app.Register(NewOtherCommand())
-	app.Register(NewMigrateCommand())
+	app := core.NewApp("v1.0.5")
+	app.Register(NewHttpCommand)
+	app.Register(NewCometCommand)
+	app.Register(NewCrontabCommand)
+	app.Register(NewQueueCommand)
+	app.Register(NewTempCommand)
+	app.Register(NewMigrateCommand)
 	app.Run()
 }

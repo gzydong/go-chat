@@ -37,7 +37,7 @@ func (s *UserService) Register(ctx context.Context, opt *UserRegisterOpt) (*mode
 		return nil, errors.New("账号已存在! ")
 	}
 
-	return s.UsersRepo.Create(&model.Users{
+	user := &model.Users{
 		Mobile:    opt.Mobile,
 		Nickname:  opt.Nickname,
 		Avatar:    "",
@@ -49,7 +49,13 @@ func (s *UserService) Register(ctx context.Context, opt *UserRegisterOpt) (*mode
 		IsRobot:   model.No,
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
-	})
+	}
+
+	if err := s.UsersRepo.Create(ctx, user); err != nil {
+		return nil, err
+	}
+
+	return user, nil
 }
 
 // Login 登录处理

@@ -9,7 +9,6 @@ type MySQL struct {
 	UserName        string `json:"username" yaml:"username"` // 数据库用户名
 	Password        string `json:"password" yaml:"password"` // 数据库用户密码
 	Database        string `json:"database" yaml:"database"` // 数据库名
-	Prefix          string `json:"prefix" yaml:"prefix"`     // 数据表前缀
 	Charset         string `json:"charset" yaml:"charset"`
 	Collation       string `json:"collation" yaml:"collation"`
 	MaxIdleConnNum  int    `json:"max_idle_conn_num" yaml:"max_idle_conn_num"`

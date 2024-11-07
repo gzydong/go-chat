@@ -2,6 +2,7 @@ package nsqd
 
 import (
 	"context"
+	"errors"
 	"fmt"
 )
 
@@ -20,7 +21,7 @@ func TopicDelete(ctx context.Context, topic string) error {
 	}
 
 	if res.Message != "" {
-		return fmt.Errorf(res.Message)
+		return errors.New(res.Message)
 	}
 
 	return nil
@@ -34,7 +35,7 @@ func ChannelDelete(ctx context.Context, topic string, channel string) error {
 	}
 
 	if res.Message != "" {
-		return fmt.Errorf(res.Message)
+		return errors.New(res.Message)
 	}
 
 	return nil

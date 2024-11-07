@@ -3,9 +3,9 @@ package provider
 import (
 	"fmt"
 	"log"
-	"os"
 	"time"
 
+	logger2 "go-chat/internal/pkg/logger"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -15,12 +15,14 @@ import (
 )
 
 func NewMySQLClient(conf *config.Config) *gorm.DB {
+	file := logger2.CreateFileWriter(conf.Log.LogFilePath("slow-sql.log"))
+
 	gormConfig := &gorm.Config{
 		NamingStrategy: schema.NamingStrategy{
 			SingularTable: true,
 		},
-		Logger: logger.New(log.New(os.Stdout, "\r\n", log.LstdFlags), logger.Config{
-			SlowThreshold:             10 * time.Millisecond,
+		Logger: logger.New(log.New(file, "\r\n", log.LstdFlags), logger.Config{
+			SlowThreshold:             5 * time.Millisecond,
 			LogLevel:                  logger.Warn,
 			IgnoreRecordNotFoundError: true,
 		}),

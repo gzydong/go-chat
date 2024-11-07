@@ -2,14 +2,15 @@ package socket
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"strings"
 	"sync/atomic"
 	"time"
 
-	"github.com/bytedance/sonic"
 	"github.com/google/uuid"
+	"github.com/tidwall/gjson"
 	"go-chat/internal/pkg/server"
 )
 
@@ -188,7 +189,7 @@ func (c *Client) loopWrite() {
 			return
 		}
 
-		bt, err := sonic.Marshal(data)
+		bt, err := json.Marshal(data)
 		if err != nil {
 			log.Printf("[ERROR] client json marshal err: %v \n", err)
 			break
@@ -271,12 +272,9 @@ func (c *Client) handleMessage(data []byte) {
 		_ = c.Write(&ClientResponse{Event: _MsgEventPong})
 	case _MsgEventPong:
 	case _MsgEventAck:
-		val, err := sonic.Get(data, "ackid")
-		if err == nil {
-			ackId, _ := val.String()
-			if len(ackId) > 0 {
-				ack.delete(ackId)
-			}
+		res := gjson.GetBytes(data, "ackid")
+		if res.Exists() && res.String() != "" {
+			ack.delete(res.String())
 		}
 
 	default: // 触发消息回调
@@ -285,14 +283,14 @@ func (c *Client) handleMessage(data []byte) {
 }
 
 func (c *Client) validate(data []byte) (string, error) {
-	if !sonic.Valid(data) {
+	if !gjson.ValidBytes(data) {
 		return "", fmt.Errorf("invalid json")
 	}
 
-	value, err := sonic.Get(data, "event")
-	if err != nil {
-		return "", err
+	res := gjson.GetBytes(data, "event")
+	if !res.Exists() {
+		return "", fmt.Errorf("event is empty")
 	}
 
-	return value.String()
+	return res.String(), nil
 }

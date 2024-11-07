@@ -69,7 +69,7 @@ func NewQueueInjector(conf *config.Config) *mission.QueueProvider {
 	)
 }
 
-func NewOtherInjector(conf *config.Config) *mission.TempProvider {
+func NewTempInjector(conf *config.Config) *mission.TempProvider {
 	panic(
 		wire.Build(
 			providerSet,

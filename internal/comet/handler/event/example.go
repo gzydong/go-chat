@@ -3,9 +3,10 @@ package event
 import (
 	"context"
 	"fmt"
+
+	"github.com/tidwall/gjson"
 	"go-chat/internal/comet/handler/event/example"
 
-	"github.com/bytedance/sonic"
 	"go-chat/internal/pkg/core/socket"
 )
 
@@ -21,12 +22,12 @@ func (e *ExampleEvent) OnMessage(client socket.IClient, message []byte) {
 
 	fmt.Println("接收消息===>>>", message)
 
-	val, err := sonic.Get(message, "event")
-	if err == nil {
+	res := gjson.GetBytes(message, "event")
+	if !res.Exists() {
 		return
 	}
 
-	event, _ := val.String()
+	event := res.String()
 	if event != "" {
 		// 触发事件
 		e.Handler.Call(context.TODO(), client, event, message)

@@ -14,7 +14,7 @@ import (
 const JWTSessionConst = "__JWT_SESSION__"
 
 var (
-	ErrorNoLogin = errors.New("请登录后操作! ")
+	ErrNoAuthorize = errors.New("授权异常，请登录后操作! ")
 )
 
 type IStorage interface {
@@ -75,7 +75,7 @@ func AuthHeaderToken(c *gin.Context) string {
 func verify(guard string, secret string, token string) (*jwt.AuthClaims, error) {
 
 	if token == "" {
-		return nil, ErrorNoLogin
+		return nil, ErrNoAuthorize
 	}
 
 	claims, err := jwt.ParseToken(token, secret)
@@ -85,7 +85,7 @@ func verify(guard string, secret string, token string) (*jwt.AuthClaims, error) 
 
 	// 判断权限认证守卫是否一致
 	if claims.Guard != guard || claims.Valid() != nil {
-		return nil, ErrorNoLogin
+		return nil, ErrNoAuthorize
 	}
 
 	return claims, nil

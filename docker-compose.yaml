@@ -19,6 +19,7 @@ services:
     volumes:
       - ./config.yaml:/work/config.yaml
       - ./uploads/:/work/uploads/:rw
+      - ./runtime:/work/runtime
     command: http --config=/work/config.yaml
 
   lumenim_comet:
@@ -34,6 +35,7 @@ services:
     ## 定义数据卷映射
     volumes:
       - ./config.yaml:/work/config.yaml
+      - ./runtime:/work/runtime
     command: comet
 
   lumenim_queue:
@@ -47,6 +49,7 @@ services:
     volumes:
       - ./config.yaml:/work/config.yaml
       - ./uploads/:/work/uploads/:rw
+      - ./runtime:/work/runtime
     command: queue
 
   lumenim_cron:
@@ -60,4 +63,5 @@ services:
     volumes:
       - ./config.yaml:/work/config.yaml
       - ./uploads/:/work/uploads/:rw
+      - ./runtime:/work/runtime
     command: crontab

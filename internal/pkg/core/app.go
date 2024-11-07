@@ -21,18 +21,18 @@ type Command struct {
 	Subcommands []Command
 }
 
-func NewApp() *App {
+func NewApp(version string) *App {
 	return &App{
 		app: &cli.App{
 			Name:    "LumenIM",
 			Usage:   "在线聊天应用",
-			Version: "v1.0.1",
+			Version: version,
 		},
 	}
 }
 
-func (c *App) Register(cm Command) {
-	c.app.Commands = append(c.app.Commands, c.command(cm))
+func (c *App) Register(fn func() Command) {
+	c.app.Commands = append(c.app.Commands, c.command(fn()))
 }
 
 func (c *App) command(cm Command) *cli.Command {
@@ -47,7 +47,7 @@ func (c *App) command(cm Command) *cli.Command {
 			cd.Subcommands = append(cd.Subcommands, c.command(v))
 		}
 	} else {
-		if cm.Flags != nil && len(cm.Flags) > 0 {
+		if len(cm.Flags) > 0 {
 			cd.Flags = append(cd.Flags, cm.Flags...)
 		}
 

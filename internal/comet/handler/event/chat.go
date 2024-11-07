@@ -2,8 +2,10 @@ package event
 
 import (
 	"context"
-	"github.com/bytedance/sonic"
+	"time"
+
 	"github.com/redis/go-redis/v9"
+	"github.com/tidwall/gjson"
 	"go-chat/internal/business"
 	"go-chat/internal/comet/handler/event/chat"
 	"go-chat/internal/entity"
@@ -11,7 +13,6 @@ import (
 	"go-chat/internal/pkg/jsonutil"
 	"go-chat/internal/repository/repo"
 	"go-chat/internal/service"
-	"time"
 )
 
 type ChatEvent struct {
@@ -46,13 +47,13 @@ func (c *ChatEvent) OnOpen(client socket.IClient) {
 
 // OnMessage 消息回调事件
 func (c *ChatEvent) OnMessage(client socket.IClient, message []byte) {
-	val, err := sonic.Get(message, "event")
-	if err != nil {
+	res := gjson.GetBytes(message, "event")
+	if !res.Exists() {
 		return
 	}
 
 	// 获取事件名
-	event, _ := val.String()
+	event := res.String()
 	if event != "" {
 		// 触发事件
 		c.Handler.Call(context.TODO(), client, event, message)

@@ -1,9 +1,10 @@
 package v1
 
 import (
-	"github.com/redis/go-redis/v9"
 	"strconv"
 	"time"
+
+	"github.com/redis/go-redis/v9"
 
 	"go-chat/api/pb/queue/v1"
 	"go-chat/api/pb/web/v1"

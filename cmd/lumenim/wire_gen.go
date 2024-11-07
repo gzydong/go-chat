@@ -628,7 +628,7 @@ func NewQueueInjector(conf *config.Config) *mission.QueueProvider {
 	return queueProvider
 }
 
-func NewOtherInjector(conf *config.Config) *mission.TempProvider {
+func NewTempInjector(conf *config.Config) *mission.TempProvider {
 	db := provider.NewMySQLClient(conf)
 	client := provider.NewRedisClient(conf)
 	users := repo.NewUsers(db, client)

@@ -8,6 +8,7 @@ import (
 	"go-chat/config"
 	"go-chat/internal/apis/handler"
 	"go-chat/internal/pkg/core/middleware"
+	"go-chat/internal/pkg/logger"
 	"go-chat/internal/repository/cache"
 )
 
@@ -15,21 +16,23 @@ import (
 func NewRouter(conf *config.Config, handler *handler.Handler, session *cache.JwtTokenStorage) *gin.Engine {
 	router := gin.New()
 
-	accessFilterRule := middleware.NewAccessFilterRule()
-	accessFilterRule.Exclude("/api/v1/talk/records")
-	accessFilterRule.Exclude("/api/v1/talk/history")
-	accessFilterRule.Exclude("/api/v1/talk/forward")
-	accessFilterRule.Exclude("/api/v1/talk/publish")
-	accessFilterRule.AddRule("/api/v1/auth/login", func(info *middleware.RequestInfo) {
-		info.RequestBody, _ = sjson.Set(info.RequestBody, `password`, "过滤敏感字段")
-	})
-
 	router.Use(middleware.Cors(conf.Cors))
 
-	//router.Use(middleware.AccessLog(
-	//	logger.CreateFileWriter(fmt.Sprintf("%s/logs/access.log", conf.Log.Path)),
-	//	accessFilterRule,
-	//))
+	if conf.Log.AccessLog {
+		accessFilterRule := middleware.NewAccessFilterRule()
+		accessFilterRule.Exclude("/api/v1/talk/records")
+		accessFilterRule.Exclude("/api/v1/talk/history")
+		accessFilterRule.Exclude("/api/v1/talk/forward")
+		accessFilterRule.Exclude("/api/v1/talk/publish")
+		accessFilterRule.AddRule("/api/v1/auth/login", func(info *middleware.RequestInfo) {
+			info.RequestBody, _ = sjson.Set(info.RequestBody, `password`, "过滤敏感字段")
+		})
+
+		router.Use(middleware.AccessLog(
+			logger.CreateFileWriter(conf.Log.LogFilePath("access.log")),
+			accessFilterRule,
+		))
+	}
 
 	router.Use(gin.RecoveryWithWriter(gin.DefaultWriter, func(c *gin.Context, err any) {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, map[string]any{"code": 500, "msg": "系统错误，请重试!!!"})
