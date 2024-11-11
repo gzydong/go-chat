@@ -116,7 +116,11 @@ type responseWriter struct {
 }
 
 func (w responseWriter) Write(b []byte) (int, error) {
-	w.body.Write(b)
+	// 下载文件则不记录日志
+	if !isFileDownload(w) {
+		w.body.Write(b)
+	}
+
 	return w.ResponseWriter.Write(b)
 }
 
@@ -225,6 +229,10 @@ func (a *AccessLogStore) save(log *slog.Logger) {
 		delete(data, "response_body")
 	}
 
+	if isFileDownload(writer) {
+		data["response_body_raw"] = "文件下载内容忽略"
+	}
+
 	items := make([]any, 0)
 	for k, v := range data {
 		items = append(items, k, v)
@@ -243,4 +251,10 @@ func urlValuesToMap(values url.Values) map[string]any {
 		}
 	}
 	return data
+}
+
+func isFileDownload(w http.ResponseWriter) bool {
+	// 检查 Content-Disposition 头
+	header := w.Header().Get("Content-Disposition")
+	return strings.Contains(header, "attachment")
 }
