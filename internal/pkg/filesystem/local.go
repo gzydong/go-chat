@@ -209,6 +209,8 @@ func (l LocalFilesystem) appendWrite(bucketName, objectName string, stream []byt
 		return err
 	}
 
+	defer f.Close()
+
 	_, err = f.Write(stream)
 	return err
 }
