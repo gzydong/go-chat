@@ -39,7 +39,7 @@ func (c *Article) List(ctx *core.Context) error {
 		TagId:      int(in.TagId),
 	})
 	if err != nil {
-		return ctx.ErrorBusiness(err.Error())
+		return ctx.Error(err)
 	}
 
 	list := make([]*web.ArticleListResponse_Item, 0)
@@ -81,7 +81,7 @@ func (c *Article) Detail(ctx *core.Context) error {
 
 	detail, err := c.ArticleService.Detail(ctx.Ctx(), uid, int(in.ArticleId))
 	if err != nil {
-		return ctx.ErrorBusiness("笔记不存在")
+		return ctx.Error(err)
 	}
 
 	tags := make([]*web.ArticleDetailResponse_Tag, 0)
@@ -146,12 +146,12 @@ func (c *Article) Editor(ctx *core.Context) error {
 	}
 
 	if err != nil {
-		return ctx.ErrorBusiness(err.Error())
+		return ctx.Error(err)
 	}
 
 	var info *model.Article
 	if err := c.Source.Db().First(&info, in.ArticleId).Error; err != nil {
-		return ctx.ErrorBusiness(err.Error())
+		return ctx.Error(err)
 	}
 
 	return ctx.Success(&web.ArticleEditResponse{
@@ -172,7 +172,7 @@ func (c *Article) Delete(ctx *core.Context) error {
 
 	err := c.ArticleService.UpdateStatus(ctx.Ctx(), ctx.UserId(), int(in.ArticleId), 2)
 	if err != nil {
-		return ctx.ErrorBusiness(err.Error())
+		return ctx.Error(err)
 	}
 
 	return ctx.Success(web.ArticleDeleteResponse{})
@@ -188,7 +188,7 @@ func (c *Article) Recover(ctx *core.Context) error {
 
 	err := c.ArticleService.UpdateStatus(ctx.Ctx(), ctx.UserId(), int(in.ArticleId), 1)
 	if err != nil {
-		return ctx.ErrorBusiness(err.Error())
+		return ctx.Error(err)
 	}
 
 	return ctx.Success(&web.ArticleRecoverResponse{})
@@ -202,7 +202,7 @@ func (c *Article) MoveClassify(ctx *core.Context) error {
 	}
 
 	if err := c.ArticleService.Move(ctx.Ctx(), ctx.UserId(), int(in.ArticleId), int(in.ClassifyId)); err != nil {
-		return ctx.ErrorBusiness(err.Error())
+		return ctx.Error(err)
 	}
 
 	return ctx.Success(&web.ArticleMoveResponse{})
@@ -217,7 +217,7 @@ func (c *Article) Collect(ctx *core.Context) error {
 	}
 
 	if err := c.ArticleService.Asterisk(ctx.Ctx(), ctx.UserId(), int(in.ArticleId), int(in.Action)); err != nil {
-		return ctx.ErrorBusiness(err.Error())
+		return ctx.Error(err)
 	}
 
 	return ctx.Success(&web.ArticleAsteriskResponse{})
@@ -232,7 +232,7 @@ func (c *Article) UpdateTag(ctx *core.Context) error {
 	}
 
 	if err := c.ArticleService.Tag(ctx.Ctx(), ctx.UserId(), int(in.ArticleId), in.GetTagIds()); err != nil {
-		return ctx.ErrorBusiness(err.Error())
+		return ctx.Error(err)
 	}
 
 	return ctx.Success(&web.ArticleTagsResponse{})
@@ -247,7 +247,7 @@ func (c *Article) ForeverDelete(ctx *core.Context) error {
 	}
 
 	if err := c.ArticleService.ForeverDelete(ctx.Ctx(), ctx.UserId(), int(in.ArticleId)); err != nil {
-		return ctx.ErrorBusiness(err.Error())
+		return ctx.Error(err)
 	}
 
 	return ctx.Success(&web.ArticleForeverDeleteResponse{})
@@ -269,7 +269,7 @@ func (c *Article) RecycleList(ctx *core.Context) error {
 	})
 
 	if err != nil {
-		return ctx.ErrorBusiness(err.Error())
+		return ctx.Error(err)
 	}
 
 	for _, item := range list {

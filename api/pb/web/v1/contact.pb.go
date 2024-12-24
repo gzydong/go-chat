@@ -673,6 +673,103 @@ func (*ContactChangeGroupResponse) Descriptor() ([]byte, []int) {
 	return file_web_v1_contact_proto_rawDescGZIP(), []int{11}
 }
 
+// 修改联系人分组接口请求参数
+type ContactOnlineStatusRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	UserId int32 `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty" form:"user_id" binding:"required"`
+}
+
+func (x *ContactOnlineStatusRequest) Reset() {
+	*x = ContactOnlineStatusRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_web_v1_contact_proto_msgTypes[12]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ContactOnlineStatusRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ContactOnlineStatusRequest) ProtoMessage() {}
+
+func (x *ContactOnlineStatusRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_web_v1_contact_proto_msgTypes[12]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ContactOnlineStatusRequest.ProtoReflect.Descriptor instead.
+func (*ContactOnlineStatusRequest) Descriptor() ([]byte, []int) {
+	return file_web_v1_contact_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *ContactOnlineStatusRequest) GetUserId() int32 {
+	if x != nil {
+		return x.UserId
+	}
+	return 0
+}
+
+// 修改联系人分组接口响应参数
+type ContactOnlineStatusResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	// 在线状态 [1:离线;2:在线;]
+	OnlineStatus int32 `protobuf:"varint,1,opt,name=online_status,json=onlineStatus,proto3" json:"online_status,omitempty"`
+}
+
+func (x *ContactOnlineStatusResponse) Reset() {
+	*x = ContactOnlineStatusResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_web_v1_contact_proto_msgTypes[13]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ContactOnlineStatusResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ContactOnlineStatusResponse) ProtoMessage() {}
+
+func (x *ContactOnlineStatusResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_web_v1_contact_proto_msgTypes[13]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ContactOnlineStatusResponse.ProtoReflect.Descriptor instead.
+func (*ContactOnlineStatusResponse) Descriptor() ([]byte, []int) {
+	return file_web_v1_contact_proto_rawDescGZIP(), []int{13}
+}
+
+func (x *ContactOnlineStatusResponse) GetOnlineStatus() int32 {
+	if x != nil {
+		return x.OnlineStatus
+	}
+	return 0
+}
+
 type ContactListResponse_Item struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -697,7 +794,7 @@ type ContactListResponse_Item struct {
 func (x *ContactListResponse_Item) Reset() {
 	*x = ContactListResponse_Item{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_web_v1_contact_proto_msgTypes[12]
+		mi := &file_web_v1_contact_proto_msgTypes[14]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -710,7 +807,7 @@ func (x *ContactListResponse_Item) String() string {
 func (*ContactListResponse_Item) ProtoMessage() {}
 
 func (x *ContactListResponse_Item) ProtoReflect() protoreflect.Message {
-	mi := &file_web_v1_contact_proto_msgTypes[12]
+	mi := &file_web_v1_contact_proto_msgTypes[14]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -788,7 +885,7 @@ type ContactDetailResponse_FriendInfo struct {
 func (x *ContactDetailResponse_FriendInfo) Reset() {
 	*x = ContactDetailResponse_FriendInfo{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_web_v1_contact_proto_msgTypes[13]
+		mi := &file_web_v1_contact_proto_msgTypes[15]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -801,7 +898,7 @@ func (x *ContactDetailResponse_FriendInfo) String() string {
 func (*ContactDetailResponse_FriendInfo) ProtoMessage() {}
 
 func (x *ContactDetailResponse_FriendInfo) ProtoReflect() protoreflect.Message {
-	mi := &file_web_v1_contact_proto_msgTypes[13]
+	mi := &file_web_v1_contact_proto_msgTypes[15]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -931,8 +1028,18 @@ var file_web_v1_contact_proto_rawDesc = []byte{
 	0x72, 0x6d, 0x3a, 0x22, 0x67, 0x72, 0x6f, 0x75, 0x70, 0x5f, 0x69, 0x64, 0x22, 0x52, 0x07, 0x67,
 	0x72, 0x6f, 0x75, 0x70, 0x49, 0x64, 0x22, 0x1c, 0x0a, 0x1a, 0x43, 0x6f, 0x6e, 0x74, 0x61, 0x63,
 	0x74, 0x43, 0x68, 0x61, 0x6e, 0x67, 0x65, 0x47, 0x72, 0x6f, 0x75, 0x70, 0x52, 0x65, 0x73, 0x70,
-	0x6f, 0x6e, 0x73, 0x65, 0x42, 0x0c, 0x5a, 0x0a, 0x77, 0x65, 0x62, 0x2f, 0x76, 0x31, 0x3b, 0x77,
-	0x65, 0x62, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x6f, 0x6e, 0x73, 0x65, 0x22, 0x5d, 0x0a, 0x1a, 0x43, 0x6f, 0x6e, 0x74, 0x61, 0x63, 0x74, 0x4f,
+	0x6e, 0x6c, 0x69, 0x6e, 0x65, 0x53, 0x74, 0x61, 0x74, 0x75, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65,
+	0x73, 0x74, 0x12, 0x3f, 0x0a, 0x07, 0x75, 0x73, 0x65, 0x72, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20,
+	0x01, 0x28, 0x05, 0x42, 0x26, 0x9a, 0x84, 0x9e, 0x03, 0x21, 0x66, 0x6f, 0x72, 0x6d, 0x3a, 0x22,
+	0x75, 0x73, 0x65, 0x72, 0x5f, 0x69, 0x64, 0x22, 0x20, 0x62, 0x69, 0x6e, 0x64, 0x69, 0x6e, 0x67,
+	0x3a, 0x22, 0x72, 0x65, 0x71, 0x75, 0x69, 0x72, 0x65, 0x64, 0x22, 0x52, 0x06, 0x75, 0x73, 0x65,
+	0x72, 0x49, 0x64, 0x22, 0x42, 0x0a, 0x1b, 0x43, 0x6f, 0x6e, 0x74, 0x61, 0x63, 0x74, 0x4f, 0x6e,
+	0x6c, 0x69, 0x6e, 0x65, 0x53, 0x74, 0x61, 0x74, 0x75, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e,
+	0x73, 0x65, 0x12, 0x23, 0x0a, 0x0d, 0x6f, 0x6e, 0x6c, 0x69, 0x6e, 0x65, 0x5f, 0x73, 0x74, 0x61,
+	0x74, 0x75, 0x73, 0x18, 0x01, 0x20, 0x01, 0x28, 0x05, 0x52, 0x0c, 0x6f, 0x6e, 0x6c, 0x69, 0x6e,
+	0x65, 0x53, 0x74, 0x61, 0x74, 0x75, 0x73, 0x42, 0x0c, 0x5a, 0x0a, 0x77, 0x65, 0x62, 0x2f, 0x76,
+	0x31, 0x3b, 0x77, 0x65, 0x62, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -947,7 +1054,7 @@ func file_web_v1_contact_proto_rawDescGZIP() []byte {
 	return file_web_v1_contact_proto_rawDescData
 }
 
-var file_web_v1_contact_proto_msgTypes = make([]protoimpl.MessageInfo, 14)
+var file_web_v1_contact_proto_msgTypes = make([]protoimpl.MessageInfo, 16)
 var file_web_v1_contact_proto_goTypes = []any{
 	(*ContactListRequest)(nil),               // 0: web.ContactListRequest
 	(*ContactListResponse)(nil),              // 1: web.ContactListResponse
@@ -961,12 +1068,14 @@ var file_web_v1_contact_proto_goTypes = []any{
 	(*ContactSearchResponse)(nil),            // 9: web.ContactSearchResponse
 	(*ContactChangeGroupRequest)(nil),        // 10: web.ContactChangeGroupRequest
 	(*ContactChangeGroupResponse)(nil),       // 11: web.ContactChangeGroupResponse
-	(*ContactListResponse_Item)(nil),         // 12: web.ContactListResponse.Item
-	(*ContactDetailResponse_FriendInfo)(nil), // 13: web.ContactDetailResponse.FriendInfo
+	(*ContactOnlineStatusRequest)(nil),       // 12: web.ContactOnlineStatusRequest
+	(*ContactOnlineStatusResponse)(nil),      // 13: web.ContactOnlineStatusResponse
+	(*ContactListResponse_Item)(nil),         // 14: web.ContactListResponse.Item
+	(*ContactDetailResponse_FriendInfo)(nil), // 15: web.ContactDetailResponse.FriendInfo
 }
 var file_web_v1_contact_proto_depIdxs = []int32{
-	12, // 0: web.ContactListResponse.items:type_name -> web.ContactListResponse.Item
-	13, // 1: web.ContactDetailResponse.friend_info:type_name -> web.ContactDetailResponse.FriendInfo
+	14, // 0: web.ContactListResponse.items:type_name -> web.ContactListResponse.Item
+	15, // 1: web.ContactDetailResponse.friend_info:type_name -> web.ContactDetailResponse.FriendInfo
 	2,  // [2:2] is the sub-list for method output_type
 	2,  // [2:2] is the sub-list for method input_type
 	2,  // [2:2] is the sub-list for extension type_name
@@ -1125,7 +1234,7 @@ func file_web_v1_contact_proto_init() {
 			}
 		}
 		file_web_v1_contact_proto_msgTypes[12].Exporter = func(v any, i int) any {
-			switch v := v.(*ContactListResponse_Item); i {
+			switch v := v.(*ContactOnlineStatusRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -1137,6 +1246,30 @@ func file_web_v1_contact_proto_init() {
 			}
 		}
 		file_web_v1_contact_proto_msgTypes[13].Exporter = func(v any, i int) any {
+			switch v := v.(*ContactOnlineStatusResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_web_v1_contact_proto_msgTypes[14].Exporter = func(v any, i int) any {
+			switch v := v.(*ContactListResponse_Item); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_web_v1_contact_proto_msgTypes[15].Exporter = func(v any, i int) any {
 			switch v := v.(*ContactDetailResponse_FriendInfo); i {
 			case 0:
 				return &v.state
@@ -1155,7 +1288,7 @@ func file_web_v1_contact_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_web_v1_contact_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   14,
+			NumMessages:   16,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

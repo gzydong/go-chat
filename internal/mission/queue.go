@@ -2,10 +2,11 @@ package mission
 
 import (
 	"context"
+	"time"
+
 	"github.com/redis/go-redis/v9"
 	"github.com/urfave/cli/v2"
 	"go-chat/internal/mission/queue"
-	"time"
 )
 
 type QueueProvider struct {

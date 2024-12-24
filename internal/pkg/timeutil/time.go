@@ -3,14 +3,13 @@ package timeutil
 import "time"
 
 const (
-	DatetimeFormat = "2006-01-02 15:04:05"
-	DateFormat     = "2006-01-02"
-	DateDayFormat  = "20060102"
-	TimeFormat     = "15:04:05"
+	DateFormat    = "2006-01-02"
+	DateDayFormat = "20060102"
+	TimeFormat    = "15:04:05"
 )
 
 func DateTime() string {
-	return time.Now().Format(DatetimeFormat)
+	return time.Now().Format(time.DateTime)
 }
 
 func Date() string {
@@ -31,34 +30,32 @@ func DayEndDateTime() string {
 }
 
 func DayStartTime() int64 {
-	t, _ := time.ParseInLocation(DatetimeFormat, DayStartDateTime(), Location())
+	t, _ := time.ParseInLocation(time.DateTime, DayStartDateTime(), Location())
 
 	return t.Unix()
 }
 
 func DayEndTime() int64 {
-	t, _ := time.ParseInLocation(DatetimeFormat, DayEndDateTime(), Location())
+	t, _ := time.ParseInLocation(time.DateTime, DayEndDateTime(), Location())
 	return t.Unix()
 }
 
 // ParseDateTime 解析 Datetime 格式字符串为 Time
 func ParseDateTime(datetime string) time.Time {
-	t, _ := time.ParseInLocation(DatetimeFormat, datetime, Location())
+	t, _ := time.ParseInLocation(time.DateTime, datetime, Location())
 	return t
 }
 
 func FormatDatetime(t time.Time) string {
-	return t.Format(DatetimeFormat)
+	return t.Format(time.DateTime)
 }
 
-func IsDateTimeFormat(datetime string) bool {
-	_, err := time.Parse(DatetimeFormat, datetime)
-
-	return err != nil
+func IsDateTime(datetime string) bool {
+	_, err := time.Parse(time.DateTime, datetime)
+	return err == nil
 }
 
-func IsDateFormat(date string) bool {
-	_, err := time.Parse(DatetimeFormat, date)
-
-	return err != nil
+func IsDate(date string) bool {
+	_, err := time.Parse(DateFormat, date)
+	return err == nil
 }

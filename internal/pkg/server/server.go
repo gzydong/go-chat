@@ -1,8 +1,9 @@
 package server
 
 import (
-	gonanoid "github.com/matoous/go-nanoid/v2"
 	"sync"
+
+	gonanoid "github.com/matoous/go-nanoid/v2"
 )
 
 var (

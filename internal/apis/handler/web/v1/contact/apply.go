@@ -41,7 +41,7 @@ func (c *Apply) Create(ctx *core.Context) error {
 		Remarks:  in.Remark,
 		FriendId: int(in.UserId),
 	}); err != nil {
-		return ctx.ErrorBusiness(err)
+		return ctx.Error(err)
 	}
 
 	return ctx.Success(&web.ContactApplyCreateResponse{})
@@ -62,7 +62,7 @@ func (c *Apply) Accept(ctx *core.Context) error {
 	})
 
 	if err != nil {
-		return ctx.ErrorBusiness(err)
+		return ctx.Error(err)
 	}
 
 	_ = c.MessageService.CreatePrivateSysMessage(ctx.Ctx(), message.CreatePrivateSysMessageOption{
@@ -92,7 +92,7 @@ func (c *Apply) Decline(ctx *core.Context) error {
 		Remarks: in.Remark,
 		ApplyId: int(in.ApplyId),
 	}); err != nil {
-		return ctx.ErrorBusiness(err)
+		return ctx.Error(err)
 	}
 
 	return ctx.Success(&web.ContactApplyDeclineResponse{})
@@ -103,7 +103,7 @@ func (c *Apply) List(ctx *core.Context) error {
 
 	list, err := c.ContactApplyService.List(ctx.Ctx(), ctx.UserId())
 	if err != nil {
-		return ctx.Error(err.Error())
+		return ctx.Error(err)
 	}
 
 	items := make([]*web.ContactApplyListResponse_Item, 0, len(list))

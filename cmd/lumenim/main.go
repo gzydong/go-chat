@@ -28,7 +28,7 @@ func NewCometCommand() core.Command {
 		Usage: "Comet Command - Websocket、TCP 服务",
 		Action: func(ctx *cli.Context, conf *config.Config) error {
 			logger.Init(conf.Log.LogFilePath("app.log"), logger.LevelInfo, "comet")
-			return comet.Run(ctx, NewCommetInjector(conf))
+			return comet.Run(ctx, NewCometInjector(conf))
 		},
 	}
 }

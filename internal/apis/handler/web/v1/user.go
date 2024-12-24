@@ -1,32 +1,33 @@
 package v1
 
 import (
+	"strings"
+
 	"github.com/redis/go-redis/v9"
 	"go-chat/api/pb/web/v1"
 	"go-chat/internal/entity"
 	"go-chat/internal/pkg/core"
 	"go-chat/internal/pkg/encrypt"
+	"go-chat/internal/pkg/encrypt/rsautil"
 	"go-chat/internal/pkg/timeutil"
 	"go-chat/internal/repository/repo"
 	"go-chat/internal/service"
-	"strings"
 )
 
 type User struct {
-	Redis *redis.Client
-
+	Redis        *redis.Client
 	UsersRepo    *repo.Users
 	OrganizeRepo *repo.Organize
-
-	UserService service.IUserService
-	SmsService  service.ISmsService
+	UserService  service.IUserService
+	SmsService   service.ISmsService
+	Rsa          rsautil.IRsa
 }
 
 // Detail 个人用户信息
 func (u *User) Detail(ctx *core.Context) error {
 	user, err := u.UsersRepo.FindByIdWithCache(ctx.Ctx(), ctx.UserId())
 	if err != nil {
-		return ctx.Error(err.Error())
+		return ctx.Error(err)
 	}
 
 	return ctx.Success(&web.UserDetailResponse{
@@ -47,12 +48,12 @@ func (u *User) Setting(ctx *core.Context) error {
 
 	user, err := u.UsersRepo.FindByIdWithCache(ctx.Ctx(), uid)
 	if err != nil {
-		return ctx.Error(err.Error())
+		return ctx.Error(err)
 	}
 
 	isOk, err := u.OrganizeRepo.IsQiyeMember(ctx.Ctx(), uid)
 	if err != nil {
-		return ctx.Error(err.Error())
+		return ctx.Error(err)
 	}
 
 	return ctx.Success(&web.UserSettingResponse{
@@ -78,7 +79,7 @@ func (u *User) ChangeDetail(ctx *core.Context) error {
 	}
 
 	if in.Birthday != "" {
-		if !timeutil.IsDateFormat(in.Birthday) {
+		if !timeutil.IsDate(in.Birthday) {
 			return ctx.InvalidParams("birthday 格式错误")
 		}
 	}
@@ -93,7 +94,7 @@ func (u *User) ChangeDetail(ctx *core.Context) error {
 	})
 
 	if err != nil {
-		return ctx.ErrorBusiness("个人信息修改失败！")
+		return ctx.Error(err)
 	}
 
 	_ = u.UsersRepo.ClearTableCache(ctx.Ctx(), uid)
@@ -110,11 +111,21 @@ func (u *User) ChangePassword(ctx *core.Context) error {
 
 	uid := ctx.UserId()
 	if uid == 2054 || uid == 2055 {
-		return ctx.ErrorBusiness("预览账号不支持修改密码！")
+		return ctx.Error(entity.ErrPermissionDenied)
 	}
 
-	if err := u.UserService.UpdatePassword(ctx.UserId(), in.OldPassword, in.NewPassword); err != nil {
-		return ctx.ErrorBusiness("密码修改失败！")
+	oldPassword, err := u.Rsa.Decrypt(in.OldPassword)
+	if err != nil {
+		return ctx.Error(err)
+	}
+
+	newPassword, err := u.Rsa.Decrypt(in.NewPassword)
+	if err != nil {
+		return ctx.Error(err)
+	}
+
+	if err := u.UserService.UpdatePassword(ctx.Ctx(), ctx.UserId(), string(oldPassword), string(newPassword)); err != nil {
+		return ctx.Error(err)
 	}
 
 	_ = u.UsersRepo.ClearTableCache(ctx.Ctx(), uid)
@@ -133,27 +144,32 @@ func (u *User) ChangeMobile(ctx *core.Context) error {
 
 	user, _ := u.UsersRepo.FindById(ctx.Ctx(), uid)
 	if user.Mobile == in.Mobile {
-		return ctx.ErrorBusiness("手机号与原手机号一致无需修改！")
+		return ctx.InvalidParams("手机号与原手机号一致无需修改！")
 	}
 
-	if !encrypt.VerifyPassword(user.Password, in.Password) {
-		return ctx.ErrorBusiness("账号密码填写错误！")
+	password, err := u.Rsa.Decrypt(in.Password)
+	if err != nil {
+		return ctx.Error(err)
+	}
+
+	if !encrypt.VerifyPassword(user.Password, string(password)) {
+		return ctx.Error(entity.ErrAccountOrPasswordError)
 	}
 
 	if uid == 2054 || uid == 2055 {
-		return ctx.ErrorBusiness("预览账号不支持修改手机号！")
+		return ctx.Error(entity.ErrPermissionDenied)
 	}
 
 	if !u.SmsService.Verify(ctx.Ctx(), entity.SmsChangeAccountChannel, in.Mobile, in.SmsCode) {
-		return ctx.ErrorBusiness("短信验证码填写错误！")
+		return ctx.Error(entity.ErrSmsCodeError)
 	}
 
-	_, err := u.UsersRepo.UpdateById(ctx.Ctx(), user.Id, map[string]any{
+	_, err = u.UsersRepo.UpdateById(ctx.Ctx(), user.Id, map[string]any{
 		"mobile": in.Mobile,
 	})
 
 	if err != nil {
-		return ctx.ErrorBusiness("手机号修改失败！")
+		return ctx.Error(err)
 	}
 
 	_ = u.UsersRepo.ClearTableCache(ctx.Ctx(), user.Id)
@@ -170,5 +186,5 @@ func (u *User) ChangeEmail(ctx *core.Context) error {
 
 	// todo 1.验证邮件激活码是否正确
 
-	return ctx.ErrorBusiness("手机号修改成功！")
+	return ctx.Success(nil, "手机号修改成功！")
 }

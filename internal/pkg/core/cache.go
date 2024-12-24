@@ -4,8 +4,9 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/redis/go-redis/v9"
 	"time"
+
+	"github.com/redis/go-redis/v9"
 )
 
 const tableCacheExpiration = 10 * time.Minute // 缓存过期时间常量
@@ -26,7 +27,7 @@ type TableCache[T IModelCache[V], V TablePrimaryType] struct {
 }
 
 func NewTableCache[T IModelCache[V], V TablePrimaryType](redis *redis.Client) TableCache[T, V] {
-	return TableCache[T, V]{redis: redis, prefix: "tablecache", tableName: any(new(T)).(IModelCache[V]).TableName()}
+	return TableCache[T, V]{redis: redis, prefix: "tb-cache", tableName: any(new(T)).(IModelCache[V]).TableName()}
 }
 
 func (t *TableCache[T, V]) buildKey(primaryId V) string {

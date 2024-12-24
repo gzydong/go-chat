@@ -2,6 +2,8 @@ package contact
 
 import (
 	"errors"
+	"fmt"
+
 	"go-chat/api/pb/web/v1"
 	"go-chat/internal/pkg/core"
 	"go-chat/internal/repository/cache"
@@ -14,22 +16,23 @@ import (
 )
 
 type Contact struct {
-	ClientStorage   *cache.ClientStorage
-	ContactRepo     *repo.Contact
-	UsersRepo       *repo.Users
-	OrganizeRepo    *repo.Organize
-	TalkSessionRepo *repo.TalkSession
-	ContactService  service.IContactService
-	UserService     service.IUserService
-	TalkListService service.ITalkSessionService
-	Message         message2.IService
+	ClientStorage        *cache.ClientStorage
+	ContactRepo          *repo.Contact
+	UsersRepo            *repo.Users
+	OrganizeRepo         *repo.Organize
+	TalkSessionRepo      *repo.TalkSession
+	ContactService       service.IContactService
+	UserService          service.IUserService
+	TalkListService      service.ITalkSessionService
+	ClientConnectService service.IClientConnectService
+	Message              message2.IService
 }
 
 // List 联系人列表
 func (c *Contact) List(ctx *core.Context) error {
 	list, err := c.ContactService.List(ctx.Ctx(), ctx.UserId())
 	if err != nil {
-		return ctx.ErrorBusiness(err.Error())
+		return ctx.Error(err)
 	}
 
 	items := make([]*web.ContactListResponse_Item, 0, len(list))
@@ -57,7 +60,7 @@ func (c *Contact) Delete(ctx *core.Context) error {
 
 	uid := ctx.UserId()
 	if err := c.ContactService.Delete(ctx.Ctx(), uid, int(in.UserId)); err != nil {
-		return ctx.ErrorBusiness(err.Error())
+		return ctx.Error(err)
 	}
 
 	_ = c.Message.CreatePrivateSysMessage(ctx.Ctx(), message2.CreatePrivateSysMessageOption{
@@ -67,7 +70,7 @@ func (c *Contact) Delete(ctx *core.Context) error {
 	})
 
 	if err := c.TalkListService.Delete(ctx.Ctx(), ctx.UserId(), entity.ChatPrivateMode, int(in.UserId)); err != nil {
-		return ctx.ErrorBusiness(err.Error())
+		return ctx.Error(err)
 	}
 
 	return ctx.Success(&web.ContactDeleteResponse{})
@@ -83,10 +86,10 @@ func (c *Contact) Search(ctx *core.Context) error {
 	user, err := c.UsersRepo.FindByMobile(ctx.Ctx(), in.Mobile)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return ctx.ErrorBusiness("用户不存在！")
+			return ctx.Error(entity.ErrUserNotExist)
 		}
 
-		return ctx.ErrorBusiness(err.Error())
+		return ctx.Error(err)
 	}
 
 	return ctx.Success(&web.ContactSearchResponse{
@@ -107,7 +110,7 @@ func (c *Contact) Remark(ctx *core.Context) error {
 	}
 
 	if err := c.ContactService.UpdateRemark(ctx.Ctx(), ctx.UserId(), int(in.UserId), in.Remark); err != nil {
-		return ctx.ErrorBusiness(err.Error())
+		return ctx.Error(err)
 	}
 
 	return ctx.Success(&web.ContactEditRemarkResponse{})
@@ -125,10 +128,10 @@ func (c *Contact) Detail(ctx *core.Context) error {
 	user, err := c.UsersRepo.FindByIdWithCache(ctx.Ctx(), int(in.UserId))
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return ctx.ErrorBusiness("用户不存在！")
+			return ctx.Error(entity.ErrUserNotExist)
 		}
 
-		return ctx.ErrorBusiness(err.Error())
+		return ctx.Error(err)
 	}
 
 	data := web.ContactDetailResponse{
@@ -178,8 +181,26 @@ func (c *Contact) MoveGroup(ctx *core.Context) error {
 
 	err := c.ContactService.MoveGroup(ctx.Ctx(), ctx.UserId(), int(in.UserId), int(in.GroupId))
 	if err != nil {
-		return ctx.ErrorBusiness(err.Error())
+		return ctx.Error(err)
 	}
 
 	return ctx.Success(&web.ContactChangeGroupResponse{})
+}
+
+// OnlineStatus 获取联系人在线状态
+func (c *Contact) OnlineStatus(ctx *core.Context) error {
+	in := &web.ContactOnlineStatusRequest{}
+	if err := ctx.Context.ShouldBind(in); err != nil {
+		return ctx.InvalidParams(err)
+	}
+
+	resp := &web.ContactOnlineStatusResponse{
+		OnlineStatus: 1,
+	}
+
+	if c.ClientStorage.IsOnline(ctx.Ctx(), entity.ImChannelChat, fmt.Sprintf("%d", in.UserId)) {
+		resp.OnlineStatus = 2
+	}
+
+	return ctx.Success(resp)
 }

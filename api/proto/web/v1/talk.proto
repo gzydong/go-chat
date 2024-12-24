@@ -14,7 +14,6 @@ message TalkSessionItem{
   int32 to_from_id = 3;
   int32 is_top = 4;
   int32 is_disturb = 5;
-  int32 is_online = 6;
   int32 is_robot = 7;
   string name = 8;
   string avatar = 9;

@@ -4,10 +4,11 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/samber/lo"
-	"go-chat/internal/entity"
 	"strings"
 	"time"
+
+	"github.com/samber/lo"
+	"go-chat/internal/entity"
 
 	"go-chat/internal/pkg/timeutil"
 	"go-chat/internal/repository/model"

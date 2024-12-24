@@ -8,8 +8,10 @@ import (
 	"github.com/mojocn/base64Captcha"
 	"go-chat/api/pb/admin/v1"
 	"go-chat/config"
+	"go-chat/internal/entity"
 	"go-chat/internal/pkg/core"
 	"go-chat/internal/pkg/encrypt"
+	"go-chat/internal/pkg/encrypt/rsautil"
 	"go-chat/internal/pkg/jwt"
 	"go-chat/internal/repository/cache"
 	"go-chat/internal/repository/model"
@@ -22,6 +24,7 @@ type Auth struct {
 	AdminRepo       *repo.Admin
 	JwtTokenStorage *cache.JwtTokenStorage
 	ICaptcha        *base64Captcha.Captcha
+	Rsa             rsautil.IRsa
 }
 
 // Login 登录接口
@@ -42,12 +45,12 @@ func (c *Auth) Login(ctx *core.Context) error {
 			return ctx.InvalidParams("账号不存在或密码填写错误!")
 		}
 
-		return ctx.Error(err.Error())
+		return ctx.Error(err)
 	}
 
-	password, err := encrypt.RsaDecrypt(in.Password, c.Config.App.PrivateKey)
+	password, err := c.Rsa.Decrypt(in.Password)
 	if err != nil {
-		return ctx.Error(err.Error())
+		return ctx.Error(err)
 	}
 
 	if !encrypt.VerifyPassword(adminInfo.Password, string(password)) {
@@ -55,7 +58,7 @@ func (c *Auth) Login(ctx *core.Context) error {
 	}
 
 	if adminInfo.Status != model.AdminStatusNormal {
-		return ctx.ErrorBusiness("账号已被管理员禁用，如有问题请联系管理员！")
+		return ctx.Error(entity.ErrAccountDisabled)
 	}
 
 	expiresAt := time.Now().Add(12 * time.Hour)
@@ -81,7 +84,7 @@ func (c *Auth) Login(ctx *core.Context) error {
 func (c *Auth) Captcha(ctx *core.Context) error {
 	voucher, captcha, _, err := c.ICaptcha.Generate()
 	if err != nil {
-		return ctx.ErrorBusiness(err)
+		return ctx.Error(err)
 	}
 
 	return ctx.Success(&admin.AuthCaptchaResponse{

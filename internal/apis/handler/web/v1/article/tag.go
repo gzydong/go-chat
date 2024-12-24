@@ -15,7 +15,7 @@ func (c *Tag) List(ctx *core.Context) error {
 
 	list, err := c.ArticleTagService.List(ctx.Ctx(), ctx.UserId())
 	if err != nil {
-		return ctx.ErrorBusiness(err)
+		return ctx.Error(err)
 	}
 
 	items := make([]*web.ArticleTagListResponse_Item, 0, len(list))
@@ -53,7 +53,7 @@ func (c *Tag) Edit(ctx *core.Context) error {
 	}
 
 	if err != nil {
-		return ctx.ErrorBusiness("笔记标签编辑失败")
+		return ctx.Error(err)
 	}
 
 	return ctx.Success(&web.ArticleTagEditResponse{TagId: in.TagId})
@@ -69,7 +69,7 @@ func (c *Tag) Delete(ctx *core.Context) error {
 
 	err := c.ArticleTagService.Delete(ctx.Ctx(), ctx.UserId(), int(in.TagId))
 	if err != nil {
-		return ctx.ErrorBusiness(err)
+		return ctx.Error(err)
 	}
 
 	return ctx.Success(&web.ArticleTagDeleteResponse{})

@@ -45,12 +45,13 @@ func RegisterWebRoute(secret string, router *gin.Engine, handler *web.Handler, s
 
 		contact := v1.Group("/contact").Use(authorize)
 		{
-			contact.GET("/list", core.HandlerFunc(handler.V1.Contact.List))             // 联系人列表
-			contact.GET("/search", core.HandlerFunc(handler.V1.Contact.Search))         // 搜索联系人
-			contact.GET("/detail", core.HandlerFunc(handler.V1.Contact.Detail))         // 搜索联系人
-			contact.POST("/delete", core.HandlerFunc(handler.V1.Contact.Delete))        // 删除联系人
-			contact.POST("/edit-remark", core.HandlerFunc(handler.V1.Contact.Remark))   // 编辑联系人备注
-			contact.POST("/move-group", core.HandlerFunc(handler.V1.Contact.MoveGroup)) // 编辑联系人备注
+			contact.GET("/list", core.HandlerFunc(handler.V1.Contact.List))                   // 联系人列表
+			contact.GET("/search", core.HandlerFunc(handler.V1.Contact.Search))               // 搜索联系人
+			contact.GET("/detail", core.HandlerFunc(handler.V1.Contact.Detail))               // 搜索联系人
+			contact.POST("/delete", core.HandlerFunc(handler.V1.Contact.Delete))              // 删除联系人
+			contact.POST("/edit-remark", core.HandlerFunc(handler.V1.Contact.Remark))         // 编辑联系人备注
+			contact.POST("/move-group", core.HandlerFunc(handler.V1.Contact.MoveGroup))       // 编辑联系人备注
+			contact.POST("/online-status", core.HandlerFunc(handler.V1.Contact.OnlineStatus)) // 获取联系人在线状态
 
 			// 联系人申请相关
 			contact.GET("/apply/records", core.HandlerFunc(handler.V1.ContactApply.List))              // 联系人申请列表

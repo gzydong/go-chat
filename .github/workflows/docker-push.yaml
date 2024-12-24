@@ -33,3 +33,4 @@ jobs:
       - name: Push the Docker image
         run: |
           docker push gzydong/lumenim:${{ env.IMAGE_TAG }}
+          docker push gzydong/lumenim:latest

@@ -8,9 +8,7 @@ import (
 	"github.com/tidwall/gjson"
 	"go-chat/internal/business"
 	"go-chat/internal/comet/handler/event/chat"
-	"go-chat/internal/entity"
 	"go-chat/internal/pkg/core/socket"
-	"go-chat/internal/pkg/jsonutil"
 	"go-chat/internal/repository/repo"
 	"go-chat/internal/service"
 )
@@ -34,15 +32,6 @@ func (c *ChatEvent) OnOpen(client socket.IClient) {
 	for _, groupId := range c.GroupMemberRepo.GetUserGroupIds(ctx, client.Uid()) {
 		_ = c.RoomStorage.Insert(int32(groupId), client.Cid(), now.Unix())
 	}
-
-	// 推送上线消息
-	_ = c.PushMessage.Push(ctx, entity.ImTopicChat, &entity.SubscribeMessage{
-		Event: entity.SubEventContactStatus,
-		Payload: jsonutil.Encode(entity.SubEventContactStatusPayload{
-			Status: 1,
-			UserId: client.Uid(),
-		}),
-	})
 }
 
 // OnMessage 消息回调事件
@@ -70,13 +59,4 @@ func (c *ChatEvent) OnClose(client socket.IClient, code int, text string) {
 	for _, groupId := range c.GroupMemberRepo.GetUserGroupIds(ctx, client.Uid()) {
 		_ = c.RoomStorage.Delete(int32(groupId), client.Cid(), now.Unix())
 	}
-
-	// 推送下线消息
-	_ = c.PushMessage.Push(ctx, entity.ImTopicChat, &entity.SubscribeMessage{
-		Event: entity.SubEventContactStatus,
-		Payload: jsonutil.Encode(entity.SubEventContactStatusPayload{
-			Status: 2,
-			UserId: client.Uid(),
-		}),
-	})
 }

@@ -3,11 +3,12 @@ package process
 import (
 	"context"
 	"errors"
+	"log"
+
 	"github.com/nsqio/go-nsq"
 	"go-chat/config"
 	"go-chat/internal/comet/process/queue"
 	"go-chat/internal/pkg/core/consumer"
-	"log"
 )
 
 type QueueSubscribe struct {

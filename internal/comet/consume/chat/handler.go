@@ -2,8 +2,9 @@ package chat
 
 import (
 	"context"
-	"go-chat/internal/pkg/core/socket"
 	"log"
+
+	"go-chat/internal/pkg/core/socket"
 
 	"go-chat/config"
 	"go-chat/internal/entity"

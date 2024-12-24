@@ -4,8 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"go-chat/internal/business"
 	"time"
+
+	"go-chat/internal/business"
 
 	"github.com/google/uuid"
 	"go-chat/internal/entity"

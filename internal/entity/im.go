@@ -28,7 +28,7 @@ type ImMessagePayloadBody struct {
 	MsgId     string `json:"msg_id"`
 	Sequence  int    `json:"sequence"`
 	MsgType   int    `json:"msg_type"`
-	UserId    int    `json:"user_id"`
+	FromId    int    `json:"from_id"` // 发送者ID
 	Nickname  string `json:"nickname"`
 	Avatar    string `json:"avatar"`
 	IsRevoked int    `json:"is_revoked"`
@@ -59,6 +59,7 @@ type ImContactApplyResultPayload struct {
 	OperateTime string `json:"operate_time"`
 }
 
+// ImGroupApplyPayload im.group.apply
 type ImGroupApplyPayload struct {
 	GroupId   int    `json:"group_id"`
 	GroupName string `json:"group_name"`
@@ -68,7 +69,17 @@ type ImGroupApplyPayload struct {
 	ApplyTime string `json:"apply_time"`
 }
 
+// ImMessageKeyboardPayload im.message.keyboard
 type ImMessageKeyboardPayload struct {
 	FromId   int `json:"from_id"`
 	ToFromId int `json:"to_from_id"`
+}
+
+// ImMessageRevokePayload im.message.revoke
+type ImMessageRevokePayload struct {
+	TalkMode int    `json:"talk_mode"`
+	FromId   int    `json:"from_id"`
+	ToFromId int    `json:"to_from_id"`
+	MsgId    string `json:"msg_id"`
+	Remark   string `json:"remark"`
 }

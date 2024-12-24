@@ -4,8 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"go-chat/internal/business"
 	"time"
+
+	"go-chat/internal/business"
 
 	"go-chat/internal/repository/model"
 	"go-chat/internal/repository/repo"

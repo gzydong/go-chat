@@ -1362,6 +1362,215 @@ var _ interface {
 	ErrorName() string
 } = ContactChangeGroupResponseValidationError{}
 
+// Validate checks the field values on ContactOnlineStatusRequest with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *ContactOnlineStatusRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ContactOnlineStatusRequest with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// ContactOnlineStatusRequestMultiError, or nil if none found.
+func (m *ContactOnlineStatusRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ContactOnlineStatusRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for UserId
+
+	if len(errors) > 0 {
+		return ContactOnlineStatusRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// ContactOnlineStatusRequestMultiError is an error wrapping multiple
+// validation errors returned by ContactOnlineStatusRequest.ValidateAll() if
+// the designated constraints aren't met.
+type ContactOnlineStatusRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ContactOnlineStatusRequestMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ContactOnlineStatusRequestMultiError) AllErrors() []error { return m }
+
+// ContactOnlineStatusRequestValidationError is the validation error returned
+// by ContactOnlineStatusRequest.Validate if the designated constraints aren't met.
+type ContactOnlineStatusRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ContactOnlineStatusRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ContactOnlineStatusRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ContactOnlineStatusRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ContactOnlineStatusRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ContactOnlineStatusRequestValidationError) ErrorName() string {
+	return "ContactOnlineStatusRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e ContactOnlineStatusRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sContactOnlineStatusRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ContactOnlineStatusRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ContactOnlineStatusRequestValidationError{}
+
+// Validate checks the field values on ContactOnlineStatusResponse with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *ContactOnlineStatusResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ContactOnlineStatusResponse with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// ContactOnlineStatusResponseMultiError, or nil if none found.
+func (m *ContactOnlineStatusResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ContactOnlineStatusResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for OnlineStatus
+
+	if len(errors) > 0 {
+		return ContactOnlineStatusResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// ContactOnlineStatusResponseMultiError is an error wrapping multiple
+// validation errors returned by ContactOnlineStatusResponse.ValidateAll() if
+// the designated constraints aren't met.
+type ContactOnlineStatusResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ContactOnlineStatusResponseMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ContactOnlineStatusResponseMultiError) AllErrors() []error { return m }
+
+// ContactOnlineStatusResponseValidationError is the validation error returned
+// by ContactOnlineStatusResponse.Validate if the designated constraints
+// aren't met.
+type ContactOnlineStatusResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ContactOnlineStatusResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ContactOnlineStatusResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ContactOnlineStatusResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ContactOnlineStatusResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ContactOnlineStatusResponseValidationError) ErrorName() string {
+	return "ContactOnlineStatusResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e ContactOnlineStatusResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sContactOnlineStatusResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ContactOnlineStatusResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ContactOnlineStatusResponseValidationError{}
+
 // Validate checks the field values on ContactListResponse_Item with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.

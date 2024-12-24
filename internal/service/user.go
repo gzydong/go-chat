@@ -5,19 +5,20 @@ import (
 	"errors"
 	"time"
 
+	"go-chat/internal/entity"
 	"go-chat/internal/pkg/encrypt"
+	"go-chat/internal/pkg/utils"
 	"go-chat/internal/repository/model"
 	"go-chat/internal/repository/repo"
-	"gorm.io/gorm"
 )
 
 var _ IUserService = (*UserService)(nil)
 
 type IUserService interface {
 	Register(ctx context.Context, opt *UserRegisterOpt) (*model.Users, error)
-	Login(mobile string, password string) (*model.Users, error)
-	Forget(opt *UserForgetOpt) (bool, error)
-	UpdatePassword(uid int, oldPassword string, password string) error
+	Login(ctx context.Context, mobile string, password string) (*model.Users, error)
+	Forget(ctx context.Context, opt *UserForgetOpt) (bool, error)
+	UpdatePassword(ctx context.Context, uid int, oldPassword string, password string) error
 }
 
 type UserService struct {
@@ -59,19 +60,18 @@ func (s *UserService) Register(ctx context.Context, opt *UserRegisterOpt) (*mode
 }
 
 // Login 登录处理
-func (s *UserService) Login(mobile string, password string) (*model.Users, error) {
-
-	user, err := s.UsersRepo.FindByMobile(context.Background(), mobile)
+func (s *UserService) Login(ctx context.Context, mobile string, password string) (*model.Users, error) {
+	user, err := s.UsersRepo.FindByMobile(ctx, mobile)
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, errors.New("登录账号不存在! ")
+		if utils.IsSqlNoRows(err) {
+			return nil, entity.ErrAccountOrPassword
 		}
 
 		return nil, err
 	}
 
 	if !encrypt.VerifyPassword(user.Password, password) {
-		return nil, errors.New("登录密码填写错误! ")
+		return nil, entity.ErrAccountOrPassword
 	}
 
 	return user, nil
@@ -85,9 +85,8 @@ type UserForgetOpt struct {
 }
 
 // Forget 账号找回
-func (s *UserService) Forget(opt *UserForgetOpt) (bool, error) {
-
-	user, err := s.UsersRepo.FindByMobile(context.Background(), opt.Mobile)
+func (s *UserService) Forget(ctx context.Context, opt *UserForgetOpt) (bool, error) {
+	user, err := s.UsersRepo.FindByMobile(ctx, opt.Mobile)
 	if err != nil || user.Id == 0 {
 		return false, errors.New("账号不存在! ")
 	}
@@ -100,9 +99,8 @@ func (s *UserService) Forget(opt *UserForgetOpt) (bool, error) {
 }
 
 // UpdatePassword 修改用户密码
-func (s *UserService) UpdatePassword(uid int, oldPassword string, password string) error {
-
-	user, err := s.UsersRepo.FindById(context.TODO(), uid)
+func (s *UserService) UpdatePassword(ctx context.Context, uid int, oldPassword string, password string) error {
+	user, err := s.UsersRepo.FindById(ctx, uid)
 	if err != nil {
 		return errors.New("用户不存在！")
 	}
@@ -111,7 +109,7 @@ func (s *UserService) UpdatePassword(uid int, oldPassword string, password strin
 		return errors.New("密码验证不正确！")
 	}
 
-	_, err = s.UsersRepo.UpdateById(context.TODO(), user.Id, map[string]any{
+	_, err = s.UsersRepo.UpdateById(ctx, user.Id, map[string]any{
 		"password": encrypt.HashPassword(password),
 	})
 

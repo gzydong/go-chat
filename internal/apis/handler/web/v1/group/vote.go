@@ -52,7 +52,7 @@ func (v *Vote) Create(ctx *core.Context) error {
 		GroupId:       int(in.GroupId),
 	})
 	if err != nil {
-		return ctx.ErrorBusiness(err)
+		return ctx.Error(err)
 	}
 
 	if err := v.MessageService.CreateVoteMessage(ctx.Ctx(), message.CreateVoteMessage{
@@ -81,7 +81,7 @@ func (v *Vote) Submit(ctx *core.Context) error {
 	})
 
 	if err != nil {
-		return ctx.ErrorBusiness(err)
+		return ctx.Error(err)
 	}
 
 	return ctx.Success(web.GroupVoteSubmitResponse{})
@@ -96,7 +96,7 @@ func (v *Vote) Detail(ctx *core.Context) error {
 
 	voteInfo, err := v.GroupVoteRepo.FindById(ctx.Ctx(), int(in.VoteId))
 	if err != nil {
-		return ctx.ErrorBusiness(err)
+		return ctx.Error(err)
 	}
 
 	if !v.GroupMemberRepo.IsMember(ctx.Ctx(), voteInfo.GroupId, ctx.UserId(), false) {
@@ -117,7 +117,7 @@ func (v *Vote) Detail(ctx *core.Context) error {
 
 	var options []model.GroupVoteOption
 	if err := jsonutil.Decode(voteInfo.AnswerOption, &options); err != nil {
-		return ctx.Error(err.Error())
+		return ctx.Error(err)
 	}
 
 	for _, option := range options {
@@ -129,7 +129,7 @@ func (v *Vote) Detail(ctx *core.Context) error {
 
 	items, err := v.GroupVoteRepo.FindAllAnsweredUserList(ctx.Ctx(), voteInfo.Id)
 	if err != nil {
-		return ctx.Error(err.Error())
+		return ctx.Error(err)
 	}
 
 	userId := ctx.UserId()

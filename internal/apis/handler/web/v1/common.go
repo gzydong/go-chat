@@ -10,9 +10,8 @@ import (
 )
 
 type Common struct {
-	UsersRepo *repo.Users
-
 	Config      *config.Config
+	UsersRepo   *repo.Users
 	SmsService  service.ISmsService
 	UserService service.IUserService
 }
@@ -28,23 +27,23 @@ func (c *Common) SmsCode(ctx *core.Context) error {
 	// 需要判断账号是否存在
 	case entity.SmsLoginChannel, entity.SmsForgetAccountChannel:
 		if !c.UsersRepo.IsMobileExist(ctx.Ctx(), in.Mobile) {
-			return ctx.ErrorBusiness("账号不存在或密码错误！")
+			return ctx.Error(entity.ErrAccountOrPassword)
 		}
 
 	// 需要判断账号是否存在
 	case entity.SmsRegisterChannel, entity.SmsChangeAccountChannel:
 		if c.UsersRepo.IsMobileExist(ctx.Ctx(), in.Mobile) {
-			return ctx.ErrorBusiness("手机号已被他人使用！")
+			return ctx.Error(entity.ErrPhoneExist)
 		}
 
 	default:
-		return ctx.ErrorBusiness("发送异常！")
+		return ctx.InvalidParams("渠道不存在")
 	}
 
 	// 发送短信验证码
 	code, err := c.SmsService.Send(ctx.Ctx(), in.Channel, in.Mobile)
 	if err != nil {
-		return ctx.ErrorBusiness(err.Error())
+		return ctx.Error(err)
 	}
 
 	if in.Channel == entity.SmsRegisterChannel || in.Channel == entity.SmsChangeAccountChannel {

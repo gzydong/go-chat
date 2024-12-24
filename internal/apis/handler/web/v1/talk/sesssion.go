@@ -2,8 +2,6 @@ package talk
 
 import (
 	"fmt"
-	"github.com/samber/lo"
-	"go-chat/internal/repository/model"
 	"strings"
 
 	"go-chat/api/pb/web/v1"
@@ -52,12 +50,12 @@ func (c *Session) Create(ctx *core.Context) error {
 
 	// 判断对方是否是自己
 	if in.TalkMode == entity.ChatPrivateMode && int(in.ToFromId) == ctx.UserId() {
-		return ctx.ErrorBusiness("创建失败")
+		return ctx.Error(entity.ErrPermissionDenied)
 	}
 
 	key := fmt.Sprintf("talk:list:%d-%d-%d-%s", uid, in.ToFromId, in.TalkMode, agent)
 	if !c.RedisLock.Lock(ctx.Ctx(), key, 10) {
-		return ctx.ErrorBusiness("创建失败")
+		return ctx.Error(entity.ErrTooFrequentOperation)
 	}
 
 	if c.AuthService.IsAuth(ctx.Ctx(), &service.AuthOption{
@@ -65,7 +63,7 @@ func (c *Session) Create(ctx *core.Context) error {
 		UserId:   uid,
 		ToFromId: int(in.ToFromId),
 	}) != nil {
-		return ctx.ErrorBusiness("暂无权限！")
+		return ctx.Error(entity.ErrPermissionDenied)
 	}
 
 	result, err := c.TalkSessionService.Create(ctx.Ctx(), &service.TalkSessionCreateOpt{
@@ -74,7 +72,7 @@ func (c *Session) Create(ctx *core.Context) error {
 		ReceiverId: int(in.ToFromId),
 	})
 	if err != nil {
-		return ctx.ErrorBusiness(err.Error())
+		return ctx.Error(err)
 	}
 
 	item := &web.TalkSessionItem{
@@ -83,7 +81,6 @@ func (c *Session) Create(ctx *core.Context) error {
 		ToFromId:  int32(result.ToFromId),
 		IsTop:     int32(result.IsTop),
 		IsDisturb: int32(result.IsDisturb),
-		IsOnline:  model.No,
 		IsRobot:   int32(result.IsRobot),
 		Name:      "",
 		Avatar:    "",
@@ -120,7 +117,6 @@ func (c *Session) Create(ctx *core.Context) error {
 		ToFromId:  item.ToFromId,
 		IsTop:     item.IsTop,
 		IsDisturb: item.IsDisturb,
-		IsOnline:  item.IsOnline,
 		IsRobot:   item.IsRobot,
 		Name:      item.Name,
 		Avatar:    item.Avatar,
@@ -139,7 +135,7 @@ func (c *Session) Delete(ctx *core.Context) error {
 	}
 
 	if err := c.TalkSessionService.Delete(ctx.Ctx(), ctx.UserId(), int(in.TalkMode), int(in.ToFromId)); err != nil {
-		return ctx.ErrorBusiness(err.Error())
+		return ctx.Error(err)
 	}
 
 	return ctx.Success(&web.TalkSessionDeleteResponse{})
@@ -158,7 +154,7 @@ func (c *Session) Top(ctx *core.Context) error {
 		ToFromId: int(in.ToFromId),
 		Action:   int(in.Action),
 	}); err != nil {
-		return ctx.ErrorBusiness(err.Error())
+		return ctx.Error(err)
 	}
 
 	return ctx.Success(&web.TalkSessionTopResponse{})
@@ -177,7 +173,7 @@ func (c *Session) Disturb(ctx *core.Context) error {
 		ToFromId: int(in.ToFromId),
 		Action:   int(in.Action),
 	}); err != nil {
-		return ctx.ErrorBusiness(err.Error())
+		return ctx.Error(err)
 	}
 
 	return ctx.Success(&web.TalkSessionDisturbResponse{})
@@ -189,7 +185,7 @@ func (c *Session) List(ctx *core.Context) error {
 
 	data, err := c.TalkSessionService.List(ctx.Ctx(), uid)
 	if err != nil {
-		return ctx.ErrorBusiness(err.Error())
+		return ctx.Error(err)
 	}
 
 	friends := make([]int, 0)
@@ -211,20 +207,16 @@ func (c *Session) List(ctx *core.Context) error {
 			IsTop:     int32(item.IsTop),
 			IsDisturb: int32(item.IsDisturb),
 			IsRobot:   int32(item.IsRobot),
-			IsOnline:  2,
 			Avatar:    item.Avatar,
 			MsgText:   "...",
 			UpdatedAt: timeutil.FormatDatetime(item.UpdatedAt),
 			UnreadNum: int32(c.UnreadStorage.Get(ctx.Ctx(), uid, item.TalkMode, item.ToFromId)),
 		}
 
-		if item.TalkMode == 1 {
-			isOnline, _ := c.ClientConnectService.IsUidOnline(ctx.Ctx(), entity.ImChannelChat, int(value.ToFromId))
-
+		if item.TalkMode == entity.ChatPrivateMode {
 			value.Name = item.Nickname
 			value.Avatar = item.Avatar
 			value.Remark = remarks[item.ToFromId]
-			value.IsOnline = lo.Ternary[int32](isOnline, 1, 2)
 		} else {
 			value.Name = item.GroupName
 			value.Avatar = item.GroupAvatar

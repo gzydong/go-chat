@@ -1,10 +1,12 @@
 package talk
 
 import (
+	"errors"
 	"net/http"
 	"slices"
 	"time"
 
+	"github.com/samber/lo"
 	"go-chat/internal/entity"
 	"go-chat/internal/pkg/core"
 	"go-chat/internal/pkg/filesystem"
@@ -42,6 +44,7 @@ func (c *Records) GetRecords(ctx *core.Context) error {
 	}
 
 	uid := ctx.UserId()
+
 	if in.TalkMode == entity.ChatGroupMode {
 		err := c.AuthService.IsAuth(ctx.Ctx(), &service.AuthOption{
 			TalkType: in.TalkMode,
@@ -50,20 +53,24 @@ func (c *Records) GetRecords(ctx *core.Context) error {
 		})
 
 		if err != nil {
-			items := make([]entity.TalkRecord, 0)
-			items = append(items, entity.TalkRecord{
-				MsgId:    strutil.NewMsgId(),
-				Sequence: 1,
-				MsgType:  entity.ChatMsgSysText,
-				Extra: model.TalkRecordExtraText{
-					Content: "暂无权限查看群消息",
-				},
-				CreatedAt: timeutil.DateTime(),
-			})
-
 			return ctx.Success(map[string]any{
 				"cursor": 1,
-				"items":  items,
+				"items": []entity.ImMessagePayloadBody{
+					{
+						MsgId:     strutil.NewMsgId(),
+						Sequence:  1,
+						MsgType:   entity.ChatMsgSysText,
+						FromId:    0,
+						Nickname:  "",
+						Avatar:    "",
+						IsRevoked: model.No,
+						SendTime:  timeutil.DateTime(),
+						Extra: model.TalkRecordExtraText{
+							Content: "暂无权限查看群消息",
+						},
+						Quote: nil,
+					},
+				},
 			})
 		}
 	}
@@ -77,7 +84,7 @@ func (c *Records) GetRecords(ctx *core.Context) error {
 	})
 
 	if err != nil {
-		return ctx.ErrorBusiness(err.Error())
+		return ctx.Error(err)
 	}
 
 	cursor := 0
@@ -85,15 +92,22 @@ func (c *Records) GetRecords(ctx *core.Context) error {
 		cursor = records[length-1].Sequence
 	}
 
-	for i, record := range records {
-		if record.IsRevoked == model.Yes {
-			records[i].Extra = make(map[string]any)
-		}
-	}
-
 	return ctx.Success(map[string]any{
 		"cursor": cursor,
-		"items":  records,
+		"items": lo.Map(records, func(item *model.TalkMessageRecord, index int) entity.ImMessagePayloadBody {
+			return entity.ImMessagePayloadBody{
+				FromId:    item.FromId,
+				MsgId:     item.MsgId,
+				Sequence:  item.Sequence,
+				MsgType:   item.MsgType,
+				Nickname:  item.Nickname,
+				Avatar:    item.Avatar,
+				IsRevoked: item.IsRevoked,
+				SendTime:  item.SendTime,
+				Extra:     lo.Ternary(item.IsRevoked == model.Yes, "{}", item.Extra),
+				Quote:     item.Quote,
+			}
+		}),
 	})
 }
 
@@ -124,6 +138,7 @@ func (c *Records) SearchHistoryRecords(ctx *core.Context) error {
 
 	msgTypes := []int{
 		entity.ChatMsgTypeText,
+		entity.ChatMsgTypeMixed,
 		entity.ChatMsgTypeCode,
 		entity.ChatMsgTypeImage,
 		entity.ChatMsgTypeVideo,
@@ -148,7 +163,7 @@ func (c *Records) SearchHistoryRecords(ctx *core.Context) error {
 	})
 
 	if err != nil {
-		return ctx.ErrorBusiness(err.Error())
+		return ctx.Error(err)
 	}
 
 	cursor := 0
@@ -156,15 +171,22 @@ func (c *Records) SearchHistoryRecords(ctx *core.Context) error {
 		cursor = records[length-1].Sequence
 	}
 
-	for i, record := range records {
-		if record.IsRevoked == model.Yes {
-			records[i].Extra = make(map[string]any)
-		}
-	}
-
 	return ctx.Success(map[string]any{
 		"cursor": cursor,
-		"items":  records,
+		"items": lo.Map(records, func(item *model.TalkMessageRecord, index int) entity.ImMessagePayloadBody {
+			return entity.ImMessagePayloadBody{
+				FromId:    item.FromId,
+				MsgId:     item.MsgId,
+				Sequence:  item.Sequence,
+				MsgType:   item.MsgType,
+				Nickname:  item.Nickname,
+				Avatar:    item.Avatar,
+				IsRevoked: item.IsRevoked,
+				SendTime:  item.SendTime,
+				Extra:     lo.Ternary(item.IsRevoked == model.Yes, "{}", item.Extra),
+				Quote:     item.Quote,
+			}
+		}),
 	})
 }
 
@@ -182,11 +204,24 @@ func (c *Records) GetForwardRecords(ctx *core.Context) error {
 
 	records, err := c.TalkRecordsService.FindForwardRecords(ctx.Ctx(), ctx.UserId(), params.MsgIds, params.TalkMode)
 	if err != nil {
-		return ctx.ErrorBusiness(err.Error())
+		return ctx.Error(err)
 	}
 
 	return ctx.Success(map[string]any{
-		"items": records,
+		"items": lo.Map(records, func(item *model.TalkMessageRecord, index int) entity.ImMessagePayloadBody {
+			return entity.ImMessagePayloadBody{
+				FromId:    item.FromId,
+				MsgId:     item.MsgId,
+				Sequence:  item.Sequence,
+				MsgType:   item.MsgType,
+				Nickname:  item.Nickname,
+				Avatar:    item.Avatar,
+				IsRevoked: item.IsRevoked,
+				SendTime:  item.SendTime,
+				Extra:     lo.Ternary(item.IsRevoked == model.Yes, "{}", item.Extra),
+				Quote:     item.Quote,
+			}
+		}),
 	})
 }
 
@@ -206,7 +241,7 @@ func (c *Records) Download(ctx *core.Context) error {
 	if params.TalkMode == entity.ChatGroupMode {
 		record, err := c.TalkRecordGroupRepo.FindByWhere(ctx.Ctx(), "msg_id = ?", params.MsgId)
 		if err != nil {
-			return ctx.ErrorBusiness(err.Error())
+			return ctx.Error(err)
 		}
 
 		if !c.GroupMemberRepo.IsMember(ctx.Ctx(), record.GroupId, ctx.UserId(), false) {
@@ -214,16 +249,16 @@ func (c *Records) Download(ctx *core.Context) error {
 		}
 
 		if err := jsonutil.Decode(record.Extra, &fileInfo); err != nil {
-			return ctx.ErrorBusiness(err.Error())
+			return ctx.Error(err)
 		}
 	} else {
 		record, err := c.TalkRecordFriendRepo.FindByWhere(ctx.Ctx(), "user_id = ? and msg_id = ?", ctx.UserId(), params.MsgId)
 		if err != nil {
-			return ctx.ErrorBusiness(err.Error())
+			return ctx.Error(err)
 		}
 
 		if err := jsonutil.Decode(record.Extra, &fileInfo); err != nil {
-			return ctx.ErrorBusiness(err.Error())
+			return ctx.Error(err)
 		}
 	}
 
@@ -234,7 +269,7 @@ func (c *Records) Download(ctx *core.Context) error {
 	case filesystem.MinioDriver:
 		ctx.Context.Redirect(http.StatusFound, c.Filesystem.PrivateUrl(c.Filesystem.BucketPrivateName(), fileInfo.Path, fileInfo.Name, 60*time.Second))
 	default:
-		return ctx.ErrorBusiness("未知文件驱动类型")
+		return ctx.Error(errors.New("未知文件驱动类型"))
 	}
 
 	return nil

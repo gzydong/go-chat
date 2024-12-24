@@ -1,6 +1,6 @@
 service:
-  golangci-lint-version: 1.55.2
+  golangci-lint-version: 1.60.2
 
-run:
-  skip-dirs:
+issues:
+  exclude-dirs:
     - runtime

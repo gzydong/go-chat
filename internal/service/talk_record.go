@@ -3,11 +3,9 @@ package service
 import (
 	"context"
 	"errors"
-	"fmt"
 	"time"
 
 	"go-chat/internal/entity"
-	"go-chat/internal/pkg/jsonutil"
 	"go-chat/internal/pkg/sliceutil"
 	"go-chat/internal/repository/cache"
 	"go-chat/internal/repository/model"
@@ -18,23 +16,12 @@ import (
 var _ ITalkRecordService = (*TalkRecordService)(nil)
 
 type ITalkRecordService interface {
-	FindTalkPrivateRecord(ctx context.Context, uid int, msgId string) (*TalkRecord, error)
-	FindTalkGroupRecord(ctx context.Context, msgId string) (*TalkRecord, error)
-	FindAllTalkRecords(ctx context.Context, opt *FindAllTalkRecordsOpt) ([]*TalkRecord, error)
-	FindForwardRecords(ctx context.Context, uid int, msgIds []string, talkType int) ([]*TalkRecord, error)
-}
-
-type TalkRecord struct {
-	MsgId     string `json:"msg_id"`
-	Sequence  int    `json:"sequence"`
-	MsgType   int    `json:"msg_type"`
-	UserId    int    `json:"user_id"`
-	Nickname  string `json:"nickname"`
-	Avatar    string `json:"avatar"`
-	IsRevoked int    `json:"is_revoked"`
-	SendTime  string `json:"send_time"`
-	Extra     any    `json:"extra"` // 额外参数
-	Quote     any    `json:"quote"` // 额外参数
+	FindAllPrivateRecordByOriMsgId(ctx context.Context, msgId string) ([]*model.TalkUserMessage, error)
+	FindPrivateRecordByMsgId(ctx context.Context, msgId string) (*model.TalkUserMessage, error)
+	FindTalkPrivateRecord(ctx context.Context, uid int, msgId string) (*model.TalkMessageRecord, error)
+	FindTalkGroupRecord(ctx context.Context, msgId string) (*model.TalkMessageRecord, error)
+	FindAllTalkRecords(ctx context.Context, opt *FindAllTalkRecordsOpt) ([]*model.TalkMessageRecord, error)
+	FindForwardRecords(ctx context.Context, uid int, msgIds []string, talkType int) ([]*model.TalkMessageRecord, error)
 }
 
 type TalkRecordService struct {
@@ -47,6 +34,16 @@ type TalkRecordService struct {
 	TalkRecordsDeleteRepo *repo.TalkGroupMessageDel
 }
 
+func (s *TalkRecordService) FindPrivateRecordByMsgId(ctx context.Context, msgId string) (*model.TalkUserMessage, error) {
+	return s.TalkRecordFriendRepo.FindByMsgId(ctx, msgId)
+}
+
+func (s *TalkRecordService) FindAllPrivateRecordByOriMsgId(ctx context.Context, msgId string) ([]*model.TalkUserMessage, error) {
+	return s.TalkRecordFriendRepo.FindAll(ctx, func(db *gorm.DB) {
+		db.Where("org_msg_id = ?", msgId)
+	})
+}
+
 type FindAllTalkRecordsOpt struct {
 	TalkType   int   // 对话类型
 	UserId     int   // 获取消息的用户
@@ -56,39 +53,28 @@ type FindAllTalkRecordsOpt struct {
 	Limit      int   // 数据行数
 }
 
-type QueryTalkRecord struct {
-	MsgId     string    `json:"msg_id"`
-	Sequence  int64     `json:"sequence"`
-	MsgType   int       `json:"msg_type"`
-	UserId    int       `json:"user_id"`
-	IsRevoked int       `json:"is_revoked"`
-	Nickname  string    `json:"nickname"`
-	Avatar    string    `json:"avatar"`
-	Extra     string    `json:"extra"`
-	Quote     string    `json:"quote"`
-	SendTime  time.Time `json:"send_time"`
-}
-
-func (s *TalkRecordService) FindTalkPrivateRecord(ctx context.Context, uid int, msgId string) (*TalkRecord, error) {
+func (s *TalkRecordService) FindTalkPrivateRecord(ctx context.Context, uid int, msgId string) (*model.TalkMessageRecord, error) {
 	talkRecordFriendInfo, err := s.TalkRecordFriendRepo.FindByWhere(ctx, "msg_id = ? and user_id = ?", msgId, uid)
 	if err != nil {
 		return nil, err
 	}
 
-	record := &QueryTalkRecord{
+	record := &model.TalkMessageRecord{
+		TalkMode:  entity.ChatPrivateMode,
+		FromId:    talkRecordFriendInfo.FromId,
+		ToFromId:  talkRecordFriendInfo.ToFromId,
 		MsgId:     talkRecordFriendInfo.MsgId,
-		Sequence:  talkRecordFriendInfo.Sequence,
+		Sequence:  int(talkRecordFriendInfo.Sequence),
 		MsgType:   talkRecordFriendInfo.MsgType,
-		UserId:    talkRecordFriendInfo.FromId,
-		IsRevoked: talkRecordFriendInfo.IsRevoked,
 		Nickname:  "",
 		Avatar:    "",
+		IsRevoked: talkRecordFriendInfo.IsRevoked,
+		SendTime:  talkRecordFriendInfo.SendTime.Format(time.DateTime),
 		Extra:     talkRecordFriendInfo.Extra,
 		Quote:     talkRecordFriendInfo.Quote,
-		SendTime:  talkRecordFriendInfo.SendTime,
 	}
 
-	list, err := s.handleTalkRecords(ctx, []*QueryTalkRecord{record})
+	list, err := s.handleTalkRecords(ctx, []*model.TalkMessageRecord{record})
 	if err != nil {
 		return nil, err
 	}
@@ -96,7 +82,7 @@ func (s *TalkRecordService) FindTalkPrivateRecord(ctx context.Context, uid int, 
 	return list[0], nil
 }
 
-func (s *TalkRecordService) FindTalkGroupRecord(ctx context.Context, msgId string) (*TalkRecord, error) {
+func (s *TalkRecordService) FindTalkGroupRecord(ctx context.Context, msgId string) (*model.TalkMessageRecord, error) {
 	talkRecordGroupInfo, err := s.TalkRecordGroupRepo.FindByMsgId(ctx, msgId)
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, err
@@ -106,20 +92,22 @@ func (s *TalkRecordService) FindTalkGroupRecord(ctx context.Context, msgId strin
 		return nil, gorm.ErrRecordNotFound
 	}
 
-	record := &QueryTalkRecord{
+	record := &model.TalkMessageRecord{
+		TalkMode:  entity.ChatGroupMode,
+		FromId:    talkRecordGroupInfo.FromId,
+		ToFromId:  talkRecordGroupInfo.GroupId,
 		MsgId:     talkRecordGroupInfo.MsgId,
-		Sequence:  talkRecordGroupInfo.Sequence,
+		Sequence:  int(talkRecordGroupInfo.Sequence),
 		MsgType:   talkRecordGroupInfo.MsgType,
-		UserId:    talkRecordGroupInfo.FromId,
-		IsRevoked: talkRecordGroupInfo.IsRevoked,
 		Nickname:  "",
 		Avatar:    "",
+		IsRevoked: talkRecordGroupInfo.IsRevoked,
+		SendTime:  talkRecordGroupInfo.SendTime.Format(time.DateTime),
 		Extra:     talkRecordGroupInfo.Extra,
 		Quote:     talkRecordGroupInfo.Quote,
-		SendTime:  talkRecordGroupInfo.SendTime,
 	}
 
-	list, err := s.handleTalkRecords(ctx, []*QueryTalkRecord{record})
+	list, err := s.handleTalkRecords(ctx, []*model.TalkMessageRecord{record})
 	if err != nil {
 		return nil, err
 	}
@@ -128,9 +116,9 @@ func (s *TalkRecordService) FindTalkGroupRecord(ctx context.Context, msgId strin
 }
 
 // FindAllTalkRecords 获取所有对话消息
-func (s *TalkRecordService) FindAllTalkRecords(ctx context.Context, opt *FindAllTalkRecordsOpt) ([]*TalkRecord, error) {
+func (s *TalkRecordService) FindAllTalkRecords(ctx context.Context, opt *FindAllTalkRecordsOpt) ([]*model.TalkMessageRecord, error) {
 	var (
-		items  = make([]*QueryTalkRecord, 0, opt.Limit)
+		items  = make([]*model.TalkMessageRecord, 0, opt.Limit)
 		cursor = opt.Cursor
 	)
 
@@ -185,7 +173,7 @@ func (s *TalkRecordService) FindAllTalkRecords(ctx context.Context, opt *FindAll
 		}
 
 		// 设置游标继续往下执行
-		cursor = int(list[len(list)-1].Sequence)
+		cursor = list[len(list)-1].Sequence
 	}
 
 	if len(items) > opt.Limit {
@@ -195,7 +183,7 @@ func (s *TalkRecordService) FindAllTalkRecords(ctx context.Context, opt *FindAll
 	return s.handleTalkRecords(ctx, items)
 }
 
-func (s *TalkRecordService) findAllRecords(ctx context.Context, opt *FindAllTalkRecordsOpt) ([]*QueryTalkRecord, error) {
+func (s *TalkRecordService) findAllRecords(ctx context.Context, opt *FindAllTalkRecordsOpt) ([]*model.TalkMessageRecord, error) {
 	query := s.Source.Db().WithContext(ctx)
 
 	fields := []string{
@@ -206,7 +194,7 @@ func (s *TalkRecordService) findAllRecords(ctx context.Context, opt *FindAllTalk
 		"extra",
 		"quote",
 		"send_time",
-		"from_id as user_id",
+		"from_id",
 	}
 
 	if opt.TalkType == 1 {
@@ -231,16 +219,21 @@ func (s *TalkRecordService) findAllRecords(ctx context.Context, opt *FindAllTalk
 
 	query.Order("sequence desc").Limit(opt.Limit)
 
-	var items []*QueryTalkRecord
+	var items []*model.TalkMessageRecord
 	if err := query.Scan(&items).Error; err != nil {
 		return nil, err
+	}
+
+	for i := 0; i < len(items); i++ {
+		items[i].TalkMode = opt.TalkType
+		items[i].ToFromId = opt.ReceiverId
 	}
 
 	return items, nil
 }
 
 // FindForwardRecords 获取转发消息记录
-func (s *TalkRecordService) FindForwardRecords(ctx context.Context, uid int, msgIds []string, talkType int) ([]*TalkRecord, error) {
+func (s *TalkRecordService) FindForwardRecords(ctx context.Context, uid int, msgIds []string, talkType int) ([]*model.TalkMessageRecord, error) {
 	var (
 		fields = []string{
 			"msg_id",
@@ -250,15 +243,13 @@ func (s *TalkRecordService) FindForwardRecords(ctx context.Context, uid int, msg
 			"extra",
 			"quote",
 			"send_time",
-			"from_id as user_id",
+			"from_id",
 		}
-		items     = make([]*QueryTalkRecord, 0)
+		items     = make([]*model.TalkMessageRecord, 0)
 		tableName = "talk_user_message"
 	)
 
-	if talkType == 1 {
-
-	} else {
+	if talkType == 2 {
 		tableName = "talk_group_message"
 	}
 
@@ -275,18 +266,20 @@ func (s *TalkRecordService) FindForwardRecords(ctx context.Context, uid int, msg
 }
 
 // HandleTalkRecords 处理消息
-func (s *TalkRecordService) handleTalkRecords(ctx context.Context, items []*QueryTalkRecord) ([]*TalkRecord, error) {
+func (s *TalkRecordService) handleTalkRecords(ctx context.Context, items []*model.TalkMessageRecord) ([]*model.TalkMessageRecord, error) {
 	if len(items) == 0 {
-		return make([]*TalkRecord, 0), nil
+		return make([]*model.TalkMessageRecord, 0), nil
 	}
 
 	uids := make([]int, 0, len(items))
 	for _, item := range items {
-		uids = append(uids, item.UserId)
+		uids = append(uids, item.FromId)
 	}
 
 	var usersItems []*model.Users
-	err := s.Source.Db().Model(&model.Users{}).Select("id,nickname,avatar").Where("id in ?", sliceutil.Unique(uids)).Scan(&usersItems).Error
+	err := s.Source.Db().WithContext(ctx).Model(&model.Users{}).
+		Select("id,nickname,avatar").
+		Where("id in ?", sliceutil.Unique(uids)).Scan(&usersItems).Error
 	if err != nil {
 		return nil, err
 	}
@@ -296,36 +289,20 @@ func (s *TalkRecordService) handleTalkRecords(ctx context.Context, items []*Quer
 		hashUser[user.Id] = user
 	}
 
-	newItems := make([]*TalkRecord, 0, len(items))
-	for _, item := range items {
-		data := &TalkRecord{
-			MsgId:     item.MsgId,
-			Sequence:  int(item.Sequence),
-			MsgType:   item.MsgType,
-			UserId:    item.UserId,
-			Nickname:  item.Nickname,
-			Avatar:    item.Avatar,
-			IsRevoked: item.IsRevoked,
-			SendTime:  item.SendTime.Format(time.DateTime),
-			Extra:     make(map[string]any),
-			Quote:     make(map[string]any),
+	for i := 0; i < len(items); i++ {
+		if user, ok := hashUser[items[i].FromId]; ok {
+			items[i].Nickname = user.Nickname
+			items[i].Avatar = user.Avatar
 		}
 
-		if user, ok := hashUser[item.UserId]; ok {
-			data.Nickname = user.Nickname
-			data.Avatar = user.Avatar
-		}
-
-		if err := jsonutil.Decode(item.Extra, &data.Extra); err != nil {
-			fmt.Println("ERR===>", item.MsgId, data.Extra, item.Extra)
-		}
-
-		if err := jsonutil.Decode(item.Quote, &data.Quote); err != nil {
-			fmt.Println("ERR===>", item.MsgId, data.Quote, item.Quote)
-		}
-
-		newItems = append(newItems, data)
+		//if err = jsonutil.Decode(items[i].Extra, &items[i].Extra); err != nil {
+		//	fmt.Println("ERR===>", items[i].MsgId, items[i].Extra, items[i].Extra)
+		//}
+		//
+		//if err = jsonutil.Decode(items[i].Quote, &items[i].Quote); err != nil {
+		//	fmt.Println("ERR===>", items[i].MsgId, items[i].Quote, items[i].Quote)
+		//}
 	}
 
-	return newItems, nil
+	return items, nil
 }

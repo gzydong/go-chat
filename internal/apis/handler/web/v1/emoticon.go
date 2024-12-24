@@ -31,7 +31,7 @@ func (c *Emoticon) List(ctx *core.Context) error {
 
 	items, err := c.EmoticonRepo.GetCustomizeList(ctx.UserId())
 	if err != nil {
-		return ctx.Error(err.Error())
+		return ctx.Error(err)
 	}
 
 	for _, item := range items {
@@ -52,7 +52,7 @@ func (c *Emoticon) Delete(ctx *core.Context) error {
 	}
 
 	if err := c.EmoticonService.DeleteCollect(ctx.UserId(), []int{int(in.GetEmoticonId())}); err != nil {
-		return ctx.ErrorBusiness(err.Error())
+		return ctx.Error(err)
 	}
 
 	return ctx.Success(nil)
@@ -72,7 +72,7 @@ func (c *Emoticon) Create(ctx *core.Context) error {
 	}
 
 	if err := c.EmoticonRepo.Db.Create(m).Error; err != nil {
-		return ctx.ErrorBusiness("上传失败！")
+		return ctx.Error(err)
 	}
 
 	return ctx.Success(&web.EmoticonCreateResponse{
@@ -99,7 +99,7 @@ func (c *Emoticon) Upload(ctx *core.Context) error {
 
 	stream, err := filesystem.ReadMultipartStream(file)
 	if err != nil {
-		return ctx.ErrorBusiness("上传失败！")
+		return ctx.Error(err)
 	}
 
 	meta := utils.ReadImageMeta(bytes.NewReader(stream))
@@ -107,7 +107,7 @@ func (c *Emoticon) Upload(ctx *core.Context) error {
 
 	src := strutil.GenMediaObjectName(ext, meta.Width, meta.Height)
 	if err = c.Filesystem.Write(c.Filesystem.BucketPublicName(), src, stream); err != nil {
-		return ctx.ErrorBusiness("上传失败！")
+		return ctx.Error(err)
 	}
 
 	m := &model.EmoticonItem{
@@ -117,7 +117,7 @@ func (c *Emoticon) Upload(ctx *core.Context) error {
 	}
 
 	if err := c.EmoticonRepo.Db.Create(m).Error; err != nil {
-		return ctx.ErrorBusiness("上传失败！")
+		return ctx.Error(err)
 	}
 
 	return ctx.Success(&web.EmoticonUploadResponse{

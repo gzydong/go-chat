@@ -32,7 +32,7 @@ message AuthRegisterRequest{
   // 登录手机号
   string mobile = 2 [(tagger.tags) = "binding:\"required,len=11,phone\""];
   // 登录密码
-  string password = 3 [(tagger.tags) = "binding:\"required,min=6,max=16\""];
+  string password = 3 [(tagger.tags) = "binding:\"required\""];
   // 登录平台
   string platform = 4 [(tagger.tags) = "binding:\"required,oneof=h5 ios windows mac web\""];
   // 短信验证码
@@ -59,7 +59,7 @@ message AuthForgetRequest{
   // 手机号
   string mobile = 1 [(tagger.tags) = "binding:\"required,len=11,phone\""];
   // 登录密码
-  string password = 2 [(tagger.tags) = "binding:\"required,min=6,max=16\""];
+  string password = 2 [(tagger.tags) = "binding:\"required\""];
   // 短信验证码
   string sms_code = 3 [(tagger.tags) = "binding:\"required\""];
 }

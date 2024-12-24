@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"testing"
 	"time"
-
-	"go-chat/internal/pkg/timeutil"
 )
 
 type Conn struct {
@@ -20,7 +18,7 @@ func TestNewTimeWheel(t *testing.T) {
 	obj := NewTimeWheel(func(wheel *TimeWheel, a any) {
 		num++
 		if val, ok := a.(*Conn); ok {
-			fmt.Println("预期过期时间", val.lastTime.Format(timeutil.DatetimeFormat), "当前时间", time.Now().Format(timeutil.DatetimeFormat), "num", num)
+			fmt.Println("预期过期时间", val.lastTime.Format(time.DateTime), "当前时间", time.Now().Format(time.DateTime), "num", num)
 		}
 	})
 

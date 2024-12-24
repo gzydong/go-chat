@@ -25,7 +25,7 @@ func (c *Group) List(ctx *core.Context) error {
 
 	count, err := c.ContactRepo.FindCount(ctx.Ctx(), "user_id = ? and status = ?", uid, model.Yes)
 	if err != nil {
-		return ctx.Error(err.Error())
+		return ctx.Error(err)
 	}
 
 	items = append(items, &web.ContactGroupListResponse_Item{
@@ -35,7 +35,7 @@ func (c *Group) List(ctx *core.Context) error {
 
 	group, err := c.ContactGroupService.GetUserGroup(ctx.Ctx(), uid)
 	if err != nil {
-		return ctx.Error(err.Error())
+		return ctx.Error(err)
 	}
 
 	for _, v := range group {
@@ -82,7 +82,7 @@ func (c *Group) Save(ctx *core.Context) error {
 
 	all, err := c.ContactGroupRepo.FindAll(ctx.Ctx())
 	if err != nil {
-		return ctx.ErrorBusiness(err)
+		return ctx.Error(err)
 	}
 
 	for _, m := range all {
@@ -127,7 +127,7 @@ func (c *Group) Save(ctx *core.Context) error {
 	})
 
 	if err != nil {
-		return ctx.Error(err.Error())
+		return ctx.Error(err)
 	}
 
 	return ctx.Success(&web.ContactGroupSaveResponse{})

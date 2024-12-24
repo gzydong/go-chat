@@ -4,14 +4,47 @@ app:
   debug: false
   admin_email:
     -
+    # 不知道怎么生成的可以看这个网站 http://www.usey.cn/rsa?bits=2048
   public_key: |
     -----BEGIN PUBLIC KEY-----
-    xxxxxxx
+    MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA1JqqxPLNWEy371X+kOXq
+    wE8fMebohqHI9txXRoUIh28dYsrv85JTrknLlPcYWT5Q27nHGcywu8hpsjMwe1U2
+    akHikIzLYEu/8GaGqI7qHa+73F54lVKHBcwdK8PjH8+o76kN9MsouJ8QA7Nk0g4u
+    6equEzyrchwjr/bOjP4MhPt4hU90jpQbp3tqDu6PQgPQZzxDtIX9TeqzplCAYNy2
+    M4i1HtbZk2a9vimFqTsM8i+ALPH47c+Bt4b4mLoKqSyF6K1muhV/kqfecV8fvyfN
+    bkJdUkWQnNvgTX0f1nhAshArLMw4VyROrYBAamFgtzwRpC4qCYhBzWqyhb10bEEf
+    XwIDAQAB
     -----END PUBLIC KEY-----
+
   private_key: |
-    -----BEGIN RSA PRIVATE KEY-----
-    xxxxx
-    -----END RSA PRIVATE KEY-----
+    -----BEGIN PRIVATE KEY-----
+    MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDUmqrE8s1YTLfv
+    Vf6Q5erATx8x5uiGocj23FdGhQiHbx1iyu/zklOuScuU9xhZPlDbuccZzLC7yGmy
+    MzB7VTZqQeKQjMtgS7/wZoaojuodr7vcXniVUocFzB0rw+Mfz6jvqQ30yyi4nxAD
+    s2TSDi7p6q4TPKtyHCOv9s6M/gyE+3iFT3SOlBune2oO7o9CA9BnPEO0hf1N6rOm
+    UIBg3LYziLUe1tmTZr2+KYWpOwzyL4As8fjtz4G3hviYugqpLIXorWa6FX+Sp95x
+    Xx+/J81uQl1SRZCc2+BNfR/WeECyECsszDhXJE6tgEBqYWC3PBGkLioJiEHNarKF
+    vXRsQR9fAgMBAAECggEBAIgad8Zbda/YdUwHrk9OkQkJ3fuRSjyeJ8w5ZLnlgn9J
+    V/Od3Rz+CQojfevgf7rqFNOFS/utOVsNwvRsptXdyFcf1I4bRDtiYv7gc8ZGr4PP
+    s6Ew7VsSmRPSBr60yZrc0taSUDftMyV11se3uYxrvgbL0SLJjSwg7YvBoZtLK/KY
+    6u+oAhMALuiOV773+TApKatQrNy41DaB+YNkxQzQbp8lHaLApLLSYkyIn47kxmwh
+    qaH3NX13KnWauNYA2HuuZmrVH4nabr8WFq2057vJlssWcxgwxDEEjtkY2GofiHAo
+    r+cXslrErX8hpJrQ2S6bVtisqVVib5yhruG7Ke45kOkCgYEA9vnQxF5LqY2TETz0
+    1NAPu1mSvPdmM78CwT5uFnjhYDfnf41346Cv/WEDvZJuLwo2LCf+N0qpb/pJ7e0V
+    lAhXsJqFSdRgd6GOdImVvuC2meoUQF282neGeRI6SKPCz4r+DRMBbjkIrDSCw/TR
+    yB+hPAxxgHKHC4ji3tB9Lzl//y0CgYEA3F9Xv5PFV/A5j0uDK3rOE0frfEWUfxPx
+    IUPjaWPbajHQqgJDqJyB6lg2M284FEYGtGlPHZGSU9Q15NEVukmhsZJm2Vzsf6Ss
+    8BEAJS7ngtj064h0QYrOwyUHMVC99OdvQTSi5LTQxTYQp0jnxdinFX2NF8zDRdt5
+    ePQqi0AYkDsCgYEA9hr2N9enGewj8veFGVPDeXPGz1rQkxvyCNLHLMmD/Dd5DhfQ
+    shl7hcfYzF1QQruwQ8wOfNZ/hUApz1eDOyIdD7TKwUlKX6uzotk/SRfvnewuBf3i
+    pOiaLadGQQA+rkXY5vpbYJSg2cjxzYb2TK+IIahcqhx2Cb58JIApXpezvnkCgYBL
+    Ba5SyxTI3kBKNzPdjn4vdDGH6gwmwvw5DeqSi2s8GN9nsUOlWDqmNAentPpLdJd9
+    vcgwUcmV/k2mq0ORWtXQJP4ci5T7020IgVEiV3h7RC8FLDwfwAipyKZNNKamhE+M
+    zEWURLY6HTDIMnqtERe4qjhpXM0xsAkHk2AUbequ1wKBgGjV3oF/Pk9i94YhG61P
+    +OSFzf6Ci+c6aGz1pWRP6KwTJAnHV/1sI+8uHp6gJZnxiJyPsESqX8whttF36UaC
+    en1nf7/FASIbrMbL+vAAxzKPCbo6iBOV9e4MsimgT9Vo7kpsi49VsNCFCriliCja
+    k4cC5qJhehEvZcgOiwr5qsvi
+    -----END PRIVATE KEY-----
 
 server:
   http: 9501

@@ -4,10 +4,11 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"slices"
+
 	"go-chat/internal/repository/model"
 	"go-chat/internal/repository/repo"
 	"gorm.io/gorm"
-	"slices"
 
 	"go-chat/internal/pkg/sliceutil"
 	"go-chat/internal/pkg/strutil"

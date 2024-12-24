@@ -24,7 +24,7 @@ func (o *Organize) DepartmentList(ctx *core.Context) error {
 
 	list, err := o.DepartmentRepo.List(ctx.Ctx())
 	if err != nil {
-		return ctx.ErrorBusiness(err.Error())
+		return ctx.Error(err)
 	}
 
 	items := make([]*web.OrganizeDepartmentListResponse_Item, 0, len(list))
@@ -50,12 +50,12 @@ func (o *Organize) PersonnelList(ctx *core.Context) error {
 
 	list, err := o.OrganizeRepo.List()
 	if err != nil {
-		return ctx.ErrorBusiness(err.Error())
+		return ctx.Error(err)
 	}
 
 	departments, err := o.DepartmentRepo.List(ctx.Ctx())
 	if err != nil {
-		return ctx.ErrorBusiness(err.Error())
+		return ctx.Error(err)
 	}
 
 	deptHash := make(map[int]*model.OrganizeDept)
@@ -65,7 +65,7 @@ func (o *Organize) PersonnelList(ctx *core.Context) error {
 
 	positions, err := o.PositionRepo.List(ctx.Ctx())
 	if err != nil {
-		return ctx.ErrorBusiness(err.Error())
+		return ctx.Error(err)
 	}
 
 	positionHash := make(map[int]*model.OrganizePost)

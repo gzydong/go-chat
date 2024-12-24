@@ -94,3 +94,15 @@ message ContactChangeGroupRequest{
 
 // 修改联系人分组接口响应参数
 message ContactChangeGroupResponse{}
+
+
+// 获取联系人在线状态请求参数
+message ContactOnlineStatusRequest{
+  int32 user_id = 1 [(tagger.tags) = "form:\"user_id\" binding:\"required\""];
+}
+
+// 获取联系人在线状态响应参数
+message ContactOnlineStatusResponse{
+  // 在线状态 [1:离线;2:在线;]
+  int32 online_status = 1;
+}

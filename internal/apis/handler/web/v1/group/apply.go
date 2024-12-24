@@ -2,6 +2,7 @@ package group
 
 import (
 	"errors"
+
 	"github.com/redis/go-redis/v9"
 	"go-chat/api/pb/web/v1"
 	"go-chat/internal/business"
@@ -37,7 +38,7 @@ func (c *Apply) Create(ctx *core.Context) error {
 
 	apply, err := c.GroupApplyRepo.FindByWhere(ctx.Ctx(), "group_id = ? and user_id = ? and status = ?", in.GroupId, ctx.UserId(), model.GroupApplyStatusWait)
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-		return ctx.Error(err.Error())
+		return ctx.Error(err)
 	}
 
 	uid := ctx.UserId()
@@ -66,7 +67,7 @@ func (c *Apply) Create(ctx *core.Context) error {
 	}
 
 	if err != nil {
-		return ctx.Error(err.Error())
+		return ctx.Error(err)
 	}
 
 	find, err := c.GroupMemberRepo.FindByWhere(ctx.Ctx(), "group_id = ? and leader = ?", in.GroupId, model.GroupMemberLeaderOwner)
@@ -96,11 +97,11 @@ func (c *Apply) Agree(ctx *core.Context) error {
 
 	apply, err := c.GroupApplyRepo.FindById(ctx.Ctx(), int(in.ApplyId))
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-		return ctx.Error(err.Error())
+		return ctx.Error(err)
 	}
 
 	if errors.Is(err, gorm.ErrRecordNotFound) {
-		return ctx.ErrorBusiness("申请信息不存在")
+		return ctx.Error(entity.ErrDataNotFound)
 	}
 
 	if !c.GroupMemberRepo.IsLeader(ctx.Ctx(), apply.GroupId, uid) {
@@ -108,7 +109,7 @@ func (c *Apply) Agree(ctx *core.Context) error {
 	}
 
 	if apply.Status != model.GroupApplyStatusWait {
-		return ctx.ErrorBusiness("申请信息已被他(她)人处理")
+		return ctx.Success(nil)
 	}
 
 	if !c.GroupMemberRepo.IsMember(ctx.Ctx(), apply.GroupId, apply.UserId, false) {
@@ -119,7 +120,7 @@ func (c *Apply) Agree(ctx *core.Context) error {
 		})
 
 		if err != nil {
-			return ctx.ErrorBusiness(err.Error())
+			return ctx.Error(err)
 		}
 	}
 
@@ -130,7 +131,7 @@ func (c *Apply) Agree(ctx *core.Context) error {
 
 	_, err = c.GroupApplyRepo.UpdateByWhere(ctx.Ctx(), data, "id = ?", in.ApplyId)
 	if err != nil {
-		return ctx.Error(err.Error())
+		return ctx.Error(err)
 	}
 
 	return ctx.Success(nil)
@@ -146,11 +147,11 @@ func (c *Apply) Decline(ctx *core.Context) error {
 
 	apply, err := c.GroupApplyRepo.FindById(ctx.Ctx(), int(in.ApplyId))
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-		return ctx.Error(err.Error())
+		return ctx.Error(err)
 	}
 
 	if errors.Is(err, gorm.ErrRecordNotFound) {
-		return ctx.ErrorBusiness("申请信息不存在")
+		return ctx.Error(entity.ErrDataNotFound)
 	}
 
 	if !c.GroupMemberRepo.IsLeader(ctx.Ctx(), apply.GroupId, uid) {
@@ -158,7 +159,7 @@ func (c *Apply) Decline(ctx *core.Context) error {
 	}
 
 	if apply.Status != model.GroupApplyStatusWait {
-		return ctx.ErrorBusiness("申请信息已被他(她)人处理")
+		return ctx.Success(&web.GroupApplyDeclineResponse{})
 	}
 
 	data := map[string]any{
@@ -169,7 +170,7 @@ func (c *Apply) Decline(ctx *core.Context) error {
 
 	_, err = c.GroupApplyRepo.UpdateByWhere(ctx.Ctx(), data, "id = ?", in.ApplyId)
 	if err != nil {
-		return ctx.Error(err.Error())
+		return ctx.Error(err)
 	}
 
 	return ctx.Success(&web.GroupApplyDeclineResponse{})
@@ -187,7 +188,7 @@ func (c *Apply) List(ctx *core.Context) error {
 
 	list, err := c.GroupApplyRepo.List(ctx.Ctx(), []int{int(in.GroupId)})
 	if err != nil {
-		return ctx.ErrorBusiness("创建群聊失败，请稍后再试！")
+		return ctx.Error(err)
 	}
 
 	items := make([]*web.GroupApplyListResponse_Item, 0)
@@ -220,7 +221,7 @@ func (c *Apply) All(ctx *core.Context) error {
 	})
 
 	if err != nil {
-		return ctx.ErrorBusiness("系统异常，请稍后再试！")
+		return ctx.Error(err)
 	}
 
 	groupIds := make([]int, 0, len(all))
@@ -237,7 +238,7 @@ func (c *Apply) All(ctx *core.Context) error {
 
 	list, err := c.GroupApplyRepo.List(ctx.Ctx(), groupIds)
 	if err != nil {
-		return ctx.ErrorBusiness("系统异常，请稍后再试！")
+		return ctx.Error(err)
 	}
 
 	groups, err := c.GroupRepo.FindAll(ctx.Ctx(), func(db *gorm.DB) {

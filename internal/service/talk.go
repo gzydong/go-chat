@@ -3,9 +3,14 @@ package service
 import (
 	"context"
 	"errors"
+	"fmt"
 	"time"
 
+	"go-chat/internal/business"
 	"go-chat/internal/entity"
+	"go-chat/internal/pkg/jsonutil"
+	"go-chat/internal/pkg/logger"
+	"go-chat/internal/repository/cache"
 	"go-chat/internal/repository/model"
 	"go-chat/internal/repository/repo"
 	"gorm.io/gorm"
@@ -34,6 +39,9 @@ type ITalkService interface {
 type TalkService struct {
 	*repo.Source
 	GroupMemberRepo *repo.GroupMember
+	UserRepo        *repo.Users
+	PushMessage     *business.PushMessage
+	MessageStorage  *cache.MessageStorage
 }
 
 // DeleteRecord 删除消息记录
@@ -75,10 +83,43 @@ func (t *TalkService) DeleteRecord(ctx context.Context, opt *TalkDeleteRecordOpt
 }
 
 // Revoke 撤回消息
-// TODO 撤回消息后需要推送消息
-func (t *TalkService) Revoke(ctx context.Context, opt *TalkRevokeOption) error {
-
+func (t *TalkService) Revoke(ctx context.Context, opt *TalkRevokeOption) (err error) {
 	db := t.Db().WithContext(ctx)
+
+	var (
+		fromId   int
+		toFromId int
+	)
+
+	defer func() {
+		if err == nil {
+			remark := "有消息已被撤回"
+
+			user, _ := t.UserRepo.FindByIdWithCache(ctx, fromId)
+			if user != nil {
+				remark = fmt.Sprintf("【%s】撤回了一条消息", user.Nickname)
+
+				// 更新最后一条消息
+				_ = t.MessageStorage.Set(ctx, opt.TalkMode, fromId, toFromId, &cache.LastCacheMessage{
+					Content:  remark,
+					Datetime: time.Now().Format(time.DateTime),
+				})
+			}
+
+			e := t.PushMessage.Push(ctx, entity.ImTopicChat, &entity.SubscribeMessage{
+				Event: entity.SubEventImMessageRevoke,
+				Payload: jsonutil.Encode(entity.SubEventTalkRevokePayload{
+					TalkMode: opt.TalkMode,
+					MsgId:    opt.MsgId,
+					Remark:   remark,
+				}),
+			})
+
+			if e != nil {
+				logger.Errorf("revoke push message error:%s", err.Error())
+			}
+		}
+	}()
 
 	switch opt.TalkMode {
 	case entity.ChatPrivateMode:
@@ -100,6 +141,9 @@ func (t *TalkService) Revoke(ctx context.Context, opt *TalkRevokeOption) error {
 		if time.Now().Unix() > record.SendTime.Add(3*time.Minute).Unix() {
 			return errors.New("超出有效撤回时间范围，无法进行撤销！")
 		}
+
+		fromId = record.FromId
+		toFromId = record.ToFromId
 
 		return db.Model(&model.TalkUserMessage{}).
 			Where("org_msg_id = ?", record.OrgMsgId).
@@ -124,6 +168,9 @@ func (t *TalkService) Revoke(ctx context.Context, opt *TalkRevokeOption) error {
 		if time.Now().Unix() > record.SendTime.Add(3*time.Minute).Unix() {
 			return errors.New("超出有效撤回时间范围，无法进行撤销！")
 		}
+
+		fromId = record.FromId
+		toFromId = record.GroupId
 
 		return db.Model(&model.TalkGroupMessage{}).
 			Where("msg_id = ?", record.MsgId).

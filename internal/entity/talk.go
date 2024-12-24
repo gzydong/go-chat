@@ -83,14 +83,3 @@ type TalkLastMessage struct {
 	Mention    []int  // 提及列表
 	CreatedAt  string // 消息发送时间
 }
-
-type TalkRecord struct {
-	MsgId      string `json:"msg_id"`
-	Sequence   int    `json:"sequence"`
-	MsgType    int    `json:"msg_type"`
-	FromUserId int    `json:"from_user_id"`
-	Nickname   string `json:"nickname"`
-	Avatar     string `json:"avatar"`
-	Extra      any    `json:"extra"`
-	CreatedAt  string `json:"created_at"`
-}

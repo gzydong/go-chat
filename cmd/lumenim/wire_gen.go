@@ -63,8 +63,8 @@ func NewHttpInjector(conf *config.Config) *apis.AppProvider {
 		UsersRepo: users,
 	}
 	common := &v1.Common{
-		UsersRepo:   users,
 		Config:      conf,
+		UsersRepo:   users,
 		SmsService:  smsService,
 		UserService: userService,
 	}
@@ -77,6 +77,7 @@ func NewHttpInjector(conf *config.Config) *apis.AppProvider {
 		Source:       source,
 		ArticleClass: articleClass,
 	}
+	iRsa := provider.NewRsa(conf)
 	auth := &v1.Auth{
 		Config:              conf,
 		Redis:               client,
@@ -86,6 +87,7 @@ func NewHttpInjector(conf *config.Config) *apis.AppProvider {
 		SmsService:          smsService,
 		UserService:         userService,
 		ArticleClassService: articleClassService,
+		Rsa:                 iRsa,
 	}
 	organize := repo.NewOrganize(db)
 	user := &v1.User{
@@ -94,6 +96,7 @@ func NewHttpInjector(conf *config.Config) *apis.AppProvider {
 		OrganizeRepo: organize,
 		UserService:  userService,
 		SmsService:   smsService,
+		Rsa:          iRsa,
 	}
 	department := repo.NewDepartment(db)
 	position := repo.NewPosition(db)
@@ -111,9 +114,15 @@ func NewHttpInjector(conf *config.Config) *apis.AppProvider {
 	repoContact := repo.NewContact(db, contactRemark, relation)
 	repoGroup := repo.NewGroup(db)
 	groupMember := repo.NewGroupMember(db, relation)
+	pushMessage := &business.PushMessage{
+		Redis: client,
+	}
 	talkService := &service.TalkService{
 		Source:          source,
 		GroupMemberRepo: groupMember,
+		UserRepo:        users,
+		PushMessage:     pushMessage,
+		MessageStorage:  messageStorage,
 	}
 	talkSession := repo.NewTalkSession(db)
 	talkSessionService := &service.TalkSessionService{
@@ -122,9 +131,6 @@ func NewHttpInjector(conf *config.Config) *apis.AppProvider {
 	}
 	sequence := cache.NewSequence(client)
 	repoSequence := repo.NewSequence(db, sequence)
-	pushMessage := &business.PushMessage{
-		Redis: client,
-	}
 	groupService := &service.GroupService{
 		Source:          source,
 		GroupRepo:       repoGroup,
@@ -393,6 +399,7 @@ func NewHttpInjector(conf *config.Config) *apis.AppProvider {
 		AdminRepo:       repoAdmin,
 		JwtTokenStorage: jwtTokenStorage,
 		ICaptcha:        captcha,
+		Rsa:             iRsa,
 	}
 	adminV1 := &admin.V1{
 		Index: index,
@@ -423,7 +430,7 @@ func NewHttpInjector(conf *config.Config) *apis.AppProvider {
 	return appProvider
 }
 
-func NewCommetInjector(conf *config.Config) *comet.AppProvider {
+func NewCometInjector(conf *config.Config) *comet.AppProvider {
 	client := provider.NewRedisClient(conf)
 	serverStorage := cache.NewSidStorage(client)
 	clientStorage := cache.NewClientStorage(client, conf, serverStorage)
@@ -652,4 +659,4 @@ func NewMigrateInjector(conf *config.Config) *mission.MigrateProvider {
 
 // wire.go:
 
-var providerSet = wire.NewSet(provider.NewMySQLClient, provider.NewRedisClient, provider.NewHttpClient, provider.NewEmailClient, provider.NewFilesystem, provider.NewBase64Captcha, provider.NewIpAddressClient, wire.Struct(new(provider.Providers), "*"), cache.ProviderSet, repo.ProviderSet, business.ProviderSet, service.ProviderSet)
+var providerSet = wire.NewSet(provider.ProviderSet, cache.ProviderSet, repo.ProviderSet, business.ProviderSet, service.ProviderSet)

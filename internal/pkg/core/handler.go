@@ -12,7 +12,6 @@ func HandlerFunc(fn func(ctx *Context) error) gin.HandlerFunc {
 			c.AbortWithStatusJSON(http.StatusInternalServerError, &Response{
 				Code:    http.StatusInternalServerError,
 				Message: err.Error(),
-				Meta:    initMeta(),
 			})
 			return
 		}

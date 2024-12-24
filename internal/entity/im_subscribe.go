@@ -46,3 +46,9 @@ type SubEventContactStatusPayload struct {
 	Status int `json:"status"` // 1:上线 2:下线
 	UserId int `json:"user_id"`
 }
+
+type SubEventTalkRevokePayload struct {
+	TalkMode int    `json:"talk_mode"` // 1单聊 2群聊
+	MsgId    string `json:"msg_id"`    // 消息ID
+	Remark   string `json:"remark"`
+}

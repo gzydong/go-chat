@@ -29,11 +29,14 @@ func (u *Upload) Avatar(ctx *core.Context) error {
 		return ctx.InvalidParams("文件上传失败！")
 	}
 
-	stream, _ := filesystem.ReadMultipartStream(file)
+	stream, err := filesystem.ReadMultipartStream(file)
+	if err != nil {
+		return ctx.Error(err)
+	}
 
 	object := strutil.GenMediaObjectName("png", 200, 200)
 	if err := u.Filesystem.Write(u.Filesystem.BucketPublicName(), object, stream); err != nil {
-		return ctx.ErrorBusiness("文件上传失败")
+		return ctx.Error(err)
 	}
 
 	return ctx.Success(web.UploadAvatarResponse{
@@ -64,7 +67,7 @@ func (u *Upload) Image(ctx *core.Context) error {
 
 	object := strutil.GenMediaObjectName(ext, width, height)
 	if err := u.Filesystem.Write(u.Filesystem.BucketPublicName(), object, stream); err != nil {
-		return ctx.ErrorBusiness("文件上传失败")
+		return ctx.Error(err)
 	}
 
 	return ctx.Success(web.UploadImageResponse{
@@ -85,7 +88,7 @@ func (u *Upload) InitiateMultipart(ctx *core.Context) error {
 		UserId: ctx.UserId(),
 	})
 	if err != nil {
-		return ctx.ErrorBusiness(err.Error())
+		return ctx.Error(err)
 	}
 
 	return ctx.Success(&web.UploadInitiateMultipartResponse{
@@ -115,7 +118,7 @@ func (u *Upload) MultipartUpload(ctx *core.Context) error {
 		File:       file,
 	})
 	if err != nil {
-		return ctx.ErrorBusiness(err.Error())
+		return ctx.Error(err)
 	}
 
 	if in.SplitIndex != in.SplitNum {

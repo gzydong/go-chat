@@ -15,7 +15,7 @@ func (c *Class) List(ctx *core.Context) error {
 
 	list, err := c.ArticleClassService.List(ctx.Ctx(), ctx.UserId())
 	if err != nil {
-		return ctx.ErrorBusiness(err.Error())
+		return ctx.Error(err)
 	}
 
 	items := make([]*web.ArticleClassListResponse_Item, 0, len(list))
@@ -61,7 +61,7 @@ func (c *Class) Edit(ctx *core.Context) error {
 	}
 
 	if err != nil {
-		return ctx.ErrorBusiness("笔记分类编辑失败")
+		return ctx.Error(err)
 	}
 
 	return ctx.Success(&web.ArticleClassEditResponse{
@@ -79,7 +79,7 @@ func (c *Class) Delete(ctx *core.Context) error {
 
 	err := c.ArticleClassService.Delete(ctx.Ctx(), ctx.UserId(), int(in.ClassifyId))
 	if err != nil {
-		return ctx.ErrorBusiness(err.Error())
+		return ctx.Error(err)
 	}
 
 	return ctx.Success(&web.ArticleClassDeleteResponse{})
@@ -95,7 +95,7 @@ func (c *Class) Sort(ctx *core.Context) error {
 
 	err := c.ArticleClassService.Sort(ctx.Ctx(), ctx.UserId(), int(in.ClassifyId), int(in.SortType))
 	if err != nil {
-		return ctx.ErrorBusiness(err.Error())
+		return ctx.Error(err)
 	}
 
 	return ctx.Success(&web.ArticleClassSortResponse{})

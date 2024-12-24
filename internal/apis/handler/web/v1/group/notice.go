@@ -3,6 +3,8 @@ package group
 import (
 	"errors"
 	"fmt"
+	"time"
+
 	"go-chat/api/pb/web/v1"
 	"go-chat/internal/entity"
 	"go-chat/internal/pkg/core"
@@ -12,7 +14,6 @@ import (
 	"go-chat/internal/service"
 	"go-chat/internal/service/message"
 	"gorm.io/gorm"
-	"time"
 )
 
 type Notice struct {
@@ -33,7 +34,7 @@ func (c *Notice) CreateAndUpdate(ctx *core.Context) error {
 	uid := ctx.UserId()
 
 	if !c.GroupMemberRepo.IsMember(ctx.Ctx(), int(in.GroupId), uid, false) {
-		return ctx.ErrorBusiness("无权限操作")
+		return ctx.Error(entity.ErrPermissionDenied)
 	}
 
 	var (
@@ -43,7 +44,7 @@ func (c *Notice) CreateAndUpdate(ctx *core.Context) error {
 
 	notice, err := c.GroupNoticeRepo.FindByWhere(ctx.Ctx(), "group_id = ?", in.GroupId)
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-		return ctx.Error(err.Error())
+		return ctx.Error(err)
 	}
 
 	if notice == nil {
@@ -66,7 +67,7 @@ func (c *Notice) CreateAndUpdate(ctx *core.Context) error {
 	}
 
 	if err != nil {
-		return ctx.ErrorBusiness(err.Error())
+		return ctx.Error(err)
 	}
 
 	userInfo, err := c.UsersRepo.FindByIdWithCache(ctx.Ctx(), uid)

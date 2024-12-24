@@ -67,8 +67,6 @@ func (m *TalkSessionItem) validate(all bool) error {
 
 	// no validation rules for IsDisturb
 
-	// no validation rules for IsOnline
-
 	// no validation rules for IsRobot
 
 	// no validation rules for Name

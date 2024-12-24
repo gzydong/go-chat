@@ -2,8 +2,9 @@ package chat
 
 import (
 	"context"
-	"go-chat/internal/business"
 	"log"
+
+	"go-chat/internal/business"
 
 	"github.com/redis/go-redis/v9"
 	"go-chat/internal/pkg/core/socket"

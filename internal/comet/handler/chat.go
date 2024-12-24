@@ -1,8 +1,9 @@
 package handler
 
 import (
-	"go-chat/internal/comet/handler/event"
 	"log"
+
+	"go-chat/internal/comet/handler/event"
 
 	"go-chat/internal/pkg/core"
 	"go-chat/internal/pkg/core/socket"

@@ -2,6 +2,7 @@ package article
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"math"
 	"net/http"
@@ -42,14 +43,14 @@ func (c *Annex) Upload(ctx *core.Context) error {
 
 	stream, err := filesystem.ReadMultipartStream(file)
 	if err != nil {
-		return ctx.ErrorBusiness("附件上传失败")
+		return ctx.Error(err)
 	}
 
 	ext := strutil.FileSuffix(file.Filename)
 
 	filePath := fmt.Sprintf("article-files/%s/%s", time.Now().Format("200601"), strutil.GenFileName(ext))
 	if err := c.Filesystem.Write(c.Filesystem.BucketPrivateName(), filePath, stream); err != nil {
-		return ctx.ErrorBusiness("附件上传失败")
+		return ctx.Error(err)
 	}
 
 	data := &model.ArticleAnnex{
@@ -67,7 +68,7 @@ func (c *Annex) Upload(ctx *core.Context) error {
 	}
 
 	if err := c.ArticleAnnexService.Create(ctx.Ctx(), data); err != nil {
-		return ctx.ErrorBusiness("附件上传失败")
+		return ctx.Error(err)
 	}
 
 	return ctx.Success(&web.ArticleAnnexUploadResponse{
@@ -88,7 +89,7 @@ func (c *Annex) Delete(ctx *core.Context) error {
 
 	err := c.ArticleAnnexService.UpdateStatus(ctx.Ctx(), ctx.UserId(), int(in.AnnexId), 2)
 	if err != nil {
-		return ctx.ErrorBusiness(err.Error())
+		return ctx.Error(err)
 	}
 
 	return ctx.Success(&web.ArticleAnnexDeleteResponse{})
@@ -104,7 +105,7 @@ func (c *Annex) Recover(ctx *core.Context) error {
 
 	err := c.ArticleAnnexService.UpdateStatus(ctx.Ctx(), ctx.UserId(), int(in.AnnexId), 1)
 	if err != nil {
-		return ctx.ErrorBusiness(err.Error())
+		return ctx.Error(err)
 	}
 
 	return ctx.Success(&web.ArticleAnnexRecoverResponse{})
@@ -113,9 +114,8 @@ func (c *Annex) Recover(ctx *core.Context) error {
 // RecycleList 附件回收站列表
 func (c *Annex) RecycleList(ctx *core.Context) error {
 	items, err := c.ArticleAnnexRepo.RecoverList(ctx.Ctx(), ctx.UserId())
-
 	if err != nil {
-		return ctx.ErrorBusiness(err.Error())
+		return ctx.Error(err)
 	}
 
 	data := make([]*web.ArticleAnnexRecoverListResponse_Item, 0)
@@ -153,7 +153,7 @@ func (c *Annex) ForeverDelete(ctx *core.Context) error {
 	}
 
 	if err := c.ArticleAnnexService.ForeverDelete(ctx.Ctx(), ctx.UserId(), int(in.AnnexId)); err != nil {
-		return ctx.ErrorBusiness(err.Error())
+		return ctx.Error(err)
 	}
 
 	return ctx.Success(&web.ArticleAnnexForeverDeleteResponse{})
@@ -169,7 +169,7 @@ func (c *Annex) Download(ctx *core.Context) error {
 
 	info, err := c.ArticleAnnexRepo.FindById(ctx.Ctx(), int(in.AnnexId))
 	if err != nil {
-		return ctx.ErrorBusiness(err.Error())
+		return ctx.Error(err)
 	}
 
 	if info.UserId != ctx.UserId() {
@@ -179,7 +179,7 @@ func (c *Annex) Download(ctx *core.Context) error {
 	switch info.Drive {
 	case entity.FileDriveLocal:
 		if c.Filesystem.Driver() != filesystem.LocalDriver {
-			return ctx.ErrorBusiness("未知文件驱动类型")
+			return ctx.Error(errors.New("未知文件驱动类型"))
 		}
 
 		filePath := c.Filesystem.(*filesystem.LocalFilesystem).Path(c.Filesystem.BucketPrivateName(), info.Path)
@@ -187,7 +187,7 @@ func (c *Annex) Download(ctx *core.Context) error {
 	case entity.FileDriveMinio:
 		ctx.Context.Redirect(http.StatusFound, c.Filesystem.PrivateUrl(c.Filesystem.BucketPrivateName(), info.Path, info.OriginalName, 60*time.Second))
 	default:
-		return ctx.ErrorBusiness("未知文件驱动类型")
+		return ctx.Error(errors.New("未知文件驱动类型"))
 	}
 
 	return nil

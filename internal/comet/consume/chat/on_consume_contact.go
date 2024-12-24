@@ -3,13 +3,14 @@ package chat
 import (
 	"context"
 	"encoding/json"
+	"time"
+
 	"go-chat/internal/entity"
 	"go-chat/internal/pkg/core/socket"
 	"go-chat/internal/pkg/logger"
 	"go-chat/internal/pkg/server"
 	"go-chat/internal/pkg/sliceutil"
 	"go-chat/internal/repository/model"
-	"time"
 )
 
 // 用户上线或下线消息

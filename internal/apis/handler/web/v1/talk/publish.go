@@ -38,7 +38,7 @@ func (c *Publish) Send(ctx *core.Context) error {
 		ToFromId:          in.ToFromId,
 		IsVerifyGroupMute: true,
 	}); err != nil {
-		return ctx.ErrorBusiness(err.Error())
+		return ctx.Error(err)
 	}
 
 	return c.transfer(ctx, in.Type)
@@ -69,7 +69,7 @@ func (c *Publish) onSendText(ctx *core.Context) error {
 	})
 
 	if err != nil {
-		return ctx.ErrorBusiness(err.Error())
+		return ctx.Error(err)
 	}
 
 	return ctx.Success(nil)
@@ -104,7 +104,7 @@ func (c *Publish) onSendImage(ctx *core.Context) error {
 	})
 
 	if err != nil {
-		return ctx.ErrorBusiness(err.Error())
+		return ctx.Error(err)
 	}
 
 	return ctx.Success(nil)
@@ -135,7 +135,7 @@ func (c *Publish) onSendVoice(ctx *core.Context) error {
 		Size:     in.Body.Size,
 	})
 	if err != nil {
-		return ctx.ErrorBusiness(err.Error())
+		return ctx.Error(err)
 	}
 
 	return ctx.Success(nil)
@@ -168,7 +168,7 @@ func (c *Publish) onSendVideo(ctx *core.Context) error {
 		Cover:    in.Body.Cover,
 	})
 	if err != nil {
-		return ctx.ErrorBusiness(err.Error())
+		return ctx.Error(err)
 	}
 
 	return ctx.Success(nil)
@@ -194,8 +194,9 @@ func (c *Publish) onSendFile(ctx *core.Context) error {
 		ToFromId: in.ToFromId,
 		UploadId: in.Body.UploadId,
 	})
+
 	if err != nil {
-		return ctx.ErrorBusiness(err.Error())
+		return ctx.Error(err)
 	}
 
 	return ctx.Success(nil)
@@ -224,7 +225,7 @@ func (c *Publish) onSendCode(ctx *core.Context) error {
 		Lang:     in.Body.Lang,
 	})
 	if err != nil {
-		return ctx.ErrorBusiness(err.Error())
+		return ctx.Error(err)
 	}
 
 	return ctx.Success(nil)
@@ -255,7 +256,7 @@ func (c *Publish) onSendLocation(ctx *core.Context) error {
 		Description: in.Body.Description,
 	})
 	if err != nil {
-		return ctx.ErrorBusiness(err.Error())
+		return ctx.Error(err)
 	}
 
 	return ctx.Success(nil)
@@ -276,6 +277,10 @@ func (c *Publish) onSendForward(ctx *core.Context) error {
 	in := &onSendForwardMessage{}
 	if err := ctx.Context.ShouldBindBodyWith(in, binding.JSON); err != nil {
 		return ctx.InvalidParams(err)
+	}
+
+	if len(in.Body.MsgIds) == 0 {
+		return ctx.InvalidParams("请选择要转发的消息")
 	}
 
 	go func() {
@@ -318,7 +323,7 @@ func (c *Publish) onSendEmoticon(ctx *core.Context) error {
 		EmoticonId: in.Body.EmoticonId,
 	})
 	if err != nil {
-		return ctx.ErrorBusiness(err.Error())
+		return ctx.Error(err)
 	}
 
 	return ctx.Success(nil)
@@ -345,7 +350,7 @@ func (c *Publish) onSendCard(ctx *core.Context) error {
 		UserId:   in.Body.UserId,
 	})
 	if err != nil {
-		return ctx.ErrorBusiness(err.Error())
+		return ctx.Error(err)
 	}
 
 	return ctx.Success(nil)
@@ -384,7 +389,7 @@ func (c *Publish) onMixedMessage(ctx *core.Context) error {
 		MessageList: items,
 	})
 	if err != nil {
-		return ctx.ErrorBusiness(err.Error())
+		return ctx.Error(err)
 	}
 
 	return ctx.Success(nil)

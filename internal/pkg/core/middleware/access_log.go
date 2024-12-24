@@ -94,6 +94,7 @@ func AccessLog(w io.Writer, filterRule *AccessFilterRule) gin.HandlerFunc {
 
 		c.Next()
 
+		defer access.reset()
 		if c.Request.Method != "OPTIONS" {
 			access.load()
 
@@ -241,6 +242,10 @@ func (a *AccessLogStore) save(log *slog.Logger) {
 	log.With(items...).Info("access_log")
 }
 
+func (a *AccessLogStore) reset() {
+	writer := a.ctx.Writer.(responseWriter)
+	writer.body.Reset()
+}
 func urlValuesToMap(values url.Values) map[string]any {
 	data := make(map[string]any)
 	for k, v := range values {

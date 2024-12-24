@@ -30,7 +30,7 @@ func (c *Message) Revoke(ctx *core.Context) error {
 		TalkMode: in.TalkMode,
 		MsgId:    in.MsgId,
 	}); err != nil {
-		return ctx.ErrorBusiness(err.Error())
+		return ctx.Error(err)
 	}
 
 	return ctx.Success(map[string]any{})
@@ -55,7 +55,7 @@ func (c *Message) Delete(ctx *core.Context) error {
 		ToFromId: in.ToFromId,
 		MsgIds:   in.MsgIds,
 	}); err != nil {
-		return ctx.ErrorBusiness(err.Error())
+		return ctx.Error(err)
 	}
 
 	return ctx.Success(nil)

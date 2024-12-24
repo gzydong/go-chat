@@ -3,11 +3,12 @@ package core
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
-	"runtime"
 
 	"github.com/gin-gonic/gin"
+	"go-chat/internal/pkg/core/errorx"
 	"go-chat/internal/pkg/core/middleware"
 	"go-chat/internal/pkg/core/validator"
 	"google.golang.org/protobuf/encoding/protojson"
@@ -30,7 +31,6 @@ func New(ctx *gin.Context) *Context {
 
 // Unauthorized 未认证
 func (c *Context) Unauthorized(message string) error {
-
 	c.Context.AbortWithStatusJSON(http.StatusUnauthorized, &Response{
 		Code:    http.StatusUnauthorized,
 		Message: message,
@@ -41,7 +41,6 @@ func (c *Context) Unauthorized(message string) error {
 
 // Forbidden 未授权
 func (c *Context) Forbidden(message string) error {
-
 	c.Context.AbortWithStatusJSON(http.StatusForbidden, &Response{
 		Code:    http.StatusForbidden,
 		Message: message,
@@ -52,8 +51,7 @@ func (c *Context) Forbidden(message string) error {
 
 // InvalidParams 参数错误
 func (c *Context) InvalidParams(message any) error {
-
-	resp := &Response{Code: 305, Message: "invalid params"}
+	resp := &Response{Code: 400, Message: "invalid params"}
 
 	switch msg := message.(type) {
 	case error:
@@ -69,40 +67,26 @@ func (c *Context) InvalidParams(message any) error {
 	return nil
 }
 
-// ErrorBusiness 业务错误
-func (c *Context) ErrorBusiness(message any) error {
+// Error 错误信息响应
+func (c *Context) Error(err error) error {
+	resp := &Response{Code: 400, Message: err.Error()}
 
-	resp := &Response{Code: 400, Message: "business error"}
-
-	switch msg := message.(type) {
-	case error:
-		resp.Message = msg.Error()
-	case string:
-		resp.Message = msg
-	default:
-		resp.Message = fmt.Sprintf("%v", msg)
+	var e *errorx.Error
+	if errors.As(err, &e) {
+		resp.Code = e.Code
+		resp.Message = e.Message
+		c.Context.AbortWithStatusJSON(http.StatusBadRequest, resp)
+	} else {
+		resp.Code = 500
+		resp.Message = err.Error()
+		c.Context.AbortWithStatusJSON(http.StatusInternalServerError, resp)
 	}
 
-	resp.Meta = initMeta()
-
-	c.Context.AbortWithStatusJSON(http.StatusBadRequest, resp)
-
-	return nil
-}
-
-// Error 系统错误
-func (c *Context) Error(error string) error {
-	c.Context.AbortWithStatusJSON(http.StatusInternalServerError, &Response{
-		Code:    500,
-		Message: error,
-		Meta:    initMeta(),
-	})
 	return nil
 }
 
 // Success 成功响应(Json 数据)
 func (c *Context) Success(data any, message ...string) error {
-
 	resp := &Response{
 		Code:    200,
 		Message: "success",
@@ -123,22 +107,18 @@ func (c *Context) Success(data any, message ...string) error {
 	}
 
 	c.Context.AbortWithStatusJSON(http.StatusOK, resp)
-
 	return nil
 }
 
 // Raw 成功响应(原始数据)
 func (c *Context) Raw(value string) error {
-
 	c.Context.Abort()
 	c.Context.String(http.StatusOK, value)
-
 	return nil
 }
 
 // UserId 返回登录用户的UID
 func (c *Context) UserId() int {
-
 	if session := c.JwtSession(); session != nil {
 		return session.Uid
 	}
@@ -148,7 +128,6 @@ func (c *Context) UserId() int {
 
 // JwtSession 返回登录用户的JSession
 func (c *Context) JwtSession() *middleware.JSession {
-
 	data, isOk := c.Context.Get(middleware.JWTSessionConst)
 	if !isOk {
 		return nil
@@ -164,14 +143,4 @@ func (c *Context) IsGuest() bool {
 
 func (c *Context) Ctx() context.Context {
 	return c.Context.Request.Context()
-}
-
-func initMeta() map[string]any {
-	meta := make(map[string]any)
-	_, _, line, ok := runtime.Caller(2)
-	if ok {
-		meta["error_line"] = line
-	}
-
-	return meta
 }

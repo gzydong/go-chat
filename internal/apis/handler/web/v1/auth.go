@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/redis/go-redis/v9"
+	"go-chat/internal/pkg/encrypt/rsautil"
 
 	"go-chat/api/pb/queue/v1"
 	"go-chat/api/pb/web/v1"
@@ -28,6 +29,7 @@ type Auth struct {
 	SmsService          service.ISmsService
 	UserService         service.IUserService
 	ArticleClassService service.IArticleClassService
+	Rsa                 rsautil.IRsa
 }
 
 // Login 登录接口
@@ -37,9 +39,14 @@ func (c *Auth) Login(ctx *core.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	user, err := c.UserService.Login(in.Mobile, in.Password)
+	password, err := c.Rsa.Decrypt(in.Password)
 	if err != nil {
-		return ctx.ErrorBusiness(err.Error())
+		return ctx.Error(err)
+	}
+
+	user, err := c.UserService.Login(ctx.Ctx(), in.Mobile, string(password))
+	if err != nil {
+		return ctx.Error(err)
 	}
 
 	data := jsonutil.Marshal(queue.UserLoginRequest{
@@ -82,13 +89,18 @@ func (c *Auth) Register(ctx *core.Context) error {
 		return ctx.InvalidParams("短信验证码填写错误！")
 	}
 
+	password, err := c.Rsa.Decrypt(in.Password)
+	if err != nil {
+		return ctx.Error(err)
+	}
+
 	if _, err := c.UserService.Register(ctx.Ctx(), &service.UserRegisterOpt{
 		Nickname: in.Nickname,
 		Mobile:   in.Mobile,
-		Password: in.Password,
+		Password: string(password),
 		Platform: in.Platform,
 	}); err != nil {
-		return ctx.ErrorBusiness(err.Error())
+		return ctx.Error(err)
 	}
 
 	c.SmsService.Delete(ctx.Ctx(), entity.SmsRegisterChannel, in.Mobile)
@@ -128,12 +140,17 @@ func (c *Auth) Forget(ctx *core.Context) error {
 		return ctx.InvalidParams("短信验证码填写错误！")
 	}
 
-	if _, err := c.UserService.Forget(&service.UserForgetOpt{
+	password, err := c.Rsa.Decrypt(in.Password)
+	if err != nil {
+		return ctx.Error(err)
+	}
+
+	if _, err := c.UserService.Forget(ctx.Ctx(), &service.UserForgetOpt{
 		Mobile:   in.Mobile,
-		Password: in.Password,
+		Password: string(password),
 		SmsCode:  in.SmsCode,
 	}); err != nil {
-		return ctx.ErrorBusiness(err.Error())
+		return ctx.Error(err)
 	}
 
 	c.SmsService.Delete(ctx.Ctx(), entity.SmsForgetAccountChannel, in.Mobile)

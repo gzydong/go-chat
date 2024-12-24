@@ -2,6 +2,7 @@ package queue
 
 import (
 	"context"
+
 	"go-chat/internal/pkg/core/consumer"
 	"go-chat/internal/pkg/core/socket"
 	"go-chat/internal/pkg/server"

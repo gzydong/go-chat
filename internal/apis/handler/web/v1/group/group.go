@@ -3,16 +3,16 @@ package group
 import (
 	"errors"
 	"fmt"
-	"github.com/samber/lo"
-	"gorm.io/gorm"
 	"slices"
 	"time"
+
+	"github.com/samber/lo"
+	"gorm.io/gorm"
 
 	"go-chat/api/pb/web/v1"
 	"go-chat/internal/entity"
 	"go-chat/internal/pkg/core"
 	"go-chat/internal/pkg/jsonutil"
-	"go-chat/internal/pkg/logger"
 	"go-chat/internal/pkg/sliceutil"
 	"go-chat/internal/pkg/timeutil"
 	"go-chat/internal/repository/cache"
@@ -65,7 +65,7 @@ func (c *Group) Create(ctx *core.Context) error {
 	})
 
 	if err != nil {
-		return ctx.ErrorBusiness("创建群聊失败，请稍后再试！" + err.Error())
+		return ctx.Error(err)
 	}
 
 	return ctx.Success(&web.GroupCreateResponse{GroupId: int32(gid)})
@@ -80,11 +80,11 @@ func (c *Group) Dismiss(ctx *core.Context) error {
 
 	uid := ctx.UserId()
 	if !c.GroupMemberRepo.IsMaster(ctx.Ctx(), int(in.GroupId), uid) {
-		return ctx.ErrorBusiness("暂无权限解散群组！")
+		return ctx.Error(entity.ErrPermissionDenied)
 	}
 
 	if err := c.GroupService.Dismiss(ctx.Ctx(), int(in.GroupId), uid); err != nil {
-		return ctx.ErrorBusiness("群组解散失败！")
+		return ctx.Error(err)
 	}
 
 	_ = c.Message.CreateGroupSysMessage(ctx.Ctx(), message.CreateGroupSysMessageOption{
@@ -117,32 +117,32 @@ func (c *Group) Invite(ctx *core.Context) error {
 
 	key := fmt.Sprintf("group_join:%d", in.GroupId)
 	if !c.RedisLock.Lock(ctx.Ctx(), key, 20) {
-		return ctx.ErrorBusiness("网络异常，请稍后再试！")
+		return ctx.Error(entity.ErrTooFrequentOperation)
 	}
 
 	defer c.RedisLock.UnLock(ctx.Ctx(), key)
 
 	uid := ctx.UserId()
 	if !c.GroupMemberRepo.IsMember(ctx.Ctx(), int(in.GroupId), uid, true) {
-		return ctx.ErrorBusiness("暂无权限操作！")
+		return ctx.Error(entity.ErrPermissionDenied)
 	}
 
 	group, err := c.GroupRepo.FindById(ctx.Ctx(), int(in.GroupId))
 	if err != nil {
-		return ctx.Error("网络异常，请稍后再试！")
+		return ctx.Error(err)
 	}
 
 	if group != nil && group.IsDismiss == model.Yes {
-		return ctx.ErrorBusiness("该群已解散！")
+		return ctx.Error(entity.ErrGroupDismissed)
 	}
 
 	count, err := c.GroupMemberRepo.FindCount(ctx.Ctx(), "group_id = ? and is_quit = ?", in.GroupId, model.No)
 	if err != nil {
-		return ctx.Error("网络异常，请稍后再试！")
+		return ctx.Error(err)
 	}
 
 	if int(count)+len(uids) >= model.GroupMemberMaxNum {
-		return ctx.ErrorBusiness("当前群成员数量已达到上限！")
+		return ctx.Error(entity.ErrGroupMemberLimit)
 	}
 
 	if err := c.GroupService.Invite(ctx.Ctx(), &service.GroupInviteOpt{
@@ -150,7 +150,7 @@ func (c *Group) Invite(ctx *core.Context) error {
 		GroupId:   int(in.GroupId),
 		MemberIds: uids,
 	}); err != nil {
-		return ctx.ErrorBusiness("邀请好友加入群聊失败！" + err.Error())
+		return ctx.Error(err)
 	}
 
 	return ctx.Success(&web.GroupInviteResponse{})
@@ -165,7 +165,7 @@ func (c *Group) Secede(ctx *core.Context) error {
 
 	uid := ctx.UserId()
 	if err := c.GroupService.Secede(ctx.Ctx(), int(in.GroupId), uid); err != nil {
-		return ctx.ErrorBusiness(err.Error())
+		return ctx.Error(err)
 	}
 
 	_ = c.TalkSessionService.Delete(ctx.Ctx(), uid, entity.ChatGroupMode, int(in.GroupId))
@@ -182,16 +182,16 @@ func (c *Group) Update(ctx *core.Context) error {
 
 	group, err := c.GroupRepo.FindById(ctx.Ctx(), int(in.GroupId))
 	if err != nil {
-		return ctx.ErrorBusiness("网络异常，请稍后再试！")
+		return ctx.Error(err)
 	}
 
 	if group != nil && group.IsDismiss == model.Yes {
-		return ctx.ErrorBusiness("该群已解散！")
+		return ctx.Error(entity.ErrGroupDismissed)
 	}
 
 	uid := ctx.UserId()
 	if !c.GroupMemberRepo.IsLeader(ctx.Ctx(), int(in.GroupId), uid) {
-		return ctx.ErrorBusiness("无权限操作")
+		return ctx.Error(entity.ErrPermissionDenied)
 	}
 
 	if err := c.GroupService.Update(ctx.Ctx(), &service.GroupUpdateOpt{
@@ -200,7 +200,7 @@ func (c *Group) Update(ctx *core.Context) error {
 		Avatar:  in.Avatar,
 		Profile: in.Profile,
 	}); err != nil {
-		return ctx.ErrorBusiness(err.Error())
+		return ctx.Error(err)
 	}
 
 	_ = c.Message.CreateGroupSysMessage(ctx.Ctx(), message.CreateGroupSysMessageOption{
@@ -229,7 +229,7 @@ func (c *Group) RemoveMember(ctx *core.Context) error {
 
 	uid := ctx.UserId()
 	if !c.GroupMemberRepo.IsLeader(ctx.Ctx(), int(in.GroupId), uid) {
-		return ctx.ErrorBusiness("无权限操作")
+		return ctx.Error(entity.ErrPermissionDenied)
 	}
 
 	err := c.GroupService.RemoveMember(ctx.Ctx(), &service.GroupRemoveMembersOpt{
@@ -239,7 +239,7 @@ func (c *Group) RemoveMember(ctx *core.Context) error {
 	})
 
 	if err != nil {
-		return ctx.ErrorBusiness(err.Error())
+		return ctx.Error(err)
 	}
 
 	return ctx.Success(&web.GroupRemoveMemberResponse{})
@@ -256,11 +256,11 @@ func (c *Group) Detail(ctx *core.Context) error {
 
 	groupInfo, err := c.GroupRepo.FindById(ctx.Ctx(), int(in.GroupId))
 	if err != nil {
-		return ctx.ErrorBusiness(err.Error())
+		return ctx.Error(err)
 	}
 
 	if groupInfo.Id == 0 {
-		return ctx.ErrorBusiness("数据不存在")
+		return ctx.Error(entity.ErrGroupNotExist)
 	}
 
 	resp := &web.GroupDetailResponse{
@@ -314,7 +314,7 @@ func (c *Group) UpdateMemberRemark(ctx *core.Context) error {
 		"user_card": in.Remark,
 	}, "group_id = ? and user_id = ?", in.GroupId, ctx.UserId())
 	if err != nil {
-		return ctx.ErrorBusiness("修改群备注失败！")
+		return ctx.Error(err)
 	}
 
 	return ctx.Success(nil)
@@ -328,7 +328,7 @@ func (c *Group) GetInviteFriends(ctx *core.Context) error {
 
 	items, err := c.ContactService.List(ctx.Ctx(), ctx.UserId())
 	if err != nil {
-		return ctx.ErrorBusiness(err.Error())
+		return ctx.Error(err)
 	}
 
 	data := make([]*web.GetInviteFriendsResponse_Item, 0)
@@ -375,7 +375,7 @@ func (c *Group) GetInviteFriends(ctx *core.Context) error {
 func (c *Group) List(ctx *core.Context) error {
 	items, err := c.GroupService.List(ctx.UserId())
 	if err != nil {
-		return ctx.ErrorBusiness(err.Error())
+		return ctx.Error(err)
 	}
 
 	resp := &web.GroupListResponse{
@@ -405,15 +405,15 @@ func (c *Group) Members(ctx *core.Context) error {
 
 	group, err := c.GroupRepo.FindById(ctx.Ctx(), int(in.GroupId))
 	if err != nil {
-		return ctx.ErrorBusiness("网络异常，请稍后再试！")
+		return ctx.Error(err)
 	}
 
 	if group != nil && group.IsDismiss == model.Yes {
-		return ctx.Success([]any{})
+		return ctx.Success(&web.GroupMemberListResponse{})
 	}
 
 	if !c.GroupMemberRepo.IsMember(ctx.Ctx(), int(in.GroupId), ctx.UserId(), false) {
-		return ctx.ErrorBusiness("非群成员无权查看成员列表！")
+		return ctx.Error(entity.ErrPermissionDenied)
 	}
 
 	list := c.GroupMemberRepo.GetMembers(ctx.Ctx(), int(in.GroupId))
@@ -455,7 +455,7 @@ func (c *Group) OvertList(ctx *core.Context) error {
 		Size:   20,
 	})
 	if err != nil {
-		return ctx.ErrorBusiness("查询异常！")
+		return ctx.Error(err)
 	}
 
 	resp := &web.GroupOvertListResponse{}
@@ -472,7 +472,7 @@ func (c *Group) OvertList(ctx *core.Context) error {
 
 	count, err := c.GroupMemberRepo.CountGroupMemberNum(ids)
 	if err != nil {
-		return ctx.ErrorBusiness("查询异常！")
+		return ctx.Error(err)
 	}
 
 	countMap := make(map[int]int)
@@ -511,16 +511,16 @@ func (c *Group) Transfer(ctx *core.Context) error {
 
 	uid := ctx.UserId()
 	if !c.GroupMemberRepo.IsMaster(ctx.Ctx(), int(in.GroupId), uid) {
-		return ctx.ErrorBusiness("暂无权限！")
+		return ctx.Error(entity.ErrPermissionDenied)
 	}
 
 	if uid == int(in.UserId) {
-		return ctx.ErrorBusiness("暂无权限！")
+		return ctx.Error(entity.ErrPermissionDenied)
 	}
 
 	err := c.GroupMemberService.Handover(ctx.Ctx(), int(in.GroupId), uid, int(in.UserId))
 	if err != nil {
-		return ctx.ErrorBusiness("转让群主失败！")
+		return ctx.Error(err)
 	}
 
 	members := make([]model.TalkRecordExtraGroupMember, 0)
@@ -556,15 +556,14 @@ func (c *Group) AssignAdmin(ctx *core.Context) error {
 
 	uid := ctx.UserId()
 	if !c.GroupMemberRepo.IsMaster(ctx.Ctx(), int(in.GroupId), uid) {
-		return ctx.ErrorBusiness("暂无权限！")
+		return ctx.Error(entity.ErrPermissionDenied)
 	}
 
 	leader := lo.Ternary(in.Action == 1, model.GroupMemberLeaderAdmin, model.GroupMemberLeaderOrdinary)
 
 	err := c.GroupMemberService.SetLeaderStatus(ctx.Ctx(), int(in.GroupId), int(in.UserId), leader)
 	if err != nil {
-		logger.Errorf("[Group AssignAdmin] 设置管理员信息失败 err :%s", err.Error())
-		return ctx.ErrorBusiness("设置管理员信息失败！")
+		return ctx.Error(err)
 	}
 
 	return ctx.Success(nil)
@@ -579,14 +578,14 @@ func (c *Group) MemberMute(ctx *core.Context) error {
 
 	uid := ctx.UserId()
 	if !c.GroupMemberRepo.IsLeader(ctx.Ctx(), int(in.GroupId), uid) {
-		return ctx.ErrorBusiness("暂无权限！")
+		return ctx.Error(entity.ErrPermissionDenied)
 	}
 
 	status := lo.Ternary(in.Action == 1, model.Yes, model.No)
 
 	err := c.GroupMemberService.SetMuteStatus(ctx.Ctx(), int(in.GroupId), int(in.UserId), status)
 	if err != nil {
-		return ctx.ErrorBusiness("设置群成员禁言状态失败！")
+		return ctx.Error(err)
 	}
 
 	members := make([]model.TalkRecordExtraGroupMember, 0)
@@ -594,7 +593,7 @@ func (c *Group) MemberMute(ctx *core.Context) error {
 
 	user, err := c.UsersRepo.FindByIdWithCache(ctx.Ctx(), uid)
 	if err != nil {
-		return ctx.ErrorBusiness(err.Error())
+		return ctx.Error(err)
 	}
 
 	data := message.CreateGroupMessageOption{
@@ -634,15 +633,15 @@ func (c *Group) Mute(ctx *core.Context) error {
 
 	group, err := c.GroupRepo.FindById(ctx.Ctx(), int(in.GroupId))
 	if err != nil {
-		return ctx.ErrorBusiness("网络异常，请稍后再试！")
+		return ctx.Error(err)
 	}
 
 	if group.IsDismiss == model.Yes {
-		return ctx.ErrorBusiness("此群已解散！")
+		return ctx.Error(entity.ErrGroupDismissed)
 	}
 
 	if !c.GroupMemberRepo.IsLeader(ctx.Ctx(), int(in.GroupId), uid) {
-		return ctx.ErrorBusiness("暂无权限！")
+		return ctx.Error(entity.ErrPermissionDenied)
 	}
 
 	data := map[string]any{
@@ -652,7 +651,7 @@ func (c *Group) Mute(ctx *core.Context) error {
 
 	affected, err := c.GroupRepo.UpdateByWhere(ctx.Ctx(), data, "id = ?", in.GroupId)
 	if err != nil {
-		return ctx.Error("服务器异常，请稍后再试！")
+		return ctx.Error(err)
 	}
 
 	if affected == 0 {
@@ -701,15 +700,15 @@ func (c *Group) Overt(ctx *core.Context) error {
 
 	group, err := c.GroupRepo.FindById(ctx.Ctx(), int(in.GroupId))
 	if err != nil {
-		return ctx.ErrorBusiness("网络异常，请稍后再试！")
+		return ctx.Error(err)
 	}
 
 	if group.IsDismiss == model.Yes {
-		return ctx.ErrorBusiness("此群已解散！")
+		return ctx.Error(entity.ErrGroupDismissed)
 	}
 
 	if !c.GroupMemberRepo.IsMaster(ctx.Ctx(), int(in.GroupId), uid) {
-		return ctx.ErrorBusiness("暂无权限！")
+		return ctx.Error(entity.ErrPermissionDenied)
 	}
 
 	_, err = c.GroupRepo.UpdateByWhere(ctx.Ctx(), map[string]any{
@@ -718,7 +717,7 @@ func (c *Group) Overt(ctx *core.Context) error {
 	}, "id = ?", in.GroupId)
 
 	if err != nil {
-		return ctx.Error("服务器异常，请稍后再试！")
+		return ctx.Error(err)
 	}
 
 	return ctx.Success(web.GroupOvertResponse{})
