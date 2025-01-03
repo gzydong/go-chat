@@ -28,7 +28,7 @@ jobs:
 
       - name: Build the Docker image
         run: |
-          docker build -t gzydong/lumenim:${{ env.IMAGE_TAG }} -t gzydong/lumenim:latest .
+          docker build --build-arg IMAGE_TAG=${{ env.IMAGE_TAG }} -t gzydong/lumenim:${{ env.IMAGE_TAG }} -t gzydong/lumenim:latest .
 
       - name: Push the Docker image
         run: |

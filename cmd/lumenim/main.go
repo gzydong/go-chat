@@ -11,6 +11,22 @@ import (
 	_ "go-chat/internal/pkg/server"
 )
 
+// Version 服务版本号（默认）
+// 构建时传入版本号
+// go build -o lumenim -ldflags "-X main.Version=${IMAGE_TAG}" ./cmd/lumenim
+var Version = "1.0.0"
+
+func main() {
+	app := core.NewApp(Version)
+	app.Register(NewHttpCommand)
+	app.Register(NewCometCommand)
+	app.Register(NewCrontabCommand)
+	app.Register(NewQueueCommand)
+	app.Register(NewTempCommand)
+	app.Register(NewMigrateCommand)
+	app.Run()
+}
+
 func NewHttpCommand() core.Command {
 	return core.Command{
 		Name:  "http",
@@ -88,15 +104,4 @@ func NewTempCommand() core.Command {
 			},
 		},
 	}
-}
-
-func main() {
-	app := core.NewApp("v1.0.5")
-	app.Register(NewHttpCommand)
-	app.Register(NewCometCommand)
-	app.Register(NewCrontabCommand)
-	app.Register(NewQueueCommand)
-	app.Register(NewTempCommand)
-	app.Register(NewMigrateCommand)
-	app.Run()
 }

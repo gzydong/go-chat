@@ -4,6 +4,8 @@ FROM golang:1.23.1-alpine AS builder
 # 设置工作目录
 WORKDIR /builder
 
+ARG IMAGE_TAG
+
 # 将 go.mod 和 go.sum 文件复制到工作目录
 COPY go.mod go.sum ./
 
@@ -21,7 +23,7 @@ RUN go mod download
 COPY . .
 
 # 构建可执行文件
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o lumenim ./cmd/lumenim
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o lumenim -ldflags "-X main.Version=${IMAGE_TAG}" ./cmd/lumenim
 
 # 使用一个更小的基础镜像来减小最终镜像的大小
 FROM alpine:latest
