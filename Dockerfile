@@ -4,7 +4,11 @@ FROM golang:1.23.1-alpine AS builder
 # 设置工作目录
 WORKDIR /builder
 
-ARG IMAGE_TAG
+# 定义构建参数并提供默认值
+ARG IMAGE_TAG=latest
+
+# 添加版本标签
+LABEL version=${IMAGE_TAG}
 
 # 将 go.mod 和 go.sum 文件复制到工作目录
 COPY go.mod go.sum ./
