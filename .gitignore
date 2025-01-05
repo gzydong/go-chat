@@ -10,3 +10,4 @@ script/
 build/
 rsa_1024_priv.pem
 rsa_1024_pub.pem
+custom.mk

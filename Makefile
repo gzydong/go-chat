@@ -82,14 +82,7 @@ proto:
 	 && echo "protoc generate success"; \
 	fi
 
-
-.PHONY: deploy
-deploy:
-	git reset --hard origin/develop && git pull && make build && supervisorctl reload
-
 #--go-grpc_out=paths=source_relative:./api/pb/ \
 
-
-.PHONY: docker-image
-docker-image:
-	docker build -t gzydong/lumenim:latest .
+## 自定义命令
+-include custom.mk
