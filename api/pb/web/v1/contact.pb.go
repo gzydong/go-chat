@@ -673,7 +673,7 @@ func (*ContactChangeGroupResponse) Descriptor() ([]byte, []int) {
 	return file_web_v1_contact_proto_rawDescGZIP(), []int{11}
 }
 
-// 修改联系人分组接口请求参数
+// 获取联系人在线状态请求参数
 type ContactOnlineStatusRequest struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -721,7 +721,7 @@ func (x *ContactOnlineStatusRequest) GetUserId() int32 {
 	return 0
 }
 
-// 修改联系人分组接口响应参数
+// 获取联系人在线状态响应参数
 type ContactOnlineStatusResponse struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache

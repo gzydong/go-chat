@@ -66,7 +66,7 @@ message UserDetailUpdateResponse{}
 // 用户密码更新接口请求参数
 message UserPasswordUpdateRequest{
   string old_password = 1 [(tagger.tags) = "binding:\"required\""];
-  string new_password = 2 [(tagger.tags) = "binding:\"required,min=6,max=16\""];
+  string new_password = 2 [(tagger.tags) = "binding:\"required\""];
 }
 
 // 用户密码更新接口响应参数

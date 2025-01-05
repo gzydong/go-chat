@@ -8,9 +8,9 @@ Lumen IM 是一个网页版即时聊天系统，界面简约、美观、操作�
 ##### 使用技术
 
 - Golang 1.23+
-- MySQL 8.0
+- MySQL 8.0+
 - Redis 5.0+
-- Minio1
+- Minio
 
 ##### 功能介绍
 
