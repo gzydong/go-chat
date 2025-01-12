@@ -535,3 +535,17 @@ CREATE TABLE IF NOT EXISTS `users_emoticon`
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_general_ci COMMENT ='用户收藏表情包';;
 
+
+
+CREATE TABLE `article_history`
+(
+    `id`         int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+    `user_id`    int(11) unsigned NOT NULL COMMENT '用户ID',
+    `article_id` int(11) unsigned NOT NULL COMMENT '笔记ID',
+    `content`    longtext NOT NULL COMMENT 'markdown 内容',
+    `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    PRIMARY KEY (`id`),
+    KEY          `idx_created_at` (`created_at`) USING BTREE,
+    KEY          `idx_article_id` (`article_id`) USING BTREE,
+    KEY          `idx_user_id_article_id` (`user_id`,`article_id`) USING BTREE
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 COMMENT='笔记历史记录表';;
