@@ -103,7 +103,7 @@ func (c *Records) GetRecords(ctx *core.Context) error {
 				Nickname:  item.Nickname,
 				Avatar:    item.Avatar,
 				IsRevoked: item.IsRevoked,
-				SendTime:  item.SendTime,
+				SendTime:  item.SendTime.Format(time.DateTime),
 				Extra:     lo.Ternary(item.IsRevoked == model.Yes, "{}", item.Extra),
 				Quote:     item.Quote,
 			}
@@ -182,7 +182,7 @@ func (c *Records) SearchHistoryRecords(ctx *core.Context) error {
 				Nickname:  item.Nickname,
 				Avatar:    item.Avatar,
 				IsRevoked: item.IsRevoked,
-				SendTime:  item.SendTime,
+				SendTime:  item.SendTime.Format(time.DateTime),
 				Extra:     lo.Ternary(item.IsRevoked == model.Yes, "{}", item.Extra),
 				Quote:     item.Quote,
 			}
@@ -217,7 +217,7 @@ func (c *Records) GetForwardRecords(ctx *core.Context) error {
 				Nickname:  item.Nickname,
 				Avatar:    item.Avatar,
 				IsRevoked: item.IsRevoked,
-				SendTime:  item.SendTime,
+				SendTime:  item.SendTime.Format(time.DateTime),
 				Extra:     lo.Ternary(item.IsRevoked == model.Yes, "{}", item.Extra),
 				Quote:     item.Quote,
 			}

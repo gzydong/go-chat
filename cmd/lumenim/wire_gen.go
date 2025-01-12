@@ -294,15 +294,16 @@ func NewHttpInjector(conf *config.Config) *apis.AppProvider {
 		MessageService:   messageService,
 	}
 	contactContact := &contact.Contact{
-		ClientStorage:   clientStorage,
-		ContactRepo:     repoContact,
-		UsersRepo:       users,
-		OrganizeRepo:    organize,
-		TalkSessionRepo: talkSession,
-		ContactService:  contactService,
-		UserService:     userService,
-		TalkListService: talkSessionService,
-		Message:         messageService,
+		ClientStorage:        clientStorage,
+		ContactRepo:          repoContact,
+		UsersRepo:            users,
+		OrganizeRepo:         organize,
+		TalkSessionRepo:      talkSession,
+		ContactService:       contactService,
+		UserService:          userService,
+		TalkListService:      talkSessionService,
+		ClientConnectService: clientConnectService,
+		Message:              messageService,
 	}
 	contactApplyService := &service.ContactApplyService{
 		Source:      source,
@@ -328,10 +329,12 @@ func NewHttpInjector(conf *config.Config) *apis.AppProvider {
 	}
 	articleAnnex := repo.NewArticleAnnex(db)
 	repoArticle := repo.NewArticle(db)
+	articleHistory := repo.NewArticleHistory(db)
 	articleService := &service.ArticleService{
-		Source:       source,
-		ArticleRepo:  repoArticle,
-		ArticleClass: articleClass,
+		Source:         source,
+		ArticleRepo:    repoArticle,
+		ArticleClass:   articleClass,
+		ArticleHistory: articleHistory,
 	}
 	articleAnnexService := &service.ArticleAnnexService{
 		Source:       source,
@@ -341,6 +344,7 @@ func NewHttpInjector(conf *config.Config) *apis.AppProvider {
 	articleArticle := &article.Article{
 		Source:              source,
 		ArticleAnnexRepo:    articleAnnex,
+		ArticleClassRepo:    articleClass,
 		ArticleRepo:         repoArticle,
 		ArticleService:      articleService,
 		ArticleAnnexService: articleAnnexService,

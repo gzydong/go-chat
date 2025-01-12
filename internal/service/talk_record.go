@@ -3,7 +3,6 @@ package service
 import (
 	"context"
 	"errors"
-	"time"
 
 	"go-chat/internal/entity"
 	"go-chat/internal/pkg/sliceutil"
@@ -69,7 +68,7 @@ func (s *TalkRecordService) FindTalkPrivateRecord(ctx context.Context, uid int, 
 		Nickname:  "",
 		Avatar:    "",
 		IsRevoked: talkRecordFriendInfo.IsRevoked,
-		SendTime:  talkRecordFriendInfo.SendTime.Format(time.DateTime),
+		SendTime:  talkRecordFriendInfo.SendTime,
 		Extra:     talkRecordFriendInfo.Extra,
 		Quote:     talkRecordFriendInfo.Quote,
 	}
@@ -102,7 +101,7 @@ func (s *TalkRecordService) FindTalkGroupRecord(ctx context.Context, msgId strin
 		Nickname:  "",
 		Avatar:    "",
 		IsRevoked: talkRecordGroupInfo.IsRevoked,
-		SendTime:  talkRecordGroupInfo.SendTime.Format(time.DateTime),
+		SendTime:  talkRecordGroupInfo.SendTime,
 		Extra:     talkRecordGroupInfo.Extra,
 		Quote:     talkRecordGroupInfo.Quote,
 	}

@@ -152,6 +152,7 @@ message ArticleRecoverListResponse{
     string image = 6;
     string created_at = 7;
     string deleted_at = 8;
+    int32 day = 9;
   }
 
   repeated Item items = 1;

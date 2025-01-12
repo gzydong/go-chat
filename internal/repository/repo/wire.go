@@ -22,6 +22,7 @@ var ProviderSet = wire.NewSet(
 	NewFileUpload,
 	NewArticleClass,
 	NewArticle,
+	NewArticleHistory,
 	NewArticleAnnex,
 	NewDepartment,
 	NewOrganize,

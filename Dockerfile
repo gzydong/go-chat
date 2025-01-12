@@ -10,15 +10,15 @@ ARG IMAGE_TAG=latest
 # 添加版本标签
 LABEL version=${IMAGE_TAG}
 
-# 将 go.mod 和 go.sum 文件复制到工作目录
-COPY go.mod go.sum ./
-
 # 为我们的镜像设置必要的环境变量
 ENV GO111MODULE=on \
     CGO_ENABLED=0 \
     GOOS=linux \
     GOARCH=amd64 \
 	GOPROXY="https://goproxy.cn,direct"
+
+# 将 go.mod 和 go.sum 文件复制到工作目录
+COPY go.mod go.sum ./
 
 # 下载依赖包
 RUN go mod download

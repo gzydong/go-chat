@@ -2,8 +2,10 @@ package article
 
 import (
 	"html"
+	"math"
 	"time"
 
+	"github.com/samber/lo"
 	"go-chat/api/pb/web/v1"
 	"go-chat/internal/pkg/core"
 	"go-chat/internal/pkg/filesystem"
@@ -18,6 +20,7 @@ import (
 type Article struct {
 	Source              *repo.Source
 	ArticleAnnexRepo    *repo.ArticleAnnex
+	ArticleClassRepo    *repo.ArticleClass
 	ArticleRepo         *repo.Article
 	ArticleService      service.IArticleService
 	ArticleAnnexService service.IArticleAnnexService
@@ -264,24 +267,45 @@ func (c *Article) RecycleList(ctx *core.Context) error {
 
 	list, err := c.ArticleRepo.FindAll(ctx.Ctx(), func(db *gorm.DB) {
 		db.Where("user_id = ? and status = ?", ctx.UserId(), 2)
-		db.Where("updated_at > ?", time.Now().Add(-time.Hour*24*7))
-		db.Order("updated_at desc,id desc")
+		db.Where("deleted_at > ?", time.Now().Add(-time.Hour*24*30))
+		db.Order("deleted_at desc,id desc")
 	})
 
 	if err != nil {
 		return ctx.Error(err)
 	}
 
+	classList, err := c.ArticleClassRepo.FindByIds(ctx.Ctx(), lo.Map(list, func(item *model.Article, index int) any {
+		return item.ClassId
+	}))
+
+	if err != nil {
+		return err
+	}
+
+	classListMap := lo.KeyBy(classList, func(item *model.ArticleClass) int {
+		return item.Id
+	})
+
 	for _, item := range list {
+		className := ""
+
+		if class, ok := classListMap[item.ClassId]; ok {
+			className = class.ClassName
+		}
+
+		at := time.Until(item.DeletedAt.Time.Add(time.Hour * 24 * 30))
+
 		items = append(items, &web.ArticleRecoverListResponse_Item{
 			ArticleId:    int32(item.Id),
 			ClassifyId:   int32(item.ClassId),
-			ClassifyName: "mlmlkmlkm",
+			ClassifyName: className,
 			Title:        item.Title,
 			Abstract:     item.Abstract,
 			Image:        item.Image,
 			CreatedAt:    item.CreatedAt.Format(time.DateTime),
 			DeletedAt:    item.DeletedAt.Time.Format(time.DateTime),
+			Day:          int32(math.Ceil(at.Seconds() / 86400)),
 		})
 	}
 

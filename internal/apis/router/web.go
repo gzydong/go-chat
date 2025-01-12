@@ -151,7 +151,7 @@ func RegisterWebRoute(secret string, router *gin.Engine, handler *web.Handler, s
 			note.POST("/article/delete", core.HandlerFunc(handler.V1.Article.Delete))                // 删除文章
 			note.POST("/article/forever-delete", core.HandlerFunc(handler.V1.Article.ForeverDelete)) // 永久删除文章
 			note.POST("/article/recover-delete", core.HandlerFunc(handler.V1.Article.Recover))       // 恢复已删除文章
-			note.POST("/article/move", core.HandlerFunc(handler.V1.Article.MoveClassify))            // 移动分类
+			note.POST("/article/move-classify", core.HandlerFunc(handler.V1.Article.MoveClassify))   // 移动分类
 			note.POST("/article/collect", core.HandlerFunc(handler.V1.Article.Collect))              // 收藏文章
 			note.POST("/article/update-tag", core.HandlerFunc(handler.V1.Article.UpdateTag))         // 更新文章标签
 

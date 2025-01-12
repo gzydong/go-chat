@@ -2786,6 +2786,8 @@ func (m *ArticleRecoverListResponse_Item) validate(all bool) error {
 
 	// no validation rules for DeletedAt
 
+	// no validation rules for Day
+
 	if len(errors) > 0 {
 		return ArticleRecoverListResponse_ItemMultiError(errors)
 	}

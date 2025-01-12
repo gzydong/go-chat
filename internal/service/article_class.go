@@ -13,15 +13,20 @@ var _ IArticleClassService = (*ArticleClassService)(nil)
 
 type IArticleClassService interface {
 	List(ctx context.Context, uid int) ([]*model.ArticleClassItem, error)
-	Create(ctx context.Context, uid int, name string) (int, error)
+	Create(ctx context.Context, uid int, name string, isDefault model.State) (int, error)
 	Update(ctx context.Context, uid, cid int, name string) error
 	Delete(ctx context.Context, uid, cid int) error
+	Find(ctx context.Context, classId int) (*model.ArticleClass, error)
 	Sort(ctx context.Context, uid, cid, mode int) error
 }
 
 type ArticleClassService struct {
 	*repo.Source
 	ArticleClass *repo.ArticleClass
+}
+
+func (s *ArticleClassService) Find(ctx context.Context, classId int) (*model.ArticleClass, error) {
+	return s.ArticleClass.FindByWhere(ctx, "id = ?", classId)
 }
 
 // List 分类列表
@@ -38,10 +43,6 @@ func (s *ArticleClassService) List(ctx context.Context, uid int) ([]*model.Artic
 		return nil, err
 	}
 
-	//items = append(items, &model.ArticleClassItem{
-	//	ClassName: "默认分类",
-	//})
-
 	for i := range items {
 		if num, ok := data[items[i].Id]; ok {
 			items[i].Count = num
@@ -52,13 +53,13 @@ func (s *ArticleClassService) List(ctx context.Context, uid int) ([]*model.Artic
 }
 
 // Create 创建分类
-func (s *ArticleClassService) Create(ctx context.Context, uid int, name string) (int, error) {
+func (s *ArticleClassService) Create(ctx context.Context, uid int, name string, isDefault model.State) (int, error) {
 	data := &model.ArticleClass{
 		Id:        0,
 		UserId:    uid,
 		ClassName: name,
 		Sort:      1,
-		IsDefault: model.No,
+		IsDefault: int(isDefault),
 	}
 
 	err := s.Source.Db().WithContext(ctx).Transaction(func(tx *gorm.DB) error {

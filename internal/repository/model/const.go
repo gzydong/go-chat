@@ -1,6 +1,8 @@
 package model
 
+type State int
+
 const (
-	No  = 2 // 否
 	Yes = 1 // 是
+	No  = 2 // 否
 )

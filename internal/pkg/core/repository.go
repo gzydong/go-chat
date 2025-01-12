@@ -63,6 +63,16 @@ func (r *Repo[T]) FindAll(ctx context.Context, arg ...func(*gorm.DB)) ([]*T, err
 	return items, nil
 }
 
+// FindByConditions 根据条件查询一条数据
+func (r *Repo[T]) FindByConditions(ctx context.Context, fn func(tx *gorm.DB) *gorm.DB) (*T, error) {
+	var item *T
+	if err := fn(r.Db.WithContext(ctx)).Find(&item).Error; err != nil {
+		return nil, err
+	}
+
+	return item, nil
+}
+
 // FindByWhere 根据条件查询一条数据
 func (r *Repo[T]) FindByWhere(ctx context.Context, where string, args ...any) (*T, error) {
 

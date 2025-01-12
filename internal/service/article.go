@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"slices"
 
+	"go-chat/internal/pkg/logger"
 	"go-chat/internal/repository/model"
 	"go-chat/internal/repository/repo"
 	"gorm.io/gorm"
@@ -31,8 +32,9 @@ type IArticleService interface {
 
 type ArticleService struct {
 	*repo.Source
-	ArticleRepo  *repo.Article
-	ArticleClass *repo.ArticleClass
+	ArticleRepo    *repo.Article
+	ArticleClass   *repo.ArticleClass
+	ArticleHistory *repo.ArticleHistory
 }
 
 // Detail 笔记详情
@@ -103,7 +105,29 @@ func (s *ArticleService) Create(ctx context.Context, opt *ArticleEditOpt) (int, 
 }
 
 // Update 更新笔记信息
-func (s *ArticleService) Update(ctx context.Context, opt *ArticleEditOpt) error {
+func (s *ArticleService) Update(ctx context.Context, opt *ArticleEditOpt) (err error) {
+	article, err := s.ArticleRepo.FindById(ctx, opt.ArticleId)
+	if err != nil {
+		return err
+	}
+
+	if article.UserId != opt.UserId {
+		return errors.New("笔记信息错误")
+	}
+
+	defer func() {
+		// 笔记发生变化记录
+		if err == nil && article.MdContent != opt.MdContent {
+			if err := s.ArticleHistory.Create(ctx, &model.ArticleHistory{
+				UserId:    opt.UserId,
+				ArticleId: opt.ArticleId,
+				Content:   opt.MdContent,
+			}); err != nil {
+				logger.Errorf("笔记历史记录创建失败 %s", err)
+			}
+		}
+	}()
+
 	abstract := strutil.MtSubstr(opt.MdContent, 0, 200)
 
 	data := map[string]any{
@@ -118,7 +142,7 @@ func (s *ArticleService) Update(ctx context.Context, opt *ArticleEditOpt) error 
 		data["image"] = images[0]
 	}
 
-	_, err := s.ArticleRepo.UpdateByWhere(ctx, data, "id = ? and user_id = ?", opt.ArticleId, opt.UserId)
+	_, err = s.ArticleRepo.UpdateByWhere(ctx, data, "id = ? and user_id = ?", opt.ArticleId, opt.UserId)
 	return err
 }
 

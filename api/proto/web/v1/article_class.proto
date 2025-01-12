@@ -16,8 +16,6 @@ message ArticleClassListResponse{
   }
 
   repeated Item items = 1;
-
-  Paginate paginate = 2;
 }
 
 
