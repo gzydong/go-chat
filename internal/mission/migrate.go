@@ -22,7 +22,7 @@ type MigrateProvider struct {
 func Migrate(_ *cli.Context, app *MigrateProvider) error {
 	fmt.Println("数据库初始化中...")
 
-	content, err := file.ReadFile("sql.sql")
+	content, err := file.ReadFile("lumenim.sql")
 	if err != nil {
 		fmt.Println("读取数据库初始化文件失败 Err:", err.Error())
 		return err
