@@ -537,7 +537,7 @@ CREATE TABLE IF NOT EXISTS `users_emoticon`
 
 
 
-CREATE TABLE `article_history`
+CREATE TABLE IF NOT EXISTS `article_history`
 (
     `id`         int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT '主键ID',
     `user_id`    int(11) unsigned NOT NULL COMMENT '用户ID',
