@@ -57,7 +57,7 @@ $ make install
 5. 初始化数据库
 
 ``` bash
-$ go run ./cmd/lumenim temp migrate
+$ go run ./cmd/lumenim migrate
 ```
 
 6. 开发环境下启动服务
