@@ -65,9 +65,9 @@ func (c *Records) GetRecords(ctx *core.Context) error {
 						Avatar:    "",
 						IsRevoked: model.No,
 						SendTime:  timeutil.DateTime(),
-						Extra: model.TalkRecordExtraText{
+						Extra: jsonutil.Encode(model.TalkRecordExtraText{
 							Content: "暂无权限查看群消息",
-						},
+						}),
 						Quote: nil,
 					},
 				},
