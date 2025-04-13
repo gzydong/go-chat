@@ -57,11 +57,27 @@ func (m *IndexRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for GroupId
+	if m.GetGroupId() < 1 {
+		err := IndexRequestValidationError{
+			field:  "GroupId",
+			reason: "value must be greater than or equal to 1",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
-	// no validation rules for UserId
-
-	// no validation rules for Mode
+	if m.GetUserId() < 1 {
+		err := IndexRequestValidationError{
+			field:  "UserId",
+			reason: "value must be greater than or equal to 1",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return IndexRequestMultiError(errors)

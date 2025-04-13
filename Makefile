@@ -15,7 +15,6 @@ install:
 	go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
 	go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
 	go install github.com/envoyproxy/protoc-gen-validate@latest
-	go install github.com/srikrsna/protoc-gen-gotag@latest
 
 .PHONY: conf
 conf:
@@ -67,7 +66,6 @@ proto:
 		--proto_path=./third_party \
 		--go_out=paths=source_relative:./api/pb/ \
 		--validate_out=paths=source_relative,lang=go:./api/pb/ $(PROTO_FILES) \
-	 && protoc --proto_path=./third_party --proto_path=./api/proto --gotag_out=outdir="./api/pb/":./ $(PROTO_FILES) \
 	 && echo "protoc generate success"; \
 	fi
 

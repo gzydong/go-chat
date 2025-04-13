@@ -3,7 +3,7 @@ package admin;
 
 option go_package = "admin/v1;admin";
 
-import "tagger/tagger.proto";
+import "validate/validate.proto";
 
 message AccessToken{
   // Token 类型
@@ -17,13 +17,13 @@ message AccessToken{
 // 管理员登录接口请求参数
 message AuthLoginRequest{
   // 登录账号
-  string username = 1 [(tagger.tags) = "binding:\"required\""];
+  string username = 1 [(validate.rules).string.min_len = 1];
   // 登录密码
-  string password = 2 [(tagger.tags) = "binding:\"required\""];
+  string password = 2 [(validate.rules).string.min_len = 1];
   // 图形验证码
-  string captcha = 3 [(tagger.tags) = "binding:\"required\""];
+  string captcha = 3 [(validate.rules).string.min_len = 1];
   // 图形验证码
-  string captcha_voucher = 4 [(tagger.tags) = "binding:\"required\""];
+  string captcha_voucher = 4 [(validate.rules).string.min_len = 1];
 }
 
 // 管理员登录接口请求参数

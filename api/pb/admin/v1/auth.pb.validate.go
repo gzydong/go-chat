@@ -162,13 +162,49 @@ func (m *AuthLoginRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for Username
+	if utf8.RuneCountInString(m.GetUsername()) < 1 {
+		err := AuthLoginRequestValidationError{
+			field:  "Username",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
-	// no validation rules for Password
+	if utf8.RuneCountInString(m.GetPassword()) < 1 {
+		err := AuthLoginRequestValidationError{
+			field:  "Password",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
-	// no validation rules for Captcha
+	if utf8.RuneCountInString(m.GetCaptcha()) < 1 {
+		err := AuthLoginRequestValidationError{
+			field:  "Captcha",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
-	// no validation rules for CaptchaVoucher
+	if utf8.RuneCountInString(m.GetCaptchaVoucher()) < 1 {
+		err := AuthLoginRequestValidationError{
+			field:  "CaptchaVoucher",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return AuthLoginRequestMultiError(errors)
