@@ -31,9 +31,9 @@ func NewHttpCommand() core.Command {
 	return core.Command{
 		Name:  "http",
 		Usage: "Http Command - Http API 接口服务",
-		Action: func(ctx *cli.Context, conf *config.Config) error {
-			logger.Init(conf.Log.LogFilePath("app.log"), logger.LevelInfo, "http")
-			return apis.Run(ctx, NewHttpInjector(conf))
+		Action: func(ctx *cli.Context, c *config.Config) error {
+			logger.Init(c.Log.LogFilePath("app.log"), logger.LevelInfo, "http")
+			return apis.Run(ctx, NewHttpInjector(c))
 		},
 	}
 }
@@ -42,9 +42,9 @@ func NewCometCommand() core.Command {
 	return core.Command{
 		Name:  "comet",
 		Usage: "Comet Command - Websocket、TCP 服务",
-		Action: func(ctx *cli.Context, conf *config.Config) error {
-			logger.Init(conf.Log.LogFilePath("app.log"), logger.LevelInfo, "comet")
-			return comet.Run(ctx, NewCometInjector(conf))
+		Action: func(ctx *cli.Context, c *config.Config) error {
+			logger.Init(c.Log.LogFilePath("app.log"), logger.LevelInfo, "comet")
+			return comet.Run(ctx, NewCometInjector(c))
 		},
 	}
 }
@@ -53,9 +53,9 @@ func NewCrontabCommand() core.Command {
 	return core.Command{
 		Name:  "crontab",
 		Usage: "Crontab Command - 定时任务",
-		Action: func(ctx *cli.Context, conf *config.Config) error {
-			logger.Init(conf.Log.LogFilePath("app.log"), logger.LevelInfo, "crontab")
-			return mission.Cron(ctx, NewCronInjector(conf))
+		Action: func(ctx *cli.Context, c *config.Config) error {
+			logger.Init(c.Log.LogFilePath("app.log"), logger.LevelInfo, "crontab")
+			return mission.Cron(ctx, NewCronInjector(c))
 		},
 	}
 }
@@ -71,9 +71,9 @@ func NewQueueCommand() core.Command {
 				Value: "default",
 			},
 		},
-		Action: func(ctx *cli.Context, conf *config.Config) error {
-			logger.Init(conf.Log.LogFilePath("app.log"), logger.LevelInfo, "queue")
-			return mission.Queue(ctx, NewQueueInjector(conf))
+		Action: func(ctx *cli.Context, c *config.Config) error {
+			logger.Init(c.Log.LogFilePath("app.log"), logger.LevelInfo, "queue")
+			return mission.Queue(ctx, NewQueueInjector(c))
 		},
 	}
 }
@@ -82,9 +82,9 @@ func NewMigrateCommand() core.Command {
 	return core.Command{
 		Name:  "migrate",
 		Usage: "Migrate Command - 数据库初始化",
-		Action: func(ctx *cli.Context, conf *config.Config) error {
-			logger.Init(conf.Log.LogFilePath("app.log"), logger.LevelInfo, "migrate")
-			return mission.Migrate(ctx, NewMigrateInjector(conf))
+		Action: func(ctx *cli.Context, c *config.Config) error {
+			logger.Init(c.Log.LogFilePath("app.log"), logger.LevelInfo, "migrate")
+			return mission.Migrate(ctx, NewMigrateInjector(c))
 		},
 	}
 }
@@ -97,9 +97,9 @@ func NewTempCommand() core.Command {
 			{
 				Name:  "test",
 				Usage: "Test Command",
-				Action: func(ctx *cli.Context, conf *config.Config) error {
-					logger.Init(conf.Log.LogFilePath("app.log"), logger.LevelInfo, "temp")
-					return NewTempInjector(conf).TestCommand.Do(ctx)
+				Action: func(ctx *cli.Context, c *config.Config) error {
+					logger.Init(c.Log.LogFilePath("app.log"), logger.LevelInfo, "temp")
+					return NewTempInjector(c).TestJob.Do(ctx)
 				},
 			},
 		},

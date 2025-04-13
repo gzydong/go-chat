@@ -27,7 +27,7 @@ type Annex struct {
 // Upload 上传附件
 func (c *Annex) Upload(ctx *core.Context) error {
 	in := &web.ArticleAnnexUploadRequest{}
-	if err := ctx.Context.ShouldBind(in); err != nil {
+	if err := ctx.ShouldBindProto(in); err != nil {
 		return ctx.InvalidParams(err)
 	}
 
@@ -54,7 +54,7 @@ func (c *Annex) Upload(ctx *core.Context) error {
 	}
 
 	data := &model.ArticleAnnex{
-		UserId:       ctx.UserId(),
+		UserId:       ctx.GetAuthId(),
 		ArticleId:    int(in.ArticleId),
 		Drive:        entity.FileDriveMode(c.Filesystem.Driver()),
 		Suffix:       ext,
@@ -67,7 +67,7 @@ func (c *Annex) Upload(ctx *core.Context) error {
 		},
 	}
 
-	if err := c.ArticleAnnexService.Create(ctx.Ctx(), data); err != nil {
+	if err := c.ArticleAnnexService.Create(ctx.GetContext(), data); err != nil {
 		return ctx.Error(err)
 	}
 
@@ -83,11 +83,11 @@ func (c *Annex) Upload(ctx *core.Context) error {
 func (c *Annex) Delete(ctx *core.Context) error {
 
 	in := &web.ArticleAnnexDeleteRequest{}
-	if err := ctx.Context.ShouldBind(in); err != nil {
+	if err := ctx.ShouldBindProto(in); err != nil {
 		return ctx.InvalidParams(err)
 	}
 
-	err := c.ArticleAnnexService.UpdateStatus(ctx.Ctx(), ctx.UserId(), int(in.AnnexId), 2)
+	err := c.ArticleAnnexService.UpdateStatus(ctx.GetContext(), ctx.GetAuthId(), int(in.AnnexId), 2)
 	if err != nil {
 		return ctx.Error(err)
 	}
@@ -99,11 +99,11 @@ func (c *Annex) Delete(ctx *core.Context) error {
 func (c *Annex) Recover(ctx *core.Context) error {
 
 	in := &web.ArticleAnnexRecoverRequest{}
-	if err := ctx.Context.ShouldBind(in); err != nil {
+	if err := ctx.ShouldBindProto(in); err != nil {
 		return ctx.InvalidParams(err)
 	}
 
-	err := c.ArticleAnnexService.UpdateStatus(ctx.Ctx(), ctx.UserId(), int(in.AnnexId), 1)
+	err := c.ArticleAnnexService.UpdateStatus(ctx.GetContext(), ctx.GetAuthId(), int(in.AnnexId), 1)
 	if err != nil {
 		return ctx.Error(err)
 	}
@@ -113,7 +113,7 @@ func (c *Annex) Recover(ctx *core.Context) error {
 
 // RecycleList 附件回收站列表
 func (c *Annex) RecycleList(ctx *core.Context) error {
-	items, err := c.ArticleAnnexRepo.RecoverList(ctx.Ctx(), ctx.UserId())
+	items, err := c.ArticleAnnexRepo.RecoverList(ctx.GetContext(), ctx.GetAuthId())
 	if err != nil {
 		return ctx.Error(err)
 	}
@@ -148,11 +148,11 @@ func (c *Annex) RecycleList(ctx *core.Context) error {
 func (c *Annex) ForeverDelete(ctx *core.Context) error {
 
 	in := &web.ArticleAnnexForeverDeleteRequest{}
-	if err := ctx.Context.ShouldBind(in); err != nil {
+	if err := ctx.ShouldBindProto(in); err != nil {
 		return ctx.InvalidParams(err)
 	}
 
-	if err := c.ArticleAnnexService.ForeverDelete(ctx.Ctx(), ctx.UserId(), int(in.AnnexId)); err != nil {
+	if err := c.ArticleAnnexService.ForeverDelete(ctx.GetContext(), ctx.GetAuthId(), int(in.AnnexId)); err != nil {
 		return ctx.Error(err)
 	}
 
@@ -163,16 +163,16 @@ func (c *Annex) ForeverDelete(ctx *core.Context) error {
 func (c *Annex) Download(ctx *core.Context) error {
 
 	in := &web.ArticleAnnexDownloadRequest{}
-	if err := ctx.Context.ShouldBindQuery(in); err != nil {
+	if err := ctx.ShouldBindProto(in); err != nil {
 		return ctx.InvalidParams(err)
 	}
 
-	info, err := c.ArticleAnnexRepo.FindById(ctx.Ctx(), int(in.AnnexId))
+	info, err := c.ArticleAnnexRepo.FindById(ctx.GetContext(), int(in.AnnexId))
 	if err != nil {
 		return ctx.Error(err)
 	}
 
-	if info.UserId != ctx.UserId() {
+	if info.UserId != ctx.GetAuthId() {
 		return ctx.Forbidden("无权限下载")
 	}
 

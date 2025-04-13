@@ -51,9 +51,9 @@ import (
 
 // Injectors from wire.go:
 
-func NewHttpInjector(conf *config.Config) *apis.AppProvider {
-	db := provider.NewMySQLClient(conf)
-	client := provider.NewRedisClient(conf)
+func NewHttpInjector(c *config.Config) *apis.AppProvider {
+	db := provider.NewMySQLClient(c)
+	client := provider.NewRedisClient(c)
 	users := repo.NewUsers(db, client)
 	smsStorage := cache.NewSmsStorage(client)
 	smsService := &service.SmsService{
@@ -63,7 +63,7 @@ func NewHttpInjector(conf *config.Config) *apis.AppProvider {
 		UsersRepo: users,
 	}
 	common := &v1.Common{
-		Config:      conf,
+		Config:      c,
 		UsersRepo:   users,
 		SmsService:  smsService,
 		UserService: userService,
@@ -77,9 +77,9 @@ func NewHttpInjector(conf *config.Config) *apis.AppProvider {
 		Source:       source,
 		ArticleClass: articleClass,
 	}
-	iRsa := provider.NewRsa(conf)
+	iRsa := provider.NewRsa(c)
 	auth := &v1.Auth{
-		Config:              conf,
+		Config:              c,
 		Redis:               client,
 		JwtTokenStorage:     jwtTokenStorage,
 		RedisLock:           redisLock,
@@ -107,7 +107,7 @@ func NewHttpInjector(conf *config.Config) *apis.AppProvider {
 	}
 	messageStorage := cache.NewMessageStorage(client)
 	serverStorage := cache.NewSidStorage(client)
-	clientStorage := cache.NewClientStorage(client, conf, serverStorage)
+	clientStorage := cache.NewClientStorage(client, c, serverStorage)
 	unreadStorage := cache.NewUnreadStorage(client)
 	contactRemark := cache.NewContactRemark(client)
 	relation := cache.NewRelation(client)
@@ -169,7 +169,7 @@ func NewHttpInjector(conf *config.Config) *apis.AppProvider {
 		ContactService:       contactService,
 		ClientConnectService: clientConnectService,
 	}
-	iFilesystem := provider.NewFilesystem(conf)
+	iFilesystem := provider.NewFilesystem(c)
 	talkMessage := &talk.Message{
 		TalkService: talkService,
 		AuthService: authService,
@@ -218,11 +218,11 @@ func NewHttpInjector(conf *config.Config) *apis.AppProvider {
 	fileSplitUploadService := &service.FileSplitUploadService{
 		Source:          source,
 		SplitUploadRepo: fileUpload,
-		Config:          conf,
+		Config:          c,
 		FileSystem:      iFilesystem,
 	}
 	upload := &v1.Upload{
-		Config:             conf,
+		Config:             c,
 		Filesystem:         iFilesystem,
 		SplitUploadService: fileSplitUploadService,
 	}
@@ -392,14 +392,15 @@ func NewHttpInjector(conf *config.Config) *apis.AppProvider {
 		Message:      publish,
 	}
 	webHandler := &web.Handler{
-		V1: webV1,
+		V1:       webV1,
+		UserRepo: users,
 	}
 	index := v1_2.NewIndex()
 	repoAdmin := repo.NewAdmin(db)
 	captchaStorage := cache.NewCaptchaStorage(client)
 	captcha := provider.NewBase64Captcha(captchaStorage)
 	v1Auth := &v1_2.Auth{
-		Config:          conf,
+		Config:          c,
 		AdminRepo:       repoAdmin,
 		JwtTokenStorage: jwtTokenStorage,
 		ICaptcha:        captcha,
@@ -411,8 +412,9 @@ func NewHttpInjector(conf *config.Config) *apis.AppProvider {
 	}
 	v2 := &admin.V2{}
 	adminHandler := &admin.Handler{
-		V1: adminV1,
-		V2: v2,
+		V1:        adminV1,
+		V2:        v2,
+		AdminRepo: repoAdmin,
 	}
 	v1Index := v1_3.NewIndex()
 	openV1 := &open.V1{
@@ -426,22 +428,22 @@ func NewHttpInjector(conf *config.Config) *apis.AppProvider {
 		Admin: adminHandler,
 		Open:  openHandler,
 	}
-	engine := router.NewRouter(conf, handlerHandler, jwtTokenStorage)
+	engine := router.NewRouter(c, handlerHandler, jwtTokenStorage)
 	appProvider := &apis.AppProvider{
-		Config: conf,
+		Config: c,
 		Engine: engine,
 	}
 	return appProvider
 }
 
-func NewCometInjector(conf *config.Config) *comet.AppProvider {
-	client := provider.NewRedisClient(conf)
+func NewCometInjector(c *config.Config) *comet.AppProvider {
+	client := provider.NewRedisClient(c)
 	serverStorage := cache.NewSidStorage(client)
-	clientStorage := cache.NewClientStorage(client, conf, serverStorage)
+	clientStorage := cache.NewClientStorage(client, c, serverStorage)
 	clientConnectService := &service.ClientConnectService{
 		Storage: clientStorage,
 	}
-	db := provider.NewMySQLClient(conf)
+	db := provider.NewMySQLClient(c)
 	relation := cache.NewRelation(client)
 	groupMember := repo.NewGroupMember(db, relation)
 	source := repo.NewSource(db, client)
@@ -482,11 +484,11 @@ func NewCometInjector(conf *config.Config) *comet.AppProvider {
 	handlerHandler := &handler2.Handler{
 		Chat:        chatChannel,
 		Example:     exampleChannel,
-		Config:      conf,
+		Config:      c,
 		RoomStorage: roomStorage,
 	}
 	jwtTokenStorage := cache.NewTokenSessionStorage(client)
-	engine := router2.NewRouter(conf, handlerHandler, jwtTokenStorage)
+	engine := router2.NewRouter(c, handlerHandler, jwtTokenStorage)
 	healthSubscribe := process.NewHealthSubscribe(serverStorage)
 	organize := repo.NewOrganize(db)
 	users := repo.NewUsers(db, client)
@@ -511,7 +513,7 @@ func NewCometInjector(conf *config.Config) *comet.AppProvider {
 		ContactRepo: repoContact,
 	}
 	handler3 := &chat2.Handler{
-		Config:               conf,
+		Config:               c,
 		OrganizeRepo:         organize,
 		UserRepo:             users,
 		Source:               source,
@@ -529,12 +531,12 @@ func NewCometInjector(conf *config.Config) *comet.AppProvider {
 		MessageSubscribe: messageSubscribe,
 	}
 	server := process.NewServer(subServers)
-	emailClient := provider.NewEmailClient(conf)
+	emailClient := provider.NewEmailClient(c)
 	providers := &provider.Providers{
 		EmailClient: emailClient,
 	}
 	appProvider := &comet.AppProvider{
-		Config:    conf,
+		Config:    c,
 		Engine:    engine,
 		Coroutine: server,
 		Handler:   handlerHandler,
@@ -543,14 +545,14 @@ func NewCometInjector(conf *config.Config) *comet.AppProvider {
 	return appProvider
 }
 
-func NewCronInjector(conf *config.Config) *mission.CronProvider {
-	client := provider.NewRedisClient(conf)
+func NewCronInjector(c *config.Config) *mission.CronProvider {
+	client := provider.NewRedisClient(c)
 	serverStorage := cache.NewSidStorage(client)
 	clearWsCache := &cron.ClearWsCache{
 		Storage: serverStorage,
 	}
-	db := provider.NewMySQLClient(conf)
-	iFilesystem := provider.NewFilesystem(conf)
+	db := provider.NewMySQLClient(c)
+	iFilesystem := provider.NewFilesystem(c)
 	clearArticle := &cron.ClearArticle{
 		DB:         db,
 		Filesystem: iFilesystem,
@@ -569,22 +571,22 @@ func NewCronInjector(conf *config.Config) *mission.CronProvider {
 		ClearExpireServer: clearExpireServer,
 	}
 	cronProvider := &mission.CronProvider{
-		Config:  conf,
+		Config:  c,
 		Crontab: crontab,
 	}
 	return cronProvider
 }
 
-func NewQueueInjector(conf *config.Config) *mission.QueueProvider {
-	db := provider.NewMySQLClient(conf)
+func NewQueueInjector(c *config.Config) *mission.QueueProvider {
+	db := provider.NewMySQLClient(c)
 	robot := repo.NewRobot(db)
-	client := provider.NewRedisClient(conf)
+	client := provider.NewRedisClient(c)
 	source := repo.NewSource(db, client)
 	httpClient := provider.NewHttpClient()
 	ipaddressClient := provider.NewIpAddressClient(httpClient)
 	ipAddressService := &service.IpAddressService{
 		Source:          source,
-		Config:          conf,
+		Config:          c,
 		IpAddressClient: ipaddressClient,
 	}
 	talkSession := repo.NewTalkSession(db)
@@ -598,11 +600,11 @@ func NewQueueInjector(conf *config.Config) *mission.QueueProvider {
 	vote := cache.NewVote(client)
 	groupVote := repo.NewGroupVote(db, vote)
 	users := repo.NewUsers(db, client)
-	iFilesystem := provider.NewFilesystem(conf)
+	iFilesystem := provider.NewFilesystem(c)
 	unreadStorage := cache.NewUnreadStorage(client)
 	messageStorage := cache.NewMessageStorage(client)
 	serverStorage := cache.NewSidStorage(client)
-	clientStorage := cache.NewClientStorage(client, conf, serverStorage)
+	clientStorage := cache.NewClientStorage(client, c, serverStorage)
 	sequence := cache.NewSequence(client)
 	repoSequence := repo.NewSequence(db, sequence)
 	pushMessage := &business.PushMessage{
@@ -639,23 +641,23 @@ func NewQueueInjector(conf *config.Config) *mission.QueueProvider {
 	return queueProvider
 }
 
-func NewTempInjector(conf *config.Config) *mission.TempProvider {
-	db := provider.NewMySQLClient(conf)
-	client := provider.NewRedisClient(conf)
+func NewTempInjector(c *config.Config) *mission.TempProvider {
+	db := provider.NewMySQLClient(c)
+	client := provider.NewRedisClient(c)
 	users := repo.NewUsers(db, client)
 	testCommand := temp.TestCommand{
 		UserRepo: users,
 	}
 	tempProvider := &mission.TempProvider{
-		TestCommand: testCommand,
+		TestJob: testCommand,
 	}
 	return tempProvider
 }
 
-func NewMigrateInjector(conf *config.Config) *mission.MigrateProvider {
-	db := provider.NewMySQLClient(conf)
+func NewMigrateInjector(c *config.Config) *mission.MigrateProvider {
+	db := provider.NewMySQLClient(c)
 	migrateProvider := &mission.MigrateProvider{
-		Config: conf,
+		Config: c,
 		DB:     db,
 	}
 	return migrateProvider

@@ -61,9 +61,27 @@ func (m *ArticleEditRequest) validate(all bool) error {
 
 	// no validation rules for ClassifyId
 
-	// no validation rules for Title
+	if utf8.RuneCountInString(m.GetTitle()) < 1 {
+		err := ArticleEditRequestValidationError{
+			field:  "Title",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
-	// no validation rules for MdContent
+	if utf8.RuneCountInString(m.GetMdContent()) < 1 {
+		err := ArticleEditRequestValidationError{
+			field:  "MdContent",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return ArticleEditRequestMultiError(errors)
@@ -277,7 +295,16 @@ func (m *ArticleDetailRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for ArticleId
+	if m.GetArticleId() < 1 {
+		err := ArticleDetailRequestValidationError{
+			field:  "ArticleId",
+			reason: "value must be greater than or equal to 1",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return ArticleDetailRequestMultiError(errors)
@@ -840,7 +867,16 @@ func (m *ArticleDeleteRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for ArticleId
+	if m.GetArticleId() < 1 {
+		err := ArticleDeleteRequestValidationError{
+			field:  "ArticleId",
+			reason: "value must be greater than or equal to 1",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return ArticleDeleteRequestMultiError(errors)
@@ -1046,7 +1082,16 @@ func (m *ArticleRecoverRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for ArticleId
+	if m.GetArticleId() < 1 {
+		err := ArticleRecoverRequestValidationError{
+			field:  "ArticleId",
+			reason: "value must be greater than or equal to 1",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return ArticleRecoverRequestMultiError(errors)
@@ -1252,9 +1297,27 @@ func (m *ArticleMoveRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for ArticleId
+	if m.GetArticleId() < 1 {
+		err := ArticleMoveRequestValidationError{
+			field:  "ArticleId",
+			reason: "value must be greater than or equal to 1",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
-	// no validation rules for ClassifyId
+	if m.GetClassifyId() < 1 {
+		err := ArticleMoveRequestValidationError{
+			field:  "ClassifyId",
+			reason: "value must be greater than or equal to 1",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return ArticleMoveRequestMultiError(errors)
@@ -1460,9 +1523,27 @@ func (m *ArticleAsteriskRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for ArticleId
+	if m.GetArticleId() < 1 {
+		err := ArticleAsteriskRequestValidationError{
+			field:  "ArticleId",
+			reason: "value must be greater than or equal to 1",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
-	// no validation rules for Action
+	if _, ok := _ArticleAsteriskRequest_Action_InLookup[m.GetAction()]; !ok {
+		err := ArticleAsteriskRequestValidationError{
+			field:  "Action",
+			reason: "value must be in list [1 2]",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return ArticleAsteriskRequestMultiError(errors)
@@ -1543,6 +1624,11 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = ArticleAsteriskRequestValidationError{}
+
+var _ArticleAsteriskRequest_Action_InLookup = map[int32]struct{}{
+	1: {},
+	2: {},
+}
 
 // Validate checks the field values on ArticleAsteriskResponse with the rules
 // defined in the proto definition for this message. If any rules are
@@ -1668,7 +1754,16 @@ func (m *ArticleTagsRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for ArticleId
+	if m.GetArticleId() < 1 {
+		err := ArticleTagsRequestValidationError{
+			field:  "ArticleId",
+			reason: "value must be greater than or equal to 1",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return ArticleTagsRequestMultiError(errors)
@@ -1874,7 +1969,16 @@ func (m *ArticleForeverDeleteRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for ArticleId
+	if m.GetArticleId() < 1 {
+		err := ArticleForeverDeleteRequestValidationError{
+			field:  "ArticleId",
+			reason: "value must be greater than or equal to 1",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return ArticleForeverDeleteRequestMultiError(errors)

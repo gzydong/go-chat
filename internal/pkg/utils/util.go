@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"math/rand"
+	"regexp"
 	"runtime"
 	"time"
 )
@@ -25,4 +26,9 @@ func PanicTrace(err interface{}) string {
 		fmt.Fprintf(buf, "%s:%d (0x%x)\n", file, line, pc)
 	}
 	return buf.String()
+}
+
+func IsMobile(value string) bool {
+	matched, _ := regexp.MatchString("^1[3456789][0-9]{9}$", value)
+	return matched
 }

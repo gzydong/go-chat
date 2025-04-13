@@ -56,7 +56,7 @@ func TestTcp_Client_new(t1 *testing.T) {
 
 	tokens := make([]string, 0)
 
-	jsonutil.Decode(jsons, &tokens)
+	jsonutil.Unmarshal(jsons, &tokens)
 
 	for _, val := range tokens {
 		ct(val)

@@ -2,8 +2,7 @@ syntax = "proto3";
 package web;
 
 option go_package = "web/v1;web";
-
-import "tagger/tagger.proto";
+import "validate/validate.proto";
 
 message EmoticonItem{
   int32 emoticon_id = 1;
@@ -12,7 +11,7 @@ message EmoticonItem{
 
 // 删除表情包接口请求参数
 message EmoticonDeleteRequest{
-  int32 emoticon_id = 1 [(tagger.tags) = "binding:\"required\""];
+  int32 emoticon_id = 1 [(validate.rules).int32.gte = 1];
 }
 
 // 删除表情包接口响应参数
@@ -37,7 +36,7 @@ message EmoticonUploadResponse{
 
 // 删除表情包接口请求参数
 message EmoticonCreateRequest{
-  string url = 1 [(tagger.tags) = "binding:\"required\""];
+  string url = 1 [(validate.rules).string.min_len = 1];
 }
 
 // 删除表情包接口响应参数

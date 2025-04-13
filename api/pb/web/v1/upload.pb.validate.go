@@ -469,9 +469,27 @@ func (m *UploadInitiateMultipartRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for FileName
+	if utf8.RuneCountInString(m.GetFileName()) < 1 {
+		err := UploadInitiateMultipartRequestValidationError{
+			field:  "FileName",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
-	// no validation rules for FileSize
+	if m.GetFileSize() < 1 {
+		err := UploadInitiateMultipartRequestValidationError{
+			field:  "FileSize",
+			reason: "value must be greater than or equal to 1",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return UploadInitiateMultipartRequestMultiError(errors)
@@ -685,11 +703,38 @@ func (m *UploadMultipartRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for UploadId
+	if utf8.RuneCountInString(m.GetUploadId()) < 1 {
+		err := UploadMultipartRequestValidationError{
+			field:  "UploadId",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
-	// no validation rules for SplitIndex
+	if m.GetSplitIndex() <= 0 {
+		err := UploadMultipartRequestValidationError{
+			field:  "SplitIndex",
+			reason: "value must be greater than 0",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
-	// no validation rules for SplitNum
+	if m.GetSplitNum() <= 0 {
+		err := UploadMultipartRequestValidationError{
+			field:  "SplitNum",
+			reason: "value must be greater than 0",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return UploadMultipartRequestMultiError(errors)

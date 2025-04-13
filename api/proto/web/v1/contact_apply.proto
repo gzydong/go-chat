@@ -3,12 +3,12 @@ package web;
 
 option go_package = "web/v1;web";
 
-import "tagger/tagger.proto";
+import "validate/validate.proto";
 
 // 添加联系人申请接口请求参数
 message ContactApplyCreateRequest{
-  int32 user_id = 1 [(tagger.tags) = "binding:\"required\""];
-  string remark = 2 [(tagger.tags) = "binding:\"required\""];
+  int32 user_id = 1[(validate.rules).int32.gte = 1];
+  string remark = 2 [(validate.rules).string.min_len = 1];
 }
 
 // 添加联系人申请接口响应参数
@@ -16,8 +16,8 @@ message ContactApplyCreateResponse{}
 
 // 同意联系人申请接口请求参数
 message ContactApplyAcceptRequest{
-  int32 apply_id = 1 [(tagger.tags) = "binding:\"required\""];
-  string remark = 2 [(tagger.tags) = "binding:\"required\""];
+  int32 apply_id = 1 [(validate.rules).int32.gte = 1];
+  string remark = 2 [(validate.rules).string.min_len = 1];
 }
 
 // 同意联系人申请接口响应参数
@@ -25,8 +25,8 @@ message ContactApplyAcceptResponse{}
 
 // 拒绝联系人申请接口请求参数
 message ContactApplyDeclineRequest{
-  int32 apply_id = 1 [(tagger.tags) = "binding:\"required\""];
-  string remark = 2 [(tagger.tags) = "binding:\"required\""];
+  int32 apply_id = 1 [(validate.rules).int32.gte = 1];
+  string remark = 2 [(validate.rules).string.min_len = 1];
 }
 
 // 拒绝联系人申请接口响应参数

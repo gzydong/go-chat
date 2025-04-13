@@ -3,7 +3,6 @@ package web;
 
 option go_package = "web/v1;web";
 
-//import "tagger/tagger.proto";
 
 message OrganizeDepartmentListRequest{}
 
@@ -13,6 +12,7 @@ message OrganizeDepartmentListResponse{
     int32 parent_id = 2;
     string dept_name = 3;
     string ancestors = 4;
+    int32 count = 5;
   }
 
   repeated Item items = 1;
@@ -39,7 +39,8 @@ message OrganizePersonnelListResponse{
     string nickname = 2;
     int32 gender = 3;
     repeated Position position_items = 4;
-    repeated Dept dept_items = 5;
+    Dept dept_item = 5;
+    string avatar = 6;
   }
 
   repeated Item items = 1;

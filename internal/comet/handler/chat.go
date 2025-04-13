@@ -24,7 +24,7 @@ func (c *ChatChannel) Conn(ctx *core.Context) error {
 		return err
 	}
 
-	return c.NewClient(ctx.UserId(), conn)
+	return c.NewClient(ctx.GetAuthId(), conn)
 }
 
 func (c *ChatChannel) NewClient(uid int, conn socket.IConn) error {

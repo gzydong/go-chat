@@ -57,7 +57,16 @@ func (m *ArticleAnnexUploadRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for ArticleId
+	if m.GetArticleId() < 1 {
+		err := ArticleAnnexUploadRequestValidationError{
+			field:  "ArticleId",
+			reason: "value must be greater than or equal to 1",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return ArticleAnnexUploadRequestMultiError(errors)
@@ -271,7 +280,16 @@ func (m *ArticleAnnexDeleteRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for AnnexId
+	if m.GetAnnexId() < 1 {
+		err := ArticleAnnexDeleteRequestValidationError{
+			field:  "AnnexId",
+			reason: "value must be greater than or equal to 1",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return ArticleAnnexDeleteRequestMultiError(errors)
@@ -477,7 +495,16 @@ func (m *ArticleAnnexRecoverRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for AnnexId
+	if m.GetAnnexId() < 1 {
+		err := ArticleAnnexRecoverRequestValidationError{
+			field:  "AnnexId",
+			reason: "value must be greater than or equal to 1",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return ArticleAnnexRecoverRequestMultiError(errors)
@@ -685,7 +712,16 @@ func (m *ArticleAnnexForeverDeleteRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for AnnexId
+	if m.GetAnnexId() < 1 {
+		err := ArticleAnnexForeverDeleteRequestValidationError{
+			field:  "AnnexId",
+			reason: "value must be greater than or equal to 1",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return ArticleAnnexForeverDeleteRequestMultiError(errors)
@@ -896,7 +932,16 @@ func (m *ArticleAnnexDownloadRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for AnnexId
+	if m.GetAnnexId() < 1 {
+		err := ArticleAnnexDownloadRequestValidationError{
+			field:  "AnnexId",
+			reason: "value must be greater than or equal to 1",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return ArticleAnnexDownloadRequestMultiError(errors)

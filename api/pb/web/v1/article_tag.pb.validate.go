@@ -297,7 +297,16 @@ func (m *ArticleTagEditRequest) validate(all bool) error {
 
 	// no validation rules for TagId
 
-	// no validation rules for TagName
+	if utf8.RuneCountInString(m.GetTagName()) < 1 {
+		err := ArticleTagEditRequestValidationError{
+			field:  "TagName",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return ArticleTagEditRequestMultiError(errors)
@@ -505,7 +514,16 @@ func (m *ArticleTagDeleteRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for TagId
+	if m.GetTagId() < 1 {
+		err := ArticleTagDeleteRequestValidationError{
+			field:  "TagId",
+			reason: "value must be greater than or equal to 1",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return ArticleTagDeleteRequestMultiError(errors)

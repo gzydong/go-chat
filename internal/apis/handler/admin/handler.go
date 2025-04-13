@@ -2,6 +2,7 @@ package admin
 
 import (
 	v12 "go-chat/internal/apis/handler/admin/v1"
+	"go-chat/internal/repository/repo"
 )
 
 type V1 struct {
@@ -12,6 +13,7 @@ type V1 struct {
 type V2 struct{}
 
 type Handler struct {
-	V1 *V1
-	V2 *V2
+	V1        *V1
+	V2        *V2
+	AdminRepo *repo.Admin
 }

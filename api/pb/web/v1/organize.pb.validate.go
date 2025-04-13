@@ -546,6 +546,8 @@ func (m *OrganizeDepartmentListResponse_Item) validate(all bool) error {
 
 	// no validation rules for Ancestors
 
+	// no validation rules for Count
+
 	if len(errors) > 0 {
 		return OrganizeDepartmentListResponse_ItemMultiError(errors)
 	}
@@ -914,39 +916,36 @@ func (m *OrganizePersonnelListResponse_Item) validate(all bool) error {
 
 	}
 
-	for idx, item := range m.GetDeptItems() {
-		_, _ = idx, item
-
-		if all {
-			switch v := interface{}(item).(type) {
-			case interface{ ValidateAll() error }:
-				if err := v.ValidateAll(); err != nil {
-					errors = append(errors, OrganizePersonnelListResponse_ItemValidationError{
-						field:  fmt.Sprintf("DeptItems[%v]", idx),
-						reason: "embedded message failed validation",
-						cause:  err,
-					})
-				}
-			case interface{ Validate() error }:
-				if err := v.Validate(); err != nil {
-					errors = append(errors, OrganizePersonnelListResponse_ItemValidationError{
-						field:  fmt.Sprintf("DeptItems[%v]", idx),
-						reason: "embedded message failed validation",
-						cause:  err,
-					})
-				}
-			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
-			if err := v.Validate(); err != nil {
-				return OrganizePersonnelListResponse_ItemValidationError{
-					field:  fmt.Sprintf("DeptItems[%v]", idx),
+	if all {
+		switch v := interface{}(m.GetDeptItem()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, OrganizePersonnelListResponse_ItemValidationError{
+					field:  "DeptItem",
 					reason: "embedded message failed validation",
 					cause:  err,
-				}
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, OrganizePersonnelListResponse_ItemValidationError{
+					field:  "DeptItem",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
 			}
 		}
-
+	} else if v, ok := interface{}(m.GetDeptItem()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return OrganizePersonnelListResponse_ItemValidationError{
+				field:  "DeptItem",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
 	}
+
+	// no validation rules for Avatar
 
 	if len(errors) > 0 {
 		return OrganizePersonnelListResponse_ItemMultiError(errors)

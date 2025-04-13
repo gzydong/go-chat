@@ -19,20 +19,20 @@ type Common struct {
 // SmsCode 发送短信验证码
 func (c *Common) SmsCode(ctx *core.Context) error {
 	in := &web.CommonSendSmsRequest{}
-	if err := ctx.Context.ShouldBind(in); err != nil {
+	if err := ctx.ShouldBindProto(in); err != nil {
 		return ctx.InvalidParams(err)
 	}
 
 	switch in.Channel {
 	// 需要判断账号是否存在
 	case entity.SmsLoginChannel, entity.SmsForgetAccountChannel:
-		if !c.UsersRepo.IsMobileExist(ctx.Ctx(), in.Mobile) {
+		if !c.UsersRepo.IsMobileExist(ctx.GetContext(), in.Mobile) {
 			return ctx.Error(entity.ErrAccountOrPassword)
 		}
 
 	// 需要判断账号是否存在
 	case entity.SmsRegisterChannel, entity.SmsChangeAccountChannel:
-		if c.UsersRepo.IsMobileExist(ctx.Ctx(), in.Mobile) {
+		if c.UsersRepo.IsMobileExist(ctx.GetContext(), in.Mobile) {
 			return ctx.Error(entity.ErrPhoneExist)
 		}
 
@@ -41,7 +41,7 @@ func (c *Common) SmsCode(ctx *core.Context) error {
 	}
 
 	// 发送短信验证码
-	code, err := c.SmsService.Send(ctx.Ctx(), in.Channel, in.Mobile)
+	code, err := c.SmsService.Send(ctx.GetContext(), in.Channel, in.Mobile)
 	if err != nil {
 		return ctx.Error(err)
 	}

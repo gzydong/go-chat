@@ -5,6 +5,7 @@ import (
 	"errors"
 	"time"
 
+	"github.com/samber/lo"
 	"go-chat/internal/entity"
 	"go-chat/internal/pkg/encrypt"
 	"go-chat/internal/pkg/utils"
@@ -39,7 +40,7 @@ func (s *UserService) Register(ctx context.Context, opt *UserRegisterOpt) (*mode
 	}
 
 	user := &model.Users{
-		Mobile:    opt.Mobile,
+		Mobile:    lo.ToPtr(opt.Mobile),
 		Nickname:  opt.Nickname,
 		Avatar:    "",
 		Gender:    model.UsersGenderDefault,
@@ -72,6 +73,10 @@ func (s *UserService) Login(ctx context.Context, mobile string, password string)
 
 	if !encrypt.VerifyPassword(user.Password, password) {
 		return nil, entity.ErrAccountOrPassword
+	}
+
+	if user.IsDisabled() {
+		return nil, entity.ErrAccountDisabled
 	}
 
 	return user, nil

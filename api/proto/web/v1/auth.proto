@@ -3,16 +3,16 @@ package web;
 
 option go_package = "web/v1;web";
 
-import "tagger/tagger.proto";
+import "validate/validate.proto";
 
 // 登录接口请求参数
 message AuthLoginRequest{
   // 登录手机号
-  string mobile = 1 [(tagger.tags) = "binding:\"required\""];
+  string mobile = 1 [(validate.rules).string.min_len = 11];
   // 登录密码
-  string password = 2 [(tagger.tags) = "binding:\"required\""];
+  string password = 2 [(validate.rules).string.min_len = 1];
   // 登录平台
-  string platform = 3 [(tagger.tags) = "binding:\"required,oneof=h5 ios windows mac web\""];
+  string platform = 3 [(validate.rules).string = {in:["web", "windows", "mac"]}];
 }
 
 // 登录接口响应参数
@@ -28,40 +28,35 @@ message AuthLoginResponse{
 // 注册接口请求参数
 message AuthRegisterRequest{
   // 登录手机号
-  string nickname = 1 [(tagger.tags) = "binding:\"required,min=2,max=30\""];
+  string nickname = 1 [(validate.rules).string = {min_len: 2, max_len: 20}];
   // 登录手机号
-  string mobile = 2 [(tagger.tags) = "binding:\"required,len=11,phone\""];
+  string mobile = 2 [(validate.rules).string.len = 11];
   // 登录密码
-  string password = 3 [(tagger.tags) = "binding:\"required\""];
+  string password = 3 [(validate.rules).string.min_len = 1];
   // 登录平台
-  string platform = 4 [(tagger.tags) = "binding:\"required,oneof=h5 ios windows mac web\""];
+  string platform = 4 [(validate.rules).string = {in:["web", "windows", "mac"]}];
   // 短信验证码
-  string sms_code = 5 [(tagger.tags) = "binding:\"required\""];
+  string sms_code = 5 [(validate.rules).string.len = 6];
 }
 
 // 注册接口响应参数
 message AuthRegisterResponse{
-
-}
-
-// Token 刷新接口请求参数
-message AuthRefreshRequest{}
-
-// Token 刷新接口响应参数
-message AuthRefreshResponse{
+  // Token 类型
   string type = 1;
+  // token
   string access_token = 2;
+  // 过期时间
   int32 expires_in = 3;
 }
 
 // 找回密码接口请求参数
 message AuthForgetRequest{
   // 手机号
-  string mobile = 1 [(tagger.tags) = "binding:\"required,len=11,phone\""];
+  string mobile = 1 [(validate.rules).string.len = 11];
   // 登录密码
-  string password = 2 [(tagger.tags) = "binding:\"required\""];
+  string password = 2 [(validate.rules).string.min_len = 1];
   // 短信验证码
-  string sms_code = 3 [(tagger.tags) = "binding:\"required\""];
+  string sms_code = 3 [(validate.rules).string.len = 6];
 }
 
 // 找回密码接口响应参数

@@ -10,6 +10,7 @@ import (
 	"go-chat/internal/pkg/logger"
 	"go-chat/internal/pkg/strutil"
 	"go-chat/internal/repository/model"
+	"go-chat/internal/repository/repo"
 )
 
 type ForwardMessageOpt struct {
@@ -61,7 +62,7 @@ func (s *Service) toSplitForward(ctx context.Context, req ForwardMessageOpt) err
 
 	// 向群发送消息
 	if req.ToUserIdType == entity.ChatGroupMode {
-		sequences := s.Sequence.BatchGet(ctx, req.ToUserId, false, int64(len(messageItems)))
+		sequences := s.Sequence.BatchGet(ctx, repo.SequenceTypeGroup, int32(req.ToUserId), len(messageItems))
 
 		items := make([]model.TalkGroupMessage, 0)
 		for i, v := range messageItems {
@@ -96,8 +97,8 @@ func (s *Service) toSplitForward(ctx context.Context, req ForwardMessageOpt) err
 			}
 		}
 	} else {
-		sequence1 := s.Sequence.BatchGet(ctx, req.ToUserId, true, int64(len(messageItems)))
-		sequence2 := s.Sequence.BatchGet(ctx, req.UserId, true, int64(len(messageItems)))
+		sequence1 := s.Sequence.BatchGet(ctx, repo.SequenceTypeUser, int32(req.ToUserId), len(messageItems))
+		sequence2 := s.Sequence.BatchGet(ctx, repo.SequenceTypeUser, int32(req.UserId), len(messageItems))
 
 		items := make([]model.TalkUserMessage, 0)
 		for i, v := range messageItems {
@@ -234,7 +235,7 @@ func (s *Service) toCombineForward(ctx context.Context, req ForwardMessageOpt) e
 		items = append(items, model.TalkUserMessage{
 			MsgId:     strutil.NewMsgId(),
 			OrgMsgId:  msgId,
-			Sequence:  s.Sequence.Get(ctx, req.ToUserId, true),
+			Sequence:  s.Sequence.Get(ctx, repo.SequenceTypeUser, int32(req.ToUserId)),
 			MsgType:   entity.ChatMsgTypeForward,
 			UserId:    req.ToUserId,
 			ToFromId:  req.UserId,
@@ -250,7 +251,7 @@ func (s *Service) toCombineForward(ctx context.Context, req ForwardMessageOpt) e
 		items = append(items, model.TalkUserMessage{
 			MsgId:     strutil.NewMsgId(),
 			OrgMsgId:  msgId,
-			Sequence:  s.Sequence.Get(ctx, req.UserId, true),
+			Sequence:  s.Sequence.Get(ctx, repo.SequenceTypeUser, int32(req.UserId)),
 			MsgType:   entity.ChatMsgTypeForward,
 			UserId:    req.UserId,
 			ToFromId:  req.ToUserId,
@@ -276,7 +277,7 @@ func (s *Service) toCombineForward(ctx context.Context, req ForwardMessageOpt) e
 	case entity.ChatGroupMode: // 向群发送消息
 		record := model.TalkGroupMessage{
 			MsgId:     strutil.NewMsgId(),
-			Sequence:  s.Sequence.Get(ctx, req.ToUserId, false),
+			Sequence:  s.Sequence.Get(ctx, repo.SequenceTypeGroup, int32(req.ToUserId)),
 			MsgType:   entity.ChatMsgTypeForward,
 			GroupId:   req.ToUserId,
 			FromId:    req.UserId,
@@ -338,7 +339,7 @@ func text(msgType int, extra string) string {
 	switch msgType {
 	case entity.ChatMsgTypeText:
 		data := model.TalkRecordExtraText{}
-		if err := jsonutil.Decode(extra, &data); err != nil {
+		if err := jsonutil.Unmarshal(extra, &data); err != nil {
 			return ""
 		}
 

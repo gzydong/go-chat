@@ -39,14 +39,14 @@ type GetTalkRecordsRequest struct {
 // GetRecords 获取会话记录
 func (c *Records) GetRecords(ctx *core.Context) error {
 	in := &GetTalkRecordsRequest{}
-	if err := ctx.Context.ShouldBindQuery(in); err != nil {
+	if err := ctx.ShouldBindProto(in); err != nil {
 		return ctx.InvalidParams(err)
 	}
 
-	uid := ctx.UserId()
+	uid := ctx.GetAuthId()
 
 	if in.TalkMode == entity.ChatGroupMode {
-		err := c.AuthService.IsAuth(ctx.Ctx(), &service.AuthOption{
+		err := c.AuthService.IsAuth(ctx.GetContext(), &service.AuthOption{
 			TalkType: in.TalkMode,
 			UserId:   uid,
 			ToFromId: in.ToFromId,
@@ -75,7 +75,7 @@ func (c *Records) GetRecords(ctx *core.Context) error {
 		}
 	}
 
-	records, err := c.TalkRecordsService.FindAllTalkRecords(ctx.Ctx(), &service.FindAllTalkRecordsOpt{
+	records, err := c.TalkRecordsService.FindAllTalkRecords(ctx.GetContext(), &service.FindAllTalkRecordsOpt{
 		TalkType:   in.TalkMode,
 		UserId:     uid,
 		ReceiverId: in.ToFromId,
@@ -115,14 +115,14 @@ func (c *Records) GetRecords(ctx *core.Context) error {
 func (c *Records) SearchHistoryRecords(ctx *core.Context) error {
 
 	params := &GetTalkRecordsRequest{}
-	if err := ctx.Context.ShouldBindQuery(params); err != nil {
+	if err := ctx.Context.ShouldBind(params); err != nil {
 		return ctx.InvalidParams(err)
 	}
 
-	uid := ctx.UserId()
+	uid := ctx.GetAuthId()
 
 	if params.TalkMode == entity.ChatGroupMode {
-		err := c.AuthService.IsAuth(ctx.Ctx(), &service.AuthOption{
+		err := c.AuthService.IsAuth(ctx.GetContext(), &service.AuthOption{
 			TalkType: params.TalkMode,
 			UserId:   uid,
 			ToFromId: params.ToFromId,
@@ -153,7 +153,7 @@ func (c *Records) SearchHistoryRecords(ctx *core.Context) error {
 		msgTypes = []int{params.MsgType}
 	}
 
-	records, err := c.TalkRecordsService.FindAllTalkRecords(ctx.Ctx(), &service.FindAllTalkRecordsOpt{
+	records, err := c.TalkRecordsService.FindAllTalkRecords(ctx.GetContext(), &service.FindAllTalkRecordsOpt{
 		TalkType:   params.TalkMode,
 		MsgType:    msgTypes,
 		UserId:     uid,
@@ -202,7 +202,7 @@ func (c *Records) GetForwardRecords(ctx *core.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	records, err := c.TalkRecordsService.FindForwardRecords(ctx.Ctx(), ctx.UserId(), params.MsgIds, params.TalkMode)
+	records, err := c.TalkRecordsService.FindForwardRecords(ctx.GetContext(), ctx.GetAuthId(), params.MsgIds, params.TalkMode)
 	if err != nil {
 		return ctx.Error(err)
 	}
@@ -233,31 +233,31 @@ type DownloadChatFileRequest struct {
 // Download 聊天文件下载
 func (c *Records) Download(ctx *core.Context) error {
 	params := &DownloadChatFileRequest{}
-	if err := ctx.Context.ShouldBindQuery(params); err != nil {
+	if err := ctx.Context.ShouldBind(params); err != nil {
 		return ctx.InvalidParams(err)
 	}
 
 	var fileInfo model.TalkRecordExtraFile
 	if params.TalkMode == entity.ChatGroupMode {
-		record, err := c.TalkRecordGroupRepo.FindByWhere(ctx.Ctx(), "msg_id = ?", params.MsgId)
+		record, err := c.TalkRecordGroupRepo.FindByWhere(ctx.GetContext(), "msg_id = ?", params.MsgId)
 		if err != nil {
 			return ctx.Error(err)
 		}
 
-		if !c.GroupMemberRepo.IsMember(ctx.Ctx(), record.GroupId, ctx.UserId(), false) {
+		if !c.GroupMemberRepo.IsMember(ctx.GetContext(), record.GroupId, ctx.GetAuthId(), false) {
 			return ctx.Forbidden("无访问权限！")
 		}
 
-		if err := jsonutil.Decode(record.Extra, &fileInfo); err != nil {
+		if err := jsonutil.Unmarshal(record.Extra, &fileInfo); err != nil {
 			return ctx.Error(err)
 		}
 	} else {
-		record, err := c.TalkRecordFriendRepo.FindByWhere(ctx.Ctx(), "user_id = ? and msg_id = ?", ctx.UserId(), params.MsgId)
+		record, err := c.TalkRecordFriendRepo.FindByWhere(ctx.GetContext(), "user_id = ? and msg_id = ?", ctx.GetAuthId(), params.MsgId)
 		if err != nil {
 			return ctx.Error(err)
 		}
 
-		if err := jsonutil.Decode(record.Extra, &fileInfo); err != nil {
+		if err := jsonutil.Unmarshal(record.Extra, &fileInfo); err != nil {
 			return ctx.Error(err)
 		}
 	}

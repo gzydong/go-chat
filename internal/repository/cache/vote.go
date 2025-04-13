@@ -30,7 +30,7 @@ func (t *Vote) GetVoteAnswerUser(ctx context.Context, voteId int) ([]int, error)
 	}
 
 	var ids []int
-	if err := jsonutil.Decode(val, &ids); err != nil {
+	if err := jsonutil.Unmarshal(val, &ids); err != nil {
 		return nil, err
 	}
 

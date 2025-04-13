@@ -29,7 +29,7 @@ func (c *Emoticon) List(ctx *core.Context) error {
 		Items: make([]*web.EmoticonItem, 0),
 	}
 
-	items, err := c.EmoticonRepo.GetCustomizeList(ctx.UserId())
+	items, err := c.EmoticonRepo.GetCustomizeList(ctx.GetAuthId())
 	if err != nil {
 		return ctx.Error(err)
 	}
@@ -47,11 +47,11 @@ func (c *Emoticon) List(ctx *core.Context) error {
 // Delete 删除收藏表情包
 func (c *Emoticon) Delete(ctx *core.Context) error {
 	in := &web.EmoticonDeleteRequest{}
-	if err := ctx.Context.ShouldBind(in); err != nil {
+	if err := ctx.ShouldBindProto(in); err != nil {
 		return ctx.InvalidParams(err)
 	}
 
-	if err := c.EmoticonService.DeleteCollect(ctx.UserId(), []int{int(in.GetEmoticonId())}); err != nil {
+	if err := c.EmoticonService.DeleteCollect(ctx.GetAuthId(), []int{int(in.GetEmoticonId())}); err != nil {
 		return ctx.Error(err)
 	}
 
@@ -61,12 +61,12 @@ func (c *Emoticon) Delete(ctx *core.Context) error {
 // Create 创建自定义表情包
 func (c *Emoticon) Create(ctx *core.Context) error {
 	in := &web.EmoticonCreateRequest{}
-	if err := ctx.Context.ShouldBind(in); err != nil {
+	if err := ctx.ShouldBindProto(in); err != nil {
 		return ctx.InvalidParams(err)
 	}
 
 	m := &model.EmoticonItem{
-		UserId:   ctx.UserId(),
+		UserId:   ctx.GetAuthId(),
 		Describe: "自定义表情包",
 		Url:      in.Url,
 	}
@@ -111,7 +111,7 @@ func (c *Emoticon) Upload(ctx *core.Context) error {
 	}
 
 	m := &model.EmoticonItem{
-		UserId:   ctx.UserId(),
+		UserId:   ctx.GetAuthId(),
 		Describe: "自定义表情包",
 		Url:      c.Filesystem.PublicUrl(c.Filesystem.BucketPublicName(), src),
 	}

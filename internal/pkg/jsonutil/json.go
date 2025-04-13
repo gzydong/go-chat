@@ -15,14 +15,14 @@ func Marshal(value any) []byte {
 	return data
 }
 
-// Decode
+// Unmarshal
 // nolint
-func Decode(data any, resp any) error {
+func Unmarshal(data any, v any) error {
 	switch data.(type) {
 	case string:
-		return json.Unmarshal([]byte(data.(string)), resp)
+		return json.Unmarshal([]byte(data.(string)), v)
 	case []byte:
-		return json.Unmarshal(data.([]byte), resp)
+		return json.Unmarshal(data.([]byte), v)
 	default:
 		return errors.New("未知类型")
 	}

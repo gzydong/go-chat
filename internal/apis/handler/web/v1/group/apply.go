@@ -32,16 +32,16 @@ type Apply struct {
 
 func (c *Apply) Create(ctx *core.Context) error {
 	in := &web.GroupApplyCreateRequest{}
-	if err := ctx.Context.ShouldBind(in); err != nil {
+	if err := ctx.ShouldBindProto(in); err != nil {
 		return ctx.InvalidParams(err)
 	}
 
-	apply, err := c.GroupApplyRepo.FindByWhere(ctx.Ctx(), "group_id = ? and user_id = ? and status = ?", in.GroupId, ctx.UserId(), model.GroupApplyStatusWait)
+	apply, err := c.GroupApplyRepo.FindByWhere(ctx.GetContext(), "group_id = ? and user_id = ? and status = ?", in.GroupId, ctx.GetAuthId(), model.GroupApplyStatusWait)
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return ctx.Error(err)
 	}
 
-	uid := ctx.UserId()
+	uid := ctx.GetAuthId()
 
 	applyId := 0
 	if apply == nil {
@@ -52,7 +52,7 @@ func (c *Apply) Create(ctx *core.Context) error {
 			Remark:  in.Remark,
 		}
 
-		err = c.GroupApplyRepo.Create(ctx.Ctx(), data)
+		err = c.GroupApplyRepo.Create(ctx.GetContext(), data)
 		if err == nil {
 			applyId = data.Id
 		}
@@ -63,23 +63,23 @@ func (c *Apply) Create(ctx *core.Context) error {
 			"updated_at": timeutil.DateTime(),
 		}
 
-		_, err = c.GroupApplyRepo.UpdateByWhere(ctx.Ctx(), data, "id = ?", apply.Id)
+		_, err = c.GroupApplyRepo.UpdateByWhere(ctx.GetContext(), data, "id = ?", apply.Id)
 	}
 
 	if err != nil {
 		return ctx.Error(err)
 	}
 
-	find, err := c.GroupMemberRepo.FindByWhere(ctx.Ctx(), "group_id = ? and leader = ?", in.GroupId, model.GroupMemberLeaderOwner)
+	find, err := c.GroupMemberRepo.FindByWhere(ctx.GetContext(), "group_id = ? and leader = ?", in.GroupId, model.GroupMemberLeaderOwner)
 	if err == nil && find != nil {
-		c.GroupApplyStorage.Incr(ctx.Ctx(), find.UserId)
+		c.GroupApplyStorage.Incr(ctx.GetContext(), find.UserId)
 	}
 
-	_ = c.PushMessage.Push(ctx.Ctx(), entity.ImChannelChat, &entity.SubscribeMessage{
+	_ = c.PushMessage.Push(ctx.GetContext(), entity.ImChannelChat, &entity.SubscribeMessage{
 		Event: entity.SubEventGroupApply,
 		Payload: jsonutil.Encode(entity.SubEventGroupApplyPayload{
 			GroupId: int(in.GroupId),
-			UserId:  ctx.UserId(),
+			UserId:  ctx.GetAuthId(),
 			ApplyId: applyId,
 		}),
 	})
@@ -88,14 +88,14 @@ func (c *Apply) Create(ctx *core.Context) error {
 }
 
 func (c *Apply) Agree(ctx *core.Context) error {
-	uid := ctx.UserId()
+	uid := ctx.GetAuthId()
 
 	in := &web.GroupApplyAgreeRequest{}
-	if err := ctx.Context.ShouldBind(in); err != nil {
+	if err := ctx.ShouldBindProto(in); err != nil {
 		return ctx.InvalidParams(err)
 	}
 
-	apply, err := c.GroupApplyRepo.FindById(ctx.Ctx(), int(in.ApplyId))
+	apply, err := c.GroupApplyRepo.FindById(ctx.GetContext(), int(in.ApplyId))
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return ctx.Error(err)
 	}
@@ -104,7 +104,7 @@ func (c *Apply) Agree(ctx *core.Context) error {
 		return ctx.Error(entity.ErrDataNotFound)
 	}
 
-	if !c.GroupMemberRepo.IsLeader(ctx.Ctx(), apply.GroupId, uid) {
+	if !c.GroupMemberRepo.IsLeader(ctx.GetContext(), apply.GroupId, uid) {
 		return ctx.Forbidden("无权限访问")
 	}
 
@@ -112,8 +112,8 @@ func (c *Apply) Agree(ctx *core.Context) error {
 		return ctx.Success(nil)
 	}
 
-	if !c.GroupMemberRepo.IsMember(ctx.Ctx(), apply.GroupId, apply.UserId, false) {
-		err = c.GroupService.Invite(ctx.Ctx(), &service.GroupInviteOpt{
+	if !c.GroupMemberRepo.IsMember(ctx.GetContext(), apply.GroupId, apply.UserId, false) {
+		err = c.GroupService.Invite(ctx.GetContext(), &service.GroupInviteOpt{
 			UserId:    uid,
 			GroupId:   apply.GroupId,
 			MemberIds: []int{apply.UserId},
@@ -129,7 +129,7 @@ func (c *Apply) Agree(ctx *core.Context) error {
 		"updated_at": timeutil.DateTime(),
 	}
 
-	_, err = c.GroupApplyRepo.UpdateByWhere(ctx.Ctx(), data, "id = ?", in.ApplyId)
+	_, err = c.GroupApplyRepo.UpdateByWhere(ctx.GetContext(), data, "id = ?", in.ApplyId)
 	if err != nil {
 		return ctx.Error(err)
 	}
@@ -139,13 +139,13 @@ func (c *Apply) Agree(ctx *core.Context) error {
 
 func (c *Apply) Decline(ctx *core.Context) error {
 	in := &web.GroupApplyDeclineRequest{}
-	if err := ctx.Context.ShouldBind(in); err != nil {
+	if err := ctx.ShouldBindProto(in); err != nil {
 		return ctx.InvalidParams(err)
 	}
 
-	uid := ctx.UserId()
+	uid := ctx.GetAuthId()
 
-	apply, err := c.GroupApplyRepo.FindById(ctx.Ctx(), int(in.ApplyId))
+	apply, err := c.GroupApplyRepo.FindById(ctx.GetContext(), int(in.ApplyId))
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return ctx.Error(err)
 	}
@@ -154,7 +154,7 @@ func (c *Apply) Decline(ctx *core.Context) error {
 		return ctx.Error(entity.ErrDataNotFound)
 	}
 
-	if !c.GroupMemberRepo.IsLeader(ctx.Ctx(), apply.GroupId, uid) {
+	if !c.GroupMemberRepo.IsLeader(ctx.GetContext(), apply.GroupId, uid) {
 		return ctx.Forbidden("无权限访问")
 	}
 
@@ -168,7 +168,7 @@ func (c *Apply) Decline(ctx *core.Context) error {
 		"updated_at": timeutil.DateTime(),
 	}
 
-	_, err = c.GroupApplyRepo.UpdateByWhere(ctx.Ctx(), data, "id = ?", in.ApplyId)
+	_, err = c.GroupApplyRepo.UpdateByWhere(ctx.GetContext(), data, "id = ?", in.ApplyId)
 	if err != nil {
 		return ctx.Error(err)
 	}
@@ -178,15 +178,15 @@ func (c *Apply) Decline(ctx *core.Context) error {
 
 func (c *Apply) List(ctx *core.Context) error {
 	in := &web.GroupApplyListRequest{}
-	if err := ctx.Context.ShouldBind(in); err != nil {
+	if err := ctx.ShouldBindProto(in); err != nil {
 		return ctx.InvalidParams(err)
 	}
 
-	if !c.GroupMemberRepo.IsLeader(ctx.Ctx(), int(in.GroupId), ctx.UserId()) {
+	if !c.GroupMemberRepo.IsLeader(ctx.GetContext(), int(in.GroupId), ctx.GetAuthId()) {
 		return ctx.Forbidden("无权限访问")
 	}
 
-	list, err := c.GroupApplyRepo.List(ctx.Ctx(), []int{int(in.GroupId)})
+	list, err := c.GroupApplyRepo.List(ctx.GetContext(), []int{int(in.GroupId)})
 	if err != nil {
 		return ctx.Error(err)
 	}
@@ -208,9 +208,9 @@ func (c *Apply) List(ctx *core.Context) error {
 }
 
 func (c *Apply) All(ctx *core.Context) error {
-	uid := ctx.UserId()
+	uid := ctx.GetAuthId()
 
-	all, err := c.GroupMemberRepo.FindAll(ctx.Ctx(), func(db *gorm.DB) {
+	all, err := c.GroupMemberRepo.FindAll(ctx.GetContext(), func(db *gorm.DB) {
 		db.Select("group_id")
 		db.Where("user_id = ?", uid)
 		db.Where("leader in ?", []int{
@@ -232,16 +232,16 @@ func (c *Apply) All(ctx *core.Context) error {
 	resp := &web.GroupApplyAllResponse{Items: make([]*web.GroupApplyAllResponse_Item, 0)}
 
 	if len(groupIds) == 0 {
-		c.GroupApplyStorage.Del(ctx.Ctx(), ctx.UserId())
+		c.GroupApplyStorage.Del(ctx.GetContext(), ctx.GetAuthId())
 		return ctx.Success(resp)
 	}
 
-	list, err := c.GroupApplyRepo.List(ctx.Ctx(), groupIds)
+	list, err := c.GroupApplyRepo.List(ctx.GetContext(), groupIds)
 	if err != nil {
 		return ctx.Error(err)
 	}
 
-	groups, err := c.GroupRepo.FindAll(ctx.Ctx(), func(db *gorm.DB) {
+	groups, err := c.GroupRepo.FindAll(ctx.GetContext(), func(db *gorm.DB) {
 		db.Select("id,name")
 		db.Where("id in ?", groupIds)
 	})
@@ -266,13 +266,13 @@ func (c *Apply) All(ctx *core.Context) error {
 		})
 	}
 
-	c.GroupApplyStorage.Del(ctx.Ctx(), ctx.UserId())
+	c.GroupApplyStorage.Del(ctx.GetContext(), ctx.GetAuthId())
 
 	return ctx.Success(resp)
 }
 
 func (c *Apply) ApplyUnreadNum(ctx *core.Context) error {
 	return ctx.Success(map[string]any{
-		"unread_num": c.GroupApplyStorage.Get(ctx.Ctx(), ctx.UserId()),
+		"unread_num": c.GroupApplyStorage.Get(ctx.GetContext(), ctx.GetAuthId()),
 	})
 }

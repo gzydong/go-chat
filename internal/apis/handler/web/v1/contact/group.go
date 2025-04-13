@@ -19,11 +19,11 @@ type Group struct {
 // List 联系人分组列表
 func (c *Group) List(ctx *core.Context) error {
 
-	uid := ctx.UserId()
+	uid := ctx.GetAuthId()
 
 	items := make([]*web.ContactGroupListResponse_Item, 0)
 
-	count, err := c.ContactRepo.FindCount(ctx.Ctx(), "user_id = ? and status = ?", uid, model.Yes)
+	count, err := c.ContactRepo.FindCount(ctx.GetContext(), "user_id = ? and status = ?", uid, model.Yes)
 	if err != nil {
 		return ctx.Error(err)
 	}
@@ -33,7 +33,7 @@ func (c *Group) List(ctx *core.Context) error {
 		Count: int32(count),
 	})
 
-	group, err := c.ContactGroupService.GetUserGroup(ctx.Ctx(), uid)
+	group, err := c.ContactGroupService.GetUserGroup(ctx.GetContext(), uid)
 	if err != nil {
 		return ctx.Error(err)
 	}
@@ -52,11 +52,11 @@ func (c *Group) List(ctx *core.Context) error {
 
 func (c *Group) Save(ctx *core.Context) error {
 	in := &web.ContactGroupSaveRequest{}
-	if err := ctx.Context.ShouldBind(in); err != nil {
+	if err := ctx.ShouldBindProto(in); err != nil {
 		return ctx.InvalidParams(err)
 	}
 
-	uid := ctx.UserId()
+	uid := ctx.GetAuthId()
 
 	updateItems := make([]*model.ContactGroup, 0)
 	deleteItems := make([]int, 0)
@@ -80,7 +80,7 @@ func (c *Group) Save(ctx *core.Context) error {
 		}
 	}
 
-	all, err := c.ContactGroupRepo.FindAll(ctx.Ctx())
+	all, err := c.ContactGroupRepo.FindAll(ctx.GetContext())
 	if err != nil {
 		return ctx.Error(err)
 	}

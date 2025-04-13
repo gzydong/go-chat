@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"slices"
 
 	"github.com/gin-gonic/gin"
 	"go-chat/internal/pkg/core/errorx"
@@ -27,6 +28,23 @@ type Context struct {
 
 func New(ctx *gin.Context) *Context {
 	return &Context{ctx}
+}
+
+func (c *Context) ShouldBindProto(in any) error {
+	value, ok := in.(proto.Message)
+	if err := c.Context.ShouldBind(in); err != nil {
+		return err
+	}
+
+	if !ok {
+		return nil
+	}
+
+	if v, ok := value.(interface{ Validate() error }); ok {
+		return v.Validate()
+	}
+
+	return nil
 }
 
 // Unauthorized 未认证
@@ -75,7 +93,12 @@ func (c *Context) Error(err error) error {
 	if errors.As(err, &e) {
 		resp.Code = e.Code
 		resp.Message = e.Message
-		c.Context.AbortWithStatusJSON(http.StatusBadRequest, resp)
+
+		if slices.Contains([]int{404, 403, 429, 400}, resp.Code) {
+			c.Context.AbortWithStatusJSON(resp.Code, resp)
+		} else {
+			c.Context.AbortWithStatusJSON(http.StatusBadRequest, resp)
+		}
 	} else {
 		resp.Code = 500
 		resp.Message = err.Error()
@@ -117,30 +140,21 @@ func (c *Context) Raw(value string) error {
 	return nil
 }
 
-// UserId 返回登录用户的UID
-func (c *Context) UserId() int {
-	if session := c.JwtSession(); session != nil {
-		return session.Uid
+// GetAuthId 返回JWT登录用户的ID
+func (c *Context) GetAuthId() int {
+	id, ok := c.Context.Get(middleware.JWTAuthID)
+	if ok {
+		return id.(int)
 	}
 
 	return 0
 }
 
-// JwtSession 返回登录用户的JSession
-func (c *Context) JwtSession() *middleware.JSession {
-	data, isOk := c.Context.Get(middleware.JWTSessionConst)
-	if !isOk {
-		return nil
-	}
-
-	return data.(*middleware.JSession)
-}
-
 // IsGuest 是否是游客(未登录状态)
 func (c *Context) IsGuest() bool {
-	return c.UserId() == 0
+	return c.GetAuthId() == 0
 }
 
-func (c *Context) Ctx() context.Context {
+func (c *Context) GetContext() context.Context {
 	return c.Context.Request.Context()
 }

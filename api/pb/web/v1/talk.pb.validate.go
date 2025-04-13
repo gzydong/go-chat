@@ -181,9 +181,27 @@ func (m *TalkSessionCreateRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for TalkMode
+	if _, ok := _TalkSessionCreateRequest_TalkMode_InLookup[m.GetTalkMode()]; !ok {
+		err := TalkSessionCreateRequestValidationError{
+			field:  "TalkMode",
+			reason: "value must be in list [1 2]",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
-	// no validation rules for ToFromId
+	if m.GetToFromId() < 1 {
+		err := TalkSessionCreateRequestValidationError{
+			field:  "ToFromId",
+			reason: "value must be greater than or equal to 1",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return TalkSessionCreateRequestMultiError(errors)
@@ -264,6 +282,11 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = TalkSessionCreateRequestValidationError{}
+
+var _TalkSessionCreateRequest_TalkMode_InLookup = map[int32]struct{}{
+	1: {},
+	2: {},
+}
 
 // Validate checks the field values on TalkSessionCreateResponse with the rules
 // defined in the proto definition for this message. If any rules are
@@ -415,9 +438,27 @@ func (m *TalkSessionDeleteRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for TalkMode
+	if _, ok := _TalkSessionDeleteRequest_TalkMode_InLookup[m.GetTalkMode()]; !ok {
+		err := TalkSessionDeleteRequestValidationError{
+			field:  "TalkMode",
+			reason: "value must be in list [1 2]",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
-	// no validation rules for ToFromId
+	if m.GetToFromId() < 1 {
+		err := TalkSessionDeleteRequestValidationError{
+			field:  "ToFromId",
+			reason: "value must be greater than or equal to 1",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return TalkSessionDeleteRequestMultiError(errors)
@@ -498,6 +539,11 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = TalkSessionDeleteRequestValidationError{}
+
+var _TalkSessionDeleteRequest_TalkMode_InLookup = map[int32]struct{}{
+	1: {},
+	2: {},
+}
 
 // Validate checks the field values on TalkSessionDeleteResponse with the rules
 // defined in the proto definition for this message. If any rules are
@@ -623,11 +669,38 @@ func (m *TalkSessionTopRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for TalkMode
+	if _, ok := _TalkSessionTopRequest_TalkMode_InLookup[m.GetTalkMode()]; !ok {
+		err := TalkSessionTopRequestValidationError{
+			field:  "TalkMode",
+			reason: "value must be in list [1 2]",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
-	// no validation rules for ToFromId
+	if m.GetToFromId() < 1 {
+		err := TalkSessionTopRequestValidationError{
+			field:  "ToFromId",
+			reason: "value must be greater than or equal to 1",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
-	// no validation rules for Action
+	if _, ok := _TalkSessionTopRequest_Action_InLookup[m.GetAction()]; !ok {
+		err := TalkSessionTopRequestValidationError{
+			field:  "Action",
+			reason: "value must be in list [1 2]",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return TalkSessionTopRequestMultiError(errors)
@@ -708,6 +781,16 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = TalkSessionTopRequestValidationError{}
+
+var _TalkSessionTopRequest_TalkMode_InLookup = map[int32]struct{}{
+	1: {},
+	2: {},
+}
+
+var _TalkSessionTopRequest_Action_InLookup = map[int32]struct{}{
+	1: {},
+	2: {},
+}
 
 // Validate checks the field values on TalkSessionTopResponse with the rules
 // defined in the proto definition for this message. If any rules are
@@ -833,11 +916,38 @@ func (m *TalkSessionDisturbRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for TalkMode
+	if _, ok := _TalkSessionDisturbRequest_TalkMode_InLookup[m.GetTalkMode()]; !ok {
+		err := TalkSessionDisturbRequestValidationError{
+			field:  "TalkMode",
+			reason: "value must be in list [1 2]",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
-	// no validation rules for ToFromId
+	if m.GetToFromId() < 1 {
+		err := TalkSessionDisturbRequestValidationError{
+			field:  "ToFromId",
+			reason: "value must be greater than or equal to 1",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
-	// no validation rules for Action
+	if _, ok := _TalkSessionDisturbRequest_Action_InLookup[m.GetAction()]; !ok {
+		err := TalkSessionDisturbRequestValidationError{
+			field:  "Action",
+			reason: "value must be in list [1 2]",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return TalkSessionDisturbRequestMultiError(errors)
@@ -918,6 +1028,16 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = TalkSessionDisturbRequestValidationError{}
+
+var _TalkSessionDisturbRequest_TalkMode_InLookup = map[int32]struct{}{
+	1: {},
+	2: {},
+}
+
+var _TalkSessionDisturbRequest_Action_InLookup = map[int32]struct{}{
+	1: {},
+	2: {},
+}
 
 // Validate checks the field values on TalkSessionDisturbResponse with the
 // rules defined in the proto definition for this message. If any rules are
@@ -1282,9 +1402,27 @@ func (m *TalkSessionClearUnreadNumRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for TalkMode
+	if _, ok := _TalkSessionClearUnreadNumRequest_TalkMode_InLookup[m.GetTalkMode()]; !ok {
+		err := TalkSessionClearUnreadNumRequestValidationError{
+			field:  "TalkMode",
+			reason: "value must be in list [1 2]",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
-	// no validation rules for ToFromId
+	if m.GetToFromId() < 1 {
+		err := TalkSessionClearUnreadNumRequestValidationError{
+			field:  "ToFromId",
+			reason: "value must be greater than or equal to 1",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return TalkSessionClearUnreadNumRequestMultiError(errors)
@@ -1367,6 +1505,11 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = TalkSessionClearUnreadNumRequestValidationError{}
+
+var _TalkSessionClearUnreadNumRequest_TalkMode_InLookup = map[int32]struct{}{
+	1: {},
+	2: {},
+}
 
 // Validate checks the field values on TalkSessionClearUnreadNumResponse with
 // the rules defined in the proto definition for this message. If any rules

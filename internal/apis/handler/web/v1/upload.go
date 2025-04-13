@@ -82,10 +82,10 @@ func (u *Upload) InitiateMultipart(ctx *core.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	info, err := u.SplitUploadService.InitiateMultipartUpload(ctx.Ctx(), &service.MultipartInitiateOpt{
+	info, err := u.SplitUploadService.InitiateMultipartUpload(ctx.GetContext(), &service.MultipartInitiateOpt{
 		Name:   in.FileName,
 		Size:   in.FileSize,
-		UserId: ctx.UserId(),
+		UserId: ctx.GetAuthId(),
 	})
 	if err != nil {
 		return ctx.Error(err)
@@ -101,7 +101,7 @@ func (u *Upload) InitiateMultipart(ctx *core.Context) error {
 // MultipartUpload 批量分片上传
 func (u *Upload) MultipartUpload(ctx *core.Context) error {
 	in := &web.UploadMultipartRequest{}
-	if err := ctx.Context.ShouldBind(in); err != nil {
+	if err := ctx.ShouldBindProto(in); err != nil {
 		return ctx.InvalidParams(err)
 	}
 
@@ -110,8 +110,8 @@ func (u *Upload) MultipartUpload(ctx *core.Context) error {
 		return ctx.InvalidParams("文件上传失败！")
 	}
 
-	err = u.SplitUploadService.MultipartUpload(ctx.Ctx(), &service.MultipartUploadOpt{
-		UserId:     ctx.UserId(),
+	err = u.SplitUploadService.MultipartUpload(ctx.GetContext(), &service.MultipartUploadOpt{
+		UserId:     ctx.GetAuthId(),
 		UploadId:   in.UploadId,
 		SplitIndex: int(in.SplitIndex),
 		SplitNum:   int(in.SplitNum),

@@ -57,9 +57,27 @@ func (m *ContactApplyCreateRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for UserId
+	if m.GetUserId() < 1 {
+		err := ContactApplyCreateRequestValidationError{
+			field:  "UserId",
+			reason: "value must be greater than or equal to 1",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
-	// no validation rules for Remark
+	if utf8.RuneCountInString(m.GetRemark()) < 1 {
+		err := ContactApplyCreateRequestValidationError{
+			field:  "Remark",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return ContactApplyCreateRequestMultiError(errors)
@@ -265,9 +283,27 @@ func (m *ContactApplyAcceptRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for ApplyId
+	if m.GetApplyId() < 1 {
+		err := ContactApplyAcceptRequestValidationError{
+			field:  "ApplyId",
+			reason: "value must be greater than or equal to 1",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
-	// no validation rules for Remark
+	if utf8.RuneCountInString(m.GetRemark()) < 1 {
+		err := ContactApplyAcceptRequestValidationError{
+			field:  "Remark",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return ContactApplyAcceptRequestMultiError(errors)
@@ -473,9 +509,27 @@ func (m *ContactApplyDeclineRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for ApplyId
+	if m.GetApplyId() < 1 {
+		err := ContactApplyDeclineRequestValidationError{
+			field:  "ApplyId",
+			reason: "value must be greater than or equal to 1",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
-	// no validation rules for Remark
+	if utf8.RuneCountInString(m.GetRemark()) < 1 {
+		err := ContactApplyDeclineRequestValidationError{
+			field:  "Remark",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return ContactApplyDeclineRequestMultiError(errors)

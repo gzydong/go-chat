@@ -5,5 +5,5 @@ import (
 )
 
 type TempProvider struct {
-	TestCommand temp.TestCommand
+	TestJob temp.TestCommand
 }

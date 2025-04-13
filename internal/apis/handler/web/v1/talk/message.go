@@ -21,12 +21,12 @@ type RevokeMessageRequest struct {
 // Revoke 撤销聊天记录
 func (c *Message) Revoke(ctx *core.Context) error {
 	in := &RevokeMessageRequest{}
-	if err := ctx.Context.ShouldBind(in); err != nil {
+	if err := ctx.ShouldBindProto(in); err != nil {
 		return ctx.InvalidParams(err)
 	}
 
-	if err := c.TalkService.Revoke(ctx.Ctx(), &service.TalkRevokeOption{
-		UserId:   ctx.UserId(),
+	if err := c.TalkService.Revoke(ctx.GetContext(), &service.TalkRevokeOption{
+		UserId:   ctx.GetAuthId(),
 		TalkMode: in.TalkMode,
 		MsgId:    in.MsgId,
 	}); err != nil {
@@ -45,12 +45,12 @@ type DeleteMessageRequest struct {
 // Delete 删除聊天记录
 func (c *Message) Delete(ctx *core.Context) error {
 	in := &DeleteMessageRequest{}
-	if err := ctx.Context.ShouldBind(in); err != nil {
+	if err := ctx.ShouldBindProto(in); err != nil {
 		return ctx.InvalidParams(err)
 	}
 
-	if err := c.TalkService.DeleteRecord(ctx.Ctx(), &service.TalkDeleteRecordOption{
-		UserId:   ctx.UserId(),
+	if err := c.TalkService.DeleteRecord(ctx.GetContext(), &service.TalkDeleteRecordOption{
+		UserId:   ctx.GetAuthId(),
 		TalkMode: in.TalkMode,
 		ToFromId: in.ToFromId,
 		MsgIds:   in.MsgIds,

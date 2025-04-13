@@ -3,8 +3,10 @@ package socket
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
+	"net"
 	"strings"
 	"sync/atomic"
 	"time"
@@ -131,7 +133,9 @@ func (c *Client) Uid() int {
 func (c *Client) Close(code int, message string) {
 	defer func() {
 		if err := c.conn.Close(); err != nil {
-			log.Printf("connection closed failed: %s \n", err.Error())
+			if !errors.Is(err, net.ErrClosed) {
+				log.Printf("connection closed failed: %s \n", err.Error())
+			}
 		}
 	}()
 

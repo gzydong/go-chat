@@ -3,28 +3,28 @@ package web;
 
 option go_package = "web/v1;web";
 
-import "tagger/tagger.proto";
+import "validate/validate.proto";
 
 message GroupVoteCreateRequest{
-  int32 group_id = 1 [(tagger.tags) = "binding:\"required\""];
-  string title = 3 [(tagger.tags) = "binding:\"required\""];  // 标题
-  int32 mode = 4 [(tagger.tags) = "binding:\"oneof=1 2\""]; // 投票模式
-  int32 is_anonymous = 5 [(tagger.tags) = "binding:\"oneof=1 2\""]; // 匿名投票
-  repeated string options = 6 [(tagger.tags) = "binding:\"required\""]; // 投票选项
+  int32 group_id = 1 [(validate.rules).int32.gte = 1];
+  string title = 3 [(validate.rules).string.min_len = 1];  // 标题
+  int32 mode = 4  [(validate.rules).int32 = {in: [1, 2]}]; // 投票模式
+  int32 is_anonymous = 5 [(validate.rules).int32 = {in: [1, 2]}]; // 匿名投票
+  repeated string options = 6 [(validate.rules).repeated.min_items = 1]; // 投票选项
 }
 
 message GroupVoteCreateResponse{}
 
 
 message GroupVoteSubmitRequest{
-  int32 vote_id = 1 [(tagger.tags) = "binding:\"required\""];
-  repeated string options = 6 [(tagger.tags) = "binding:\"required\""]; // 投票选项
+  int32 vote_id = 1 [(validate.rules).int32.gte = 1];
+  repeated string options = 6 [(validate.rules).repeated.min_items = 1]; // 投票选项
 }
 
 message GroupVoteSubmitResponse{}
 
 message GroupVoteDetailRequest{
-  int32 vote_id = 1 [(tagger.tags) = "binding:\"required\""];
+  int32 vote_id = 1 [(validate.rules).int32.gte = 1];
 }
 
 message GroupVoteDetailResponse{

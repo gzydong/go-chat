@@ -36,11 +36,11 @@ type Session struct {
 func (c *Session) Create(ctx *core.Context) error {
 	var (
 		in    = &web.TalkSessionCreateRequest{}
-		uid   = ctx.UserId()
+		uid   = ctx.GetAuthId()
 		agent = strings.TrimSpace(ctx.Context.GetHeader("user-agent"))
 	)
 
-	if err := ctx.Context.ShouldBind(in); err != nil {
+	if err := ctx.ShouldBindProto(in); err != nil {
 		return ctx.InvalidParams(err)
 	}
 
@@ -49,16 +49,16 @@ func (c *Session) Create(ctx *core.Context) error {
 	}
 
 	// 判断对方是否是自己
-	if in.TalkMode == entity.ChatPrivateMode && int(in.ToFromId) == ctx.UserId() {
+	if in.TalkMode == entity.ChatPrivateMode && int(in.ToFromId) == ctx.GetAuthId() {
 		return ctx.Error(entity.ErrPermissionDenied)
 	}
 
 	key := fmt.Sprintf("talk:list:%d-%d-%d-%s", uid, in.ToFromId, in.TalkMode, agent)
-	if !c.RedisLock.Lock(ctx.Ctx(), key, 10) {
+	if !c.RedisLock.Lock(ctx.GetContext(), key, 10) {
 		return ctx.Error(entity.ErrTooFrequentOperation)
 	}
 
-	if c.AuthService.IsAuth(ctx.Ctx(), &service.AuthOption{
+	if c.AuthService.IsAuth(ctx.GetContext(), &service.AuthOption{
 		TalkType: int(in.TalkMode),
 		UserId:   uid,
 		ToFromId: int(in.ToFromId),
@@ -66,7 +66,7 @@ func (c *Session) Create(ctx *core.Context) error {
 		return ctx.Error(entity.ErrPermissionDenied)
 	}
 
-	result, err := c.TalkSessionService.Create(ctx.Ctx(), &service.TalkSessionCreateOpt{
+	result, err := c.TalkSessionService.Create(ctx.GetContext(), &service.TalkSessionCreateOpt{
 		UserId:     uid,
 		TalkType:   int(in.TalkMode),
 		ReceiverId: int(in.ToFromId),
@@ -91,22 +91,22 @@ func (c *Session) Create(ctx *core.Context) error {
 	}
 
 	if item.TalkMode == entity.ChatPrivateMode {
-		item.UnreadNum = int32(c.UnreadStorage.Get(ctx.Ctx(), uid, 1, int(in.ToFromId)))
+		item.UnreadNum = int32(c.UnreadStorage.Get(ctx.GetContext(), uid, 1, int(in.ToFromId)))
 
-		item.Remark = c.ContactRepo.GetFriendRemark(ctx.Ctx(), uid, int(in.ToFromId))
-		if user, err := c.UsersRepo.FindById(ctx.Ctx(), result.ToFromId); err == nil {
+		item.Remark = c.ContactRepo.GetFriendRemark(ctx.GetContext(), uid, int(in.ToFromId))
+		if user, err := c.UsersRepo.FindById(ctx.GetContext(), result.ToFromId); err == nil {
 			item.Name = user.Nickname
 			item.Avatar = user.Avatar
 		}
 	} else if result.TalkMode == entity.ChatGroupMode {
-		if group, err := c.GroupRepo.FindById(ctx.Ctx(), int(in.ToFromId)); err == nil {
+		if group, err := c.GroupRepo.FindById(ctx.GetContext(), int(in.ToFromId)); err == nil {
 			item.Name = group.Name
 			item.Avatar = group.Avatar
 		}
 	}
 
 	// 查询缓存消息
-	if msg, err := c.MessageStorage.Get(ctx.Ctx(), result.TalkMode, uid, result.ToFromId); err == nil {
+	if msg, err := c.MessageStorage.Get(ctx.GetContext(), result.TalkMode, uid, result.ToFromId); err == nil {
 		item.MsgText = msg.Content
 		item.UpdatedAt = msg.Datetime
 	}
@@ -130,11 +130,11 @@ func (c *Session) Create(ctx *core.Context) error {
 // Delete 删除列表
 func (c *Session) Delete(ctx *core.Context) error {
 	in := &web.TalkSessionDeleteRequest{}
-	if err := ctx.Context.ShouldBind(in); err != nil {
+	if err := ctx.ShouldBindProto(in); err != nil {
 		return ctx.InvalidParams(err)
 	}
 
-	if err := c.TalkSessionService.Delete(ctx.Ctx(), ctx.UserId(), int(in.TalkMode), int(in.ToFromId)); err != nil {
+	if err := c.TalkSessionService.Delete(ctx.GetContext(), ctx.GetAuthId(), int(in.TalkMode), int(in.ToFromId)); err != nil {
 		return ctx.Error(err)
 	}
 
@@ -144,12 +144,12 @@ func (c *Session) Delete(ctx *core.Context) error {
 // Top 置顶列表
 func (c *Session) Top(ctx *core.Context) error {
 	in := &web.TalkSessionTopRequest{}
-	if err := ctx.Context.ShouldBind(in); err != nil {
+	if err := ctx.ShouldBindProto(in); err != nil {
 		return ctx.InvalidParams(err)
 	}
 
-	if err := c.TalkSessionService.Top(ctx.Ctx(), &service.TalkSessionTopOpt{
-		UserId:   ctx.UserId(),
+	if err := c.TalkSessionService.Top(ctx.GetContext(), &service.TalkSessionTopOpt{
+		UserId:   ctx.GetAuthId(),
 		TalkMode: int(in.TalkMode),
 		ToFromId: int(in.ToFromId),
 		Action:   int(in.Action),
@@ -163,12 +163,12 @@ func (c *Session) Top(ctx *core.Context) error {
 // Disturb 会话免打扰
 func (c *Session) Disturb(ctx *core.Context) error {
 	in := &web.TalkSessionDisturbRequest{}
-	if err := ctx.Context.ShouldBind(in); err != nil {
+	if err := ctx.ShouldBindProto(in); err != nil {
 		return ctx.InvalidParams(err)
 	}
 
-	if err := c.TalkSessionService.Disturb(ctx.Ctx(), &service.TalkSessionDisturbOpt{
-		UserId:   ctx.UserId(),
+	if err := c.TalkSessionService.Disturb(ctx.GetContext(), &service.TalkSessionDisturbOpt{
+		UserId:   ctx.GetAuthId(),
 		TalkMode: int(in.TalkMode),
 		ToFromId: int(in.ToFromId),
 		Action:   int(in.Action),
@@ -181,9 +181,9 @@ func (c *Session) Disturb(ctx *core.Context) error {
 
 // List 会话列表
 func (c *Session) List(ctx *core.Context) error {
-	uid := ctx.UserId()
+	uid := ctx.GetAuthId()
 
-	data, err := c.TalkSessionService.List(ctx.Ctx(), uid)
+	data, err := c.TalkSessionService.List(ctx.GetContext(), uid)
 	if err != nil {
 		return ctx.Error(err)
 	}
@@ -196,7 +196,7 @@ func (c *Session) List(ctx *core.Context) error {
 	}
 
 	// 获取好友备注
-	remarks, _ := c.ContactRepo.Remarks(ctx.Ctx(), uid, friends)
+	remarks, _ := c.ContactRepo.Remarks(ctx.GetContext(), uid, friends)
 
 	items := make([]*web.TalkSessionItem, 0)
 	for _, item := range data {
@@ -210,7 +210,7 @@ func (c *Session) List(ctx *core.Context) error {
 			Avatar:    item.Avatar,
 			MsgText:   "...",
 			UpdatedAt: timeutil.FormatDatetime(item.UpdatedAt),
-			UnreadNum: int32(c.UnreadStorage.Get(ctx.Ctx(), uid, item.TalkMode, item.ToFromId)),
+			UnreadNum: int32(c.UnreadStorage.Get(ctx.GetContext(), uid, item.TalkMode, item.ToFromId)),
 		}
 
 		if item.TalkMode == entity.ChatPrivateMode {
@@ -223,7 +223,7 @@ func (c *Session) List(ctx *core.Context) error {
 		}
 
 		// 查询缓存消息
-		if msg, err := c.MessageStorage.Get(ctx.Ctx(), item.TalkMode, uid, item.ToFromId); err == nil {
+		if msg, err := c.MessageStorage.Get(ctx.GetContext(), item.TalkMode, uid, item.ToFromId); err == nil {
 			value.MsgText = msg.Content
 			value.UpdatedAt = msg.Datetime
 		}
@@ -236,11 +236,11 @@ func (c *Session) List(ctx *core.Context) error {
 
 func (c *Session) ClearUnreadMessage(ctx *core.Context) error {
 	in := &web.TalkSessionClearUnreadNumRequest{}
-	if err := ctx.Context.ShouldBind(in); err != nil {
+	if err := ctx.ShouldBindProto(in); err != nil {
 		return ctx.InvalidParams(err)
 	}
 
-	c.UnreadStorage.Reset(ctx.Ctx(), ctx.UserId(), int(in.TalkMode), int(in.ToFromId))
+	c.UnreadStorage.Reset(ctx.GetContext(), ctx.GetAuthId(), int(in.TalkMode), int(in.ToFromId))
 
 	return ctx.Success(&web.TalkSessionClearUnreadNumResponse{})
 }

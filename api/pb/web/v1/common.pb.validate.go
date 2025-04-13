@@ -57,9 +57,28 @@ func (m *CommonSendSmsRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for Mobile
+	if utf8.RuneCountInString(m.GetMobile()) != 11 {
+		err := CommonSendSmsRequestValidationError{
+			field:  "Mobile",
+			reason: "value length must be 11 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
 
-	// no validation rules for Channel
+	}
+
+	if _, ok := _CommonSendSmsRequest_Channel_InLookup[m.GetChannel()]; !ok {
+		err := CommonSendSmsRequestValidationError{
+			field:  "Channel",
+			reason: "value must be in list [login register forget_account change_account]",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return CommonSendSmsRequestMultiError(errors)
@@ -140,6 +159,13 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = CommonSendSmsRequestValidationError{}
+
+var _CommonSendSmsRequest_Channel_InLookup = map[string]struct{}{
+	"login":          {},
+	"register":       {},
+	"forget_account": {},
+	"change_account": {},
+}
 
 // Validate checks the field values on CommonSendSmsResponse with the rules
 // defined in the proto definition for this message. If any rules are
@@ -265,7 +291,16 @@ func (m *CommonSendEmailRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for Email
+	if utf8.RuneCountInString(m.GetEmail()) < 6 {
+		err := CommonSendEmailRequestValidationError{
+			field:  "Email",
+			reason: "value length must be at least 6 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return CommonSendEmailRequestMultiError(errors)

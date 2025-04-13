@@ -3,7 +3,7 @@ package web;
 
 option go_package = "web/v1;web";
 
-import "tagger/tagger.proto";
+import "validate/validate.proto";
 
 // 登录用户详情接口请求参数
 message UserDetailRequest{}
@@ -53,10 +53,10 @@ message UserSettingResponse{
 // 用户信息更新接口请求参数
 message UserDetailUpdateRequest{
   string avatar = 1;
-  string nickname = 2 [(tagger.tags) = "binding:\"required,max=30\""];
-  int32 gender = 3 [(tagger.tags) = "binding:\"oneof=0 1 2\""];
-  string motto = 4 [(tagger.tags) = "binding:\"max=255\""];
-  string birthday = 5 [(tagger.tags) = "binding:\"max=10\""];
+  string nickname = 2 [(validate.rules).string.max_len = 30];
+  int32 gender = 3 [(validate.rules).int32 = {in:[0, 1, 2, 3]}];
+  string motto = 4 [(validate.rules).string.max_len = 255];
+  string birthday = 5;
 }
 
 // 用户信息更新接口响应参数
@@ -65,8 +65,8 @@ message UserDetailUpdateResponse{}
 
 // 用户密码更新接口请求参数
 message UserPasswordUpdateRequest{
-  string old_password = 1 [(tagger.tags) = "binding:\"required\""];
-  string new_password = 2 [(tagger.tags) = "binding:\"required\""];
+  string old_password = 1 [(validate.rules).string.min_len = 1];
+  string new_password = 2 [(validate.rules).string.min_len = 1];
 }
 
 // 用户密码更新接口响应参数
@@ -75,9 +75,9 @@ message UserPasswordUpdateResponse{}
 
 // 用户手机号更新接口请求参数
 message UserMobileUpdateRequest{
-  string mobile = 1 [(tagger.tags) = "binding:\"required\""];
-  string password = 2 [(tagger.tags) = "binding:\"required\""];
-  string sms_code = 3 [(tagger.tags) = "binding:\"required,len=6,numeric\""];
+  string mobile = 1 [(validate.rules).string.min_len = 1];
+  string password = 2 [(validate.rules).string.min_len = 1];
+  string sms_code = 3 [(validate.rules).string.len = 6];
 }
 
 // 用户手机号更新接口响应参数
@@ -86,9 +86,9 @@ message UserMobileUpdateResponse{}
 
 // 用户邮箱更新接口请求参数
 message UserEmailUpdateRequest{
-  string email = 1 [(tagger.tags) = "binding:\"required\""];
-  string password = 2 [(tagger.tags) = "binding:\"required\""];
-  string code = 3 [(tagger.tags) = "binding:\"required,len=6,numeric\""];
+  string email = 1 [(validate.rules).string.min_len = 1];
+  string password = 2 [(validate.rules).string.min_len = 1];
+  string code = 3 [(validate.rules).string.len = 6];
 }
 
 // 用户邮箱更新接口响应参数

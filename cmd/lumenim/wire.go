@@ -25,7 +25,7 @@ var providerSet = wire.NewSet(
 	service.ProviderSet,  // 注入 Service 依赖
 )
 
-func NewHttpInjector(conf *config.Config) *apis.AppProvider {
+func NewHttpInjector(c *config.Config) *apis.AppProvider {
 	panic(
 		wire.Build(
 			providerSet,
@@ -34,7 +34,7 @@ func NewHttpInjector(conf *config.Config) *apis.AppProvider {
 	)
 }
 
-func NewCometInjector(conf *config.Config) *comet.AppProvider {
+func NewCometInjector(c *config.Config) *comet.AppProvider {
 	panic(
 		wire.Build(
 			providerSet,
@@ -43,7 +43,7 @@ func NewCometInjector(conf *config.Config) *comet.AppProvider {
 	)
 }
 
-func NewCronInjector(conf *config.Config) *mission.CronProvider {
+func NewCronInjector(c *config.Config) *mission.CronProvider {
 	panic(
 		wire.Build(
 			providerSet,
@@ -52,7 +52,7 @@ func NewCronInjector(conf *config.Config) *mission.CronProvider {
 	)
 }
 
-func NewQueueInjector(conf *config.Config) *mission.QueueProvider {
+func NewQueueInjector(c *config.Config) *mission.QueueProvider {
 	panic(
 		wire.Build(
 			providerSet,
@@ -61,7 +61,7 @@ func NewQueueInjector(conf *config.Config) *mission.QueueProvider {
 	)
 }
 
-func NewTempInjector(conf *config.Config) *mission.TempProvider {
+func NewTempInjector(c *config.Config) *mission.TempProvider {
 	panic(
 		wire.Build(
 			providerSet,
@@ -70,7 +70,7 @@ func NewTempInjector(conf *config.Config) *mission.TempProvider {
 	)
 }
 
-func NewMigrateInjector(conf *config.Config) *mission.MigrateProvider {
+func NewMigrateInjector(c *config.Config) *mission.MigrateProvider {
 	panic(
 		wire.Build(
 			providerSet,

@@ -57,9 +57,27 @@ func (m *GroupApplyCreateRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for GroupId
+	if m.GetGroupId() < 1 {
+		err := GroupApplyCreateRequestValidationError{
+			field:  "GroupId",
+			reason: "value must be greater than or equal to 1",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
-	// no validation rules for Remark
+	if utf8.RuneCountInString(m.GetRemark()) < 1 {
+		err := GroupApplyCreateRequestValidationError{
+			field:  "Remark",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return GroupApplyCreateRequestMultiError(errors)
@@ -265,7 +283,16 @@ func (m *GroupApplyDeleteRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for ApplyId
+	if m.GetApplyId() < 1 {
+		err := GroupApplyDeleteRequestValidationError{
+			field:  "ApplyId",
+			reason: "value must be greater than or equal to 1",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return GroupApplyDeleteRequestMultiError(errors)
@@ -471,7 +498,16 @@ func (m *GroupApplyAgreeRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for ApplyId
+	if m.GetApplyId() < 1 {
+		err := GroupApplyAgreeRequestValidationError{
+			field:  "ApplyId",
+			reason: "value must be greater than or equal to 1",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return GroupApplyAgreeRequestMultiError(errors)
@@ -677,9 +713,27 @@ func (m *GroupApplyDeclineRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for ApplyId
+	if m.GetApplyId() < 1 {
+		err := GroupApplyDeclineRequestValidationError{
+			field:  "ApplyId",
+			reason: "value must be greater than or equal to 1",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
-	// no validation rules for Remark
+	if utf8.RuneCountInString(m.GetRemark()) < 1 {
+		err := GroupApplyDeclineRequestValidationError{
+			field:  "Remark",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return GroupApplyDeclineRequestMultiError(errors)
@@ -885,7 +939,16 @@ func (m *GroupApplyListRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for GroupId
+	if m.GetGroupId() < 1 {
+		err := GroupApplyListRequestValidationError{
+			field:  "GroupId",
+			reason: "value must be greater than or equal to 1",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return GroupApplyListRequestMultiError(errors)

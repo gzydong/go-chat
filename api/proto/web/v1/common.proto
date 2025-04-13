@@ -3,12 +3,12 @@ package web;
 
 option go_package = "web/v1;web";
 
-import "tagger/tagger.proto";
+import "validate/validate.proto";
 
 // 发送短信验证码接口请求参数
 message CommonSendSmsRequest{
-  string mobile = 1 [(tagger.tags) = "binding:\"required,len=11,phone\""];
-  string channel = 2 [(tagger.tags) = "binding:\"required,oneof=login register forget_account change_account\""];
+  string mobile = 1 [(validate.rules).string.len = 11];
+  string channel = 2 [(validate.rules).string = {in: ["login", "register", "forget_account", "change_account"]}];
 }
 
 // 发送短信验证码接口响应参数
@@ -16,7 +16,7 @@ message CommonSendSmsResponse{}
 
 // 发送邮件验证码接口请求参数
 message CommonSendEmailRequest{
-  string email = 1 [(tagger.tags) = "binding:\"required\""];
+  string email = 1  [(validate.rules).string.min_len = 6];
 }
 
 // 发送邮件验证码接口响应参数

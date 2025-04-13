@@ -1,11 +1,8 @@
 syntax = "proto3";
-
 package web;
-
-import "tagger/tagger.proto";
-
 option go_package = "web/v1;web";
 
+import "validate/validate.proto";
 
 // 会话列表
 message TalkSessionItem{
@@ -21,26 +18,15 @@ message TalkSessionItem{
   int32 unread_num = 11;
   string msg_text = 12;
   string updated_at = 13;
-
-  //  message LastMessage{
-  //    string msg_id = 1;
-  //    int32 sequence = 2;
-  //    int32 msg_type = 3;
-  //    int32 user_id = 4;
-  //    int32 receiver_id = 5;
-  //    string content = 6;
-  //    repeated int32 mention = 7;
-  //    string created_at = 8;
-  //  }
 }
 
 
 // 会话创建接口请求参数
 message TalkSessionCreateRequest{
   // 1:私聊 2:群聊
-  int32 talk_mode = 1 [(tagger.tags) = "binding:\"required,oneof=1 2\""];
+  int32 talk_mode = 1 [(validate.rules).int32 = {in:[1, 2]}];
   // 对方ID
-  int32 to_from_id = 2 [(tagger.tags) = "binding:\"required\""];
+  int32 to_from_id = 2 [(validate.rules).int32.gte = 1];
 }
 
 // 会话创建接口响应参数
@@ -63,8 +49,8 @@ message TalkSessionCreateResponse{
 
 // 会话删除接口请求参数
 message TalkSessionDeleteRequest{
-  int32 talk_mode = 1 [(tagger.tags) = "binding:\"required\""];
-  int32 to_from_id = 2 [(tagger.tags) = "binding:\"required\""];
+  int32 talk_mode = 1 [(validate.rules).int32 = {in:[1, 2]}];
+  int32 to_from_id = 2 [(validate.rules).int32.gte = 1];
 }
 
 // 会话删除接口响应参数
@@ -73,9 +59,9 @@ message TalkSessionDeleteResponse{}
 
 // 会话置顶接口请求参数
 message TalkSessionTopRequest{
-  int32 talk_mode = 1 [(tagger.tags) = "binding:\"required\""];
-  int32 to_from_id = 2 [(tagger.tags) = "binding:\"required\""];
-  int32 action = 3 [(tagger.tags) = "binding:\"required,oneof=1 2\""];
+  int32 talk_mode = 1 [(validate.rules).int32 = {in:[1, 2]}];
+  int32 to_from_id = 2 [(validate.rules).int32.gte = 1];
+  int32 action = 3 [(validate.rules).int32 = {in:[1, 2]}];
 }
 
 // 会话置顶接口响应参数
@@ -84,9 +70,9 @@ message TalkSessionTopResponse{}
 
 // 会话免打扰接口请求参数
 message TalkSessionDisturbRequest{
-  int32 talk_mode = 1 [(tagger.tags) = "binding:\"required\""];
-  int32 to_from_id = 2 [(tagger.tags) = "binding:\"required\""];
-  int32 action = 3 [(tagger.tags) = "binding:\"oneof=1 2\""];
+  int32 talk_mode = 1 [(validate.rules).int32 = {in:[1, 2]}];
+  int32 to_from_id = 2 [(validate.rules).int32.gte = 1];
+  int32 action = 3 [(validate.rules).int32 = {in:[1, 2]}];
 }
 
 // 会话免打扰接口响应参数
@@ -104,8 +90,8 @@ message TalkSessionListResponse{
 
 // 会话未读数清除接口请求参数
 message TalkSessionClearUnreadNumRequest{
-  int32 talk_mode = 1 [(tagger.tags) = "binding:\"required,oneof=1 2\""];
-  int32 to_from_id = 2 [(tagger.tags) = "binding:\"required\""];
+  int32 talk_mode = 1 [(validate.rules).int32 = {in:[1, 2]}];
+  int32 to_from_id = 2 [(validate.rules).int32.gte = 1];
 }
 
 // 会话未读数清除接口响应参数

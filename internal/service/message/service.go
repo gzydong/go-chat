@@ -97,6 +97,7 @@ type Service struct {
 func (s *Service) CreateMessage(ctx context.Context, option CreateMessageOption) error {
 	if option.TalkMode == 1 {
 		return s.CreatePrivateMessage(ctx, CreatePrivateMessageOption{
+			MsgId:    option.MsgId,
 			MsgType:  option.MsgType,
 			FromId:   option.FromId,
 			ToFromId: option.ToFromId,
@@ -106,6 +107,7 @@ func (s *Service) CreateMessage(ctx context.Context, option CreateMessageOption)
 	}
 
 	return s.CreateGroupMessage(ctx, CreateGroupMessageOption{
+		MsgId:    option.MsgId,
 		MsgType:  option.MsgType,
 		FromId:   option.FromId,
 		ToFromId: option.ToFromId,
@@ -116,6 +118,7 @@ func (s *Service) CreateMessage(ctx context.Context, option CreateMessageOption)
 
 func (s *Service) CreateTextMessage(ctx context.Context, option CreateTextMessage) error {
 	return s.CreateMessage(ctx, CreateMessageOption{
+		MsgId:    option.MsgId,
 		TalkMode: option.TalkMode,
 		FromId:   option.FromId,
 		ToFromId: option.ToFromId,
@@ -130,6 +133,7 @@ func (s *Service) CreateTextMessage(ctx context.Context, option CreateTextMessag
 
 func (s *Service) CreateImageMessage(ctx context.Context, option CreateImageMessage) error {
 	return s.CreateMessage(ctx, CreateMessageOption{
+		MsgId:    option.MsgId,
 		TalkMode: option.TalkMode,
 		FromId:   option.FromId,
 		ToFromId: option.ToFromId,
@@ -240,6 +244,7 @@ func (s *Service) CreateFileMessage(ctx context.Context, option CreateFileMessag
 
 func (s *Service) CreateCodeMessage(ctx context.Context, option CreateCodeMessage) error {
 	return s.CreateMessage(ctx, CreateMessageOption{
+		MsgId:    option.MsgId,
 		TalkMode: option.TalkMode,
 		FromId:   option.FromId,
 		ToFromId: option.ToFromId,
@@ -385,6 +390,7 @@ func (s *Service) CreateForwardMessage(ctx context.Context, option CreateForward
 
 func (s *Service) CreateLocationMessage(ctx context.Context, option CreateLocationMessage) error {
 	return s.CreateMessage(ctx, CreateMessageOption{
+		MsgId:    option.MsgId,
 		TalkMode: option.TalkMode,
 		FromId:   option.FromId,
 		ToFromId: option.ToFromId,
@@ -408,6 +414,7 @@ func (s *Service) CreateBusinessCardMessage(ctx context.Context, option CreateBu
 	}
 
 	return s.CreateMessage(ctx, CreateMessageOption{
+		MsgId:    option.MsgId,
 		TalkMode: option.TalkMode,
 		FromId:   option.FromId,
 		ToFromId: option.ToFromId,
@@ -431,6 +438,7 @@ func (s *Service) CreateMixedMessage(ctx context.Context, option CreateMixedMess
 	}
 
 	return s.CreateMessage(ctx, CreateMessageOption{
+		MsgId:    option.MsgId,
 		TalkMode: option.TalkMode,
 		FromId:   option.FromId,
 		ToFromId: option.ToFromId,

@@ -11,7 +11,7 @@ type App struct {
 	app *cli.App
 }
 
-type Action func(ctx *cli.Context, conf *config.Config) error
+type Action func(ctx *cli.Context, c *config.Config) error
 
 type Command struct {
 	Name        string

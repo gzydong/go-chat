@@ -23,6 +23,7 @@ type BaseMessageRequest struct {
 	TalkMode int    `json:"talk_mode" binding:"required,gt=0"`  // 对话类型 1:私聊 2:群聊
 	ToFromId int    `json:"to_from_id" binding:"required,gt=0"` // 接受者ID (好友ID或者群ID)
 	QuoteId  string `json:"quote_id"`                           // 引用的消息ID
+	MsgId    string `json:"msg_id"`                             // 消息ID
 }
 
 // Send 发送消息接口
@@ -32,9 +33,13 @@ func (c *Publish) Send(ctx *core.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	if err := c.AuthService.IsAuth(ctx.Ctx(), &service.AuthOption{
+	if in.MsgId != "" && len(in.MsgId) < 30 {
+		return ctx.InvalidParams("msg_id 长度必须为30个字符")
+	}
+
+	if err := c.AuthService.IsAuth(ctx.GetContext(), &service.AuthOption{
 		TalkType:          in.TalkMode,
-		UserId:            ctx.UserId(),
+		UserId:            ctx.GetAuthId(),
 		ToFromId:          in.ToFromId,
 		IsVerifyGroupMute: true,
 	}); err != nil {
@@ -47,7 +52,7 @@ func (c *Publish) Send(ctx *core.Context) error {
 type onSendTextMessage struct {
 	BaseMessageRequest
 	Body struct {
-		Text     string `json:"text" binding:"required"`
+		Content  string `json:"content" binding:"required"`
 		Mentions []int  `json:"mentions"`
 	} `json:"body" binding:"required"`
 }
@@ -59,11 +64,12 @@ func (c *Publish) onSendText(ctx *core.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	err := c.MessageService.CreateTextMessage(ctx.Ctx(), message.CreateTextMessage{
+	err := c.MessageService.CreateTextMessage(ctx.GetContext(), message.CreateTextMessage{
+		MsgId:    in.MsgId,
 		TalkMode: in.TalkMode,
-		FromId:   ctx.UserId(),
+		FromId:   ctx.GetAuthId(),
 		ToFromId: in.ToFromId,
-		Content:  html.EscapeString(in.Body.Text),
+		Content:  html.EscapeString(in.Body.Content),
 		QuoteId:  in.QuoteId,
 		Mentions: in.Body.Mentions,
 	})
@@ -92,9 +98,10 @@ func (c *Publish) onSendImage(ctx *core.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	err := c.MessageService.CreateImageMessage(ctx.Ctx(), message.CreateImageMessage{
+	err := c.MessageService.CreateImageMessage(ctx.GetContext(), message.CreateImageMessage{
+		MsgId:    in.MsgId,
 		TalkMode: in.TalkMode,
-		FromId:   ctx.UserId(),
+		FromId:   ctx.GetAuthId(),
 		ToFromId: in.ToFromId,
 		QuoteId:  in.QuoteId,
 		Url:      in.Body.Url,
@@ -126,9 +133,9 @@ func (c *Publish) onSendVoice(ctx *core.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	err := c.MessageService.CreateVoiceMessage(ctx.Ctx(), message.CreateVoiceMessage{
+	err := c.MessageService.CreateVoiceMessage(ctx.GetContext(), message.CreateVoiceMessage{
 		TalkMode: in.TalkMode,
-		FromId:   ctx.UserId(),
+		FromId:   ctx.GetAuthId(),
 		ToFromId: in.ToFromId,
 		Url:      in.Body.Url,
 		Duration: in.Body.Duration,
@@ -158,9 +165,9 @@ func (c *Publish) onSendVideo(ctx *core.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	err := c.MessageService.CreateVideoMessage(ctx.Ctx(), message.CreateVideoMessage{
+	err := c.MessageService.CreateVideoMessage(ctx.GetContext(), message.CreateVideoMessage{
 		TalkMode: in.TalkMode,
-		FromId:   ctx.UserId(),
+		FromId:   ctx.GetAuthId(),
 		ToFromId: in.ToFromId,
 		Url:      in.Body.Url,
 		Duration: in.Body.Duration,
@@ -188,9 +195,9 @@ func (c *Publish) onSendFile(ctx *core.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	err := c.MessageService.CreateFileMessage(ctx.Ctx(), message.CreateFileMessage{
+	err := c.MessageService.CreateFileMessage(ctx.GetContext(), message.CreateFileMessage{
 		TalkMode: in.TalkMode,
-		FromId:   ctx.UserId(),
+		FromId:   ctx.GetAuthId(),
 		ToFromId: in.ToFromId,
 		UploadId: in.Body.UploadId,
 	})
@@ -217,9 +224,10 @@ func (c *Publish) onSendCode(ctx *core.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	err := c.MessageService.CreateCodeMessage(ctx.Ctx(), message.CreateCodeMessage{
+	err := c.MessageService.CreateCodeMessage(ctx.GetContext(), message.CreateCodeMessage{
+		MsgId:    in.MsgId,
 		TalkMode: in.TalkMode,
-		FromId:   ctx.UserId(),
+		FromId:   ctx.GetAuthId(),
 		ToFromId: in.ToFromId,
 		Code:     in.Body.Code,
 		Lang:     in.Body.Lang,
@@ -247,9 +255,10 @@ func (c *Publish) onSendLocation(ctx *core.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	err := c.MessageService.CreateLocationMessage(ctx.Ctx(), message.CreateLocationMessage{
+	err := c.MessageService.CreateLocationMessage(ctx.GetContext(), message.CreateLocationMessage{
+		MsgId:       in.MsgId,
 		TalkMode:    in.TalkMode,
-		FromId:      ctx.UserId(),
+		FromId:      ctx.GetAuthId(),
 		ToFromId:    in.ToFromId,
 		Longitude:   in.Body.Longitude,
 		Latitude:    in.Body.Latitude,
@@ -286,16 +295,16 @@ func (c *Publish) onSendForward(ctx *core.Context) error {
 	go func() {
 		err := c.MessageService.CreateForwardMessage(context.Background(), message.CreateForwardMessage{
 			TalkMode: in.TalkMode,
-			FromId:   ctx.UserId(),
+			FromId:   ctx.GetAuthId(),
 			ToFromId: in.ToFromId,
 			Action:   int(in.Body.Action),
 			MsgIds:   in.Body.MsgIds,
 			Gids:     in.Body.GroupIds,
 			Uids:     in.Body.UserIds,
-			UserId:   ctx.UserId(),
+			UserId:   ctx.GetAuthId(),
 		})
 		if err != nil {
-			logger.Error(err.Error())
+			logger.Errorf(err.Error())
 		}
 	}()
 
@@ -316,9 +325,9 @@ func (c *Publish) onSendEmoticon(ctx *core.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	err := c.MessageService.CreateEmoticonMessage(ctx.Ctx(), message.CreateEmoticonMessage{
+	err := c.MessageService.CreateEmoticonMessage(ctx.GetContext(), message.CreateEmoticonMessage{
 		TalkMode:   in.TalkMode,
-		FromId:     ctx.UserId(),
+		FromId:     ctx.GetAuthId(),
 		ToFromId:   in.ToFromId,
 		EmoticonId: in.Body.EmoticonId,
 	})
@@ -343,9 +352,10 @@ func (c *Publish) onSendCard(ctx *core.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	err := c.MessageService.CreateBusinessCardMessage(ctx.Ctx(), message.CreateBusinessCardMessage{
+	err := c.MessageService.CreateBusinessCardMessage(ctx.GetContext(), message.CreateBusinessCardMessage{
+		MsgId:    in.MsgId,
 		TalkMode: in.TalkMode,
-		FromId:   ctx.UserId(),
+		FromId:   ctx.GetAuthId(),
 		ToFromId: in.ToFromId,
 		UserId:   in.Body.UserId,
 	})
@@ -381,9 +391,10 @@ func (c *Publish) onMixedMessage(ctx *core.Context) error {
 		})
 	}
 
-	err := c.MessageService.CreateMixedMessage(ctx.Ctx(), message.CreateMixedMessage{
+	err := c.MessageService.CreateMixedMessage(ctx.GetContext(), message.CreateMixedMessage{
+		MsgId:       in.MsgId,
 		TalkMode:    in.TalkMode,
-		FromId:      ctx.UserId(),
+		FromId:      ctx.GetAuthId(),
 		ToFromId:    in.ToFromId,
 		QuoteId:     in.QuoteId,
 		MessageList: items,

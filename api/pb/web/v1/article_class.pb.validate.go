@@ -195,7 +195,16 @@ func (m *ArticleClassEditRequest) validate(all bool) error {
 
 	// no validation rules for ClassifyId
 
-	// no validation rules for Name
+	if utf8.RuneCountInString(m.GetName()) < 1 {
+		err := ArticleClassEditRequestValidationError{
+			field:  "Name",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return ArticleClassEditRequestMultiError(errors)
@@ -403,7 +412,16 @@ func (m *ArticleClassDeleteRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for ClassifyId
+	if m.GetClassifyId() < 1 {
+		err := ArticleClassDeleteRequestValidationError{
+			field:  "ClassifyId",
+			reason: "value must be greater than or equal to 1",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return ArticleClassDeleteRequestMultiError(errors)
@@ -609,9 +627,27 @@ func (m *ArticleClassSortRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for ClassifyId
+	if m.GetClassifyId() < 1 {
+		err := ArticleClassSortRequestValidationError{
+			field:  "ClassifyId",
+			reason: "value must be greater than or equal to 1",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
-	// no validation rules for SortType
+	if _, ok := _ArticleClassSortRequest_SortType_InLookup[m.GetSortType()]; !ok {
+		err := ArticleClassSortRequestValidationError{
+			field:  "SortType",
+			reason: "value must be in list [1 2]",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return ArticleClassSortRequestMultiError(errors)
@@ -692,6 +728,11 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = ArticleClassSortRequestValidationError{}
+
+var _ArticleClassSortRequest_SortType_InLookup = map[int32]struct{}{
+	1: {},
+	2: {},
+}
 
 // Validate checks the field values on ArticleClassSortResponse with the rules
 // defined in the proto definition for this message. If any rules are

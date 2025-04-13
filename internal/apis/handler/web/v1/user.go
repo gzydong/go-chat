@@ -4,6 +4,7 @@ import (
 	"strings"
 
 	"github.com/redis/go-redis/v9"
+	"github.com/samber/lo"
 	"go-chat/api/pb/web/v1"
 	"go-chat/internal/entity"
 	"go-chat/internal/pkg/core"
@@ -25,13 +26,13 @@ type User struct {
 
 // Detail 个人用户信息
 func (u *User) Detail(ctx *core.Context) error {
-	user, err := u.UsersRepo.FindByIdWithCache(ctx.Ctx(), ctx.UserId())
+	user, err := u.UsersRepo.FindByIdWithCache(ctx.GetContext(), ctx.GetAuthId())
 	if err != nil {
 		return ctx.Error(err)
 	}
 
 	return ctx.Success(&web.UserDetailResponse{
-		Mobile:   user.Mobile,
+		Mobile:   lo.FromPtr(user.Mobile),
 		Nickname: user.Nickname,
 		Avatar:   user.Avatar,
 		Gender:   int32(user.Gender),
@@ -44,14 +45,14 @@ func (u *User) Detail(ctx *core.Context) error {
 // Setting 用户设置
 func (u *User) Setting(ctx *core.Context) error {
 
-	uid := ctx.UserId()
+	uid := ctx.GetAuthId()
 
-	user, err := u.UsersRepo.FindByIdWithCache(ctx.Ctx(), uid)
+	user, err := u.UsersRepo.FindByIdWithCache(ctx.GetContext(), uid)
 	if err != nil {
 		return ctx.Error(err)
 	}
 
-	isOk, err := u.OrganizeRepo.IsQiyeMember(ctx.Ctx(), uid)
+	isOk, err := u.OrganizeRepo.IsQiyeMember(ctx.GetContext(), uid)
 	if err != nil {
 		return ctx.Error(err)
 	}
@@ -64,7 +65,7 @@ func (u *User) Setting(ctx *core.Context) error {
 			Motto:    user.Motto,
 			Gender:   int32(user.Gender),
 			IsQiye:   isOk,
-			Mobile:   user.Mobile,
+			Mobile:   lo.FromPtr(user.Mobile),
 			Email:    user.Email,
 		},
 		Setting: &web.UserSettingResponse_ConfigInfo{},
@@ -84,8 +85,8 @@ func (u *User) ChangeDetail(ctx *core.Context) error {
 		}
 	}
 
-	uid := ctx.UserId()
-	_, err := u.UsersRepo.UpdateById(ctx.Ctx(), ctx.UserId(), map[string]any{
+	uid := ctx.GetAuthId()
+	_, err := u.UsersRepo.UpdateById(ctx.GetContext(), ctx.GetAuthId(), map[string]any{
 		"nickname": strings.TrimSpace(strings.Replace(in.Nickname, " ", "", -1)),
 		"avatar":   in.Avatar,
 		"gender":   in.Gender,
@@ -97,7 +98,7 @@ func (u *User) ChangeDetail(ctx *core.Context) error {
 		return ctx.Error(err)
 	}
 
-	_ = u.UsersRepo.ClearTableCache(ctx.Ctx(), uid)
+	_ = u.UsersRepo.ClearTableCache(ctx.GetContext(), uid)
 
 	return ctx.Success(nil, "个人信息修改成功！")
 }
@@ -109,7 +110,7 @@ func (u *User) ChangePassword(ctx *core.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	uid := ctx.UserId()
+	uid := ctx.GetAuthId()
 	if uid == 2054 || uid == 2055 {
 		return ctx.Error(entity.ErrPermissionDenied)
 	}
@@ -124,11 +125,11 @@ func (u *User) ChangePassword(ctx *core.Context) error {
 		return ctx.Error(err)
 	}
 
-	if err := u.UserService.UpdatePassword(ctx.Ctx(), ctx.UserId(), string(oldPassword), string(newPassword)); err != nil {
+	if err := u.UserService.UpdatePassword(ctx.GetContext(), ctx.GetAuthId(), string(oldPassword), string(newPassword)); err != nil {
 		return ctx.Error(err)
 	}
 
-	_ = u.UsersRepo.ClearTableCache(ctx.Ctx(), uid)
+	_ = u.UsersRepo.ClearTableCache(ctx.GetContext(), uid)
 
 	return ctx.Success(nil, "密码修改成功！")
 }
@@ -140,10 +141,10 @@ func (u *User) ChangeMobile(ctx *core.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	uid := ctx.UserId()
+	uid := ctx.GetAuthId()
 
-	user, _ := u.UsersRepo.FindById(ctx.Ctx(), uid)
-	if user.Mobile == in.Mobile {
+	user, _ := u.UsersRepo.FindById(ctx.GetContext(), uid)
+	if lo.FromPtr(user.Mobile) == in.Mobile {
 		return ctx.InvalidParams("手机号与原手机号一致无需修改！")
 	}
 
@@ -160,11 +161,11 @@ func (u *User) ChangeMobile(ctx *core.Context) error {
 		return ctx.Error(entity.ErrPermissionDenied)
 	}
 
-	if !u.SmsService.Verify(ctx.Ctx(), entity.SmsChangeAccountChannel, in.Mobile, in.SmsCode) {
+	if !u.SmsService.Verify(ctx.GetContext(), entity.SmsChangeAccountChannel, in.Mobile, in.SmsCode) {
 		return ctx.Error(entity.ErrSmsCodeError)
 	}
 
-	_, err = u.UsersRepo.UpdateById(ctx.Ctx(), user.Id, map[string]any{
+	_, err = u.UsersRepo.UpdateById(ctx.GetContext(), user.Id, map[string]any{
 		"mobile": in.Mobile,
 	})
 
@@ -172,7 +173,7 @@ func (u *User) ChangeMobile(ctx *core.Context) error {
 		return ctx.Error(err)
 	}
 
-	_ = u.UsersRepo.ClearTableCache(ctx.Ctx(), user.Id)
+	_ = u.UsersRepo.ClearTableCache(ctx.GetContext(), user.Id)
 
 	return ctx.Success(nil, "手机号修改成功！")
 }

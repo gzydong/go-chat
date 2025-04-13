@@ -1,16 +1,15 @@
 syntax = "proto3";
 package web;
-
 option go_package = "web/v1;web";
 
-import "tagger/tagger.proto";
+import "validate/validate.proto";
 
 // 文章编辑接口请求参数
 message ArticleEditRequest{
   int32 article_id = 1;
   int32 classify_id = 2;
-  string title = 3 [(tagger.tags) = "binding:\"required\""];
-  string md_content = 5 [(tagger.tags) = "binding:\"required\""];
+  string title = 3  [(validate.rules).string.min_len = 1];
+  string md_content = 5  [(validate.rules).string.min_len = 1];
 }
 
 // 文章编辑接口响应参数
@@ -23,7 +22,7 @@ message ArticleEditResponse{
 
 // 文章详情接口请求参数
 message ArticleDetailRequest{
-  int32 article_id = 1 [(tagger.tags) = "form:\"article_id\" binding:\"required\""];
+  int32 article_id = 1 [(validate.rules).int32.gte = 1];
 }
 
 // 文章详情接口响应参数
@@ -55,11 +54,11 @@ message ArticleDetailResponse{
 
 // 文章列表接口请求参数
 message ArticleListRequest{
-  string keyword = 1 [(tagger.tags) = "form:\"keyword\""];
+  string keyword = 1;
   // 查找类型 1:关键字查询 2:分类查询 3:标签查询 4:最近修改
-  int32 find_type = 2 [(tagger.tags) = "form:\"find_type\""];
-  int32 classify_id = 3 [(tagger.tags) = "form:\"classify_id\""];
-  int32 tag_id = 4 [(tagger.tags) = "form:\"tag_id\""];
+  int32 find_type = 2;
+  int32 classify_id = 3;
+  int32 tag_id = 4;
 }
 
 // 文章列表请求接口响应参数
@@ -91,22 +90,22 @@ message ArticleListResponse{
 
 // 文章删除接口请求参数
 message ArticleDeleteRequest{
-  int32 article_id = 1 [(tagger.tags) = "binding:\"required\""];
+  int32 article_id = 1 [(validate.rules).int32.gte = 1];
 }
 
 // 文章删除接口响应参数
 message ArticleDeleteResponse{}
 
 message ArticleRecoverRequest{
-  int32 article_id = 1 [(tagger.tags) = "binding:\"required\""];
+  int32 article_id = 1 [(validate.rules).int32.gte = 1];
 }
 
 message ArticleRecoverResponse{}
 
 // 文章移动分类接口请求参数
 message ArticleMoveRequest{
-  int32 article_id = 1 [(tagger.tags) = "binding:\"required,gt=0\""];
-  int32 classify_id = 2 [(tagger.tags) = "binding:\"required,gt=0\""];
+  int32 article_id = 1 [(validate.rules).int32.gte = 1];
+  int32 classify_id = 2 [(validate.rules).int32.gte = 1];
 }
 
 // 文章移动分类接口响应参数
@@ -114,15 +113,15 @@ message ArticleMoveResponse{}
 
 message ArticleAsteriskRequest{
   // 文章ID
-  int32 article_id = 1 [(tagger.tags) = "binding:\"required,gt=0\""];
+  int32 article_id = 1 [(validate.rules).int32.gte = 1];
   // 操作方式 1:收藏 2:取消收藏
-  int32 action = 2 [(tagger.tags) = "binding:\"required,oneof=1 2\""];
+  int32 action = 2 [(validate.rules).int32 = {in: [1, 2]}];
 }
 
 message ArticleAsteriskResponse{}
 
 message ArticleTagsRequest{
-  int32 article_id = 1 [(tagger.tags) = "binding:\"required,gt=0\""];
+  int32 article_id = 1 [(validate.rules).int32.gte = 1];
   repeated int32 tag_ids = 2;
 }
 
@@ -130,7 +129,7 @@ message ArticleTagsResponse{}
 
 
 message ArticleForeverDeleteRequest{
-  int32 article_id = 1 [(tagger.tags) = "binding:\"required,gt=0\""];
+  int32 article_id = 1 [(validate.rules).int32.gte = 1];
 }
 
 message ArticleForeverDeleteResponse{}

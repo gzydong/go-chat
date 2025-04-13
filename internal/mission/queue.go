@@ -2,6 +2,7 @@ package mission
 
 import (
 	"context"
+	"log"
 	"time"
 
 	"github.com/redis/go-redis/v9"
@@ -19,6 +20,8 @@ func Queue(ctx *cli.Context, app *QueueProvider) error {
 
 	sub := app.Redis.Subscribe(ctx.Context, topics...)
 	defer sub.Close()
+
+	log.Printf("subscribed to topics: %v", topics)
 
 	for data := range sub.Channel(redis.WithChannelHealthCheckInterval(10 * time.Second)) {
 		switch data.Channel {

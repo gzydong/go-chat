@@ -57,9 +57,27 @@ func (m *GroupNoticeDeleteRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for GroupId
+	if m.GetGroupId() < 1 {
+		err := GroupNoticeDeleteRequestValidationError{
+			field:  "GroupId",
+			reason: "value must be greater than or equal to 1",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
-	// no validation rules for NoticeId
+	if m.GetNoticeId() < 1 {
+		err := GroupNoticeDeleteRequestValidationError{
+			field:  "NoticeId",
+			reason: "value must be greater than or equal to 1",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return GroupNoticeDeleteRequestMultiError(errors)
@@ -265,9 +283,27 @@ func (m *GroupNoticeEditRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for GroupId
+	if m.GetGroupId() < 1 {
+		err := GroupNoticeEditRequestValidationError{
+			field:  "GroupId",
+			reason: "value must be greater than or equal to 1",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
-	// no validation rules for Content
+	if utf8.RuneCountInString(m.GetContent()) < 1 {
+		err := GroupNoticeEditRequestValidationError{
+			field:  "Content",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return GroupNoticeEditRequestMultiError(errors)
@@ -473,7 +509,16 @@ func (m *GroupNoticeListRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for GroupId
+	if m.GetGroupId() < 1 {
+		err := GroupNoticeListRequestValidationError{
+			field:  "GroupId",
+			reason: "value must be greater than or equal to 1",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return GroupNoticeListRequestMultiError(errors)

@@ -115,7 +115,7 @@ func (g *GroupService) Create(ctx context.Context, opt *GroupCreateOpt) (int, er
 
 		record := &model.TalkGroupMessage{
 			MsgId:     strutil.NewMsgId(),
-			Sequence:  g.Sequence.Get(ctx, group.Id, false),
+			Sequence:  g.Sequence.Get(ctx, repo.SequenceTypeGroup, int32(group.Id)),
 			MsgType:   entity.ChatMsgSysGroupCreate,
 			GroupId:   group.Id,
 			FromId:    0,
@@ -214,7 +214,7 @@ func (g *GroupService) Secede(ctx context.Context, groupId int, uid int) error {
 
 	record := &model.TalkGroupMessage{
 		MsgId:     strutil.NewMsgId(),
-		Sequence:  g.Sequence.Get(ctx, groupId, false),
+		Sequence:  g.Sequence.Get(ctx, repo.SequenceTypeGroup, int32(groupId)),
 		MsgType:   entity.ChatMsgSysGroupMemberQuit,
 		GroupId:   groupId,
 		FromId:    0,
@@ -352,7 +352,7 @@ func (g *GroupService) Invite(ctx context.Context, opt *GroupInviteOpt) error {
 
 	record := &model.TalkGroupMessage{
 		MsgId:     strutil.NewMsgId(),
-		Sequence:  g.Sequence.Get(ctx, opt.GroupId, false),
+		Sequence:  g.Sequence.Get(ctx, repo.SequenceTypeGroup, int32(opt.GroupId)),
 		MsgType:   entity.ChatMsgSysGroupMemberJoin,
 		GroupId:   opt.GroupId,
 		FromId:    0, // 系统消息
@@ -465,7 +465,7 @@ func (g *GroupService) RemoveMember(ctx context.Context, opt *GroupRemoveMembers
 
 	record := &model.TalkGroupMessage{
 		MsgId:     strutil.NewMsgId(),
-		Sequence:  g.Sequence.Get(ctx, opt.GroupId, false),
+		Sequence:  g.Sequence.Get(ctx, repo.SequenceTypeGroup, int32(opt.GroupId)),
 		MsgType:   entity.ChatMsgSysGroupMemberKicked,
 		GroupId:   opt.GroupId,
 		FromId:    0,

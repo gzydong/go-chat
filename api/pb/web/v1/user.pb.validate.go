@@ -541,11 +541,38 @@ func (m *UserDetailUpdateRequest) validate(all bool) error {
 
 	// no validation rules for Avatar
 
-	// no validation rules for Nickname
+	if utf8.RuneCountInString(m.GetNickname()) > 30 {
+		err := UserDetailUpdateRequestValidationError{
+			field:  "Nickname",
+			reason: "value length must be at most 30 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
-	// no validation rules for Gender
+	if _, ok := _UserDetailUpdateRequest_Gender_InLookup[m.GetGender()]; !ok {
+		err := UserDetailUpdateRequestValidationError{
+			field:  "Gender",
+			reason: "value must be in list [0 1 2 3]",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
-	// no validation rules for Motto
+	if utf8.RuneCountInString(m.GetMotto()) > 255 {
+		err := UserDetailUpdateRequestValidationError{
+			field:  "Motto",
+			reason: "value length must be at most 255 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	// no validation rules for Birthday
 
@@ -628,6 +655,13 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = UserDetailUpdateRequestValidationError{}
+
+var _UserDetailUpdateRequest_Gender_InLookup = map[int32]struct{}{
+	0: {},
+	1: {},
+	2: {},
+	3: {},
+}
 
 // Validate checks the field values on UserDetailUpdateResponse with the rules
 // defined in the proto definition for this message. If any rules are
@@ -753,9 +787,27 @@ func (m *UserPasswordUpdateRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for OldPassword
+	if utf8.RuneCountInString(m.GetOldPassword()) < 1 {
+		err := UserPasswordUpdateRequestValidationError{
+			field:  "OldPassword",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
-	// no validation rules for NewPassword
+	if utf8.RuneCountInString(m.GetNewPassword()) < 1 {
+		err := UserPasswordUpdateRequestValidationError{
+			field:  "NewPassword",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return UserPasswordUpdateRequestMultiError(errors)
@@ -961,11 +1013,39 @@ func (m *UserMobileUpdateRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for Mobile
+	if utf8.RuneCountInString(m.GetMobile()) < 1 {
+		err := UserMobileUpdateRequestValidationError{
+			field:  "Mobile",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
-	// no validation rules for Password
+	if utf8.RuneCountInString(m.GetPassword()) < 1 {
+		err := UserMobileUpdateRequestValidationError{
+			field:  "Password",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
-	// no validation rules for SmsCode
+	if utf8.RuneCountInString(m.GetSmsCode()) != 6 {
+		err := UserMobileUpdateRequestValidationError{
+			field:  "SmsCode",
+			reason: "value length must be 6 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+
+	}
 
 	if len(errors) > 0 {
 		return UserMobileUpdateRequestMultiError(errors)
@@ -1171,11 +1251,39 @@ func (m *UserEmailUpdateRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for Email
+	if utf8.RuneCountInString(m.GetEmail()) < 1 {
+		err := UserEmailUpdateRequestValidationError{
+			field:  "Email",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
-	// no validation rules for Password
+	if utf8.RuneCountInString(m.GetPassword()) < 1 {
+		err := UserEmailUpdateRequestValidationError{
+			field:  "Password",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
-	// no validation rules for Code
+	if utf8.RuneCountInString(m.GetCode()) != 6 {
+		err := UserEmailUpdateRequestValidationError{
+			field:  "Code",
+			reason: "value length must be 6 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+
+	}
 
 	if len(errors) > 0 {
 		return UserEmailUpdateRequestMultiError(errors)

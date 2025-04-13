@@ -160,7 +160,16 @@ func (m *EmoticonDeleteRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for EmoticonId
+	if m.GetEmoticonId() < 1 {
+		err := EmoticonDeleteRequestValidationError{
+			field:  "EmoticonId",
+			reason: "value must be greater than or equal to 1",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return EmoticonDeleteRequestMultiError(errors)
@@ -812,7 +821,16 @@ func (m *EmoticonCreateRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for Url
+	if utf8.RuneCountInString(m.GetUrl()) < 1 {
+		err := EmoticonCreateRequestValidationError{
+			field:  "Url",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return EmoticonCreateRequestMultiError(errors)

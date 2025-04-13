@@ -31,20 +31,9 @@ lint:
 test:
 	go test -v ./...
 
-http:
-	go run ./cmd/lumenim http
-
-comet:
-	go run ./cmd/lumenim comet
-
-migrate:
-	go run ./cmd/lumenim migrate
-
-queue:
-	go run ./cmd/lumenim queue
-
-crontab:
-	go run ./cmd/lumenim crontab
+.PHONY: run
+run:
+	@go run ./cmd/lumenim $(filter-out run,$(MAKECMDGOALS))
 
 .PHONY: build
 build:

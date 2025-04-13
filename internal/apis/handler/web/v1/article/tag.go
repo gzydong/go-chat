@@ -13,7 +13,7 @@ type Tag struct {
 // List 标签列表
 func (c *Tag) List(ctx *core.Context) error {
 
-	list, err := c.ArticleTagService.List(ctx.Ctx(), ctx.UserId())
+	list, err := c.ArticleTagService.List(ctx.GetContext(), ctx.GetAuthId())
 	if err != nil {
 		return ctx.Error(err)
 	}
@@ -36,7 +36,7 @@ func (c *Tag) Edit(ctx *core.Context) error {
 	var (
 		err error
 		in  = &web.ArticleTagEditRequest{}
-		uid = ctx.UserId()
+		uid = ctx.GetAuthId()
 	)
 
 	if err = ctx.Context.ShouldBindJSON(in); err != nil {
@@ -44,12 +44,12 @@ func (c *Tag) Edit(ctx *core.Context) error {
 	}
 
 	if in.TagId == 0 {
-		id, err := c.ArticleTagService.Create(ctx.Ctx(), uid, in.TagName)
+		id, err := c.ArticleTagService.Create(ctx.GetContext(), uid, in.TagName)
 		if err == nil {
 			in.TagId = int32(id)
 		}
 	} else {
-		err = c.ArticleTagService.Update(ctx.Ctx(), uid, int(in.TagId), in.TagName)
+		err = c.ArticleTagService.Update(ctx.GetContext(), uid, int(in.TagId), in.TagName)
 	}
 
 	if err != nil {
@@ -67,7 +67,7 @@ func (c *Tag) Delete(ctx *core.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	err := c.ArticleTagService.Delete(ctx.Ctx(), ctx.UserId(), int(in.TagId))
+	err := c.ArticleTagService.Delete(ctx.GetContext(), ctx.GetAuthId(), int(in.TagId))
 	if err != nil {
 		return ctx.Error(err)
 	}

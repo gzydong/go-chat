@@ -6,11 +6,14 @@ import (
 
 const (
 	UsersGenderDefault = 3
+
+	UsersStatusNormal   = 1
+	UsersStatusDisabled = 2
 )
 
 type Users struct {
 	Id        int       `gorm:"column:id;primary_key;AUTO_INCREMENT" json:"id"` // 用户ID
-	Mobile    string    `gorm:"column:mobile;" json:"mobile"`                   // 手机号
+	Mobile    *string   `gorm:"column:mobile;" json:"mobile"`                   // 手机号
 	Nickname  string    `gorm:"column:nickname;" json:"nickname"`               // 用户昵称
 	Avatar    string    `gorm:"column:avatar;" json:"avatar"`                   // 用户头像地址
 	Gender    int       `gorm:"column:gender;" json:"gender"`                   // 用户性别 1:男 2:女 3:未知
@@ -19,6 +22,7 @@ type Users struct {
 	Email     string    `gorm:"column:email;" json:"email"`                     // 用户邮箱
 	Birthday  string    `gorm:"column:birthday;" json:"birthday"`               // 生日
 	IsRobot   int       `gorm:"column:is_robot;" json:"is_robot"`               // 是否机器人[1:否;2:是;]
+	Status    int       `gorm:"column:status;" json:"status"`                   // 用户状态[1:正常;2:停用;3:注销]
 	CreatedAt time.Time `gorm:"column:created_at;" json:"created_at"`           // 注册时间
 	UpdatedAt time.Time `gorm:"column:updated_at;" json:"updated_at"`           // 更新时间
 }
@@ -33,4 +37,8 @@ func (u Users) TablePrimaryId() string {
 
 func (u Users) TablePrimaryIdValue() int {
 	return u.Id
+}
+
+func (u Users) IsDisabled() bool {
+	return u.Status == UsersStatusDisabled
 }

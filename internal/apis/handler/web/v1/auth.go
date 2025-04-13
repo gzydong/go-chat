@@ -1,11 +1,14 @@
 package v1
 
 import (
-	"strconv"
 	"time"
 
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/redis/go-redis/v9"
+	"go-chat/internal/pkg/core/middleware"
 	"go-chat/internal/pkg/encrypt/rsautil"
+	"go-chat/internal/pkg/jwtutil"
+	"go-chat/internal/pkg/utils"
 
 	"go-chat/api/pb/queue/v1"
 	"go-chat/api/pb/web/v1"
@@ -13,7 +16,6 @@ import (
 	"go-chat/internal/entity"
 	"go-chat/internal/pkg/core"
 	"go-chat/internal/pkg/jsonutil"
-	"go-chat/internal/pkg/jwt"
 	"go-chat/internal/pkg/logger"
 	"go-chat/internal/repository/cache"
 	"go-chat/internal/repository/repo"
@@ -35,7 +37,7 @@ type Auth struct {
 // Login 登录接口
 func (c *Auth) Login(ctx *core.Context) error {
 	in := &web.AuthLoginRequest{}
-	if err := ctx.Context.ShouldBindJSON(in); err != nil {
+	if err := ctx.ShouldBindProto(in); err != nil {
 		return ctx.InvalidParams(err)
 	}
 
@@ -44,7 +46,7 @@ func (c *Auth) Login(ctx *core.Context) error {
 		return ctx.Error(err)
 	}
 
-	user, err := c.UserService.Login(ctx.Ctx(), in.Mobile, string(password))
+	user, err := c.UserService.Login(ctx.GetContext(), in.Mobile, string(password))
 	if err != nil {
 		return ctx.Error(err)
 	}
@@ -57,7 +59,7 @@ func (c *Auth) Login(ctx *core.Context) error {
 		LoginAt:  time.Now().Format(time.DateTime),
 	})
 
-	if err := c.Redis.Publish(ctx.Ctx(), entity.LoginTopic, data).Err(); err != nil {
+	if err := c.Redis.Publish(ctx.GetContext(), entity.LoginTopic, data).Err(); err != nil {
 		logger.ErrorWithFields(
 			"投递登录消息异常", err,
 			queue.UserLoginRequest{
@@ -80,12 +82,16 @@ func (c *Auth) Login(ctx *core.Context) error {
 // Register 注册接口
 func (c *Auth) Register(ctx *core.Context) error {
 	in := &web.AuthRegisterRequest{}
-	if err := ctx.Context.ShouldBindJSON(in); err != nil {
+	if err := ctx.ShouldBindProto(in); err != nil {
 		return ctx.InvalidParams(err)
 	}
 
+	if !utils.IsMobile(in.Mobile) {
+		return ctx.InvalidParams("Mobile 格式错误")
+	}
+
 	// 验证短信验证码是否正确
-	if !c.SmsService.Verify(ctx.Ctx(), entity.SmsRegisterChannel, in.Mobile, in.SmsCode) {
+	if !c.SmsService.Verify(ctx.GetContext(), entity.SmsRegisterChannel, in.Mobile, in.SmsCode) {
 		return ctx.InvalidParams("短信验证码填写错误！")
 	}
 
@@ -94,7 +100,7 @@ func (c *Auth) Register(ctx *core.Context) error {
 		return ctx.Error(err)
 	}
 
-	if _, err := c.UserService.Register(ctx.Ctx(), &service.UserRegisterOpt{
+	if _, err := c.UserService.Register(ctx.GetContext(), &service.UserRegisterOpt{
 		Nickname: in.Nickname,
 		Mobile:   in.Mobile,
 		Password: string(password),
@@ -103,40 +109,38 @@ func (c *Auth) Register(ctx *core.Context) error {
 		return ctx.Error(err)
 	}
 
-	c.SmsService.Delete(ctx.Ctx(), entity.SmsRegisterChannel, in.Mobile)
+	c.SmsService.Delete(ctx.GetContext(), entity.SmsRegisterChannel, in.Mobile)
 
 	return ctx.Success(&web.AuthRegisterResponse{})
 }
 
 // Logout 退出登录接口
 func (c *Auth) Logout(ctx *core.Context) error {
+	token := middleware.GetAuthToken(ctx.Context)
 
-	c.toBlackList(ctx)
+	claims, err := jwtutil.ParseWithClaims[entity.WebClaims]([]byte(c.Config.Jwt.Secret), token)
+	if err == nil {
+		if ex := claims.ExpiresAt.Unix() - time.Now().Unix(); ex > 0 {
+			_ = c.JwtTokenStorage.SetBlackList(ctx.GetContext(), token, time.Duration(ex)*time.Second)
+		}
+	}
 
 	return ctx.Success(nil)
-}
-
-// Refresh Token 刷新接口
-func (c *Auth) Refresh(ctx *core.Context) error {
-
-	c.toBlackList(ctx)
-
-	return ctx.Success(&web.AuthRefreshResponse{
-		Type:        "Bearer",
-		AccessToken: c.token(ctx.UserId()),
-		ExpiresIn:   int32(c.Config.Jwt.ExpiresTime),
-	})
 }
 
 // Forget 账号找回接口
 func (c *Auth) Forget(ctx *core.Context) error {
 	in := &web.AuthForgetRequest{}
-	if err := ctx.Context.ShouldBindJSON(in); err != nil {
+	if err := ctx.ShouldBindProto(in); err != nil {
 		return ctx.InvalidParams(err)
 	}
 
+	if !utils.IsMobile(in.Mobile) {
+		return ctx.InvalidParams("Mobile 格式错误")
+	}
+
 	// 验证短信验证码是否正确
-	if !c.SmsService.Verify(ctx.Ctx(), entity.SmsForgetAccountChannel, in.Mobile, in.SmsCode) {
+	if !c.SmsService.Verify(ctx.GetContext(), entity.SmsForgetAccountChannel, in.Mobile, in.SmsCode) {
 		return ctx.InvalidParams("短信验证码填写错误！")
 	}
 
@@ -145,7 +149,7 @@ func (c *Auth) Forget(ctx *core.Context) error {
 		return ctx.Error(err)
 	}
 
-	if _, err := c.UserService.Forget(ctx.Ctx(), &service.UserForgetOpt{
+	if _, err := c.UserService.Forget(ctx.GetContext(), &service.UserForgetOpt{
 		Mobile:   in.Mobile,
 		Password: string(password),
 		SmsCode:  in.SmsCode,
@@ -153,33 +157,25 @@ func (c *Auth) Forget(ctx *core.Context) error {
 		return ctx.Error(err)
 	}
 
-	c.SmsService.Delete(ctx.Ctx(), entity.SmsForgetAccountChannel, in.Mobile)
+	c.SmsService.Delete(ctx.GetContext(), entity.SmsForgetAccountChannel, in.Mobile)
 
 	return ctx.Success(&web.AuthForgetResponse{})
 }
 
 func (c *Auth) token(uid int) string {
+	token, err := jwtutil.NewTokenWithClaims(
+		[]byte(c.Config.Jwt.Secret), entity.WebClaims{
+			UserId: int32(uid),
+		},
+		func(c *jwt.RegisteredClaims) {
+			c.Issuer = entity.JwtIssuerWeb
+		},
+		jwtutil.WithTokenExpiresAt(time.Duration(c.Config.Jwt.ExpiresTime)*time.Second),
+	)
 
-	expiresAt := time.Now().Add(time.Second * time.Duration(c.Config.Jwt.ExpiresTime))
-
-	// 生成登录凭证
-	token := jwt.GenerateToken("api", c.Config.Jwt.Secret, &jwt.Options{
-		ExpiresAt: jwt.NewNumericDate(expiresAt),
-		ID:        strconv.Itoa(uid),
-		Issuer:    "im.web",
-		IssuedAt:  jwt.NewNumericDate(time.Now()),
-	})
+	if err != nil {
+		return ""
+	}
 
 	return token
-}
-
-// 设置黑名单
-func (c *Auth) toBlackList(ctx *core.Context) {
-
-	session := ctx.JwtSession()
-	if session != nil {
-		if ex := session.ExpiresAt - time.Now().Unix(); ex > 0 {
-			_ = c.JwtTokenStorage.SetBlackList(ctx.Ctx(), session.Token, time.Duration(ex)*time.Second)
-		}
-	}
 }

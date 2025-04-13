@@ -37,7 +37,7 @@ func (m *MessageStorage) Get(ctx context.Context, talkType int, sender int, rece
 	}
 
 	msg := &LastCacheMessage{}
-	if err = jsonutil.Decode(res, msg); err != nil {
+	if err = jsonutil.Unmarshal(res, msg); err != nil {
 		return nil, err
 	}
 
@@ -52,7 +52,7 @@ func (m *MessageStorage) MGet(ctx context.Context, fields []string) ([]*LastCach
 	for _, item := range res.Val() {
 		if val, ok := item.(string); ok {
 			msg := &LastCacheMessage{}
-			if err := jsonutil.Decode(val, msg); err != nil {
+			if err := jsonutil.Unmarshal(val, msg); err != nil {
 				return nil, err
 			}
 

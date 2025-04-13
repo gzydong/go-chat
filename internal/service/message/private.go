@@ -4,12 +4,14 @@ import (
 	"context"
 	"time"
 
+	"github.com/samber/lo"
 	"go-chat/internal/entity"
 	"go-chat/internal/pkg/jsonutil"
 	"go-chat/internal/pkg/logger"
 	"go-chat/internal/pkg/strutil"
 	"go-chat/internal/repository/cache"
 	"go-chat/internal/repository/model"
+	"go-chat/internal/repository/repo"
 )
 
 func (s *Service) CreatePrivateMessage(ctx context.Context, option CreatePrivateMessageOption) error {
@@ -42,10 +44,11 @@ func (s *Service) CreatePrivateMessage(ctx context.Context, option CreatePrivate
 	}
 
 	items = append(items, &model.TalkUserMessage{
-		MsgId:     strutil.NewMsgId(),
-		Sequence:  s.Sequence.Get(ctx, option.FromId, true),
+		// 发送消息时携带了消息则直接使用
+		MsgId:     lo.Ternary(option.MsgId == "", strutil.NewMsgId(), option.MsgId),
+		Sequence:  s.Sequence.Get(ctx, repo.SequenceTypeUser, int32(option.FromId)),
 		MsgType:   option.MsgType,
-		UserId:    option.FromId,
+		UserId:    option.FromId, // 发送者
 		ToFromId:  option.ToFromId,
 		FromId:    option.FromId,
 		Extra:     option.Extra,
@@ -58,9 +61,9 @@ func (s *Service) CreatePrivateMessage(ctx context.Context, option CreatePrivate
 
 	items = append(items, &model.TalkUserMessage{
 		MsgId:     strutil.NewMsgId(),
-		Sequence:  s.Sequence.Get(ctx, option.ToFromId, true),
+		Sequence:  s.Sequence.Get(ctx, repo.SequenceTypeUser, int32(option.ToFromId)),
 		MsgType:   option.MsgType,
-		UserId:    option.ToFromId,
+		UserId:    option.ToFromId, // 对方
 		ToFromId:  option.FromId,
 		FromId:    option.FromId,
 		Extra:     option.Extra,
@@ -114,7 +117,7 @@ func (s *Service) CreateToUserPrivateMessage(ctx context.Context, data *model.Ta
 	}
 
 	if data.Sequence <= 0 {
-		data.Sequence = s.Sequence.Get(ctx, data.UserId, true)
+		data.Sequence = s.Sequence.Get(ctx, repo.SequenceTypeUser, int32(data.UserId))
 	}
 
 	if data.Quote == "" {
@@ -157,7 +160,7 @@ func (s *Service) CreateToUserPrivateMessage(ctx context.Context, data *model.Ta
 func (s *Service) CreatePrivateSysMessage(ctx context.Context, option CreatePrivateSysMessageOption) error {
 	return s.CreateToUserPrivateMessage(ctx, &model.TalkUserMessage{
 		MsgId:    strutil.NewMsgId(),
-		Sequence: s.Sequence.Get(ctx, option.FromId, true),
+		Sequence: s.Sequence.Get(ctx, repo.SequenceTypeUser, int32(option.FromId)),
 		MsgType:  entity.ChatMsgSysText,
 		UserId:   option.FromId,
 		ToFromId: option.ToFromId,

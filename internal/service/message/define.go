@@ -7,6 +7,7 @@ type CreatePrivateSysMessageOption struct {
 }
 
 type CreatePrivateMessageOption struct {
+	MsgId    string `json:"msg_id"`     // 消息id
 	MsgType  int    `json:"msg_type"`   // 消息类型，1-文本消息，2-图片消息，3-语音消息，4-视频消息，5-文件消息，6-链接消息，7-小程序消息
 	FromId   int    `json:"from_id"`    // 发送者
 	ToFromId int    `json:"to_from_id"` // 接受者(好友ID或者群组ID)
@@ -15,6 +16,7 @@ type CreatePrivateMessageOption struct {
 }
 
 type CreateGroupMessageOption struct {
+	MsgId    string `json:"msg_id"`     // 消息id
 	MsgType  int    `json:"msg_type"`   // 消息类型，1-文本消息，2-图片消息，3-语音消息，4-视频消息，5-文件消息，6-链接消息，7-小程序消息
 	FromId   int    `json:"from_id"`    // 发送者
 	ToFromId int    `json:"to_from_id"` // 接受者(好友ID或者群组ID)
@@ -28,6 +30,7 @@ type CreateGroupSysMessageOption struct {
 }
 
 type CreateMessageOption struct {
+	MsgId    string `json:"msg_id"`     // 消息id
 	TalkMode int    `json:"talk_mode"`  // 发送模式，1-单聊，2-群聊
 	FromId   int    `json:"from_id"`    // 发送者
 	ToFromId int    `json:"to_from_id"` // 接受者(好友ID或者群组ID)
@@ -47,6 +50,7 @@ type CreateLoginMessageOption struct {
 }
 
 type CreateTextMessage struct {
+	MsgId    string `json:"msg_id"`             // 消息id
 	TalkMode int    `json:"talk_mode"`          // 发送模式，1-单聊，2-群聊
 	FromId   int    `json:"from_id"`            // 发送者
 	ToFromId int    `json:"to_from_id"`         // 接受者(好友ID或者群组ID)
@@ -56,6 +60,7 @@ type CreateTextMessage struct {
 }
 
 type CreateImageMessage struct {
+	MsgId    string `json:"msg_id"`     // 消息id
 	TalkMode int    `json:"talk_mode"`  // 发送模式，1-单聊，2-群聊
 	FromId   int    `json:"from_id"`    // 发送者
 	ToFromId int    `json:"to_from_id"` // 接受者(好友ID或者群组ID)
@@ -93,6 +98,7 @@ type CreateFileMessage struct {
 }
 
 type CreateCodeMessage struct {
+	MsgId    string `json:"msg_id"`     // 消息id
 	TalkMode int    `json:"talk_mode"`  // 发送模式，1-单聊，2-群聊
 	FromId   int    `json:"from_id"`    // 发送者
 	ToFromId int    `json:"to_from_id"` // 接受者(好友ID或者群组ID)
@@ -126,6 +132,7 @@ type CreateForwardMessage struct {
 }
 
 type CreateLocationMessage struct {
+	MsgId       string `json:"msg_id"`      // 消息id
 	TalkMode    int    `json:"talk_mode"`   // 发送模式，1-单聊，2-群聊
 	FromId      int    `json:"from_id"`     // 发送者
 	ToFromId    int    `json:"to_from_id"`  // 接受者(好友ID或者群组ID)
@@ -135,13 +142,15 @@ type CreateLocationMessage struct {
 }
 
 type CreateBusinessCardMessage struct {
-	TalkMode int `json:"talk_mode"`  // 发送模式，1-单聊，2-群聊
-	FromId   int `json:"from_id"`    // 发送者
-	ToFromId int `json:"to_from_id"` // 接受者(好友ID或者群组ID)
-	UserId   int `json:"user_id"`    // 名片用户ID
+	MsgId    string `json:"msg_id"`     // 消息id
+	TalkMode int    `json:"talk_mode"`  // 发送模式，1-单聊，2-群聊
+	FromId   int    `json:"from_id"`    // 发送者
+	ToFromId int    `json:"to_from_id"` // 接受者(好友ID或者群组ID)
+	UserId   int    `json:"user_id"`    // 名片用户ID
 }
 
 type CreateMixedMessage struct {
+	MsgId       string                   `json:"msg_id"`             // 消息id
 	TalkMode    int                      `json:"talk_mode"`          // 发送模式，1-单聊，2-群聊
 	FromId      int                      `json:"from_id"`            // 发送者
 	ToFromId    int                      `json:"to_from_id"`         // 接受者(好友ID或者群组ID)

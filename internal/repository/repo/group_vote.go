@@ -60,7 +60,7 @@ func (t *GroupVote) GetVoteStatistics(ctx context.Context, vid int) (*VoteStatis
 
 	statistic := &VoteStatistics{}
 
-	_ = jsonutil.Decode(value, statistic)
+	_ = jsonutil.Unmarshal(value, statistic)
 
 	return statistic, nil
 }
@@ -77,7 +77,7 @@ func (t *GroupVote) SetVoteStatistics(ctx context.Context, vid int) (*VoteStatis
 		return nil, err
 	}
 
-	if err := jsonutil.Decode(vote.AnswerOption, &answerOption); err != nil {
+	if err := jsonutil.Unmarshal(vote.AnswerOption, &answerOption); err != nil {
 		return nil, err
 	}
 

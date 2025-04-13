@@ -1,14 +1,18 @@
 package router
 
 import (
+	"context"
+	"errors"
 	"net/http"
 	"net/http/pprof"
 
 	"github.com/gin-gonic/gin"
 	"go-chat/internal/comet/handler"
+	"go-chat/internal/entity"
 	"go-chat/internal/pkg/core"
 	"go-chat/internal/pkg/core/middleware"
 	"go-chat/internal/pkg/core/socket"
+	"go-chat/internal/pkg/jwtutil"
 	"go-chat/internal/repository/cache"
 
 	"go-chat/config"
@@ -23,7 +27,16 @@ func NewRouter(conf *config.Config, handle *handler.Handler, storage *cache.JwtT
 	}))
 
 	// 授权验证中间件
-	authorize := middleware.Auth(conf.Jwt.Secret, "api", storage)
+	authorize := middleware.NewJwtMiddleware[entity.WebClaims](
+		[]byte(conf.Jwt.Secret), storage,
+		func(ctx context.Context, claims *jwtutil.JwtClaims[entity.WebClaims]) error {
+			if claims.RegisteredClaims.Issuer != entity.JwtIssuerWeb {
+				return errors.New("授权异常，请登录后操作")
+			}
+
+			return nil
+		},
+	)
 
 	// 查看客户端连接状态
 	router.GET("/wss/connect/detail", func(ctx *gin.Context) {

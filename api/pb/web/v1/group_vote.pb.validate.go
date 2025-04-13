@@ -57,13 +57,60 @@ func (m *GroupVoteCreateRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for GroupId
+	if m.GetGroupId() < 1 {
+		err := GroupVoteCreateRequestValidationError{
+			field:  "GroupId",
+			reason: "value must be greater than or equal to 1",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
-	// no validation rules for Title
+	if utf8.RuneCountInString(m.GetTitle()) < 1 {
+		err := GroupVoteCreateRequestValidationError{
+			field:  "Title",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
-	// no validation rules for Mode
+	if _, ok := _GroupVoteCreateRequest_Mode_InLookup[m.GetMode()]; !ok {
+		err := GroupVoteCreateRequestValidationError{
+			field:  "Mode",
+			reason: "value must be in list [1 2]",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
-	// no validation rules for IsAnonymous
+	if _, ok := _GroupVoteCreateRequest_IsAnonymous_InLookup[m.GetIsAnonymous()]; !ok {
+		err := GroupVoteCreateRequestValidationError{
+			field:  "IsAnonymous",
+			reason: "value must be in list [1 2]",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if len(m.GetOptions()) < 1 {
+		err := GroupVoteCreateRequestValidationError{
+			field:  "Options",
+			reason: "value must contain at least 1 item(s)",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return GroupVoteCreateRequestMultiError(errors)
@@ -144,6 +191,16 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = GroupVoteCreateRequestValidationError{}
+
+var _GroupVoteCreateRequest_Mode_InLookup = map[int32]struct{}{
+	1: {},
+	2: {},
+}
+
+var _GroupVoteCreateRequest_IsAnonymous_InLookup = map[int32]struct{}{
+	1: {},
+	2: {},
+}
 
 // Validate checks the field values on GroupVoteCreateResponse with the rules
 // defined in the proto definition for this message. If any rules are
@@ -269,7 +326,27 @@ func (m *GroupVoteSubmitRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for VoteId
+	if m.GetVoteId() < 1 {
+		err := GroupVoteSubmitRequestValidationError{
+			field:  "VoteId",
+			reason: "value must be greater than or equal to 1",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if len(m.GetOptions()) < 1 {
+		err := GroupVoteSubmitRequestValidationError{
+			field:  "Options",
+			reason: "value must contain at least 1 item(s)",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return GroupVoteSubmitRequestMultiError(errors)
@@ -475,7 +552,16 @@ func (m *GroupVoteDetailRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for VoteId
+	if m.GetVoteId() < 1 {
+		err := GroupVoteDetailRequestValidationError{
+			field:  "VoteId",
+			reason: "value must be greater than or equal to 1",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return GroupVoteDetailRequestMultiError(errors)

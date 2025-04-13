@@ -69,6 +69,7 @@ $ go run ./cmd/lumenim http      # 本地启动 http 服务
 $ go run ./cmd/lumenim comet    # 本地启动 websocket 服务
 $ go run ./cmd/lumenim queue     # 启动异步队列
 $ go run ./cmd/lumenim crontab      # 启动定时任务
+$ go run ./cmd/lumenim temp test    # 自定义脚本
 ```
 
 7. 编译后运行

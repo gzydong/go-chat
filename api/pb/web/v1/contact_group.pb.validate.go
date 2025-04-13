@@ -57,9 +57,27 @@ func (m *ContactGroupCreateRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for Name
+	if utf8.RuneCountInString(m.GetName()) < 1 {
+		err := ContactGroupCreateRequestValidationError{
+			field:  "Name",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
-	// no validation rules for Sort
+	if m.GetSort() <= 0 {
+		err := ContactGroupCreateRequestValidationError{
+			field:  "Sort",
+			reason: "value must be greater than 0",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return ContactGroupCreateRequestMultiError(errors)
@@ -267,11 +285,38 @@ func (m *ContactGroupUpdateRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for Id
+	if m.GetId() <= 0 {
+		err := ContactGroupUpdateRequestValidationError{
+			field:  "Id",
+			reason: "value must be greater than 0",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
-	// no validation rules for Name
+	if utf8.RuneCountInString(m.GetName()) < 1 {
+		err := ContactGroupUpdateRequestValidationError{
+			field:  "Name",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
-	// no validation rules for Sort
+	if m.GetSort() <= 0 {
+		err := ContactGroupUpdateRequestValidationError{
+			field:  "Sort",
+			reason: "value must be greater than 0",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return ContactGroupUpdateRequestMultiError(errors)
@@ -479,7 +524,16 @@ func (m *ContactGroupDeleteRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for Id
+	if m.GetId() <= 0 {
+		err := ContactGroupDeleteRequestValidationError{
+			field:  "Id",
+			reason: "value must be greater than 0",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return ContactGroupDeleteRequestMultiError(errors)
@@ -686,6 +740,17 @@ func (m *ContactGroupSortRequest) validate(all bool) error {
 	}
 
 	var errors []error
+
+	if len(m.GetItems()) < 1 {
+		err := ContactGroupSortRequestValidationError{
+			field:  "Items",
+			reason: "value must contain at least 1 item(s)",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	for idx, item := range m.GetItems() {
 		_, _ = idx, item
@@ -1163,6 +1228,17 @@ func (m *ContactGroupSaveRequest) validate(all bool) error {
 
 	var errors []error
 
+	if len(m.GetItems()) < 1 {
+		err := ContactGroupSaveRequestValidationError{
+			field:  "Items",
+			reason: "value must contain at least 1 item(s)",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
 	for idx, item := range m.GetItems() {
 		_, _ = idx, item
 
@@ -1401,9 +1477,27 @@ func (m *ContactGroupSortRequest_Item) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for Id
+	if m.GetId() <= 0 {
+		err := ContactGroupSortRequest_ItemValidationError{
+			field:  "Id",
+			reason: "value must be greater than 0",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
-	// no validation rules for Sort
+	if m.GetSort() <= 0 {
+		err := ContactGroupSortRequest_ItemValidationError{
+			field:  "Sort",
+			reason: "value must be greater than 0",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return ContactGroupSortRequest_ItemMultiError(errors)
@@ -1619,11 +1713,38 @@ func (m *ContactGroupSaveRequest_Item) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for Id
+	if m.GetId() <= 0 {
+		err := ContactGroupSaveRequest_ItemValidationError{
+			field:  "Id",
+			reason: "value must be greater than 0",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
-	// no validation rules for Sort
+	if m.GetSort() <= 0 {
+		err := ContactGroupSaveRequest_ItemValidationError{
+			field:  "Sort",
+			reason: "value must be greater than 0",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
-	// no validation rules for Name
+	if utf8.RuneCountInString(m.GetName()) < 1 {
+		err := ContactGroupSaveRequest_ItemValidationError{
+			field:  "Name",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return ContactGroupSaveRequest_ItemMultiError(errors)

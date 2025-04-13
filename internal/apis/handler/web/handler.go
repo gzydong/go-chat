@@ -6,6 +6,7 @@ import (
 	"go-chat/internal/apis/handler/web/v1/contact"
 	"go-chat/internal/apis/handler/web/v1/group"
 	"go-chat/internal/apis/handler/web/v1/talk"
+	"go-chat/internal/repository/repo"
 )
 
 type V1 struct {
@@ -33,5 +34,6 @@ type V1 struct {
 }
 
 type Handler struct {
-	V1 *V1
+	V1       *V1
+	UserRepo *repo.Users
 }

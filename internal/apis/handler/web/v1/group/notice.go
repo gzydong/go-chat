@@ -31,9 +31,9 @@ func (c *Notice) CreateAndUpdate(ctx *core.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	uid := ctx.UserId()
+	uid := ctx.GetAuthId()
 
-	if !c.GroupMemberRepo.IsMember(ctx.Ctx(), int(in.GroupId), uid, false) {
+	if !c.GroupMemberRepo.IsMember(ctx.GetContext(), int(in.GroupId), uid, false) {
 		return ctx.Error(entity.ErrPermissionDenied)
 	}
 
@@ -42,26 +42,26 @@ func (c *Notice) CreateAndUpdate(ctx *core.Context) error {
 		err error
 	)
 
-	notice, err := c.GroupNoticeRepo.FindByWhere(ctx.Ctx(), "group_id = ?", in.GroupId)
+	notice, err := c.GroupNoticeRepo.FindByWhere(ctx.GetContext(), "group_id = ?", in.GroupId)
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return ctx.Error(err)
 	}
 
 	if notice == nil {
 		msg = "群公告创建成功！"
-		err = c.GroupNoticeRepo.Create(ctx.Ctx(), &model.GroupNotice{
+		err = c.GroupNoticeRepo.Create(ctx.GetContext(), &model.GroupNotice{
 			GroupId:      int(in.GroupId),
-			CreatorId:    ctx.UserId(),
-			ModifyId:     ctx.UserId(),
+			CreatorId:    ctx.GetAuthId(),
+			ModifyId:     ctx.GetAuthId(),
 			Content:      in.Content,
 			ConfirmUsers: "[]",
 			IsConfirm:    2,
 		})
 	} else {
 		msg = "群公告更新成功！"
-		_, err = c.GroupNoticeRepo.UpdateByWhere(ctx.Ctx(), map[string]any{
+		_, err = c.GroupNoticeRepo.UpdateByWhere(ctx.GetContext(), map[string]any{
 			"content":    in.Content,
-			"modify_id":  ctx.UserId(),
+			"modify_id":  ctx.GetAuthId(),
 			"updated_at": time.Now(),
 		}, "group_id = ?", in.GroupId)
 	}
@@ -70,9 +70,9 @@ func (c *Notice) CreateAndUpdate(ctx *core.Context) error {
 		return ctx.Error(err)
 	}
 
-	userInfo, err := c.UsersRepo.FindByIdWithCache(ctx.Ctx(), uid)
+	userInfo, err := c.UsersRepo.FindByIdWithCache(ctx.GetContext(), uid)
 	if err == nil {
-		_ = c.Message.CreateGroupMessage(ctx.Ctx(), message.CreateGroupMessageOption{
+		_ = c.Message.CreateGroupMessage(ctx.GetContext(), message.CreateGroupMessageOption{
 			MsgType:  entity.ChatMsgTypeGroupNotice,
 			FromId:   uid,
 			ToFromId: int(in.GroupId),

@@ -3,12 +3,12 @@ package web;
 
 option go_package = "web/v1;web";
 
-import "tagger/tagger.proto";
+import "validate/validate.proto";
 
 // 添加联系人分组接口请求参数
 message ContactGroupCreateRequest{
-  string name = 1 [(tagger.tags) = "binding:\"required\""];
-  int32 sort = 2 [(tagger.tags) = "binding:\"required\""];
+  string name = 1 [(validate.rules).string.min_len = 1];
+  int32 sort = 2 [(validate.rules).int32.gt = 0];
 }
 
 // 添加联系人分组接口响应参数
@@ -18,9 +18,9 @@ message ContactGroupCreateResponse{
 
 // 更新联系人分组接口请求参数
 message ContactGroupUpdateRequest{
-  int32 id = 1 [(tagger.tags) = "binding:\"required\""];
-  string name = 2 [(tagger.tags) = "binding:\"required\""];
-  int32 sort = 3 [(tagger.tags) = "binding:\"required\""];
+  int32 id = 1 [(validate.rules).int32.gt = 0];
+  string name = 2 [(validate.rules).string.min_len = 1];
+  int32 sort = 3 [(validate.rules).int32.gt = 0];
 }
 
 // 更新联系人分组接口响应参数
@@ -30,7 +30,7 @@ message ContactGroupUpdateResponse{
 
 // 删除联系人分组接口请求参数
 message ContactGroupDeleteRequest{
-  int32 id = 1 [(tagger.tags) = "binding:\"required\""];
+  int32 id = 1 [(validate.rules).int32.gt = 0];
 }
 
 // 删除联系人分组接口响应参数
@@ -42,11 +42,11 @@ message ContactGroupDeleteResponse{
 message ContactGroupSortRequest{
 
   message Item{
-    int32 id = 1 [(tagger.tags) = "binding:\"required\""];
-    int32 sort = 2 [(tagger.tags) = "binding:\"required\""];
+    int32 id = 1 [(validate.rules).int32.gt = 0];
+    int32 sort = 2 [(validate.rules).int32.gt = 0];
   }
 
-  repeated Item items = 1 [(tagger.tags) = "binding:\"required\""];
+  repeated Item items = 1 [(validate.rules).repeated.min_items = 1];
 }
 
 // 删除联系人分组接口响应参数
@@ -77,12 +77,12 @@ message ContactGroupListResponse{
 
 message ContactGroupSaveRequest{
   message Item{
-    int32 id = 1 [(tagger.tags) = "binding:\"required\""];
-    int32 sort = 2 [(tagger.tags) = "binding:\"required\""];
-    string name = 3 [(tagger.tags) = "binding:\"required\""];
+    int32 id = 1 [(validate.rules).int32.gt = 0];
+    int32 sort = 2 [(validate.rules).int32.gt = 0];
+    string name = 3 [(validate.rules).string.min_len = 1];
   }
 
-  repeated Item items = 1 [(tagger.tags) = "binding:\"required\""];
+  repeated Item items = 1 [(validate.rules).repeated.min_items = 1];
 }
 
 message ContactGroupSaveResponse{}

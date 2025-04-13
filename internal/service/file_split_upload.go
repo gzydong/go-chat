@@ -150,7 +150,7 @@ func (s *FileSplitUploadService) merge(info *model.FileUpload) error {
 	parts := make([]filesystem.ObjectPart, 0)
 	for _, item := range items {
 		var obj filesystem.ObjectPart
-		if err = jsonutil.Decode(item.Attr, &obj); err != nil {
+		if err = jsonutil.Unmarshal(item.Attr, &obj); err != nil {
 			return err
 		}
 

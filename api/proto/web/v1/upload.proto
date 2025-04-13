@@ -1,9 +1,7 @@
 syntax = "proto3";
 package web;
-
 option go_package = "web/v1;web";
-
-import "tagger/tagger.proto";
+import "validate/validate.proto";
 
 // 头像上传接口请求参数
 message UploadAvatarRequest{}
@@ -24,8 +22,8 @@ message UploadImageResponse{
 
 // 批量上传文件初始化接口请求参数
 message UploadInitiateMultipartRequest{
-  string file_name = 1 [(tagger.tags) = "binding:\"required\""];
-  int64 file_size = 2 [(tagger.tags) = "binding:\"required\""];
+  string file_name = 1 [(validate.rules).string.min_len = 1];
+  int64 file_size = 2 [(validate.rules).int64.gte = 1];
 }
 
 // 批量上传文件初始化接口响应参数
@@ -38,9 +36,9 @@ message UploadInitiateMultipartResponse{
 
 // 批量上传文件接口请求参数
 message UploadMultipartRequest{
-  string upload_id = 1 [(tagger.tags) = "form:\"upload_id\" binding:\"required\""];
-  int32 split_index = 2 [(tagger.tags) = "form:\"split_index\" binding:\"min=1\""];
-  int32 split_num = 3 [(tagger.tags) = "form:\"split_num\" binding:\"required,min=1\""];
+  string upload_id = 1 [(validate.rules).string.min_len = 1];
+  int32 split_index = 2 [(validate.rules).int32.gt = 0];
+  int32 split_num = 3 [(validate.rules).int32.gt = 0];
 }
 
 // 批量上传文件接口请求参数

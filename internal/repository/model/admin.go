@@ -3,8 +3,8 @@ package model
 import "time"
 
 const (
-	AdminStatusNormal     = 1
-	AdminStatusDeactivate = 2
+	AdminStatusNormal   = 1
+	AdminStatusDisabled = 2
 )
 
 type Admin struct {
@@ -16,11 +16,15 @@ type Admin struct {
 	Mobile    string    `gorm:"column:mobile" db:"mobile" json:"mobile" form:"mobile"`                 // 手机号
 	Email     string    `gorm:"column:email" db:"email" json:"email" form:"email"`                     // 邮箱
 	Motto     string    `gorm:"column:motto" db:"motto" json:"motto" form:"motto"`                     // 座右铭
-	Status    int8      `gorm:"column:status" db:"status" json:"status" form:"status"`                 // 状态 1正常 2停用
+	Status    int       `gorm:"column:status" db:"status" json:"status" form:"status"`                 // 状态 1正常 2停用
 	CreatedAt time.Time `gorm:"column:created_at" db:"created_at" json:"created_at" form:"created_at"` // 注册时间
 	UpdatedAt time.Time `gorm:"column:updated_at" db:"updated_at" json:"updated_at" form:"updated_at"` // 更新时间
 }
 
 func (Admin) TableName() string {
 	return "admin"
+}
+
+func (a Admin) IsDisabled() bool {
+	return a.Status == AdminStatusDisabled
 }

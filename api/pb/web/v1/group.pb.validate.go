@@ -293,7 +293,27 @@ func (m *GroupCreateRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for Name
+	if utf8.RuneCountInString(m.GetName()) < 1 {
+		err := GroupCreateRequestValidationError{
+			field:  "Name",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if len(m.GetUserIds()) < 1 {
+		err := GroupCreateRequestValidationError{
+			field:  "UserIds",
+			reason: "value must contain at least 1 item(s)",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return GroupCreateRequestMultiError(errors)
@@ -501,7 +521,16 @@ func (m *GroupDetailRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for GroupId
+	if m.GetGroupId() < 1 {
+		err := GroupDetailRequestValidationError{
+			field:  "GroupId",
+			reason: "value must be greater than or equal to 1",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return GroupDetailRequestMultiError(errors)
@@ -756,7 +785,16 @@ func (m *GroupMemberListRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for GroupId
+	if m.GetGroupId() < 1 {
+		err := GroupMemberListRequestValidationError{
+			field:  "GroupId",
+			reason: "value must be greater than or equal to 1",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return GroupMemberListRequestMultiError(errors)
@@ -996,7 +1034,16 @@ func (m *GroupDismissRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for GroupId
+	if m.GetGroupId() < 1 {
+		err := GroupDismissRequestValidationError{
+			field:  "GroupId",
+			reason: "value must be greater than or equal to 1",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return GroupDismissRequestMultiError(errors)
@@ -1202,7 +1249,27 @@ func (m *GroupInviteRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for GroupId
+	if m.GetGroupId() < 1 {
+		err := GroupInviteRequestValidationError{
+			field:  "GroupId",
+			reason: "value must be greater than or equal to 1",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if len(m.GetUserIds()) < 1 {
+		err := GroupInviteRequestValidationError{
+			field:  "UserIds",
+			reason: "value must contain at least 1 item(s)",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return GroupInviteRequestMultiError(errors)
@@ -1408,7 +1475,16 @@ func (m *GetInviteFriendsRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for GroupId
+	if m.GetGroupId() < 1 {
+		err := GetInviteFriendsRequestValidationError{
+			field:  "GroupId",
+			reason: "value must be greater than or equal to 1",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return GetInviteFriendsRequestMultiError(errors)
@@ -1648,7 +1724,16 @@ func (m *GroupSecedeRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for GroupId
+	if m.GetGroupId() < 1 {
+		err := GroupSecedeRequestValidationError{
+			field:  "GroupId",
+			reason: "value must be greater than or equal to 1",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return GroupSecedeRequestMultiError(errors)
@@ -1854,13 +1939,40 @@ func (m *GroupSettingRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for GroupId
+	if m.GetGroupId() < 1 {
+		err := GroupSettingRequestValidationError{
+			field:  "GroupId",
+			reason: "value must be greater than or equal to 1",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
-	// no validation rules for GroupName
+	if utf8.RuneCountInString(m.GetGroupName()) < 1 {
+		err := GroupSettingRequestValidationError{
+			field:  "GroupName",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	// no validation rules for Avatar
 
-	// no validation rules for Profile
+	if utf8.RuneCountInString(m.GetProfile()) > 255 {
+		err := GroupSettingRequestValidationError{
+			field:  "Profile",
+			reason: "value length must be at most 255 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return GroupSettingRequestMultiError(errors)
@@ -2066,7 +2178,16 @@ func (m *GroupRemarkUpdateRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for GroupId
+	if m.GetGroupId() < 1 {
+		err := GroupRemarkUpdateRequestValidationError{
+			field:  "GroupId",
+			reason: "value must be greater than or equal to 1",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	// no validation rules for Remark
 
@@ -2274,7 +2395,27 @@ func (m *GroupRemoveMemberRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for GroupId
+	if m.GetGroupId() < 1 {
+		err := GroupRemoveMemberRequestValidationError{
+			field:  "GroupId",
+			reason: "value must be greater than or equal to 1",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if len(m.GetUserIds()) < 1 {
+		err := GroupRemoveMemberRequestValidationError{
+			field:  "UserIds",
+			reason: "value must contain at least 1 item(s)",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return GroupRemoveMemberRequestMultiError(errors)
@@ -2480,9 +2621,27 @@ func (m *GroupOvertListRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for Page
+	if m.GetPage() < 1 {
+		err := GroupOvertListRequestValidationError{
+			field:  "Page",
+			reason: "value must be greater than or equal to 1",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
-	// no validation rules for Name
+	if utf8.RuneCountInString(m.GetName()) < 1 {
+		err := GroupOvertListRequestValidationError{
+			field:  "Name",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return GroupOvertListRequestMultiError(errors)
@@ -2724,9 +2883,27 @@ func (m *GroupHandoverRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for GroupId
+	if m.GetGroupId() < 1 {
+		err := GroupHandoverRequestValidationError{
+			field:  "GroupId",
+			reason: "value must be greater than or equal to 1",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
-	// no validation rules for UserId
+	if m.GetUserId() < 1 {
+		err := GroupHandoverRequestValidationError{
+			field:  "UserId",
+			reason: "value must be greater than or equal to 1",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return GroupHandoverRequestMultiError(errors)
@@ -2932,11 +3109,38 @@ func (m *GroupAssignAdminRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for GroupId
+	if m.GetGroupId() < 1 {
+		err := GroupAssignAdminRequestValidationError{
+			field:  "GroupId",
+			reason: "value must be greater than or equal to 1",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
-	// no validation rules for UserId
+	if m.GetUserId() < 1 {
+		err := GroupAssignAdminRequestValidationError{
+			field:  "UserId",
+			reason: "value must be greater than or equal to 1",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
-	// no validation rules for Action
+	if _, ok := _GroupAssignAdminRequest_Action_InLookup[m.GetAction()]; !ok {
+		err := GroupAssignAdminRequestValidationError{
+			field:  "Action",
+			reason: "value must be in list [1 2]",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return GroupAssignAdminRequestMultiError(errors)
@@ -3017,6 +3221,11 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = GroupAssignAdminRequestValidationError{}
+
+var _GroupAssignAdminRequest_Action_InLookup = map[int32]struct{}{
+	1: {},
+	2: {},
+}
 
 // Validate checks the field values on GroupAssignAdminResponse with the rules
 // defined in the proto definition for this message. If any rules are
@@ -3142,11 +3351,38 @@ func (m *GroupNoSpeakRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for GroupId
+	if m.GetGroupId() < 1 {
+		err := GroupNoSpeakRequestValidationError{
+			field:  "GroupId",
+			reason: "value must be greater than or equal to 1",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
-	// no validation rules for UserId
+	if m.GetUserId() < 1 {
+		err := GroupNoSpeakRequestValidationError{
+			field:  "UserId",
+			reason: "value must be greater than or equal to 1",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
-	// no validation rules for Action
+	if _, ok := _GroupNoSpeakRequest_Action_InLookup[m.GetAction()]; !ok {
+		err := GroupNoSpeakRequestValidationError{
+			field:  "Action",
+			reason: "value must be in list [1 2]",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return GroupNoSpeakRequestMultiError(errors)
@@ -3227,6 +3463,11 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = GroupNoSpeakRequestValidationError{}
+
+var _GroupNoSpeakRequest_Action_InLookup = map[int32]struct{}{
+	1: {},
+	2: {},
+}
 
 // Validate checks the field values on GroupNoSpeakResponse with the rules
 // defined in the proto definition for this message. If any rules are
@@ -3352,9 +3593,27 @@ func (m *GroupMuteRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for GroupId
+	if m.GetGroupId() < 1 {
+		err := GroupMuteRequestValidationError{
+			field:  "GroupId",
+			reason: "value must be greater than or equal to 1",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
-	// no validation rules for Action
+	if _, ok := _GroupMuteRequest_Action_InLookup[m.GetAction()]; !ok {
+		err := GroupMuteRequestValidationError{
+			field:  "Action",
+			reason: "value must be in list [1 2]",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return GroupMuteRequestMultiError(errors)
@@ -3433,6 +3692,11 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = GroupMuteRequestValidationError{}
+
+var _GroupMuteRequest_Action_InLookup = map[int32]struct{}{
+	1: {},
+	2: {},
+}
 
 // Validate checks the field values on GroupMuteResponse with the rules defined
 // in the proto definition for this message. If any rules are violated, the
@@ -3558,9 +3822,27 @@ func (m *GroupOvertRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for GroupId
+	if m.GetGroupId() < 1 {
+		err := GroupOvertRequestValidationError{
+			field:  "GroupId",
+			reason: "value must be greater than or equal to 1",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
-	// no validation rules for Action
+	if _, ok := _GroupOvertRequest_Action_InLookup[m.GetAction()]; !ok {
+		err := GroupOvertRequestValidationError{
+			field:  "Action",
+			reason: "value must be in list [1 2]",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return GroupOvertRequestMultiError(errors)
@@ -3641,6 +3923,11 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = GroupOvertRequestValidationError{}
+
+var _GroupOvertRequest_Action_InLookup = map[int32]struct{}{
+	1: {},
+	2: {},
+}
 
 // Validate checks the field values on GroupOvertResponse with the rules
 // defined in the proto definition for this message. If any rules are

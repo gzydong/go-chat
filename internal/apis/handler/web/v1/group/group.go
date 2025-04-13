@@ -41,7 +41,7 @@ type Group struct {
 // Create 创建群聊分组
 func (c *Group) Create(ctx *core.Context) error {
 	in := &web.GroupCreateRequest{}
-	if err := ctx.Context.ShouldBind(in); err != nil {
+	if err := ctx.ShouldBindProto(in); err != nil {
 		return ctx.InvalidParams(err)
 	}
 
@@ -58,8 +58,8 @@ func (c *Group) Create(ctx *core.Context) error {
 		return ctx.InvalidParams(fmt.Sprintf("群成员数量已达到%d上限！", model.GroupMemberMaxNum))
 	}
 
-	gid, err := c.GroupService.Create(ctx.Ctx(), &service.GroupCreateOpt{
-		UserId:    ctx.UserId(),
+	gid, err := c.GroupService.Create(ctx.GetContext(), &service.GroupCreateOpt{
+		UserId:    ctx.GetAuthId(),
 		Name:      in.Name,
 		MemberIds: uids,
 	})
@@ -74,20 +74,20 @@ func (c *Group) Create(ctx *core.Context) error {
 // Dismiss 解散群组
 func (c *Group) Dismiss(ctx *core.Context) error {
 	in := &web.GroupDismissRequest{}
-	if err := ctx.Context.ShouldBind(in); err != nil {
+	if err := ctx.ShouldBindProto(in); err != nil {
 		return ctx.InvalidParams(err)
 	}
 
-	uid := ctx.UserId()
-	if !c.GroupMemberRepo.IsMaster(ctx.Ctx(), int(in.GroupId), uid) {
+	uid := ctx.GetAuthId()
+	if !c.GroupMemberRepo.IsMaster(ctx.GetContext(), int(in.GroupId), uid) {
 		return ctx.Error(entity.ErrPermissionDenied)
 	}
 
-	if err := c.GroupService.Dismiss(ctx.Ctx(), int(in.GroupId), uid); err != nil {
+	if err := c.GroupService.Dismiss(ctx.GetContext(), int(in.GroupId), uid); err != nil {
 		return ctx.Error(err)
 	}
 
-	_ = c.Message.CreateGroupSysMessage(ctx.Ctx(), message.CreateGroupSysMessageOption{
+	_ = c.Message.CreateGroupSysMessage(ctx.GetContext(), message.CreateGroupSysMessageOption{
 		GroupId: int(in.GroupId),
 		Content: "该群已被群主解散！",
 	})
@@ -98,7 +98,7 @@ func (c *Group) Dismiss(ctx *core.Context) error {
 // Invite 邀请好友加入群聊
 func (c *Group) Invite(ctx *core.Context) error {
 	in := &web.GroupInviteRequest{}
-	if err := ctx.Context.ShouldBind(in); err != nil {
+	if err := ctx.ShouldBindProto(in); err != nil {
 		return ctx.InvalidParams(err)
 	}
 
@@ -116,18 +116,18 @@ func (c *Group) Invite(ctx *core.Context) error {
 	}
 
 	key := fmt.Sprintf("group_join:%d", in.GroupId)
-	if !c.RedisLock.Lock(ctx.Ctx(), key, 20) {
+	if !c.RedisLock.Lock(ctx.GetContext(), key, 20) {
 		return ctx.Error(entity.ErrTooFrequentOperation)
 	}
 
-	defer c.RedisLock.UnLock(ctx.Ctx(), key)
+	defer c.RedisLock.UnLock(ctx.GetContext(), key)
 
-	uid := ctx.UserId()
-	if !c.GroupMemberRepo.IsMember(ctx.Ctx(), int(in.GroupId), uid, true) {
+	uid := ctx.GetAuthId()
+	if !c.GroupMemberRepo.IsMember(ctx.GetContext(), int(in.GroupId), uid, true) {
 		return ctx.Error(entity.ErrPermissionDenied)
 	}
 
-	group, err := c.GroupRepo.FindById(ctx.Ctx(), int(in.GroupId))
+	group, err := c.GroupRepo.FindById(ctx.GetContext(), int(in.GroupId))
 	if err != nil {
 		return ctx.Error(err)
 	}
@@ -136,7 +136,7 @@ func (c *Group) Invite(ctx *core.Context) error {
 		return ctx.Error(entity.ErrGroupDismissed)
 	}
 
-	count, err := c.GroupMemberRepo.FindCount(ctx.Ctx(), "group_id = ? and is_quit = ?", in.GroupId, model.No)
+	count, err := c.GroupMemberRepo.FindCount(ctx.GetContext(), "group_id = ? and is_quit = ?", in.GroupId, model.No)
 	if err != nil {
 		return ctx.Error(err)
 	}
@@ -145,7 +145,7 @@ func (c *Group) Invite(ctx *core.Context) error {
 		return ctx.Error(entity.ErrGroupMemberLimit)
 	}
 
-	if err := c.GroupService.Invite(ctx.Ctx(), &service.GroupInviteOpt{
+	if err := c.GroupService.Invite(ctx.GetContext(), &service.GroupInviteOpt{
 		UserId:    uid,
 		GroupId:   int(in.GroupId),
 		MemberIds: uids,
@@ -159,16 +159,16 @@ func (c *Group) Invite(ctx *core.Context) error {
 // Secede 退出群聊
 func (c *Group) Secede(ctx *core.Context) error {
 	in := &web.GroupSecedeRequest{}
-	if err := ctx.Context.ShouldBind(in); err != nil {
+	if err := ctx.ShouldBindProto(in); err != nil {
 		return ctx.InvalidParams(err)
 	}
 
-	uid := ctx.UserId()
-	if err := c.GroupService.Secede(ctx.Ctx(), int(in.GroupId), uid); err != nil {
+	uid := ctx.GetAuthId()
+	if err := c.GroupService.Secede(ctx.GetContext(), int(in.GroupId), uid); err != nil {
 		return ctx.Error(err)
 	}
 
-	_ = c.TalkSessionService.Delete(ctx.Ctx(), uid, entity.ChatGroupMode, int(in.GroupId))
+	_ = c.TalkSessionService.Delete(ctx.GetContext(), uid, entity.ChatGroupMode, int(in.GroupId))
 
 	return ctx.Success(nil)
 }
@@ -176,11 +176,11 @@ func (c *Group) Secede(ctx *core.Context) error {
 // Update 群设置接口（预留）
 func (c *Group) Update(ctx *core.Context) error {
 	in := &web.GroupSettingRequest{}
-	if err := ctx.Context.ShouldBind(in); err != nil {
+	if err := ctx.ShouldBindProto(in); err != nil {
 		return ctx.InvalidParams(err)
 	}
 
-	group, err := c.GroupRepo.FindById(ctx.Ctx(), int(in.GroupId))
+	group, err := c.GroupRepo.FindById(ctx.GetContext(), int(in.GroupId))
 	if err != nil {
 		return ctx.Error(err)
 	}
@@ -189,12 +189,12 @@ func (c *Group) Update(ctx *core.Context) error {
 		return ctx.Error(entity.ErrGroupDismissed)
 	}
 
-	uid := ctx.UserId()
-	if !c.GroupMemberRepo.IsLeader(ctx.Ctx(), int(in.GroupId), uid) {
+	uid := ctx.GetAuthId()
+	if !c.GroupMemberRepo.IsLeader(ctx.GetContext(), int(in.GroupId), uid) {
 		return ctx.Error(entity.ErrPermissionDenied)
 	}
 
-	if err := c.GroupService.Update(ctx.Ctx(), &service.GroupUpdateOpt{
+	if err := c.GroupService.Update(ctx.GetContext(), &service.GroupUpdateOpt{
 		GroupId: int(in.GroupId),
 		Name:    in.GroupName,
 		Avatar:  in.Avatar,
@@ -203,7 +203,7 @@ func (c *Group) Update(ctx *core.Context) error {
 		return ctx.Error(err)
 	}
 
-	_ = c.Message.CreateGroupSysMessage(ctx.Ctx(), message.CreateGroupSysMessageOption{
+	_ = c.Message.CreateGroupSysMessage(ctx.GetContext(), message.CreateGroupSysMessageOption{
 		GroupId: int(in.GroupId),
 		Content: "群主或管理员修改了群信息！",
 	})
@@ -214,7 +214,7 @@ func (c *Group) Update(ctx *core.Context) error {
 // RemoveMember 移除指定成员(群组&管理员权限)
 func (c *Group) RemoveMember(ctx *core.Context) error {
 	in := &web.GroupRemoveMemberRequest{}
-	if err := ctx.Context.ShouldBind(in); err != nil {
+	if err := ctx.ShouldBindProto(in); err != nil {
 		return ctx.InvalidParams(err)
 	}
 
@@ -227,12 +227,12 @@ func (c *Group) RemoveMember(ctx *core.Context) error {
 		return ctx.InvalidParams("移除成员列表不能为空！")
 	}
 
-	uid := ctx.UserId()
-	if !c.GroupMemberRepo.IsLeader(ctx.Ctx(), int(in.GroupId), uid) {
+	uid := ctx.GetAuthId()
+	if !c.GroupMemberRepo.IsLeader(ctx.GetContext(), int(in.GroupId), uid) {
 		return ctx.Error(entity.ErrPermissionDenied)
 	}
 
-	err := c.GroupService.RemoveMember(ctx.Ctx(), &service.GroupRemoveMembersOpt{
+	err := c.GroupService.RemoveMember(ctx.GetContext(), &service.GroupRemoveMembersOpt{
 		UserId:    uid,
 		GroupId:   int(in.GroupId),
 		MemberIds: uids,
@@ -248,13 +248,13 @@ func (c *Group) RemoveMember(ctx *core.Context) error {
 // Detail 获取群组信息
 func (c *Group) Detail(ctx *core.Context) error {
 	in := &web.GroupDetailRequest{}
-	if err := ctx.Context.ShouldBindQuery(in); err != nil {
+	if err := ctx.ShouldBindProto(in); err != nil {
 		return ctx.InvalidParams(err)
 	}
 
-	uid := ctx.UserId()
+	uid := ctx.GetAuthId()
 
-	groupInfo, err := c.GroupRepo.FindById(ctx.Ctx(), int(in.GroupId))
+	groupInfo, err := c.GroupRepo.FindById(ctx.GetContext(), int(in.GroupId))
 	if err != nil {
 		return ctx.Error(err)
 	}
@@ -273,7 +273,7 @@ func (c *Group) Detail(ctx *core.Context) error {
 		IsDisturb: 0,
 		IsMute:    int32(groupInfo.IsMute),
 		IsOvert:   int32(groupInfo.IsOvert),
-		VisitCard: c.GroupMemberRepo.GetMemberRemark(ctx.Ctx(), int(in.GroupId), uid),
+		VisitCard: c.GroupMemberRepo.GetMemberRemark(ctx.GetContext(), int(in.GroupId), uid),
 		Notice: &web.GroupDetailResponse_Notice{
 			Content:        "",
 			CreatedAt:      "",
@@ -282,7 +282,7 @@ func (c *Group) Detail(ctx *core.Context) error {
 		},
 	}
 
-	notice, err := c.GroupNoticeRepo.GetLatestNotice(ctx.Ctx(), int(in.GroupId))
+	notice, err := c.GroupNoticeRepo.GetLatestNotice(ctx.GetContext(), int(in.GroupId))
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return err
 	}
@@ -292,7 +292,7 @@ func (c *Group) Detail(ctx *core.Context) error {
 			Content:        notice.Content,
 			CreatedAt:      timeutil.FormatDatetime(notice.CreatedAt),
 			UpdatedAt:      timeutil.FormatDatetime(notice.UpdatedAt),
-			ModifyUserName: "马克思",
+			ModifyUserName: "",
 		}
 	}
 
@@ -306,13 +306,13 @@ func (c *Group) Detail(ctx *core.Context) error {
 // UpdateMemberRemark 修改群备注接口
 func (c *Group) UpdateMemberRemark(ctx *core.Context) error {
 	in := &web.GroupRemarkUpdateRequest{}
-	if err := ctx.Context.ShouldBind(in); err != nil {
+	if err := ctx.ShouldBindProto(in); err != nil {
 		return ctx.InvalidParams(err)
 	}
 
-	_, err := c.GroupMemberRepo.UpdateByWhere(ctx.Ctx(), map[string]any{
+	_, err := c.GroupMemberRepo.UpdateByWhere(ctx.GetContext(), map[string]any{
 		"user_card": in.Remark,
-	}, "group_id = ? and user_id = ?", in.GroupId, ctx.UserId())
+	}, "group_id = ? and user_id = ?", in.GroupId, ctx.GetAuthId())
 	if err != nil {
 		return ctx.Error(err)
 	}
@@ -322,11 +322,11 @@ func (c *Group) UpdateMemberRemark(ctx *core.Context) error {
 
 func (c *Group) GetInviteFriends(ctx *core.Context) error {
 	in := &web.GetInviteFriendsRequest{}
-	if err := ctx.Context.ShouldBind(in); err != nil {
+	if err := ctx.ShouldBindProto(in); err != nil {
 		return ctx.InvalidParams(err)
 	}
 
-	items, err := c.ContactService.List(ctx.Ctx(), ctx.UserId())
+	items, err := c.ContactService.List(ctx.GetContext(), ctx.GetAuthId())
 	if err != nil {
 		return ctx.Error(err)
 	}
@@ -348,7 +348,7 @@ func (c *Group) GetInviteFriends(ctx *core.Context) error {
 		})
 	}
 
-	mids := c.GroupMemberRepo.GetMemberIds(ctx.Ctx(), int(in.GroupId))
+	mids := c.GroupMemberRepo.GetMemberIds(ctx.GetContext(), int(in.GroupId))
 	if len(mids) == 0 {
 		return ctx.Success(&web.GetInviteFriendsResponse{
 			Items: data,
@@ -373,7 +373,7 @@ func (c *Group) GetInviteFriends(ctx *core.Context) error {
 }
 
 func (c *Group) List(ctx *core.Context) error {
-	items, err := c.GroupService.List(ctx.UserId())
+	items, err := c.GroupService.List(ctx.GetAuthId())
 	if err != nil {
 		return ctx.Error(err)
 	}
@@ -399,11 +399,11 @@ func (c *Group) List(ctx *core.Context) error {
 // Members 获取群成员列表
 func (c *Group) Members(ctx *core.Context) error {
 	in := &web.GroupMemberListRequest{}
-	if err := ctx.Context.ShouldBind(in); err != nil {
+	if err := ctx.ShouldBindProto(in); err != nil {
 		return ctx.InvalidParams(err)
 	}
 
-	group, err := c.GroupRepo.FindById(ctx.Ctx(), int(in.GroupId))
+	group, err := c.GroupRepo.FindById(ctx.GetContext(), int(in.GroupId))
 	if err != nil {
 		return ctx.Error(err)
 	}
@@ -412,11 +412,11 @@ func (c *Group) Members(ctx *core.Context) error {
 		return ctx.Success(&web.GroupMemberListResponse{})
 	}
 
-	if !c.GroupMemberRepo.IsMember(ctx.Ctx(), int(in.GroupId), ctx.UserId(), false) {
+	if !c.GroupMemberRepo.IsMember(ctx.GetContext(), int(in.GroupId), ctx.GetAuthId(), false) {
 		return ctx.Error(entity.ErrPermissionDenied)
 	}
 
-	list := c.GroupMemberRepo.GetMembers(ctx.Ctx(), int(in.GroupId))
+	list := c.GroupMemberRepo.GetMembers(ctx.GetContext(), int(in.GroupId))
 
 	items := make([]*web.GroupMemberListResponse_Item, 0)
 	for _, item := range list {
@@ -442,13 +442,13 @@ func (c *Group) Members(ctx *core.Context) error {
 // OvertList 公开群列表
 func (c *Group) OvertList(ctx *core.Context) error {
 	in := &web.GroupOvertListRequest{}
-	if err := ctx.Context.ShouldBind(in); err != nil {
+	if err := ctx.ShouldBindProto(in); err != nil {
 		return ctx.InvalidParams(err)
 	}
 
-	uid := ctx.UserId()
+	uid := ctx.GetAuthId()
 
-	list, err := c.GroupRepo.SearchOvertList(ctx.Ctx(), &repo.SearchOvertListOpt{
+	list, err := c.GroupRepo.SearchOvertList(ctx.GetContext(), &repo.SearchOvertListOpt{
 		Name:   in.Name,
 		UserId: uid,
 		Page:   int(in.Page),
@@ -505,12 +505,12 @@ func (c *Group) OvertList(ctx *core.Context) error {
 // Transfer 群主转让
 func (c *Group) Transfer(ctx *core.Context) error {
 	in := &web.GroupHandoverRequest{}
-	if err := ctx.Context.ShouldBind(in); err != nil {
+	if err := ctx.ShouldBindProto(in); err != nil {
 		return ctx.InvalidParams(err)
 	}
 
-	uid := ctx.UserId()
-	if !c.GroupMemberRepo.IsMaster(ctx.Ctx(), int(in.GroupId), uid) {
+	uid := ctx.GetAuthId()
+	if !c.GroupMemberRepo.IsMaster(ctx.GetContext(), int(in.GroupId), uid) {
 		return ctx.Error(entity.ErrPermissionDenied)
 	}
 
@@ -518,7 +518,7 @@ func (c *Group) Transfer(ctx *core.Context) error {
 		return ctx.Error(entity.ErrPermissionDenied)
 	}
 
-	err := c.GroupMemberService.Handover(ctx.Ctx(), int(in.GroupId), uid, int(in.UserId))
+	err := c.GroupMemberService.Handover(ctx.GetContext(), int(in.GroupId), uid, int(in.UserId))
 	if err != nil {
 		return ctx.Error(err)
 	}
@@ -537,7 +537,7 @@ func (c *Group) Transfer(ctx *core.Context) error {
 		}
 	}
 
-	_ = c.Message.CreateGroupMessage(ctx.Ctx(), message.CreateGroupMessageOption{
+	_ = c.Message.CreateGroupMessage(ctx.GetContext(), message.CreateGroupMessageOption{
 		MsgType:  entity.ChatMsgSysGroupTransfer,
 		FromId:   uid,
 		ToFromId: int(in.GroupId),
@@ -550,18 +550,18 @@ func (c *Group) Transfer(ctx *core.Context) error {
 // AssignAdmin 分配管理员
 func (c *Group) AssignAdmin(ctx *core.Context) error {
 	in := &web.GroupAssignAdminRequest{}
-	if err := ctx.Context.ShouldBind(in); err != nil {
+	if err := ctx.ShouldBindProto(in); err != nil {
 		return ctx.InvalidParams(err)
 	}
 
-	uid := ctx.UserId()
-	if !c.GroupMemberRepo.IsMaster(ctx.Ctx(), int(in.GroupId), uid) {
+	uid := ctx.GetAuthId()
+	if !c.GroupMemberRepo.IsMaster(ctx.GetContext(), int(in.GroupId), uid) {
 		return ctx.Error(entity.ErrPermissionDenied)
 	}
 
 	leader := lo.Ternary(in.Action == 1, model.GroupMemberLeaderAdmin, model.GroupMemberLeaderOrdinary)
 
-	err := c.GroupMemberService.SetLeaderStatus(ctx.Ctx(), int(in.GroupId), int(in.UserId), leader)
+	err := c.GroupMemberService.SetLeaderStatus(ctx.GetContext(), int(in.GroupId), int(in.UserId), leader)
 	if err != nil {
 		return ctx.Error(err)
 	}
@@ -572,18 +572,18 @@ func (c *Group) AssignAdmin(ctx *core.Context) error {
 // MemberMute 禁止发言
 func (c *Group) MemberMute(ctx *core.Context) error {
 	in := &web.GroupNoSpeakRequest{}
-	if err := ctx.Context.ShouldBind(in); err != nil {
+	if err := ctx.ShouldBindProto(in); err != nil {
 		return ctx.InvalidParams(err)
 	}
 
-	uid := ctx.UserId()
-	if !c.GroupMemberRepo.IsLeader(ctx.Ctx(), int(in.GroupId), uid) {
+	uid := ctx.GetAuthId()
+	if !c.GroupMemberRepo.IsLeader(ctx.GetContext(), int(in.GroupId), uid) {
 		return ctx.Error(entity.ErrPermissionDenied)
 	}
 
 	status := lo.Ternary(in.Action == 1, model.Yes, model.No)
 
-	err := c.GroupMemberService.SetMuteStatus(ctx.Ctx(), int(in.GroupId), int(in.UserId), status)
+	err := c.GroupMemberService.SetMuteStatus(ctx.GetContext(), int(in.GroupId), int(in.UserId), status)
 	if err != nil {
 		return ctx.Error(err)
 	}
@@ -591,7 +591,7 @@ func (c *Group) MemberMute(ctx *core.Context) error {
 	members := make([]model.TalkRecordExtraGroupMember, 0)
 	c.Repo.Db().Model(&model.Users{}).Select("id as user_id", "nickname").Where("id = ?", in.UserId).Scan(&members)
 
-	user, err := c.UsersRepo.FindByIdWithCache(ctx.Ctx(), uid)
+	user, err := c.UsersRepo.FindByIdWithCache(ctx.GetContext(), uid)
 	if err != nil {
 		return ctx.Error(err)
 	}
@@ -617,7 +617,7 @@ func (c *Group) MemberMute(ctx *core.Context) error {
 		})
 	}
 
-	_ = c.Message.CreateGroupMessage(ctx.Ctx(), data)
+	_ = c.Message.CreateGroupMessage(ctx.GetContext(), data)
 
 	return ctx.Success(nil)
 }
@@ -625,13 +625,13 @@ func (c *Group) MemberMute(ctx *core.Context) error {
 // Mute 全员禁言
 func (c *Group) Mute(ctx *core.Context) error {
 	in := &web.GroupMuteRequest{}
-	if err := ctx.Context.ShouldBind(in); err != nil {
+	if err := ctx.ShouldBindProto(in); err != nil {
 		return ctx.InvalidParams(err)
 	}
 
-	uid := ctx.UserId()
+	uid := ctx.GetAuthId()
 
-	group, err := c.GroupRepo.FindById(ctx.Ctx(), int(in.GroupId))
+	group, err := c.GroupRepo.FindById(ctx.GetContext(), int(in.GroupId))
 	if err != nil {
 		return ctx.Error(err)
 	}
@@ -640,7 +640,7 @@ func (c *Group) Mute(ctx *core.Context) error {
 		return ctx.Error(entity.ErrGroupDismissed)
 	}
 
-	if !c.GroupMemberRepo.IsLeader(ctx.Ctx(), int(in.GroupId), uid) {
+	if !c.GroupMemberRepo.IsLeader(ctx.GetContext(), int(in.GroupId), uid) {
 		return ctx.Error(entity.ErrPermissionDenied)
 	}
 
@@ -649,7 +649,7 @@ func (c *Group) Mute(ctx *core.Context) error {
 		"updated_at": time.Now(),
 	}
 
-	affected, err := c.GroupRepo.UpdateByWhere(ctx.Ctx(), data, "id = ?", in.GroupId)
+	affected, err := c.GroupRepo.UpdateByWhere(ctx.GetContext(), data, "id = ?", in.GroupId)
 	if err != nil {
 		return ctx.Error(err)
 	}
@@ -658,7 +658,7 @@ func (c *Group) Mute(ctx *core.Context) error {
 		return ctx.Success(web.GroupMuteResponse{})
 	}
 
-	user, err := c.UsersRepo.FindById(ctx.Ctx(), uid)
+	user, err := c.UsersRepo.FindById(ctx.GetContext(), uid)
 	if err != nil {
 		return err
 	}
@@ -679,7 +679,7 @@ func (c *Group) Mute(ctx *core.Context) error {
 		}
 	}
 
-	_ = c.Message.CreateGroupMessage(ctx.Ctx(), message.CreateGroupMessageOption{
+	_ = c.Message.CreateGroupMessage(ctx.GetContext(), message.CreateGroupMessageOption{
 		MsgType:  msgType,
 		FromId:   uid,
 		ToFromId: int(in.GroupId),
@@ -692,13 +692,13 @@ func (c *Group) Mute(ctx *core.Context) error {
 // Overt 公开群
 func (c *Group) Overt(ctx *core.Context) error {
 	in := &web.GroupOvertRequest{}
-	if err := ctx.Context.ShouldBind(in); err != nil {
+	if err := ctx.ShouldBindProto(in); err != nil {
 		return ctx.InvalidParams(err)
 	}
 
-	uid := ctx.UserId()
+	uid := ctx.GetAuthId()
 
-	group, err := c.GroupRepo.FindById(ctx.Ctx(), int(in.GroupId))
+	group, err := c.GroupRepo.FindById(ctx.GetContext(), int(in.GroupId))
 	if err != nil {
 		return ctx.Error(err)
 	}
@@ -707,11 +707,11 @@ func (c *Group) Overt(ctx *core.Context) error {
 		return ctx.Error(entity.ErrGroupDismissed)
 	}
 
-	if !c.GroupMemberRepo.IsMaster(ctx.Ctx(), int(in.GroupId), uid) {
+	if !c.GroupMemberRepo.IsMaster(ctx.GetContext(), int(in.GroupId), uid) {
 		return ctx.Error(entity.ErrPermissionDenied)
 	}
 
-	_, err = c.GroupRepo.UpdateByWhere(ctx.Ctx(), map[string]any{
+	_, err = c.GroupRepo.UpdateByWhere(ctx.GetContext(), map[string]any{
 		"is_overt":   in.Action,
 		"updated_at": time.Now(),
 	}, "id = ?", in.GroupId)

@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/samber/lo"
 	"go-chat/api/pb/web/v1"
 	"go-chat/internal/pkg/core"
 	"go-chat/internal/repository/cache"
@@ -30,7 +31,7 @@ type Contact struct {
 
 // List 联系人列表
 func (c *Contact) List(ctx *core.Context) error {
-	list, err := c.ContactService.List(ctx.Ctx(), ctx.UserId())
+	list, err := c.ContactService.List(ctx.GetContext(), ctx.GetAuthId())
 	if err != nil {
 		return ctx.Error(err)
 	}
@@ -54,22 +55,22 @@ func (c *Contact) List(ctx *core.Context) error {
 // Delete 删除联系人
 func (c *Contact) Delete(ctx *core.Context) error {
 	in := &web.ContactDeleteRequest{}
-	if err := ctx.Context.ShouldBind(in); err != nil {
+	if err := ctx.ShouldBindProto(in); err != nil {
 		return ctx.InvalidParams(err)
 	}
 
-	uid := ctx.UserId()
-	if err := c.ContactService.Delete(ctx.Ctx(), uid, int(in.UserId)); err != nil {
+	uid := ctx.GetAuthId()
+	if err := c.ContactService.Delete(ctx.GetContext(), uid, int(in.UserId)); err != nil {
 		return ctx.Error(err)
 	}
 
-	_ = c.Message.CreatePrivateSysMessage(ctx.Ctx(), message2.CreatePrivateSysMessageOption{
+	_ = c.Message.CreatePrivateSysMessage(ctx.GetContext(), message2.CreatePrivateSysMessageOption{
 		FromId:   int(in.UserId),
 		ToFromId: uid,
 		Content:  "你与对方已经解除了好友关系！",
 	})
 
-	if err := c.TalkListService.Delete(ctx.Ctx(), ctx.UserId(), entity.ChatPrivateMode, int(in.UserId)); err != nil {
+	if err := c.TalkListService.Delete(ctx.GetContext(), ctx.GetAuthId(), entity.ChatPrivateMode, int(in.UserId)); err != nil {
 		return ctx.Error(err)
 	}
 
@@ -79,11 +80,11 @@ func (c *Contact) Delete(ctx *core.Context) error {
 // Search 查找联系人
 func (c *Contact) Search(ctx *core.Context) error {
 	in := &web.ContactSearchRequest{}
-	if err := ctx.Context.ShouldBindQuery(in); err != nil {
+	if err := ctx.ShouldBindProto(in); err != nil {
 		return ctx.InvalidParams(err)
 	}
 
-	user, err := c.UsersRepo.FindByMobile(ctx.Ctx(), in.Mobile)
+	user, err := c.UsersRepo.FindByMobile(ctx.GetContext(), in.Mobile)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return ctx.Error(entity.ErrUserNotExist)
@@ -94,7 +95,7 @@ func (c *Contact) Search(ctx *core.Context) error {
 
 	return ctx.Success(&web.ContactSearchResponse{
 		UserId:   int32(user.Id),
-		Mobile:   user.Mobile,
+		Mobile:   lo.FromPtr[string](user.Mobile),
 		Nickname: user.Nickname,
 		Avatar:   user.Avatar,
 		Gender:   int32(user.Gender),
@@ -105,11 +106,11 @@ func (c *Contact) Search(ctx *core.Context) error {
 // Remark 编辑联系人备注
 func (c *Contact) Remark(ctx *core.Context) error {
 	in := &web.ContactEditRemarkRequest{}
-	if err := ctx.Context.ShouldBind(in); err != nil {
+	if err := ctx.ShouldBindProto(in); err != nil {
 		return ctx.InvalidParams(err)
 	}
 
-	if err := c.ContactService.UpdateRemark(ctx.Ctx(), ctx.UserId(), int(in.UserId), in.Remark); err != nil {
+	if err := c.ContactService.UpdateRemark(ctx.GetContext(), ctx.GetAuthId(), int(in.UserId), in.Remark); err != nil {
 		return ctx.Error(err)
 	}
 
@@ -119,13 +120,13 @@ func (c *Contact) Remark(ctx *core.Context) error {
 // Detail 联系人详情信息
 func (c *Contact) Detail(ctx *core.Context) error {
 	in := &web.ContactDetailRequest{}
-	if err := ctx.Context.ShouldBindQuery(in); err != nil {
+	if err := ctx.ShouldBindProto(in); err != nil {
 		return ctx.InvalidParams(err)
 	}
 
-	uid := ctx.UserId()
+	uid := ctx.GetAuthId()
 
-	user, err := c.UsersRepo.FindByIdWithCache(ctx.Ctx(), int(in.UserId))
+	user, err := c.UsersRepo.FindByIdWithCache(ctx.GetContext(), int(in.UserId))
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return ctx.Error(entity.ErrUserNotExist)
@@ -134,52 +135,63 @@ func (c *Contact) Detail(ctx *core.Context) error {
 		return ctx.Error(err)
 	}
 
-	data := web.ContactDetailResponse{
-		UserId:   int32(user.Id),
-		Mobile:   user.Mobile,
-		Nickname: user.Nickname,
-		Avatar:   user.Avatar,
-		Gender:   int32(user.Gender),
-		Motto:    user.Motto,
-		Email:    user.Email,
-		FriendInfo: &web.ContactDetailResponse_FriendInfo{
-			IsFriend: "N",
-			GroupId:  0,
-			Remark:   "",
-		},
+	resp := web.ContactDetailResponse{
+		UserId:         int32(user.Id),
+		Mobile:         lo.FromPtr(user.Mobile),
+		Nickname:       user.Nickname,
+		Avatar:         user.Avatar,
+		Gender:         int32(user.Gender),
+		Motto:          user.Motto,
+		Email:          user.Email,
+		Relation:       1, // 关系 1陌生人 2好友 3企业同事 4本人
+		ContactRemark:  "",
+		ContactGroupId: 0,
+		OnlineStatus:   "N",
 	}
 
-	if uid != user.Id {
-		contact, err := c.ContactRepo.FindByWhere(ctx.Ctx(), "user_id = ? and friend_id = ?", uid, user.Id)
-		if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-			return err
+	if user.Id == uid {
+		resp.Relation = 4
+		resp.OnlineStatus = "Y"
+		return ctx.Success(&resp)
+	}
+
+	isQiYeMember, _ := c.OrganizeRepo.IsQiyeMember(ctx.GetContext(), uid, user.Id)
+	if isQiYeMember {
+		if c.ClientStorage.IsOnline(ctx.GetContext(), entity.ImChannelChat, fmt.Sprintf("%d", in.UserId)) {
+			resp.OnlineStatus = "Y"
 		}
 
-		if err == nil && contact.Status == 1 {
-			if c.ContactRepo.IsFriend(ctx.Ctx(), uid, user.Id, false) {
-				data.FriendInfo.IsFriend = "Y"
-				data.FriendInfo.GroupId = int32(contact.GroupId)
-				data.FriendInfo.Remark = contact.Remark
-			}
-		} else {
-			isOk, _ := c.OrganizeRepo.IsQiyeMember(ctx.Ctx(), uid, user.Id)
-			if isOk {
-				data.FriendInfo.IsFriend = "Y"
-			}
+		resp.Relation = 3
+		return ctx.Success(&resp)
+	}
+
+	contact, err := c.ContactRepo.FindByWhere(ctx.GetContext(), "user_id = ? and friend_id = ?", uid, user.Id)
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return err
+	}
+
+	resp.Relation = 1
+	if err == nil && contact.Status == 1 && c.ContactRepo.IsFriend(ctx.GetContext(), uid, user.Id, true) {
+		resp.Relation = 2
+		resp.ContactGroupId = int32(contact.GroupId)
+		resp.ContactRemark = contact.Remark
+
+		if c.ClientStorage.IsOnline(ctx.GetContext(), entity.ImChannelChat, fmt.Sprintf("%d", in.UserId)) {
+			resp.OnlineStatus = "Y"
 		}
 	}
 
-	return ctx.Success(&data)
+	return ctx.Success(&resp)
 }
 
 // MoveGroup 移动好友分组
 func (c *Contact) MoveGroup(ctx *core.Context) error {
 	in := &web.ContactChangeGroupRequest{}
-	if err := ctx.Context.ShouldBind(in); err != nil {
+	if err := ctx.ShouldBindProto(in); err != nil {
 		return ctx.InvalidParams(err)
 	}
 
-	err := c.ContactService.MoveGroup(ctx.Ctx(), ctx.UserId(), int(in.UserId), int(in.GroupId))
+	err := c.ContactService.MoveGroup(ctx.GetContext(), ctx.GetAuthId(), int(in.UserId), int(in.GroupId))
 	if err != nil {
 		return ctx.Error(err)
 	}
@@ -190,16 +202,17 @@ func (c *Contact) MoveGroup(ctx *core.Context) error {
 // OnlineStatus 获取联系人在线状态
 func (c *Contact) OnlineStatus(ctx *core.Context) error {
 	in := &web.ContactOnlineStatusRequest{}
-	if err := ctx.Context.ShouldBind(in); err != nil {
+	if err := ctx.ShouldBindProto(in); err != nil {
 		return ctx.InvalidParams(err)
 	}
 
 	resp := &web.ContactOnlineStatusResponse{
-		OnlineStatus: 1,
+		OnlineStatus: "N",
 	}
 
-	if c.ClientStorage.IsOnline(ctx.Ctx(), entity.ImChannelChat, fmt.Sprintf("%d", in.UserId)) {
-		resp.OnlineStatus = 2
+	ok := c.ContactRepo.IsFriend(ctx.GetContext(), ctx.GetAuthId(), int(in.UserId), true)
+	if ok && c.ClientStorage.IsOnline(ctx.GetContext(), entity.ImChannelChat, fmt.Sprintf("%d", in.UserId)) {
+		resp.OnlineStatus = "Y"
 	}
 
 	return ctx.Success(resp)

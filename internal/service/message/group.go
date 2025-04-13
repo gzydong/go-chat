@@ -4,12 +4,14 @@ import (
 	"context"
 	"time"
 
+	"github.com/samber/lo"
 	"go-chat/internal/entity"
 	"go-chat/internal/pkg/jsonutil"
 	"go-chat/internal/pkg/logger"
 	"go-chat/internal/pkg/strutil"
 	"go-chat/internal/repository/cache"
 	"go-chat/internal/repository/model"
+	"go-chat/internal/repository/repo"
 )
 
 func (s *Service) CreateGroupMessage(ctx context.Context, option CreateGroupMessageOption) error {
@@ -37,8 +39,8 @@ func (s *Service) CreateGroupMessage(ctx context.Context, option CreateGroupMess
 	}
 
 	item := &model.TalkGroupMessage{
-		MsgId:     strutil.NewMsgId(),
-		Sequence:  s.Sequence.Get(ctx, option.ToFromId, false),
+		MsgId:     lo.Ternary(option.MsgId == "", strutil.NewMsgId(), option.MsgId),
+		Sequence:  s.Sequence.Get(ctx, repo.SequenceTypeGroup, int32(option.ToFromId)),
 		MsgType:   option.MsgType,
 		GroupId:   option.ToFromId,
 		FromId:    option.FromId,

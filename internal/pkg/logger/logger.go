@@ -51,36 +51,12 @@ func Init(filePath string, level slog.Level, topic string) {
 	out = slog.New(handler).With("topic", topic)
 }
 
-func Debugf(format string, args ...any) {
-	logf(context.Background(), slog.LevelDebug, format, args...)
-}
-
-func Debug(msg string) {
-	logf(context.Background(), slog.LevelDebug, msg)
-}
-
-func Infof(format string, args ...any) {
-	logf(context.Background(), slog.LevelInfo, format, args...)
-}
-
-func Info(msg string) {
-	logf(context.Background(), slog.LevelInfo, msg)
-}
-
-func Warnf(format string, args ...any) {
-	logf(context.Background(), slog.LevelWarn, format, args...)
-}
-
-func Warn(msg string) {
-	logf(context.Background(), slog.LevelWarn, msg)
+func ErrorfContext(ctx context.Context, format string, args ...any) {
+	logf(ctx, slog.LevelError, format, args...)
 }
 
 func Errorf(format string, args ...any) {
 	logf(context.Background(), slog.LevelError, format, args...)
-}
-
-func Error(msg string) {
-	logf(context.Background(), slog.LevelError, msg)
 }
 
 func logf(ctx context.Context, level slog.Level, format string, args ...any) {
@@ -96,6 +72,11 @@ func logf(ctx context.Context, level slog.Level, format string, args ...any) {
 	}
 
 	r := slog.NewRecord(time.Now(), level, format, pcs[0])
+
+	traceId := ctx.Value("trace_id")
+	if traceId != nil {
+		r.Add("trace_id", traceId)
+	}
 
 	_ = out.Handler().Handle(ctx, r)
 }

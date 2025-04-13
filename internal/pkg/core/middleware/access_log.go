@@ -160,7 +160,7 @@ func (a *AccessLogStore) init() error {
 		ServerName:      a.ctx.Request.Host,
 		HttpUserAgent:   a.ctx.Request.UserAgent(),
 		RequestId:       a.ctx.Request.Header.Get("X-Request-ID"),
-		RequestTime:     a.startTime.Format("2006-01-02 15:04:05"),
+		RequestTime:     a.startTime.Format(time.DateTime),
 		RequestMethod:   a.ctx.Request.Method,
 		RequestHeader:   headers,
 		RequestUri:      a.ctx.Request.URL.Path,
@@ -191,21 +191,20 @@ func (a *AccessLogStore) load() {
 	}
 
 	a.info.ResponseHeader = headers
-	a.info.ResponseTime = time.Now().Format("2006-01-02 15:04:05")
+	a.info.ResponseTime = time.Now().Format(time.DateTime)
 	a.info.RequestDuration = fmt.Sprintf("%.3f", time.Since(a.startTime).Seconds())
 	a.info.HttpStatus = writer.Status()
 	a.info.ResponseBody = writer.body.String()
 	a.info.ResponseBodyRaw = a.info.ResponseBody
 
-	session, isOk := a.ctx.Get(JWTSessionConst)
-	if isOk {
-		a.info.Metadata["uid"] = session.(*JSession).Uid
+	if authId, ok := a.ctx.Get(JWTAuthID); ok {
+		a.info.Metadata["auth_id"] = authId
 	}
 }
 
 func (a *AccessLogStore) save(log *slog.Logger) {
 	data := make(map[string]any)
-	if err := jsonutil.Decode(jsonutil.Encode(a.info), &data); err != nil {
+	if err := jsonutil.Unmarshal(jsonutil.Encode(a.info), &data); err != nil {
 		return
 	}
 

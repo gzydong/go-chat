@@ -30,12 +30,12 @@ type Article struct {
 // List 文章列表
 func (c *Article) List(ctx *core.Context) error {
 	in := &web.ArticleListRequest{}
-	if err := ctx.Context.ShouldBindQuery(in); err != nil {
+	if err := ctx.ShouldBindProto(in); err != nil {
 		return ctx.InvalidParams(err)
 	}
 
-	items, err := c.ArticleService.List(ctx.Ctx(), &service.ArticleListOpt{
-		UserId:     ctx.UserId(),
+	items, err := c.ArticleService.List(ctx.GetContext(), &service.ArticleListOpt{
+		UserId:     ctx.GetAuthId(),
 		FindType:   int(in.FindType),
 		Keyword:    in.Keyword,
 		ClassifyId: int(in.ClassifyId),
@@ -76,13 +76,13 @@ func (c *Article) List(ctx *core.Context) error {
 func (c *Article) Detail(ctx *core.Context) error {
 
 	in := &web.ArticleDetailRequest{}
-	if err := ctx.Context.ShouldBindQuery(in); err != nil {
+	if err := ctx.ShouldBindProto(in); err != nil {
 		return ctx.InvalidParams(err)
 	}
 
-	uid := ctx.UserId()
+	uid := ctx.GetAuthId()
 
-	detail, err := c.ArticleService.Detail(ctx.Ctx(), uid, int(in.ArticleId))
+	detail, err := c.ArticleService.Detail(ctx.GetContext(), uid, int(in.ArticleId))
 	if err != nil {
 		return ctx.Error(err)
 	}
@@ -93,7 +93,7 @@ func (c *Article) Detail(ctx *core.Context) error {
 	}
 
 	files := make([]*web.ArticleDetailResponse_AnnexFile, 0)
-	items, err := c.ArticleAnnexRepo.AnnexList(ctx.Ctx(), uid, int(in.ArticleId))
+	items, err := c.ArticleAnnexRepo.AnnexList(ctx.GetContext(), uid, int(in.ArticleId))
 	if err == nil {
 		for _, item := range items {
 			files = append(files, &web.ArticleDetailResponse_AnnexFile{
@@ -124,10 +124,10 @@ func (c *Article) Editor(ctx *core.Context) error {
 	var (
 		err error
 		in  = &web.ArticleEditRequest{}
-		uid = ctx.UserId()
+		uid = ctx.GetAuthId()
 	)
 
-	if err = ctx.Context.ShouldBind(in); err != nil {
+	if err = ctx.ShouldBindProto(in); err != nil {
 		return ctx.InvalidParams(err)
 	}
 
@@ -140,12 +140,12 @@ func (c *Article) Editor(ctx *core.Context) error {
 	}
 
 	if in.ArticleId == 0 {
-		id, err := c.ArticleService.Create(ctx.Ctx(), opt)
+		id, err := c.ArticleService.Create(ctx.GetContext(), opt)
 		if err == nil {
 			in.ArticleId = int32(id)
 		}
 	} else {
-		err = c.ArticleService.Update(ctx.Ctx(), opt)
+		err = c.ArticleService.Update(ctx.GetContext(), opt)
 	}
 
 	if err != nil {
@@ -173,7 +173,7 @@ func (c *Article) Delete(ctx *core.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	err := c.ArticleService.UpdateStatus(ctx.Ctx(), ctx.UserId(), int(in.ArticleId), 2)
+	err := c.ArticleService.UpdateStatus(ctx.GetContext(), ctx.GetAuthId(), int(in.ArticleId), 2)
 	if err != nil {
 		return ctx.Error(err)
 	}
@@ -189,7 +189,7 @@ func (c *Article) Recover(ctx *core.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	err := c.ArticleService.UpdateStatus(ctx.Ctx(), ctx.UserId(), int(in.ArticleId), 1)
+	err := c.ArticleService.UpdateStatus(ctx.GetContext(), ctx.GetAuthId(), int(in.ArticleId), 1)
 	if err != nil {
 		return ctx.Error(err)
 	}
@@ -204,7 +204,7 @@ func (c *Article) MoveClassify(ctx *core.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	if err := c.ArticleService.Move(ctx.Ctx(), ctx.UserId(), int(in.ArticleId), int(in.ClassifyId)); err != nil {
+	if err := c.ArticleService.Move(ctx.GetContext(), ctx.GetAuthId(), int(in.ArticleId), int(in.ClassifyId)); err != nil {
 		return ctx.Error(err)
 	}
 
@@ -219,7 +219,7 @@ func (c *Article) Collect(ctx *core.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	if err := c.ArticleService.Asterisk(ctx.Ctx(), ctx.UserId(), int(in.ArticleId), int(in.Action)); err != nil {
+	if err := c.ArticleService.Asterisk(ctx.GetContext(), ctx.GetAuthId(), int(in.ArticleId), int(in.Action)); err != nil {
 		return ctx.Error(err)
 	}
 
@@ -230,11 +230,11 @@ func (c *Article) Collect(ctx *core.Context) error {
 func (c *Article) UpdateTag(ctx *core.Context) error {
 
 	in := &web.ArticleTagsRequest{}
-	if err := ctx.Context.ShouldBind(in); err != nil {
+	if err := ctx.ShouldBindProto(in); err != nil {
 		return ctx.InvalidParams(err)
 	}
 
-	if err := c.ArticleService.Tag(ctx.Ctx(), ctx.UserId(), int(in.ArticleId), in.GetTagIds()); err != nil {
+	if err := c.ArticleService.Tag(ctx.GetContext(), ctx.GetAuthId(), int(in.ArticleId), in.GetTagIds()); err != nil {
 		return ctx.Error(err)
 	}
 
@@ -245,11 +245,11 @@ func (c *Article) UpdateTag(ctx *core.Context) error {
 func (c *Article) ForeverDelete(ctx *core.Context) error {
 
 	in := &web.ArticleForeverDeleteRequest{}
-	if err := ctx.Context.ShouldBind(in); err != nil {
+	if err := ctx.ShouldBindProto(in); err != nil {
 		return ctx.InvalidParams(err)
 	}
 
-	if err := c.ArticleService.ForeverDelete(ctx.Ctx(), ctx.UserId(), int(in.ArticleId)); err != nil {
+	if err := c.ArticleService.ForeverDelete(ctx.GetContext(), ctx.GetAuthId(), int(in.ArticleId)); err != nil {
 		return ctx.Error(err)
 	}
 
@@ -259,14 +259,14 @@ func (c *Article) ForeverDelete(ctx *core.Context) error {
 // RecycleList 永久删除文章
 func (c *Article) RecycleList(ctx *core.Context) error {
 	in := &web.ArticleRecoverListRequest{}
-	if err := ctx.Context.ShouldBind(in); err != nil {
+	if err := ctx.ShouldBindProto(in); err != nil {
 		return ctx.InvalidParams(err)
 	}
 
 	items := make([]*web.ArticleRecoverListResponse_Item, 0)
 
-	list, err := c.ArticleRepo.FindAll(ctx.Ctx(), func(db *gorm.DB) {
-		db.Where("user_id = ? and status = ?", ctx.UserId(), 2)
+	list, err := c.ArticleRepo.FindAll(ctx.GetContext(), func(db *gorm.DB) {
+		db.Where("user_id = ? and status = ?", ctx.GetAuthId(), 2)
 		db.Where("deleted_at > ?", time.Now().Add(-time.Hour*24*30))
 		db.Order("deleted_at desc,id desc")
 	})
@@ -275,7 +275,7 @@ func (c *Article) RecycleList(ctx *core.Context) error {
 		return ctx.Error(err)
 	}
 
-	classList, err := c.ArticleClassRepo.FindByIds(ctx.Ctx(), lo.Map(list, func(item *model.Article, index int) any {
+	classList, err := c.ArticleClassRepo.FindByIds(ctx.GetContext(), lo.Map(list, func(item *model.Article, index int) any {
 		return item.ClassId
 	}))
 
