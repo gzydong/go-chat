@@ -105,7 +105,7 @@ message GroupInviteResponse{}
 
 
 message GetInviteFriendsRequest{
-  int32 group_id = 1 [(validate.rules).int32.gte = 1];
+  int32 group_id = 1 [(validate.rules).int32.gte = 0];
 }
 
 message GetInviteFriendsResponse{

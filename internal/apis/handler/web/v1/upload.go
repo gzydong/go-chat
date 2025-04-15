@@ -85,7 +85,7 @@ func (u *Upload) InitiateMultipart(ctx *core.Context) error {
 	info, err := u.SplitUploadService.InitiateMultipartUpload(ctx.GetContext(), &service.MultipartInitiateOpt{
 		Name:   in.FileName,
 		Size:   in.FileSize,
-		UserId: ctx.GetAuthId(),
+		UserId: ctx.AuthId(),
 	})
 	if err != nil {
 		return ctx.Error(err)
@@ -111,7 +111,7 @@ func (u *Upload) MultipartUpload(ctx *core.Context) error {
 	}
 
 	err = u.SplitUploadService.MultipartUpload(ctx.GetContext(), &service.MultipartUploadOpt{
-		UserId:     ctx.GetAuthId(),
+		UserId:     ctx.AuthId(),
 		UploadId:   in.UploadId,
 		SplitIndex: int(in.SplitIndex),
 		SplitNum:   int(in.SplitNum),

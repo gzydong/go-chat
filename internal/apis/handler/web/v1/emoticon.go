@@ -29,7 +29,7 @@ func (c *Emoticon) List(ctx *core.Context) error {
 		Items: make([]*web.EmoticonItem, 0),
 	}
 
-	items, err := c.EmoticonRepo.GetCustomizeList(ctx.GetAuthId())
+	items, err := c.EmoticonRepo.GetCustomizeList(ctx.AuthId())
 	if err != nil {
 		return ctx.Error(err)
 	}
@@ -51,7 +51,7 @@ func (c *Emoticon) Delete(ctx *core.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	if err := c.EmoticonService.DeleteCollect(ctx.GetAuthId(), []int{int(in.GetEmoticonId())}); err != nil {
+	if err := c.EmoticonService.DeleteCollect(ctx.AuthId(), []int{int(in.GetEmoticonId())}); err != nil {
 		return ctx.Error(err)
 	}
 
@@ -66,7 +66,7 @@ func (c *Emoticon) Create(ctx *core.Context) error {
 	}
 
 	m := &model.EmoticonItem{
-		UserId:   ctx.GetAuthId(),
+		UserId:   ctx.AuthId(),
 		Describe: "自定义表情包",
 		Url:      in.Url,
 	}
@@ -111,7 +111,7 @@ func (c *Emoticon) Upload(ctx *core.Context) error {
 	}
 
 	m := &model.EmoticonItem{
-		UserId:   ctx.GetAuthId(),
+		UserId:   ctx.AuthId(),
 		Describe: "自定义表情包",
 		Url:      c.Filesystem.PublicUrl(c.Filesystem.BucketPublicName(), src),
 	}

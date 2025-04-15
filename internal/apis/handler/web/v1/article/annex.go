@@ -54,7 +54,7 @@ func (c *Annex) Upload(ctx *core.Context) error {
 	}
 
 	data := &model.ArticleAnnex{
-		UserId:       ctx.GetAuthId(),
+		UserId:       ctx.AuthId(),
 		ArticleId:    int(in.ArticleId),
 		Drive:        entity.FileDriveMode(c.Filesystem.Driver()),
 		Suffix:       ext,
@@ -87,7 +87,7 @@ func (c *Annex) Delete(ctx *core.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	err := c.ArticleAnnexService.UpdateStatus(ctx.GetContext(), ctx.GetAuthId(), int(in.AnnexId), 2)
+	err := c.ArticleAnnexService.UpdateStatus(ctx.GetContext(), ctx.AuthId(), int(in.AnnexId), 2)
 	if err != nil {
 		return ctx.Error(err)
 	}
@@ -103,7 +103,7 @@ func (c *Annex) Recover(ctx *core.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	err := c.ArticleAnnexService.UpdateStatus(ctx.GetContext(), ctx.GetAuthId(), int(in.AnnexId), 1)
+	err := c.ArticleAnnexService.UpdateStatus(ctx.GetContext(), ctx.AuthId(), int(in.AnnexId), 1)
 	if err != nil {
 		return ctx.Error(err)
 	}
@@ -113,7 +113,7 @@ func (c *Annex) Recover(ctx *core.Context) error {
 
 // RecycleList 附件回收站列表
 func (c *Annex) RecycleList(ctx *core.Context) error {
-	items, err := c.ArticleAnnexRepo.RecoverList(ctx.GetContext(), ctx.GetAuthId())
+	items, err := c.ArticleAnnexRepo.RecoverList(ctx.GetContext(), ctx.AuthId())
 	if err != nil {
 		return ctx.Error(err)
 	}
@@ -152,7 +152,7 @@ func (c *Annex) ForeverDelete(ctx *core.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	if err := c.ArticleAnnexService.ForeverDelete(ctx.GetContext(), ctx.GetAuthId(), int(in.AnnexId)); err != nil {
+	if err := c.ArticleAnnexService.ForeverDelete(ctx.GetContext(), ctx.AuthId(), int(in.AnnexId)); err != nil {
 		return ctx.Error(err)
 	}
 
@@ -172,7 +172,7 @@ func (c *Annex) Download(ctx *core.Context) error {
 		return ctx.Error(err)
 	}
 
-	if info.UserId != ctx.GetAuthId() {
+	if info.UserId != ctx.AuthId() {
 		return ctx.Forbidden("无权限下载")
 	}
 

@@ -19,7 +19,7 @@ type Organize struct {
 }
 
 func (o *Organize) DepartmentList(ctx *core.Context) error {
-	uid := ctx.GetAuthId()
+	uid := ctx.AuthId()
 	if isOk, _ := o.OrganizeRepo.IsQiyeMember(ctx.GetContext(), uid); !isOk {
 		return ctx.Success(&web.OrganizeDepartmentListResponse{})
 	}
@@ -79,7 +79,7 @@ func (o *Organize) DepartmentList(ctx *core.Context) error {
 func (o *Organize) PersonnelList(ctx *core.Context) error {
 
 	// 判断是否是企业成员
-	uid := ctx.GetAuthId()
+	uid := ctx.AuthId()
 	if isOk, _ := o.OrganizeRepo.IsQiyeMember(ctx.GetContext(), uid); !isOk {
 		return ctx.Success(&web.OrganizePersonnelListResponse{})
 	}

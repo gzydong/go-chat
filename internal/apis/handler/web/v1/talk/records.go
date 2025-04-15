@@ -43,7 +43,7 @@ func (c *Records) GetRecords(ctx *core.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	uid := ctx.GetAuthId()
+	uid := ctx.AuthId()
 
 	if in.TalkMode == entity.ChatGroupMode {
 		err := c.AuthService.IsAuth(ctx.GetContext(), &service.AuthOption{
@@ -119,7 +119,7 @@ func (c *Records) SearchHistoryRecords(ctx *core.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	uid := ctx.GetAuthId()
+	uid := ctx.AuthId()
 
 	if params.TalkMode == entity.ChatGroupMode {
 		err := c.AuthService.IsAuth(ctx.GetContext(), &service.AuthOption{
@@ -202,7 +202,7 @@ func (c *Records) GetForwardRecords(ctx *core.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	records, err := c.TalkRecordsService.FindForwardRecords(ctx.GetContext(), ctx.GetAuthId(), params.MsgIds, params.TalkMode)
+	records, err := c.TalkRecordsService.FindForwardRecords(ctx.GetContext(), ctx.AuthId(), params.MsgIds, params.TalkMode)
 	if err != nil {
 		return ctx.Error(err)
 	}
@@ -244,7 +244,7 @@ func (c *Records) Download(ctx *core.Context) error {
 			return ctx.Error(err)
 		}
 
-		if !c.GroupMemberRepo.IsMember(ctx.GetContext(), record.GroupId, ctx.GetAuthId(), false) {
+		if !c.GroupMemberRepo.IsMember(ctx.GetContext(), record.GroupId, ctx.AuthId(), false) {
 			return ctx.Forbidden("无访问权限！")
 		}
 
@@ -252,7 +252,7 @@ func (c *Records) Download(ctx *core.Context) error {
 			return ctx.Error(err)
 		}
 	} else {
-		record, err := c.TalkRecordFriendRepo.FindByWhere(ctx.GetContext(), "user_id = ? and msg_id = ?", ctx.GetAuthId(), params.MsgId)
+		record, err := c.TalkRecordFriendRepo.FindByWhere(ctx.GetContext(), "user_id = ? and msg_id = ?", ctx.AuthId(), params.MsgId)
 		if err != nil {
 			return ctx.Error(err)
 		}

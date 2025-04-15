@@ -36,7 +36,7 @@ type Session struct {
 func (c *Session) Create(ctx *core.Context) error {
 	var (
 		in    = &web.TalkSessionCreateRequest{}
-		uid   = ctx.GetAuthId()
+		uid   = ctx.AuthId()
 		agent = strings.TrimSpace(ctx.Context.GetHeader("user-agent"))
 	)
 
@@ -49,7 +49,7 @@ func (c *Session) Create(ctx *core.Context) error {
 	}
 
 	// 判断对方是否是自己
-	if in.TalkMode == entity.ChatPrivateMode && int(in.ToFromId) == ctx.GetAuthId() {
+	if in.TalkMode == entity.ChatPrivateMode && int(in.ToFromId) == ctx.AuthId() {
 		return ctx.Error(entity.ErrPermissionDenied)
 	}
 
@@ -134,7 +134,7 @@ func (c *Session) Delete(ctx *core.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	if err := c.TalkSessionService.Delete(ctx.GetContext(), ctx.GetAuthId(), int(in.TalkMode), int(in.ToFromId)); err != nil {
+	if err := c.TalkSessionService.Delete(ctx.GetContext(), ctx.AuthId(), int(in.TalkMode), int(in.ToFromId)); err != nil {
 		return ctx.Error(err)
 	}
 
@@ -149,7 +149,7 @@ func (c *Session) Top(ctx *core.Context) error {
 	}
 
 	if err := c.TalkSessionService.Top(ctx.GetContext(), &service.TalkSessionTopOpt{
-		UserId:   ctx.GetAuthId(),
+		UserId:   ctx.AuthId(),
 		TalkMode: int(in.TalkMode),
 		ToFromId: int(in.ToFromId),
 		Action:   int(in.Action),
@@ -168,7 +168,7 @@ func (c *Session) Disturb(ctx *core.Context) error {
 	}
 
 	if err := c.TalkSessionService.Disturb(ctx.GetContext(), &service.TalkSessionDisturbOpt{
-		UserId:   ctx.GetAuthId(),
+		UserId:   ctx.AuthId(),
 		TalkMode: int(in.TalkMode),
 		ToFromId: int(in.ToFromId),
 		Action:   int(in.Action),
@@ -181,7 +181,7 @@ func (c *Session) Disturb(ctx *core.Context) error {
 
 // List 会话列表
 func (c *Session) List(ctx *core.Context) error {
-	uid := ctx.GetAuthId()
+	uid := ctx.AuthId()
 
 	data, err := c.TalkSessionService.List(ctx.GetContext(), uid)
 	if err != nil {
@@ -240,7 +240,7 @@ func (c *Session) ClearUnreadMessage(ctx *core.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	c.UnreadStorage.Reset(ctx.GetContext(), ctx.GetAuthId(), int(in.TalkMode), int(in.ToFromId))
+	c.UnreadStorage.Reset(ctx.GetContext(), ctx.AuthId(), int(in.TalkMode), int(in.ToFromId))
 
 	return ctx.Success(&web.TalkSessionClearUnreadNumResponse{})
 }

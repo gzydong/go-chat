@@ -39,7 +39,7 @@ func (c *Publish) Send(ctx *core.Context) error {
 
 	if err := c.AuthService.IsAuth(ctx.GetContext(), &service.AuthOption{
 		TalkType:          in.TalkMode,
-		UserId:            ctx.GetAuthId(),
+		UserId:            ctx.AuthId(),
 		ToFromId:          in.ToFromId,
 		IsVerifyGroupMute: true,
 	}); err != nil {
@@ -67,7 +67,7 @@ func (c *Publish) onSendText(ctx *core.Context) error {
 	err := c.MessageService.CreateTextMessage(ctx.GetContext(), message.CreateTextMessage{
 		MsgId:    in.MsgId,
 		TalkMode: in.TalkMode,
-		FromId:   ctx.GetAuthId(),
+		FromId:   ctx.AuthId(),
 		ToFromId: in.ToFromId,
 		Content:  html.EscapeString(in.Body.Content),
 		QuoteId:  in.QuoteId,
@@ -101,7 +101,7 @@ func (c *Publish) onSendImage(ctx *core.Context) error {
 	err := c.MessageService.CreateImageMessage(ctx.GetContext(), message.CreateImageMessage{
 		MsgId:    in.MsgId,
 		TalkMode: in.TalkMode,
-		FromId:   ctx.GetAuthId(),
+		FromId:   ctx.AuthId(),
 		ToFromId: in.ToFromId,
 		QuoteId:  in.QuoteId,
 		Url:      in.Body.Url,
@@ -135,7 +135,7 @@ func (c *Publish) onSendVoice(ctx *core.Context) error {
 
 	err := c.MessageService.CreateVoiceMessage(ctx.GetContext(), message.CreateVoiceMessage{
 		TalkMode: in.TalkMode,
-		FromId:   ctx.GetAuthId(),
+		FromId:   ctx.AuthId(),
 		ToFromId: in.ToFromId,
 		Url:      in.Body.Url,
 		Duration: in.Body.Duration,
@@ -167,7 +167,7 @@ func (c *Publish) onSendVideo(ctx *core.Context) error {
 
 	err := c.MessageService.CreateVideoMessage(ctx.GetContext(), message.CreateVideoMessage{
 		TalkMode: in.TalkMode,
-		FromId:   ctx.GetAuthId(),
+		FromId:   ctx.AuthId(),
 		ToFromId: in.ToFromId,
 		Url:      in.Body.Url,
 		Duration: in.Body.Duration,
@@ -197,7 +197,7 @@ func (c *Publish) onSendFile(ctx *core.Context) error {
 
 	err := c.MessageService.CreateFileMessage(ctx.GetContext(), message.CreateFileMessage{
 		TalkMode: in.TalkMode,
-		FromId:   ctx.GetAuthId(),
+		FromId:   ctx.AuthId(),
 		ToFromId: in.ToFromId,
 		UploadId: in.Body.UploadId,
 	})
@@ -227,7 +227,7 @@ func (c *Publish) onSendCode(ctx *core.Context) error {
 	err := c.MessageService.CreateCodeMessage(ctx.GetContext(), message.CreateCodeMessage{
 		MsgId:    in.MsgId,
 		TalkMode: in.TalkMode,
-		FromId:   ctx.GetAuthId(),
+		FromId:   ctx.AuthId(),
 		ToFromId: in.ToFromId,
 		Code:     in.Body.Code,
 		Lang:     in.Body.Lang,
@@ -258,7 +258,7 @@ func (c *Publish) onSendLocation(ctx *core.Context) error {
 	err := c.MessageService.CreateLocationMessage(ctx.GetContext(), message.CreateLocationMessage{
 		MsgId:       in.MsgId,
 		TalkMode:    in.TalkMode,
-		FromId:      ctx.GetAuthId(),
+		FromId:      ctx.AuthId(),
 		ToFromId:    in.ToFromId,
 		Longitude:   in.Body.Longitude,
 		Latitude:    in.Body.Latitude,
@@ -295,13 +295,13 @@ func (c *Publish) onSendForward(ctx *core.Context) error {
 	go func() {
 		err := c.MessageService.CreateForwardMessage(context.Background(), message.CreateForwardMessage{
 			TalkMode: in.TalkMode,
-			FromId:   ctx.GetAuthId(),
+			FromId:   ctx.AuthId(),
 			ToFromId: in.ToFromId,
 			Action:   int(in.Body.Action),
 			MsgIds:   in.Body.MsgIds,
 			Gids:     in.Body.GroupIds,
 			Uids:     in.Body.UserIds,
-			UserId:   ctx.GetAuthId(),
+			UserId:   ctx.AuthId(),
 		})
 		if err != nil {
 			logger.Errorf(err.Error())
@@ -327,7 +327,7 @@ func (c *Publish) onSendEmoticon(ctx *core.Context) error {
 
 	err := c.MessageService.CreateEmoticonMessage(ctx.GetContext(), message.CreateEmoticonMessage{
 		TalkMode:   in.TalkMode,
-		FromId:     ctx.GetAuthId(),
+		FromId:     ctx.AuthId(),
 		ToFromId:   in.ToFromId,
 		EmoticonId: in.Body.EmoticonId,
 	})
@@ -355,7 +355,7 @@ func (c *Publish) onSendCard(ctx *core.Context) error {
 	err := c.MessageService.CreateBusinessCardMessage(ctx.GetContext(), message.CreateBusinessCardMessage{
 		MsgId:    in.MsgId,
 		TalkMode: in.TalkMode,
-		FromId:   ctx.GetAuthId(),
+		FromId:   ctx.AuthId(),
 		ToFromId: in.ToFromId,
 		UserId:   in.Body.UserId,
 	})
@@ -394,7 +394,7 @@ func (c *Publish) onMixedMessage(ctx *core.Context) error {
 	err := c.MessageService.CreateMixedMessage(ctx.GetContext(), message.CreateMixedMessage{
 		MsgId:       in.MsgId,
 		TalkMode:    in.TalkMode,
-		FromId:      ctx.GetAuthId(),
+		FromId:      ctx.AuthId(),
 		ToFromId:    in.ToFromId,
 		QuoteId:     in.QuoteId,
 		MessageList: items,

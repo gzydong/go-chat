@@ -31,7 +31,7 @@ func (c *Notice) CreateAndUpdate(ctx *core.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	uid := ctx.GetAuthId()
+	uid := ctx.AuthId()
 
 	if !c.GroupMemberRepo.IsMember(ctx.GetContext(), int(in.GroupId), uid, false) {
 		return ctx.Error(entity.ErrPermissionDenied)
@@ -51,8 +51,8 @@ func (c *Notice) CreateAndUpdate(ctx *core.Context) error {
 		msg = "群公告创建成功！"
 		err = c.GroupNoticeRepo.Create(ctx.GetContext(), &model.GroupNotice{
 			GroupId:      int(in.GroupId),
-			CreatorId:    ctx.GetAuthId(),
-			ModifyId:     ctx.GetAuthId(),
+			CreatorId:    ctx.AuthId(),
+			ModifyId:     ctx.AuthId(),
 			Content:      in.Content,
 			ConfirmUsers: "[]",
 			IsConfirm:    2,
@@ -61,7 +61,7 @@ func (c *Notice) CreateAndUpdate(ctx *core.Context) error {
 		msg = "群公告更新成功！"
 		_, err = c.GroupNoticeRepo.UpdateByWhere(ctx.GetContext(), map[string]any{
 			"content":    in.Content,
-			"modify_id":  ctx.GetAuthId(),
+			"modify_id":  ctx.AuthId(),
 			"updated_at": time.Now(),
 		}, "group_id = ?", in.GroupId)
 	}

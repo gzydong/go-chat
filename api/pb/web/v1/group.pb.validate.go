@@ -1475,10 +1475,10 @@ func (m *GetInviteFriendsRequest) validate(all bool) error {
 
 	var errors []error
 
-	if m.GetGroupId() < 1 {
+	if m.GetGroupId() < 0 {
 		err := GetInviteFriendsRequestValidationError{
 			field:  "GroupId",
-			reason: "value must be greater than or equal to 1",
+			reason: "value must be greater than or equal to 0",
 		}
 		if !all {
 			return err

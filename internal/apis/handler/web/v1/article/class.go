@@ -17,7 +17,7 @@ type Class struct {
 // List 分类列表
 func (c *Class) List(ctx *core.Context) error {
 
-	list, err := c.ArticleClassService.List(ctx.GetContext(), ctx.GetAuthId())
+	list, err := c.ArticleClassService.List(ctx.GetContext(), ctx.AuthId())
 	if err != nil {
 		return ctx.Error(err)
 	}
@@ -37,7 +37,7 @@ func (c *Class) List(ctx *core.Context) error {
 	})
 
 	if !ok {
-		id, err := c.ArticleClassService.Create(ctx.GetContext(), ctx.GetAuthId(), "默认分类", model.Yes)
+		id, err := c.ArticleClassService.Create(ctx.GetContext(), ctx.AuthId(), "默认分类", model.Yes)
 		if err != nil {
 			return ctx.Error(err)
 		}
@@ -61,7 +61,7 @@ func (c *Class) Edit(ctx *core.Context) error {
 	var (
 		err error
 		in  = &web.ArticleClassEditRequest{}
-		uid = ctx.GetAuthId()
+		uid = ctx.AuthId()
 	)
 
 	if err = ctx.Context.ShouldBindJSON(in); err != nil {
@@ -123,7 +123,7 @@ func (c *Class) Delete(ctx *core.Context) error {
 		return ctx.Error(entity.ErrNoteClassDefaultNotDelete)
 	}
 
-	err = c.ArticleClassService.Delete(ctx.GetContext(), ctx.GetAuthId(), int(in.ClassifyId))
+	err = c.ArticleClassService.Delete(ctx.GetContext(), ctx.AuthId(), int(in.ClassifyId))
 	if err != nil {
 		return ctx.Error(err)
 	}
@@ -139,7 +139,7 @@ func (c *Class) Sort(ctx *core.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	err := c.ArticleClassService.Sort(ctx.GetContext(), ctx.GetAuthId(), int(in.ClassifyId), int(in.SortType))
+	err := c.ArticleClassService.Sort(ctx.GetContext(), ctx.AuthId(), int(in.ClassifyId), int(in.SortType))
 	if err != nil {
 		return ctx.Error(err)
 	}

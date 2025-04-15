@@ -140,8 +140,8 @@ func (c *Context) Raw(value string) error {
 	return nil
 }
 
-// GetAuthId 返回JWT登录用户的ID
-func (c *Context) GetAuthId() int {
+// AuthId 返回JWT登录用户的ID
+func (c *Context) AuthId() int {
 	id, ok := c.Context.Get(middleware.JWTAuthID)
 	if ok {
 		return id.(int)
@@ -152,7 +152,7 @@ func (c *Context) GetAuthId() int {
 
 // IsGuest 是否是游客(未登录状态)
 func (c *Context) IsGuest() bool {
-	return c.GetAuthId() == 0
+	return c.AuthId() == 0
 }
 
 func (c *Context) GetContext() context.Context {

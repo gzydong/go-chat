@@ -35,7 +35,7 @@ func (c *Article) List(ctx *core.Context) error {
 	}
 
 	items, err := c.ArticleService.List(ctx.GetContext(), &service.ArticleListOpt{
-		UserId:     ctx.GetAuthId(),
+		UserId:     ctx.AuthId(),
 		FindType:   int(in.FindType),
 		Keyword:    in.Keyword,
 		ClassifyId: int(in.ClassifyId),
@@ -80,7 +80,7 @@ func (c *Article) Detail(ctx *core.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	uid := ctx.GetAuthId()
+	uid := ctx.AuthId()
 
 	detail, err := c.ArticleService.Detail(ctx.GetContext(), uid, int(in.ArticleId))
 	if err != nil {
@@ -124,7 +124,7 @@ func (c *Article) Editor(ctx *core.Context) error {
 	var (
 		err error
 		in  = &web.ArticleEditRequest{}
-		uid = ctx.GetAuthId()
+		uid = ctx.AuthId()
 	)
 
 	if err = ctx.ShouldBindProto(in); err != nil {
@@ -173,7 +173,7 @@ func (c *Article) Delete(ctx *core.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	err := c.ArticleService.UpdateStatus(ctx.GetContext(), ctx.GetAuthId(), int(in.ArticleId), 2)
+	err := c.ArticleService.UpdateStatus(ctx.GetContext(), ctx.AuthId(), int(in.ArticleId), 2)
 	if err != nil {
 		return ctx.Error(err)
 	}
@@ -189,7 +189,7 @@ func (c *Article) Recover(ctx *core.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	err := c.ArticleService.UpdateStatus(ctx.GetContext(), ctx.GetAuthId(), int(in.ArticleId), 1)
+	err := c.ArticleService.UpdateStatus(ctx.GetContext(), ctx.AuthId(), int(in.ArticleId), 1)
 	if err != nil {
 		return ctx.Error(err)
 	}
@@ -204,7 +204,7 @@ func (c *Article) MoveClassify(ctx *core.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	if err := c.ArticleService.Move(ctx.GetContext(), ctx.GetAuthId(), int(in.ArticleId), int(in.ClassifyId)); err != nil {
+	if err := c.ArticleService.Move(ctx.GetContext(), ctx.AuthId(), int(in.ArticleId), int(in.ClassifyId)); err != nil {
 		return ctx.Error(err)
 	}
 
@@ -219,7 +219,7 @@ func (c *Article) Collect(ctx *core.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	if err := c.ArticleService.Asterisk(ctx.GetContext(), ctx.GetAuthId(), int(in.ArticleId), int(in.Action)); err != nil {
+	if err := c.ArticleService.Asterisk(ctx.GetContext(), ctx.AuthId(), int(in.ArticleId), int(in.Action)); err != nil {
 		return ctx.Error(err)
 	}
 
@@ -234,7 +234,7 @@ func (c *Article) UpdateTag(ctx *core.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	if err := c.ArticleService.Tag(ctx.GetContext(), ctx.GetAuthId(), int(in.ArticleId), in.GetTagIds()); err != nil {
+	if err := c.ArticleService.Tag(ctx.GetContext(), ctx.AuthId(), int(in.ArticleId), in.GetTagIds()); err != nil {
 		return ctx.Error(err)
 	}
 
@@ -249,7 +249,7 @@ func (c *Article) ForeverDelete(ctx *core.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	if err := c.ArticleService.ForeverDelete(ctx.GetContext(), ctx.GetAuthId(), int(in.ArticleId)); err != nil {
+	if err := c.ArticleService.ForeverDelete(ctx.GetContext(), ctx.AuthId(), int(in.ArticleId)); err != nil {
 		return ctx.Error(err)
 	}
 
@@ -266,7 +266,7 @@ func (c *Article) RecycleList(ctx *core.Context) error {
 	items := make([]*web.ArticleRecoverListResponse_Item, 0)
 
 	list, err := c.ArticleRepo.FindAll(ctx.GetContext(), func(db *gorm.DB) {
-		db.Where("user_id = ? and status = ?", ctx.GetAuthId(), 2)
+		db.Where("user_id = ? and status = ?", ctx.AuthId(), 2)
 		db.Where("deleted_at > ?", time.Now().Add(-time.Hour*24*30))
 		db.Order("deleted_at desc,id desc")
 	})

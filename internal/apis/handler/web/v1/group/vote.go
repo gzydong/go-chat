@@ -28,7 +28,7 @@ func (v *Vote) Create(ctx *core.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	uid := ctx.GetAuthId()
+	uid := ctx.AuthId()
 
 	if len(in.Options) <= 1 {
 		return ctx.InvalidParams("options 选项必须大于1！")
@@ -75,7 +75,7 @@ func (v *Vote) Submit(ctx *core.Context) error {
 	}
 
 	err := v.GroupVoteService.Submit(ctx.Context, &service.GroupVoteSubmitOpt{
-		UserId:  ctx.GetAuthId(),
+		UserId:  ctx.AuthId(),
 		VoteId:  int(in.VoteId),
 		Options: in.Options,
 	})
@@ -99,7 +99,7 @@ func (v *Vote) Detail(ctx *core.Context) error {
 		return ctx.Error(err)
 	}
 
-	if !v.GroupMemberRepo.IsMember(ctx.GetContext(), voteInfo.GroupId, ctx.GetAuthId(), false) {
+	if !v.GroupMemberRepo.IsMember(ctx.GetContext(), voteInfo.GroupId, ctx.AuthId(), false) {
 		return ctx.Forbidden("暂无查看投票详情权限！")
 	}
 
@@ -132,7 +132,7 @@ func (v *Vote) Detail(ctx *core.Context) error {
 		return ctx.Error(err)
 	}
 
-	userId := ctx.GetAuthId()
+	userId := ctx.AuthId()
 	if len(items) > 0 {
 		hashMap := make(map[int]*web.GroupVoteDetailResponse_AnsweredUser)
 

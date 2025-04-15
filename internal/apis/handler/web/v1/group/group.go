@@ -59,7 +59,7 @@ func (c *Group) Create(ctx *core.Context) error {
 	}
 
 	gid, err := c.GroupService.Create(ctx.GetContext(), &service.GroupCreateOpt{
-		UserId:    ctx.GetAuthId(),
+		UserId:    ctx.AuthId(),
 		Name:      in.Name,
 		MemberIds: uids,
 	})
@@ -78,7 +78,7 @@ func (c *Group) Dismiss(ctx *core.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	uid := ctx.GetAuthId()
+	uid := ctx.AuthId()
 	if !c.GroupMemberRepo.IsMaster(ctx.GetContext(), int(in.GroupId), uid) {
 		return ctx.Error(entity.ErrPermissionDenied)
 	}
@@ -122,7 +122,7 @@ func (c *Group) Invite(ctx *core.Context) error {
 
 	defer c.RedisLock.UnLock(ctx.GetContext(), key)
 
-	uid := ctx.GetAuthId()
+	uid := ctx.AuthId()
 	if !c.GroupMemberRepo.IsMember(ctx.GetContext(), int(in.GroupId), uid, true) {
 		return ctx.Error(entity.ErrPermissionDenied)
 	}
@@ -163,7 +163,7 @@ func (c *Group) Secede(ctx *core.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	uid := ctx.GetAuthId()
+	uid := ctx.AuthId()
 	if err := c.GroupService.Secede(ctx.GetContext(), int(in.GroupId), uid); err != nil {
 		return ctx.Error(err)
 	}
@@ -189,7 +189,7 @@ func (c *Group) Update(ctx *core.Context) error {
 		return ctx.Error(entity.ErrGroupDismissed)
 	}
 
-	uid := ctx.GetAuthId()
+	uid := ctx.AuthId()
 	if !c.GroupMemberRepo.IsLeader(ctx.GetContext(), int(in.GroupId), uid) {
 		return ctx.Error(entity.ErrPermissionDenied)
 	}
@@ -227,7 +227,7 @@ func (c *Group) RemoveMember(ctx *core.Context) error {
 		return ctx.InvalidParams("移除成员列表不能为空！")
 	}
 
-	uid := ctx.GetAuthId()
+	uid := ctx.AuthId()
 	if !c.GroupMemberRepo.IsLeader(ctx.GetContext(), int(in.GroupId), uid) {
 		return ctx.Error(entity.ErrPermissionDenied)
 	}
@@ -252,7 +252,7 @@ func (c *Group) Detail(ctx *core.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	uid := ctx.GetAuthId()
+	uid := ctx.AuthId()
 
 	groupInfo, err := c.GroupRepo.FindById(ctx.GetContext(), int(in.GroupId))
 	if err != nil {
@@ -312,7 +312,7 @@ func (c *Group) UpdateMemberRemark(ctx *core.Context) error {
 
 	_, err := c.GroupMemberRepo.UpdateByWhere(ctx.GetContext(), map[string]any{
 		"user_card": in.Remark,
-	}, "group_id = ? and user_id = ?", in.GroupId, ctx.GetAuthId())
+	}, "group_id = ? and user_id = ?", in.GroupId, ctx.AuthId())
 	if err != nil {
 		return ctx.Error(err)
 	}
@@ -326,7 +326,7 @@ func (c *Group) GetInviteFriends(ctx *core.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	items, err := c.ContactService.List(ctx.GetContext(), ctx.GetAuthId())
+	items, err := c.ContactService.List(ctx.GetContext(), ctx.AuthId())
 	if err != nil {
 		return ctx.Error(err)
 	}
@@ -373,7 +373,7 @@ func (c *Group) GetInviteFriends(ctx *core.Context) error {
 }
 
 func (c *Group) List(ctx *core.Context) error {
-	items, err := c.GroupService.List(ctx.GetAuthId())
+	items, err := c.GroupService.List(ctx.AuthId())
 	if err != nil {
 		return ctx.Error(err)
 	}
@@ -412,7 +412,7 @@ func (c *Group) Members(ctx *core.Context) error {
 		return ctx.Success(&web.GroupMemberListResponse{})
 	}
 
-	if !c.GroupMemberRepo.IsMember(ctx.GetContext(), int(in.GroupId), ctx.GetAuthId(), false) {
+	if !c.GroupMemberRepo.IsMember(ctx.GetContext(), int(in.GroupId), ctx.AuthId(), false) {
 		return ctx.Error(entity.ErrPermissionDenied)
 	}
 
@@ -446,7 +446,7 @@ func (c *Group) OvertList(ctx *core.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	uid := ctx.GetAuthId()
+	uid := ctx.AuthId()
 
 	list, err := c.GroupRepo.SearchOvertList(ctx.GetContext(), &repo.SearchOvertListOpt{
 		Name:   in.Name,
@@ -509,7 +509,7 @@ func (c *Group) Transfer(ctx *core.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	uid := ctx.GetAuthId()
+	uid := ctx.AuthId()
 	if !c.GroupMemberRepo.IsMaster(ctx.GetContext(), int(in.GroupId), uid) {
 		return ctx.Error(entity.ErrPermissionDenied)
 	}
@@ -554,7 +554,7 @@ func (c *Group) AssignAdmin(ctx *core.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	uid := ctx.GetAuthId()
+	uid := ctx.AuthId()
 	if !c.GroupMemberRepo.IsMaster(ctx.GetContext(), int(in.GroupId), uid) {
 		return ctx.Error(entity.ErrPermissionDenied)
 	}
@@ -576,7 +576,7 @@ func (c *Group) MemberMute(ctx *core.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	uid := ctx.GetAuthId()
+	uid := ctx.AuthId()
 	if !c.GroupMemberRepo.IsLeader(ctx.GetContext(), int(in.GroupId), uid) {
 		return ctx.Error(entity.ErrPermissionDenied)
 	}
@@ -629,7 +629,7 @@ func (c *Group) Mute(ctx *core.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	uid := ctx.GetAuthId()
+	uid := ctx.AuthId()
 
 	group, err := c.GroupRepo.FindById(ctx.GetContext(), int(in.GroupId))
 	if err != nil {
@@ -696,7 +696,7 @@ func (c *Group) Overt(ctx *core.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	uid := ctx.GetAuthId()
+	uid := ctx.AuthId()
 
 	group, err := c.GroupRepo.FindById(ctx.GetContext(), int(in.GroupId))
 	if err != nil {

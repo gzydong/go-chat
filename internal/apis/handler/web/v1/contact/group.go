@@ -19,7 +19,7 @@ type Group struct {
 // List 联系人分组列表
 func (c *Group) List(ctx *core.Context) error {
 
-	uid := ctx.GetAuthId()
+	uid := ctx.AuthId()
 
 	items := make([]*web.ContactGroupListResponse_Item, 0)
 
@@ -56,7 +56,7 @@ func (c *Group) Save(ctx *core.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	uid := ctx.GetAuthId()
+	uid := ctx.AuthId()
 
 	updateItems := make([]*model.ContactGroup, 0)
 	deleteItems := make([]int, 0)

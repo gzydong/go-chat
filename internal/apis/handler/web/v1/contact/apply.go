@@ -20,7 +20,7 @@ type Apply struct {
 // ApplyUnreadNum 获取好友申请未读数
 func (c *Apply) ApplyUnreadNum(ctx *core.Context) error {
 	return ctx.Success(map[string]any{
-		"unread_num": c.ContactApplyService.GetApplyUnreadNum(ctx.GetContext(), ctx.GetAuthId()),
+		"unread_num": c.ContactApplyService.GetApplyUnreadNum(ctx.GetContext(), ctx.AuthId()),
 	})
 }
 
@@ -31,13 +31,13 @@ func (c *Apply) Create(ctx *core.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	uid := ctx.GetAuthId()
+	uid := ctx.AuthId()
 	if c.ContactRepo.IsFriend(ctx.GetContext(), uid, int(in.UserId), false) {
 		return ctx.Success(nil)
 	}
 
 	if err := c.ContactApplyService.Create(ctx.GetContext(), &service.ContactApplyCreateOpt{
-		UserId:   ctx.GetAuthId(),
+		UserId:   ctx.AuthId(),
 		Remarks:  in.Remark,
 		FriendId: int(in.UserId),
 	}); err != nil {
@@ -54,7 +54,7 @@ func (c *Apply) Accept(ctx *core.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	uid := ctx.GetAuthId()
+	uid := ctx.AuthId()
 	applyInfo, err := c.ContactApplyService.Accept(ctx.GetContext(), &service.ContactApplyAcceptOpt{
 		Remarks: in.Remark,
 		ApplyId: int(in.ApplyId),
@@ -88,7 +88,7 @@ func (c *Apply) Decline(ctx *core.Context) error {
 	}
 
 	if err := c.ContactApplyService.Decline(ctx.GetContext(), &service.ContactApplyDeclineOpt{
-		UserId:  ctx.GetAuthId(),
+		UserId:  ctx.AuthId(),
 		Remarks: in.Remark,
 		ApplyId: int(in.ApplyId),
 	}); err != nil {
@@ -101,7 +101,7 @@ func (c *Apply) Decline(ctx *core.Context) error {
 // List 获取联系人申请列表
 func (c *Apply) List(ctx *core.Context) error {
 
-	list, err := c.ContactApplyService.List(ctx.GetContext(), ctx.GetAuthId())
+	list, err := c.ContactApplyService.List(ctx.GetContext(), ctx.AuthId())
 	if err != nil {
 		return ctx.Error(err)
 	}
@@ -119,7 +119,7 @@ func (c *Apply) List(ctx *core.Context) error {
 		})
 	}
 
-	c.ContactApplyService.ClearApplyUnreadNum(ctx.GetContext(), ctx.GetAuthId())
+	c.ContactApplyService.ClearApplyUnreadNum(ctx.GetContext(), ctx.AuthId())
 
 	return ctx.Success(&web.ContactApplyListResponse{Items: items})
 }

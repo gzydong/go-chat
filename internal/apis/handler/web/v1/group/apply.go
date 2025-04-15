@@ -36,12 +36,12 @@ func (c *Apply) Create(ctx *core.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	apply, err := c.GroupApplyRepo.FindByWhere(ctx.GetContext(), "group_id = ? and user_id = ? and status = ?", in.GroupId, ctx.GetAuthId(), model.GroupApplyStatusWait)
+	apply, err := c.GroupApplyRepo.FindByWhere(ctx.GetContext(), "group_id = ? and user_id = ? and status = ?", in.GroupId, ctx.AuthId(), model.GroupApplyStatusWait)
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return ctx.Error(err)
 	}
 
-	uid := ctx.GetAuthId()
+	uid := ctx.AuthId()
 
 	applyId := 0
 	if apply == nil {
@@ -79,7 +79,7 @@ func (c *Apply) Create(ctx *core.Context) error {
 		Event: entity.SubEventGroupApply,
 		Payload: jsonutil.Encode(entity.SubEventGroupApplyPayload{
 			GroupId: int(in.GroupId),
-			UserId:  ctx.GetAuthId(),
+			UserId:  ctx.AuthId(),
 			ApplyId: applyId,
 		}),
 	})
@@ -88,7 +88,7 @@ func (c *Apply) Create(ctx *core.Context) error {
 }
 
 func (c *Apply) Agree(ctx *core.Context) error {
-	uid := ctx.GetAuthId()
+	uid := ctx.AuthId()
 
 	in := &web.GroupApplyAgreeRequest{}
 	if err := ctx.ShouldBindProto(in); err != nil {
@@ -143,7 +143,7 @@ func (c *Apply) Decline(ctx *core.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	uid := ctx.GetAuthId()
+	uid := ctx.AuthId()
 
 	apply, err := c.GroupApplyRepo.FindById(ctx.GetContext(), int(in.ApplyId))
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
@@ -182,7 +182,7 @@ func (c *Apply) List(ctx *core.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	if !c.GroupMemberRepo.IsLeader(ctx.GetContext(), int(in.GroupId), ctx.GetAuthId()) {
+	if !c.GroupMemberRepo.IsLeader(ctx.GetContext(), int(in.GroupId), ctx.AuthId()) {
 		return ctx.Forbidden("无权限访问")
 	}
 
@@ -208,7 +208,7 @@ func (c *Apply) List(ctx *core.Context) error {
 }
 
 func (c *Apply) All(ctx *core.Context) error {
-	uid := ctx.GetAuthId()
+	uid := ctx.AuthId()
 
 	all, err := c.GroupMemberRepo.FindAll(ctx.GetContext(), func(db *gorm.DB) {
 		db.Select("group_id")
@@ -232,7 +232,7 @@ func (c *Apply) All(ctx *core.Context) error {
 	resp := &web.GroupApplyAllResponse{Items: make([]*web.GroupApplyAllResponse_Item, 0)}
 
 	if len(groupIds) == 0 {
-		c.GroupApplyStorage.Del(ctx.GetContext(), ctx.GetAuthId())
+		c.GroupApplyStorage.Del(ctx.GetContext(), ctx.AuthId())
 		return ctx.Success(resp)
 	}
 
@@ -266,13 +266,13 @@ func (c *Apply) All(ctx *core.Context) error {
 		})
 	}
 
-	c.GroupApplyStorage.Del(ctx.GetContext(), ctx.GetAuthId())
+	c.GroupApplyStorage.Del(ctx.GetContext(), ctx.AuthId())
 
 	return ctx.Success(resp)
 }
 
 func (c *Apply) ApplyUnreadNum(ctx *core.Context) error {
 	return ctx.Success(map[string]any{
-		"unread_num": c.GroupApplyStorage.Get(ctx.GetContext(), ctx.GetAuthId()),
+		"unread_num": c.GroupApplyStorage.Get(ctx.GetContext(), ctx.AuthId()),
 	})
 }

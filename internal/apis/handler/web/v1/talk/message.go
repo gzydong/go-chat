@@ -26,7 +26,7 @@ func (c *Message) Revoke(ctx *core.Context) error {
 	}
 
 	if err := c.TalkService.Revoke(ctx.GetContext(), &service.TalkRevokeOption{
-		UserId:   ctx.GetAuthId(),
+		UserId:   ctx.AuthId(),
 		TalkMode: in.TalkMode,
 		MsgId:    in.MsgId,
 	}); err != nil {
@@ -50,7 +50,7 @@ func (c *Message) Delete(ctx *core.Context) error {
 	}
 
 	if err := c.TalkService.DeleteRecord(ctx.GetContext(), &service.TalkDeleteRecordOption{
-		UserId:   ctx.GetAuthId(),
+		UserId:   ctx.AuthId(),
 		TalkMode: in.TalkMode,
 		ToFromId: in.ToFromId,
 		MsgIds:   in.MsgIds,

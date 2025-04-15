@@ -26,7 +26,7 @@ type User struct {
 
 // Detail 个人用户信息
 func (u *User) Detail(ctx *core.Context) error {
-	user, err := u.UsersRepo.FindByIdWithCache(ctx.GetContext(), ctx.GetAuthId())
+	user, err := u.UsersRepo.FindByIdWithCache(ctx.GetContext(), ctx.AuthId())
 	if err != nil {
 		return ctx.Error(err)
 	}
@@ -45,7 +45,7 @@ func (u *User) Detail(ctx *core.Context) error {
 // Setting 用户设置
 func (u *User) Setting(ctx *core.Context) error {
 
-	uid := ctx.GetAuthId()
+	uid := ctx.AuthId()
 
 	user, err := u.UsersRepo.FindByIdWithCache(ctx.GetContext(), uid)
 	if err != nil {
@@ -85,8 +85,8 @@ func (u *User) ChangeDetail(ctx *core.Context) error {
 		}
 	}
 
-	uid := ctx.GetAuthId()
-	_, err := u.UsersRepo.UpdateById(ctx.GetContext(), ctx.GetAuthId(), map[string]any{
+	uid := ctx.AuthId()
+	_, err := u.UsersRepo.UpdateById(ctx.GetContext(), ctx.AuthId(), map[string]any{
 		"nickname": strings.TrimSpace(strings.Replace(in.Nickname, " ", "", -1)),
 		"avatar":   in.Avatar,
 		"gender":   in.Gender,
@@ -110,7 +110,7 @@ func (u *User) ChangePassword(ctx *core.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	uid := ctx.GetAuthId()
+	uid := ctx.AuthId()
 	if uid == 2054 || uid == 2055 {
 		return ctx.Error(entity.ErrPermissionDenied)
 	}
@@ -125,7 +125,7 @@ func (u *User) ChangePassword(ctx *core.Context) error {
 		return ctx.Error(err)
 	}
 
-	if err := u.UserService.UpdatePassword(ctx.GetContext(), ctx.GetAuthId(), string(oldPassword), string(newPassword)); err != nil {
+	if err := u.UserService.UpdatePassword(ctx.GetContext(), ctx.AuthId(), string(oldPassword), string(newPassword)); err != nil {
 		return ctx.Error(err)
 	}
 
@@ -141,7 +141,7 @@ func (u *User) ChangeMobile(ctx *core.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	uid := ctx.GetAuthId()
+	uid := ctx.AuthId()
 
 	user, _ := u.UsersRepo.FindById(ctx.GetContext(), uid)
 	if lo.FromPtr(user.Mobile) == in.Mobile {

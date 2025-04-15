@@ -13,7 +13,7 @@ type Tag struct {
 // List 标签列表
 func (c *Tag) List(ctx *core.Context) error {
 
-	list, err := c.ArticleTagService.List(ctx.GetContext(), ctx.GetAuthId())
+	list, err := c.ArticleTagService.List(ctx.GetContext(), ctx.AuthId())
 	if err != nil {
 		return ctx.Error(err)
 	}
@@ -36,7 +36,7 @@ func (c *Tag) Edit(ctx *core.Context) error {
 	var (
 		err error
 		in  = &web.ArticleTagEditRequest{}
-		uid = ctx.GetAuthId()
+		uid = ctx.AuthId()
 	)
 
 	if err = ctx.Context.ShouldBindJSON(in); err != nil {
@@ -67,7 +67,7 @@ func (c *Tag) Delete(ctx *core.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	err := c.ArticleTagService.Delete(ctx.GetContext(), ctx.GetAuthId(), int(in.TagId))
+	err := c.ArticleTagService.Delete(ctx.GetContext(), ctx.AuthId(), int(in.TagId))
 	if err != nil {
 		return ctx.Error(err)
 	}

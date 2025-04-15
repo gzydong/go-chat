@@ -31,7 +31,7 @@ type Contact struct {
 
 // List 联系人列表
 func (c *Contact) List(ctx *core.Context) error {
-	list, err := c.ContactService.List(ctx.GetContext(), ctx.GetAuthId())
+	list, err := c.ContactService.List(ctx.GetContext(), ctx.AuthId())
 	if err != nil {
 		return ctx.Error(err)
 	}
@@ -59,7 +59,7 @@ func (c *Contact) Delete(ctx *core.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	uid := ctx.GetAuthId()
+	uid := ctx.AuthId()
 	if err := c.ContactService.Delete(ctx.GetContext(), uid, int(in.UserId)); err != nil {
 		return ctx.Error(err)
 	}
@@ -70,7 +70,7 @@ func (c *Contact) Delete(ctx *core.Context) error {
 		Content:  "你与对方已经解除了好友关系！",
 	})
 
-	if err := c.TalkListService.Delete(ctx.GetContext(), ctx.GetAuthId(), entity.ChatPrivateMode, int(in.UserId)); err != nil {
+	if err := c.TalkListService.Delete(ctx.GetContext(), ctx.AuthId(), entity.ChatPrivateMode, int(in.UserId)); err != nil {
 		return ctx.Error(err)
 	}
 
@@ -110,7 +110,7 @@ func (c *Contact) Remark(ctx *core.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	if err := c.ContactService.UpdateRemark(ctx.GetContext(), ctx.GetAuthId(), int(in.UserId), in.Remark); err != nil {
+	if err := c.ContactService.UpdateRemark(ctx.GetContext(), ctx.AuthId(), int(in.UserId), in.Remark); err != nil {
 		return ctx.Error(err)
 	}
 
@@ -124,7 +124,7 @@ func (c *Contact) Detail(ctx *core.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	uid := ctx.GetAuthId()
+	uid := ctx.AuthId()
 
 	user, err := c.UsersRepo.FindByIdWithCache(ctx.GetContext(), int(in.UserId))
 	if err != nil {
@@ -191,7 +191,7 @@ func (c *Contact) MoveGroup(ctx *core.Context) error {
 		return ctx.InvalidParams(err)
 	}
 
-	err := c.ContactService.MoveGroup(ctx.GetContext(), ctx.GetAuthId(), int(in.UserId), int(in.GroupId))
+	err := c.ContactService.MoveGroup(ctx.GetContext(), ctx.AuthId(), int(in.UserId), int(in.GroupId))
 	if err != nil {
 		return ctx.Error(err)
 	}
@@ -210,7 +210,7 @@ func (c *Contact) OnlineStatus(ctx *core.Context) error {
 		OnlineStatus: "N",
 	}
 
-	ok := c.ContactRepo.IsFriend(ctx.GetContext(), ctx.GetAuthId(), int(in.UserId), true)
+	ok := c.ContactRepo.IsFriend(ctx.GetContext(), ctx.AuthId(), int(in.UserId), true)
 	if ok && c.ClientStorage.IsOnline(ctx.GetContext(), entity.ImChannelChat, fmt.Sprintf("%d", in.UserId)) {
 		resp.OnlineStatus = "Y"
 	}
