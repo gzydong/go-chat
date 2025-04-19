@@ -645,11 +645,8 @@ func NewTempInjector(c *config.Config) *mission.TempProvider {
 	db := provider.NewMySQLClient(c)
 	client := provider.NewRedisClient(c)
 	users := repo.NewUsers(db, client)
-	sequence := cache.NewSequence(client)
-	repoSequence := repo.NewSequence(db, sequence)
 	testCommand := temp.TestCommand{
 		UserRepo: users,
-		SeqRepo:  repoSequence,
 	}
 	tempProvider := &mission.TempProvider{
 		TestJob: testCommand,
