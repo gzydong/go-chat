@@ -164,7 +164,7 @@ message GroupRemoveMemberResponse{}
 // 公开群聊列表请求参数
 message GroupOvertListRequest{
   int32 page = 1 [(validate.rules).int32.gte = 1];
-  string name = 2 [(validate.rules).string.min_len = 1];
+  string name = 2;
 }
 
 // 公开群聊列表响应参数

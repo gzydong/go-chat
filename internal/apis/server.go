@@ -17,7 +17,7 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-func Run(ctx *cli.Context, app *AppProvider) error {
+func NewServer(ctx *cli.Context, app *Provider) error {
 	if !app.Config.Debug() {
 		gin.SetMode(gin.ReleaseMode)
 	}
@@ -33,7 +33,7 @@ func Run(ctx *cli.Context, app *AppProvider) error {
 	return run(c, eg, groupCtx, app)
 }
 
-func run(c chan os.Signal, eg *errgroup.Group, ctx context.Context, app *AppProvider) error {
+func run(c chan os.Signal, eg *errgroup.Group, ctx context.Context, app *Provider) error {
 	serv := &http.Server{
 		Addr:    fmt.Sprintf(":%d", app.Config.Server.Http),
 		Handler: app.Engine,

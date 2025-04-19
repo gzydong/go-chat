@@ -21,405 +21,6 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// 添加联系人分组接口请求参数
-type ContactGroupCreateRequest struct {
-	state         protoimpl.MessageState
-	sizeCache     protoimpl.SizeCache
-	unknownFields protoimpl.UnknownFields
-
-	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	Sort int32  `protobuf:"varint,2,opt,name=sort,proto3" json:"sort,omitempty"`
-}
-
-func (x *ContactGroupCreateRequest) Reset() {
-	*x = ContactGroupCreateRequest{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_web_v1_contact_group_proto_msgTypes[0]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-}
-
-func (x *ContactGroupCreateRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ContactGroupCreateRequest) ProtoMessage() {}
-
-func (x *ContactGroupCreateRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_web_v1_contact_group_proto_msgTypes[0]
-	if protoimpl.UnsafeEnabled && x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ContactGroupCreateRequest.ProtoReflect.Descriptor instead.
-func (*ContactGroupCreateRequest) Descriptor() ([]byte, []int) {
-	return file_web_v1_contact_group_proto_rawDescGZIP(), []int{0}
-}
-
-func (x *ContactGroupCreateRequest) GetName() string {
-	if x != nil {
-		return x.Name
-	}
-	return ""
-}
-
-func (x *ContactGroupCreateRequest) GetSort() int32 {
-	if x != nil {
-		return x.Sort
-	}
-	return 0
-}
-
-// 添加联系人分组接口响应参数
-type ContactGroupCreateResponse struct {
-	state         protoimpl.MessageState
-	sizeCache     protoimpl.SizeCache
-	unknownFields protoimpl.UnknownFields
-
-	Id int32 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
-}
-
-func (x *ContactGroupCreateResponse) Reset() {
-	*x = ContactGroupCreateResponse{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_web_v1_contact_group_proto_msgTypes[1]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-}
-
-func (x *ContactGroupCreateResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ContactGroupCreateResponse) ProtoMessage() {}
-
-func (x *ContactGroupCreateResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_web_v1_contact_group_proto_msgTypes[1]
-	if protoimpl.UnsafeEnabled && x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ContactGroupCreateResponse.ProtoReflect.Descriptor instead.
-func (*ContactGroupCreateResponse) Descriptor() ([]byte, []int) {
-	return file_web_v1_contact_group_proto_rawDescGZIP(), []int{1}
-}
-
-func (x *ContactGroupCreateResponse) GetId() int32 {
-	if x != nil {
-		return x.Id
-	}
-	return 0
-}
-
-// 更新联系人分组接口请求参数
-type ContactGroupUpdateRequest struct {
-	state         protoimpl.MessageState
-	sizeCache     protoimpl.SizeCache
-	unknownFields protoimpl.UnknownFields
-
-	Id   int32  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
-	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	Sort int32  `protobuf:"varint,3,opt,name=sort,proto3" json:"sort,omitempty"`
-}
-
-func (x *ContactGroupUpdateRequest) Reset() {
-	*x = ContactGroupUpdateRequest{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_web_v1_contact_group_proto_msgTypes[2]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-}
-
-func (x *ContactGroupUpdateRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ContactGroupUpdateRequest) ProtoMessage() {}
-
-func (x *ContactGroupUpdateRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_web_v1_contact_group_proto_msgTypes[2]
-	if protoimpl.UnsafeEnabled && x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ContactGroupUpdateRequest.ProtoReflect.Descriptor instead.
-func (*ContactGroupUpdateRequest) Descriptor() ([]byte, []int) {
-	return file_web_v1_contact_group_proto_rawDescGZIP(), []int{2}
-}
-
-func (x *ContactGroupUpdateRequest) GetId() int32 {
-	if x != nil {
-		return x.Id
-	}
-	return 0
-}
-
-func (x *ContactGroupUpdateRequest) GetName() string {
-	if x != nil {
-		return x.Name
-	}
-	return ""
-}
-
-func (x *ContactGroupUpdateRequest) GetSort() int32 {
-	if x != nil {
-		return x.Sort
-	}
-	return 0
-}
-
-// 更新联系人分组接口响应参数
-type ContactGroupUpdateResponse struct {
-	state         protoimpl.MessageState
-	sizeCache     protoimpl.SizeCache
-	unknownFields protoimpl.UnknownFields
-
-	Id int32 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
-}
-
-func (x *ContactGroupUpdateResponse) Reset() {
-	*x = ContactGroupUpdateResponse{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_web_v1_contact_group_proto_msgTypes[3]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-}
-
-func (x *ContactGroupUpdateResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ContactGroupUpdateResponse) ProtoMessage() {}
-
-func (x *ContactGroupUpdateResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_web_v1_contact_group_proto_msgTypes[3]
-	if protoimpl.UnsafeEnabled && x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ContactGroupUpdateResponse.ProtoReflect.Descriptor instead.
-func (*ContactGroupUpdateResponse) Descriptor() ([]byte, []int) {
-	return file_web_v1_contact_group_proto_rawDescGZIP(), []int{3}
-}
-
-func (x *ContactGroupUpdateResponse) GetId() int32 {
-	if x != nil {
-		return x.Id
-	}
-	return 0
-}
-
-// 删除联系人分组接口请求参数
-type ContactGroupDeleteRequest struct {
-	state         protoimpl.MessageState
-	sizeCache     protoimpl.SizeCache
-	unknownFields protoimpl.UnknownFields
-
-	Id int32 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
-}
-
-func (x *ContactGroupDeleteRequest) Reset() {
-	*x = ContactGroupDeleteRequest{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_web_v1_contact_group_proto_msgTypes[4]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-}
-
-func (x *ContactGroupDeleteRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ContactGroupDeleteRequest) ProtoMessage() {}
-
-func (x *ContactGroupDeleteRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_web_v1_contact_group_proto_msgTypes[4]
-	if protoimpl.UnsafeEnabled && x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ContactGroupDeleteRequest.ProtoReflect.Descriptor instead.
-func (*ContactGroupDeleteRequest) Descriptor() ([]byte, []int) {
-	return file_web_v1_contact_group_proto_rawDescGZIP(), []int{4}
-}
-
-func (x *ContactGroupDeleteRequest) GetId() int32 {
-	if x != nil {
-		return x.Id
-	}
-	return 0
-}
-
-// 删除联系人分组接口响应参数
-type ContactGroupDeleteResponse struct {
-	state         protoimpl.MessageState
-	sizeCache     protoimpl.SizeCache
-	unknownFields protoimpl.UnknownFields
-
-	Id int32 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
-}
-
-func (x *ContactGroupDeleteResponse) Reset() {
-	*x = ContactGroupDeleteResponse{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_web_v1_contact_group_proto_msgTypes[5]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-}
-
-func (x *ContactGroupDeleteResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ContactGroupDeleteResponse) ProtoMessage() {}
-
-func (x *ContactGroupDeleteResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_web_v1_contact_group_proto_msgTypes[5]
-	if protoimpl.UnsafeEnabled && x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ContactGroupDeleteResponse.ProtoReflect.Descriptor instead.
-func (*ContactGroupDeleteResponse) Descriptor() ([]byte, []int) {
-	return file_web_v1_contact_group_proto_rawDescGZIP(), []int{5}
-}
-
-func (x *ContactGroupDeleteResponse) GetId() int32 {
-	if x != nil {
-		return x.Id
-	}
-	return 0
-}
-
-// 删除联系人分组接口请求参数
-type ContactGroupSortRequest struct {
-	state         protoimpl.MessageState
-	sizeCache     protoimpl.SizeCache
-	unknownFields protoimpl.UnknownFields
-
-	Items []*ContactGroupSortRequest_Item `protobuf:"bytes,1,rep,name=items,proto3" json:"items,omitempty"`
-}
-
-func (x *ContactGroupSortRequest) Reset() {
-	*x = ContactGroupSortRequest{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_web_v1_contact_group_proto_msgTypes[6]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-}
-
-func (x *ContactGroupSortRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ContactGroupSortRequest) ProtoMessage() {}
-
-func (x *ContactGroupSortRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_web_v1_contact_group_proto_msgTypes[6]
-	if protoimpl.UnsafeEnabled && x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ContactGroupSortRequest.ProtoReflect.Descriptor instead.
-func (*ContactGroupSortRequest) Descriptor() ([]byte, []int) {
-	return file_web_v1_contact_group_proto_rawDescGZIP(), []int{6}
-}
-
-func (x *ContactGroupSortRequest) GetItems() []*ContactGroupSortRequest_Item {
-	if x != nil {
-		return x.Items
-	}
-	return nil
-}
-
-// 删除联系人分组接口响应参数
-type ContactGroupSortResponse struct {
-	state         protoimpl.MessageState
-	sizeCache     protoimpl.SizeCache
-	unknownFields protoimpl.UnknownFields
-}
-
-func (x *ContactGroupSortResponse) Reset() {
-	*x = ContactGroupSortResponse{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_web_v1_contact_group_proto_msgTypes[7]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-}
-
-func (x *ContactGroupSortResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ContactGroupSortResponse) ProtoMessage() {}
-
-func (x *ContactGroupSortResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_web_v1_contact_group_proto_msgTypes[7]
-	if protoimpl.UnsafeEnabled && x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ContactGroupSortResponse.ProtoReflect.Descriptor instead.
-func (*ContactGroupSortResponse) Descriptor() ([]byte, []int) {
-	return file_web_v1_contact_group_proto_rawDescGZIP(), []int{7}
-}
-
 // 联系人分组列表接口请求参数
 type ContactGroupListRequest struct {
 	state         protoimpl.MessageState
@@ -430,7 +31,7 @@ type ContactGroupListRequest struct {
 func (x *ContactGroupListRequest) Reset() {
 	*x = ContactGroupListRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_web_v1_contact_group_proto_msgTypes[8]
+		mi := &file_web_v1_contact_group_proto_msgTypes[0]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -443,7 +44,7 @@ func (x *ContactGroupListRequest) String() string {
 func (*ContactGroupListRequest) ProtoMessage() {}
 
 func (x *ContactGroupListRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_web_v1_contact_group_proto_msgTypes[8]
+	mi := &file_web_v1_contact_group_proto_msgTypes[0]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -456,7 +57,7 @@ func (x *ContactGroupListRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ContactGroupListRequest.ProtoReflect.Descriptor instead.
 func (*ContactGroupListRequest) Descriptor() ([]byte, []int) {
-	return file_web_v1_contact_group_proto_rawDescGZIP(), []int{8}
+	return file_web_v1_contact_group_proto_rawDescGZIP(), []int{0}
 }
 
 // 联系人分组列表接口响应参数
@@ -472,7 +73,7 @@ type ContactGroupListResponse struct {
 func (x *ContactGroupListResponse) Reset() {
 	*x = ContactGroupListResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_web_v1_contact_group_proto_msgTypes[9]
+		mi := &file_web_v1_contact_group_proto_msgTypes[1]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -485,7 +86,7 @@ func (x *ContactGroupListResponse) String() string {
 func (*ContactGroupListResponse) ProtoMessage() {}
 
 func (x *ContactGroupListResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_web_v1_contact_group_proto_msgTypes[9]
+	mi := &file_web_v1_contact_group_proto_msgTypes[1]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -498,7 +99,7 @@ func (x *ContactGroupListResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ContactGroupListResponse.ProtoReflect.Descriptor instead.
 func (*ContactGroupListResponse) Descriptor() ([]byte, []int) {
-	return file_web_v1_contact_group_proto_rawDescGZIP(), []int{9}
+	return file_web_v1_contact_group_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *ContactGroupListResponse) GetItems() []*ContactGroupListResponse_Item {
@@ -519,7 +120,7 @@ type ContactGroupSaveRequest struct {
 func (x *ContactGroupSaveRequest) Reset() {
 	*x = ContactGroupSaveRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_web_v1_contact_group_proto_msgTypes[10]
+		mi := &file_web_v1_contact_group_proto_msgTypes[2]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -532,7 +133,7 @@ func (x *ContactGroupSaveRequest) String() string {
 func (*ContactGroupSaveRequest) ProtoMessage() {}
 
 func (x *ContactGroupSaveRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_web_v1_contact_group_proto_msgTypes[10]
+	mi := &file_web_v1_contact_group_proto_msgTypes[2]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -545,7 +146,7 @@ func (x *ContactGroupSaveRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ContactGroupSaveRequest.ProtoReflect.Descriptor instead.
 func (*ContactGroupSaveRequest) Descriptor() ([]byte, []int) {
-	return file_web_v1_contact_group_proto_rawDescGZIP(), []int{10}
+	return file_web_v1_contact_group_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *ContactGroupSaveRequest) GetItems() []*ContactGroupSaveRequest_Item {
@@ -564,7 +165,7 @@ type ContactGroupSaveResponse struct {
 func (x *ContactGroupSaveResponse) Reset() {
 	*x = ContactGroupSaveResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_web_v1_contact_group_proto_msgTypes[11]
+		mi := &file_web_v1_contact_group_proto_msgTypes[3]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -577,7 +178,7 @@ func (x *ContactGroupSaveResponse) String() string {
 func (*ContactGroupSaveResponse) ProtoMessage() {}
 
 func (x *ContactGroupSaveResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_web_v1_contact_group_proto_msgTypes[11]
+	mi := &file_web_v1_contact_group_proto_msgTypes[3]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -590,62 +191,7 @@ func (x *ContactGroupSaveResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ContactGroupSaveResponse.ProtoReflect.Descriptor instead.
 func (*ContactGroupSaveResponse) Descriptor() ([]byte, []int) {
-	return file_web_v1_contact_group_proto_rawDescGZIP(), []int{11}
-}
-
-type ContactGroupSortRequest_Item struct {
-	state         protoimpl.MessageState
-	sizeCache     protoimpl.SizeCache
-	unknownFields protoimpl.UnknownFields
-
-	Id   int32 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
-	Sort int32 `protobuf:"varint,2,opt,name=sort,proto3" json:"sort,omitempty"`
-}
-
-func (x *ContactGroupSortRequest_Item) Reset() {
-	*x = ContactGroupSortRequest_Item{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_web_v1_contact_group_proto_msgTypes[12]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-}
-
-func (x *ContactGroupSortRequest_Item) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ContactGroupSortRequest_Item) ProtoMessage() {}
-
-func (x *ContactGroupSortRequest_Item) ProtoReflect() protoreflect.Message {
-	mi := &file_web_v1_contact_group_proto_msgTypes[12]
-	if protoimpl.UnsafeEnabled && x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ContactGroupSortRequest_Item.ProtoReflect.Descriptor instead.
-func (*ContactGroupSortRequest_Item) Descriptor() ([]byte, []int) {
-	return file_web_v1_contact_group_proto_rawDescGZIP(), []int{6, 0}
-}
-
-func (x *ContactGroupSortRequest_Item) GetId() int32 {
-	if x != nil {
-		return x.Id
-	}
-	return 0
-}
-
-func (x *ContactGroupSortRequest_Item) GetSort() int32 {
-	if x != nil {
-		return x.Sort
-	}
-	return 0
+	return file_web_v1_contact_group_proto_rawDescGZIP(), []int{3}
 }
 
 type ContactGroupListResponse_Item struct {
@@ -666,7 +212,7 @@ type ContactGroupListResponse_Item struct {
 func (x *ContactGroupListResponse_Item) Reset() {
 	*x = ContactGroupListResponse_Item{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_web_v1_contact_group_proto_msgTypes[13]
+		mi := &file_web_v1_contact_group_proto_msgTypes[4]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -679,7 +225,7 @@ func (x *ContactGroupListResponse_Item) String() string {
 func (*ContactGroupListResponse_Item) ProtoMessage() {}
 
 func (x *ContactGroupListResponse_Item) ProtoReflect() protoreflect.Message {
-	mi := &file_web_v1_contact_group_proto_msgTypes[13]
+	mi := &file_web_v1_contact_group_proto_msgTypes[4]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -692,7 +238,7 @@ func (x *ContactGroupListResponse_Item) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ContactGroupListResponse_Item.ProtoReflect.Descriptor instead.
 func (*ContactGroupListResponse_Item) Descriptor() ([]byte, []int) {
-	return file_web_v1_contact_group_proto_rawDescGZIP(), []int{9, 0}
+	return file_web_v1_contact_group_proto_rawDescGZIP(), []int{1, 0}
 }
 
 func (x *ContactGroupListResponse_Item) GetId() int32 {
@@ -736,7 +282,7 @@ type ContactGroupSaveRequest_Item struct {
 func (x *ContactGroupSaveRequest_Item) Reset() {
 	*x = ContactGroupSaveRequest_Item{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_web_v1_contact_group_proto_msgTypes[14]
+		mi := &file_web_v1_contact_group_proto_msgTypes[5]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -749,7 +295,7 @@ func (x *ContactGroupSaveRequest_Item) String() string {
 func (*ContactGroupSaveRequest_Item) ProtoMessage() {}
 
 func (x *ContactGroupSaveRequest_Item) ProtoReflect() protoreflect.Message {
-	mi := &file_web_v1_contact_group_proto_msgTypes[14]
+	mi := &file_web_v1_contact_group_proto_msgTypes[5]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -762,7 +308,7 @@ func (x *ContactGroupSaveRequest_Item) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ContactGroupSaveRequest_Item.ProtoReflect.Descriptor instead.
 func (*ContactGroupSaveRequest_Item) Descriptor() ([]byte, []int) {
-	return file_web_v1_contact_group_proto_rawDescGZIP(), []int{10, 0}
+	return file_web_v1_contact_group_proto_rawDescGZIP(), []int{2, 0}
 }
 
 func (x *ContactGroupSaveRequest_Item) GetId() int32 {
@@ -792,43 +338,7 @@ var file_web_v1_contact_group_proto_rawDesc = []byte{
 	0x0a, 0x1a, 0x77, 0x65, 0x62, 0x2f, 0x76, 0x31, 0x2f, 0x63, 0x6f, 0x6e, 0x74, 0x61, 0x63, 0x74,
 	0x5f, 0x67, 0x72, 0x6f, 0x75, 0x70, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x12, 0x03, 0x77, 0x65,
 	0x62, 0x1a, 0x17, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x65, 0x2f, 0x76, 0x61, 0x6c, 0x69,
-	0x64, 0x61, 0x74, 0x65, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x22, 0x55, 0x0a, 0x19, 0x43, 0x6f,
-	0x6e, 0x74, 0x61, 0x63, 0x74, 0x47, 0x72, 0x6f, 0x75, 0x70, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65,
-	0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x1b, 0x0a, 0x04, 0x6e, 0x61, 0x6d, 0x65, 0x18,
-	0x01, 0x20, 0x01, 0x28, 0x09, 0x42, 0x07, 0xfa, 0x42, 0x04, 0x72, 0x02, 0x10, 0x01, 0x52, 0x04,
-	0x6e, 0x61, 0x6d, 0x65, 0x12, 0x1b, 0x0a, 0x04, 0x73, 0x6f, 0x72, 0x74, 0x18, 0x02, 0x20, 0x01,
-	0x28, 0x05, 0x42, 0x07, 0xfa, 0x42, 0x04, 0x1a, 0x02, 0x20, 0x00, 0x52, 0x04, 0x73, 0x6f, 0x72,
-	0x74, 0x22, 0x2c, 0x0a, 0x1a, 0x43, 0x6f, 0x6e, 0x74, 0x61, 0x63, 0x74, 0x47, 0x72, 0x6f, 0x75,
-	0x70, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12,
-	0x0e, 0x0a, 0x02, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x05, 0x52, 0x02, 0x69, 0x64, 0x22,
-	0x6e, 0x0a, 0x19, 0x43, 0x6f, 0x6e, 0x74, 0x61, 0x63, 0x74, 0x47, 0x72, 0x6f, 0x75, 0x70, 0x55,
-	0x70, 0x64, 0x61, 0x74, 0x65, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x17, 0x0a, 0x02,
-	0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x05, 0x42, 0x07, 0xfa, 0x42, 0x04, 0x1a, 0x02, 0x20,
-	0x00, 0x52, 0x02, 0x69, 0x64, 0x12, 0x1b, 0x0a, 0x04, 0x6e, 0x61, 0x6d, 0x65, 0x18, 0x02, 0x20,
-	0x01, 0x28, 0x09, 0x42, 0x07, 0xfa, 0x42, 0x04, 0x72, 0x02, 0x10, 0x01, 0x52, 0x04, 0x6e, 0x61,
-	0x6d, 0x65, 0x12, 0x1b, 0x0a, 0x04, 0x73, 0x6f, 0x72, 0x74, 0x18, 0x03, 0x20, 0x01, 0x28, 0x05,
-	0x42, 0x07, 0xfa, 0x42, 0x04, 0x1a, 0x02, 0x20, 0x00, 0x52, 0x04, 0x73, 0x6f, 0x72, 0x74, 0x22,
-	0x2c, 0x0a, 0x1a, 0x43, 0x6f, 0x6e, 0x74, 0x61, 0x63, 0x74, 0x47, 0x72, 0x6f, 0x75, 0x70, 0x55,
-	0x70, 0x64, 0x61, 0x74, 0x65, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x0e, 0x0a,
-	0x02, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x05, 0x52, 0x02, 0x69, 0x64, 0x22, 0x34, 0x0a,
-	0x19, 0x43, 0x6f, 0x6e, 0x74, 0x61, 0x63, 0x74, 0x47, 0x72, 0x6f, 0x75, 0x70, 0x44, 0x65, 0x6c,
-	0x65, 0x74, 0x65, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x17, 0x0a, 0x02, 0x69, 0x64,
-	0x18, 0x01, 0x20, 0x01, 0x28, 0x05, 0x42, 0x07, 0xfa, 0x42, 0x04, 0x1a, 0x02, 0x20, 0x00, 0x52,
-	0x02, 0x69, 0x64, 0x22, 0x2c, 0x0a, 0x1a, 0x43, 0x6f, 0x6e, 0x74, 0x61, 0x63, 0x74, 0x47, 0x72,
-	0x6f, 0x75, 0x70, 0x44, 0x65, 0x6c, 0x65, 0x74, 0x65, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73,
-	0x65, 0x12, 0x0e, 0x0a, 0x02, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x05, 0x52, 0x02, 0x69,
-	0x64, 0x22, 0x9a, 0x01, 0x0a, 0x17, 0x43, 0x6f, 0x6e, 0x74, 0x61, 0x63, 0x74, 0x47, 0x72, 0x6f,
-	0x75, 0x70, 0x53, 0x6f, 0x72, 0x74, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x41, 0x0a,
-	0x05, 0x69, 0x74, 0x65, 0x6d, 0x73, 0x18, 0x01, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x21, 0x2e, 0x77,
-	0x65, 0x62, 0x2e, 0x43, 0x6f, 0x6e, 0x74, 0x61, 0x63, 0x74, 0x47, 0x72, 0x6f, 0x75, 0x70, 0x53,
-	0x6f, 0x72, 0x74, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x2e, 0x49, 0x74, 0x65, 0x6d, 0x42,
-	0x08, 0xfa, 0x42, 0x05, 0x92, 0x01, 0x02, 0x08, 0x01, 0x52, 0x05, 0x69, 0x74, 0x65, 0x6d, 0x73,
-	0x1a, 0x3c, 0x0a, 0x04, 0x49, 0x74, 0x65, 0x6d, 0x12, 0x17, 0x0a, 0x02, 0x69, 0x64, 0x18, 0x01,
-	0x20, 0x01, 0x28, 0x05, 0x42, 0x07, 0xfa, 0x42, 0x04, 0x1a, 0x02, 0x20, 0x00, 0x52, 0x02, 0x69,
-	0x64, 0x12, 0x1b, 0x0a, 0x04, 0x73, 0x6f, 0x72, 0x74, 0x18, 0x02, 0x20, 0x01, 0x28, 0x05, 0x42,
-	0x07, 0xfa, 0x42, 0x04, 0x1a, 0x02, 0x20, 0x00, 0x52, 0x04, 0x73, 0x6f, 0x72, 0x74, 0x22, 0x1a,
-	0x0a, 0x18, 0x43, 0x6f, 0x6e, 0x74, 0x61, 0x63, 0x74, 0x47, 0x72, 0x6f, 0x75, 0x70, 0x53, 0x6f,
-	0x72, 0x74, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x19, 0x0a, 0x17, 0x43, 0x6f,
+	0x64, 0x61, 0x74, 0x65, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x22, 0x19, 0x0a, 0x17, 0x43, 0x6f,
 	0x6e, 0x74, 0x61, 0x63, 0x74, 0x47, 0x72, 0x6f, 0x75, 0x70, 0x4c, 0x69, 0x73, 0x74, 0x52, 0x65,
 	0x71, 0x75, 0x65, 0x73, 0x74, 0x22, 0xaa, 0x01, 0x0a, 0x18, 0x43, 0x6f, 0x6e, 0x74, 0x61, 0x63,
 	0x74, 0x47, 0x72, 0x6f, 0x75, 0x70, 0x4c, 0x69, 0x73, 0x74, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e,
@@ -841,21 +351,21 @@ var file_web_v1_contact_group_proto_rawDesc = []byte{
 	0x28, 0x09, 0x52, 0x04, 0x6e, 0x61, 0x6d, 0x65, 0x12, 0x14, 0x0a, 0x05, 0x63, 0x6f, 0x75, 0x6e,
 	0x74, 0x18, 0x03, 0x20, 0x01, 0x28, 0x05, 0x52, 0x05, 0x63, 0x6f, 0x75, 0x6e, 0x74, 0x12, 0x12,
 	0x0a, 0x04, 0x73, 0x6f, 0x72, 0x74, 0x18, 0x04, 0x20, 0x01, 0x28, 0x05, 0x52, 0x04, 0x73, 0x6f,
-	0x72, 0x74, 0x22, 0xb7, 0x01, 0x0a, 0x17, 0x43, 0x6f, 0x6e, 0x74, 0x61, 0x63, 0x74, 0x47, 0x72,
-	0x6f, 0x75, 0x70, 0x53, 0x61, 0x76, 0x65, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x41,
+	0x72, 0x74, 0x22, 0xad, 0x01, 0x0a, 0x17, 0x43, 0x6f, 0x6e, 0x74, 0x61, 0x63, 0x74, 0x47, 0x72,
+	0x6f, 0x75, 0x70, 0x53, 0x61, 0x76, 0x65, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x37,
 	0x0a, 0x05, 0x69, 0x74, 0x65, 0x6d, 0x73, 0x18, 0x01, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x21, 0x2e,
 	0x77, 0x65, 0x62, 0x2e, 0x43, 0x6f, 0x6e, 0x74, 0x61, 0x63, 0x74, 0x47, 0x72, 0x6f, 0x75, 0x70,
 	0x53, 0x61, 0x76, 0x65, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x2e, 0x49, 0x74, 0x65, 0x6d,
-	0x42, 0x08, 0xfa, 0x42, 0x05, 0x92, 0x01, 0x02, 0x08, 0x01, 0x52, 0x05, 0x69, 0x74, 0x65, 0x6d,
-	0x73, 0x1a, 0x59, 0x0a, 0x04, 0x49, 0x74, 0x65, 0x6d, 0x12, 0x17, 0x0a, 0x02, 0x69, 0x64, 0x18,
-	0x01, 0x20, 0x01, 0x28, 0x05, 0x42, 0x07, 0xfa, 0x42, 0x04, 0x1a, 0x02, 0x20, 0x00, 0x52, 0x02,
-	0x69, 0x64, 0x12, 0x1b, 0x0a, 0x04, 0x73, 0x6f, 0x72, 0x74, 0x18, 0x02, 0x20, 0x01, 0x28, 0x05,
-	0x42, 0x07, 0xfa, 0x42, 0x04, 0x1a, 0x02, 0x20, 0x00, 0x52, 0x04, 0x73, 0x6f, 0x72, 0x74, 0x12,
-	0x1b, 0x0a, 0x04, 0x6e, 0x61, 0x6d, 0x65, 0x18, 0x03, 0x20, 0x01, 0x28, 0x09, 0x42, 0x07, 0xfa,
-	0x42, 0x04, 0x72, 0x02, 0x10, 0x01, 0x52, 0x04, 0x6e, 0x61, 0x6d, 0x65, 0x22, 0x1a, 0x0a, 0x18,
-	0x43, 0x6f, 0x6e, 0x74, 0x61, 0x63, 0x74, 0x47, 0x72, 0x6f, 0x75, 0x70, 0x53, 0x61, 0x76, 0x65,
-	0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x42, 0x0c, 0x5a, 0x0a, 0x77, 0x65, 0x62, 0x2f,
-	0x76, 0x31, 0x3b, 0x77, 0x65, 0x62, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x52, 0x05, 0x69, 0x74, 0x65, 0x6d, 0x73, 0x1a, 0x59, 0x0a, 0x04, 0x49, 0x74, 0x65, 0x6d, 0x12,
+	0x17, 0x0a, 0x02, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x05, 0x42, 0x07, 0xfa, 0x42, 0x04,
+	0x1a, 0x02, 0x28, 0x00, 0x52, 0x02, 0x69, 0x64, 0x12, 0x1b, 0x0a, 0x04, 0x73, 0x6f, 0x72, 0x74,
+	0x18, 0x02, 0x20, 0x01, 0x28, 0x05, 0x42, 0x07, 0xfa, 0x42, 0x04, 0x1a, 0x02, 0x20, 0x00, 0x52,
+	0x04, 0x73, 0x6f, 0x72, 0x74, 0x12, 0x1b, 0x0a, 0x04, 0x6e, 0x61, 0x6d, 0x65, 0x18, 0x03, 0x20,
+	0x01, 0x28, 0x09, 0x42, 0x07, 0xfa, 0x42, 0x04, 0x72, 0x02, 0x10, 0x01, 0x52, 0x04, 0x6e, 0x61,
+	0x6d, 0x65, 0x22, 0x1a, 0x0a, 0x18, 0x43, 0x6f, 0x6e, 0x74, 0x61, 0x63, 0x74, 0x47, 0x72, 0x6f,
+	0x75, 0x70, 0x53, 0x61, 0x76, 0x65, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x42, 0x0c,
+	0x5a, 0x0a, 0x77, 0x65, 0x62, 0x2f, 0x76, 0x31, 0x3b, 0x77, 0x65, 0x62, 0x62, 0x06, 0x70, 0x72,
+	0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -870,33 +380,23 @@ func file_web_v1_contact_group_proto_rawDescGZIP() []byte {
 	return file_web_v1_contact_group_proto_rawDescData
 }
 
-var file_web_v1_contact_group_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
+var file_web_v1_contact_group_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
 var file_web_v1_contact_group_proto_goTypes = []any{
-	(*ContactGroupCreateRequest)(nil),     // 0: web.ContactGroupCreateRequest
-	(*ContactGroupCreateResponse)(nil),    // 1: web.ContactGroupCreateResponse
-	(*ContactGroupUpdateRequest)(nil),     // 2: web.ContactGroupUpdateRequest
-	(*ContactGroupUpdateResponse)(nil),    // 3: web.ContactGroupUpdateResponse
-	(*ContactGroupDeleteRequest)(nil),     // 4: web.ContactGroupDeleteRequest
-	(*ContactGroupDeleteResponse)(nil),    // 5: web.ContactGroupDeleteResponse
-	(*ContactGroupSortRequest)(nil),       // 6: web.ContactGroupSortRequest
-	(*ContactGroupSortResponse)(nil),      // 7: web.ContactGroupSortResponse
-	(*ContactGroupListRequest)(nil),       // 8: web.ContactGroupListRequest
-	(*ContactGroupListResponse)(nil),      // 9: web.ContactGroupListResponse
-	(*ContactGroupSaveRequest)(nil),       // 10: web.ContactGroupSaveRequest
-	(*ContactGroupSaveResponse)(nil),      // 11: web.ContactGroupSaveResponse
-	(*ContactGroupSortRequest_Item)(nil),  // 12: web.ContactGroupSortRequest.Item
-	(*ContactGroupListResponse_Item)(nil), // 13: web.ContactGroupListResponse.Item
-	(*ContactGroupSaveRequest_Item)(nil),  // 14: web.ContactGroupSaveRequest.Item
+	(*ContactGroupListRequest)(nil),       // 0: web.ContactGroupListRequest
+	(*ContactGroupListResponse)(nil),      // 1: web.ContactGroupListResponse
+	(*ContactGroupSaveRequest)(nil),       // 2: web.ContactGroupSaveRequest
+	(*ContactGroupSaveResponse)(nil),      // 3: web.ContactGroupSaveResponse
+	(*ContactGroupListResponse_Item)(nil), // 4: web.ContactGroupListResponse.Item
+	(*ContactGroupSaveRequest_Item)(nil),  // 5: web.ContactGroupSaveRequest.Item
 }
 var file_web_v1_contact_group_proto_depIdxs = []int32{
-	12, // 0: web.ContactGroupSortRequest.items:type_name -> web.ContactGroupSortRequest.Item
-	13, // 1: web.ContactGroupListResponse.items:type_name -> web.ContactGroupListResponse.Item
-	14, // 2: web.ContactGroupSaveRequest.items:type_name -> web.ContactGroupSaveRequest.Item
-	3,  // [3:3] is the sub-list for method output_type
-	3,  // [3:3] is the sub-list for method input_type
-	3,  // [3:3] is the sub-list for extension type_name
-	3,  // [3:3] is the sub-list for extension extendee
-	0,  // [0:3] is the sub-list for field type_name
+	4, // 0: web.ContactGroupListResponse.items:type_name -> web.ContactGroupListResponse.Item
+	5, // 1: web.ContactGroupSaveRequest.items:type_name -> web.ContactGroupSaveRequest.Item
+	2, // [2:2] is the sub-list for method output_type
+	2, // [2:2] is the sub-list for method input_type
+	2, // [2:2] is the sub-list for extension type_name
+	2, // [2:2] is the sub-list for extension extendee
+	0, // [0:2] is the sub-list for field type_name
 }
 
 func init() { file_web_v1_contact_group_proto_init() }
@@ -906,102 +406,6 @@ func file_web_v1_contact_group_proto_init() {
 	}
 	if !protoimpl.UnsafeEnabled {
 		file_web_v1_contact_group_proto_msgTypes[0].Exporter = func(v any, i int) any {
-			switch v := v.(*ContactGroupCreateRequest); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_web_v1_contact_group_proto_msgTypes[1].Exporter = func(v any, i int) any {
-			switch v := v.(*ContactGroupCreateResponse); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_web_v1_contact_group_proto_msgTypes[2].Exporter = func(v any, i int) any {
-			switch v := v.(*ContactGroupUpdateRequest); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_web_v1_contact_group_proto_msgTypes[3].Exporter = func(v any, i int) any {
-			switch v := v.(*ContactGroupUpdateResponse); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_web_v1_contact_group_proto_msgTypes[4].Exporter = func(v any, i int) any {
-			switch v := v.(*ContactGroupDeleteRequest); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_web_v1_contact_group_proto_msgTypes[5].Exporter = func(v any, i int) any {
-			switch v := v.(*ContactGroupDeleteResponse); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_web_v1_contact_group_proto_msgTypes[6].Exporter = func(v any, i int) any {
-			switch v := v.(*ContactGroupSortRequest); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_web_v1_contact_group_proto_msgTypes[7].Exporter = func(v any, i int) any {
-			switch v := v.(*ContactGroupSortResponse); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_web_v1_contact_group_proto_msgTypes[8].Exporter = func(v any, i int) any {
 			switch v := v.(*ContactGroupListRequest); i {
 			case 0:
 				return &v.state
@@ -1013,7 +417,7 @@ func file_web_v1_contact_group_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_contact_group_proto_msgTypes[9].Exporter = func(v any, i int) any {
+		file_web_v1_contact_group_proto_msgTypes[1].Exporter = func(v any, i int) any {
 			switch v := v.(*ContactGroupListResponse); i {
 			case 0:
 				return &v.state
@@ -1025,7 +429,7 @@ func file_web_v1_contact_group_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_contact_group_proto_msgTypes[10].Exporter = func(v any, i int) any {
+		file_web_v1_contact_group_proto_msgTypes[2].Exporter = func(v any, i int) any {
 			switch v := v.(*ContactGroupSaveRequest); i {
 			case 0:
 				return &v.state
@@ -1037,7 +441,7 @@ func file_web_v1_contact_group_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_contact_group_proto_msgTypes[11].Exporter = func(v any, i int) any {
+		file_web_v1_contact_group_proto_msgTypes[3].Exporter = func(v any, i int) any {
 			switch v := v.(*ContactGroupSaveResponse); i {
 			case 0:
 				return &v.state
@@ -1049,19 +453,7 @@ func file_web_v1_contact_group_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_contact_group_proto_msgTypes[12].Exporter = func(v any, i int) any {
-			switch v := v.(*ContactGroupSortRequest_Item); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_web_v1_contact_group_proto_msgTypes[13].Exporter = func(v any, i int) any {
+		file_web_v1_contact_group_proto_msgTypes[4].Exporter = func(v any, i int) any {
 			switch v := v.(*ContactGroupListResponse_Item); i {
 			case 0:
 				return &v.state
@@ -1073,7 +465,7 @@ func file_web_v1_contact_group_proto_init() {
 				return nil
 			}
 		}
-		file_web_v1_contact_group_proto_msgTypes[14].Exporter = func(v any, i int) any {
+		file_web_v1_contact_group_proto_msgTypes[5].Exporter = func(v any, i int) any {
 			switch v := v.(*ContactGroupSaveRequest_Item); i {
 			case 0:
 				return &v.state
@@ -1092,7 +484,7 @@ func file_web_v1_contact_group_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_web_v1_contact_group_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   15,
+			NumMessages:   6,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

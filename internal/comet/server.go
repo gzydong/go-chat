@@ -33,7 +33,7 @@ type AppProvider struct {
 	Providers *provider.Providers
 }
 
-func Run(ctx *cli.Context, app *AppProvider) error {
+func NewServer(ctx *cli.Context, app *AppProvider) error {
 	eg, groupCtx := errgroup.WithContext(ctx.Context)
 
 	if !app.Config.Debug() {

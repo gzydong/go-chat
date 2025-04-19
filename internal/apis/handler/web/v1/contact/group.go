@@ -91,7 +91,11 @@ func (c *Group) Save(ctx *core.Context) error {
 		}
 	}
 
-	err = c.ContactGroupRepo.Db.Transaction(func(tx *gorm.DB) error {
+	if len(deleteItems) == 0 && len(updateItems) == 0 && len(insertItems) == 0 {
+		return ctx.Success(&web.ContactGroupSaveResponse{})
+	}
+
+	err = c.ContactGroupRepo.Txx(ctx.GetContext(), func(tx *gorm.DB) error {
 
 		if len(insertItems) > 0 {
 			if err := tx.Create(insertItems).Error; err != nil {

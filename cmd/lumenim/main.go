@@ -33,7 +33,7 @@ func NewHttpCommand() core.Command {
 		Usage: "Http Command - Http API 接口服务",
 		Action: func(ctx *cli.Context, c *config.Config) error {
 			logger.Init(c.Log.LogFilePath("app.log"), logger.LevelInfo, "http")
-			return apis.Run(ctx, NewHttpInjector(c))
+			return apis.NewServer(ctx, NewHttpInjector(c))
 		},
 	}
 }
@@ -44,7 +44,7 @@ func NewCometCommand() core.Command {
 		Usage: "Comet Command - Websocket、TCP 服务",
 		Action: func(ctx *cli.Context, c *config.Config) error {
 			logger.Init(c.Log.LogFilePath("app.log"), logger.LevelInfo, "comet")
-			return comet.Run(ctx, NewCometInjector(c))
+			return comet.NewServer(ctx, NewCometInjector(c))
 		},
 	}
 }

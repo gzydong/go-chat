@@ -2,11 +2,9 @@ package repo
 
 import (
 	"context"
-	"log"
-	"time"
 
+	"github.com/bwmarrin/snowflake"
 	"go-chat/internal/pkg/core"
-	"go-chat/internal/pkg/utils"
 	"go-chat/internal/repository/cache"
 	"go-chat/internal/repository/model"
 	"gorm.io/gorm"
@@ -23,42 +21,33 @@ type Sequence struct {
 	db    *gorm.DB
 	cache *cache.Sequence
 	core.Repo[model.Sequence]
+	snowflake *snowflake.Node
 }
 
 func NewSequence(db *gorm.DB, cache *cache.Sequence) *Sequence {
-	return &Sequence{db: db, cache: cache, Repo: core.NewRepo[model.Sequence](db)}
-}
 
-func (s *Sequence) try(ctx context.Context, seqType SequenceType, sourceId int32) error {
-	key := s.cache.Name(int32(seqType), sourceId)
+	res := cache.Redis().Incr(context.Background(), "snowflake_work_node")
 
-	// 当数据不存在时需要从数据库中加载
-	if s.cache.Redis().TTL(ctx, key).Val() == time.Duration(-2) {
-		// TODO 没有缓存时，改怎么处理
-		_ = s.cache.Set(ctx, int32(seqType), sourceId, 100000)
+	node, err := snowflake.NewNode(res.Val() % 100)
+	if err != nil {
+		panic(err)
 	}
 
-	return nil
+	return &Sequence{db: db, cache: cache, Repo: core.NewRepo[model.Sequence](db), snowflake: node}
 }
 
 // Get 获取会话间的时序ID
 func (s *Sequence) Get(ctx context.Context, seqType SequenceType, sourceId int32) int64 {
-	if err := utils.Retry(5, 100*time.Millisecond, func() error {
-		return s.try(ctx, seqType, sourceId)
-	}); err != nil {
-		log.Println("Sequence Get Err :", err.Error())
-	}
-
-	return s.cache.Get(ctx, int32(seqType), sourceId)
+	return s.snowflake.Generate().Int64()
 }
 
 // BatchGet 批量获取会话间的时序ID
 func (s *Sequence) BatchGet(ctx context.Context, seqType SequenceType, sourceId int32, num int) []int64 {
-	if err := utils.Retry(5, 100*time.Millisecond, func() error {
-		return s.try(ctx, seqType, sourceId)
-	}); err != nil {
-		log.Println("Sequence BatchGet Err :", err.Error())
+	ids := make([]int64, 0)
+
+	for i := 0; i < num; i++ {
+		ids = append(ids, s.snowflake.Generate().Int64())
 	}
 
-	return s.cache.BatchGet(ctx, int32(seqType), sourceId, int64(num))
+	return ids
 }

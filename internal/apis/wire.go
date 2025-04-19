@@ -11,7 +11,7 @@ import (
 	"go-chat/internal/apis/router"
 )
 
-type AppProvider struct {
+type Provider struct {
 	Config *config.Config
 	Engine *gin.Engine
 }
@@ -24,6 +24,6 @@ var ProviderSet = wire.NewSet(
 	admin.ProviderSet,   // 注入 Admin Handler 依赖
 	open.ProviderSet,    // 注入 Open Handler 依赖
 
-	// AppProvider
-	wire.Struct(new(AppProvider), "*"),
+	// Provider
+	wire.Struct(new(Provider), "*"),
 )

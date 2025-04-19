@@ -51,7 +51,7 @@ import (
 
 // Injectors from wire.go:
 
-func NewHttpInjector(c *config.Config) *apis.AppProvider {
+func NewHttpInjector(c *config.Config) *apis.Provider {
 	db := provider.NewMySQLClient(c)
 	client := provider.NewRedisClient(c)
 	users := repo.NewUsers(db, client)
@@ -429,11 +429,11 @@ func NewHttpInjector(c *config.Config) *apis.AppProvider {
 		Open:  openHandler,
 	}
 	engine := router.NewRouter(c, handlerHandler, jwtTokenStorage)
-	appProvider := &apis.AppProvider{
+	apisProvider := &apis.Provider{
 		Config: c,
 		Engine: engine,
 	}
-	return appProvider
+	return apisProvider
 }
 
 func NewCometInjector(c *config.Config) *comet.AppProvider {
@@ -645,8 +645,11 @@ func NewTempInjector(c *config.Config) *mission.TempProvider {
 	db := provider.NewMySQLClient(c)
 	client := provider.NewRedisClient(c)
 	users := repo.NewUsers(db, client)
+	sequence := cache.NewSequence(client)
+	repoSequence := repo.NewSequence(db, sequence)
 	testCommand := temp.TestCommand{
 		UserRepo: users,
+		SeqRepo:  repoSequence,
 	}
 	tempProvider := &mission.TempProvider{
 		TestJob: testCommand,

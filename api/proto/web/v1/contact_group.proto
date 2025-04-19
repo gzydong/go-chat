@@ -5,61 +5,12 @@ option go_package = "web/v1;web";
 
 import "validate/validate.proto";
 
-// 添加联系人分组接口请求参数
-message ContactGroupCreateRequest{
-  string name = 1 [(validate.rules).string.min_len = 1];
-  int32 sort = 2 [(validate.rules).int32.gt = 0];
-}
-
-// 添加联系人分组接口响应参数
-message ContactGroupCreateResponse{
-  int32 id = 1;
-}
-
-// 更新联系人分组接口请求参数
-message ContactGroupUpdateRequest{
-  int32 id = 1 [(validate.rules).int32.gt = 0];
-  string name = 2 [(validate.rules).string.min_len = 1];
-  int32 sort = 3 [(validate.rules).int32.gt = 0];
-}
-
-// 更新联系人分组接口响应参数
-message ContactGroupUpdateResponse{
-  int32 id = 1;
-}
-
-// 删除联系人分组接口请求参数
-message ContactGroupDeleteRequest{
-  int32 id = 1 [(validate.rules).int32.gt = 0];
-}
-
-// 删除联系人分组接口响应参数
-message ContactGroupDeleteResponse{
-  int32 id = 1;
-}
-
-// 删除联系人分组接口请求参数
-message ContactGroupSortRequest{
-
-  message Item{
-    int32 id = 1 [(validate.rules).int32.gt = 0];
-    int32 sort = 2 [(validate.rules).int32.gt = 0];
-  }
-
-  repeated Item items = 1 [(validate.rules).repeated.min_items = 1];
-}
-
-// 删除联系人分组接口响应参数
-message ContactGroupSortResponse{}
-
-
 
 // 联系人分组列表接口请求参数
 message ContactGroupListRequest{}
 
 // 联系人分组列表接口响应参数
 message ContactGroupListResponse{
-
   message Item{
     // 分组ID
     int32 id = 1;
@@ -77,12 +28,12 @@ message ContactGroupListResponse{
 
 message ContactGroupSaveRequest{
   message Item{
-    int32 id = 1 [(validate.rules).int32.gt = 0];
+    int32 id = 1 [(validate.rules).int32.gte = 0];
     int32 sort = 2 [(validate.rules).int32.gt = 0];
     string name = 3 [(validate.rules).string.min_len = 1];
   }
 
-  repeated Item items = 1 [(validate.rules).repeated.min_items = 1];
+  repeated Item items = 1;
 }
 
 message ContactGroupSaveResponse{}

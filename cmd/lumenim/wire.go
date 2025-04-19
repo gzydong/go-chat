@@ -25,7 +25,7 @@ var providerSet = wire.NewSet(
 	service.ProviderSet,  // 注入 Service 依赖
 )
 
-func NewHttpInjector(c *config.Config) *apis.AppProvider {
+func NewHttpInjector(c *config.Config) *apis.Provider {
 	panic(
 		wire.Build(
 			providerSet,
