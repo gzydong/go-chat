@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/redis/go-redis/v9"
+	"go-chat/internal/pkg/logger"
 )
 
 const tableCacheExpiration = 10 * time.Minute // 缓存过期时间常量
@@ -108,7 +109,7 @@ func CacheGetOrSet[T any](
 	body, err := json.Marshal(model)
 	if err == nil {
 		if err := rds.Set(ctx, key, string(body), ex).Err(); err != nil {
-			fmt.Println("CacheGetOrSet GetOrSet Err:", err)
+			logger.Errorf("cache set error: %v", err)
 		}
 	}
 

@@ -21,4 +21,5 @@ var (
 	ErrNoteClassNotExist         = errorx.New(120003, "分类不存在")
 	ErrNoteClassDefaultNotAllow  = errorx.New(120004, "默认分类不允许修改")
 	ErrNoteClassDefaultNotDelete = errorx.New(120005, "默认分类不允许删除")
+	ErrNoteClassUsedNotDelete    = errorx.New(120006, "分类已被使用不能删除")
 )

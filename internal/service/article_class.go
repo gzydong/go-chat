@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 
+	"go-chat/internal/entity"
 	"go-chat/internal/repository/model"
 	"go-chat/internal/repository/repo"
 	"gorm.io/gorm"
@@ -91,7 +92,7 @@ func (s *ArticleClassService) Delete(ctx context.Context, uid, cid int) error {
 	}
 
 	if num > 0 {
-		return errors.New("分类已被使用不能删除")
+		return entity.ErrNoteClassUsedNotDelete
 	}
 
 	return s.Source.Db().Delete(&model.ArticleClass{}, "id = ? and user_id = ? and is_default = ?", cid, uid, model.No).Error
