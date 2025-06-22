@@ -100,10 +100,22 @@ func (u *Upload) InitiateMultipart(ctx *core.Context) error {
 
 // MultipartUpload 批量分片上传
 func (u *Upload) MultipartUpload(ctx *core.Context) error {
-	in := &web.UploadMultipartRequest{}
-	if err := ctx.ShouldBindProto(in); err != nil {
-		return ctx.InvalidParams(err)
+	in := &web.UploadMultipartRequest{
+		UploadId: ctx.Context.PostForm("upload_id"),
 	}
+
+	splitIndex, err := strconv.Atoi(ctx.Context.PostForm("split_index"))
+	if err != nil {
+		return ctx.InvalidParams("split_index")
+	}
+
+	splitNum, err := strconv.Atoi(ctx.Context.PostForm("split_num"))
+	if err != nil {
+		return ctx.InvalidParams("split_num")
+	}
+
+	in.SplitIndex = int32(splitIndex)
+	in.SplitNum = int32(splitNum)
 
 	file, err := ctx.Context.FormFile("file")
 	if err != nil {
