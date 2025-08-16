@@ -12,9 +12,9 @@ import (
 	"go-chat/internal/apis"
 	"go-chat/internal/apis/handler"
 	"go-chat/internal/apis/handler/admin"
-	v1_2 "go-chat/internal/apis/handler/admin/v1"
+	"go-chat/internal/apis/handler/admin/system"
 	"go-chat/internal/apis/handler/open"
-	v1_3 "go-chat/internal/apis/handler/open/v1"
+	v1_2 "go-chat/internal/apis/handler/open/v1"
 	"go-chat/internal/apis/handler/web"
 	"go-chat/internal/apis/handler/web/v1"
 	"go-chat/internal/apis/handler/web/v1/article"
@@ -22,22 +22,13 @@ import (
 	"go-chat/internal/apis/handler/web/v1/group"
 	"go-chat/internal/apis/handler/web/v1/talk"
 	"go-chat/internal/apis/router"
-	"go-chat/internal/business"
 	"go-chat/internal/comet"
 	"go-chat/internal/comet/consume"
-	chat2 "go-chat/internal/comet/consume/chat"
-	example2 "go-chat/internal/comet/consume/example"
-	handler2 "go-chat/internal/comet/handler"
-	"go-chat/internal/comet/handler/event"
-	"go-chat/internal/comet/handler/event/chat"
-	"go-chat/internal/comet/handler/event/example"
-	"go-chat/internal/comet/process"
-	router2 "go-chat/internal/comet/router"
+	"go-chat/internal/logic"
 	"go-chat/internal/mission"
 	"go-chat/internal/mission/cron"
 	"go-chat/internal/mission/queue"
 	"go-chat/internal/mission/temp"
-	"go-chat/internal/pkg/core/socket"
 	"go-chat/internal/provider"
 	"go-chat/internal/repository/cache"
 	"go-chat/internal/repository/repo"
@@ -59,8 +50,10 @@ func NewHttpInjector(c *config.Config) *apis.Provider {
 	smsService := &service.SmsService{
 		Storage: smsStorage,
 	}
+	oAuthUsers := repo.NewOAuthUsers(db)
 	userService := &service.UserService{
-		UsersRepo: users,
+		UsersRepo:      users,
+		OAuthUsersRepo: oAuthUsers,
 	}
 	common := &v1.Common{
 		Config:      c,
@@ -78,16 +71,32 @@ func NewHttpInjector(c *config.Config) *apis.Provider {
 		ArticleClass: articleClass,
 	}
 	iRsa := provider.NewRsa(c)
+	httpClient := provider.NewHttpClient()
+	iClient := provider.NewGiteeClient(httpClient)
+	githubIClient := provider.NewGithubClient(httpClient)
+	oAuthService := &service.OAuthService{
+		OauthUsers:   oAuthUsers,
+		UserSrv:      userService,
+		Config:       c,
+		GiteeClient:  iClient,
+		GithubClient: githubIClient,
+		Redis:        client,
+	}
+	iAesUtil := provider.NewAesUtil(c)
 	auth := &v1.Auth{
 		Config:              c,
 		Redis:               client,
 		JwtTokenStorage:     jwtTokenStorage,
 		RedisLock:           redisLock,
 		RobotRepo:           robot,
+		OAuthUsersRepo:      oAuthUsers,
+		UsersRepo:           users,
 		SmsService:          smsService,
 		UserService:         userService,
 		ArticleClassService: articleClassService,
 		Rsa:                 iRsa,
+		OauthService:        oAuthService,
+		AesUtil:             iAesUtil,
 	}
 	organize := repo.NewOrganize(db)
 	user := &v1.User{
@@ -106,15 +115,13 @@ func NewHttpInjector(c *config.Config) *apis.Provider {
 		OrganizeRepo:   organize,
 	}
 	messageStorage := cache.NewMessageStorage(client)
-	serverStorage := cache.NewSidStorage(client)
-	clientStorage := cache.NewClientStorage(client, c, serverStorage)
 	unreadStorage := cache.NewUnreadStorage(client)
 	contactRemark := cache.NewContactRemark(client)
 	relation := cache.NewRelation(client)
 	repoContact := repo.NewContact(db, contactRemark, relation)
 	repoGroup := repo.NewGroup(db)
 	groupMember := repo.NewGroupMember(db, relation)
-	pushMessage := &business.PushMessage{
+	pushMessage := &logic.PushMessage{
 		Redis: client,
 	}
 	talkService := &service.TalkService{
@@ -145,29 +152,19 @@ func NewHttpInjector(c *config.Config) *apis.Provider {
 		GroupRepo:       repoGroup,
 		GroupMemberRepo: groupMember,
 	}
-	contactService := &service.ContactService{
-		Source:      source,
-		ContactRepo: repoContact,
-	}
-	clientConnectService := &service.ClientConnectService{
-		Storage: clientStorage,
-	}
 	session := &talk.Session{
-		RedisLock:            redisLock,
-		MessageStorage:       messageStorage,
-		ClientStorage:        clientStorage,
-		UnreadStorage:        unreadStorage,
-		ContactRemark:        contactRemark,
-		ContactRepo:          repoContact,
-		UsersRepo:            users,
-		GroupRepo:            repoGroup,
-		TalkService:          talkService,
-		TalkSessionService:   talkSessionService,
-		UserService:          userService,
-		GroupService:         groupService,
-		AuthService:          authService,
-		ContactService:       contactService,
-		ClientConnectService: clientConnectService,
+		RedisLock:          redisLock,
+		MessageStorage:     messageStorage,
+		UnreadStorage:      unreadStorage,
+		ContactRemark:      contactRemark,
+		ContactRepo:        repoContact,
+		UsersRepo:          users,
+		GroupRepo:          repoGroup,
+		TalkService:        talkService,
+		TalkSessionService: talkSessionService,
+		UserService:        userService,
+		GroupService:       groupService,
+		AuthService:        authService,
 	}
 	iFilesystem := provider.NewFilesystem(c)
 	talkMessage := &talk.Message{
@@ -227,6 +224,11 @@ func NewHttpInjector(c *config.Config) *apis.Provider {
 		SplitUploadService: fileSplitUploadService,
 	}
 	groupNotice := repo.NewGroupNotice(db)
+	contactService := &service.ContactService{
+		Source:      source,
+		ContactRepo: repoContact,
+	}
+	serverStorage := cache.NewSidStorage(client)
 	messageService := &message.Service{
 		Source:              source,
 		GroupMemberRepo:     groupMember,
@@ -237,7 +239,6 @@ func NewHttpInjector(c *config.Config) *apis.Provider {
 		UnreadStorage:       unreadStorage,
 		MessageStorage:      messageStorage,
 		ServerStorage:       serverStorage,
-		ClientStorage:       clientStorage,
 		Sequence:            repoSequence,
 		RobotRepo:           robot,
 		PushMessage:         pushMessage,
@@ -293,17 +294,17 @@ func NewHttpInjector(c *config.Config) *apis.Provider {
 		GroupVoteService: groupVoteService,
 		MessageService:   messageService,
 	}
+	userClient := cache.NewUserClient(client)
 	contactContact := &contact.Contact{
-		ClientStorage:        clientStorage,
-		ContactRepo:          repoContact,
-		UsersRepo:            users,
-		OrganizeRepo:         organize,
-		TalkSessionRepo:      talkSession,
-		ContactService:       contactService,
-		UserService:          userService,
-		TalkListService:      talkSessionService,
-		ClientConnectService: clientConnectService,
-		Message:              messageService,
+		ContactRepo:     repoContact,
+		UsersRepo:       users,
+		OrganizeRepo:    organize,
+		TalkSessionRepo: talkSession,
+		ContactService:  contactService,
+		UserService:     userService,
+		TalkListService: talkSessionService,
+		Message:         messageService,
+		UserClient:      userClient,
 	}
 	contactApplyService := &service.ContactApplyService{
 		Source:      source,
@@ -395,30 +396,49 @@ func NewHttpInjector(c *config.Config) *apis.Provider {
 		V1:       webV1,
 		UserRepo: users,
 	}
-	index := v1_2.NewIndex()
 	repoAdmin := repo.NewAdmin(db)
 	captchaStorage := cache.NewCaptchaStorage(client)
 	captcha := provider.NewBase64Captcha(captchaStorage)
-	v1Auth := &v1_2.Auth{
+	adminAuth := &admin.Auth{
 		Config:          c,
 		AdminRepo:       repoAdmin,
 		JwtTokenStorage: jwtTokenStorage,
 		ICaptcha:        captcha,
 		Rsa:             iRsa,
 	}
-	adminV1 := &admin.V1{
-		Index: index,
-		Auth:  v1Auth,
+	sysAdminTotp := repo.NewSysAdminTotp(db)
+	totp := &admin.Totp{
+		Rsa:              iRsa,
+		AdminRepo:        repoAdmin,
+		SysAdminTotpRepo: sysAdminTotp,
 	}
-	v2 := &admin.V2{}
-	adminHandler := &admin.Handler{
-		V1:        adminV1,
-		V2:        v2,
+	systemAdmin := &system.Admin{
 		AdminRepo: repoAdmin,
 	}
-	v1Index := v1_3.NewIndex()
+	sysRole := repo.NewSysRole(db)
+	role := &system.Role{
+		SysRoleRepo: sysRole,
+	}
+	sysResource := repo.NewSysResource(db)
+	resource := &system.Resource{
+		SysResourceRepo: sysResource,
+	}
+	sysMenu := repo.NewSysMenu(db)
+	menu := &system.Menu{
+		SysMenuRepo: sysMenu,
+	}
+	adminHandler := &admin.Handler{
+		Auth:      adminAuth,
+		Totp:      totp,
+		Admin:     systemAdmin,
+		Role:      role,
+		Resource:  resource,
+		Menu:      menu,
+		AdminRepo: repoAdmin,
+	}
+	index := v1_2.NewIndex()
 	openV1 := &open.V1{
-		Index: v1Index,
+		Index: index,
 	}
 	openHandler := &open.Handler{
 		V1: openV1,
@@ -436,64 +456,16 @@ func NewHttpInjector(c *config.Config) *apis.Provider {
 	return apisProvider
 }
 
-func NewCometInjector(c *config.Config) *comet.AppProvider {
+func NewCometInjector(c *config.Config) *comet.Provider {
 	client := provider.NewRedisClient(c)
-	serverStorage := cache.NewSidStorage(client)
-	clientStorage := cache.NewClientStorage(client, c, serverStorage)
-	clientConnectService := &service.ClientConnectService{
-		Storage: clientStorage,
-	}
 	db := provider.NewMySQLClient(c)
-	relation := cache.NewRelation(client)
-	groupMember := repo.NewGroupMember(db, relation)
-	source := repo.NewSource(db, client)
-	groupMemberService := &service.GroupMemberService{
-		Source:          source,
-		GroupMemberRepo: groupMember,
-	}
-	pushMessage := &business.PushMessage{
-		Redis: client,
-	}
-	chatHandler := &chat.Handler{
-		Redis:         client,
-		Source:        source,
-		MemberService: groupMemberService,
-		PushMessage:   pushMessage,
-	}
-	roomStorage := socket.NewRoomStorage()
-	chatEvent := &event.ChatEvent{
-		Redis:           client,
-		GroupMemberRepo: groupMember,
-		MemberService:   groupMemberService,
-		Handler:         chatHandler,
-		RoomStorage:     roomStorage,
-		PushMessage:     pushMessage,
-	}
-	chatChannel := &handler2.ChatChannel{
-		Storage: clientConnectService,
-		Event:   chatEvent,
-	}
-	exampleHandler := example.NewHandler()
-	exampleEvent := &event.ExampleEvent{
-		Handler: exampleHandler,
-	}
-	exampleChannel := &handler2.ExampleChannel{
-		Storage: clientStorage,
-		Event:   exampleEvent,
-	}
-	handlerHandler := &handler2.Handler{
-		Chat:        chatChannel,
-		Example:     exampleChannel,
-		Config:      c,
-		RoomStorage: roomStorage,
-	}
-	jwtTokenStorage := cache.NewTokenSessionStorage(client)
-	engine := router2.NewRouter(c, handlerHandler, jwtTokenStorage)
-	healthSubscribe := process.NewHealthSubscribe(serverStorage)
 	organize := repo.NewOrganize(db)
 	users := repo.NewUsers(db, client)
+	source := repo.NewSource(db, client)
 	vote := cache.NewVote(client)
 	groupVote := repo.NewGroupVote(db, vote)
+	relation := cache.NewRelation(client)
+	groupMember := repo.NewGroupMember(db, relation)
 	talkUserMessage := repo.NewTalkRecordFriend(db)
 	talkGroupMessage := repo.NewTalkRecordGroup(db)
 	talkGroupMessageDel := repo.NewTalkRecordGroupDel(db)
@@ -512,45 +484,47 @@ func NewCometInjector(c *config.Config) *comet.AppProvider {
 		Source:      source,
 		ContactRepo: repoContact,
 	}
-	handler3 := &chat2.Handler{
-		Config:               c,
-		OrganizeRepo:         organize,
-		UserRepo:             users,
-		Source:               source,
-		TalkRecordsService:   talkRecordService,
-		ContactService:       contactService,
-		ClientConnectService: clientConnectService,
-		RoomStorage:          roomStorage,
+	consumeHandler := &consume.Handler{
+		Config:             c,
+		OrganizeRepo:       organize,
+		UserRepo:           users,
+		Source:             source,
+		TalkRecordsService: talkRecordService,
+		ContactService:     contactService,
+		GroupMemberRepo:    groupMember,
 	}
-	chatSubscribe := consume.NewChatSubscribe(handler3)
-	handler4 := example2.NewHandler()
-	exampleSubscribe := consume.NewExampleSubscribe(handler4)
-	messageSubscribe := process.NewMessageSubscribe(client, chatSubscribe, exampleSubscribe)
-	subServers := &process.SubServers{
-		HealthSubscribe:  healthSubscribe,
-		MessageSubscribe: messageSubscribe,
+	subscribe := &comet.Subscribe{
+		Redis:   client,
+		Handler: consumeHandler,
 	}
-	server := process.NewServer(subServers)
-	emailClient := provider.NewEmailClient(c)
-	providers := &provider.Providers{
-		EmailClient: emailClient,
+	userClient := cache.NewUserClient(client)
+	pushMessage := &logic.PushMessage{
+		Redis: client,
 	}
-	appProvider := &comet.AppProvider{
+	cometHandler := &comet.Handler{
+		UserClient:  userClient,
+		PushMessage: pushMessage,
+	}
+	serverStorage := cache.NewSidStorage(client)
+	heartbeat := &comet.Heartbeat{
+		ServerStorage: serverStorage,
+		Redis:         client,
+	}
+	userJwtAuthorize := provider.NewWebUserJwtAuthorize(c)
+	server := &comet.Server{
 		Config:    c,
-		Engine:    engine,
-		Coroutine: server,
-		Handler:   handlerHandler,
-		Providers: providers,
+		Subscribe: subscribe,
+		Handler:   cometHandler,
+		Heartbeat: heartbeat,
+		Authorize: userJwtAuthorize,
 	}
-	return appProvider
+	cometProvider := &comet.Provider{
+		Server: server,
+	}
+	return cometProvider
 }
 
 func NewCronInjector(c *config.Config) *mission.CronProvider {
-	client := provider.NewRedisClient(c)
-	serverStorage := cache.NewSidStorage(client)
-	clearWsCache := &cron.ClearWsCache{
-		Storage: serverStorage,
-	}
 	db := provider.NewMySQLClient(c)
 	iFilesystem := provider.NewFilesystem(c)
 	clearArticle := &cron.ClearArticle{
@@ -561,14 +535,9 @@ func NewCronInjector(c *config.Config) *mission.CronProvider {
 		DB:         db,
 		Filesystem: iFilesystem,
 	}
-	clearExpireServer := &cron.ClearExpireServer{
-		Storage: serverStorage,
-	}
 	crontab := &cron.Crontab{
-		ClearWsCache:      clearWsCache,
-		ClearArticle:      clearArticle,
-		ClearTmpFile:      clearTmpFile,
-		ClearExpireServer: clearExpireServer,
+		ClearArticle: clearArticle,
+		ClearTmpFile: clearTmpFile,
 	}
 	cronProvider := &mission.CronProvider{
 		Config:  c,
@@ -604,10 +573,9 @@ func NewQueueInjector(c *config.Config) *mission.QueueProvider {
 	unreadStorage := cache.NewUnreadStorage(client)
 	messageStorage := cache.NewMessageStorage(client)
 	serverStorage := cache.NewSidStorage(client)
-	clientStorage := cache.NewClientStorage(client, c, serverStorage)
 	sequence := cache.NewSequence(client)
 	repoSequence := repo.NewSequence(db, sequence)
-	pushMessage := &business.PushMessage{
+	pushMessage := &logic.PushMessage{
 		Redis: client,
 	}
 	messageService := &message.Service{
@@ -620,7 +588,6 @@ func NewQueueInjector(c *config.Config) *mission.QueueProvider {
 		UnreadStorage:       unreadStorage,
 		MessageStorage:      messageStorage,
 		ServerStorage:       serverStorage,
-		ClientStorage:       clientStorage,
 		Sequence:            repoSequence,
 		RobotRepo:           robot,
 		PushMessage:         pushMessage,
@@ -665,4 +632,4 @@ func NewMigrateInjector(c *config.Config) *mission.MigrateProvider {
 
 // wire.go:
 
-var providerSet = wire.NewSet(provider.ProviderSet, cache.ProviderSet, repo.ProviderSet, business.ProviderSet, service.ProviderSet)
+var providerSet = wire.NewSet(provider.ProviderSet, cache.ProviderSet, repo.ProviderSet, logic.ProviderSet, service.ProviderSet)

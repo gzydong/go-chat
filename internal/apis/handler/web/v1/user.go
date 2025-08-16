@@ -189,3 +189,14 @@ func (u *User) ChangeEmail(ctx *core.Context) error {
 
 	return ctx.Success(nil, "手机号修改成功！")
 }
+
+func (u *User) OauthList(ctx *core.Context) error {
+	in := &web.UserEmailUpdateRequest{}
+	if err := ctx.Context.ShouldBindJSON(in); err != nil {
+		return ctx.InvalidParams(err)
+	}
+
+	// todo 1.验证邮件激活码是否正确
+
+	return ctx.Success(nil, "手机号修改成功！")
+}

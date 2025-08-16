@@ -1,0 +1,53 @@
+syntax = "proto3";
+package admin;
+
+option go_package = "admin/v1;admin";
+
+import "validate/validate.proto";
+
+message RoleListRequest{
+  int32 page = 1[(validate.rules).int32.gt = 0];
+  int32 page_size = 2[(validate.rules).int32.gt = 0];
+  string role_name = 3;
+  int32 status = 4;
+}
+
+// 管理员登录接口请求参数
+message RoleListResponse{
+  message Item{
+    int32 id = 1;
+    string role_name = 2;
+    int32 status = 7;
+    string created_at = 8;
+    string updated_at = 9;
+    string explain = 10;
+  }
+
+  repeated Item items = 1;
+  int32 total = 2;
+  int32 page = 3;
+  int32 page_size = 4;
+  int32 page_total = 5;
+}
+
+
+message RoleCreateRequest{
+  string role_name = 2 [(validate.rules).string = {min_len: 1}];
+  string explain = 3 [(validate.rules).string = {max_len: 100}];
+}
+
+// 管理员登录接口请求参数
+message RoleCreateResponse{
+  int32 id = 1;
+}
+
+message RoleUpdateRequest{
+  int32 id = 1[(validate.rules).int32.gt = 0];
+  string role_name = 2 [(validate.rules).string = {min_len: 1}];
+  string explain = 3 [(validate.rules).string = {max_len: 100}];
+}
+
+// 管理员登录接口请求参数
+message RoleUpdateResponse{
+  int32 id = 1;
+}

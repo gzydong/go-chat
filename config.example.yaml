@@ -46,9 +46,12 @@ app:
     k4cC5qJhehEvZcgOiwr5qsvi
     -----END PRIVATE KEY-----
 
+  aes_key: "BLHPzm3Urx5t9DTA"
+
 server:
-  http: 9501
-  websocket: 9502
+  http_addr: ":9501"
+  websocket_addr: "9502"
+  tcp_addr: ":9503""
 
 # 日志配置
 log:
@@ -114,3 +117,13 @@ email:
   username: xxxxx
   password: xxxxx
   fromname: "Lumen IM 在线聊天"
+
+oauth:
+  github:
+    client_id: "Iv23lxxxxxDz8o"
+    client_secret: "7fb8feaxxxxxbe876a1"
+    redirect_uri: "http://localhost:5173/oauth/callback/github"
+  gitee:
+    client_id: "cc6f015ebcaxxxa1b"
+    client_secret: "33402xbbeafeb20cfc1bb"
+    redirect_uri: "http://localhost:5173/oauth/callback/gitee"

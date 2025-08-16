@@ -5,8 +5,8 @@ import (
 
 	"github.com/redis/go-redis/v9"
 	"go-chat/api/pb/web/v1"
-	"go-chat/internal/business"
 	"go-chat/internal/entity"
+	"go-chat/internal/logic"
 	"go-chat/internal/pkg/core"
 	"go-chat/internal/pkg/jsonutil"
 	"go-chat/internal/pkg/sliceutil"
@@ -27,7 +27,7 @@ type Apply struct {
 	GroupApplyService  service.IGroupApplyService
 	GroupMemberService service.IGroupMemberService
 	GroupService       service.IGroupService
-	PushMessage        *business.PushMessage
+	PushMessage        *logic.PushMessage
 }
 
 func (c *Apply) Create(ctx *core.Context) error {

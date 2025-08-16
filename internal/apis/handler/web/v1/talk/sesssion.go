@@ -15,21 +15,18 @@ import (
 )
 
 type Session struct {
-	RedisLock            *cache.RedisLock
-	MessageStorage       *cache.MessageStorage
-	ClientStorage        *cache.ClientStorage
-	UnreadStorage        *cache.UnreadStorage
-	ContactRemark        *cache.ContactRemark
-	ContactRepo          *repo.Contact
-	UsersRepo            *repo.Users
-	GroupRepo            *repo.Group
-	TalkService          service.ITalkService
-	TalkSessionService   service.ITalkSessionService
-	UserService          service.IUserService
-	GroupService         service.IGroupService
-	AuthService          service.IAuthService
-	ContactService       service.IContactService
-	ClientConnectService service.IClientConnectService
+	RedisLock          *cache.RedisLock
+	MessageStorage     *cache.MessageStorage
+	UnreadStorage      *cache.UnreadStorage
+	ContactRemark      *cache.ContactRemark
+	ContactRepo        *repo.Contact
+	UsersRepo          *repo.Users
+	GroupRepo          *repo.Group
+	TalkService        service.ITalkService
+	TalkSessionService service.ITalkSessionService
+	UserService        service.IUserService
+	GroupService       service.IGroupService
+	AuthService        service.IAuthService
 }
 
 // Create 创建会话列表

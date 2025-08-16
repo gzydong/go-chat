@@ -306,6 +306,8 @@ func (m *AuthLoginResponse) validate(all bool) error {
 
 	var errors []error
 
+	// no validation rules for Username
+
 	if all {
 		switch v := interface{}(m.GetAuth()).(type) {
 		case interface{ ValidateAll() error }:
@@ -1034,3 +1036,659 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = AuthRefreshResponseValidationError{}
+
+// Validate checks the field values on AuthDetailRequest with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// first error encountered is returned, or nil if there are no violations.
+func (m *AuthDetailRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on AuthDetailRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// AuthDetailRequestMultiError, or nil if none found.
+func (m *AuthDetailRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *AuthDetailRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(errors) > 0 {
+		return AuthDetailRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// AuthDetailRequestMultiError is an error wrapping multiple validation errors
+// returned by AuthDetailRequest.ValidateAll() if the designated constraints
+// aren't met.
+type AuthDetailRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m AuthDetailRequestMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m AuthDetailRequestMultiError) AllErrors() []error { return m }
+
+// AuthDetailRequestValidationError is the validation error returned by
+// AuthDetailRequest.Validate if the designated constraints aren't met.
+type AuthDetailRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e AuthDetailRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e AuthDetailRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e AuthDetailRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e AuthDetailRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e AuthDetailRequestValidationError) ErrorName() string {
+	return "AuthDetailRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e AuthDetailRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sAuthDetailRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = AuthDetailRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = AuthDetailRequestValidationError{}
+
+// Validate checks the field values on AuthDetailResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *AuthDetailResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on AuthDetailResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// AuthDetailResponseMultiError, or nil if none found.
+func (m *AuthDetailResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *AuthDetailResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Username
+
+	// no validation rules for Email
+
+	// no validation rules for Mobile
+
+	// no validation rules for Address
+
+	// no validation rules for TwoFactorEnable
+
+	if len(errors) > 0 {
+		return AuthDetailResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// AuthDetailResponseMultiError is an error wrapping multiple validation errors
+// returned by AuthDetailResponse.ValidateAll() if the designated constraints
+// aren't met.
+type AuthDetailResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m AuthDetailResponseMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m AuthDetailResponseMultiError) AllErrors() []error { return m }
+
+// AuthDetailResponseValidationError is the validation error returned by
+// AuthDetailResponse.Validate if the designated constraints aren't met.
+type AuthDetailResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e AuthDetailResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e AuthDetailResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e AuthDetailResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e AuthDetailResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e AuthDetailResponseValidationError) ErrorName() string {
+	return "AuthDetailResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e AuthDetailResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sAuthDetailResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = AuthDetailResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = AuthDetailResponseValidationError{}
+
+// Validate checks the field values on AuthUpdatePasswordRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *AuthUpdatePasswordRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on AuthUpdatePasswordRequest with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// AuthUpdatePasswordRequestMultiError, or nil if none found.
+func (m *AuthUpdatePasswordRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *AuthUpdatePasswordRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if utf8.RuneCountInString(m.GetOldPassword()) < 6 {
+		err := AuthUpdatePasswordRequestValidationError{
+			field:  "OldPassword",
+			reason: "value length must be at least 6 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if utf8.RuneCountInString(m.GetNewPassword()) < 6 {
+		err := AuthUpdatePasswordRequestValidationError{
+			field:  "NewPassword",
+			reason: "value length must be at least 6 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if len(errors) > 0 {
+		return AuthUpdatePasswordRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// AuthUpdatePasswordRequestMultiError is an error wrapping multiple validation
+// errors returned by AuthUpdatePasswordRequest.ValidateAll() if the
+// designated constraints aren't met.
+type AuthUpdatePasswordRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m AuthUpdatePasswordRequestMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m AuthUpdatePasswordRequestMultiError) AllErrors() []error { return m }
+
+// AuthUpdatePasswordRequestValidationError is the validation error returned by
+// AuthUpdatePasswordRequest.Validate if the designated constraints aren't met.
+type AuthUpdatePasswordRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e AuthUpdatePasswordRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e AuthUpdatePasswordRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e AuthUpdatePasswordRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e AuthUpdatePasswordRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e AuthUpdatePasswordRequestValidationError) ErrorName() string {
+	return "AuthUpdatePasswordRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e AuthUpdatePasswordRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sAuthUpdatePasswordRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = AuthUpdatePasswordRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = AuthUpdatePasswordRequestValidationError{}
+
+// Validate checks the field values on AuthUpdatePasswordResponse with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *AuthUpdatePasswordResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on AuthUpdatePasswordResponse with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// AuthUpdatePasswordResponseMultiError, or nil if none found.
+func (m *AuthUpdatePasswordResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *AuthUpdatePasswordResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Username
+
+	// no validation rules for Email
+
+	// no validation rules for Mobile
+
+	if len(errors) > 0 {
+		return AuthUpdatePasswordResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// AuthUpdatePasswordResponseMultiError is an error wrapping multiple
+// validation errors returned by AuthUpdatePasswordResponse.ValidateAll() if
+// the designated constraints aren't met.
+type AuthUpdatePasswordResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m AuthUpdatePasswordResponseMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m AuthUpdatePasswordResponseMultiError) AllErrors() []error { return m }
+
+// AuthUpdatePasswordResponseValidationError is the validation error returned
+// by AuthUpdatePasswordResponse.Validate if the designated constraints aren't met.
+type AuthUpdatePasswordResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e AuthUpdatePasswordResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e AuthUpdatePasswordResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e AuthUpdatePasswordResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e AuthUpdatePasswordResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e AuthUpdatePasswordResponseValidationError) ErrorName() string {
+	return "AuthUpdatePasswordResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e AuthUpdatePasswordResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sAuthUpdatePasswordResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = AuthUpdatePasswordResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = AuthUpdatePasswordResponseValidationError{}
+
+// Validate checks the field values on AuthUpdateDetailRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *AuthUpdateDetailRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on AuthUpdateDetailRequest with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// AuthUpdateDetailRequestMultiError, or nil if none found.
+func (m *AuthUpdateDetailRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *AuthUpdateDetailRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Username
+
+	// no validation rules for Mobile
+
+	// no validation rules for Address
+
+	if len(errors) > 0 {
+		return AuthUpdateDetailRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// AuthUpdateDetailRequestMultiError is an error wrapping multiple validation
+// errors returned by AuthUpdateDetailRequest.ValidateAll() if the designated
+// constraints aren't met.
+type AuthUpdateDetailRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m AuthUpdateDetailRequestMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m AuthUpdateDetailRequestMultiError) AllErrors() []error { return m }
+
+// AuthUpdateDetailRequestValidationError is the validation error returned by
+// AuthUpdateDetailRequest.Validate if the designated constraints aren't met.
+type AuthUpdateDetailRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e AuthUpdateDetailRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e AuthUpdateDetailRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e AuthUpdateDetailRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e AuthUpdateDetailRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e AuthUpdateDetailRequestValidationError) ErrorName() string {
+	return "AuthUpdateDetailRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e AuthUpdateDetailRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sAuthUpdateDetailRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = AuthUpdateDetailRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = AuthUpdateDetailRequestValidationError{}
+
+// Validate checks the field values on AuthUpdateDetailResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *AuthUpdateDetailResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on AuthUpdateDetailResponse with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// AuthUpdateDetailResponseMultiError, or nil if none found.
+func (m *AuthUpdateDetailResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *AuthUpdateDetailResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(errors) > 0 {
+		return AuthUpdateDetailResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// AuthUpdateDetailResponseMultiError is an error wrapping multiple validation
+// errors returned by AuthUpdateDetailResponse.ValidateAll() if the designated
+// constraints aren't met.
+type AuthUpdateDetailResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m AuthUpdateDetailResponseMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m AuthUpdateDetailResponseMultiError) AllErrors() []error { return m }
+
+// AuthUpdateDetailResponseValidationError is the validation error returned by
+// AuthUpdateDetailResponse.Validate if the designated constraints aren't met.
+type AuthUpdateDetailResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e AuthUpdateDetailResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e AuthUpdateDetailResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e AuthUpdateDetailResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e AuthUpdateDetailResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e AuthUpdateDetailResponseValidationError) ErrorName() string {
+	return "AuthUpdateDetailResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e AuthUpdateDetailResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sAuthUpdateDetailResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = AuthUpdateDetailResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = AuthUpdateDetailResponseValidationError{}

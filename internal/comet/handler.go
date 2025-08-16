@@ -1,0 +1,48 @@
+package comet
+
+import (
+	"context"
+	"fmt"
+	"log/slog"
+
+	"github.com/tidwall/gjson"
+	"go-chat/internal/logic"
+	"go-chat/internal/pkg/longnet"
+	"go-chat/internal/pkg/server"
+	"go-chat/internal/repository/cache"
+)
+
+var _ longnet.IHandler = (*Handler)(nil)
+
+type Handler struct {
+	UserClient  *cache.UserClient
+	PushMessage *logic.PushMessage
+}
+
+// OnOpen 链接建立成功
+func (h *Handler) OnOpen(smg longnet.ISessionManager, s longnet.ISession) {
+	if err := h.UserClient.Bind(context.Background(), server.ID(), s.ConnId(), s.UserId()); err != nil {
+		_ = s.Close()
+		return
+	}
+
+	_ = s.Write([]byte(fmt.Sprintf(`{"event":"connect","payload":{"ping_interval":%d,"ping_timeout":%d}}`, smg.Options().PingInterval, smg.Options().PingTimeout)))
+}
+
+// OnMessage 接收到消息
+func (h *Handler) OnMessage(smg longnet.ISessionManager, c longnet.ISession, message []byte) {
+	event := gjson.GetBytes(message, "event").String()
+
+	switch event {
+	case "ping":
+		_ = h.UserClient.Bind(context.Background(), server.ID(), c.ConnId(), c.UserId())
+		_ = c.Write([]byte(`{"event":"pong"}`))
+	}
+}
+
+// OnClose 链接关闭
+func (h *Handler) OnClose(cid int64, uid int64) {
+	if err := h.UserClient.UnBind(context.Background(), server.ID(), cid, uid); err != nil {
+		slog.Error("unbind error", "error", err)
+	}
+}

@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"time"
 
-	"go-chat/internal/business"
 	"go-chat/internal/entity"
+	"go-chat/internal/logic"
 	"go-chat/internal/pkg/jsonutil"
 	"go-chat/internal/pkg/logger"
 	"go-chat/internal/repository/cache"
@@ -40,7 +40,7 @@ type TalkService struct {
 	*repo.Source
 	GroupMemberRepo *repo.GroupMember
 	UserRepo        *repo.Users
-	PushMessage     *business.PushMessage
+	PushMessage     *logic.PushMessage
 	MessageStorage  *cache.MessageStorage
 }
 

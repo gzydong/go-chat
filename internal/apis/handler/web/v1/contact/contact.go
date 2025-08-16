@@ -2,7 +2,6 @@ package contact
 
 import (
 	"errors"
-	"fmt"
 
 	"github.com/samber/lo"
 	"go-chat/api/pb/web/v1"
@@ -17,16 +16,15 @@ import (
 )
 
 type Contact struct {
-	ClientStorage        *cache.ClientStorage
-	ContactRepo          *repo.Contact
-	UsersRepo            *repo.Users
-	OrganizeRepo         *repo.Organize
-	TalkSessionRepo      *repo.TalkSession
-	ContactService       service.IContactService
-	UserService          service.IUserService
-	TalkListService      service.ITalkSessionService
-	ClientConnectService service.IClientConnectService
-	Message              message2.IService
+	ContactRepo     *repo.Contact
+	UsersRepo       *repo.Users
+	OrganizeRepo    *repo.Organize
+	TalkSessionRepo *repo.TalkSession
+	ContactService  service.IContactService
+	UserService     service.IUserService
+	TalkListService service.ITalkSessionService
+	Message         message2.IService
+	UserClient      *cache.UserClient
 }
 
 // List 联系人列表
@@ -157,7 +155,7 @@ func (c *Contact) Detail(ctx *core.Context) error {
 
 	isQiYeMember, _ := c.OrganizeRepo.IsQiyeMember(ctx.GetContext(), uid, user.Id)
 	if isQiYeMember {
-		if c.ClientStorage.IsOnline(ctx.GetContext(), entity.ImChannelChat, fmt.Sprintf("%d", in.UserId)) {
+		if c.UserClient.IsOnline(ctx.GetContext(), int64(in.UserId)) {
 			resp.OnlineStatus = "Y"
 		}
 
@@ -176,7 +174,7 @@ func (c *Contact) Detail(ctx *core.Context) error {
 		resp.ContactGroupId = int32(contact.GroupId)
 		resp.ContactRemark = contact.Remark
 
-		if c.ClientStorage.IsOnline(ctx.GetContext(), entity.ImChannelChat, fmt.Sprintf("%d", in.UserId)) {
+		if c.UserClient.IsOnline(ctx.GetContext(), int64(in.UserId)) {
 			resp.OnlineStatus = "Y"
 		}
 	}
@@ -211,7 +209,7 @@ func (c *Contact) OnlineStatus(ctx *core.Context) error {
 	}
 
 	ok := c.ContactRepo.IsFriend(ctx.GetContext(), ctx.AuthId(), int(in.UserId), true)
-	if ok && c.ClientStorage.IsOnline(ctx.GetContext(), entity.ImChannelChat, fmt.Sprintf("%d", in.UserId)) {
+	if ok && c.UserClient.IsOnline(ctx.GetContext(), int64(in.UserId)) {
 		resp.OnlineStatus = "Y"
 	}
 

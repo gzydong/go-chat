@@ -8,7 +8,7 @@ import "validate/validate.proto";
 // 发送短信验证码接口请求参数
 message CommonSendSmsRequest{
   string mobile = 1 [(validate.rules).string.len = 11];
-  string channel = 2 [(validate.rules).string = {in: ["login", "register", "forget_account", "change_account"]}];
+  string channel = 2 [(validate.rules).string = {in: ["login", "register", "forget_account", "change_account", "oauth_bind"]}];
 }
 
 // 发送短信验证码接口响应参数

@@ -22,20 +22,6 @@ func GenValidateCode(length int) string {
 	return sb.String()
 }
 
-// Random 生成随机字符串
-func Random(length int) string {
-	var result []byte
-	bytes := []byte("0123456789abcdefghijklmnopqrstuvwxyz")
-
-	r := rand.New(rand.NewSource(time.Now().UnixNano()))
-
-	for i := 0; i < length; i++ {
-		result = append(result, bytes[r.Intn(len(bytes))])
-	}
-
-	return string(result)
-}
-
 // MtSubstr 字符串截取
 func MtSubstr(value string, start, end int) string {
 
@@ -50,14 +36,6 @@ func MtSubstr(value string, start, end int) string {
 	}
 
 	return string(str[start:end])
-}
-
-func BoolToInt(value bool) int {
-	if value {
-		return 1
-	}
-
-	return 0
 }
 
 // FileSuffix 获取文件后缀名

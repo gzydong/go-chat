@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"time"
 
-	"go-chat/internal/business"
+	"go-chat/internal/logic"
 
 	"go-chat/internal/repository/model"
 	"go-chat/internal/repository/repo"
@@ -29,7 +29,7 @@ type IContactApplyService interface {
 
 type ContactApplyService struct {
 	*repo.Source
-	PushMessage *business.PushMessage
+	PushMessage *logic.PushMessage
 }
 
 type ContactApplyCreateOpt struct {

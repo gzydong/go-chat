@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/samber/lo"
-	"go-chat/internal/business"
+	"go-chat/internal/logic"
 
 	"go-chat/internal/pkg/strutil"
 	"go-chat/internal/repository/cache"
@@ -38,7 +38,7 @@ type GroupService struct {
 	GroupMemberRepo *repo.GroupMember
 	Relation        *cache.Relation
 	Sequence        *repo.Sequence
-	PushMessage     *business.PushMessage
+	PushMessage     *logic.PushMessage
 }
 
 type GroupCreateOpt struct {

@@ -11,6 +11,7 @@ import (
 	"go-chat/internal/pkg/utils"
 	"go-chat/internal/repository/model"
 	"go-chat/internal/repository/repo"
+	"gorm.io/gorm"
 )
 
 var _ IUserService = (*UserService)(nil)
@@ -20,10 +21,12 @@ type IUserService interface {
 	Login(ctx context.Context, mobile string, password string) (*model.Users, error)
 	Forget(ctx context.Context, opt *UserForgetOpt) (bool, error)
 	UpdatePassword(ctx context.Context, uid int, oldPassword string, password string) error
+	OauthBind(ctx context.Context, mobile string, oauthUser *model.OAuthUser) (int, error)
 }
 
 type UserService struct {
-	UsersRepo *repo.Users
+	UsersRepo      *repo.Users
+	OAuthUsersRepo *repo.OAuthUsers
 }
 
 type UserRegisterOpt struct {
@@ -119,4 +122,66 @@ func (s *UserService) UpdatePassword(ctx context.Context, uid int, oldPassword s
 	})
 
 	return err
+}
+
+func (s *UserService) OauthBind(ctx context.Context, mobile string, oauthUser *model.OAuthUser) (int, error) {
+	userinfo, err := s.UsersRepo.FindByMobile(ctx, mobile)
+	if err != nil && !utils.IsSqlNoRows(err) {
+		return 0, err
+	}
+
+	if userinfo != nil {
+		oauth, err := s.OAuthUsersRepo.FindByWhere(ctx, "user_id = ? and oauth_type = ?", userinfo.Id, oauthUser.OAuthType)
+		if err != nil && !utils.IsSqlNoRows(err) {
+			return 0, err
+		}
+
+		if oauth != nil && oauth.UserId == int32(userinfo.Id) {
+			return userinfo.Id, nil
+		}
+
+		if oauth != nil {
+			return 0, entity.ErrAccountBinded
+		}
+
+		_, err = s.OAuthUsersRepo.UpdateByWhere(ctx, map[string]any{
+			"user_id": userinfo.Id,
+		}, "id = ?", oauthUser.Id)
+		if err != nil {
+			return 0, err
+		}
+
+		return userinfo.Id, nil
+	}
+
+	user := &model.Users{
+		Mobile:    lo.ToPtr(mobile),
+		Nickname:  oauthUser.Nickname,
+		Avatar:    oauthUser.Avatar,
+		Gender:    3,
+		IsRobot:   1,
+		Status:    model.UsersStatusNormal,
+		CreatedAt: time.Time{},
+		UpdatedAt: time.Time{},
+	}
+
+	err = s.UsersRepo.Txx(ctx, func(tx *gorm.DB) error {
+		if err := tx.Create(user).Error; err != nil {
+			return err
+		}
+
+		if err := tx.Model(&model.OAuthUser{}).Where("id = ?", oauthUser.Id).Updates(&model.OAuthUser{
+			UserId: int32(user.Id),
+		}).Error; err != nil {
+			return err
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		return 0, err
+	}
+
+	return user.Id, nil
 }

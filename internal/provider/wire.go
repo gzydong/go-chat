@@ -14,5 +14,9 @@ var ProviderSet = wire.NewSet(
 	NewBase64Captcha,
 	NewIpAddressClient,
 	NewRsa,
+	NewAesUtil,
+	NewGiteeClient,
+	NewGithubClient,
+	NewWebUserJwtAuthorize,
 	wire.Struct(new(Providers), "*"),
 )

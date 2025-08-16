@@ -61,3 +61,41 @@ message AuthForgetRequest{
 
 // 找回密码接口响应参数
 message AuthForgetResponse{}
+
+
+message AuthOauthRequest{
+  string oauth_type = 3 [(validate.rules).string = {in:["github", "gitee"]}];
+}
+
+message AuthOauthResponse{
+  string uri = 1;
+}
+
+message AuthOauthLoginRequest{
+  string oauth_type = 3 [(validate.rules).string = {in:["github", "gitee"]}];
+  string code = 1 [(validate.rules).string.min_len = 1];
+  string state = 2 [(validate.rules).string.min_len = 1];
+}
+
+message AuthOauthLoginResponse{
+  string is_authorize = 1;
+  Authorize authorize = 2;
+  string bind_token = 3;
+}
+
+message Authorize{
+  string access_token = 1;
+  int32 expires_in = 2;
+  string type = 3;
+}
+
+
+message AuthOAuthBindRequest{
+  string bind_token = 1 [(validate.rules).string.min_len = 1];
+  string mobile = 2 [(validate.rules).string.min_len = 1];
+  string sms_code = 3 [(validate.rules).string.min_len = 1];
+}
+
+message AuthOAuthBindResponse{
+  Authorize authorize = 2;
+}

@@ -30,4 +30,9 @@ var ProviderSet = wire.NewSet(
 	NewRobot,
 	NewSequence,
 	NewAdmin,
+	NewOAuthUsers,
+	NewSysRole,
+	NewSysResource,
+	NewSysMenu,
+	NewSysAdminTotp,
 )

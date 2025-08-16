@@ -7,4 +7,5 @@ const (
 	SmsRegisterChannel      = "register"
 	SmsForgetAccountChannel = "forget_account"
 	SmsChangeAccountChannel = "change_account"
+	SmsOauthBindChannel     = "oauth_bind"
 )

@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"time"
 
-	"go-chat/internal/business"
+	"go-chat/internal/logic"
 
 	"github.com/google/uuid"
 	"go-chat/internal/entity"
@@ -87,11 +87,9 @@ type Service struct {
 	UnreadStorage       *cache.UnreadStorage
 	MessageStorage      *cache.MessageStorage
 	ServerStorage       *cache.ServerStorage
-	ClientStorage       *cache.ClientStorage
 	Sequence            *repo.Sequence
 	RobotRepo           *repo.Robot
-
-	PushMessage *business.PushMessage
+	PushMessage         *logic.PushMessage
 }
 
 func (s *Service) CreateMessage(ctx context.Context, option CreateMessageOption) error {

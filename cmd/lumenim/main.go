@@ -4,10 +4,10 @@ import (
 	"github.com/urfave/cli/v2"
 	"go-chat/config"
 	"go-chat/internal/apis"
-	"go-chat/internal/comet"
 	"go-chat/internal/mission"
 	"go-chat/internal/pkg/core"
 	"go-chat/internal/pkg/logger"
+	"go-chat/internal/pkg/longnet"
 	_ "go-chat/internal/pkg/server"
 )
 
@@ -30,7 +30,7 @@ func main() {
 func NewHttpCommand() core.Command {
 	return core.Command{
 		Name:  "http",
-		Usage: "Http Command - Http API 接口服务",
+		Usage: "HttpAddr Command - HttpAddr API 接口服务",
 		Action: func(ctx *cli.Context, c *config.Config) error {
 			logger.Init(c.Log.LogFilePath("app.log"), logger.LevelInfo, "http")
 			return apis.NewServer(ctx, NewHttpInjector(c))
@@ -41,10 +41,11 @@ func NewHttpCommand() core.Command {
 func NewCometCommand() core.Command {
 	return core.Command{
 		Name:  "comet",
-		Usage: "Comet Command - Websocket、TCP 服务",
+		Usage: "Comet Command - WebsocketAddr、TCP 服务",
 		Action: func(ctx *cli.Context, c *config.Config) error {
 			logger.Init(c.Log.LogFilePath("app.log"), logger.LevelInfo, "comet")
-			return comet.NewServer(ctx, NewCometInjector(c))
+			injector := NewCometInjector(c)
+			return injector.Server.Start(ctx.Context)
 		},
 	}
 }
@@ -95,11 +96,28 @@ func NewTempCommand() core.Command {
 		Usage: "Temp Command - 临时命令",
 		Subcommands: []core.Command{
 			{
-				Name:  "test",
+				Name:  "socket",
 				Usage: "Test Command",
 				Action: func(ctx *cli.Context, c *config.Config) error {
-					logger.Init(c.Log.LogFilePath("app.log"), logger.LevelInfo, "temp")
-					return NewTempInjector(c).TestJob.Do(ctx)
+					serv := longnet.New(longnet.Options{
+						WSSConfig: &longnet.WSSConfig{
+							Addr: ":9501",
+							Path: "/wss",
+						},
+					})
+
+					serv.SetHandler(longnet.NewHandler(
+						longnet.WithOpenHandler(func(smg longnet.ISessionManager, c longnet.ISession) {
+
+						}),
+						longnet.WithCloseHandler(func(cid int64, uid int64) {
+
+						}),
+						longnet.WithMessageHandler(func(smg longnet.ISessionManager, c longnet.ISession, data []byte) {
+							_ = c.Write(data)
+						})))
+
+					return serv.Start(ctx.Context)
 				},
 			},
 		},

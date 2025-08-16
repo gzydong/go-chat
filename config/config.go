@@ -19,12 +19,13 @@ type Config struct {
 	Email      *Email      `json:"email" yaml:"email"`
 	Server     *Server     `json:"server" yaml:"server"`
 	Nsq        *Nsq        `json:"nsq" yaml:"nsq"` // 目前没用到
+	OAuth      *OAuth      `json:"oauth" yaml:"oauth"`
 }
 
 type Server struct {
-	Http      int `json:"http" yaml:"http"`
-	Websocket int `json:"websocket" yaml:"websocket"`
-	Tcp       int `json:"tcp" yaml:"tcp"`
+	HttpAddr      string `json:"http_addr" yaml:"http_addr"`
+	WebsocketAddr string `json:"websocket_addr" yaml:"websocket_addr"`
+	TcpAddr       string `json:"tcp_addr" yaml:"tcp_addr"`
 }
 
 func New(filename string) *Config {

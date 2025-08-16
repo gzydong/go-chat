@@ -57,9 +57,9 @@ func run(cron *ctb.Cron, ctx context.Context) error {
 
 	select {
 	case <-s:
-		cron.Stop()
+		<-cron.Stop().Done()
 	case <-ctx.Done():
-		cron.Stop()
+		<-cron.Stop().Done()
 	}
 
 	slog.Log(ctx, slog.LevelInfo, "Crontab 定时任务已关闭")

@@ -52,3 +52,19 @@ func ParseWithClaims[T any](secret []byte, tokenString string) (*JwtClaims[T], e
 
 	return nil, errors.New("unknown claims type, cannot proceed")
 }
+
+type IJwtAuthorize[T any] interface {
+	Valid(token string) (*JwtClaims[T], error)
+}
+
+type JwtAuthorize[T any] struct {
+	secret []byte
+}
+
+func NewJwtAuthorize[T any](secret []byte) IJwtAuthorize[T] {
+	return &JwtAuthorize[T]{secret: secret}
+}
+
+func (j *JwtAuthorize[T]) Valid(token string) (*JwtClaims[T], error) {
+	return ParseWithClaims[T](j.secret, token)
+}

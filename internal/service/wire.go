@@ -9,6 +9,9 @@ var ProviderSet = wire.NewSet(
 	wire.Struct(new(UserService), "*"),
 	wire.Bind(new(IUserService), new(*UserService)),
 
+	wire.Struct(new(OAuthService), "*"),
+	wire.Bind(new(IOAuthService), new(*OAuthService)),
+
 	wire.Struct(new(SmsService), "*"),
 	wire.Bind(new(ISmsService), new(*SmsService)),
 
@@ -68,12 +71,6 @@ var ProviderSet = wire.NewSet(
 
 	wire.Struct(new(AuthService), "*"),
 	wire.Bind(new(IAuthService), new(*AuthService)),
-
-	wire.Struct(new(ClientConnectService), "*"),
-	wire.Bind(new(IClientConnectService), new(*ClientConnectService)),
-
-	wire.Struct(new(RoomService), "*"),
-	wire.Bind(new(IRoomService), new(*RoomService)),
 
 	wire.Struct(new(message.Service), "*"),
 	wire.Bind(new(message.IService), new(*message.Service)),

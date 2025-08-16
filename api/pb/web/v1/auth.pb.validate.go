@@ -793,3 +793,869 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = AuthForgetResponseValidationError{}
+
+// Validate checks the field values on AuthOauthRequest with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// first error encountered is returned, or nil if there are no violations.
+func (m *AuthOauthRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on AuthOauthRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// AuthOauthRequestMultiError, or nil if none found.
+func (m *AuthOauthRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *AuthOauthRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if _, ok := _AuthOauthRequest_OauthType_InLookup[m.GetOauthType()]; !ok {
+		err := AuthOauthRequestValidationError{
+			field:  "OauthType",
+			reason: "value must be in list [github gitee]",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if len(errors) > 0 {
+		return AuthOauthRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// AuthOauthRequestMultiError is an error wrapping multiple validation errors
+// returned by AuthOauthRequest.ValidateAll() if the designated constraints
+// aren't met.
+type AuthOauthRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m AuthOauthRequestMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m AuthOauthRequestMultiError) AllErrors() []error { return m }
+
+// AuthOauthRequestValidationError is the validation error returned by
+// AuthOauthRequest.Validate if the designated constraints aren't met.
+type AuthOauthRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e AuthOauthRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e AuthOauthRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e AuthOauthRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e AuthOauthRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e AuthOauthRequestValidationError) ErrorName() string { return "AuthOauthRequestValidationError" }
+
+// Error satisfies the builtin error interface
+func (e AuthOauthRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sAuthOauthRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = AuthOauthRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = AuthOauthRequestValidationError{}
+
+var _AuthOauthRequest_OauthType_InLookup = map[string]struct{}{
+	"github": {},
+	"gitee":  {},
+}
+
+// Validate checks the field values on AuthOauthResponse with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// first error encountered is returned, or nil if there are no violations.
+func (m *AuthOauthResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on AuthOauthResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// AuthOauthResponseMultiError, or nil if none found.
+func (m *AuthOauthResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *AuthOauthResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Uri
+
+	if len(errors) > 0 {
+		return AuthOauthResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// AuthOauthResponseMultiError is an error wrapping multiple validation errors
+// returned by AuthOauthResponse.ValidateAll() if the designated constraints
+// aren't met.
+type AuthOauthResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m AuthOauthResponseMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m AuthOauthResponseMultiError) AllErrors() []error { return m }
+
+// AuthOauthResponseValidationError is the validation error returned by
+// AuthOauthResponse.Validate if the designated constraints aren't met.
+type AuthOauthResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e AuthOauthResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e AuthOauthResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e AuthOauthResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e AuthOauthResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e AuthOauthResponseValidationError) ErrorName() string {
+	return "AuthOauthResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e AuthOauthResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sAuthOauthResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = AuthOauthResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = AuthOauthResponseValidationError{}
+
+// Validate checks the field values on AuthOauthLoginRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *AuthOauthLoginRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on AuthOauthLoginRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// AuthOauthLoginRequestMultiError, or nil if none found.
+func (m *AuthOauthLoginRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *AuthOauthLoginRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if _, ok := _AuthOauthLoginRequest_OauthType_InLookup[m.GetOauthType()]; !ok {
+		err := AuthOauthLoginRequestValidationError{
+			field:  "OauthType",
+			reason: "value must be in list [github gitee]",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if utf8.RuneCountInString(m.GetCode()) < 1 {
+		err := AuthOauthLoginRequestValidationError{
+			field:  "Code",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if utf8.RuneCountInString(m.GetState()) < 1 {
+		err := AuthOauthLoginRequestValidationError{
+			field:  "State",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if len(errors) > 0 {
+		return AuthOauthLoginRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// AuthOauthLoginRequestMultiError is an error wrapping multiple validation
+// errors returned by AuthOauthLoginRequest.ValidateAll() if the designated
+// constraints aren't met.
+type AuthOauthLoginRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m AuthOauthLoginRequestMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m AuthOauthLoginRequestMultiError) AllErrors() []error { return m }
+
+// AuthOauthLoginRequestValidationError is the validation error returned by
+// AuthOauthLoginRequest.Validate if the designated constraints aren't met.
+type AuthOauthLoginRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e AuthOauthLoginRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e AuthOauthLoginRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e AuthOauthLoginRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e AuthOauthLoginRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e AuthOauthLoginRequestValidationError) ErrorName() string {
+	return "AuthOauthLoginRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e AuthOauthLoginRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sAuthOauthLoginRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = AuthOauthLoginRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = AuthOauthLoginRequestValidationError{}
+
+var _AuthOauthLoginRequest_OauthType_InLookup = map[string]struct{}{
+	"github": {},
+	"gitee":  {},
+}
+
+// Validate checks the field values on AuthOauthLoginResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *AuthOauthLoginResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on AuthOauthLoginResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// AuthOauthLoginResponseMultiError, or nil if none found.
+func (m *AuthOauthLoginResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *AuthOauthLoginResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for IsAuthorize
+
+	if all {
+		switch v := interface{}(m.GetAuthorize()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, AuthOauthLoginResponseValidationError{
+					field:  "Authorize",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, AuthOauthLoginResponseValidationError{
+					field:  "Authorize",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetAuthorize()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return AuthOauthLoginResponseValidationError{
+				field:  "Authorize",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	// no validation rules for BindToken
+
+	if len(errors) > 0 {
+		return AuthOauthLoginResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// AuthOauthLoginResponseMultiError is an error wrapping multiple validation
+// errors returned by AuthOauthLoginResponse.ValidateAll() if the designated
+// constraints aren't met.
+type AuthOauthLoginResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m AuthOauthLoginResponseMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m AuthOauthLoginResponseMultiError) AllErrors() []error { return m }
+
+// AuthOauthLoginResponseValidationError is the validation error returned by
+// AuthOauthLoginResponse.Validate if the designated constraints aren't met.
+type AuthOauthLoginResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e AuthOauthLoginResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e AuthOauthLoginResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e AuthOauthLoginResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e AuthOauthLoginResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e AuthOauthLoginResponseValidationError) ErrorName() string {
+	return "AuthOauthLoginResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e AuthOauthLoginResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sAuthOauthLoginResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = AuthOauthLoginResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = AuthOauthLoginResponseValidationError{}
+
+// Validate checks the field values on Authorize with the rules defined in the
+// proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
+func (m *Authorize) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on Authorize with the rules defined in
+// the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in AuthorizeMultiError, or nil
+// if none found.
+func (m *Authorize) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *Authorize) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for AccessToken
+
+	// no validation rules for ExpiresIn
+
+	// no validation rules for Type
+
+	if len(errors) > 0 {
+		return AuthorizeMultiError(errors)
+	}
+
+	return nil
+}
+
+// AuthorizeMultiError is an error wrapping multiple validation errors returned
+// by Authorize.ValidateAll() if the designated constraints aren't met.
+type AuthorizeMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m AuthorizeMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m AuthorizeMultiError) AllErrors() []error { return m }
+
+// AuthorizeValidationError is the validation error returned by
+// Authorize.Validate if the designated constraints aren't met.
+type AuthorizeValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e AuthorizeValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e AuthorizeValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e AuthorizeValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e AuthorizeValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e AuthorizeValidationError) ErrorName() string { return "AuthorizeValidationError" }
+
+// Error satisfies the builtin error interface
+func (e AuthorizeValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sAuthorize.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = AuthorizeValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = AuthorizeValidationError{}
+
+// Validate checks the field values on AuthOAuthBindRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *AuthOAuthBindRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on AuthOAuthBindRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// AuthOAuthBindRequestMultiError, or nil if none found.
+func (m *AuthOAuthBindRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *AuthOAuthBindRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if utf8.RuneCountInString(m.GetBindToken()) < 1 {
+		err := AuthOAuthBindRequestValidationError{
+			field:  "BindToken",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if utf8.RuneCountInString(m.GetMobile()) < 1 {
+		err := AuthOAuthBindRequestValidationError{
+			field:  "Mobile",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if utf8.RuneCountInString(m.GetSmsCode()) < 1 {
+		err := AuthOAuthBindRequestValidationError{
+			field:  "SmsCode",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if len(errors) > 0 {
+		return AuthOAuthBindRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// AuthOAuthBindRequestMultiError is an error wrapping multiple validation
+// errors returned by AuthOAuthBindRequest.ValidateAll() if the designated
+// constraints aren't met.
+type AuthOAuthBindRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m AuthOAuthBindRequestMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m AuthOAuthBindRequestMultiError) AllErrors() []error { return m }
+
+// AuthOAuthBindRequestValidationError is the validation error returned by
+// AuthOAuthBindRequest.Validate if the designated constraints aren't met.
+type AuthOAuthBindRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e AuthOAuthBindRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e AuthOAuthBindRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e AuthOAuthBindRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e AuthOAuthBindRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e AuthOAuthBindRequestValidationError) ErrorName() string {
+	return "AuthOAuthBindRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e AuthOAuthBindRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sAuthOAuthBindRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = AuthOAuthBindRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = AuthOAuthBindRequestValidationError{}
+
+// Validate checks the field values on AuthOAuthBindResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *AuthOAuthBindResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on AuthOAuthBindResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// AuthOAuthBindResponseMultiError, or nil if none found.
+func (m *AuthOAuthBindResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *AuthOAuthBindResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if all {
+		switch v := interface{}(m.GetAuthorize()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, AuthOAuthBindResponseValidationError{
+					field:  "Authorize",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, AuthOAuthBindResponseValidationError{
+					field:  "Authorize",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetAuthorize()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return AuthOAuthBindResponseValidationError{
+				field:  "Authorize",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if len(errors) > 0 {
+		return AuthOAuthBindResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// AuthOAuthBindResponseMultiError is an error wrapping multiple validation
+// errors returned by AuthOAuthBindResponse.ValidateAll() if the designated
+// constraints aren't met.
+type AuthOAuthBindResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m AuthOAuthBindResponseMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m AuthOAuthBindResponseMultiError) AllErrors() []error { return m }
+
+// AuthOAuthBindResponseValidationError is the validation error returned by
+// AuthOAuthBindResponse.Validate if the designated constraints aren't met.
+type AuthOAuthBindResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e AuthOAuthBindResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e AuthOAuthBindResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e AuthOAuthBindResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e AuthOAuthBindResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e AuthOAuthBindResponseValidationError) ErrorName() string {
+	return "AuthOAuthBindResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e AuthOAuthBindResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sAuthOAuthBindResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = AuthOAuthBindResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = AuthOAuthBindResponseValidationError{}

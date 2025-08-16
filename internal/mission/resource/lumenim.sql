@@ -1,16 +1,53 @@
 CREATE TABLE IF NOT EXISTS `admin`
 (
-    `id`         int unsigned     NOT NULL AUTO_INCREMENT COMMENT '用户ID',
-    `username`   varchar(20)      NOT NULL COMMENT '用户昵称',
-    `password`   varchar(255)     NOT NULL COMMENT '用户密码',
-    `avatar`     varchar(255)     NOT NULL DEFAULT '' COMMENT '用户头像',
-    `gender`     tinyint unsigned NOT NULL DEFAULT '3' COMMENT '用户性别[1:男;2:女;3:未知;]',
-    `mobile`     varchar(11)      NOT NULL DEFAULT '' COMMENT '手机号',
-    `email`      varchar(30)      NOT NULL DEFAULT '' COMMENT '用户邮箱',
-    `motto`      varchar(100)     NOT NULL DEFAULT '' COMMENT '用户座右铭',
-    `status`     tinyint unsigned NOT NULL DEFAULT '1' COMMENT '状态[1:正常;2:停用;]',
-    `created_at` datetime         NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '注册时间',
-    `updated_at` datetime         NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    `id`
+    int
+(
+    10
+) unsigned NOT NULL AUTO_INCREMENT COMMENT '用户ID',
+    `username` varchar
+(
+    20
+) NOT NULL COMMENT '用户昵称',
+    `password` varchar
+(
+    255
+) NOT NULL COMMENT '用户密码',
+    `avatar` varchar
+(
+    255
+) NOT NULL DEFAULT '' COMMENT '用户头像',
+    `gender` tinyint
+(
+    3
+) unsigned NOT NULL DEFAULT '3' COMMENT '用户性别[1:男;2:女;3:未知;]',
+    `mobile` varchar
+(
+    11
+) NOT NULL DEFAULT '' COMMENT '手机号',
+    `email` varchar
+(
+    30
+) NOT NULL DEFAULT '' COMMENT '用户邮箱',
+    `motto` varchar
+(
+    100
+) NOT NULL DEFAULT '' COMMENT '用户座右铭',
+    `address` varchar
+(
+    255
+) DEFAULT '' COMMENT '联系地址',
+    `two_factor_enable` varchar
+(
+    1
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_danish_ci NOT NULL DEFAULT 'N' COMMENT '双因子认证',
+    `status` tinyint
+(
+    3
+) unsigned NOT NULL DEFAULT '1' COMMENT '状态[1:正常;2:停用;]',
+    `last_login_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '最后一次登录时间',
+    `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '注册时间',
+    `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     PRIMARY KEY (`id`) USING BTREE,
     UNIQUE KEY `uk_username` (`username`) USING BTREE,
     UNIQUE KEY `uk_email` (`email`) USING BTREE,

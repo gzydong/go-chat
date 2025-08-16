@@ -1,9 +1,10 @@
 package config
 
 type App struct {
-	Env        string   `json:"env"`
-	Debug      bool     `json:"debug"`
-	PublicKey  string   `json:"-" yaml:"public_key"`
-	PrivateKey string   `json:"-" yaml:"private_key"`
-	AdminEmail []string `json:"admin_email"`
+	Env        string   `yaml:"env"`
+	Debug      bool     `yaml:"debug"`
+	PublicKey  string   `yaml:"public_key"`
+	PrivateKey string   `yaml:"private_key"`
+	AesKey     string   `yaml:"aes_key"`
+	AdminEmail []string `yaml:"admin_email"`
 }

@@ -35,7 +35,7 @@ func (c *Common) SmsCode(ctx *core.Context) error {
 		if c.UsersRepo.IsMobileExist(ctx.GetContext(), in.Mobile) {
 			return ctx.Error(entity.ErrPhoneExist)
 		}
-
+	case entity.SmsOauthBindChannel:
 	default:
 		return ctx.InvalidParams("渠道不存在")
 	}
@@ -46,7 +46,7 @@ func (c *Common) SmsCode(ctx *core.Context) error {
 		return ctx.Error(err)
 	}
 
-	if in.Channel == entity.SmsRegisterChannel || in.Channel == entity.SmsChangeAccountChannel {
+	if in.Channel == entity.SmsRegisterChannel || in.Channel == entity.SmsChangeAccountChannel || in.Channel == entity.SmsOauthBindChannel {
 		return ctx.Success(map[string]any{
 			"is_debug": true,
 			"sms_code": code,

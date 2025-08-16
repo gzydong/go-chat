@@ -6,9 +6,11 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/redis/go-redis/v9"
 	"go-chat/internal/pkg/core/middleware"
+	"go-chat/internal/pkg/encrypt/aesutil"
 	"go-chat/internal/pkg/encrypt/rsautil"
 	"go-chat/internal/pkg/jwtutil"
 	"go-chat/internal/pkg/utils"
+	"go-chat/internal/repository/model"
 
 	"go-chat/api/pb/queue/v1"
 	"go-chat/api/pb/web/v1"
@@ -28,10 +30,14 @@ type Auth struct {
 	JwtTokenStorage     *cache.JwtTokenStorage
 	RedisLock           *cache.RedisLock
 	RobotRepo           *repo.Robot
+	OAuthUsersRepo      *repo.OAuthUsers
+	UsersRepo           *repo.Users
 	SmsService          service.ISmsService
 	UserService         service.IUserService
 	ArticleClassService service.IArticleClassService
 	Rsa                 rsautil.IRsa
+	OauthService        service.IOAuthService
+	AesUtil             aesutil.IAesUtil
 }
 
 // Login 登录接口
@@ -72,10 +78,15 @@ func (c *Auth) Login(ctx *core.Context) error {
 		)
 	}
 
+	authorize, err := c.authorize(user.Id)
+	if err != nil {
+		return ctx.Error(err)
+	}
+
 	return ctx.Success(&web.AuthLoginResponse{
-		Type:        "Bearer",
-		AccessToken: c.token(user.Id),
-		ExpiresIn:   int32(c.Config.Jwt.ExpiresTime),
+		Type:        authorize.Type,
+		AccessToken: authorize.AccessToken,
+		ExpiresIn:   authorize.ExpiresIn,
 	})
 }
 
@@ -92,7 +103,7 @@ func (c *Auth) Register(ctx *core.Context) error {
 
 	// 验证短信验证码是否正确
 	if !c.SmsService.Verify(ctx.GetContext(), entity.SmsRegisterChannel, in.Mobile, in.SmsCode) {
-		return ctx.InvalidParams("短信验证码填写错误！")
+		return entity.ErrSmsCodeError
 	}
 
 	password, err := c.Rsa.Decrypt(in.Password)
@@ -141,7 +152,7 @@ func (c *Auth) Forget(ctx *core.Context) error {
 
 	// 验证短信验证码是否正确
 	if !c.SmsService.Verify(ctx.GetContext(), entity.SmsForgetAccountChannel, in.Mobile, in.SmsCode) {
-		return ctx.InvalidParams("短信验证码填写错误！")
+		return entity.ErrSmsCodeError
 	}
 
 	password, err := c.Rsa.Decrypt(in.Password)
@@ -162,7 +173,118 @@ func (c *Auth) Forget(ctx *core.Context) error {
 	return ctx.Success(&web.AuthForgetResponse{})
 }
 
-func (c *Auth) token(uid int) string {
+// OAuth 第三方登录
+func (c *Auth) OAuth(ctx *core.Context) error {
+	in := &web.AuthOauthRequest{}
+	if err := ctx.ShouldBindProto(in); err != nil {
+		return ctx.InvalidParams(err)
+	}
+
+	uri, err := c.OauthService.GetAuthURL(ctx.GetContext(), model.OAuthType(in.OauthType))
+	if err != nil {
+		return ctx.Error(err)
+	}
+
+	return ctx.Success(&web.AuthOauthResponse{Uri: uri})
+}
+
+// OAuthLogin 第三方授权登录
+func (c *Auth) OAuthLogin(ctx *core.Context) error {
+	in := &web.AuthOauthLoginRequest{}
+	if err := ctx.ShouldBindProto(in); err != nil {
+		return ctx.InvalidParams(err)
+	}
+
+	oAuthInfo, err := c.OauthService.HandleCallback(ctx.GetContext(), model.OAuthType(in.OauthType), in.Code, in.State)
+	if err != nil {
+		return ctx.Error(err)
+	}
+
+	// 有会员信息直接返回登录信息
+	if oAuthInfo.UserId > 0 {
+		authorize, err := c.authorize(int(oAuthInfo.UserId))
+		if err != nil {
+			return ctx.Error(err)
+		}
+
+		return ctx.Success(&web.AuthOauthLoginResponse{
+			IsAuthorize: "Y",
+			Authorize:   authorize,
+		})
+	}
+
+	ciphertext, err := c.AesUtil.Encrypt(jsonutil.Encode(BindTokenInfo{
+		Id:        oAuthInfo.Id,
+		Type:      string(oAuthInfo.OAuthType),
+		Timestamp: time.Now().Unix(),
+	}))
+
+	if err != nil {
+		return ctx.Error(err)
+	}
+
+	return ctx.Success(&web.AuthOauthLoginResponse{
+		IsAuthorize: "N",
+		BindToken:   ciphertext,
+	})
+}
+
+// OAuthBind 第三方授权登录绑定
+func (c *Auth) OAuthBind(ctx *core.Context) error {
+	in := &web.AuthOAuthBindRequest{}
+	if err := ctx.ShouldBindProto(in); err != nil {
+		return ctx.InvalidParams(err)
+	}
+
+	decrypt, err := c.AesUtil.Decrypt(in.BindToken)
+	if err != nil {
+		return ctx.InvalidParams("BindToken 解密异常")
+	}
+
+	var data = BindTokenInfo{}
+	if err := jsonutil.Unmarshal(decrypt, &data); err != nil {
+		return ctx.Error(err)
+	}
+
+	info, err := c.OAuthUsersRepo.FindById(ctx.GetContext(), data.Id)
+	if err != nil {
+		return ctx.Error(err)
+	}
+
+	if info.UserId != 0 {
+		authorize, err := c.authorize(int(info.UserId))
+		if err != nil {
+			return ctx.Error(err)
+		}
+
+		return ctx.Success(&web.AuthOAuthBindResponse{
+			Authorize: authorize,
+		})
+	}
+
+	if !c.SmsService.Verify(ctx.GetContext(), entity.SmsOauthBindChannel, in.Mobile, in.SmsCode) {
+		return entity.ErrSmsCodeError
+	}
+
+	userId, err := c.UserService.OauthBind(ctx.GetContext(), in.Mobile, info)
+	if err != nil {
+		return err
+	}
+
+	c.SmsService.Delete(ctx.GetContext(), entity.SmsOauthBindChannel, in.Mobile)
+
+	authorize, err := c.authorize(userId)
+	if err != nil {
+		return ctx.Error(err)
+	}
+
+	return ctx.Success(&web.AuthOAuthBindResponse{
+		Authorize: authorize,
+	})
+}
+
+// 生成 JWT Token
+func (c *Auth) authorize(uid int) (*web.Authorize, error) {
 	token, err := jwtutil.NewTokenWithClaims(
 		[]byte(c.Config.Jwt.Secret), entity.WebClaims{
 			UserId: int32(uid),
@@ -174,8 +296,18 @@ func (c *Auth) token(uid int) string {
 	)
 
 	if err != nil {
-		return ""
+		return nil, err
 	}
 
-	return token
+	return &web.Authorize{
+		AccessToken: token,
+		ExpiresIn:   int32(c.Config.Jwt.ExpiresTime),
+		Type:        "Bearer",
+	}, nil
+}
+
+type BindTokenInfo struct {
+	Id        int32  `json:"id"`
+	Type      string `json:"type"`
+	Timestamp int64  `json:"timestamp"`
 }

@@ -1,0 +1,44 @@
+syntax = "proto3";
+package admin;
+
+option go_package = "admin/v1;admin";
+
+import "validate/validate.proto";
+
+message TotpStatusRequest{}
+
+message TotpStatusResponse{
+  string enable = 1;
+}
+
+message TotpCloseRequest{
+  string password = 1[(validate.rules).string.min_len = 1];
+}
+
+message TotpCloseResponse{}
+
+message TotpInitRequest{
+  string password = 1[(validate.rules).string.min_len = 1];
+}
+
+message TotpInitResponse{
+  string qrcode_uri = 1;
+  string secret = 3;
+}
+
+message TotpSubmitRequest{
+  string code = 1[(validate.rules).string.min_len = 1];
+  string session = 2[(validate.rules).string.min_len = 1];
+}
+
+message TotpSubmitResponse{
+  repeated string one_time_code = 3;
+}
+
+message TotpQrcodeRequest{
+  string password = 1[(validate.rules).string.min_len = 1];
+}
+
+message TotpQrcodeResponse{
+  string qrcode_uri = 2;
+}

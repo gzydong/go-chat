@@ -6,12 +6,11 @@ import (
 
 var ProviderSet = wire.NewSet(
 	NewCaptchaStorage,
-	NewClientStorage,
 	NewContactRemark,
 	NewRedisLock,
 	NewMessageStorage,
 	NewRelation,
-	NewRoomStorage,
+	//NewRoomStorage,
 	NewSequence,
 	NewTokenSessionStorage,
 	NewSidStorage,
@@ -19,4 +18,5 @@ var ProviderSet = wire.NewSet(
 	NewVote,
 	NewUnreadStorage,
 	NewGroupApplyStorage,
+	NewUserClient,
 )

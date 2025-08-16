@@ -3,6 +3,7 @@ package core
 import (
 	"context"
 
+	"go-chat/internal/repository/model"
 	"gorm.io/gorm"
 )
 
@@ -63,6 +64,16 @@ func (r *Repo[T]) FindAll(ctx context.Context, arg ...func(*gorm.DB)) ([]*T, err
 	return items, nil
 }
 
+// FindAllByWhere 删除数据
+func (r *Repo[T]) FindAllByWhere(ctx context.Context, where string, args ...any) ([]*T, error) {
+	var items []*T
+	if err := r.Model(ctx).Where(where, args...).Scan(&items).Error; err != nil {
+		return nil, err
+	}
+
+	return items, nil
+}
+
 // FindByConditions 根据条件查询一条数据
 func (r *Repo[T]) FindByConditions(ctx context.Context, fn func(tx *gorm.DB) *gorm.DB) (*T, error) {
 	var item *T
@@ -71,6 +82,25 @@ func (r *Repo[T]) FindByConditions(ctx context.Context, fn func(tx *gorm.DB) *go
 	}
 
 	return item, nil
+}
+
+// Pagination 分页
+func (r *Repo[T]) Pagination(ctx context.Context, page, pageSize int, fn func(tx *gorm.DB) *gorm.DB) (int64, []*T, error) {
+	var items []*T
+	var total int64
+	if err := fn(r.Db.WithContext(ctx)).Model(new(T)).Count(&total).Error; err != nil {
+		return 0, nil, err
+	}
+
+	if total == 0 {
+		return 0, items, nil
+	}
+
+	if err := fn(r.Db.WithContext(ctx)).Limit(pageSize).Offset((page - 1) * pageSize).Find(&items).Error; err != nil {
+		return 0, nil, err
+	}
+
+	return total, items, nil
 }
 
 // FindByWhere 根据条件查询一条数据
@@ -127,7 +157,7 @@ func (r *Repo[T]) Create(ctx context.Context, data *T) error {
 }
 
 // Insert 批量创建
-func (r *Repo[T]) Insert(ctx context.Context, data []*T) error {
+func (r *Repo[T]) Insert(ctx context.Context, data *model.SysAdminTotp) error {
 	return r.Db.WithContext(ctx).Create(data).Error
 }
 

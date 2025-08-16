@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"math"
 	"net/http"
+	"strconv"
 	"time"
 
 	"go-chat/api/pb/web/v1"
@@ -27,9 +28,18 @@ type Annex struct {
 // Upload 上传附件
 func (c *Annex) Upload(ctx *core.Context) error {
 	in := &web.ArticleAnnexUploadRequest{}
-	if err := ctx.ShouldBindProto(in); err != nil {
-		return ctx.InvalidParams(err)
+
+	value := ctx.Context.PostForm("article_id")
+	if value == "" {
+		return ctx.InvalidParams("请选择文章")
 	}
+
+	id, _ := strconv.Atoi(value)
+	if id <= 0 {
+		return ctx.InvalidParams("请选择文章")
+	}
+
+	in.ArticleId = int32(id)
 
 	file, err := ctx.Context.FormFile("annex")
 	if err != nil {

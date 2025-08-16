@@ -72,7 +72,7 @@ func (m *CommonSendSmsRequest) validate(all bool) error {
 	if _, ok := _CommonSendSmsRequest_Channel_InLookup[m.GetChannel()]; !ok {
 		err := CommonSendSmsRequestValidationError{
 			field:  "Channel",
-			reason: "value must be in list [login register forget_account change_account]",
+			reason: "value must be in list [login register forget_account change_account oauth_bind]",
 		}
 		if !all {
 			return err
@@ -165,6 +165,7 @@ var _CommonSendSmsRequest_Channel_InLookup = map[string]struct{}{
 	"register":       {},
 	"forget_account": {},
 	"change_account": {},
+	"oauth_bind":     {},
 }
 
 // Validate checks the field values on CommonSendSmsResponse with the rules

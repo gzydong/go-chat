@@ -1,0 +1,73 @@
+syntax = "proto3";
+package admin;
+
+option go_package = "admin/v1;admin";
+
+import "validate/validate.proto";
+
+message AdminListRequest{
+  // Token 类型
+  int32 page = 1 [(validate.rules).int32.gt = 0];
+  // token
+  int32 page_size = 2 [(validate.rules).int32.gt = 0];
+  // 过期时间
+  string username = 3;
+  int32 status = 4;
+  string email = 5;
+}
+
+// 管理员登录接口请求参数
+message AdminListResponse{
+  message Item{
+    int32 id = 1;
+    string username = 2;
+    string avatar = 4;
+    string mobile = 5;
+    string email = 6;
+    int32 status = 7;
+    string created_at = 8;
+    string updated_at = 9;
+    string last_login_at = 10;
+    string role_name = 11;
+  }
+
+  repeated Item items = 1;
+  int32 total = 2;
+  int32 page = 3;
+  int32 page_size = 4;
+  int32 page_total = 5;
+}
+
+
+message AdminCreateRequest{
+  string username = 2 [(validate.rules).string = {min_len: 6}];
+  string email = 6 [(validate.rules).string = {min_len: 6}];
+  string password = 5 [(validate.rules).string = {min_len: 6}];
+}
+
+// 管理员登录接口请求参数
+message AdminCreateResponse{
+  int32 id = 1;
+}
+
+
+message AdminStatusRequest{
+  int32 id = 1 [(validate.rules).int32.gt = 0];
+  int32 status = 2 [(validate.rules).int32 = {in: [1, 2]}];
+}
+
+// 管理员登录接口请求参数
+message AdminStatusResponse{
+  int32 id = 1;
+}
+
+
+message AdminResetPasswordRequest{
+  int32 id = 1 [(validate.rules).int32.gt = 1];
+  string password = 2 [(validate.rules).string = {min_len: 6}];
+}
+
+// 管理员登录接口请求参数
+message AdminResetPasswordResponse{
+  int32 id = 1;
+}

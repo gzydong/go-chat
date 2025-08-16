@@ -1,0 +1,47 @@
+syntax = "proto3";
+package admin;
+
+option go_package = "admin/v1;admin";
+
+import "validate/validate.proto";
+
+message MenuCreateRequest{
+  int32 parent_id = 1;
+  string name = 2 [(validate.rules).string = {min_len: 1}];
+  int32 menu_type = 3 ;
+  string icon = 4 ;
+  string path = 5;
+  int32 sort = 6 ;
+  string hidden = 7 [(validate.rules).string = {in: ["", "Y", "N"]}];
+  string use_layout = 8 [(validate.rules).string = {in: ["", "Y", "N"]}];
+  string auth_code = 9;
+}
+
+message MenuCreateResponse{
+  int32 id = 1;
+}
+
+message MenuUpdateRequest{
+  int32 id = 1;
+  string name = 2 [(validate.rules).string = {min_len: 1}];
+  string icon = 4 ;
+  string path = 5;
+  int32 sort = 6 ;
+  string hidden = 7 [(validate.rules).string = {in: ["", "Y", "N"]}];
+  int32 status = 8 [(validate.rules).int32 = {in: [1, 2]}];
+  int32 parent_id = 9;
+  string use_layout = 10 [(validate.rules).string = {in: ["", "Y", "N"]}];
+  string auth_code = 11;
+}
+
+message MenuUpdateResponse{
+  int32 id = 1;
+}
+
+message MenuDeleteRequest{
+  int32 id = 1;
+}
+
+message MenuDeleteResponse{
+  int32 id = 1;
+}

@@ -28,6 +28,7 @@ message AuthLoginRequest{
 
 // 管理员登录接口请求参数
 message AuthLoginResponse{
+  string username = 2;
   AccessToken auth = 1;
 }
 
@@ -59,4 +60,43 @@ message AuthRefreshResponse{
   string token = 1;
   // 过期时间 单位秒
   int32 expire_in = 2;
+}
+
+
+// 管理员刷新Token接口请求参数
+message AuthDetailRequest{}
+
+// 管理员刷新Token接口请求参数
+message AuthDetailResponse{
+  string username = 1;
+  string email = 2;
+  string mobile = 3;
+  string address = 4;
+  string two_factor_enable = 5;
+}
+
+
+// 管理员刷新Token接口请求参数
+message AuthUpdatePasswordRequest{
+  string old_password = 1 [(validate.rules).string.min_len = 6];
+  string new_password = 2 [(validate.rules).string.min_len = 6];
+}
+
+// 管理员刷新Token接口请求参数
+message AuthUpdatePasswordResponse{
+  string username = 1;
+  string email = 2;
+  string mobile = 3;
+}
+
+
+
+message AuthUpdateDetailRequest{
+  string username = 1;
+  string mobile = 3;
+  string address = 4;
+}
+
+message AuthUpdateDetailResponse{
+
 }

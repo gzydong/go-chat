@@ -295,11 +295,11 @@ func (s *TalkRecordService) handleTalkRecords(ctx context.Context, items []*mode
 		}
 
 		//if err = jsonutil.Unmarshal(items[i].Extra, &items[i].Extra); err != nil {
-		//	fmt.Println("ERR===>", items[i].MsgId, items[i].Extra, items[i].Extra)
+		//	fmt.Println("ERR===>", items[i].Msgid, items[i].Extra, items[i].Extra)
 		//}
 		//
 		//if err = jsonutil.Unmarshal(items[i].Quote, &items[i].Quote); err != nil {
-		//	fmt.Println("ERR===>", items[i].MsgId, items[i].Quote, items[i].Quote)
+		//	fmt.Println("ERR===>", items[i].Msgid, items[i].Quote, items[i].Quote)
 		//}
 	}
 

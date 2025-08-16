@@ -3,7 +3,6 @@ package apis
 import (
 	"context"
 	"errors"
-	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -27,15 +26,15 @@ func NewServer(ctx *cli.Context, app *Provider) error {
 	signal.Notify(c, syscall.SIGTERM, syscall.SIGQUIT, syscall.SIGINT)
 
 	log.Printf("Server ID   :%s", server.ID())
-	log.Printf("HTTP Listen Port :%d", app.Config.Server.Http)
-	log.Printf("HTTP Server Pid  :%d", os.Getpid())
+	log.Printf("HTTP Listen Port %s", app.Config.Server.HttpAddr)
+	log.Printf("HTTP Server Pid  %d", os.Getpid())
 
 	return run(c, eg, groupCtx, app)
 }
 
 func run(c chan os.Signal, eg *errgroup.Group, ctx context.Context, app *Provider) error {
 	serv := &http.Server{
-		Addr:    fmt.Sprintf(":%d", app.Config.Server.Http),
+		Addr:    app.Config.Server.HttpAddr,
 		Handler: app.Engine,
 	}
 
@@ -58,7 +57,7 @@ func run(c chan os.Signal, eg *errgroup.Group, ctx context.Context, app *Provide
 			defer timeCancel()
 
 			if err := serv.Shutdown(timeCtx); err != nil {
-				log.Fatalf("HTTP Server Shutdown Err: %s", err)
+				log.Fatalf("HTTP Server listenShutdown Err: %s", err)
 			}
 		}()
 
