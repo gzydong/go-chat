@@ -1,13 +1,18 @@
 package contact
 
 import (
+	"context"
+
 	"go-chat/api/pb/web/v1"
-	"go-chat/internal/pkg/core"
+	"go-chat/internal/entity"
+	"go-chat/internal/pkg/core/middleware"
 	"go-chat/internal/pkg/timeutil"
 	"go-chat/internal/repository/repo"
 	"go-chat/internal/service"
 	"go-chat/internal/service/message"
 )
+
+var _ web.IContactApplyHandler = (*Apply)(nil)
 
 type Apply struct {
 	ContactRepo         *repo.Contact
@@ -17,93 +22,70 @@ type Apply struct {
 	MessageService      message.IService
 }
 
-// ApplyUnreadNum 获取好友申请未读数
-func (c *Apply) ApplyUnreadNum(ctx *core.Context) error {
-	return ctx.Success(map[string]any{
-		"unread_num": c.ContactApplyService.GetApplyUnreadNum(ctx.GetContext(), ctx.AuthId()),
-	})
-}
-
-// Create 创建联系人申请
-func (c *Apply) Create(ctx *core.Context) error {
-	in := &web.ContactApplyCreateRequest{}
-	if err := ctx.ShouldBindProto(in); err != nil {
-		return ctx.InvalidParams(err)
+func (a Apply) Create(ctx context.Context, in *web.ContactApplyCreateRequest) (*web.ContactApplyCreateResponse, error) {
+	uid := middleware.FormContextAuthId[entity.WebClaims](ctx)
+	if a.ContactRepo.IsFriend(ctx, uid, int(in.UserId), false) {
+		return nil, nil
 	}
 
-	uid := ctx.AuthId()
-	if c.ContactRepo.IsFriend(ctx.GetContext(), uid, int(in.UserId), false) {
-		return ctx.Success(nil)
-	}
-
-	if err := c.ContactApplyService.Create(ctx.GetContext(), &service.ContactApplyCreateOpt{
-		UserId:   ctx.AuthId(),
+	if err := a.ContactApplyService.Create(ctx, &service.ContactApplyCreateOpt{
+		UserId:   uid,
 		Remarks:  in.Remark,
 		FriendId: int(in.UserId),
 	}); err != nil {
-		return ctx.Error(err)
+		return nil, err
 	}
 
-	return ctx.Success(&web.ContactApplyCreateResponse{})
+	return &web.ContactApplyCreateResponse{}, nil
 }
 
-// Accept 同意联系人添加申请
-func (c *Apply) Accept(ctx *core.Context) error {
-	in := &web.ContactApplyAcceptRequest{}
-	if err := ctx.Context.ShouldBindJSON(in); err != nil {
-		return ctx.InvalidParams(err)
-	}
-
-	uid := ctx.AuthId()
-	applyInfo, err := c.ContactApplyService.Accept(ctx.GetContext(), &service.ContactApplyAcceptOpt{
+func (a Apply) Accept(ctx context.Context, in *web.ContactApplyAcceptRequest) (*web.ContactApplyAcceptResponse, error) {
+	uid := middleware.FormContextAuthId[entity.WebClaims](ctx)
+	applyInfo, err := a.ContactApplyService.Accept(ctx, &service.ContactApplyAcceptOpt{
 		Remarks: in.Remark,
 		ApplyId: int(in.ApplyId),
 		UserId:  uid,
 	})
 
 	if err != nil {
-		return ctx.Error(err)
+		return nil, err
 	}
 
-	_ = c.MessageService.CreatePrivateSysMessage(ctx.GetContext(), message.CreatePrivateSysMessageOption{
+	_ = a.MessageService.CreatePrivateSysMessage(ctx, message.CreatePrivateSysMessageOption{
 		FromId:   uid,
 		ToFromId: applyInfo.UserId,
 		Content:  "你们已成为好友，可以开始聊天咯！",
 	})
 
-	_ = c.MessageService.CreatePrivateSysMessage(ctx.GetContext(), message.CreatePrivateSysMessageOption{
+	_ = a.MessageService.CreatePrivateSysMessage(ctx, message.CreatePrivateSysMessageOption{
 		FromId:   applyInfo.UserId,
 		ToFromId: uid,
 		Content:  "你们已成为好友，可以开始聊天咯！",
 	})
 
-	return ctx.Success(&web.ContactApplyAcceptResponse{})
+	return &web.ContactApplyAcceptResponse{}, nil
 }
 
-// Decline 拒绝联系人添加申请
-func (c *Apply) Decline(ctx *core.Context) error {
-	in := &web.ContactApplyDeclineRequest{}
-	if err := ctx.ShouldBindProto(in); err != nil {
-		return ctx.InvalidParams(err)
-	}
+func (a Apply) Decline(ctx context.Context, in *web.ContactApplyDeclineRequest) (*web.ContactApplyDeclineResponse, error) {
+	uid := middleware.FormContextAuthId[entity.WebClaims](ctx)
 
-	if err := c.ContactApplyService.Decline(ctx.GetContext(), &service.ContactApplyDeclineOpt{
-		UserId:  ctx.AuthId(),
+	if err := a.ContactApplyService.Decline(ctx, &service.ContactApplyDeclineOpt{
+		UserId:  uid,
 		Remarks: in.Remark,
 		ApplyId: int(in.ApplyId),
 	}); err != nil {
-		return ctx.Error(err)
+		return nil, err
 	}
 
-	return ctx.Success(&web.ContactApplyDeclineResponse{})
+	return &web.ContactApplyDeclineResponse{}, nil
 }
 
-// List 获取联系人申请列表
-func (c *Apply) List(ctx *core.Context) error {
+func (a Apply) List(ctx context.Context, req *web.ContactApplyListRequest) (*web.ContactApplyListResponse, error) {
+	uid := middleware.FormContextAuthId[entity.WebClaims](ctx)
 
-	list, err := c.ContactApplyService.List(ctx.GetContext(), ctx.AuthId())
+	list, err := a.ContactApplyService.List(ctx, uid)
 	if err != nil {
-		return ctx.Error(err)
+		return nil, err
 	}
 
 	items := make([]*web.ContactApplyListResponse_Item, 0, len(list))
@@ -119,7 +101,12 @@ func (c *Apply) List(ctx *core.Context) error {
 		})
 	}
 
-	c.ContactApplyService.ClearApplyUnreadNum(ctx.GetContext(), ctx.AuthId())
+	a.ContactApplyService.ClearApplyUnreadNum(ctx, uid)
 
-	return ctx.Success(&web.ContactApplyListResponse{Items: items})
+	return &web.ContactApplyListResponse{Items: items}, nil
+}
+
+func (a Apply) UnreadNum(ctx context.Context, req *web.ContactApplyUnreadNumRequest) (*web.ContactApplyUnreadNumResponse, error) {
+	uid := middleware.FormContextAuthId[entity.WebClaims](ctx)
+	return &web.ContactApplyUnreadNumResponse{Num: int32(a.ContactApplyService.GetApplyUnreadNum(ctx, uid))}, nil
 }

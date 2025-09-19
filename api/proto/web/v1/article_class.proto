@@ -3,33 +3,73 @@ package web;
 option go_package = "web/v1;web";
 import "validate/validate.proto";
 
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+
+
+// 文章分类服务
+service ArticleClass {
+  // 获取文章分类列表接口
+  rpc List(ArticleClassListRequest) returns (ArticleClassListResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/article/classify/list"
+      body: "*"
+    };
+  }
+
+  // 文章分类编辑接口
+  rpc Edit(ArticleClassEditRequest) returns (ArticleClassEditResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/article/classify/edit"
+      body: "*"
+    };
+  }
+
+  // 文章分类删除接口
+  rpc Delete(ArticleClassDeleteRequest) returns (ArticleClassDeleteResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/article/classify/delete"
+      body: "*"
+    };
+  }
+
+  // 文章分类排序接口
+  rpc Sort(ArticleClassSortRequest) returns (ArticleClassSortResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/article/classify/sort"
+      body: "*"
+    };
+  }
+}
+// 文章分类列表接口请求参数
+message ArticleClassListRequest{}
+
 // 文章分类列表接口响应参数
 message ArticleClassListResponse{
   message Item{
-    int32 id = 1;
-    string class_name = 2;
-    int32 is_default = 3;
-    int32 count = 4;
+    int32 id = 1 [(google.api.field_behavior) = REQUIRED];
+    string class_name = 2 [(google.api.field_behavior) = REQUIRED];
+    int32 is_default = 3 [(google.api.field_behavior) = REQUIRED];
+    int32 count = 4 [(google.api.field_behavior) = REQUIRED];
   }
 
-  repeated Item items = 1;
+  repeated Item items = 1 [(google.api.field_behavior) = REQUIRED];
 }
-
 
 // 文章分类编辑接口请求参数
 message ArticleClassEditRequest{
   int32 classify_id = 1;
-  string name = 2 [(validate.rules).string.min_len = 1];
+  string name = 2 [(validate.rules).string.min_len = 1, (google.api.field_behavior) = REQUIRED];
 }
 
 // 文章分类编辑接口响应参数
 message ArticleClassEditResponse{
-  int32 classify_id = 1;
+  int32 classify_id = 1 [(google.api.field_behavior) = REQUIRED];
 }
 
 // 文章分类删除接口请求参数
 message ArticleClassDeleteRequest{
-  int32 classify_id = 1 [(validate.rules).int32.gte = 1];
+  int32 classify_id = 1 [(validate.rules).int32.gte = 1, (google.api.field_behavior) = REQUIRED];
 }
 
 // 文章分类删除接口响应参数
@@ -37,8 +77,8 @@ message ArticleClassDeleteResponse{}
 
 // 文章分类排序接口请求参数
 message ArticleClassSortRequest{
-  int32 classify_id = 1 [(validate.rules).int32.gte = 1];
-  int32 sort_type = 2 [(validate.rules).int32 = {in:[1, 2]}];
+  // 排序后的分类ID列表
+  repeated int32 classify_ids = 1 [(validate.rules).repeated.min_items = 1, (google.api.field_behavior) = REQUIRED];
 }
 
 // 文章分类排序接口响应参数

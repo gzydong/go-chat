@@ -167,11 +167,6 @@ func NewHttpInjector(c *config.Config) *apis.Provider {
 		AuthService:        authService,
 	}
 	iFilesystem := provider.NewFilesystem(c)
-	talkMessage := &talk.Message{
-		TalkService: talkService,
-		AuthService: authService,
-		Filesystem:  iFilesystem,
-	}
 	talkUserMessage := repo.NewTalkRecordFriend(db)
 	talkGroupMessage := repo.NewTalkRecordGroup(db)
 	vote := cache.NewVote(client)
@@ -190,14 +185,15 @@ func NewHttpInjector(c *config.Config) *apis.Provider {
 		Source:          source,
 		GroupMemberRepo: groupMember,
 	}
-	records := &talk.Records{
+	talkMessage := &talk.Message{
+		TalkService:          talkService,
+		AuthService:          authService,
+		Filesystem:           iFilesystem,
 		GroupMemberRepo:      groupMember,
 		TalkRecordFriendRepo: talkUserMessage,
 		TalkRecordGroupRepo:  talkGroupMessage,
 		TalkRecordsService:   talkRecordService,
 		GroupMemberService:   groupMemberService,
-		AuthService:          authService,
-		Filesystem:           iFilesystem,
 	}
 	emoticon := repo.NewEmoticon(db)
 	emoticonService := &service.EmoticonService{
@@ -376,7 +372,6 @@ func NewHttpInjector(c *config.Config) *apis.Provider {
 		Organize:     v1Organize,
 		Talk:         session,
 		TalkMessage:  talkMessage,
-		TalkRecords:  records,
 		Emoticon:     v1Emoticon,
 		Upload:       upload,
 		Group:        groupGroup,

@@ -28,7 +28,6 @@ var ProviderSet = wire.NewSet(
 
 	wire.Struct(new(talk.Session), "*"),
 	wire.Struct(new(talk.Message), "*"),
-	wire.Struct(new(talk.Records), "*"),
 	wire.Struct(new(talk.Publish), "*"),
 
 	wire.Struct(new(article.Article), "*"),

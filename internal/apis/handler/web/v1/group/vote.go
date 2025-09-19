@@ -1,11 +1,13 @@
 package group
 
 import (
+	"context"
 	"time"
 
 	"go-chat/api/pb/web/v1"
 	"go-chat/internal/entity"
-	"go-chat/internal/pkg/core"
+	"go-chat/internal/pkg/core/errorx"
+	"go-chat/internal/pkg/core/middleware"
 	"go-chat/internal/pkg/jsonutil"
 	"go-chat/internal/pkg/logger"
 	"go-chat/internal/repository/model"
@@ -13,6 +15,8 @@ import (
 	"go-chat/internal/service"
 	"go-chat/internal/service/message"
 )
+
+var _ web.IGroupVoteHandler = (*Vote)(nil)
 
 type Vote struct {
 	GroupMemberRepo  *repo.GroupMember
@@ -22,20 +26,16 @@ type Vote struct {
 }
 
 // Create 创建投票
-func (v *Vote) Create(ctx *core.Context) error {
-	var in web.GroupVoteCreateRequest
-	if err := ctx.Context.ShouldBind(&in); err != nil {
-		return ctx.InvalidParams(err)
-	}
+func (v *Vote) Create(ctx context.Context, in *web.GroupVoteCreateRequest) (*web.GroupVoteCreateResponse, error) {
 
-	uid := ctx.AuthId()
+	uid := middleware.FormContextAuthId[entity.WebClaims](ctx)
 
 	if len(in.Options) <= 1 {
-		return ctx.InvalidParams("options 选项必须大于1！")
+		return nil, errorx.NewInvalidParams("options 选项必须大于1")
 	}
 
 	if len(in.Options) > 6 {
-		return ctx.InvalidParams("options 选项不能超过6个！")
+		return nil, errorx.NewInvalidParams("options 选项不能超过6个")
 	}
 
 	isAnonymous := false
@@ -43,7 +43,7 @@ func (v *Vote) Create(ctx *core.Context) error {
 		isAnonymous = true
 	}
 
-	voteId, err := v.GroupVoteService.Create(ctx.Context, &service.GroupVoteCreateOpt{
+	voteId, err := v.GroupVoteService.Create(ctx, &service.GroupVoteCreateOpt{
 		UserId:        uid,
 		Title:         in.Title,
 		AnswerMode:    int(in.Mode),
@@ -52,10 +52,10 @@ func (v *Vote) Create(ctx *core.Context) error {
 		GroupId:       int(in.GroupId),
 	})
 	if err != nil {
-		return ctx.Error(err)
+		return nil, err
 	}
 
-	if err := v.MessageService.CreateVoteMessage(ctx.GetContext(), message.CreateVoteMessage{
+	if err := v.MessageService.CreateVoteMessage(ctx, message.CreateVoteMessage{
 		TalkMode: entity.ChatGroupMode,
 		FromId:   uid,
 		ToFromId: int(in.GroupId),
@@ -64,43 +64,35 @@ func (v *Vote) Create(ctx *core.Context) error {
 		logger.Errorf("创建投票消息失败：%v", err)
 	}
 
-	return ctx.Success(web.GroupVoteCreateResponse{})
+	return &web.GroupVoteCreateResponse{}, nil
 }
 
 // Submit 提交投票
-func (v *Vote) Submit(ctx *core.Context) error {
-	var in web.GroupVoteSubmitRequest
-	if err := ctx.Context.ShouldBind(&in); err != nil {
-		return ctx.InvalidParams(err)
-	}
-
-	err := v.GroupVoteService.Submit(ctx.Context, &service.GroupVoteSubmitOpt{
-		UserId:  ctx.AuthId(),
+func (v *Vote) Submit(ctx context.Context, in *web.GroupVoteSubmitRequest) (*web.GroupVoteSubmitResponse, error) {
+	uid := middleware.FormContextAuthId[entity.WebClaims](ctx)
+	err := v.GroupVoteService.Submit(ctx, &service.GroupVoteSubmitOpt{
+		UserId:  uid,
 		VoteId:  int(in.VoteId),
 		Options: in.Options,
 	})
 
 	if err != nil {
-		return ctx.Error(err)
+		return nil, err
 	}
 
-	return ctx.Success(web.GroupVoteSubmitResponse{})
+	return &web.GroupVoteSubmitResponse{}, nil
 }
 
 // Detail 投票详情
-func (v *Vote) Detail(ctx *core.Context) error {
-	var in web.GroupVoteDetailRequest
-	if err := ctx.Context.ShouldBind(&in); err != nil {
-		return ctx.InvalidParams(err)
-	}
-
-	voteInfo, err := v.GroupVoteRepo.FindById(ctx.GetContext(), int(in.VoteId))
+func (v *Vote) Detail(ctx context.Context, in *web.GroupVoteDetailRequest) (*web.GroupVoteDetailResponse, error) {
+	voteInfo, err := v.GroupVoteRepo.FindById(ctx, int(in.VoteId))
 	if err != nil {
-		return ctx.Error(err)
+		return nil, err
 	}
 
-	if !v.GroupMemberRepo.IsMember(ctx.GetContext(), voteInfo.GroupId, ctx.AuthId(), false) {
-		return ctx.Forbidden("暂无查看投票详情权限！")
+	uid := middleware.FormContextAuthId[entity.WebClaims](ctx)
+	if !v.GroupMemberRepo.IsMember(ctx, voteInfo.GroupId, uid, false) {
+		return nil, entity.ErrPermissionDenied
 	}
 
 	resp := &web.GroupVoteDetailResponse{
@@ -117,7 +109,7 @@ func (v *Vote) Detail(ctx *core.Context) error {
 
 	var options []model.GroupVoteOption
 	if err := jsonutil.Unmarshal(voteInfo.AnswerOption, &options); err != nil {
-		return ctx.Error(err)
+		return nil, err
 	}
 
 	for _, option := range options {
@@ -127,12 +119,12 @@ func (v *Vote) Detail(ctx *core.Context) error {
 		})
 	}
 
-	items, err := v.GroupVoteRepo.FindAllAnsweredUserList(ctx.GetContext(), voteInfo.Id)
+	items, err := v.GroupVoteRepo.FindAllAnsweredUserList(ctx, voteInfo.Id)
 	if err != nil {
-		return ctx.Error(err)
+		return nil, err
 	}
 
-	userId := ctx.AuthId()
+	userId := uid
 	if len(items) > 0 {
 		hashMap := make(map[int]*web.GroupVoteDetailResponse_AnsweredUser)
 
@@ -149,14 +141,14 @@ func (v *Vote) Detail(ctx *core.Context) error {
 			}
 		}
 
-		for uid, item := range hashMap {
+		for id, item := range hashMap {
 			resp.AnsweredUsers = append(resp.AnsweredUsers, item)
 
-			if uid == userId {
+			if id == userId {
 				resp.IsSubmit = true
 			}
 		}
 	}
 
-	return ctx.Success(resp)
+	return resp, nil
 }

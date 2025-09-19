@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"net/http"
+	"slices"
 	"strings"
 	"time"
 
@@ -24,6 +25,7 @@ type IClaims interface {
 }
 
 type AuthClaimsKey struct{}
+type GinContextKey struct{}
 
 func GetAuthToken(c *gin.Context) string {
 	token := c.GetHeader("Authorization")
@@ -37,10 +39,32 @@ func GetAuthToken(c *gin.Context) string {
 	return token
 }
 
-func NewJwtMiddleware[T IClaims](secret []byte, storage IStorage, fn func(ctx context.Context, claims *jwtutil.JwtClaims[T]) error) gin.HandlerFunc {
+type JwtMiddlewareOption struct {
+	// 访客路由
+	VisitorPath []string
+}
+
+func NewJwtMiddleware[T IClaims](
+	secret []byte,
+	storage IStorage,
+	fn func(ctx context.Context, claims *jwtutil.JwtClaims[T]) error,
+	opts ...func(*JwtMiddlewareOption),
+) gin.HandlerFunc {
+
+	option := &JwtMiddlewareOption{}
+	for _, opt := range opts {
+		opt(option)
+	}
+
 	return func(c *gin.Context) {
 		token := GetAuthToken(c)
+
 		if token == "" {
+			if slices.Contains(option.VisitorPath, c.Request.URL.Path) {
+				c.Next()
+				return
+			}
+
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"code": 401, "message": "授权异常，请登录后操作!"})
 			return
 		}
@@ -99,4 +123,18 @@ func FormContext[T IClaims](ctx context.Context) (T, error) {
 	}
 
 	return claims, nil
+}
+
+// FormContextAuthId 从上下文中获取用户ID
+func FormContextAuthId[T IClaims](ctx context.Context) int {
+	if ctx.Value(AuthClaimsKey{}) == nil {
+		return 0
+	}
+
+	claims, ok := ctx.Value(AuthClaimsKey{}).(T)
+	if !ok {
+		return 0
+	}
+
+	return claims.GetAuthID()
 }

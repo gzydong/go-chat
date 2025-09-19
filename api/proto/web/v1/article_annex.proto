@@ -5,7 +5,43 @@ option go_package = "web/v1;web";
 
 import "web/v1/paginate.proto";
 import "validate/validate.proto";
+import "google/api/annotations.proto";
 
+
+// 文章附件服务
+service ArticleAnnex {
+  // 文章附件删除接口
+  rpc Delete(ArticleAnnexDeleteRequest) returns (ArticleAnnexDeleteResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/article-annex/delete"
+      body: "*"
+    };
+  }
+
+  // 文章附件恢复删除接口
+  rpc Recover(ArticleAnnexRecoverRequest) returns (ArticleAnnexRecoverResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/article-annex/recover"
+      body: "*"
+    };
+  }
+
+  // 文章附件永久删除接口
+  rpc ForeverDelete(ArticleAnnexForeverDeleteRequest) returns (ArticleAnnexForeverDeleteResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/article-annex/forever-delete"
+      body: "*"
+    };
+  }
+
+  // 文章附件回收站列表接口
+  rpc RecoverList(ArticleAnnexRecoverListRequest) returns (ArticleAnnexRecoverListResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/article-annex/recover-list"
+      body: "*"
+    };
+  }
+}
 
 // 文章附件上传接口请求参数
 message ArticleAnnexUploadRequest{

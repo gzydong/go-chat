@@ -1,16 +1,20 @@
 package v1
 
 import (
+	"context"
 	"fmt"
 	"strconv"
 	"strings"
 
 	"github.com/samber/lo"
 	"go-chat/api/pb/web/v1"
-	"go-chat/internal/pkg/core"
+	"go-chat/internal/entity"
+	"go-chat/internal/pkg/core/middleware"
 	"go-chat/internal/repository/model"
 	"go-chat/internal/repository/repo"
 )
+
+var _ web.IOrganizeHandler = (*Organize)(nil)
 
 type Organize struct {
 	DepartmentRepo *repo.Department
@@ -18,21 +22,23 @@ type Organize struct {
 	OrganizeRepo   *repo.Organize
 }
 
-func (o *Organize) DepartmentList(ctx *core.Context) error {
-	uid := ctx.AuthId()
-	if isOk, _ := o.OrganizeRepo.IsQiyeMember(ctx.GetContext(), uid); !isOk {
-		return ctx.Success(&web.OrganizeDepartmentListResponse{})
+func (o *Organize) DepartmentList(ctx context.Context, req *web.OrganizeDepartmentListRequest) (*web.OrganizeDepartmentListResponse, error) {
+	session, _ := middleware.FormContext[entity.WebClaims](ctx)
+
+	uid := session.GetAuthID()
+	if isOk, _ := o.OrganizeRepo.IsQiyeMember(ctx, uid); !isOk {
+		return &web.OrganizeDepartmentListResponse{}, nil
 	}
 
-	list, err := o.DepartmentRepo.List(ctx.GetContext())
+	list, err := o.DepartmentRepo.List(ctx)
 	if err != nil {
-		return ctx.Error(err)
+		return nil, err
 	}
 
 	// 部门分组统计
-	groups, err := o.OrganizeRepo.DepartmentGroupCount(ctx.GetContext())
+	groups, err := o.OrganizeRepo.DepartmentGroupCount(ctx)
 	if err != nil {
-		return ctx.Error(err)
+		return nil, err
 	}
 
 	groupsHash := make(map[int32]int32)
@@ -73,25 +79,25 @@ func (o *Organize) DepartmentList(ctx *core.Context) error {
 		})
 	}
 
-	return ctx.Success(&web.OrganizeDepartmentListResponse{Items: items})
+	return &web.OrganizeDepartmentListResponse{Items: items}, nil
 }
 
-func (o *Organize) PersonnelList(ctx *core.Context) error {
+func (o *Organize) PersonnelList(ctx context.Context, req *web.OrganizePersonnelListRequest) (*web.OrganizePersonnelListResponse, error) {
+	session, _ := middleware.FormContext[entity.WebClaims](ctx)
+	uid := session.GetAuthID()
 
-	// 判断是否是企业成员
-	uid := ctx.AuthId()
-	if isOk, _ := o.OrganizeRepo.IsQiyeMember(ctx.GetContext(), uid); !isOk {
-		return ctx.Success(&web.OrganizePersonnelListResponse{})
+	if isOk, _ := o.OrganizeRepo.IsQiyeMember(ctx, uid); !isOk {
+		return &web.OrganizePersonnelListResponse{}, nil
 	}
 
 	list, err := o.OrganizeRepo.List()
 	if err != nil {
-		return ctx.Error(err)
+		return nil, err
 	}
 
-	departments, err := o.DepartmentRepo.List(ctx.GetContext())
+	departments, err := o.DepartmentRepo.List(ctx)
 	if err != nil {
-		return ctx.Error(err)
+		return nil, err
 	}
 
 	deptHash := make(map[int]*model.OrganizeDept)
@@ -99,9 +105,9 @@ func (o *Organize) PersonnelList(ctx *core.Context) error {
 		deptHash[department.DeptId] = department
 	}
 
-	positions, err := o.PositionRepo.List(ctx.GetContext())
+	positions, err := o.PositionRepo.List(ctx)
 	if err != nil {
-		return ctx.Error(err)
+		return nil, err
 	}
 
 	positionHash := make(map[int]*model.OrganizePost)
@@ -143,5 +149,5 @@ func (o *Organize) PersonnelList(ctx *core.Context) error {
 		items = append(items, data)
 	}
 
-	return ctx.Success(&web.OrganizePersonnelListResponse{Items: items})
+	return &web.OrganizePersonnelListResponse{Items: items}, nil
 }

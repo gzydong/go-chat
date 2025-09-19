@@ -1,62 +1,22 @@
-CREATE TABLE IF NOT EXISTS `admin`
-(
-    `id`
-    int
-(
-    10
-) unsigned NOT NULL AUTO_INCREMENT COMMENT '用户ID',
-    `username` varchar
-(
-    20
-) NOT NULL COMMENT '用户昵称',
-    `password` varchar
-(
-    255
-) NOT NULL COMMENT '用户密码',
-    `avatar` varchar
-(
-    255
-) NOT NULL DEFAULT '' COMMENT '用户头像',
-    `gender` tinyint
-(
-    3
-) unsigned NOT NULL DEFAULT '3' COMMENT '用户性别[1:男;2:女;3:未知;]',
-    `mobile` varchar
-(
-    11
-) NOT NULL DEFAULT '' COMMENT '手机号',
-    `email` varchar
-(
-    30
-) NOT NULL DEFAULT '' COMMENT '用户邮箱',
-    `motto` varchar
-(
-    100
-) NOT NULL DEFAULT '' COMMENT '用户座右铭',
-    `address` varchar
-(
-    255
-) DEFAULT '' COMMENT '联系地址',
-    `two_factor_enable` varchar
-(
-    1
-) CHARACTER SET utf8mb4 COLLATE utf8mb4_danish_ci NOT NULL DEFAULT 'N' COMMENT '双因子认证',
-    `status` tinyint
-(
-    3
-) unsigned NOT NULL DEFAULT '1' COMMENT '状态[1:正常;2:停用;]',
-    `last_login_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '最后一次登录时间',
-    `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '注册时间',
-    `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-    PRIMARY KEY (`id`) USING BTREE,
-    UNIQUE KEY `uk_username` (`username`) USING BTREE,
-    UNIQUE KEY `uk_email` (`email`) USING BTREE,
-    KEY `idx_created_at` (`created_at`) USING BTREE,
-    KEY `idx_updated_at` (`updated_at`) USING BTREE
-) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4
-  COLLATE = utf8mb4_general_ci COMMENT ='管理员表';;
-
+CREATE TABLE `admin` (
+ `id` int unsigned NOT NULL AUTO_INCREMENT COMMENT '用户ID',
+ `username` varchar(20) COLLATE utf8mb4_general_ci NOT NULL COMMENT '用户昵称',
+ `password` varchar(255) COLLATE utf8mb4_general_ci NOT NULL COMMENT '用户密码',
+ `avatar` varchar(255) COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '用户头像',
+ `gender` tinyint unsigned NOT NULL DEFAULT '3' COMMENT '用户性别[1:男;2:女;3:未知;]',
+ `mobile` varchar(11) COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '手机号',
+ `email` varchar(30) COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '用户邮箱',
+ `motto` varchar(100) COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '用户座右铭',
+ `last_login_at` datetime NOT NULL COMMENT '最后一次登录时间',
+ `status` tinyint unsigned NOT NULL DEFAULT '1' COMMENT '状态[1:正常;2:停用;]',
+ `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '注册时间',
+ `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+ PRIMARY KEY (`id`) USING BTREE,
+ UNIQUE KEY `uk_username` (`username`) USING BTREE,
+ UNIQUE KEY `uk_email` (`email`) USING BTREE,
+ KEY `idx_created_at` (`created_at`) USING BTREE,
+ KEY `idx_updated_at` (`updated_at`) USING BTREE
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='管理员表';;
 
 CREATE TABLE IF NOT EXISTS `article`
 (
@@ -537,31 +497,25 @@ CREATE TABLE IF NOT EXISTS `talk_user_message`
   COLLATE = utf8mb4_general_ci COMMENT ='私有消息记录表';;
 
 
-CREATE TABLE IF NOT EXISTS `users`
-(
-    `id`         int unsigned     NOT NULL AUTO_INCREMENT COMMENT '用户ID',
-    `mobile`     varchar(11)      NOT NULL DEFAULT '' COMMENT '手机号',
-    `nickname`   varchar(64)      NOT NULL DEFAULT '' COMMENT '用户昵称',
-    `avatar`     varchar(255)     NOT NULL DEFAULT '' COMMENT '用户头像',
-    `gender`     tinyint unsigned NOT NULL DEFAULT '3' COMMENT '用户性别[1:男 ;2:女;3:未知]',
-    `password`   varchar(255)     NOT NULL COMMENT '用户密码',
-    `motto`      varchar(500)     NOT NULL DEFAULT '' COMMENT '用户座右铭',
-    `email`      varchar(30)      NOT NULL DEFAULT '' COMMENT '用户邮箱',
-    `birthday`   varchar(10)      NOT NULL DEFAULT '' COMMENT '生日',
-    `is_robot`   tinyint unsigned NOT NULL DEFAULT '2' COMMENT '是否机器人[1:是;2:否;]',
-    `status` int
-(
-    10
-) unsigned NOT NULL DEFAULT '1' COMMENT '用户状态[1:正常;2:停用;]',
-    `created_at` datetime         NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '注册时间',
-    `updated_at` datetime         NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-    PRIMARY KEY (`id`) USING BTREE,
-    UNIQUE KEY `uk_mobile` (`mobile`) USING BTREE,
-    KEY `idx_created_at` (`created_at`) USING BTREE,
-    KEY `idx_updated_at` (`updated_at`) USING BTREE
-) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4
-  COLLATE = utf8mb4_general_ci COMMENT ='用户表';;
+CREATE TABLE `users` (
+ `id` int unsigned NOT NULL AUTO_INCREMENT COMMENT '用户ID',
+ `mobile` varchar(11) NOT NULL DEFAULT '' COMMENT '手机号',
+ `nickname` varchar(64) NOT NULL DEFAULT '' COMMENT '用户昵称',
+ `avatar` varchar(255) NOT NULL DEFAULT '' COMMENT '用户头像',
+ `gender` tinyint unsigned NOT NULL DEFAULT '3' COMMENT '用户性别[1:男 ;2:女;3:未知]',
+ `password` varchar(255) NOT NULL COMMENT '用户密码',
+ `motto` varchar(500) NOT NULL DEFAULT '' COMMENT '用户座右铭',
+ `email` varchar(30) NOT NULL DEFAULT '' COMMENT '用户邮箱',
+ `birthday` varchar(10) NOT NULL DEFAULT '' COMMENT '生日',
+ `status` int NOT NULL DEFAULT '1' COMMENT '用户状态[1:正常;2:停用;3:注销]',
+ `is_robot` tinyint unsigned NOT NULL DEFAULT '2' COMMENT '是否机器人[1:是;2:否;]',
+ `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '注册时间',
+ `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+ PRIMARY KEY (`id`) USING BTREE,
+ UNIQUE KEY `uk_mobile` (`mobile`) USING BTREE,
+ KEY `idx_created_at` (`created_at`) USING BTREE,
+ KEY `idx_updated_at` (`updated_at`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=4531 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC COMMENT='用户表';;
 
 CREATE TABLE IF NOT EXISTS `users_emoticon`
 (

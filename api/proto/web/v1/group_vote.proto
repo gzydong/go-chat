@@ -4,7 +4,37 @@ package web;
 option go_package = "web/v1;web";
 
 import "validate/validate.proto";
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
 
+// 群组投票服务
+service GroupVote {
+  // 创建群组投票接口
+  rpc Create(GroupVoteCreateRequest) returns (GroupVoteCreateResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/group-vote/create"
+      body: "*"
+    };
+  }
+
+  // 提交群组投票接口
+  rpc Submit(GroupVoteSubmitRequest) returns (GroupVoteSubmitResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/group-vote/submit"
+      body: "*"
+    };
+  }
+
+  // 获取群组投票详情接口
+  rpc Detail(GroupVoteDetailRequest) returns (GroupVoteDetailResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/group-vote/detail"
+      body: "*"
+    };
+  }
+}
+
+// 创建群组投票接口请求参数
 message GroupVoteCreateRequest{
   int32 group_id = 1 [(validate.rules).int32.gte = 1];
   string title = 3 [(validate.rules).string.min_len = 1];  // 标题
@@ -13,40 +43,44 @@ message GroupVoteCreateRequest{
   repeated string options = 6 [(validate.rules).repeated.min_items = 1]; // 投票选项
 }
 
+// 创建群组投票接口响应参数
 message GroupVoteCreateResponse{}
 
-
+// 提交群组投票接口请求参数
 message GroupVoteSubmitRequest{
   int32 vote_id = 1 [(validate.rules).int32.gte = 1];
   repeated string options = 6 [(validate.rules).repeated.min_items = 1]; // 投票选项
 }
 
+// 提交群组投票接口响应参数
 message GroupVoteSubmitResponse{}
 
+// 获取群组投票详情接口请求参数
 message GroupVoteDetailRequest{
   int32 vote_id = 1 [(validate.rules).int32.gte = 1];
 }
 
+// 获取群组投票详情接口响应参数
 message GroupVoteDetailResponse{
-  int32 vote_id = 1; // 投票ID
-  string title = 2;  // 标题
-  int32 answer_mode = 3;
-  repeated AnswerOption answer_options = 4;
-  int32 answer_num = 5;
-  int32 answered_num = 6;
-  int32 is_anonymous = 7;
-  repeated AnsweredUser answered_users = 8;
-  bool is_submit = 9;
+  int32 vote_id = 1[(google.api.field_behavior) = REQUIRED]; // 投票ID
+  string title = 2[(google.api.field_behavior) = REQUIRED];  // 标题
+  int32 answer_mode = 3[(google.api.field_behavior) = REQUIRED];
+  repeated AnswerOption answer_options = 4[(google.api.field_behavior) = REQUIRED];
+  int32 answer_num = 5[(google.api.field_behavior) = REQUIRED];
+  int32 answered_num = 6[(google.api.field_behavior) = REQUIRED];
+  int32 is_anonymous = 7[(google.api.field_behavior) = REQUIRED];
+  repeated AnsweredUser answered_users = 8[(google.api.field_behavior) = REQUIRED];
+  bool is_submit = 9[(google.api.field_behavior) = REQUIRED];
 
   message AnswerOption{
-    string key = 1;
-    string value = 2;
+    string key = 1[(google.api.field_behavior) = REQUIRED];
+    string value = 2[(google.api.field_behavior) = REQUIRED];
   }
 
   message AnsweredUser{
-    int32 user_id = 1;
-    string nickname = 2;
-    repeated string options = 3; // 答题选项
-    string answer_time = 4; // 答题时间
+    int32 user_id = 1[(google.api.field_behavior) = REQUIRED];
+    string nickname = 2[(google.api.field_behavior) = REQUIRED];
+    repeated string options = 3[(google.api.field_behavior) = REQUIRED]; // 答题选项
+    string answer_time = 4[(google.api.field_behavior) = REQUIRED]; // 答题时间
   }
 }

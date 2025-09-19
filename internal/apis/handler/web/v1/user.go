@@ -1,19 +1,23 @@
 package v1
 
 import (
+	"context"
 	"strings"
 
 	"github.com/redis/go-redis/v9"
 	"github.com/samber/lo"
 	"go-chat/api/pb/web/v1"
 	"go-chat/internal/entity"
-	"go-chat/internal/pkg/core"
+	"go-chat/internal/pkg/core/errorx"
+	"go-chat/internal/pkg/core/middleware"
 	"go-chat/internal/pkg/encrypt"
 	"go-chat/internal/pkg/encrypt/rsautil"
 	"go-chat/internal/pkg/timeutil"
 	"go-chat/internal/repository/repo"
 	"go-chat/internal/service"
 )
+
+var _ web.IUserHandler = (*User)(nil)
 
 type User struct {
 	Redis        *redis.Client
@@ -24,14 +28,15 @@ type User struct {
 	Rsa          rsautil.IRsa
 }
 
-// Detail 个人用户信息
-func (u *User) Detail(ctx *core.Context) error {
-	user, err := u.UsersRepo.FindByIdWithCache(ctx.GetContext(), ctx.AuthId())
+func (u *User) Detail(ctx context.Context, _ *web.UserDetailRequest) (*web.UserDetailResponse, error) {
+	session, _ := middleware.FormContext[entity.WebClaims](ctx)
+
+	user, err := u.UsersRepo.FindByIdWithCache(ctx, int(session.UserId))
 	if err != nil {
-		return ctx.Error(err)
+		return nil, err
 	}
 
-	return ctx.Success(&web.UserDetailResponse{
+	return &web.UserDetailResponse{
 		Mobile:   lo.FromPtr(user.Mobile),
 		Nickname: user.Nickname,
 		Avatar:   user.Avatar,
@@ -39,25 +44,26 @@ func (u *User) Detail(ctx *core.Context) error {
 		Motto:    user.Motto,
 		Email:    user.Email,
 		Birthday: user.Birthday,
-	})
+	}, nil
 }
 
-// Setting 用户设置
-func (u *User) Setting(ctx *core.Context) error {
-
-	uid := ctx.AuthId()
-
-	user, err := u.UsersRepo.FindByIdWithCache(ctx.GetContext(), uid)
+func (u *User) Setting(ctx context.Context, req *web.UserSettingRequest) (*web.UserSettingResponse, error) {
+	session, err := middleware.FormContext[entity.WebClaims](ctx)
 	if err != nil {
-		return ctx.Error(err)
+		return nil, err
 	}
 
-	isOk, err := u.OrganizeRepo.IsQiyeMember(ctx.GetContext(), uid)
+	user, err := u.UsersRepo.FindByIdWithCache(ctx, int(session.UserId))
 	if err != nil {
-		return ctx.Error(err)
+		return nil, err
 	}
 
-	return ctx.Success(&web.UserSettingResponse{
+	isOk, err := u.OrganizeRepo.IsQiyeMember(ctx, int(session.UserId))
+	if err != nil {
+		return nil, err
+	}
+
+	return &web.UserSettingResponse{
 		UserInfo: &web.UserSettingResponse_UserInfo{
 			Uid:      int32(user.Id),
 			Nickname: user.Nickname,
@@ -69,134 +75,100 @@ func (u *User) Setting(ctx *core.Context) error {
 			Email:    user.Email,
 		},
 		Setting: &web.UserSettingResponse_ConfigInfo{},
-	})
+	}, nil
 }
 
-// ChangeDetail 修改个人用户信息
-func (u *User) ChangeDetail(ctx *core.Context) error {
-	in := &web.UserDetailUpdateRequest{}
-	if err := ctx.Context.ShouldBindJSON(in); err != nil {
-		return ctx.InvalidParams(err)
-	}
+func (u *User) DetailUpdate(ctx context.Context, req *web.UserDetailUpdateRequest) (*web.UserDetailUpdateResponse, error) {
+	session, _ := middleware.FormContext[entity.WebClaims](ctx)
 
-	if in.Birthday != "" {
-		if !timeutil.IsDate(in.Birthday) {
-			return ctx.InvalidParams("birthday 格式错误")
+	if req.Birthday != "" {
+		if !timeutil.IsDate(req.Birthday) {
+			return nil, errorx.New(400, "birthday 错误")
 		}
 	}
 
-	uid := ctx.AuthId()
-	_, err := u.UsersRepo.UpdateById(ctx.GetContext(), ctx.AuthId(), map[string]any{
-		"nickname": strings.TrimSpace(strings.Replace(in.Nickname, " ", "", -1)),
-		"avatar":   in.Avatar,
-		"gender":   in.Gender,
-		"motto":    in.Motto,
-		"birthday": in.Birthday,
+	uid := session.UserId
+	_, err := u.UsersRepo.UpdateById(ctx, uid, map[string]any{
+		"nickname": strings.TrimSpace(strings.Replace(req.Nickname, " ", "", -1)),
+		"avatar":   req.Avatar,
+		"gender":   req.Gender,
+		"motto":    req.Motto,
+		"birthday": req.Birthday,
 	})
 
 	if err != nil {
-		return ctx.Error(err)
+		return nil, err
 	}
 
-	_ = u.UsersRepo.ClearTableCache(ctx.GetContext(), uid)
-
-	return ctx.Success(nil, "个人信息修改成功！")
+	_ = u.UsersRepo.ClearTableCache(ctx, int(uid))
+	return &web.UserDetailUpdateResponse{}, nil
 }
 
-// ChangePassword 修改密码接口
-func (u *User) ChangePassword(ctx *core.Context) error {
-	in := &web.UserPasswordUpdateRequest{}
-	if err := ctx.Context.ShouldBindJSON(in); err != nil {
-		return ctx.InvalidParams(err)
-	}
+func (u *User) PasswordUpdate(ctx context.Context, in *web.UserPasswordUpdateRequest) (*web.UserPasswordUpdateResponse, error) {
+	session, _ := middleware.FormContext[entity.WebClaims](ctx)
 
-	uid := ctx.AuthId()
+	uid := session.UserId
 	if uid == 2054 || uid == 2055 {
-		return ctx.Error(entity.ErrPermissionDenied)
+		return nil, entity.ErrPermissionDenied
 	}
 
 	oldPassword, err := u.Rsa.Decrypt(in.OldPassword)
 	if err != nil {
-		return ctx.Error(err)
+		return nil, err
 	}
 
 	newPassword, err := u.Rsa.Decrypt(in.NewPassword)
 	if err != nil {
-		return ctx.Error(err)
+		return nil, err
 	}
 
-	if err := u.UserService.UpdatePassword(ctx.GetContext(), ctx.AuthId(), string(oldPassword), string(newPassword)); err != nil {
-		return ctx.Error(err)
+	if err := u.UserService.UpdatePassword(ctx, int(uid), string(oldPassword), string(newPassword)); err != nil {
+		return nil, err
 	}
 
-	_ = u.UsersRepo.ClearTableCache(ctx.GetContext(), uid)
-
-	return ctx.Success(nil, "密码修改成功！")
+	_ = u.UsersRepo.ClearTableCache(ctx, int(uid))
+	return nil, nil
 }
 
-// ChangeMobile 修改手机号接口
-func (u *User) ChangeMobile(ctx *core.Context) error {
-	in := &web.UserMobileUpdateRequest{}
-	if err := ctx.Context.ShouldBindJSON(in); err != nil {
-		return ctx.InvalidParams(err)
-	}
+func (u *User) MobileUpdate(ctx context.Context, in *web.UserMobileUpdateRequest) (*web.UserMobileUpdateResponse, error) {
+	session, _ := middleware.FormContext[entity.WebClaims](ctx)
+	uid := session.UserId
 
-	uid := ctx.AuthId()
-
-	user, _ := u.UsersRepo.FindById(ctx.GetContext(), uid)
+	user, _ := u.UsersRepo.FindById(ctx, uid)
 	if lo.FromPtr(user.Mobile) == in.Mobile {
-		return ctx.InvalidParams("手机号与原手机号一致无需修改！")
+		return nil, errorx.New(400, "手机号与原手机号一致无需修改")
 	}
 
 	password, err := u.Rsa.Decrypt(in.Password)
 	if err != nil {
-		return ctx.Error(err)
+		return nil, err
 	}
 
 	if !encrypt.VerifyPassword(user.Password, string(password)) {
-		return ctx.Error(entity.ErrAccountOrPasswordError)
+		return nil, entity.ErrAccountOrPasswordError
 	}
 
 	if uid == 2054 || uid == 2055 {
-		return ctx.Error(entity.ErrPermissionDenied)
+		return nil, entity.ErrPermissionDenied
 	}
 
-	if !u.SmsService.Verify(ctx.GetContext(), entity.SmsChangeAccountChannel, in.Mobile, in.SmsCode) {
-		return ctx.Error(entity.ErrSmsCodeError)
+	if !u.SmsService.Verify(ctx, entity.SmsChangeAccountChannel, in.Mobile, in.SmsCode) {
+		return nil, entity.ErrSmsCodeError
 	}
 
-	_, err = u.UsersRepo.UpdateById(ctx.GetContext(), user.Id, map[string]any{
+	_, err = u.UsersRepo.UpdateById(ctx, user.Id, map[string]any{
 		"mobile": in.Mobile,
 	})
 
 	if err != nil {
-		return ctx.Error(err)
+		return nil, err
 	}
 
-	_ = u.UsersRepo.ClearTableCache(ctx.GetContext(), user.Id)
-
-	return ctx.Success(nil, "手机号修改成功！")
+	_ = u.UsersRepo.ClearTableCache(ctx, user.Id)
+	return nil, nil
 }
 
-// ChangeEmail 修改邮箱接口
-func (u *User) ChangeEmail(ctx *core.Context) error {
-	in := &web.UserEmailUpdateRequest{}
-	if err := ctx.Context.ShouldBindJSON(in); err != nil {
-		return ctx.InvalidParams(err)
-	}
-
-	// todo 1.验证邮件激活码是否正确
-
-	return ctx.Success(nil, "手机号修改成功！")
-}
-
-func (u *User) OauthList(ctx *core.Context) error {
-	in := &web.UserEmailUpdateRequest{}
-	if err := ctx.Context.ShouldBindJSON(in); err != nil {
-		return ctx.InvalidParams(err)
-	}
-
-	// todo 1.验证邮件激活码是否正确
-
-	return ctx.Success(nil, "手机号修改成功！")
+func (u *User) EmailUpdate(ctx context.Context, req *web.UserEmailUpdateRequest) (*web.UserEmailUpdateResponse, error) {
+	//TODO implement me
+	panic("implement me")
 }

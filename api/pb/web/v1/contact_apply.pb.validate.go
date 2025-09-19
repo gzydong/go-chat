@@ -952,6 +952,214 @@ var _ interface {
 	ErrorName() string
 } = ContactApplyListResponseValidationError{}
 
+// Validate checks the field values on ContactApplyUnreadNumRequest with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *ContactApplyUnreadNumRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ContactApplyUnreadNumRequest with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// ContactApplyUnreadNumRequestMultiError, or nil if none found.
+func (m *ContactApplyUnreadNumRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ContactApplyUnreadNumRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(errors) > 0 {
+		return ContactApplyUnreadNumRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// ContactApplyUnreadNumRequestMultiError is an error wrapping multiple
+// validation errors returned by ContactApplyUnreadNumRequest.ValidateAll() if
+// the designated constraints aren't met.
+type ContactApplyUnreadNumRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ContactApplyUnreadNumRequestMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ContactApplyUnreadNumRequestMultiError) AllErrors() []error { return m }
+
+// ContactApplyUnreadNumRequestValidationError is the validation error returned
+// by ContactApplyUnreadNumRequest.Validate if the designated constraints
+// aren't met.
+type ContactApplyUnreadNumRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ContactApplyUnreadNumRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ContactApplyUnreadNumRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ContactApplyUnreadNumRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ContactApplyUnreadNumRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ContactApplyUnreadNumRequestValidationError) ErrorName() string {
+	return "ContactApplyUnreadNumRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e ContactApplyUnreadNumRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sContactApplyUnreadNumRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ContactApplyUnreadNumRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ContactApplyUnreadNumRequestValidationError{}
+
+// Validate checks the field values on ContactApplyUnreadNumResponse with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *ContactApplyUnreadNumResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ContactApplyUnreadNumResponse with
+// the rules defined in the proto definition for this message. If any rules
+// are violated, the result is a list of violation errors wrapped in
+// ContactApplyUnreadNumResponseMultiError, or nil if none found.
+func (m *ContactApplyUnreadNumResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ContactApplyUnreadNumResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Num
+
+	if len(errors) > 0 {
+		return ContactApplyUnreadNumResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// ContactApplyUnreadNumResponseMultiError is an error wrapping multiple
+// validation errors returned by ContactApplyUnreadNumResponse.ValidateAll()
+// if the designated constraints aren't met.
+type ContactApplyUnreadNumResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ContactApplyUnreadNumResponseMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ContactApplyUnreadNumResponseMultiError) AllErrors() []error { return m }
+
+// ContactApplyUnreadNumResponseValidationError is the validation error
+// returned by ContactApplyUnreadNumResponse.Validate if the designated
+// constraints aren't met.
+type ContactApplyUnreadNumResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ContactApplyUnreadNumResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ContactApplyUnreadNumResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ContactApplyUnreadNumResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ContactApplyUnreadNumResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ContactApplyUnreadNumResponseValidationError) ErrorName() string {
+	return "ContactApplyUnreadNumResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e ContactApplyUnreadNumResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sContactApplyUnreadNumResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ContactApplyUnreadNumResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ContactApplyUnreadNumResponseValidationError{}
+
 // Validate checks the field values on ContactApplyListResponse_Item with the
 // rules defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.

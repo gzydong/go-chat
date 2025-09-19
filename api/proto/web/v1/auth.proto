@@ -4,25 +4,80 @@ package web;
 option go_package = "web/v1;web";
 
 import "validate/validate.proto";
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+
+// Wen 授权服务
+service Auth {
+  // 登录接口
+  rpc Login(AuthLoginRequest) returns (AuthLoginResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/auth/login"
+      body: "*"
+    };
+  }
+
+  // 注册接口
+  rpc Register(AuthRegisterRequest) returns (AuthRegisterResponse){
+    option (google.api.http) = {
+      post: "/api/v1/auth/register"
+      body: "*"
+    };
+  }
+
+  // 找回密码接口
+  rpc Forget(AuthForgetRequest) returns (AuthForgetResponse){
+    option (google.api.http) = {
+      post: "/api/v1/auth/forget"
+      body: "*"
+    };
+  }
+
+  // 获取 oauth2.0 跳转地址
+  rpc Oauth(AuthOauthRequest) returns (AuthOauthResponse){
+    option (google.api.http) = {
+      post: "/api/v1/auth/oauth"
+      body: "*"
+    };
+  }
+
+  // 绑定第三方登录接口
+  rpc OauthBind(AuthOAuthBindRequest) returns (AuthOAuthBindResponse){
+    option (google.api.http) = {
+      post: "/api/v1/auth/oauth/bind"
+      body: "*"
+    };
+  }
+
+  // 第三方登录接口
+  rpc OauthLogin(AuthOauthLoginRequest) returns (AuthOauthLoginResponse){
+    option (google.api.http) = {
+      post: "/api/v1/auth/oauth/login"
+      body: "*"
+    };
+  }
+}
+
+
 
 // 登录接口请求参数
 message AuthLoginRequest{
   // 登录手机号
-  string mobile = 1 [(validate.rules).string.min_len = 11];
+  string mobile = 1 [(validate.rules).string.min_len = 11, (google.api.field_behavior) = REQUIRED];
   // 登录密码
-  string password = 2 [(validate.rules).string.min_len = 1];
+  string password = 2 [(validate.rules).string.min_len = 1, (google.api.field_behavior) = REQUIRED];
   // 登录平台
-  string platform = 3 [(validate.rules).string = {in:["web", "windows", "mac"]}];
+  string platform = 3 [(validate.rules).string = {in:["web", "windows", "mac"]}, (google.api.field_behavior) = REQUIRED];
 }
 
 // 登录接口响应参数
 message AuthLoginResponse{
   // Token 类型
-  string type = 1;
+  string type = 1 [(google.api.field_behavior) = REQUIRED];
   // token
-  string access_token = 2;
+  string access_token = 2[(google.api.field_behavior) = REQUIRED];
   // 过期时间
-  int32 expires_in = 3;
+  int32 expires_in = 3[(google.api.field_behavior) = REQUIRED];
 }
 
 // 注册接口请求参数
@@ -42,21 +97,21 @@ message AuthRegisterRequest{
 // 注册接口响应参数
 message AuthRegisterResponse{
   // Token 类型
-  string type = 1;
+  string type = 1 [(google.api.field_behavior) = REQUIRED];
   // token
-  string access_token = 2;
+  string access_token = 2 [(google.api.field_behavior) = REQUIRED];
   // 过期时间
-  int32 expires_in = 3;
+  int32 expires_in = 3 [(google.api.field_behavior) = REQUIRED];
 }
 
 // 找回密码接口请求参数
 message AuthForgetRequest{
   // 手机号
-  string mobile = 1 [(validate.rules).string.len = 11];
+  string mobile = 1 [(validate.rules).string.len = 11, (google.api.field_behavior) = REQUIRED];
   // 登录密码
-  string password = 2 [(validate.rules).string.min_len = 1];
+  string password = 2 [(validate.rules).string.min_len = 1, (google.api.field_behavior) = REQUIRED];
   // 短信验证码
-  string sms_code = 3 [(validate.rules).string.len = 6];
+  string sms_code = 3 [(validate.rules).string.len = 6, (google.api.field_behavior) = REQUIRED];
 }
 
 // 找回密码接口响应参数
@@ -64,38 +119,38 @@ message AuthForgetResponse{}
 
 
 message AuthOauthRequest{
-  string oauth_type = 3 [(validate.rules).string = {in:["github", "gitee"]}];
+  string oauth_type = 3 [(validate.rules).string = {in:["github", "gitee"]}, (google.api.field_behavior) = REQUIRED];
 }
 
 message AuthOauthResponse{
-  string uri = 1;
+  string uri = 1 [(google.api.field_behavior) = REQUIRED];
 }
 
 message AuthOauthLoginRequest{
-  string oauth_type = 3 [(validate.rules).string = {in:["github", "gitee"]}];
-  string code = 1 [(validate.rules).string.min_len = 1];
-  string state = 2 [(validate.rules).string.min_len = 1];
+  string oauth_type = 3 [(validate.rules).string = {in:["github", "gitee"]}, (google.api.field_behavior) = REQUIRED];
+  string code = 1 [(validate.rules).string.min_len = 1, (google.api.field_behavior) = REQUIRED];
+  string state = 2 [(validate.rules).string.min_len = 1, (google.api.field_behavior) = REQUIRED];
 }
 
 message AuthOauthLoginResponse{
-  string is_authorize = 1;
-  Authorize authorize = 2;
-  string bind_token = 3;
+  string is_authorize = 1 [(google.api.field_behavior) = REQUIRED];
+  Authorize authorize = 2 [(google.api.field_behavior) = REQUIRED];
+  string bind_token = 3 [(google.api.field_behavior) = REQUIRED];
 }
 
 message Authorize{
-  string access_token = 1;
-  int32 expires_in = 2;
-  string type = 3;
+  string access_token = 1 [(google.api.field_behavior) = REQUIRED];
+  int32 expires_in = 2 [(google.api.field_behavior) = REQUIRED];
+  string type = 3 [(google.api.field_behavior) = REQUIRED];
 }
 
 
 message AuthOAuthBindRequest{
-  string bind_token = 1 [(validate.rules).string.min_len = 1];
-  string mobile = 2 [(validate.rules).string.min_len = 1];
-  string sms_code = 3 [(validate.rules).string.min_len = 1];
+  string bind_token = 1 [(validate.rules).string.min_len = 1, (google.api.field_behavior) = REQUIRED];
+  string mobile = 2 [(validate.rules).string.min_len = 1, (google.api.field_behavior) = REQUIRED];
+  string sms_code = 3 [(validate.rules).string.min_len = 1, (google.api.field_behavior) = REQUIRED];
 }
 
 message AuthOAuthBindResponse{
-  Authorize authorize = 2;
+  Authorize authorize = 2 [(google.api.field_behavior) = REQUIRED];
 }

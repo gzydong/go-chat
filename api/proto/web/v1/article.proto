@@ -3,21 +3,113 @@ package web;
 option go_package = "web/v1;web";
 
 import "validate/validate.proto";
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+
+// 文章服务
+service Article {
+  // 文章编辑接口
+  rpc Edit(ArticleEditRequest) returns (ArticleEditResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/article/editor"
+      body: "*"
+    };
+  }
+
+  // 获取文章详情接口
+  rpc Detail(ArticleDetailRequest) returns (ArticleDetailResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/article/detail"
+      body: "*"
+    };
+  }
+
+  // 获取文章列表接口
+  rpc List(ArticleListRequest) returns (ArticleListResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/article/list"
+      body: "*"
+    };
+  }
+
+  // 删除文章接口
+  rpc Delete(ArticleDeleteRequest) returns (ArticleDeleteResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/article/delete"
+      body: "*"
+    };
+  }
+
+  // 恢复文章接口
+  rpc Recover(ArticleRecoverRequest) returns (ArticleRecoverResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/article/recover"
+      body: "*"
+    };
+  }
+
+  // 永久删除文章接口
+  rpc ForeverDelete(ArticleForeverDeleteRequest) returns (ArticleForeverDeleteResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/article/forever-delete"
+      body: "*"
+    };
+  }
+
+  // 移动文章分类接口
+  rpc Move(ArticleMoveRequest) returns (ArticleMoveResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/article/move"
+      body: "*"
+    };
+  }
+
+  // 收藏/取消收藏文章接口
+  rpc Asterisk(ArticleAsteriskRequest) returns (ArticleAsteriskResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/article/asterisk"
+      body: "*"
+    };
+  }
+
+  // 设置文章标签接口
+  rpc SetTags(ArticleTagsRequest) returns (ArticleTagsResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/article/tags"
+      body: "*"
+    };
+  }
+
+  // 获取回收站文章列表接口
+  rpc RecoverList(ArticleRecoverListRequest) returns (ArticleRecoverListResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/article/recover-list"
+      body: "*"
+    };
+  }
+}
+
 
 // 文章编辑接口请求参数
 message ArticleEditRequest{
+  // 文章ID
   int32 article_id = 1;
+  // 分类ID
   int32 classify_id = 2;
+  // 标题
   string title = 3  [(validate.rules).string.min_len = 1];
+  // 摘要
+  string abstract = 4;
+  // 内容
   string md_content = 5  [(validate.rules).string.min_len = 1];
 }
 
 // 文章编辑接口响应参数
 message ArticleEditResponse{
-  int32 article_id = 1;
-  string title = 2;
-  string abstract = 3;
-  string image = 4;
+  int32 article_id = 1 [(google.api.field_behavior) = REQUIRED];
+  string title = 2 [(google.api.field_behavior) = REQUIRED];
+  string abstract = 3 [(google.api.field_behavior) = REQUIRED];
+  string image = 4 [(google.api.field_behavior) = REQUIRED];
 }
 
 // 文章详情接口请求参数
@@ -29,27 +121,27 @@ message ArticleDetailRequest{
 message ArticleDetailResponse{
 
   message Tag{
-    int32 id = 1;
+    int32 id = 1 [(google.api.field_behavior) = REQUIRED];
   }
 
   message AnnexFile{
-    int32 annex_id = 1;
-    string annex_name = 2;
-    int32 annex_size = 3;
-    string created_at = 5;
+    int32 annex_id = 1 [(google.api.field_behavior) = REQUIRED];
+    string annex_name = 2 [(google.api.field_behavior) = REQUIRED];
+    int32 annex_size = 3 [(google.api.field_behavior) = REQUIRED];
+    string created_at = 5 [(google.api.field_behavior) = REQUIRED];
   }
 
-  int32 article_id = 1;
-  int32 classify_id = 2;
-  string title = 3;
-  string md_content = 5;
-  int32 is_asterisk = 6;
-  string created_at = 7;
-  string updated_at = 8;
+  int32 article_id = 1 [(google.api.field_behavior) = REQUIRED];
+  int32 classify_id = 2 [(google.api.field_behavior) = REQUIRED];
+  string title = 3 [(google.api.field_behavior) = REQUIRED];
+  string md_content = 5 [(google.api.field_behavior) = REQUIRED];
+  int32 is_asterisk = 6 [(google.api.field_behavior) = REQUIRED];
+  string created_at = 7 [(google.api.field_behavior) = REQUIRED];
+  string updated_at = 8 [(google.api.field_behavior) = REQUIRED];
   // 标签列表
-  repeated Tag tag_ids = 9;
+  repeated Tag tag_ids = 9 [(google.api.field_behavior) = REQUIRED];
   // 附件列表
-  repeated AnnexFile annex_list = 10;
+  repeated AnnexFile annex_list = 10 [(google.api.field_behavior) = REQUIRED];
 }
 
 // 文章列表接口请求参数
@@ -64,27 +156,20 @@ message ArticleListRequest{
 // 文章列表请求接口响应参数
 message ArticleListResponse{
   message Item{
-    int32 article_id = 1;
-    int32 classify_id = 2;
-    string tags_id = 3;
-    string title = 4;
-    string class_name = 5;
-    string image = 6;
-    int32 is_asterisk = 7;
-    int32 status = 8;
-    string created_at = 9;
-    string updated_at = 10;
-    string abstract = 11;
+    int32 article_id = 1 [(google.api.field_behavior) = REQUIRED];
+    int32 classify_id = 2 [(google.api.field_behavior) = REQUIRED];
+    string tags_id = 3 [(google.api.field_behavior) = REQUIRED];
+    string title = 4 [(google.api.field_behavior) = REQUIRED];
+    string class_name = 5 [(google.api.field_behavior) = REQUIRED];
+    string image = 6 [(google.api.field_behavior) = REQUIRED];
+    int32 is_asterisk = 7 [(google.api.field_behavior) = REQUIRED];
+    int32 status = 8 [(google.api.field_behavior) = REQUIRED];
+    string created_at = 9 [(google.api.field_behavior) = REQUIRED];
+    string updated_at = 10 [(google.api.field_behavior) = REQUIRED];
+    string abstract = 11 [(google.api.field_behavior) = REQUIRED];
   }
 
-  message Paginate{
-    int32 page = 1;
-    int32 size = 2;
-    int32 total = 3;
-  }
-
-  repeated Item items = 1;
-  Paginate paginate = 2;
+  repeated Item items = 1 [(google.api.field_behavior) = REQUIRED];
 }
 
 
@@ -143,16 +228,16 @@ message ArticleRecoverListRequest{
 // 文章附件回收站列表接口响应参数
 message ArticleRecoverListResponse{
   message Item {
-    int32 article_id = 1;
-    int32 classify_id = 2;
-    string classify_name = 3;
-    string title = 4;
-    string abstract = 5;
-    string image = 6;
-    string created_at = 7;
-    string deleted_at = 8;
-    int32 day = 9;
+    int32 article_id = 1 [(google.api.field_behavior) = REQUIRED];
+    int32 classify_id = 2 [(google.api.field_behavior) = REQUIRED];
+    string classify_name = 3 [(google.api.field_behavior) = REQUIRED];
+    string title = 4 [(google.api.field_behavior) = REQUIRED];
+    string abstract = 5 [(google.api.field_behavior) = REQUIRED];
+    string image = 6 [(google.api.field_behavior) = REQUIRED];
+    string created_at = 7 [(google.api.field_behavior) = REQUIRED];
+    string deleted_at = 8 [(google.api.field_behavior) = REQUIRED];
+    int32 day = 9 [(google.api.field_behavior) = REQUIRED];
   }
 
-  repeated Item items = 1;
+  repeated Item items = 1 [(google.api.field_behavior) = REQUIRED];
 }

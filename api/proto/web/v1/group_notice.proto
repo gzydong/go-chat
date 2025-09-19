@@ -4,38 +4,24 @@ package web;
 option go_package = "web/v1;web";
 
 import "validate/validate.proto";
+import "google/api/annotations.proto";
 
-message GroupNoticeDeleteRequest{
-  int32 group_id = 1 [(validate.rules).int32.gte = 1];
-  int32 notice_id = 2 [(validate.rules).int32.gte = 1];
+// 群组公告服务
+service GroupNotice {
+  // 编辑群组公告接口
+  rpc Edit(GroupNoticeEditRequest) returns (GroupNoticeEditResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/group-notice/edit"
+      body: "*"
+    };
+  }
 }
 
-message GroupNoticeDeleteResponse{}
-
+// 编辑群组公告接口请求参数
 message GroupNoticeEditRequest{
   int32 group_id = 1 [(validate.rules).int32.gte = 1];
   string content = 4 [(validate.rules).string.min_len = 1];
 }
 
+// 编辑群组公告接口响应参数
 message GroupNoticeEditResponse{}
-
-message GroupNoticeListRequest{
-  int32 group_id = 1 [(validate.rules).int32.gte = 1];
-}
-
-message GroupNoticeListResponse{
-  message Item{
-    int32 id = 1;
-    string title = 2;
-    string content = 3;
-    int32 is_top = 4;
-    int32 is_confirm = 5;
-    string confirm_users = 6;
-    string avatar = 7;
-    int32 creator_id = 8;
-    string created_at = 9;
-    string updated_at = 10;
-  }
-
-  repeated Item items = 1;
-}

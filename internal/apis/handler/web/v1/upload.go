@@ -7,9 +7,12 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/gin-gonic/gin"
 	"go-chat/api/pb/web/v1"
 	"go-chat/config"
-	"go-chat/internal/pkg/core"
+	"go-chat/internal/entity"
+	"go-chat/internal/pkg/core/errorx"
+	"go-chat/internal/pkg/core/middleware"
 	"go-chat/internal/pkg/filesystem"
 	"go-chat/internal/pkg/strutil"
 	"go-chat/internal/pkg/utils"
@@ -22,40 +25,17 @@ type Upload struct {
 	SplitUploadService service.ISplitUploadService
 }
 
-// Avatar 头像上传上传
-func (u *Upload) Avatar(ctx *core.Context) error {
-	file, err := ctx.Context.FormFile("file")
-	if err != nil {
-		return ctx.InvalidParams("文件上传失败！")
-	}
-
-	stream, err := filesystem.ReadMultipartStream(file)
-	if err != nil {
-		return ctx.Error(err)
-	}
-
-	object := strutil.GenMediaObjectName("png", 200, 200)
-	if err := u.Filesystem.Write(u.Filesystem.BucketPublicName(), object, stream); err != nil {
-		return ctx.Error(err)
-	}
-
-	return ctx.Success(web.UploadAvatarResponse{
-		Avatar: u.Filesystem.PublicUrl(u.Filesystem.BucketPublicName(), object),
-	})
-}
-
 // Image 图片上传
-func (u *Upload) Image(ctx *core.Context) error {
-
-	file, err := ctx.Context.FormFile("file")
+func (u *Upload) Image(ctx *gin.Context) (*web.UploadImageResponse, error) {
+	file, err := ctx.FormFile("file")
 	if err != nil {
-		return ctx.InvalidParams("文件上传失败！")
+		return nil, err
 	}
 
 	var (
 		ext       = strings.TrimPrefix(path.Ext(file.Filename), ".")
-		width, _  = strconv.Atoi(ctx.Context.DefaultPostForm("width", "0"))
-		height, _ = strconv.Atoi(ctx.Context.DefaultPostForm("height", "0"))
+		width, _  = strconv.Atoi(ctx.DefaultPostForm("width", "0"))
+		height, _ = strconv.Atoi(ctx.DefaultPostForm("height", "0"))
 	)
 
 	stream, _ := filesystem.ReadMultipartStream(file)
@@ -67,80 +47,83 @@ func (u *Upload) Image(ctx *core.Context) error {
 
 	object := strutil.GenMediaObjectName(ext, width, height)
 	if err := u.Filesystem.Write(u.Filesystem.BucketPublicName(), object, stream); err != nil {
-		return ctx.Error(err)
+		return nil, err
 	}
 
-	return ctx.Success(web.UploadImageResponse{
+	return &web.UploadImageResponse{
 		Src: u.Filesystem.PublicUrl(u.Filesystem.BucketPublicName(), object),
-	})
+	}, nil
 }
 
 // InitiateMultipart 批量上传初始化
-func (u *Upload) InitiateMultipart(ctx *core.Context) error {
+func (u *Upload) InitiateMultipart(ctx *gin.Context) (*web.UploadInitiateMultipartResponse, error) {
 	in := &web.UploadInitiateMultipartRequest{}
-	if err := ctx.Context.ShouldBindJSON(in); err != nil {
-		return ctx.InvalidParams(err)
+	if err := ctx.ShouldBindJSON(in); err != nil {
+		return nil, errorx.New(400, err.Error())
 	}
 
-	info, err := u.SplitUploadService.InitiateMultipartUpload(ctx.GetContext(), &service.MultipartInitiateOpt{
+	uid := middleware.FormContextAuthId[entity.WebClaims](ctx.Request.Context())
+	info, err := u.SplitUploadService.InitiateMultipartUpload(ctx, &service.MultipartInitiateOpt{
 		Name:   in.FileName,
 		Size:   in.FileSize,
-		UserId: ctx.AuthId(),
+		UserId: uid,
 	})
+
 	if err != nil {
-		return ctx.Error(err)
+		return nil, err
 	}
 
-	return ctx.Success(&web.UploadInitiateMultipartResponse{
+	return &web.UploadInitiateMultipartResponse{
 		UploadId:  info.UploadId,
 		ShardSize: 5 << 20,
 		ShardNum:  int32(math.Ceil(float64(in.FileSize) / float64(5<<20))),
-	})
+	}, nil
 }
 
 // MultipartUpload 批量分片上传
-func (u *Upload) MultipartUpload(ctx *core.Context) error {
+func (u *Upload) MultipartUpload(ctx *gin.Context) (*web.UploadMultipartResponse, error) {
 	in := &web.UploadMultipartRequest{
-		UploadId: ctx.Context.PostForm("upload_id"),
+		UploadId: ctx.PostForm("upload_id"),
 	}
 
-	splitIndex, err := strconv.Atoi(ctx.Context.PostForm("split_index"))
+	splitIndex, err := strconv.Atoi(ctx.PostForm("split_index"))
 	if err != nil {
-		return ctx.InvalidParams("split_index")
+		return nil, errorx.New(400, "split_index 不合法")
 	}
 
-	splitNum, err := strconv.Atoi(ctx.Context.PostForm("split_num"))
+	splitNum, err := strconv.Atoi(ctx.PostForm("split_num"))
 	if err != nil {
-		return ctx.InvalidParams("split_num")
+		return nil, errorx.New(400, "split_num 不合法")
 	}
 
 	in.SplitIndex = int32(splitIndex)
 	in.SplitNum = int32(splitNum)
 
-	file, err := ctx.Context.FormFile("file")
+	file, err := ctx.FormFile("file")
 	if err != nil {
-		return ctx.InvalidParams("文件上传失败！")
+		return nil, errorx.New(400, "文件上传失败")
 	}
 
-	err = u.SplitUploadService.MultipartUpload(ctx.GetContext(), &service.MultipartUploadOpt{
-		UserId:     ctx.AuthId(),
+	uid := middleware.FormContextAuthId[entity.WebClaims](ctx.Request.Context())
+	err = u.SplitUploadService.MultipartUpload(ctx.Request.Context(), &service.MultipartUploadOpt{
+		UserId:     uid,
 		UploadId:   in.UploadId,
 		SplitIndex: int(in.SplitIndex),
 		SplitNum:   int(in.SplitNum),
 		File:       file,
 	})
 	if err != nil {
-		return ctx.Error(err)
+		return nil, err
 	}
 
 	if in.SplitIndex != in.SplitNum {
-		return ctx.Success(&web.UploadMultipartResponse{
+		return &web.UploadMultipartResponse{
 			IsMerge: false,
-		})
+		}, nil
 	}
 
-	return ctx.Success(&web.UploadMultipartResponse{
+	return &web.UploadMultipartResponse{
 		UploadId: in.UploadId,
 		IsMerge:  true,
-	})
+	}, nil
 }

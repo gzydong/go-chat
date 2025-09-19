@@ -4,67 +4,144 @@ package web;
 option go_package = "web/v1;web";
 
 import "validate/validate.proto";
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
 
+// 群组申请服务
+service GroupApply {
+  // 创建群组申请接口
+  rpc Create(GroupApplyCreateRequest) returns (GroupApplyCreateResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/group-apply/create"
+      body: "*"
+    };
+  }
+
+  // 删除群组申请接口
+  rpc Delete(GroupApplyDeleteRequest) returns (GroupApplyDeleteResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/group-apply/delete"
+      body: "*"
+    };
+  }
+
+  // 同意群组申请接口
+  rpc Agree(GroupApplyAgreeRequest) returns (GroupApplyAgreeResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/group-apply/agree"
+      body: "*"
+    };
+  }
+
+  // 拒绝群组申请接口
+  rpc Decline(GroupApplyDeclineRequest) returns (GroupApplyDeclineResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/group-apply/decline"
+      body: "*"
+    };
+  }
+
+  // 群组申请列表接口
+  rpc List(GroupApplyListRequest) returns (GroupApplyListResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/group-apply/list"
+      body: "*"
+    };
+  }
+
+  // 所有群组申请列表接口
+  rpc All(GroupApplyAllRequest) returns (GroupApplyAllResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/group-apply/all"
+      body: "*"
+    };
+  }
+
+  // 获取群组申请未读数
+  rpc UnreadNum(GroupApplyUnreadNumRequest) returns (GroupApplyUnreadNumResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/group-apply/unread-num"
+      body: "*"
+    };
+  }
+}
+
+// 创建群组申请接口请求参数
 message GroupApplyCreateRequest{
   int32 group_id = 1 [(validate.rules).int32.gte = 1];
   string remark = 2 [(validate.rules).string.min_len = 1];
 }
 
+// 创建群组申请接口响应参数
 message GroupApplyCreateResponse{}
 
-
+// 删除群组申请接口请求参数
 message GroupApplyDeleteRequest{
   int32 apply_id = 1 [(validate.rules).int32.gte = 1];
 }
 
+// 删除群组申请接口响应参数
 message GroupApplyDeleteResponse{}
 
-
+// 同意群组申请接口请求参数
 message GroupApplyAgreeRequest{
   int32 apply_id = 1 [(validate.rules).int32.gte = 1];
 }
 
+// 同意群组申请接口响应参数
 message GroupApplyAgreeResponse{}
 
-
+// 拒绝群组申请接口请求参数
 message GroupApplyDeclineRequest{
   int32 apply_id = 1 [(validate.rules).int32.gte = 1];
   string remark = 2 [(validate.rules).string.min_len = 1];
 }
 
+// 拒绝群组申请接口响应参数
 message GroupApplyDeclineResponse{}
 
+// 群组申请列表接口请求参数
 message GroupApplyListRequest{
   int32 group_id = 1 [(validate.rules).int32.gte = 1];
 }
 
+// 群组申请列表接口响应参数
 message GroupApplyListResponse{
-
   message Item{
-    int32 id = 1;
-    int32 user_id = 2;
-    int32 group_id = 3;
-    string remark = 4;
-    string avatar = 5;
-    string nickname = 6;
-    string created_at = 7;
+    int32 id = 1 [(google.api.field_behavior) = REQUIRED];
+    int32 user_id = 2 [(google.api.field_behavior) = REQUIRED];
+    int32 group_id = 3 [(google.api.field_behavior) = REQUIRED];
+    string remark = 4 [(google.api.field_behavior) = REQUIRED];
+    string avatar = 5 [(google.api.field_behavior) = REQUIRED];
+    string nickname = 6 [(google.api.field_behavior) = REQUIRED];
+    string created_at = 7 [(google.api.field_behavior) = REQUIRED];
   }
 
   repeated Item items = 1;
 }
 
-message GroupApplyAllResponse{
+// 所有群组申请列表接口请求参数
+message GroupApplyAllRequest{}
 
+// 所有群组申请列表接口响应参数
+message GroupApplyAllResponse{
   message Item{
-    int32 id = 1;
-    int32 user_id = 2;
-    int32 group_id = 3;
-    string group_name = 4;
-    string remark = 5;
-    string avatar = 6;
-    string nickname = 7;
-    string created_at = 8;
+    int32 id = 1 [(google.api.field_behavior) = REQUIRED];
+    int32 user_id = 2 [(google.api.field_behavior) = REQUIRED];
+    int32 group_id = 3 [(google.api.field_behavior) = REQUIRED];
+    string group_name = 4 [(google.api.field_behavior) = REQUIRED];
+    string remark = 5 [(google.api.field_behavior) = REQUIRED];
+    string avatar = 6 [(google.api.field_behavior) = REQUIRED];
+    string nickname = 7 [(google.api.field_behavior) = REQUIRED];
+    string created_at = 8 [(google.api.field_behavior) = REQUIRED];
   }
 
-  repeated Item items = 1;
+  repeated Item items = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+
+message GroupApplyUnreadNumRequest{}
+
+message GroupApplyUnreadNumResponse{
+  int32 num = 1 [(google.api.field_behavior) = REQUIRED];
 }

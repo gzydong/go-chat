@@ -16,7 +16,6 @@ type V1 struct {
 	Organize     *v1.Organize
 	Talk         *talk.Session
 	TalkMessage  *talk.Message
-	TalkRecords  *talk.Records
 	Emoticon     *v1.Emoticon
 	Upload       *v1.Upload
 	Group        *group.Group

@@ -1,17 +1,19 @@
 package article
 
 import (
+	"context"
 	"database/sql"
-	"errors"
 	"fmt"
 	"math"
 	"net/http"
 	"strconv"
 	"time"
 
+	"github.com/gin-gonic/gin"
 	"go-chat/api/pb/web/v1"
 	"go-chat/internal/entity"
-	"go-chat/internal/pkg/core"
+	"go-chat/internal/pkg/core/errorx"
+	"go-chat/internal/pkg/core/middleware"
 	"go-chat/internal/pkg/filesystem"
 	"go-chat/internal/pkg/strutil"
 	"go-chat/internal/repository/model"
@@ -19,54 +21,56 @@ import (
 	"go-chat/internal/service"
 )
 
+var _ web.IArticleAnnexHandler = (*Annex)(nil)
+
 type Annex struct {
 	ArticleAnnexRepo    *repo.ArticleAnnex
 	ArticleAnnexService service.IArticleAnnexService
 	Filesystem          filesystem.IFilesystem
 }
 
-// Upload 上传附件
-func (c *Annex) Upload(ctx *core.Context) error {
+func (a *Annex) Upload(ctx *gin.Context, _ *web.ArticleAnnexUploadRequest) (*web.ArticleAnnexUploadResponse, error) {
 	in := &web.ArticleAnnexUploadRequest{}
 
-	value := ctx.Context.PostForm("article_id")
+	value := ctx.PostForm("article_id")
 	if value == "" {
-		return ctx.InvalidParams("请选择文章")
+		return nil, errorx.New(400, "请选择文章")
 	}
 
 	id, _ := strconv.Atoi(value)
 	if id <= 0 {
-		return ctx.InvalidParams("请选择文章")
+		return nil, errorx.New(400, "请选择文章")
 	}
 
 	in.ArticleId = int32(id)
 
-	file, err := ctx.Context.FormFile("annex")
+	file, err := ctx.FormFile("annex")
 	if err != nil {
-		return ctx.InvalidParams("annex 字段必传！")
+		return nil, errorx.New(400, "annex 字段必传")
 	}
 
 	// 判断上传文件大小（10M）
 	if file.Size > 10<<20 {
-		return ctx.InvalidParams("附件大小不能超过10M！")
+		return nil, errorx.New(400, "附件大小不能超过10M")
 	}
 
 	stream, err := filesystem.ReadMultipartStream(file)
 	if err != nil {
-		return ctx.Error(err)
+		return nil, err
 	}
 
 	ext := strutil.FileSuffix(file.Filename)
 
 	filePath := fmt.Sprintf("article-files/%s/%s", time.Now().Format("200601"), strutil.GenFileName(ext))
-	if err := c.Filesystem.Write(c.Filesystem.BucketPrivateName(), filePath, stream); err != nil {
-		return ctx.Error(err)
+	if err := a.Filesystem.Write(a.Filesystem.BucketPrivateName(), filePath, stream); err != nil {
+		return nil, err
 	}
 
+	uid := middleware.FormContextAuthId[entity.WebClaims](ctx.Request.Context())
 	data := &model.ArticleAnnex{
-		UserId:       ctx.AuthId(),
+		UserId:       uid,
 		ArticleId:    int(in.ArticleId),
-		Drive:        entity.FileDriveMode(c.Filesystem.Driver()),
+		Drive:        entity.FileDriveMode(a.Filesystem.Driver()),
 		Suffix:       ext,
 		Size:         int(file.Size),
 		Path:         filePath,
@@ -77,55 +81,89 @@ func (c *Annex) Upload(ctx *core.Context) error {
 		},
 	}
 
-	if err := c.ArticleAnnexService.Create(ctx.GetContext(), data); err != nil {
-		return ctx.Error(err)
+	if err := a.ArticleAnnexService.Create(ctx, data); err != nil {
+		return nil, err
 	}
 
-	return ctx.Success(&web.ArticleAnnexUploadResponse{
+	return &web.ArticleAnnexUploadResponse{
 		AnnexId:   int32(data.Id),
 		AnnexSize: int32(data.Size),
 		AnnexName: data.OriginalName,
 		CreatedAt: data.CreatedAt.Format(time.DateTime),
-	})
+	}, nil
 }
 
-// Delete 删除附件
-func (c *Annex) Delete(ctx *core.Context) error {
+func (a *Annex) Delete(ctx context.Context, in *web.ArticleAnnexDeleteRequest) (*web.ArticleAnnexDeleteResponse, error) {
+	uid := middleware.FormContextAuthId[entity.WebClaims](ctx)
 
-	in := &web.ArticleAnnexDeleteRequest{}
-	if err := ctx.ShouldBindProto(in); err != nil {
-		return ctx.InvalidParams(err)
-	}
-
-	err := c.ArticleAnnexService.UpdateStatus(ctx.GetContext(), ctx.AuthId(), int(in.AnnexId), 2)
+	err := a.ArticleAnnexService.UpdateStatus(ctx, uid, int(in.AnnexId), 2)
 	if err != nil {
-		return ctx.Error(err)
+		return nil, err
 	}
 
-	return ctx.Success(&web.ArticleAnnexDeleteResponse{})
+	return &web.ArticleAnnexDeleteResponse{}, nil
 }
 
-// Recover 恢复附件
-func (c *Annex) Recover(ctx *core.Context) error {
-
-	in := &web.ArticleAnnexRecoverRequest{}
-	if err := ctx.ShouldBindProto(in); err != nil {
-		return ctx.InvalidParams(err)
-	}
-
-	err := c.ArticleAnnexService.UpdateStatus(ctx.GetContext(), ctx.AuthId(), int(in.AnnexId), 1)
+func (a *Annex) Recover(ctx context.Context, req *web.ArticleAnnexRecoverRequest) (*web.ArticleAnnexRecoverResponse, error) {
+	err := a.ArticleAnnexService.UpdateStatus(ctx, middleware.FormContextAuthId[entity.WebClaims](ctx), int(req.AnnexId), 1)
 	if err != nil {
-		return ctx.Error(err)
+		return nil, err
 	}
 
-	return ctx.Success(&web.ArticleAnnexRecoverResponse{})
+	return &web.ArticleAnnexRecoverResponse{}, nil
 }
 
-// RecycleList 附件回收站列表
-func (c *Annex) RecycleList(ctx *core.Context) error {
-	items, err := c.ArticleAnnexRepo.RecoverList(ctx.GetContext(), ctx.AuthId())
+func (a *Annex) ForeverDelete(ctx context.Context, req *web.ArticleAnnexForeverDeleteRequest) (*web.ArticleAnnexForeverDeleteResponse, error) {
+	if err := a.ArticleAnnexService.ForeverDelete(ctx, middleware.FormContextAuthId[entity.WebClaims](ctx), int(req.AnnexId)); err != nil {
+		return nil, err
+	}
+
+	return &web.ArticleAnnexForeverDeleteResponse{}, nil
+}
+
+func (a *Annex) Download(ctx *gin.Context, _ *web.ArticleAnnexDownloadRequest) (*web.ArticleAnnexDownloadResponse, error) {
+	uid := middleware.FormContextAuthId[entity.WebClaims](ctx.Request.Context())
+
+	in := &web.ArticleAnnexDownloadRequest{}
+	if err := ctx.ShouldBind(in); err != nil {
+		return nil, err
+	}
+
+	annexId, err := strconv.Atoi(ctx.DefaultQuery("annex_id", "0"))
 	if err != nil {
-		return ctx.Error(err)
+		return nil, err
+	}
+
+	info, err := a.ArticleAnnexRepo.FindById(ctx, annexId)
+	if err != nil {
+		return nil, err
+	}
+
+	if info.UserId != uid {
+		return nil, errorx.New(403, "无权限下载")
+	}
+
+	switch info.Drive {
+	case entity.FileDriveLocal:
+		if a.Filesystem.Driver() != filesystem.LocalDriver {
+			return nil, errorx.New(400, "未知文件驱动类型")
+		}
+
+		filePath := a.Filesystem.(*filesystem.LocalFilesystem).Path(a.Filesystem.BucketPrivateName(), info.Path)
+		ctx.FileAttachment(filePath, info.OriginalName)
+	case entity.FileDriveMinio:
+		ctx.Redirect(http.StatusFound, a.Filesystem.PrivateUrl(a.Filesystem.BucketPrivateName(), info.Path, info.OriginalName, 60*time.Second))
+	default:
+		return nil, errorx.New(400, "未知文件驱动类型")
+	}
+
+	return &web.ArticleAnnexDownloadResponse{}, nil
+}
+
+func (a *Annex) RecoverList(ctx context.Context, req *web.ArticleAnnexRecoverListRequest) (*web.ArticleAnnexRecoverListResponse, error) {
+	items, err := a.ArticleAnnexRepo.RecoverList(ctx, middleware.FormContextAuthId[entity.WebClaims](ctx))
+	if err != nil {
+		return nil, err
 	}
 
 	data := make([]*web.ArticleAnnexRecoverListResponse_Item, 0)
@@ -144,61 +182,12 @@ func (c *Annex) RecycleList(ctx *core.Context) error {
 		})
 	}
 
-	return ctx.Success(&web.ArticleAnnexRecoverListResponse{
+	return &web.ArticleAnnexRecoverListResponse{
 		Items: data,
 		Paginate: &web.Paginate{
 			Page:  1,
 			Size:  10000,
 			Total: int32(len(data)),
 		},
-	})
-}
-
-// ForeverDelete 永久删除附件
-func (c *Annex) ForeverDelete(ctx *core.Context) error {
-
-	in := &web.ArticleAnnexForeverDeleteRequest{}
-	if err := ctx.ShouldBindProto(in); err != nil {
-		return ctx.InvalidParams(err)
-	}
-
-	if err := c.ArticleAnnexService.ForeverDelete(ctx.GetContext(), ctx.AuthId(), int(in.AnnexId)); err != nil {
-		return ctx.Error(err)
-	}
-
-	return ctx.Success(&web.ArticleAnnexForeverDeleteResponse{})
-}
-
-// Download 下载笔记附件
-func (c *Annex) Download(ctx *core.Context) error {
-
-	in := &web.ArticleAnnexDownloadRequest{}
-	if err := ctx.ShouldBindProto(in); err != nil {
-		return ctx.InvalidParams(err)
-	}
-
-	info, err := c.ArticleAnnexRepo.FindById(ctx.GetContext(), int(in.AnnexId))
-	if err != nil {
-		return ctx.Error(err)
-	}
-
-	if info.UserId != ctx.AuthId() {
-		return ctx.Forbidden("无权限下载")
-	}
-
-	switch info.Drive {
-	case entity.FileDriveLocal:
-		if c.Filesystem.Driver() != filesystem.LocalDriver {
-			return ctx.Error(errors.New("未知文件驱动类型"))
-		}
-
-		filePath := c.Filesystem.(*filesystem.LocalFilesystem).Path(c.Filesystem.BucketPrivateName(), info.Path)
-		ctx.Context.FileAttachment(filePath, info.OriginalName)
-	case entity.FileDriveMinio:
-		ctx.Context.Redirect(http.StatusFound, c.Filesystem.PrivateUrl(c.Filesystem.BucketPrivateName(), info.Path, info.OriginalName, 60*time.Second))
-	default:
-		return ctx.Error(errors.New("未知文件驱动类型"))
-	}
-
-	return nil
+	}, nil
 }

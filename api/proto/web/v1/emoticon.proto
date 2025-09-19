@@ -3,6 +3,35 @@ package web;
 
 option go_package = "web/v1;web";
 import "validate/validate.proto";
+import "google/api/annotations.proto";
+
+// 表情包服务
+service Emoticon {
+  // 删除表情包接口
+  rpc Delete(EmoticonDeleteRequest) returns (EmoticonDeleteResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/emoticon/customize/delete"
+      body: "*"
+    };
+  }
+
+  // 用户表情包列表接口
+  rpc List(EmoticonListRequest) returns (EmoticonListResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/emoticon/customize/list"
+      body: "*"
+    };
+  }
+
+
+  // 创建表情包接口
+  rpc Create(EmoticonCreateRequest) returns (EmoticonCreateResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/emoticon/customize/create"
+      body: "*"
+    };
+  }
+}
 
 message EmoticonItem{
   int32 emoticon_id = 1;
@@ -34,12 +63,12 @@ message EmoticonUploadResponse{
   string url = 2;
 }
 
-// 删除表情包接口请求参数
+// 创建表情包接口请求参数
 message EmoticonCreateRequest{
   string url = 1 [(validate.rules).string.min_len = 1];
 }
 
-// 删除表情包接口响应参数
+// 创建表情包接口响应参数
 message EmoticonCreateResponse{
   int32 emoticon_id = 1;
   string url = 2;

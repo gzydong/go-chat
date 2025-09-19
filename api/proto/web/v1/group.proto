@@ -4,6 +4,147 @@ package web;
 option go_package = "web/v1;web";
 
 import "validate/validate.proto";
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+
+// 群组服务
+service Group {
+  // 群列表接口
+  rpc List(GroupListRequest) returns (GroupListResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/group/list"
+      body: "*"
+    };
+  }
+
+  // 创建群聊接口
+  rpc Create(GroupCreateRequest) returns (GroupCreateResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/group/create"
+      body: "*"
+    };
+  }
+
+  // 群聊详情接口
+  rpc Detail(GroupDetailRequest) returns (GroupDetailResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/group/detail"
+      body: "*"
+    };
+  }
+
+  // 群成员列表接口
+  rpc MemberList(GroupMemberListRequest) returns (GroupMemberListResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/group/member-list"
+      body: "*"
+    };
+  }
+
+  // 解散群聊接口
+  rpc Dismiss(GroupDismissRequest) returns (GroupDismissResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/group/dismiss"
+      body: "*"
+    };
+  }
+
+  // 邀请加入群聊接口
+  rpc Invite(GroupInviteRequest) returns (GroupInviteResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/group/invite"
+      body: "*"
+    };
+  }
+
+  // 获取可邀请好友列表接口
+  rpc GetInviteFriends(GetInviteFriendsRequest) returns (GetInviteFriendsResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/group/get-invite-friends"
+      body: "*"
+    };
+  }
+
+  // 退出群聊接口
+  rpc Secede(GroupSecedeRequest) returns (GroupSecedeResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/group/secede"
+      body: "*"
+    };
+  }
+
+  // 设置群聊接口
+  rpc Setting(GroupSettingRequest) returns (GroupSettingResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/group/setting"
+      body: "*"
+    };
+  }
+
+  // 群聊名片更新接口
+  rpc RemarkUpdate(GroupRemarkUpdateRequest) returns (GroupRemarkUpdateResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/group/remark-update"
+      body: "*"
+    };
+  }
+
+  // 移出群成员接口
+  rpc RemoveMember(GroupRemoveMemberRequest) returns (GroupRemoveMemberResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/group/remove-member"
+      body: "*"
+    };
+  }
+
+  // 公开群聊列表接口
+  rpc OvertList(GroupOvertListRequest) returns (GroupOvertListResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/group/overt-list"
+      body: "*"
+    };
+  }
+
+  // 群主更换接口
+  rpc Handover(GroupHandoverRequest) returns (GroupHandoverResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/group/handover"
+      body: "*"
+    };
+  }
+
+  // 分配管理员接口
+  rpc AssignAdmin(GroupAssignAdminRequest) returns (GroupAssignAdminResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/group/assign-admin"
+      body: "*"
+    };
+  }
+
+  // 群成员禁言接口
+  rpc NoSpeak(GroupNoSpeakRequest) returns (GroupNoSpeakResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/group/no-speak"
+      body: "*"
+    };
+  }
+
+  // 群禁言接口
+  rpc Mute(GroupMuteRequest) returns (GroupMuteResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/group/mute"
+      body: "*"
+    };
+  }
+
+  // 群公开修改接口
+  rpc Overt(GroupOvertRequest) returns (GroupOvertResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/group/overt"
+      body: "*"
+    };
+  }
+}
 
 // 群列表接口请求参数
 message GroupListRequest{}
@@ -11,17 +152,16 @@ message GroupListRequest{}
 // 群列表接口响应参数
 message GroupListResponse{
   message Item{
-    int32 group_id = 1;
-    string group_name = 2;
-    string avatar = 3;
-    string profile = 4;
-    int32 leader = 5;
-    int32 creator_id = 7;
+    int32 group_id = 1 [(google.api.field_behavior) = REQUIRED];
+    string group_name = 2 [(google.api.field_behavior) = REQUIRED];
+    string avatar = 3 [(google.api.field_behavior) = REQUIRED];
+    string profile = 4 [(google.api.field_behavior) = REQUIRED];
+    int32 leader = 5 [(google.api.field_behavior) = REQUIRED];
+    int32 creator_id = 7 [(google.api.field_behavior) = REQUIRED];
   }
 
-  repeated Item items = 1;
+  repeated Item items = 1 [(google.api.field_behavior) = REQUIRED];
 }
-
 
 // 创建群聊接口请求参数
 message GroupCreateRequest{
@@ -31,9 +171,8 @@ message GroupCreateRequest{
 
 // 创建群聊接口响应参数
 message GroupCreateResponse{
-  int32 group_id = 1;
+  int32 group_id = 1 [(google.api.field_behavior) = REQUIRED];
 }
-
 
 // 群聊详情接口请求参数
 message GroupDetailRequest{
@@ -42,16 +181,16 @@ message GroupDetailRequest{
 
 // 群聊详情接口响应参数
 message GroupDetailResponse{
-  int32 group_id = 1;
-  string group_name = 2;
-  string profile = 3;
-  string avatar = 4;
-  string created_at = 5;
-  bool is_manager = 6;
-  int32 is_disturb = 7;
-  string visit_card = 8;
-  int32 is_mute = 9;
-  int32 is_overt = 10;
+  int32 group_id = 1 [(google.api.field_behavior) = REQUIRED];
+  string group_name = 2 [(google.api.field_behavior) = REQUIRED];
+  string profile = 3 [(google.api.field_behavior) = REQUIRED];
+  string avatar = 4 [(google.api.field_behavior) = REQUIRED];
+  string created_at = 5 [(google.api.field_behavior) = REQUIRED];
+  bool is_manager = 6 [(google.api.field_behavior) = REQUIRED];
+  int32 is_disturb = 7 [(google.api.field_behavior) = REQUIRED];
+  string visit_card = 8 [(google.api.field_behavior) = REQUIRED];
+  int32 is_mute = 9 [(google.api.field_behavior) = REQUIRED];
+  int32 is_overt = 10 [(google.api.field_behavior) = REQUIRED];
   Notice notice = 11;
 
   message Notice{
@@ -62,7 +201,6 @@ message GroupDetailResponse{
   }
 }
 
-
 // 群成员列表接口请求参数
 message GroupMemberListRequest{
   int32 group_id = 1 [(validate.rules).int32.gte = 1];
@@ -71,19 +209,18 @@ message GroupMemberListRequest{
 // 群成员列表接口响应参数
 message GroupMemberListResponse{
   message Item{
-    int32 user_id = 1;
-    string nickname = 2;
-    string avatar = 3;
-    int32 gender = 4;
-    int32 leader = 5;
-    int32 is_mute = 6;
-    string remark = 7;
-    string motto = 8;
+    int32 user_id = 1 [(google.api.field_behavior) = REQUIRED];
+    string nickname = 2 [(google.api.field_behavior) = REQUIRED];
+    string avatar = 3 [(google.api.field_behavior) = REQUIRED];
+    int32 gender = 4 [(google.api.field_behavior) = REQUIRED];
+    int32 leader = 5 [(google.api.field_behavior) = REQUIRED];
+    int32 is_mute = 6 [(google.api.field_behavior) = REQUIRED];
+    string remark = 7 [(google.api.field_behavior) = REQUIRED];
+    string motto = 8 [(google.api.field_behavior) = REQUIRED];
   }
 
-  repeated Item items = 1;
+  repeated Item items = 1 [(google.api.field_behavior) = REQUIRED];
 }
-
 
 // 解散群聊接口请求参数
 message GroupDismissRequest{
@@ -92,7 +229,6 @@ message GroupDismissRequest{
 
 // 解散群聊接口响应参数
 message GroupDismissResponse{}
-
 
 // 加入群聊接口请求参数
 message GroupInviteRequest{
@@ -103,23 +239,23 @@ message GroupInviteRequest{
 // 加入群聊接口响应参数
 message GroupInviteResponse{}
 
-
+// 获取可邀请好友列表请求参数
 message GetInviteFriendsRequest{
   int32 group_id = 1 [(validate.rules).int32.gte = 0];
 }
 
+// 获取可邀请好友列表响应参数
 message GetInviteFriendsResponse{
   message Item{
-    int32 user_id = 1;
-    string nickname = 2;
-    string avatar = 3;
-    int32 gender = 4;
-    string remark = 5;
+    int32 user_id = 1 [(google.api.field_behavior) = REQUIRED];
+    string nickname = 2 [(google.api.field_behavior) = REQUIRED];
+    string avatar = 3 [(google.api.field_behavior) = REQUIRED];
+    int32 gender = 4 [(google.api.field_behavior) = REQUIRED];
+    string remark = 5 [(google.api.field_behavior) = REQUIRED];
   }
 
-  repeated Item items = 1;
+  repeated Item items = 1 [(google.api.field_behavior) = REQUIRED];
 }
-
 
 // 退出群聊接口请求参数
 message GroupSecedeRequest{
@@ -128,7 +264,6 @@ message GroupSecedeRequest{
 
 // 退出群聊接口响应参数
 message GroupSecedeResponse{}
-
 
 // 设置群聊接口请求参数
 message GroupSettingRequest{
@@ -140,7 +275,6 @@ message GroupSettingRequest{
 
 // 设置群聊接口响应参数
 message GroupSettingResponse{}
-
 
 // 群聊名片更新接口请求参数
 message GroupRemarkUpdateRequest{
@@ -160,7 +294,6 @@ message GroupRemoveMemberRequest{
 // 移出群成员接口响应参数
 message GroupRemoveMemberResponse{}
 
-
 // 公开群聊列表请求参数
 message GroupOvertListRequest{
   int32 page = 1 [(validate.rules).int32.gte = 1];
@@ -170,21 +303,20 @@ message GroupOvertListRequest{
 // 公开群聊列表响应参数
 message GroupOvertListResponse{
   message Item{
-    int32 group_id = 1;
-    int32 type = 2;
-    string name = 3;
-    string avatar = 4;
-    string profile = 5;
-    int32 count = 6;
-    int32 max_num = 7;
-    bool is_member = 8;
-    string created_at = 9;
+    int32 group_id = 1 [(google.api.field_behavior) = REQUIRED];
+    int32 type = 2 [(google.api.field_behavior) = REQUIRED];
+    string name = 3 [(google.api.field_behavior) = REQUIRED];
+    string avatar = 4 [(google.api.field_behavior) = REQUIRED];
+    string profile = 5 [(google.api.field_behavior) = REQUIRED];
+    int32 count = 6 [(google.api.field_behavior) = REQUIRED];
+    int32 max_num = 7 [(google.api.field_behavior) = REQUIRED];
+    bool is_member = 8 [(google.api.field_behavior) = REQUIRED];
+    string created_at = 9 [(google.api.field_behavior) = REQUIRED];
   }
 
-  repeated Item items = 1;
-  bool next = 2;
+  repeated Item items = 1 [(google.api.field_behavior) = REQUIRED];
+  bool next = 2 [(google.api.field_behavior) = REQUIRED];
 }
-
 
 // 群主更换接口请求参数
 message GroupHandoverRequest{
@@ -192,9 +324,8 @@ message GroupHandoverRequest{
   int32 user_id = 2 [(validate.rules).int32.gte = 1];
 }
 
-// 群主更换接口请求参数
+// 群主更换接口响应参数
 message GroupHandoverResponse{}
-
 
 // 分配管理员接口请求参数
 message GroupAssignAdminRequest{
@@ -205,7 +336,6 @@ message GroupAssignAdminRequest{
 
 // 分配管理员接口响应参数
 message GroupAssignAdminResponse{}
-
 
 // 群成员禁言接口请求参数
 message GroupNoSpeakRequest{
@@ -236,5 +366,3 @@ message GroupOvertRequest{
 
 // 群公开修改接口响应参数
 message GroupOvertResponse{}
-
-

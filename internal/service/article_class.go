@@ -18,7 +18,7 @@ type IArticleClassService interface {
 	Update(ctx context.Context, uid, cid int, name string) error
 	Delete(ctx context.Context, uid, cid int) error
 	Find(ctx context.Context, classId int) (*model.ArticleClass, error)
-	Sort(ctx context.Context, uid, cid, mode int) error
+	Sort(ctx context.Context, uid int32, ids []int32) error
 }
 
 type ArticleClassService struct {
@@ -98,64 +98,48 @@ func (s *ArticleClassService) Delete(ctx context.Context, uid, cid int) error {
 	return s.Source.Db().Delete(&model.ArticleClass{}, "id = ? and user_id = ? and is_default = ?", cid, uid, model.No).Error
 }
 
-func (s *ArticleClassService) Sort(ctx context.Context, uid, cid, mode int) error {
-
-	item, err := s.ArticleClass.FindByWhere(ctx, "id = ? and user_id = ?", cid, uid)
+func (s *ArticleClassService) Sort(ctx context.Context, uid int32, ids []int32) error {
+	items, err := s.ArticleClass.FindAllByWhere(ctx, "user_id = ?", uid)
 	if err != nil {
 		return err
 	}
 
-	if mode == 1 {
-		maxSort, err := s.ArticleClass.MaxSort(ctx, uid)
-		if err != nil {
-			return err
-		}
-
-		if maxSort == item.Sort {
-			return nil
-		}
-
-		return s.Source.Db().Transaction(func(tx *gorm.DB) error {
-			if err := tx.Table("article_class").Where("user_id = ? and sort = ?", uid, item.Sort+1).Updates(map[string]any{
-				"sort": gorm.Expr("sort - 1"),
-			}).Error; err != nil {
-				return err
-			}
-
-			if err := tx.Table("article_class").Where("id = ? and user_id = ?", cid, uid).Updates(map[string]any{
-				"sort": gorm.Expr("sort + 1"),
-			}).Error; err != nil {
-				return err
-			}
-
-			return nil
-		})
-	} else {
-		minSort, err := s.ArticleClass.MinSort(ctx, uid)
-		if err != nil {
-			return err
-		}
-
-		if minSort == item.Sort {
-			return nil
-		}
-
-		return s.Source.Db().Transaction(func(tx *gorm.DB) error {
-			if err := tx.Table("article_class").Where("user_id = ? and sort = ?", uid, item.Sort-1).Updates(map[string]any{
-				"sort": gorm.Expr("sort + 1"),
-			}).Error; err != nil {
-				return err
-			}
-
-			if err := tx.Table("article_class").Where("id = ? and user_id = ?", cid, uid).Updates(map[string]any{
-				"sort": gorm.Expr("sort - 1"),
-			}).Error; err != nil {
-				return err
-			}
-
-			return nil
-		})
+	idsMap := make(map[int32]struct{})
+	for _, item := range items {
+		idsMap[int32(item.Id)] = struct{}{}
 	}
+
+	for _, id := range ids {
+		if _, ok := idsMap[id]; !ok {
+			return entity.ErrNoteClassNotExist
+		}
+	}
+
+	index := 0
+	sortItems := make(map[int32]int)
+	for _, id := range ids {
+		index += 1
+		sortItems[id] = index
+	}
+
+	for _, item := range items {
+		if _, ok := sortItems[int32(item.Id)]; !ok {
+			index += 1
+			sortItems[int32(item.Id)] = index
+		}
+	}
+
+	return s.Db().Transaction(func(tx *gorm.DB) error {
+		for k, v := range sortItems {
+			err = tx.Table("article_class").Where("id = ?", k).Update("sort", v).Error
+
+			if err != nil {
+				return err
+			}
+		}
+
+		return nil
+	})
 }
 
 // SetDefaultClass 设置默认分类

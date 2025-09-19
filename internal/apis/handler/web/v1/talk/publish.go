@@ -4,14 +4,17 @@ import (
 	"context"
 	"html"
 
+	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
-	"go-chat/internal/pkg/core"
+	"go-chat/internal/entity"
+	"go-chat/internal/pkg/core/errorx"
+	"go-chat/internal/pkg/core/middleware"
 	"go-chat/internal/pkg/logger"
 	"go-chat/internal/service"
 	"go-chat/internal/service/message"
 )
 
-var mapping map[string]func(ctx *core.Context) error
+var mapping map[string]func(ctx *gin.Context) error
 
 type Publish struct {
 	AuthService    service.IAuthService
@@ -27,26 +30,32 @@ type BaseMessageRequest struct {
 }
 
 // Send 发送消息接口
-func (c *Publish) Send(ctx *core.Context) error {
+func (c *Publish) Send(ctx *gin.Context) (any, error) {
 	in := &BaseMessageRequest{}
-	if err := ctx.Context.ShouldBindBodyWith(in, binding.JSON); err != nil {
-		return ctx.InvalidParams(err)
+	if err := ctx.ShouldBindBodyWith(in, binding.JSON); err != nil {
+		return nil, errorx.New(400, err.Error())
 	}
 
 	if in.MsgId != "" && len(in.MsgId) < 30 {
-		return ctx.InvalidParams("msg_id 长度必须为30个字符")
+		return nil, errorx.New(400, "msg_id 长度必须为30个字符")
 	}
 
-	if err := c.AuthService.IsAuth(ctx.GetContext(), &service.AuthOption{
+	uid := middleware.FormContextAuthId[entity.WebClaims](ctx.Request.Context())
+	if err := c.AuthService.IsAuth(ctx.Request.Context(), &service.AuthOption{
 		TalkType:          in.TalkMode,
-		UserId:            ctx.AuthId(),
+		UserId:            uid,
 		ToFromId:          in.ToFromId,
 		IsVerifyGroupMute: true,
 	}); err != nil {
-		return ctx.Error(err)
+		return nil, err
 	}
 
-	return c.transfer(ctx, in.Type)
+	err := c.transfer(ctx, in.Type)
+	if err != nil {
+		return nil, err
+	}
+
+	return map[string]string{"status": "ok"}, nil
 }
 
 type onSendTextMessage struct {
@@ -58,16 +67,17 @@ type onSendTextMessage struct {
 }
 
 // 文本消息
-func (c *Publish) onSendText(ctx *core.Context) error {
+func (c *Publish) onSendText(ctx *gin.Context) error {
 	in := &onSendTextMessage{}
-	if err := ctx.Context.ShouldBindBodyWith(in, binding.JSON); err != nil {
-		return ctx.InvalidParams(err)
+	if err := ctx.ShouldBindBodyWith(in, binding.JSON); err != nil {
+		return errorx.New(400, err.Error())
 	}
 
-	err := c.MessageService.CreateTextMessage(ctx.GetContext(), message.CreateTextMessage{
+	uid := middleware.FormContextAuthId[entity.WebClaims](ctx.Request.Context())
+	err := c.MessageService.CreateTextMessage(ctx.Request.Context(), message.CreateTextMessage{
 		MsgId:    in.MsgId,
 		TalkMode: in.TalkMode,
-		FromId:   ctx.AuthId(),
+		FromId:   uid,
 		ToFromId: in.ToFromId,
 		Content:  html.EscapeString(in.Body.Content),
 		QuoteId:  in.QuoteId,
@@ -78,7 +88,7 @@ func (c *Publish) onSendText(ctx *core.Context) error {
 		return ctx.Error(err)
 	}
 
-	return ctx.Success(nil)
+	return nil
 }
 
 type onSendImageMessage struct {
@@ -92,16 +102,17 @@ type onSendImageMessage struct {
 }
 
 // 图片消息
-func (c *Publish) onSendImage(ctx *core.Context) error {
+func (c *Publish) onSendImage(ctx *gin.Context) error {
 	in := &onSendImageMessage{}
-	if err := ctx.Context.ShouldBindBodyWith(in, binding.JSON); err != nil {
-		return ctx.InvalidParams(err)
+	if err := ctx.ShouldBindBodyWith(in, binding.JSON); err != nil {
+		return errorx.New(400, err.Error())
 	}
 
-	err := c.MessageService.CreateImageMessage(ctx.GetContext(), message.CreateImageMessage{
+	uid := middleware.FormContextAuthId[entity.WebClaims](ctx.Request.Context())
+	err := c.MessageService.CreateImageMessage(ctx.Request.Context(), message.CreateImageMessage{
 		MsgId:    in.MsgId,
 		TalkMode: in.TalkMode,
-		FromId:   ctx.AuthId(),
+		FromId:   uid,
 		ToFromId: in.ToFromId,
 		QuoteId:  in.QuoteId,
 		Url:      in.Body.Url,
@@ -114,7 +125,7 @@ func (c *Publish) onSendImage(ctx *core.Context) error {
 		return ctx.Error(err)
 	}
 
-	return ctx.Success(nil)
+	return nil
 }
 
 type onSendVoiceMessage struct {
@@ -127,15 +138,16 @@ type onSendVoiceMessage struct {
 }
 
 // 语音消息
-func (c *Publish) onSendVoice(ctx *core.Context) error {
+func (c *Publish) onSendVoice(ctx *gin.Context) error {
 	in := &onSendVoiceMessage{}
-	if err := ctx.Context.ShouldBindBodyWith(in, binding.JSON); err != nil {
-		return ctx.InvalidParams(err)
+	if err := ctx.ShouldBindBodyWith(in, binding.JSON); err != nil {
+		return errorx.New(400, err.Error())
 	}
 
-	err := c.MessageService.CreateVoiceMessage(ctx.GetContext(), message.CreateVoiceMessage{
+	uid := middleware.FormContextAuthId[entity.WebClaims](ctx.Request.Context())
+	err := c.MessageService.CreateVoiceMessage(ctx.Request.Context(), message.CreateVoiceMessage{
 		TalkMode: in.TalkMode,
-		FromId:   ctx.AuthId(),
+		FromId:   uid,
 		ToFromId: in.ToFromId,
 		Url:      in.Body.Url,
 		Duration: in.Body.Duration,
@@ -145,7 +157,7 @@ func (c *Publish) onSendVoice(ctx *core.Context) error {
 		return ctx.Error(err)
 	}
 
-	return ctx.Success(nil)
+	return nil
 }
 
 type onSendVideoMessage struct {
@@ -159,15 +171,16 @@ type onSendVideoMessage struct {
 }
 
 // 视频消息
-func (c *Publish) onSendVideo(ctx *core.Context) error {
+func (c *Publish) onSendVideo(ctx *gin.Context) error {
 	in := &onSendVideoMessage{}
-	if err := ctx.Context.ShouldBindBodyWith(in, binding.JSON); err != nil {
-		return ctx.InvalidParams(err)
+	if err := ctx.ShouldBindBodyWith(in, binding.JSON); err != nil {
+		return errorx.New(400, err.Error())
 	}
 
-	err := c.MessageService.CreateVideoMessage(ctx.GetContext(), message.CreateVideoMessage{
+	uid := middleware.FormContextAuthId[entity.WebClaims](ctx.Request.Context())
+	err := c.MessageService.CreateVideoMessage(ctx.Request.Context(), message.CreateVideoMessage{
 		TalkMode: in.TalkMode,
-		FromId:   ctx.AuthId(),
+		FromId:   uid,
 		ToFromId: in.ToFromId,
 		Url:      in.Body.Url,
 		Duration: in.Body.Duration,
@@ -178,7 +191,7 @@ func (c *Publish) onSendVideo(ctx *core.Context) error {
 		return ctx.Error(err)
 	}
 
-	return ctx.Success(nil)
+	return nil
 }
 
 type onSendFileMessage struct {
@@ -189,15 +202,16 @@ type onSendFileMessage struct {
 }
 
 // 文件消息
-func (c *Publish) onSendFile(ctx *core.Context) error {
+func (c *Publish) onSendFile(ctx *gin.Context) error {
 	in := &onSendFileMessage{}
-	if err := ctx.Context.ShouldBindBodyWith(in, binding.JSON); err != nil {
-		return ctx.InvalidParams(err)
+	if err := ctx.ShouldBindBodyWith(in, binding.JSON); err != nil {
+		return errorx.New(400, err.Error())
 	}
 
-	err := c.MessageService.CreateFileMessage(ctx.GetContext(), message.CreateFileMessage{
+	uid := middleware.FormContextAuthId[entity.WebClaims](ctx.Request.Context())
+	err := c.MessageService.CreateFileMessage(ctx.Request.Context(), message.CreateFileMessage{
 		TalkMode: in.TalkMode,
-		FromId:   ctx.AuthId(),
+		FromId:   uid,
 		ToFromId: in.ToFromId,
 		UploadId: in.Body.UploadId,
 	})
@@ -206,7 +220,7 @@ func (c *Publish) onSendFile(ctx *core.Context) error {
 		return ctx.Error(err)
 	}
 
-	return ctx.Success(nil)
+	return nil
 }
 
 type onSendCodeMessage struct {
@@ -218,16 +232,17 @@ type onSendCodeMessage struct {
 }
 
 // 代码消息
-func (c *Publish) onSendCode(ctx *core.Context) error {
+func (c *Publish) onSendCode(ctx *gin.Context) error {
 	in := &onSendCodeMessage{}
-	if err := ctx.Context.ShouldBindBodyWith(in, binding.JSON); err != nil {
-		return ctx.InvalidParams(err)
+	if err := ctx.ShouldBindBodyWith(in, binding.JSON); err != nil {
+		return errorx.New(400, err.Error())
 	}
 
-	err := c.MessageService.CreateCodeMessage(ctx.GetContext(), message.CreateCodeMessage{
+	uid := middleware.FormContextAuthId[entity.WebClaims](ctx.Request.Context())
+	err := c.MessageService.CreateCodeMessage(ctx.Request.Context(), message.CreateCodeMessage{
 		MsgId:    in.MsgId,
 		TalkMode: in.TalkMode,
-		FromId:   ctx.AuthId(),
+		FromId:   uid,
 		ToFromId: in.ToFromId,
 		Code:     in.Body.Code,
 		Lang:     in.Body.Lang,
@@ -236,7 +251,7 @@ func (c *Publish) onSendCode(ctx *core.Context) error {
 		return ctx.Error(err)
 	}
 
-	return ctx.Success(nil)
+	return nil
 }
 
 type onSendLocationMessage struct {
@@ -249,16 +264,17 @@ type onSendLocationMessage struct {
 }
 
 // 位置消息
-func (c *Publish) onSendLocation(ctx *core.Context) error {
+func (c *Publish) onSendLocation(ctx *gin.Context) error {
 	in := &onSendLocationMessage{}
-	if err := ctx.Context.ShouldBindBodyWith(in, binding.JSON); err != nil {
-		return ctx.InvalidParams(err)
+	if err := ctx.ShouldBindBodyWith(in, binding.JSON); err != nil {
+		return errorx.New(400, err.Error())
 	}
 
-	err := c.MessageService.CreateLocationMessage(ctx.GetContext(), message.CreateLocationMessage{
+	uid := middleware.FormContextAuthId[entity.WebClaims](ctx.Request.Context())
+	err := c.MessageService.CreateLocationMessage(ctx.Request.Context(), message.CreateLocationMessage{
 		MsgId:       in.MsgId,
 		TalkMode:    in.TalkMode,
-		FromId:      ctx.AuthId(),
+		FromId:      uid,
 		ToFromId:    in.ToFromId,
 		Longitude:   in.Body.Longitude,
 		Latitude:    in.Body.Latitude,
@@ -268,7 +284,7 @@ func (c *Publish) onSendLocation(ctx *core.Context) error {
 		return ctx.Error(err)
 	}
 
-	return ctx.Success(nil)
+	return nil
 }
 
 type onSendForwardMessage struct {
@@ -282,33 +298,34 @@ type onSendForwardMessage struct {
 }
 
 // 转发消息
-func (c *Publish) onSendForward(ctx *core.Context) error {
+func (c *Publish) onSendForward(ctx *gin.Context) error {
 	in := &onSendForwardMessage{}
-	if err := ctx.Context.ShouldBindBodyWith(in, binding.JSON); err != nil {
-		return ctx.InvalidParams(err)
+	if err := ctx.ShouldBindBodyWith(in, binding.JSON); err != nil {
+		return errorx.New(400, err.Error())
 	}
 
 	if len(in.Body.MsgIds) == 0 {
-		return ctx.InvalidParams("请选择要转发的消息")
+		return errorx.New(400, "请选择要转发的消息")
 	}
 
+	uid := middleware.FormContextAuthId[entity.WebClaims](ctx.Request.Context())
 	go func() {
 		err := c.MessageService.CreateForwardMessage(context.Background(), message.CreateForwardMessage{
 			TalkMode: in.TalkMode,
-			FromId:   ctx.AuthId(),
+			FromId:   uid,
 			ToFromId: in.ToFromId,
 			Action:   int(in.Body.Action),
 			MsgIds:   in.Body.MsgIds,
 			Gids:     in.Body.GroupIds,
 			Uids:     in.Body.UserIds,
-			UserId:   ctx.AuthId(),
+			UserId:   uid,
 		})
 		if err != nil {
 			logger.Errorf(err.Error())
 		}
 	}()
 
-	return ctx.Success(nil)
+	return nil
 }
 
 type onSendEmoticonMessage struct {
@@ -319,15 +336,16 @@ type onSendEmoticonMessage struct {
 }
 
 // 表情消息
-func (c *Publish) onSendEmoticon(ctx *core.Context) error {
+func (c *Publish) onSendEmoticon(ctx *gin.Context) error {
 	in := &onSendEmoticonMessage{}
-	if err := ctx.Context.ShouldBindBodyWith(in, binding.JSON); err != nil {
-		return ctx.InvalidParams(err)
+	if err := ctx.ShouldBindBodyWith(in, binding.JSON); err != nil {
+		return errorx.New(400, err.Error())
 	}
 
-	err := c.MessageService.CreateEmoticonMessage(ctx.GetContext(), message.CreateEmoticonMessage{
+	uid := middleware.FormContextAuthId[entity.WebClaims](ctx.Request.Context())
+	err := c.MessageService.CreateEmoticonMessage(ctx.Request.Context(), message.CreateEmoticonMessage{
 		TalkMode:   in.TalkMode,
-		FromId:     ctx.AuthId(),
+		FromId:     uid,
 		ToFromId:   in.ToFromId,
 		EmoticonId: in.Body.EmoticonId,
 	})
@@ -335,7 +353,7 @@ func (c *Publish) onSendEmoticon(ctx *core.Context) error {
 		return ctx.Error(err)
 	}
 
-	return ctx.Success(nil)
+	return nil
 }
 
 type onSendCardMessage struct {
@@ -346,16 +364,17 @@ type onSendCardMessage struct {
 }
 
 // 名片消息
-func (c *Publish) onSendCard(ctx *core.Context) error {
+func (c *Publish) onSendCard(ctx *gin.Context) error {
 	in := &onSendCardMessage{}
-	if err := ctx.Context.ShouldBindBodyWith(in, binding.JSON); err != nil {
-		return ctx.InvalidParams(err)
+	if err := ctx.ShouldBindBodyWith(in, binding.JSON); err != nil {
+		return errorx.New(400, err.Error())
 	}
 
-	err := c.MessageService.CreateBusinessCardMessage(ctx.GetContext(), message.CreateBusinessCardMessage{
+	uid := middleware.FormContextAuthId[entity.WebClaims](ctx.Request.Context())
+	err := c.MessageService.CreateBusinessCardMessage(ctx.Request.Context(), message.CreateBusinessCardMessage{
 		MsgId:    in.MsgId,
 		TalkMode: in.TalkMode,
-		FromId:   ctx.AuthId(),
+		FromId:   uid,
 		ToFromId: in.ToFromId,
 		UserId:   in.Body.UserId,
 	})
@@ -363,7 +382,7 @@ func (c *Publish) onSendCard(ctx *core.Context) error {
 		return ctx.Error(err)
 	}
 
-	return ctx.Success(nil)
+	return nil
 }
 
 type onMixedMessageMessage struct {
@@ -377,10 +396,10 @@ type onMixedMessageMessage struct {
 }
 
 // 图文消息
-func (c *Publish) onMixedMessage(ctx *core.Context) error {
+func (c *Publish) onMixedMessage(ctx *gin.Context) error {
 	in := &onMixedMessageMessage{}
-	if err := ctx.Context.ShouldBindBodyWith(in, binding.JSON); err != nil {
-		return ctx.InvalidParams(err)
+	if err := ctx.ShouldBindBodyWith(in, binding.JSON); err != nil {
+		return errorx.New(400, err.Error())
 	}
 
 	items := make([]message.CreateMixedMessageItem, 0)
@@ -391,10 +410,11 @@ func (c *Publish) onMixedMessage(ctx *core.Context) error {
 		})
 	}
 
-	err := c.MessageService.CreateMixedMessage(ctx.GetContext(), message.CreateMixedMessage{
+	uid := middleware.FormContextAuthId[entity.WebClaims](ctx.Request.Context())
+	err := c.MessageService.CreateMixedMessage(ctx.Request.Context(), message.CreateMixedMessage{
 		MsgId:       in.MsgId,
 		TalkMode:    in.TalkMode,
-		FromId:      ctx.AuthId(),
+		FromId:      uid,
 		ToFromId:    in.ToFromId,
 		QuoteId:     in.QuoteId,
 		MessageList: items,
@@ -403,12 +423,12 @@ func (c *Publish) onMixedMessage(ctx *core.Context) error {
 		return ctx.Error(err)
 	}
 
-	return ctx.Success(nil)
+	return nil
 }
 
-func (c *Publish) transfer(ctx *core.Context, typeValue string) error {
+func (c *Publish) transfer(ctx *gin.Context, typeValue string) error {
 	if mapping == nil {
-		mapping = make(map[string]func(ctx *core.Context) error)
+		mapping = make(map[string]func(ctx *gin.Context) error)
 		mapping["text"] = c.onSendText
 		mapping["code"] = c.onSendCode
 		mapping["location"] = c.onSendLocation

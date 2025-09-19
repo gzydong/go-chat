@@ -3,45 +3,70 @@ package web;
 
 option go_package = "web/v1;web";
 
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
 
-message OrganizeDepartmentListRequest{}
 
-message OrganizeDepartmentListResponse{
-  message Item{
-    int32 dept_id = 1;
-    int32 parent_id = 2;
-    string dept_name = 3;
-    string ancestors = 4;
-    int32 count = 5;
+// 组织架构服务
+service Organize {
+  // 获取组织部门列表接口
+  rpc DepartmentList(OrganizeDepartmentListRequest) returns (OrganizeDepartmentListResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/organize/department-list"
+      body: "*"
+    };
   }
 
-  repeated Item items = 1;
+  // 获取组织人员列表接口
+  rpc PersonnelList(OrganizePersonnelListRequest) returns (OrganizePersonnelListResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/organize/personnel-list"
+      body: "*"
+    };
+  }
 }
 
+// 组织部门列表接口请求参数
+message OrganizeDepartmentListRequest{}
 
+// 组织部门列表接口响应参数
+message OrganizeDepartmentListResponse{
+  message Item{
+    int32 dept_id = 1 [(google.api.field_behavior) = REQUIRED];
+    int32 parent_id = 2 [(google.api.field_behavior) = REQUIRED];
+    string dept_name = 3 [(google.api.field_behavior) = REQUIRED];
+    string ancestors = 4 [(google.api.field_behavior) = REQUIRED];
+    int32 count = 5 [(google.api.field_behavior) = REQUIRED];
+  }
+
+  repeated Item items = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+// 组织人员列表接口请求参数
 message OrganizePersonnelListRequest{}
-message OrganizePersonnelListResponse{
 
+// 组织人员列表接口响应参数
+message OrganizePersonnelListResponse{
   message Position{
-    string code = 1;
-    string name = 2;
-    int32 sort = 3;
+    string code = 1 [(google.api.field_behavior) = REQUIRED];
+    string name = 2 [(google.api.field_behavior) = REQUIRED];
+    int32 sort = 3 [(google.api.field_behavior) = REQUIRED];
   }
 
   message Dept{
-    int32 dept_id = 1;
-    string dept_name = 2;
-    string ancestors = 3;
+    int32 dept_id = 1 [(google.api.field_behavior) = REQUIRED];
+    string dept_name = 2 [(google.api.field_behavior) = REQUIRED];
+    string ancestors = 3 [(google.api.field_behavior) = REQUIRED];
   }
 
   message Item{
-    int32 user_id = 1;
-    string nickname = 2;
-    int32 gender = 3;
-    repeated Position position_items = 4;
-    Dept dept_item = 5;
-    string avatar = 6;
+    int32 user_id = 1 [(google.api.field_behavior) = REQUIRED];
+    string nickname = 2 [(google.api.field_behavior) = REQUIRED];
+    int32 gender = 3 [(google.api.field_behavior) = REQUIRED];
+    repeated Position position_items = 4 [(google.api.field_behavior) = REQUIRED];
+    Dept dept_item = 5 [(google.api.field_behavior) = REQUIRED];
+    string avatar = 6 [(google.api.field_behavior) = REQUIRED];
   }
 
-  repeated Item items = 1;
+  repeated Item items = 1 [(google.api.field_behavior) = REQUIRED];
 }

@@ -1,13 +1,18 @@
 package contact
 
 import (
+	"context"
+
 	"go-chat/api/pb/web/v1"
-	"go-chat/internal/pkg/core"
+	"go-chat/internal/entity"
+	"go-chat/internal/pkg/core/middleware"
 	"go-chat/internal/repository/model"
 	"go-chat/internal/repository/repo"
 	"go-chat/internal/service"
 	"gorm.io/gorm"
 )
+
+var _ web.IContactGroupHandler = (*Group)(nil)
 
 type Group struct {
 	ContactRepo         *repo.Contact
@@ -16,16 +21,14 @@ type Group struct {
 	ContactService      service.IContactService
 }
 
-// List 联系人分组列表
-func (c *Group) List(ctx *core.Context) error {
-
-	uid := ctx.AuthId()
+func (g *Group) List(ctx context.Context, in *web.ContactGroupListRequest) (*web.ContactGroupListResponse, error) {
+	uid := middleware.FormContextAuthId[entity.WebClaims](ctx)
 
 	items := make([]*web.ContactGroupListResponse_Item, 0)
 
-	count, err := c.ContactRepo.FindCount(ctx.GetContext(), "user_id = ? and status = ?", uid, model.Yes)
+	count, err := g.ContactRepo.FindCount(ctx, "user_id = ? and status = ?", uid, model.Yes)
 	if err != nil {
-		return ctx.Error(err)
+		return nil, err
 	}
 
 	items = append(items, &web.ContactGroupListResponse_Item{
@@ -33,9 +36,9 @@ func (c *Group) List(ctx *core.Context) error {
 		Count: int32(count),
 	})
 
-	group, err := c.ContactGroupService.GetUserGroup(ctx.GetContext(), uid)
+	group, err := g.ContactGroupService.GetUserGroup(ctx, uid)
 	if err != nil {
-		return ctx.Error(err)
+		return nil, err
 	}
 
 	for _, v := range group {
@@ -47,16 +50,12 @@ func (c *Group) List(ctx *core.Context) error {
 		})
 	}
 
-	return ctx.Success(&web.ContactGroupListResponse{Items: items})
+	return &web.ContactGroupListResponse{Items: items}, nil
 }
 
-func (c *Group) Save(ctx *core.Context) error {
-	in := &web.ContactGroupSaveRequest{}
-	if err := ctx.ShouldBindProto(in); err != nil {
-		return ctx.InvalidParams(err)
-	}
+func (g *Group) Save(ctx context.Context, in *web.ContactGroupSaveRequest) (*web.ContactGroupSaveResponse, error) {
 
-	uid := ctx.AuthId()
+	uid := middleware.FormContextAuthId[entity.WebClaims](ctx)
 
 	updateItems := make([]*model.ContactGroup, 0)
 	deleteItems := make([]int, 0)
@@ -80,9 +79,9 @@ func (c *Group) Save(ctx *core.Context) error {
 		}
 	}
 
-	all, err := c.ContactGroupRepo.FindAll(ctx.GetContext())
+	all, err := g.ContactGroupRepo.FindAll(ctx)
 	if err != nil {
-		return ctx.Error(err)
+		return nil, err
 	}
 
 	for _, m := range all {
@@ -92,10 +91,10 @@ func (c *Group) Save(ctx *core.Context) error {
 	}
 
 	if len(deleteItems) == 0 && len(updateItems) == 0 && len(insertItems) == 0 {
-		return ctx.Success(&web.ContactGroupSaveResponse{})
+		return &web.ContactGroupSaveResponse{}, nil
 	}
 
-	err = c.ContactGroupRepo.Txx(ctx.GetContext(), func(tx *gorm.DB) error {
+	err = g.ContactGroupRepo.Txx(ctx, func(tx *gorm.DB) error {
 
 		if len(insertItems) > 0 {
 			if err := tx.Create(insertItems).Error; err != nil {
@@ -131,8 +130,8 @@ func (c *Group) Save(ctx *core.Context) error {
 	})
 
 	if err != nil {
-		return ctx.Error(err)
+		return nil, err
 	}
 
-	return ctx.Success(&web.ContactGroupSaveResponse{})
+	return &web.ContactGroupSaveResponse{}, nil
 }

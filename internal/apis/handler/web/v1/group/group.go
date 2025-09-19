@@ -1,17 +1,17 @@
 package group
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"slices"
 	"time"
 
 	"github.com/samber/lo"
-	"gorm.io/gorm"
-
 	"go-chat/api/pb/web/v1"
 	"go-chat/internal/entity"
-	"go-chat/internal/pkg/core"
+	"go-chat/internal/pkg/core/errorx"
+	"go-chat/internal/pkg/core/middleware"
 	"go-chat/internal/pkg/jsonutil"
 	"go-chat/internal/pkg/sliceutil"
 	"go-chat/internal/pkg/timeutil"
@@ -20,7 +20,10 @@ import (
 	"go-chat/internal/repository/repo"
 	"go-chat/internal/service"
 	"go-chat/internal/service/message"
+	"gorm.io/gorm"
 )
+
+var _ web.IGroupHandler = (*Group)(nil)
 
 type Group struct {
 	RedisLock          *cache.RedisLock
@@ -38,344 +41,12 @@ type Group struct {
 	Message            message.IService
 }
 
-// Create 创建群聊分组
-func (c *Group) Create(ctx *core.Context) error {
-	in := &web.GroupCreateRequest{}
-	if err := ctx.ShouldBindProto(in); err != nil {
-		return ctx.InvalidParams(err)
-	}
+func (g Group) List(ctx context.Context, in *web.GroupListRequest) (*web.GroupListResponse, error) {
+	uid := middleware.FormContextAuthId[entity.WebClaims](ctx)
 
-	uids := make([]int, 0)
-	for _, id := range sliceutil.Unique(in.UserIds) {
-		uids = append(uids, int(id))
-	}
-
-	if len(uids) < 2 {
-		return ctx.InvalidParams("创建群聊失败，至少需要两个用户！")
-	}
-
-	if len(uids)+1 > model.GroupMemberMaxNum {
-		return ctx.InvalidParams(fmt.Sprintf("群成员数量已达到%d上限！", model.GroupMemberMaxNum))
-	}
-
-	gid, err := c.GroupService.Create(ctx.GetContext(), &service.GroupCreateOpt{
-		UserId:    ctx.AuthId(),
-		Name:      in.Name,
-		MemberIds: uids,
-	})
-
+	items, err := g.GroupService.List(uid)
 	if err != nil {
-		return ctx.Error(err)
-	}
-
-	return ctx.Success(&web.GroupCreateResponse{GroupId: int32(gid)})
-}
-
-// Dismiss 解散群组
-func (c *Group) Dismiss(ctx *core.Context) error {
-	in := &web.GroupDismissRequest{}
-	if err := ctx.ShouldBindProto(in); err != nil {
-		return ctx.InvalidParams(err)
-	}
-
-	uid := ctx.AuthId()
-	if !c.GroupMemberRepo.IsMaster(ctx.GetContext(), int(in.GroupId), uid) {
-		return ctx.Error(entity.ErrPermissionDenied)
-	}
-
-	if err := c.GroupService.Dismiss(ctx.GetContext(), int(in.GroupId), uid); err != nil {
-		return ctx.Error(err)
-	}
-
-	_ = c.Message.CreateGroupSysMessage(ctx.GetContext(), message.CreateGroupSysMessageOption{
-		GroupId: int(in.GroupId),
-		Content: "该群已被群主解散！",
-	})
-
-	return ctx.Success(nil)
-}
-
-// Invite 邀请好友加入群聊
-func (c *Group) Invite(ctx *core.Context) error {
-	in := &web.GroupInviteRequest{}
-	if err := ctx.ShouldBindProto(in); err != nil {
-		return ctx.InvalidParams(err)
-	}
-
-	uids := make([]int, 0)
-	for _, id := range sliceutil.Unique(in.UserIds) {
-		uids = append(uids, int(id))
-	}
-
-	if len(uids) == 0 {
-		return ctx.InvalidParams("邀请好友列表不能为空！")
-	}
-
-	if len(uids) > model.GroupMemberMaxNum {
-		return ctx.InvalidParams(fmt.Sprintf("当前群成员数量已达到%d上限！", model.GroupMemberMaxNum))
-	}
-
-	key := fmt.Sprintf("group_join:%d", in.GroupId)
-	if !c.RedisLock.Lock(ctx.GetContext(), key, 20) {
-		return ctx.Error(entity.ErrTooFrequentOperation)
-	}
-
-	defer c.RedisLock.UnLock(ctx.GetContext(), key)
-
-	uid := ctx.AuthId()
-	if !c.GroupMemberRepo.IsMember(ctx.GetContext(), int(in.GroupId), uid, true) {
-		return ctx.Error(entity.ErrPermissionDenied)
-	}
-
-	group, err := c.GroupRepo.FindById(ctx.GetContext(), int(in.GroupId))
-	if err != nil {
-		return ctx.Error(err)
-	}
-
-	if group != nil && group.IsDismiss == model.Yes {
-		return ctx.Error(entity.ErrGroupDismissed)
-	}
-
-	count, err := c.GroupMemberRepo.FindCount(ctx.GetContext(), "group_id = ? and is_quit = ?", in.GroupId, model.No)
-	if err != nil {
-		return ctx.Error(err)
-	}
-
-	if int(count)+len(uids) >= model.GroupMemberMaxNum {
-		return ctx.Error(entity.ErrGroupMemberLimit)
-	}
-
-	if err := c.GroupService.Invite(ctx.GetContext(), &service.GroupInviteOpt{
-		UserId:    uid,
-		GroupId:   int(in.GroupId),
-		MemberIds: uids,
-	}); err != nil {
-		return ctx.Error(err)
-	}
-
-	return ctx.Success(&web.GroupInviteResponse{})
-}
-
-// Secede 退出群聊
-func (c *Group) Secede(ctx *core.Context) error {
-	in := &web.GroupSecedeRequest{}
-	if err := ctx.ShouldBindProto(in); err != nil {
-		return ctx.InvalidParams(err)
-	}
-
-	uid := ctx.AuthId()
-	if err := c.GroupService.Secede(ctx.GetContext(), int(in.GroupId), uid); err != nil {
-		return ctx.Error(err)
-	}
-
-	_ = c.TalkSessionService.Delete(ctx.GetContext(), uid, entity.ChatGroupMode, int(in.GroupId))
-
-	return ctx.Success(nil)
-}
-
-// Update 群设置接口（预留）
-func (c *Group) Update(ctx *core.Context) error {
-	in := &web.GroupSettingRequest{}
-	if err := ctx.ShouldBindProto(in); err != nil {
-		return ctx.InvalidParams(err)
-	}
-
-	group, err := c.GroupRepo.FindById(ctx.GetContext(), int(in.GroupId))
-	if err != nil {
-		return ctx.Error(err)
-	}
-
-	if group != nil && group.IsDismiss == model.Yes {
-		return ctx.Error(entity.ErrGroupDismissed)
-	}
-
-	uid := ctx.AuthId()
-	if !c.GroupMemberRepo.IsLeader(ctx.GetContext(), int(in.GroupId), uid) {
-		return ctx.Error(entity.ErrPermissionDenied)
-	}
-
-	if err := c.GroupService.Update(ctx.GetContext(), &service.GroupUpdateOpt{
-		GroupId: int(in.GroupId),
-		Name:    in.GroupName,
-		Avatar:  in.Avatar,
-		Profile: in.Profile,
-	}); err != nil {
-		return ctx.Error(err)
-	}
-
-	_ = c.Message.CreateGroupSysMessage(ctx.GetContext(), message.CreateGroupSysMessageOption{
-		GroupId: int(in.GroupId),
-		Content: "群主或管理员修改了群信息！",
-	})
-
-	return ctx.Success(&web.GroupSettingResponse{})
-}
-
-// RemoveMember 移除指定成员(群组&管理员权限)
-func (c *Group) RemoveMember(ctx *core.Context) error {
-	in := &web.GroupRemoveMemberRequest{}
-	if err := ctx.ShouldBindProto(in); err != nil {
-		return ctx.InvalidParams(err)
-	}
-
-	uids := make([]int, 0)
-	for _, id := range sliceutil.Unique(in.UserIds) {
-		uids = append(uids, int(id))
-	}
-
-	if len(uids) == 0 {
-		return ctx.InvalidParams("移除成员列表不能为空！")
-	}
-
-	uid := ctx.AuthId()
-	if !c.GroupMemberRepo.IsLeader(ctx.GetContext(), int(in.GroupId), uid) {
-		return ctx.Error(entity.ErrPermissionDenied)
-	}
-
-	err := c.GroupService.RemoveMember(ctx.GetContext(), &service.GroupRemoveMembersOpt{
-		UserId:    uid,
-		GroupId:   int(in.GroupId),
-		MemberIds: uids,
-	})
-
-	if err != nil {
-		return ctx.Error(err)
-	}
-
-	return ctx.Success(&web.GroupRemoveMemberResponse{})
-}
-
-// Detail 获取群组信息
-func (c *Group) Detail(ctx *core.Context) error {
-	in := &web.GroupDetailRequest{}
-	if err := ctx.ShouldBindProto(in); err != nil {
-		return ctx.InvalidParams(err)
-	}
-
-	uid := ctx.AuthId()
-
-	groupInfo, err := c.GroupRepo.FindById(ctx.GetContext(), int(in.GroupId))
-	if err != nil {
-		return ctx.Error(err)
-	}
-
-	if groupInfo.Id == 0 {
-		return ctx.Error(entity.ErrGroupNotExist)
-	}
-
-	resp := &web.GroupDetailResponse{
-		GroupId:   int32(groupInfo.Id),
-		GroupName: groupInfo.Name,
-		Profile:   groupInfo.Profile,
-		Avatar:    groupInfo.Avatar,
-		CreatedAt: timeutil.FormatDatetime(groupInfo.CreatedAt),
-		IsManager: uid == groupInfo.CreatorId,
-		IsDisturb: 0,
-		IsMute:    int32(groupInfo.IsMute),
-		IsOvert:   int32(groupInfo.IsOvert),
-		VisitCard: c.GroupMemberRepo.GetMemberRemark(ctx.GetContext(), int(in.GroupId), uid),
-		Notice: &web.GroupDetailResponse_Notice{
-			Content:        "",
-			CreatedAt:      "",
-			UpdatedAt:      "",
-			ModifyUserName: "",
-		},
-	}
-
-	notice, err := c.GroupNoticeRepo.GetLatestNotice(ctx.GetContext(), int(in.GroupId))
-	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-		return err
-	}
-
-	if notice != nil {
-		resp.Notice = &web.GroupDetailResponse_Notice{
-			Content:        notice.Content,
-			CreatedAt:      timeutil.FormatDatetime(notice.CreatedAt),
-			UpdatedAt:      timeutil.FormatDatetime(notice.UpdatedAt),
-			ModifyUserName: "",
-		}
-	}
-
-	if c.TalkSessionRepo.IsDisturb(uid, groupInfo.Id, 2) {
-		resp.IsDisturb = 1
-	}
-
-	return ctx.Success(resp)
-}
-
-// UpdateMemberRemark 修改群备注接口
-func (c *Group) UpdateMemberRemark(ctx *core.Context) error {
-	in := &web.GroupRemarkUpdateRequest{}
-	if err := ctx.ShouldBindProto(in); err != nil {
-		return ctx.InvalidParams(err)
-	}
-
-	_, err := c.GroupMemberRepo.UpdateByWhere(ctx.GetContext(), map[string]any{
-		"user_card": in.Remark,
-	}, "group_id = ? and user_id = ?", in.GroupId, ctx.AuthId())
-	if err != nil {
-		return ctx.Error(err)
-	}
-
-	return ctx.Success(nil)
-}
-
-func (c *Group) GetInviteFriends(ctx *core.Context) error {
-	in := &web.GetInviteFriendsRequest{}
-	if err := ctx.ShouldBindProto(in); err != nil {
-		return ctx.InvalidParams(err)
-	}
-
-	items, err := c.ContactService.List(ctx.GetContext(), ctx.AuthId())
-	if err != nil {
-		return ctx.Error(err)
-	}
-
-	data := make([]*web.GetInviteFriendsResponse_Item, 0)
-	if in.GroupId <= 0 {
-		for _, item := range items {
-			data = append(data, &web.GetInviteFriendsResponse_Item{
-				UserId:   int32(item.Id),
-				Nickname: item.Nickname,
-				Avatar:   item.Avatar,
-				Gender:   int32(item.Gender),
-				Remark:   item.Remark,
-			})
-		}
-
-		return ctx.Success(&web.GetInviteFriendsResponse{
-			Items: data,
-		})
-	}
-
-	mids := c.GroupMemberRepo.GetMemberIds(ctx.GetContext(), int(in.GroupId))
-	if len(mids) == 0 {
-		return ctx.Success(&web.GetInviteFriendsResponse{
-			Items: data,
-		})
-	}
-
-	for i := 0; i < len(items); i++ {
-		if !slices.Contains(mids, items[i].Id) {
-			data = append(data, &web.GetInviteFriendsResponse_Item{
-				UserId:   int32(items[i].Id),
-				Nickname: items[i].Nickname,
-				Avatar:   items[i].Avatar,
-				Gender:   int32(items[i].Gender),
-				Remark:   items[i].Remark,
-			})
-		}
-	}
-
-	return ctx.Success(&web.GetInviteFriendsResponse{
-		Items: data,
-	})
-}
-
-func (c *Group) List(ctx *core.Context) error {
-	items, err := c.GroupService.List(ctx.AuthId())
-	if err != nil {
-		return ctx.Error(err)
+		return nil, err
 	}
 
 	resp := &web.GroupListResponse{
@@ -393,30 +64,106 @@ func (c *Group) List(ctx *core.Context) error {
 		})
 	}
 
-	return ctx.Success(resp)
+	return resp, nil
 }
 
-// Members 获取群成员列表
-func (c *Group) Members(ctx *core.Context) error {
-	in := &web.GroupMemberListRequest{}
-	if err := ctx.ShouldBindProto(in); err != nil {
-		return ctx.InvalidParams(err)
+func (g Group) Create(ctx context.Context, in *web.GroupCreateRequest) (*web.GroupCreateResponse, error) {
+	uid := middleware.FormContextAuthId[entity.WebClaims](ctx)
+
+	uids := make([]int, 0)
+	for _, id := range sliceutil.Unique(in.UserIds) {
+		uids = append(uids, int(id))
 	}
 
-	group, err := c.GroupRepo.FindById(ctx.GetContext(), int(in.GroupId))
+	if len(uids) < 2 {
+		return nil, errorx.New(400, "创建群聊失败，至少需要两个用户")
+	}
+
+	if len(uids)+1 > model.GroupMemberMaxNum {
+		return nil, errorx.New(400, fmt.Sprintf("群成员数量已达到%d上限！", model.GroupMemberMaxNum))
+	}
+
+	gid, err := g.GroupService.Create(ctx, &service.GroupCreateOpt{
+		UserId:    uid,
+		Name:      in.Name,
+		MemberIds: uids,
+	})
+
 	if err != nil {
-		return ctx.Error(err)
+		return nil, err
+	}
+
+	return &web.GroupCreateResponse{GroupId: int32(gid)}, nil
+}
+
+func (g Group) Detail(ctx context.Context, in *web.GroupDetailRequest) (*web.GroupDetailResponse, error) {
+	uid := middleware.FormContextAuthId[entity.WebClaims](ctx)
+
+	groupInfo, err := g.GroupRepo.FindById(ctx, int(in.GroupId))
+	if err != nil {
+		return nil, err
+	}
+
+	if groupInfo.Id == 0 {
+		return nil, entity.ErrGroupNotExist
+	}
+
+	resp := &web.GroupDetailResponse{
+		GroupId:   int32(groupInfo.Id),
+		GroupName: groupInfo.Name,
+		Profile:   groupInfo.Profile,
+		Avatar:    groupInfo.Avatar,
+		CreatedAt: timeutil.FormatDatetime(groupInfo.CreatedAt),
+		IsManager: uid == groupInfo.CreatorId,
+		IsDisturb: 0,
+		IsMute:    int32(groupInfo.IsMute),
+		IsOvert:   int32(groupInfo.IsOvert),
+		VisitCard: g.GroupMemberRepo.GetMemberRemark(ctx, int(in.GroupId), uid),
+		Notice: &web.GroupDetailResponse_Notice{
+			Content:        "",
+			CreatedAt:      "",
+			UpdatedAt:      "",
+			ModifyUserName: "",
+		},
+	}
+
+	notice, err := g.GroupNoticeRepo.GetLatestNotice(ctx, int(in.GroupId))
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, err
+	}
+
+	if notice != nil {
+		resp.Notice = &web.GroupDetailResponse_Notice{
+			Content:        notice.Content,
+			CreatedAt:      timeutil.FormatDatetime(notice.CreatedAt),
+			UpdatedAt:      timeutil.FormatDatetime(notice.UpdatedAt),
+			ModifyUserName: "",
+		}
+	}
+
+	if g.TalkSessionRepo.IsDisturb(uid, groupInfo.Id, 2) {
+		resp.IsDisturb = 1
+	}
+
+	return resp, nil
+}
+
+func (g Group) MemberList(ctx context.Context, in *web.GroupMemberListRequest) (*web.GroupMemberListResponse, error) {
+	uid := middleware.FormContextAuthId[entity.WebClaims](ctx)
+	group, err := g.GroupRepo.FindById(ctx, int(in.GroupId))
+	if err != nil {
+		return nil, err
 	}
 
 	if group != nil && group.IsDismiss == model.Yes {
-		return ctx.Success(&web.GroupMemberListResponse{})
+		return &web.GroupMemberListResponse{}, nil
 	}
 
-	if !c.GroupMemberRepo.IsMember(ctx.GetContext(), int(in.GroupId), ctx.AuthId(), false) {
-		return ctx.Error(entity.ErrPermissionDenied)
+	if !g.GroupMemberRepo.IsMember(ctx, int(in.GroupId), uid, false) {
+		return nil, entity.ErrPermissionDenied
 	}
 
-	list := c.GroupMemberRepo.GetMembers(ctx.GetContext(), int(in.GroupId))
+	list := g.GroupMemberRepo.GetMembers(ctx, int(in.GroupId))
 
 	items := make([]*web.GroupMemberListResponse_Item, 0)
 	for _, item := range list {
@@ -436,33 +183,208 @@ func (c *Group) Members(ctx *core.Context) error {
 		return int(a.Leader - b.Leader)
 	})
 
-	return ctx.Success(&web.GroupMemberListResponse{Items: items})
+	return &web.GroupMemberListResponse{Items: items}, nil
 }
 
-// OvertList 公开群列表
-func (c *Group) OvertList(ctx *core.Context) error {
-	in := &web.GroupOvertListRequest{}
-	if err := ctx.ShouldBindProto(in); err != nil {
-		return ctx.InvalidParams(err)
+func (g Group) Dismiss(ctx context.Context, in *web.GroupDismissRequest) (*web.GroupDismissResponse, error) {
+	uid := middleware.FormContextAuthId[entity.WebClaims](ctx)
+	if !g.GroupMemberRepo.IsMaster(ctx, int(in.GroupId), uid) {
+		return nil, entity.ErrPermissionDenied
 	}
 
-	uid := ctx.AuthId()
+	if err := g.GroupService.Dismiss(ctx, int(in.GroupId), uid); err != nil {
+		return nil, err
+	}
 
-	list, err := c.GroupRepo.SearchOvertList(ctx.GetContext(), &repo.SearchOvertListOpt{
+	_ = g.Message.CreateGroupSysMessage(ctx, message.CreateGroupSysMessageOption{
+		GroupId: int(in.GroupId),
+		Content: "该群已被群主解散！",
+	})
+
+	return &web.GroupDismissResponse{}, nil
+}
+
+func (g Group) Invite(ctx context.Context, in *web.GroupInviteRequest) (*web.GroupInviteResponse, error) {
+	uid := middleware.FormContextAuthId[entity.WebClaims](ctx)
+
+	uids := make([]int, 0)
+	for _, id := range sliceutil.Unique(in.UserIds) {
+		uids = append(uids, int(id))
+	}
+
+	if len(uids) == 0 {
+		return nil, errorx.New(400, "邀请好友列表不能为空")
+	}
+
+	if len(uids) > model.GroupMemberMaxNum {
+		return nil, errorx.New(400, fmt.Sprintf("当前群成员数量已达到%d上限！", model.GroupMemberMaxNum))
+	}
+
+	key := fmt.Sprintf("group_join:%d", in.GroupId)
+	if !g.RedisLock.Lock(ctx, key, 20) {
+		return nil, entity.ErrTooFrequentOperation
+	}
+
+	defer g.RedisLock.UnLock(ctx, key)
+
+	if !g.GroupMemberRepo.IsMember(ctx, int(in.GroupId), uid, true) {
+		return nil, entity.ErrPermissionDenied
+	}
+
+	group, err := g.GroupRepo.FindById(ctx, int(in.GroupId))
+	if err != nil {
+		return nil, err
+	}
+
+	if group != nil && group.IsDismiss == model.Yes {
+		return nil, entity.ErrGroupDismissed
+	}
+
+	count, err := g.GroupMemberRepo.FindCount(ctx, "group_id = ? and is_quit = ?", in.GroupId, model.No)
+	if err != nil {
+		return nil, err
+	}
+
+	if int(count)+len(uids) >= model.GroupMemberMaxNum {
+		return nil, entity.ErrGroupMemberLimit
+	}
+
+	if err := g.GroupService.Invite(ctx, &service.GroupInviteOpt{
+		UserId:    uid,
+		GroupId:   int(in.GroupId),
+		MemberIds: uids,
+	}); err != nil {
+		return nil, err
+	}
+
+	return &web.GroupInviteResponse{}, nil
+}
+
+func (g Group) GetInviteFriends(ctx context.Context, in *web.GetInviteFriendsRequest) (*web.GetInviteFriendsResponse, error) {
+	uid := middleware.FormContextAuthId[entity.WebClaims](ctx)
+
+	items, err := g.ContactService.List(ctx, uid)
+	if err != nil {
+		return nil, err
+	}
+
+	data := make([]*web.GetInviteFriendsResponse_Item, 0)
+	if in.GroupId <= 0 {
+		for _, item := range items {
+			data = append(data, &web.GetInviteFriendsResponse_Item{
+				UserId:   int32(item.Id),
+				Nickname: item.Nickname,
+				Avatar:   item.Avatar,
+				Gender:   int32(item.Gender),
+				Remark:   item.Remark,
+			})
+		}
+
+		return &web.GetInviteFriendsResponse{
+			Items: data,
+		}, nil
+	}
+
+	mids := g.GroupMemberRepo.GetMemberIds(ctx, int(in.GroupId))
+	if len(mids) == 0 {
+		return &web.GetInviteFriendsResponse{
+			Items: data,
+		}, nil
+	}
+
+	for i := 0; i < len(items); i++ {
+		if !slices.Contains(mids, items[i].Id) {
+			data = append(data, &web.GetInviteFriendsResponse_Item{
+				UserId:   int32(items[i].Id),
+				Nickname: items[i].Nickname,
+				Avatar:   items[i].Avatar,
+				Gender:   int32(items[i].Gender),
+				Remark:   items[i].Remark,
+			})
+		}
+	}
+
+	return &web.GetInviteFriendsResponse{
+		Items: data,
+	}, nil
+}
+
+func (g Group) Secede(ctx context.Context, in *web.GroupSecedeRequest) (*web.GroupSecedeResponse, error) {
+	uid := middleware.FormContextAuthId[entity.WebClaims](ctx)
+
+	if err := g.GroupService.Secede(ctx, int(in.GroupId), uid); err != nil {
+		return nil, err
+	}
+
+	_ = g.TalkSessionService.Delete(ctx, uid, entity.ChatGroupMode, int(in.GroupId))
+
+	return &web.GroupSecedeResponse{}, nil
+}
+
+func (g Group) Setting(ctx context.Context, req *web.GroupSettingRequest) (*web.GroupSettingResponse, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (g Group) RemarkUpdate(ctx context.Context, in *web.GroupRemarkUpdateRequest) (*web.GroupRemarkUpdateResponse, error) {
+	uid := middleware.FormContextAuthId[entity.WebClaims](ctx)
+
+	_, err := g.GroupMemberRepo.UpdateByWhere(ctx, map[string]any{
+		"user_card": in.Remark,
+	}, "group_id = ? and user_id = ?", in.GroupId, uid)
+	if err != nil {
+		return nil, err
+	}
+
+	return &web.GroupRemarkUpdateResponse{}, nil
+}
+
+func (g Group) RemoveMember(ctx context.Context, in *web.GroupRemoveMemberRequest) (*web.GroupRemoveMemberResponse, error) {
+	uids := make([]int, 0)
+	for _, id := range sliceutil.Unique(in.UserIds) {
+		uids = append(uids, int(id))
+	}
+
+	if len(uids) == 0 {
+		return nil, errorx.New(400, "移除成员列表不能为空！")
+	}
+
+	uid := middleware.FormContextAuthId[entity.WebClaims](ctx)
+	if !g.GroupMemberRepo.IsLeader(ctx, int(in.GroupId), uid) {
+		return nil, entity.ErrPermissionDenied
+	}
+
+	err := g.GroupService.RemoveMember(ctx, &service.GroupRemoveMembersOpt{
+		UserId:    uid,
+		GroupId:   int(in.GroupId),
+		MemberIds: uids,
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &web.GroupRemoveMemberResponse{}, nil
+}
+
+func (g Group) OvertList(ctx context.Context, in *web.GroupOvertListRequest) (*web.GroupOvertListResponse, error) {
+	uid := middleware.FormContextAuthId[entity.WebClaims](ctx)
+
+	list, err := g.GroupRepo.SearchOvertList(ctx, &repo.SearchOvertListOpt{
 		Name:   in.Name,
 		UserId: uid,
 		Page:   int(in.Page),
 		Size:   20,
 	})
 	if err != nil {
-		return ctx.Error(err)
+		return nil, err
 	}
 
 	resp := &web.GroupOvertListResponse{}
 	resp.Items = make([]*web.GroupOvertListResponse_Item, 0)
 
 	if len(list) == 0 {
-		return ctx.Success(resp)
+		return resp, nil
 	}
 
 	ids := make([]int, 0)
@@ -470,9 +392,9 @@ func (c *Group) OvertList(ctx *core.Context) error {
 		ids = append(ids, val.Id)
 	}
 
-	count, err := c.GroupMemberRepo.CountGroupMemberNum(ids)
+	count, err := g.GroupMemberRepo.CountGroupMemberNum(ids)
 	if err != nil {
-		return ctx.Error(err)
+		return nil, err
 	}
 
 	countMap := make(map[int]int)
@@ -499,32 +421,26 @@ func (c *Group) OvertList(ctx *core.Context) error {
 
 	resp.Next = len(list) > 19
 
-	return ctx.Success(resp)
+	return resp, nil
 }
 
-// Transfer 群主转让
-func (c *Group) Transfer(ctx *core.Context) error {
-	in := &web.GroupHandoverRequest{}
-	if err := ctx.ShouldBindProto(in); err != nil {
-		return ctx.InvalidParams(err)
-	}
-
-	uid := ctx.AuthId()
-	if !c.GroupMemberRepo.IsMaster(ctx.GetContext(), int(in.GroupId), uid) {
-		return ctx.Error(entity.ErrPermissionDenied)
+func (g Group) Handover(ctx context.Context, in *web.GroupHandoverRequest) (*web.GroupHandoverResponse, error) {
+	uid := middleware.FormContextAuthId[entity.WebClaims](ctx)
+	if !g.GroupMemberRepo.IsMaster(ctx, int(in.GroupId), uid) {
+		return nil, entity.ErrPermissionDenied
 	}
 
 	if uid == int(in.UserId) {
-		return ctx.Error(entity.ErrPermissionDenied)
+		return nil, entity.ErrPermissionDenied
 	}
 
-	err := c.GroupMemberService.Handover(ctx.GetContext(), int(in.GroupId), uid, int(in.UserId))
+	err := g.GroupMemberService.Handover(ctx, int(in.GroupId), uid, int(in.UserId))
 	if err != nil {
-		return ctx.Error(err)
+		return nil, err
 	}
 
 	members := make([]model.TalkRecordExtraGroupMember, 0)
-	c.Repo.Db().Table("users").Select("id as user_id", "nickname").Where("id in ?", []int{uid, int(in.UserId)}).Scan(&members)
+	g.Repo.Db().Table("users").Select("id as user_id", "nickname").Where("id in ?", []int{uid, int(in.UserId)}).Scan(&members)
 
 	extra := model.TalkRecordExtraTransferGroup{}
 	for _, member := range members {
@@ -537,63 +453,51 @@ func (c *Group) Transfer(ctx *core.Context) error {
 		}
 	}
 
-	_ = c.Message.CreateGroupMessage(ctx.GetContext(), message.CreateGroupMessageOption{
+	_ = g.Message.CreateGroupMessage(ctx, message.CreateGroupMessageOption{
 		MsgType:  entity.ChatMsgSysGroupTransfer,
 		FromId:   uid,
 		ToFromId: int(in.GroupId),
 		Extra:    jsonutil.Encode(extra),
 	})
 
-	return ctx.Success(nil)
+	return &web.GroupHandoverResponse{}, nil
 }
 
-// AssignAdmin 分配管理员
-func (c *Group) AssignAdmin(ctx *core.Context) error {
-	in := &web.GroupAssignAdminRequest{}
-	if err := ctx.ShouldBindProto(in); err != nil {
-		return ctx.InvalidParams(err)
-	}
-
-	uid := ctx.AuthId()
-	if !c.GroupMemberRepo.IsMaster(ctx.GetContext(), int(in.GroupId), uid) {
-		return ctx.Error(entity.ErrPermissionDenied)
+func (g Group) AssignAdmin(ctx context.Context, in *web.GroupAssignAdminRequest) (*web.GroupAssignAdminResponse, error) {
+	uid := middleware.FormContextAuthId[entity.WebClaims](ctx)
+	if !g.GroupMemberRepo.IsMaster(ctx, int(in.GroupId), uid) {
+		return nil, entity.ErrPermissionDenied
 	}
 
 	leader := lo.Ternary(in.Action == 1, model.GroupMemberLeaderAdmin, model.GroupMemberLeaderOrdinary)
 
-	err := c.GroupMemberService.SetLeaderStatus(ctx.GetContext(), int(in.GroupId), int(in.UserId), leader)
+	err := g.GroupMemberService.SetLeaderStatus(ctx, int(in.GroupId), int(in.UserId), leader)
 	if err != nil {
-		return ctx.Error(err)
+		return nil, err
 	}
 
-	return ctx.Success(nil)
+	return &web.GroupAssignAdminResponse{}, nil
 }
 
-// MemberMute 禁止发言
-func (c *Group) MemberMute(ctx *core.Context) error {
-	in := &web.GroupNoSpeakRequest{}
-	if err := ctx.ShouldBindProto(in); err != nil {
-		return ctx.InvalidParams(err)
-	}
-
-	uid := ctx.AuthId()
-	if !c.GroupMemberRepo.IsLeader(ctx.GetContext(), int(in.GroupId), uid) {
-		return ctx.Error(entity.ErrPermissionDenied)
+func (g Group) NoSpeak(ctx context.Context, in *web.GroupNoSpeakRequest) (*web.GroupNoSpeakResponse, error) {
+	uid := middleware.FormContextAuthId[entity.WebClaims](ctx)
+	if !g.GroupMemberRepo.IsLeader(ctx, int(in.GroupId), uid) {
+		return nil, entity.ErrPermissionDenied
 	}
 
 	status := lo.Ternary(in.Action == 1, model.Yes, model.No)
 
-	err := c.GroupMemberService.SetMuteStatus(ctx.GetContext(), int(in.GroupId), int(in.UserId), status)
+	err := g.GroupMemberService.SetMuteStatus(ctx, int(in.GroupId), int(in.UserId), status)
 	if err != nil {
-		return ctx.Error(err)
+		return nil, err
 	}
 
 	members := make([]model.TalkRecordExtraGroupMember, 0)
-	c.Repo.Db().Model(&model.Users{}).Select("id as user_id", "nickname").Where("id = ?", in.UserId).Scan(&members)
+	g.Repo.Db().Model(&model.Users{}).Select("id as user_id", "nickname").Where("id = ?", in.UserId).Scan(&members)
 
-	user, err := c.UsersRepo.FindByIdWithCache(ctx.GetContext(), uid)
+	user, err := g.UsersRepo.FindByIdWithCache(ctx, uid)
 	if err != nil {
-		return ctx.Error(err)
+		return nil, err
 	}
 
 	data := message.CreateGroupMessageOption{
@@ -617,31 +521,26 @@ func (c *Group) MemberMute(ctx *core.Context) error {
 		})
 	}
 
-	_ = c.Message.CreateGroupMessage(ctx.GetContext(), data)
+	_ = g.Message.CreateGroupMessage(ctx, data)
 
-	return ctx.Success(nil)
+	return &web.GroupNoSpeakResponse{}, nil
 }
 
-// Mute 全员禁言
-func (c *Group) Mute(ctx *core.Context) error {
-	in := &web.GroupMuteRequest{}
-	if err := ctx.ShouldBindProto(in); err != nil {
-		return ctx.InvalidParams(err)
-	}
+func (g Group) Mute(ctx context.Context, in *web.GroupMuteRequest) (*web.GroupMuteResponse, error) {
 
-	uid := ctx.AuthId()
+	uid := middleware.FormContextAuthId[entity.WebClaims](ctx)
 
-	group, err := c.GroupRepo.FindById(ctx.GetContext(), int(in.GroupId))
+	group, err := g.GroupRepo.FindById(ctx, int(in.GroupId))
 	if err != nil {
-		return ctx.Error(err)
+		return nil, err
 	}
 
 	if group.IsDismiss == model.Yes {
-		return ctx.Error(entity.ErrGroupDismissed)
+		return nil, entity.ErrGroupDismissed
 	}
 
-	if !c.GroupMemberRepo.IsLeader(ctx.GetContext(), int(in.GroupId), uid) {
-		return ctx.Error(entity.ErrPermissionDenied)
+	if !g.GroupMemberRepo.IsLeader(ctx, int(in.GroupId), uid) {
+		return nil, entity.ErrPermissionDenied
 	}
 
 	data := map[string]any{
@@ -649,18 +548,18 @@ func (c *Group) Mute(ctx *core.Context) error {
 		"updated_at": time.Now(),
 	}
 
-	affected, err := c.GroupRepo.UpdateByWhere(ctx.GetContext(), data, "id = ?", in.GroupId)
+	affected, err := g.GroupRepo.UpdateByWhere(ctx, data, "id = ?", in.GroupId)
 	if err != nil {
-		return ctx.Error(err)
+		return nil, err
 	}
 
 	if affected == 0 {
-		return ctx.Success(web.GroupMuteResponse{})
+		return &web.GroupMuteResponse{}, nil
 	}
 
-	user, err := c.UsersRepo.FindById(ctx.GetContext(), uid)
+	user, err := g.UsersRepo.FindById(ctx, uid)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	var extra any
@@ -679,46 +578,40 @@ func (c *Group) Mute(ctx *core.Context) error {
 		}
 	}
 
-	_ = c.Message.CreateGroupMessage(ctx.GetContext(), message.CreateGroupMessageOption{
+	_ = g.Message.CreateGroupMessage(ctx, message.CreateGroupMessageOption{
 		MsgType:  msgType,
 		FromId:   uid,
 		ToFromId: int(in.GroupId),
 		Extra:    jsonutil.Encode(extra),
 	})
 
-	return ctx.Success(web.GroupMuteResponse{})
+	return &web.GroupMuteResponse{}, nil
 }
 
-// Overt 公开群
-func (c *Group) Overt(ctx *core.Context) error {
-	in := &web.GroupOvertRequest{}
-	if err := ctx.ShouldBindProto(in); err != nil {
-		return ctx.InvalidParams(err)
-	}
+func (g Group) Overt(ctx context.Context, in *web.GroupOvertRequest) (*web.GroupOvertResponse, error) {
+	uid := middleware.FormContextAuthId[entity.WebClaims](ctx)
 
-	uid := ctx.AuthId()
-
-	group, err := c.GroupRepo.FindById(ctx.GetContext(), int(in.GroupId))
+	group, err := g.GroupRepo.FindById(ctx, int(in.GroupId))
 	if err != nil {
-		return ctx.Error(err)
+		return nil, err
 	}
 
 	if group.IsDismiss == model.Yes {
-		return ctx.Error(entity.ErrGroupDismissed)
+		return nil, entity.ErrGroupDismissed
 	}
 
-	if !c.GroupMemberRepo.IsMaster(ctx.GetContext(), int(in.GroupId), uid) {
-		return ctx.Error(entity.ErrPermissionDenied)
+	if !g.GroupMemberRepo.IsMaster(ctx, int(in.GroupId), uid) {
+		return nil, entity.ErrPermissionDenied
 	}
 
-	_, err = c.GroupRepo.UpdateByWhere(ctx.GetContext(), map[string]any{
+	_, err = g.GroupRepo.UpdateByWhere(ctx, map[string]any{
 		"is_overt":   in.Action,
 		"updated_at": time.Now(),
 	}, "id = ?", in.GroupId)
 
 	if err != nil {
-		return ctx.Error(err)
+		return nil, err
 	}
 
-	return ctx.Success(web.GroupOvertResponse{})
+	return &web.GroupOvertResponse{}, nil
 }

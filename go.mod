@@ -1,6 +1,6 @@
 module go-chat
 
-go 1.23.0
+go 1.24.0
 
 toolchain go1.24.6
 
@@ -32,10 +32,11 @@ require (
 	github.com/tidwall/gjson v1.18.0
 	github.com/tidwall/sjson v1.2.5
 	github.com/urfave/cli/v2 v2.27.6
-	golang.org/x/crypto v0.32.0
+	golang.org/x/crypto v0.42.0
 	golang.org/x/oauth2 v0.30.0
-	golang.org/x/sync v0.10.0
-	google.golang.org/protobuf v1.36.3
+	golang.org/x/sync v0.17.0
+	google.golang.org/genproto/googleapis/api v0.0.0-20250908214217-97024824d090
+	google.golang.org/protobuf v1.36.8
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df
 	gopkg.in/yaml.v2 v2.4.0
 	gorm.io/driver/mysql v1.5.6
@@ -82,11 +83,11 @@ require (
 	go.uber.org/multierr v1.9.0 // indirect
 	golang.org/x/arch v0.8.0 // indirect
 	golang.org/x/image v0.13.0 // indirect
-	golang.org/x/mod v0.17.0 // indirect
-	golang.org/x/net v0.34.0 // indirect
-	golang.org/x/sys v0.29.0 // indirect
-	golang.org/x/text v0.21.0 // indirect
-	golang.org/x/tools v0.21.1-0.20240508182429-e35e4ccd0d2d // indirect
+	golang.org/x/mod v0.28.0 // indirect
+	golang.org/x/net v0.44.0 // indirect
+	golang.org/x/sys v0.36.0 // indirect
+	golang.org/x/text v0.29.0 // indirect
+	golang.org/x/tools v0.37.0 // indirect
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1 // indirect

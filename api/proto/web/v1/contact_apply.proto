@@ -4,6 +4,51 @@ package web;
 option go_package = "web/v1;web";
 
 import "validate/validate.proto";
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+
+// 联系人申请服务
+service ContactApply {
+  // 添加联系人申请接口
+  rpc Create(ContactApplyCreateRequest) returns (ContactApplyCreateResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/contact-apply/create"
+      body: "*"
+    };
+  }
+
+  // 同意联系人申请接口
+  rpc Accept(ContactApplyAcceptRequest) returns (ContactApplyAcceptResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/contact-apply/accept"
+      body: "*"
+    };
+  }
+
+  // 拒绝联系人申请接口
+  rpc Decline(ContactApplyDeclineRequest) returns (ContactApplyDeclineResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/contact-apply/decline"
+      body: "*"
+    };
+  }
+
+  // 联系人申请列表接口
+  rpc List(ContactApplyListRequest) returns (ContactApplyListResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/contact-apply/list"
+      body: "*"
+    };
+  }
+
+  // 获取申请未读数
+  rpc UnreadNum(ContactApplyUnreadNumRequest) returns (ContactApplyUnreadNumResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/contact-apply/unread-num"
+      body: "*"
+    };
+  }
+}
 
 // 添加联系人申请接口请求参数
 message ContactApplyCreateRequest{
@@ -38,14 +83,22 @@ message ContactApplyListRequest{}
 // 联系人申请列表接口响应参数
 message ContactApplyListResponse{
   message Item{
-    int32 id = 1;
-    int32 user_id = 2;
-    int32 friend_id = 3;
-    string remark = 4;
-    string nickname = 5;
-    string avatar = 6;
-    string created_at = 7;
+    int32 id = 1 [(google.api.field_behavior) = REQUIRED];
+    int32 user_id = 2 [(google.api.field_behavior) = REQUIRED];
+    int32 friend_id = 3 [(google.api.field_behavior) = REQUIRED];
+    string remark = 4 [(google.api.field_behavior) = REQUIRED];
+    string nickname = 5 [(google.api.field_behavior) = REQUIRED];
+    string avatar = 6 [(google.api.field_behavior) = REQUIRED];
+    string created_at = 7 [(google.api.field_behavior) = REQUIRED];
   }
 
-  repeated Item items = 1;
+  repeated Item items = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+
+
+message ContactApplyUnreadNumRequest{}
+
+message ContactApplyUnreadNumResponse{
+  int32 num = 1 [(google.api.field_behavior) = REQUIRED];
 }

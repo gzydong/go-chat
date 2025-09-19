@@ -35,6 +35,108 @@ var (
 	_ = sort.Sort
 )
 
+// Validate checks the field values on ArticleClassListRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *ArticleClassListRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ArticleClassListRequest with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// ArticleClassListRequestMultiError, or nil if none found.
+func (m *ArticleClassListRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ArticleClassListRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(errors) > 0 {
+		return ArticleClassListRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// ArticleClassListRequestMultiError is an error wrapping multiple validation
+// errors returned by ArticleClassListRequest.ValidateAll() if the designated
+// constraints aren't met.
+type ArticleClassListRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ArticleClassListRequestMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ArticleClassListRequestMultiError) AllErrors() []error { return m }
+
+// ArticleClassListRequestValidationError is the validation error returned by
+// ArticleClassListRequest.Validate if the designated constraints aren't met.
+type ArticleClassListRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ArticleClassListRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ArticleClassListRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ArticleClassListRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ArticleClassListRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ArticleClassListRequestValidationError) ErrorName() string {
+	return "ArticleClassListRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e ArticleClassListRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sArticleClassListRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ArticleClassListRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ArticleClassListRequestValidationError{}
+
 // Validate checks the field values on ArticleClassListResponse with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
@@ -627,21 +729,10 @@ func (m *ArticleClassSortRequest) validate(all bool) error {
 
 	var errors []error
 
-	if m.GetClassifyId() < 1 {
+	if len(m.GetClassifyIds()) < 1 {
 		err := ArticleClassSortRequestValidationError{
-			field:  "ClassifyId",
-			reason: "value must be greater than or equal to 1",
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
-	}
-
-	if _, ok := _ArticleClassSortRequest_SortType_InLookup[m.GetSortType()]; !ok {
-		err := ArticleClassSortRequestValidationError{
-			field:  "SortType",
-			reason: "value must be in list [1 2]",
+			field:  "ClassifyIds",
+			reason: "value must contain at least 1 item(s)",
 		}
 		if !all {
 			return err
@@ -728,11 +819,6 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = ArticleClassSortRequestValidationError{}
-
-var _ArticleClassSortRequest_SortType_InLookup = map[int32]struct{}{
-	1: {},
-	2: {},
-}
 
 // Validate checks the field values on ArticleClassSortResponse with the rules
 // defined in the proto definition for this message. If any rules are

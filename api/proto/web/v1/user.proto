@@ -4,22 +4,74 @@ package web;
 option go_package = "web/v1;web";
 
 import "validate/validate.proto";
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+
+// 用户服务
+service User {
+  // 获取登录用户详情接口
+  rpc Detail(UserDetailRequest) returns (UserDetailResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/user/detail"
+      body: "*"
+    };
+  }
+
+  // 获取用户配置信息接口
+  rpc Setting(UserSettingRequest) returns (UserSettingResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/user/setting"
+      body: "*"
+    };
+  }
+
+  // 更新用户信息接口
+  rpc DetailUpdate(UserDetailUpdateRequest) returns (UserDetailUpdateResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/user/detail-update"
+      body: "*"
+    };
+  }
+
+  // 更新用户密码接口
+  rpc PasswordUpdate(UserPasswordUpdateRequest) returns (UserPasswordUpdateResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/user/password-update"
+      body: "*"
+    };
+  }
+
+  // 更新用户手机号接口
+  rpc MobileUpdate(UserMobileUpdateRequest) returns (UserMobileUpdateResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/user/mobile-update"
+      body: "*"
+    };
+  }
+
+  // 更新用户邮箱接口
+  rpc EmailUpdate(UserEmailUpdateRequest) returns (UserEmailUpdateResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/user/email-update"
+      body: "*"
+    };
+  }
+}
 
 // 登录用户详情接口请求参数
 message UserDetailRequest{}
 
 // 登录用户详情接口响应参数
 message UserDetailResponse{
-  int32 id = 1;
-  string mobile = 2;
-  string nickname = 3;
-  string avatar = 4;
-  int32 gender = 5;
-  string motto = 6;
-  string email = 7;
-  string birthday = 8;
+  int32 id = 1 [(google.api.field_behavior) = REQUIRED];
+  string mobile = 2 [(google.api.field_behavior) = REQUIRED];
+  string nickname = 3 [(google.api.field_behavior) = REQUIRED];
+  string avatar = 4 [(google.api.field_behavior) = REQUIRED];
+  int32 gender = 5 [(google.api.field_behavior) = REQUIRED];
+  string motto = 6 [(google.api.field_behavior) = REQUIRED];
+  string email = 7 [(google.api.field_behavior) = REQUIRED];
+  string birthday = 8 [(google.api.field_behavior) = REQUIRED];
 }
-
 
 // 用户配置信息请求参数
 message UserSettingRequest{}
@@ -27,28 +79,27 @@ message UserSettingRequest{}
 // 用户配置信息响应参数
 message UserSettingResponse{
   message UserInfo{
-    int32 uid = 1;
-    string nickname = 2;
-    string avatar = 3;
-    string motto = 4;
-    int32 gender = 5;
-    bool is_qiye = 6;
-    string mobile = 7;
-    string email = 8;
+    int32 uid = 1 [(google.api.field_behavior) = REQUIRED];
+    string nickname = 2 [(google.api.field_behavior) = REQUIRED];
+    string avatar = 3 [(google.api.field_behavior) = REQUIRED];
+    string motto = 4 [(google.api.field_behavior) = REQUIRED];
+    int32 gender = 5 [(google.api.field_behavior) = REQUIRED];
+    bool is_qiye = 6 [(google.api.field_behavior) = REQUIRED];
+    string mobile = 7 [(google.api.field_behavior) = REQUIRED];
+    string email = 8 [(google.api.field_behavior) = REQUIRED];
   }
 
   message ConfigInfo{
-    string theme_mode = 1;
-    string theme_bag_img = 2;
-    string theme_color = 3;
-    string notify_cue_tone = 4;
-    string keyboard_event_notify = 5;
+    string theme_mode = 1 [(google.api.field_behavior) = REQUIRED];
+    string theme_bag_img = 2 [(google.api.field_behavior) = REQUIRED];
+    string theme_color = 3 [(google.api.field_behavior) = REQUIRED];
+    string notify_cue_tone = 4 [(google.api.field_behavior) = REQUIRED];
+    string keyboard_event_notify = 5 [(google.api.field_behavior) = REQUIRED];
   }
 
-  UserInfo user_info = 1;
-  ConfigInfo setting = 2;
+  UserInfo user_info = 1 [(google.api.field_behavior) = REQUIRED];
+  ConfigInfo setting = 2 [(google.api.field_behavior) = REQUIRED];
 }
-
 
 // 用户信息更新接口请求参数
 message UserDetailUpdateRequest{
@@ -62,7 +113,6 @@ message UserDetailUpdateRequest{
 // 用户信息更新接口响应参数
 message UserDetailUpdateResponse{}
 
-
 // 用户密码更新接口请求参数
 message UserPasswordUpdateRequest{
   string old_password = 1 [(validate.rules).string.min_len = 1];
@@ -71,7 +121,6 @@ message UserPasswordUpdateRequest{
 
 // 用户密码更新接口响应参数
 message UserPasswordUpdateResponse{}
-
 
 // 用户手机号更新接口请求参数
 message UserMobileUpdateRequest{
@@ -82,7 +131,6 @@ message UserMobileUpdateRequest{
 
 // 用户手机号更新接口响应参数
 message UserMobileUpdateResponse{}
-
 
 // 用户邮箱更新接口请求参数
 message UserEmailUpdateRequest{

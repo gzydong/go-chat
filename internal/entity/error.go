@@ -25,4 +25,5 @@ var (
 	ErrNoteClassDefaultNotAllow  = errorx.New(120004, "默认分类不允许修改")
 	ErrNoteClassDefaultNotDelete = errorx.New(120005, "默认分类不允许删除")
 	ErrNoteClassUsedNotDelete    = errorx.New(120006, "分类已被使用不能删除")
+	ErrSmsChannelInvalid         = errorx.New(130001, "短信渠道无效")
 )

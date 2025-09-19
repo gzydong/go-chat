@@ -190,6 +190,8 @@ func (m *CommonSendSmsResponse) validate(all bool) error {
 
 	var errors []error
 
+	// no validation rules for SmsCode
+
 	if len(errors) > 0 {
 		return CommonSendSmsResponseMultiError(errors)
 	}
@@ -484,3 +486,218 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = CommonSendEmailResponseValidationError{}
+
+// Validate checks the field values on CommonSendTestRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *CommonSendTestRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on CommonSendTestRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// CommonSendTestRequestMultiError, or nil if none found.
+func (m *CommonSendTestRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *CommonSendTestRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if utf8.RuneCountInString(m.GetEmail()) < 6 {
+		err := CommonSendTestRequestValidationError{
+			field:  "Email",
+			reason: "value length must be at least 6 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if len(errors) > 0 {
+		return CommonSendTestRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// CommonSendTestRequestMultiError is an error wrapping multiple validation
+// errors returned by CommonSendTestRequest.ValidateAll() if the designated
+// constraints aren't met.
+type CommonSendTestRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m CommonSendTestRequestMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m CommonSendTestRequestMultiError) AllErrors() []error { return m }
+
+// CommonSendTestRequestValidationError is the validation error returned by
+// CommonSendTestRequest.Validate if the designated constraints aren't met.
+type CommonSendTestRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e CommonSendTestRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e CommonSendTestRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e CommonSendTestRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e CommonSendTestRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e CommonSendTestRequestValidationError) ErrorName() string {
+	return "CommonSendTestRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e CommonSendTestRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sCommonSendTestRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = CommonSendTestRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = CommonSendTestRequestValidationError{}
+
+// Validate checks the field values on CommonSendTestResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *CommonSendTestResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on CommonSendTestResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// CommonSendTestResponseMultiError, or nil if none found.
+func (m *CommonSendTestResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *CommonSendTestResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(errors) > 0 {
+		return CommonSendTestResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// CommonSendTestResponseMultiError is an error wrapping multiple validation
+// errors returned by CommonSendTestResponse.ValidateAll() if the designated
+// constraints aren't met.
+type CommonSendTestResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m CommonSendTestResponseMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m CommonSendTestResponseMultiError) AllErrors() []error { return m }
+
+// CommonSendTestResponseValidationError is the validation error returned by
+// CommonSendTestResponse.Validate if the designated constraints aren't met.
+type CommonSendTestResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e CommonSendTestResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e CommonSendTestResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e CommonSendTestResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e CommonSendTestResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e CommonSendTestResponseValidationError) ErrorName() string {
+	return "CommonSendTestResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e CommonSendTestResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sCommonSendTestResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = CommonSendTestResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = CommonSendTestResponseValidationError{}

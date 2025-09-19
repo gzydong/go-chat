@@ -1166,6 +1166,108 @@ var _ interface {
 	ErrorName() string
 } = GroupApplyListResponseValidationError{}
 
+// Validate checks the field values on GroupApplyAllRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GroupApplyAllRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GroupApplyAllRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GroupApplyAllRequestMultiError, or nil if none found.
+func (m *GroupApplyAllRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GroupApplyAllRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(errors) > 0 {
+		return GroupApplyAllRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// GroupApplyAllRequestMultiError is an error wrapping multiple validation
+// errors returned by GroupApplyAllRequest.ValidateAll() if the designated
+// constraints aren't met.
+type GroupApplyAllRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GroupApplyAllRequestMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GroupApplyAllRequestMultiError) AllErrors() []error { return m }
+
+// GroupApplyAllRequestValidationError is the validation error returned by
+// GroupApplyAllRequest.Validate if the designated constraints aren't met.
+type GroupApplyAllRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GroupApplyAllRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GroupApplyAllRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GroupApplyAllRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GroupApplyAllRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GroupApplyAllRequestValidationError) ErrorName() string {
+	return "GroupApplyAllRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GroupApplyAllRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGroupApplyAllRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GroupApplyAllRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GroupApplyAllRequestValidationError{}
+
 // Validate checks the field values on GroupApplyAllResponse with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
@@ -1301,6 +1403,213 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = GroupApplyAllResponseValidationError{}
+
+// Validate checks the field values on GroupApplyUnreadNumRequest with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GroupApplyUnreadNumRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GroupApplyUnreadNumRequest with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GroupApplyUnreadNumRequestMultiError, or nil if none found.
+func (m *GroupApplyUnreadNumRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GroupApplyUnreadNumRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(errors) > 0 {
+		return GroupApplyUnreadNumRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// GroupApplyUnreadNumRequestMultiError is an error wrapping multiple
+// validation errors returned by GroupApplyUnreadNumRequest.ValidateAll() if
+// the designated constraints aren't met.
+type GroupApplyUnreadNumRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GroupApplyUnreadNumRequestMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GroupApplyUnreadNumRequestMultiError) AllErrors() []error { return m }
+
+// GroupApplyUnreadNumRequestValidationError is the validation error returned
+// by GroupApplyUnreadNumRequest.Validate if the designated constraints aren't met.
+type GroupApplyUnreadNumRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GroupApplyUnreadNumRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GroupApplyUnreadNumRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GroupApplyUnreadNumRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GroupApplyUnreadNumRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GroupApplyUnreadNumRequestValidationError) ErrorName() string {
+	return "GroupApplyUnreadNumRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GroupApplyUnreadNumRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGroupApplyUnreadNumRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GroupApplyUnreadNumRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GroupApplyUnreadNumRequestValidationError{}
+
+// Validate checks the field values on GroupApplyUnreadNumResponse with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GroupApplyUnreadNumResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GroupApplyUnreadNumResponse with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GroupApplyUnreadNumResponseMultiError, or nil if none found.
+func (m *GroupApplyUnreadNumResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GroupApplyUnreadNumResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Num
+
+	if len(errors) > 0 {
+		return GroupApplyUnreadNumResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// GroupApplyUnreadNumResponseMultiError is an error wrapping multiple
+// validation errors returned by GroupApplyUnreadNumResponse.ValidateAll() if
+// the designated constraints aren't met.
+type GroupApplyUnreadNumResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GroupApplyUnreadNumResponseMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GroupApplyUnreadNumResponseMultiError) AllErrors() []error { return m }
+
+// GroupApplyUnreadNumResponseValidationError is the validation error returned
+// by GroupApplyUnreadNumResponse.Validate if the designated constraints
+// aren't met.
+type GroupApplyUnreadNumResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GroupApplyUnreadNumResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GroupApplyUnreadNumResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GroupApplyUnreadNumResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GroupApplyUnreadNumResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GroupApplyUnreadNumResponseValidationError) ErrorName() string {
+	return "GroupApplyUnreadNumResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GroupApplyUnreadNumResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGroupApplyUnreadNumResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GroupApplyUnreadNumResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GroupApplyUnreadNumResponseValidationError{}
 
 // Validate checks the field values on GroupApplyListResponse_Item with the
 // rules defined in the proto definition for this message. If any rules are

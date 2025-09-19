@@ -1,13 +1,14 @@
 package group
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"time"
 
 	"go-chat/api/pb/web/v1"
 	"go-chat/internal/entity"
-	"go-chat/internal/pkg/core"
+	"go-chat/internal/pkg/core/middleware"
 	"go-chat/internal/pkg/jsonutil"
 	"go-chat/internal/repository/model"
 	"go-chat/internal/repository/repo"
@@ -15,6 +16,8 @@ import (
 	"go-chat/internal/service/message"
 	"gorm.io/gorm"
 )
+
+var _ web.IGroupNoticeHandler = (*Notice)(nil)
 
 type Notice struct {
 	GroupMemberRepo    *repo.GroupMember
@@ -24,55 +27,43 @@ type Notice struct {
 	UsersRepo          *repo.Users
 }
 
-// CreateAndUpdate 添加或编辑群公告
-func (c *Notice) CreateAndUpdate(ctx *core.Context) error {
-	in := &web.GroupNoticeEditRequest{}
-	if err := ctx.Context.ShouldBindJSON(in); err != nil {
-		return ctx.InvalidParams(err)
+// Edit 添加或编辑群公告
+func (c *Notice) Edit(ctx context.Context, in *web.GroupNoticeEditRequest) (*web.GroupNoticeEditResponse, error) {
+	uid := middleware.FormContextAuthId[entity.WebClaims](ctx)
+
+	if !c.GroupMemberRepo.IsMember(ctx, int(in.GroupId), uid, false) {
+		return nil, entity.ErrPermissionDenied
 	}
 
-	uid := ctx.AuthId()
-
-	if !c.GroupMemberRepo.IsMember(ctx.GetContext(), int(in.GroupId), uid, false) {
-		return ctx.Error(entity.ErrPermissionDenied)
-	}
-
-	var (
-		msg string
-		err error
-	)
-
-	notice, err := c.GroupNoticeRepo.FindByWhere(ctx.GetContext(), "group_id = ?", in.GroupId)
+	notice, err := c.GroupNoticeRepo.FindByWhere(ctx, "group_id = ?", in.GroupId)
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-		return ctx.Error(err)
+		return nil, err
 	}
 
 	if notice == nil {
-		msg = "群公告创建成功！"
-		err = c.GroupNoticeRepo.Create(ctx.GetContext(), &model.GroupNotice{
+		err = c.GroupNoticeRepo.Create(ctx, &model.GroupNotice{
 			GroupId:      int(in.GroupId),
-			CreatorId:    ctx.AuthId(),
-			ModifyId:     ctx.AuthId(),
+			CreatorId:    uid,
+			ModifyId:     uid,
 			Content:      in.Content,
 			ConfirmUsers: "[]",
 			IsConfirm:    2,
 		})
 	} else {
-		msg = "群公告更新成功！"
-		_, err = c.GroupNoticeRepo.UpdateByWhere(ctx.GetContext(), map[string]any{
+		_, err = c.GroupNoticeRepo.UpdateByWhere(ctx, map[string]any{
 			"content":    in.Content,
-			"modify_id":  ctx.AuthId(),
+			"modify_id":  uid,
 			"updated_at": time.Now(),
 		}, "group_id = ?", in.GroupId)
 	}
 
 	if err != nil {
-		return ctx.Error(err)
+		return nil, err
 	}
 
-	userInfo, err := c.UsersRepo.FindByIdWithCache(ctx.GetContext(), uid)
+	userInfo, err := c.UsersRepo.FindByIdWithCache(ctx, uid)
 	if err == nil {
-		_ = c.Message.CreateGroupMessage(ctx.GetContext(), message.CreateGroupMessageOption{
+		_ = c.Message.CreateGroupMessage(ctx, message.CreateGroupMessageOption{
 			MsgType:  entity.ChatMsgTypeGroupNotice,
 			FromId:   uid,
 			ToFromId: int(in.GroupId),
@@ -85,5 +76,5 @@ func (c *Notice) CreateAndUpdate(ctx *core.Context) error {
 		})
 	}
 
-	return ctx.Success(nil, msg)
+	return &web.GroupNoticeEditResponse{}, nil
 }

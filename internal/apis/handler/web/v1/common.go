@@ -1,13 +1,16 @@
 package v1
 
 import (
+	"context"
+
 	"go-chat/api/pb/web/v1"
 	"go-chat/config"
 	"go-chat/internal/entity"
-	"go-chat/internal/pkg/core"
 	"go-chat/internal/repository/repo"
 	"go-chat/internal/service"
 )
+
+var _ web.ICommonHandler = (*Common)(nil)
 
 type Common struct {
 	Config      *config.Config
@@ -16,58 +19,45 @@ type Common struct {
 	UserService service.IUserService
 }
 
-// SmsCode 发送短信验证码
-func (c *Common) SmsCode(ctx *core.Context) error {
-	in := &web.CommonSendSmsRequest{}
-	if err := ctx.ShouldBindProto(in); err != nil {
-		return ctx.InvalidParams(err)
-	}
-
+func (c *Common) SendSms(ctx context.Context, in *web.CommonSendSmsRequest) (*web.CommonSendSmsResponse, error) {
 	switch in.Channel {
 	// 需要判断账号是否存在
 	case entity.SmsLoginChannel, entity.SmsForgetAccountChannel:
-		if !c.UsersRepo.IsMobileExist(ctx.GetContext(), in.Mobile) {
-			return ctx.Error(entity.ErrAccountOrPassword)
+		if !c.UsersRepo.IsMobileExist(ctx, in.Mobile) {
+			return nil, entity.ErrAccountOrPassword
 		}
 
 	// 需要判断账号是否存在
 	case entity.SmsRegisterChannel, entity.SmsChangeAccountChannel:
-		if c.UsersRepo.IsMobileExist(ctx.GetContext(), in.Mobile) {
-			return ctx.Error(entity.ErrPhoneExist)
+		if c.UsersRepo.IsMobileExist(ctx, in.Mobile) {
+			return nil, entity.ErrPhoneExist
 		}
 	case entity.SmsOauthBindChannel:
 	default:
-		return ctx.InvalidParams("渠道不存在")
+		return nil, entity.ErrSmsChannelInvalid
 	}
 
 	// 发送短信验证码
-	code, err := c.SmsService.Send(ctx.GetContext(), in.Channel, in.Mobile)
+	code, err := c.SmsService.Send(ctx, in.Channel, in.Mobile)
 	if err != nil {
-		return ctx.Error(err)
+		return nil, err
 	}
 
 	if in.Channel == entity.SmsRegisterChannel || in.Channel == entity.SmsChangeAccountChannel || in.Channel == entity.SmsOauthBindChannel {
-		return ctx.Success(map[string]any{
-			"is_debug": true,
-			"sms_code": code,
-		})
+		return &web.CommonSendSmsResponse{
+			SmsCode: code,
+		}, nil
 	}
 
-	return ctx.Success(&web.CommonSendSmsResponse{})
+	return &web.CommonSendSmsResponse{}, nil
 }
 
-// EmailCode 发送邮件验证码
-func (c *Common) EmailCode(ctx *core.Context) error {
-
-	params := &web.CommonSendEmailRequest{}
-	if err := ctx.Context.ShouldBind(params); err != nil {
-		return ctx.InvalidParams(err)
-	}
-
-	return ctx.Success(nil)
+func (c *Common) SendEmail(ctx context.Context, req *web.CommonSendEmailRequest) (*web.CommonSendEmailResponse, error) {
+	//TODO implement me
+	panic("implement me")
 }
 
-// Setting 公共设置
-func (c *Common) Setting(ctx *core.Context) error {
-	return nil
+func (c *Common) Test(ctx context.Context, req *web.CommonSendTestRequest) (*web.CommonSendTestResponse, error) {
+	//TODO implement me
+	panic("implement me")
 }

@@ -1,20 +1,12 @@
 PROTO_FILES := $(shell find api -name *.proto)
-OS:=$(shell go env GOHOSTOS)
-
-ifeq ($(OS), windows)
-	Git_Bash=$(subst \,/,$(subst cmd\,bin\bash.exe,$(dir $(shell where git))))
-	PROTO_FILES=$(shell $(Git_Bash) -c "find api -iname *.proto")
-else
-	PROTO_FILES=$(shell find api -iname *.proto)
-endif
 
 .PHONY: install
 install:
 	go install github.com/google/wire/cmd/wire@latest
 	go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
 	go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
-	go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
 	go install github.com/envoyproxy/protoc-gen-validate@latest
+	go install github.com/google/gnostic/cmd/protoc-gen-openapi@latest
 
 .PHONY: conf
 conf:
@@ -38,38 +30,42 @@ run:
 build:
 	go build -o ./bin/lumenim ./cmd/lumenim
 
-.PHONY: build-all
-build-all:
-	@mkdir -p ./build/linux/ ./build/windows/ ./build/mac/ ./build/macm1/
-
-	# 构建 windows
-	CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o ./build/windows/lumenim ./cmd/lumenim
-	cp ./config.example.yaml ./build/windows/config.yaml
-
-	# 构建 linux
-	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o ./build/linux/lumenim ./cmd/lumenim
-	cp ./config.example.yaml ./build/linux/config.yaml
-
-	# 构建 mac amd
-	CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -o ./build/mac/lumenim ./cmd/lumenim
-	cp ./config.example.yaml ./build/mac/config.yaml
-
-	# 构建 mac m1
-	CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 go build -o ./build/macm1/lumenim ./cmd/lumenim
-	cp ./config.example.yaml ./build/macm1/config.yaml
+.PHONY: protoc-gen-bff
+protoc-gen-bff:
+	go build -o protoc-gen-bff ./cmd/protoc-gen-bff
 
 .PHONY: proto
-proto:
+proto: protoc-gen-bff
 	@if [ -n "$(PROTO_FILES)" ]; then \
 		protoc \
+		--plugin=protoc-gen-bff=./protoc-gen-bff \
 		--proto_path=./api/proto \
 		--proto_path=./third_party \
 		--go_out=paths=source_relative:./api/pb/ \
+		--bff_out=./api/pb/ \
 		--validate_out=paths=source_relative,lang=go:./api/pb/ $(PROTO_FILES) \
 	 && echo "protoc generate success"; \
 	fi
+	make proto-openapi
+	@if [ -f ./protoc-gen-bff ]; then \
+    	rm -f ./protoc-gen-bff; \
+    fi
 
-#--go-grpc_out=paths=source_relative:./api/pb/ \
+.PHONY: proto-openapi # 生成 OpenApi 文档
+proto-openapi:
+	@for dir in $$(find api/proto -type d -mindepth 1 -maxdepth 1); do \
+		echo "Processing directory: $$dir"; \
+		proto_files=$$(find $$dir -name "*.proto"); \
+		if [ -n "$$proto_files" ]; then \
+		  protoc \
+          			--proto_path=./api/proto \
+          			--proto_path=./third_party \
+          			--openapi_out=version=3:./$$dir \
+          			$$proto_files; \
+		fi; \
+		echo "Generated OpenAPI spec for directory: $$dir";\
+	done
+
 
 ## 自定义命令
 -include custom.mk

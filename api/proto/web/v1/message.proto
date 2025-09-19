@@ -1,0 +1,116 @@
+syntax = "proto3";
+package web;
+
+option go_package = "web/v1;web";
+
+import "validate/validate.proto";
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+
+// 消息服务
+service Message {
+  rpc Revoke(MessageRevokeRequest) returns (MessageRevokeResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/message/revoke"
+      body: "*"
+    };
+  }
+
+  rpc Delete(MessageDeleteRequest) returns (MessageDeleteResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/message/delete"
+      body: "*"
+    };
+  }
+
+  // 获取会话消息记录
+  rpc records(MessageRecordsRequest) returns (MessageRecordsResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/message/records"
+      body: "*"
+    };
+  }
+
+  // 获取会话历史消息记录
+  rpc HistoryRecords(MessageHistoryRecordsRequest) returns (MessageHistoryRecordsResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/message/history-records"
+      body: "*"
+    };
+  }
+
+  // 转发消息记录
+  rpc ForwardRecords(MessageForwardRecordsRequest) returns (MessageRecordsClearResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/message/forward-records"
+      body: "*"
+    };
+  }
+}
+
+message MessageRevokeRequest{
+  int32 talk_mode = 1 [(validate.rules).int32.gte = 1, (google.api.field_behavior) = REQUIRED];
+  int32 to_from_id = 2 [(validate.rules).int32.gte = 1, (google.api.field_behavior) = REQUIRED];
+  string msg_id = 3 [(validate.rules).string.min_len = 1, (google.api.field_behavior) = REQUIRED];
+}
+
+message MessageRevokeResponse{
+}
+
+message MessageDeleteRequest{
+  int32 talk_mode = 1 [(validate.rules).int32.gte = 1, (google.api.field_behavior) = REQUIRED];
+  int32 to_from_id = 2 [(validate.rules).int32.gte = 1, (google.api.field_behavior) = REQUIRED];
+  repeated string msg_ids = 3 [(validate.rules).repeated.min_items = 1, (google.api.field_behavior) = REQUIRED];
+}
+
+message MessageDeleteResponse{}
+
+
+
+message MessageRecordsRequest{
+  int32 talk_mode = 1 [(google.api.field_behavior) = REQUIRED];
+  int32 to_from_id = 2 [(google.api.field_behavior) = REQUIRED];
+  int32 cursor = 3 [(google.api.field_behavior) = REQUIRED];
+  int32 limit = 4 [(google.api.field_behavior) = REQUIRED];
+}
+
+message MessageRecordsResponse{
+  repeated MessageRecord items = 1 [(google.api.field_behavior) = REQUIRED];
+  int32 cursor = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+message MessageHistoryRecordsRequest{
+  int32 talk_mode = 1 [(google.api.field_behavior) = REQUIRED];
+  int32 to_from_id = 2 [(google.api.field_behavior) = REQUIRED];
+  int32 cursor = 3 [(google.api.field_behavior) = REQUIRED];
+  int32 limit = 4 [(google.api.field_behavior) = REQUIRED];
+  int32 msg_type = 5 [(google.api.field_behavior) = REQUIRED];
+}
+
+message MessageHistoryRecordsResponse{
+  repeated MessageRecord items = 1 [(google.api.field_behavior) = REQUIRED];
+  int32 cursor = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+message MessageForwardRecordsRequest{
+  int32 talk_mode = 1;
+  repeated string msg_ids = 2;
+}
+
+message MessageRecordsClearResponse{
+  repeated MessageRecord items = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+
+message MessageRecord{
+  string msg_id = 1 [(google.api.field_behavior) = REQUIRED];
+  int32 sequence = 2 [(google.api.field_behavior) = REQUIRED];
+  int32 msg_type = 3 [(google.api.field_behavior) = REQUIRED];
+  int32 from_id = 4 [(google.api.field_behavior) = REQUIRED];
+  string nickname = 5 [(google.api.field_behavior) = REQUIRED];
+  string avatar = 6 [(google.api.field_behavior) = REQUIRED];
+  int32 is_revoked = 7 [(google.api.field_behavior) = REQUIRED];
+  string send_time = 9 [(google.api.field_behavior) = REQUIRED];
+  string extra = 10 [(google.api.field_behavior) = REQUIRED];
+  string quote = 12 [(google.api.field_behavior) = REQUIRED];
+}

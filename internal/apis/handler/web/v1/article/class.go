@@ -1,25 +1,31 @@
 package article
 
 import (
+	"context"
+
 	"github.com/samber/lo"
 	"go-chat/api/pb/web/v1"
 	"go-chat/internal/entity"
-	"go-chat/internal/pkg/core"
+	"go-chat/internal/pkg/core/errorx"
+	"go-chat/internal/pkg/core/middleware"
 	"go-chat/internal/pkg/utils"
 	"go-chat/internal/repository/model"
 	"go-chat/internal/service"
 )
 
+var _ web.IArticleClassHandler = (*Class)(nil)
+
 type Class struct {
 	ArticleClassService service.IArticleClassService
 }
 
-// List 分类列表
-func (c *Class) List(ctx *core.Context) error {
+func (c Class) List(ctx context.Context, req *web.ArticleClassListRequest) (*web.ArticleClassListResponse, error) {
+	session, _ := middleware.FormContext[entity.WebClaims](ctx)
+	uid := session.GetAuthID()
 
-	list, err := c.ArticleClassService.List(ctx.GetContext(), ctx.AuthId())
+	list, err := c.ArticleClassService.List(ctx, uid)
 	if err != nil {
-		return ctx.Error(err)
+		return nil, err
 	}
 
 	items := make([]*web.ArticleClassListResponse_Item, 0, len(list))
@@ -37,9 +43,9 @@ func (c *Class) List(ctx *core.Context) error {
 	})
 
 	if !ok {
-		id, err := c.ArticleClassService.Create(ctx.GetContext(), ctx.AuthId(), "默认分类", model.Yes)
+		id, err := c.ArticleClassService.Create(ctx, uid, "默认分类", model.Yes)
 		if err != nil {
-			return ctx.Error(err)
+			return nil, err
 		}
 
 		items = append(items, &web.ArticleClassListResponse_Item{
@@ -50,99 +56,82 @@ func (c *Class) List(ctx *core.Context) error {
 		})
 	}
 
-	return ctx.Success(&web.ArticleClassListResponse{
+	return &web.ArticleClassListResponse{
 		Items: items,
-	})
+	}, nil
 }
 
-// Edit 添加或修改分类
-func (c *Class) Edit(ctx *core.Context) error {
-
-	var (
-		err error
-		in  = &web.ArticleClassEditRequest{}
-		uid = ctx.AuthId()
-	)
-
-	if err = ctx.Context.ShouldBindJSON(in); err != nil {
-		return ctx.InvalidParams(err)
-	}
+func (c Class) Edit(ctx context.Context, in *web.ArticleClassEditRequest) (*web.ArticleClassEditResponse, error) {
+	session, _ := middleware.FormContext[entity.WebClaims](ctx)
+	uid := session.GetAuthID()
 
 	if in.Name == "默认分类" {
-		return ctx.InvalidParams("该分类名称禁止被创建/编辑")
+		return nil, errorx.New(40001, "该分类名称禁止被创建/编辑")
 	}
 
 	if in.ClassifyId == 0 {
-		id, err := c.ArticleClassService.Create(ctx.GetContext(), uid, in.Name, model.No)
+		id, err := c.ArticleClassService.Create(ctx, uid, in.Name, model.No)
 		if err == nil {
 			in.ClassifyId = int32(id)
 		}
 	} else {
-		class, err := c.ArticleClassService.Find(ctx.GetContext(), int(in.ClassifyId))
+		class, err := c.ArticleClassService.Find(ctx, int(in.ClassifyId))
 		if err != nil {
 			if utils.IsSqlNoRows(err) {
-				return ctx.Error(entity.ErrNoteClassNotExist)
+				return nil, entity.ErrNoteClassNotExist
 			}
 
-			return ctx.Error(err)
+			return nil, err
 		}
 
 		if class.IsDefault == model.Yes {
-			return ctx.Error(entity.ErrNoteClassDefaultNotAllow)
+			return nil, entity.ErrNoteClassDefaultNotAllow
 		}
 
-		err = c.ArticleClassService.Update(ctx.GetContext(), uid, int(in.ClassifyId), in.Name)
+		err = c.ArticleClassService.Update(ctx, uid, int(in.ClassifyId), in.Name)
 		if err != nil {
-			return ctx.Error(err)
+			return nil, err
 		}
 	}
 
-	return ctx.Success(&web.ArticleClassEditResponse{
+	return &web.ArticleClassEditResponse{
 		ClassifyId: in.ClassifyId,
-	})
+	}, nil
 }
 
-// Delete 删除分类
-func (c *Class) Delete(ctx *core.Context) error {
+func (c Class) Delete(ctx context.Context, in *web.ArticleClassDeleteRequest) (*web.ArticleClassDeleteResponse, error) {
+	session, _ := middleware.FormContext[entity.WebClaims](ctx)
+	uid := session.GetAuthID()
 
-	in := &web.ArticleClassDeleteRequest{}
-	if err := ctx.ShouldBindProto(in); err != nil {
-		return ctx.InvalidParams(err)
-	}
-
-	class, err := c.ArticleClassService.Find(ctx.GetContext(), int(in.ClassifyId))
+	class, err := c.ArticleClassService.Find(ctx, int(in.ClassifyId))
 	if err != nil {
 		if utils.IsSqlNoRows(err) {
-			return ctx.Error(entity.ErrNoteClassNotExist)
+			return nil, entity.ErrNoteClassNotExist
 		}
 
-		return ctx.Error(err)
+		return nil, err
 	}
 
 	if class.IsDefault == model.Yes {
-		return ctx.Error(entity.ErrNoteClassDefaultNotDelete)
+		return nil, entity.ErrNoteClassDefaultNotDelete
 	}
 
-	err = c.ArticleClassService.Delete(ctx.GetContext(), ctx.AuthId(), int(in.ClassifyId))
+	err = c.ArticleClassService.Delete(ctx, uid, int(in.ClassifyId))
 	if err != nil {
-		return ctx.Error(err)
+		return nil, err
 	}
 
-	return ctx.Success(&web.ArticleClassDeleteResponse{})
+	return nil, nil
 }
 
-// Sort 删除分类
-func (c *Class) Sort(ctx *core.Context) error {
+func (c Class) Sort(ctx context.Context, in *web.ArticleClassSortRequest) (*web.ArticleClassSortResponse, error) {
+	session, _ := middleware.FormContext[entity.WebClaims](ctx)
+	uid := session.UserId
 
-	in := &web.ArticleClassSortRequest{}
-	if err := ctx.ShouldBindProto(in); err != nil {
-		return ctx.InvalidParams(err)
-	}
-
-	err := c.ArticleClassService.Sort(ctx.GetContext(), ctx.AuthId(), int(in.ClassifyId), int(in.SortType))
+	err := c.ArticleClassService.Sort(ctx, uid, in.ClassifyIds)
 	if err != nil {
-		return ctx.Error(err)
+		return nil, err
 	}
 
-	return ctx.Success(&web.ArticleClassSortResponse{})
+	return &web.ArticleClassSortResponse{}, nil
 }

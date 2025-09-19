@@ -1,0 +1,4717 @@
+# Generated with protoc-gen-openapi
+# https://github.com/google/gnostic/tree/master/cmd/protoc-gen-openapi
+
+openapi: 3.0.3
+info:
+    title: ""
+    version: "3"
+paths:
+    /api/v1/article-annex/delete:
+        post:
+            tags:
+                - ArticleAnnex
+            description: 文章附件删除接口
+            operationId: ArticleAnnex_Delete
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/ArticleAnnexDeleteRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ArticleAnnexDeleteResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/article-annex/forever-delete:
+        post:
+            tags:
+                - ArticleAnnex
+            description: 文章附件永久删除接口
+            operationId: ArticleAnnex_ForeverDelete
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/ArticleAnnexForeverDeleteRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ArticleAnnexForeverDeleteResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/article-annex/recover:
+        post:
+            tags:
+                - ArticleAnnex
+            description: 文章附件恢复删除接口
+            operationId: ArticleAnnex_Recover
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/ArticleAnnexRecoverRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ArticleAnnexRecoverResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/article-annex/recover-list:
+        post:
+            tags:
+                - ArticleAnnex
+            description: 文章附件回收站列表接口
+            operationId: ArticleAnnex_RecoverList
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/ArticleAnnexRecoverListRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ArticleAnnexRecoverListResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/article/asterisk:
+        post:
+            tags:
+                - Article
+            description: 收藏/取消收藏文章接口
+            operationId: Article_Asterisk
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/ArticleAsteriskRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ArticleAsteriskResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/article/classify/delete:
+        post:
+            tags:
+                - ArticleClass
+            description: 文章分类删除接口
+            operationId: ArticleClass_Delete
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/ArticleClassDeleteRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ArticleClassDeleteResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/article/classify/edit:
+        post:
+            tags:
+                - ArticleClass
+            description: 文章分类编辑接口
+            operationId: ArticleClass_Edit
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/ArticleClassEditRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ArticleClassEditResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/article/classify/list:
+        post:
+            tags:
+                - ArticleClass
+            description: 获取文章分类列表接口
+            operationId: ArticleClass_List
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/ArticleClassListRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ArticleClassListResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/article/classify/sort:
+        post:
+            tags:
+                - ArticleClass
+            description: 文章分类排序接口
+            operationId: ArticleClass_Sort
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/ArticleClassSortRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ArticleClassSortResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/article/delete:
+        post:
+            tags:
+                - Article
+            description: 删除文章接口
+            operationId: Article_Delete
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/ArticleDeleteRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ArticleDeleteResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/article/detail:
+        post:
+            tags:
+                - Article
+            description: 获取文章详情接口
+            operationId: Article_Detail
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/ArticleDetailRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ArticleDetailResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/article/editor:
+        post:
+            tags:
+                - Article
+            description: 文章编辑接口
+            operationId: Article_Edit
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/ArticleEditRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ArticleEditResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/article/forever-delete:
+        post:
+            tags:
+                - Article
+            description: 永久删除文章接口
+            operationId: Article_ForeverDelete
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/ArticleForeverDeleteRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ArticleForeverDeleteResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/article/list:
+        post:
+            tags:
+                - Article
+            description: 获取文章列表接口
+            operationId: Article_List
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/ArticleListRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ArticleListResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/article/move:
+        post:
+            tags:
+                - Article
+            description: 移动文章分类接口
+            operationId: Article_Move
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/ArticleMoveRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ArticleMoveResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/article/recover:
+        post:
+            tags:
+                - Article
+            description: 恢复文章接口
+            operationId: Article_Recover
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/ArticleRecoverRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ArticleRecoverResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/article/recover-list:
+        post:
+            tags:
+                - Article
+            description: 获取回收站文章列表接口
+            operationId: Article_RecoverList
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/ArticleRecoverListRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ArticleRecoverListResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/article/tags:
+        post:
+            tags:
+                - Article
+            description: 设置文章标签接口
+            operationId: Article_SetTags
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/ArticleTagsRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ArticleTagsResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/auth/forget:
+        post:
+            tags:
+                - Auth
+            description: 找回密码接口
+            operationId: Auth_Forget
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/AuthForgetRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AuthForgetResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/auth/login:
+        post:
+            tags:
+                - Auth
+            description: 登录接口
+            operationId: Auth_Login
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/AuthLoginRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AuthLoginResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/auth/oauth:
+        post:
+            tags:
+                - Auth
+            description: 获取 oauth2.0 跳转地址
+            operationId: Auth_Oauth
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/AuthOauthRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AuthOauthResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/auth/oauth/bind:
+        post:
+            tags:
+                - Auth
+            description: 绑定第三方登录接口
+            operationId: Auth_OauthBind
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/AuthOAuthBindRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AuthOAuthBindResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/auth/oauth/login:
+        post:
+            tags:
+                - Auth
+            description: 第三方登录接口
+            operationId: Auth_OauthLogin
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/AuthOauthLoginRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AuthOauthLoginResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/auth/register:
+        post:
+            tags:
+                - Auth
+            description: 注册接口
+            operationId: Auth_Register
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/AuthRegisterRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AuthRegisterResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/common/send-email:
+        post:
+            tags:
+                - Common
+            description: 发送邮件验证码接口
+            operationId: Common_SendEmail
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/CommonSendEmailRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/CommonSendEmailResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/common/send-sms:
+        post:
+            tags:
+                - Common
+            description: |-
+                发送短信验证码接口
+                    @Summary 发送短信验证码111222
+            operationId: Common_SendSms
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/CommonSendSmsRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/CommonSendSmsResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/common/send-test:
+        post:
+            tags:
+                - Common
+            description: 俺们就开始的那
+            operationId: Common_Test
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/CommonSendTestRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/CommonSendTestResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/contact-apply/accept:
+        post:
+            tags:
+                - ContactApply
+            description: 同意联系人申请接口
+            operationId: ContactApply_Accept
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/ContactApplyAcceptRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ContactApplyAcceptResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/contact-apply/create:
+        post:
+            tags:
+                - ContactApply
+            description: 添加联系人申请接口
+            operationId: ContactApply_Create
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/ContactApplyCreateRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ContactApplyCreateResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/contact-apply/decline:
+        post:
+            tags:
+                - ContactApply
+            description: 拒绝联系人申请接口
+            operationId: ContactApply_Decline
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/ContactApplyDeclineRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ContactApplyDeclineResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/contact-apply/list:
+        post:
+            tags:
+                - ContactApply
+            description: 联系人申请列表接口
+            operationId: ContactApply_List
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/ContactApplyListRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ContactApplyListResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/contact-apply/unread-num:
+        post:
+            tags:
+                - ContactApply
+            description: 获取申请未读数
+            operationId: ContactApply_UnreadNum
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/ContactApplyUnreadNumRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ContactApplyUnreadNumResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/contact-group/list:
+        post:
+            tags:
+                - ContactGroup
+            description: 联系人分组列表接口
+            operationId: ContactGroup_List
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/ContactGroupListRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ContactGroupListResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/contact-group/save:
+        post:
+            tags:
+                - ContactGroup
+            description: 保存联系人分组接口
+            operationId: ContactGroup_Save
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/ContactGroupSaveRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ContactGroupSaveResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/contact/change-group:
+        post:
+            tags:
+                - Contact
+            description: 修改联系人分组接口
+            operationId: Contact_ChangeGroup
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/ContactChangeGroupRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ContactChangeGroupResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/contact/delete:
+        post:
+            tags:
+                - Contact
+            description: 联系人删除接口
+            operationId: Contact_Delete
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/ContactDeleteRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ContactDeleteResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/contact/detail:
+        post:
+            tags:
+                - Contact
+            description: 联系人详情接口
+            operationId: Contact_Detail
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/ContactDetailRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ContactDetailResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/contact/edit-remark:
+        post:
+            tags:
+                - Contact
+            description: 联系人备注修改接口
+            operationId: Contact_EditRemark
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/ContactEditRemarkRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ContactEditRemarkResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/contact/list:
+        post:
+            tags:
+                - Contact
+            description: 联系人列表接口
+            operationId: Contact_List
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/ContactListRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ContactListResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/contact/online-status:
+        post:
+            tags:
+                - Contact
+            description: 获取联系人在线状态接口
+            operationId: Contact_OnlineStatus
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/ContactOnlineStatusRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ContactOnlineStatusResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/contact/search:
+        post:
+            tags:
+                - Contact
+            description: 联系人搜索接口
+            operationId: Contact_Search
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/ContactSearchRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ContactSearchResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/emoticon/customize/create:
+        post:
+            tags:
+                - Emoticon
+            description: 创建表情包接口
+            operationId: Emoticon_Create
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/EmoticonCreateRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/EmoticonCreateResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/emoticon/customize/delete:
+        post:
+            tags:
+                - Emoticon
+            description: 删除表情包接口
+            operationId: Emoticon_Delete
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/EmoticonDeleteRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/EmoticonDeleteResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/emoticon/customize/list:
+        post:
+            tags:
+                - Emoticon
+            description: 用户表情包列表接口
+            operationId: Emoticon_List
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/EmoticonListRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/EmoticonListResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/group-apply/agree:
+        post:
+            tags:
+                - GroupApply
+            description: 同意群组申请接口
+            operationId: GroupApply_Agree
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/GroupApplyAgreeRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GroupApplyAgreeResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/group-apply/all:
+        post:
+            tags:
+                - GroupApply
+            description: 所有群组申请列表接口
+            operationId: GroupApply_All
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/GroupApplyAllRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GroupApplyAllResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/group-apply/create:
+        post:
+            tags:
+                - GroupApply
+            description: 创建群组申请接口
+            operationId: GroupApply_Create
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/GroupApplyCreateRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GroupApplyCreateResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/group-apply/decline:
+        post:
+            tags:
+                - GroupApply
+            description: 拒绝群组申请接口
+            operationId: GroupApply_Decline
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/GroupApplyDeclineRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GroupApplyDeclineResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/group-apply/delete:
+        post:
+            tags:
+                - GroupApply
+            description: 删除群组申请接口
+            operationId: GroupApply_Delete
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/GroupApplyDeleteRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GroupApplyDeleteResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/group-apply/list:
+        post:
+            tags:
+                - GroupApply
+            description: 群组申请列表接口
+            operationId: GroupApply_List
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/GroupApplyListRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GroupApplyListResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/group-apply/unread-num:
+        post:
+            tags:
+                - GroupApply
+            description: 获取群组申请未读数
+            operationId: GroupApply_UnreadNum
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/GroupApplyUnreadNumRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GroupApplyUnreadNumResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/group-notice/edit:
+        post:
+            tags:
+                - GroupNotice
+            description: 编辑群组公告接口
+            operationId: GroupNotice_Edit
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/GroupNoticeEditRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GroupNoticeEditResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/group-vote/create:
+        post:
+            tags:
+                - GroupVote
+            description: 创建群组投票接口
+            operationId: GroupVote_Create
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/GroupVoteCreateRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GroupVoteCreateResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/group-vote/detail:
+        post:
+            tags:
+                - GroupVote
+            description: 获取群组投票详情接口
+            operationId: GroupVote_Detail
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/GroupVoteDetailRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GroupVoteDetailResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/group-vote/submit:
+        post:
+            tags:
+                - GroupVote
+            description: 提交群组投票接口
+            operationId: GroupVote_Submit
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/GroupVoteSubmitRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GroupVoteSubmitResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/group/assign-admin:
+        post:
+            tags:
+                - Group
+            description: 分配管理员接口
+            operationId: Group_AssignAdmin
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/GroupAssignAdminRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GroupAssignAdminResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/group/create:
+        post:
+            tags:
+                - Group
+            description: 创建群聊接口
+            operationId: Group_Create
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/GroupCreateRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GroupCreateResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/group/detail:
+        post:
+            tags:
+                - Group
+            description: 群聊详情接口
+            operationId: Group_Detail
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/GroupDetailRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GroupDetailResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/group/dismiss:
+        post:
+            tags:
+                - Group
+            description: 解散群聊接口
+            operationId: Group_Dismiss
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/GroupDismissRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GroupDismissResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/group/get-invite-friends:
+        post:
+            tags:
+                - Group
+            description: 获取可邀请好友列表接口
+            operationId: Group_GetInviteFriends
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/GetInviteFriendsRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GetInviteFriendsResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/group/handover:
+        post:
+            tags:
+                - Group
+            description: 群主更换接口
+            operationId: Group_Handover
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/GroupHandoverRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GroupHandoverResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/group/invite:
+        post:
+            tags:
+                - Group
+            description: 邀请加入群聊接口
+            operationId: Group_Invite
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/GroupInviteRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GroupInviteResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/group/list:
+        post:
+            tags:
+                - Group
+            description: 群列表接口
+            operationId: Group_List
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/GroupListRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GroupListResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/group/member-list:
+        post:
+            tags:
+                - Group
+            description: 群成员列表接口
+            operationId: Group_MemberList
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/GroupMemberListRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GroupMemberListResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/group/mute:
+        post:
+            tags:
+                - Group
+            description: 群禁言接口
+            operationId: Group_Mute
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/GroupMuteRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GroupMuteResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/group/no-speak:
+        post:
+            tags:
+                - Group
+            description: 群成员禁言接口
+            operationId: Group_NoSpeak
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/GroupNoSpeakRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GroupNoSpeakResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/group/overt:
+        post:
+            tags:
+                - Group
+            description: 群公开修改接口
+            operationId: Group_Overt
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/GroupOvertRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GroupOvertResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/group/overt-list:
+        post:
+            tags:
+                - Group
+            description: 公开群聊列表接口
+            operationId: Group_OvertList
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/GroupOvertListRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GroupOvertListResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/group/remark-update:
+        post:
+            tags:
+                - Group
+            description: 群聊名片更新接口
+            operationId: Group_RemarkUpdate
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/GroupRemarkUpdateRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GroupRemarkUpdateResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/group/remove-member:
+        post:
+            tags:
+                - Group
+            description: 移出群成员接口
+            operationId: Group_RemoveMember
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/GroupRemoveMemberRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GroupRemoveMemberResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/group/secede:
+        post:
+            tags:
+                - Group
+            description: 退出群聊接口
+            operationId: Group_Secede
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/GroupSecedeRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GroupSecedeResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/group/setting:
+        post:
+            tags:
+                - Group
+            description: 设置群聊接口
+            operationId: Group_Setting
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/GroupSettingRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GroupSettingResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/message/delete:
+        post:
+            tags:
+                - Message
+            operationId: Message_Delete
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/MessageDeleteRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/MessageDeleteResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/message/forward-records:
+        post:
+            tags:
+                - Message
+            description: 转发消息记录
+            operationId: Message_ForwardRecords
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/MessageForwardRecordsRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/MessageRecordsClearResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/message/history-records:
+        post:
+            tags:
+                - Message
+            description: 获取会话历史消息记录
+            operationId: Message_HistoryRecords
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/MessageHistoryRecordsRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/MessageHistoryRecordsResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/message/records:
+        post:
+            tags:
+                - Message
+            description: 获取会话消息记录
+            operationId: Message_Records
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/MessageRecordsRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/MessageRecordsResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/message/revoke:
+        post:
+            tags:
+                - Message
+            operationId: Message_Revoke
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/MessageRevokeRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/MessageRevokeResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/organize/department-list:
+        post:
+            tags:
+                - Organize
+            description: 获取组织部门列表接口
+            operationId: Organize_DepartmentList
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/OrganizeDepartmentListRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/OrganizeDepartmentListResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/organize/personnel-list:
+        post:
+            tags:
+                - Organize
+            description: 获取组织人员列表接口
+            operationId: Organize_PersonnelList
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/OrganizePersonnelListRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/OrganizePersonnelListResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/talk/session-clear-unread-num:
+        post:
+            tags:
+                - Talk
+            description: 会话未读数清除接口
+            operationId: Talk_SessionClearUnreadNum
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/TalkSessionClearUnreadNumRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/TalkSessionClearUnreadNumResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/talk/session-create:
+        post:
+            tags:
+                - Talk
+            description: 会话创建接口
+            operationId: Talk_SessionCreate
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/TalkSessionCreateRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/TalkSessionCreateResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/talk/session-delete:
+        post:
+            tags:
+                - Talk
+            description: 会话删除接口
+            operationId: Talk_SessionDelete
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/TalkSessionDeleteRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/TalkSessionDeleteResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/talk/session-disturb:
+        post:
+            tags:
+                - Talk
+            description: 会话免打扰接口
+            operationId: Talk_SessionDisturb
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/TalkSessionDisturbRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/TalkSessionDisturbResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/talk/session-list:
+        post:
+            tags:
+                - Talk
+            description: 会话列表接口
+            operationId: Talk_SessionList
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/TalkSessionListRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/TalkSessionListResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/talk/session-top:
+        post:
+            tags:
+                - Talk
+            description: 会话置顶接口
+            operationId: Talk_SessionTop
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/TalkSessionTopRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/TalkSessionTopResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/user/detail:
+        post:
+            tags:
+                - User
+            description: 获取登录用户详情接口
+            operationId: User_Detail
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/UserDetailRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UserDetailResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/user/detail-update:
+        post:
+            tags:
+                - User
+            description: 更新用户信息接口
+            operationId: User_DetailUpdate
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/UserDetailUpdateRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UserDetailUpdateResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/user/email-update:
+        post:
+            tags:
+                - User
+            description: 更新用户邮箱接口
+            operationId: User_EmailUpdate
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/UserEmailUpdateRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UserEmailUpdateResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/user/mobile-update:
+        post:
+            tags:
+                - User
+            description: 更新用户手机号接口
+            operationId: User_MobileUpdate
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/UserMobileUpdateRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UserMobileUpdateResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/user/password-update:
+        post:
+            tags:
+                - User
+            description: 更新用户密码接口
+            operationId: User_PasswordUpdate
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/UserPasswordUpdateRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UserPasswordUpdateResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/user/setting:
+        post:
+            tags:
+                - User
+            description: 获取用户配置信息接口
+            operationId: User_Setting
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/UserSettingRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UserSettingResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+components:
+    schemas:
+        ArticleAnnexDeleteRequest:
+            type: object
+            properties:
+                annexId:
+                    type: integer
+                    format: int32
+            description: 文章附件删除接口请求参数
+        ArticleAnnexDeleteResponse:
+            type: object
+            properties: {}
+            description: 文章附件删除接口响应参数
+        ArticleAnnexForeverDeleteRequest:
+            type: object
+            properties:
+                annexId:
+                    type: integer
+                    format: int32
+            description: 文章附件永久删除接口请求参数
+        ArticleAnnexForeverDeleteResponse:
+            type: object
+            properties: {}
+            description: 文章附件永久删除接口响应参数
+        ArticleAnnexRecoverListRequest:
+            type: object
+            properties:
+                page:
+                    type: integer
+                    format: int32
+            description: 文章附件回收站列表接口请求参数
+        ArticleAnnexRecoverListResponse:
+            type: object
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/ArticleAnnexRecoverListResponse_Item'
+                paginate:
+                    $ref: '#/components/schemas/Paginate'
+            description: 文章附件回收站列表接口响应参数
+        ArticleAnnexRecoverListResponse_Item:
+            type: object
+            properties:
+                annexId:
+                    type: integer
+                    format: int32
+                annexName:
+                    type: string
+                articleId:
+                    type: integer
+                    format: int32
+                articleTitle:
+                    type: string
+                createdAt:
+                    type: string
+                deletedAt:
+                    type: string
+                day:
+                    type: integer
+                    format: int32
+        ArticleAnnexRecoverRequest:
+            type: object
+            properties:
+                annexId:
+                    type: integer
+                    format: int32
+            description: 文章附件恢复删除接口请求参数
+        ArticleAnnexRecoverResponse:
+            type: object
+            properties: {}
+            description: 文章附件恢复删除接口响应参数
+        ArticleAsteriskRequest:
+            type: object
+            properties:
+                articleId:
+                    type: integer
+                    description: 文章ID
+                    format: int32
+                action:
+                    type: integer
+                    description: 操作方式 1:收藏 2:取消收藏
+                    format: int32
+        ArticleAsteriskResponse:
+            type: object
+            properties: {}
+        ArticleClassDeleteRequest:
+            required:
+                - classifyId
+            type: object
+            properties:
+                classifyId:
+                    type: integer
+                    format: int32
+            description: 文章分类删除接口请求参数
+        ArticleClassDeleteResponse:
+            type: object
+            properties: {}
+            description: 文章分类删除接口响应参数
+        ArticleClassEditRequest:
+            required:
+                - name
+            type: object
+            properties:
+                classifyId:
+                    type: integer
+                    format: int32
+                name:
+                    type: string
+            description: 文章分类编辑接口请求参数
+        ArticleClassEditResponse:
+            required:
+                - classifyId
+            type: object
+            properties:
+                classifyId:
+                    type: integer
+                    format: int32
+            description: 文章分类编辑接口响应参数
+        ArticleClassListRequest:
+            type: object
+            properties: {}
+            description: 文章分类列表接口请求参数
+        ArticleClassListResponse:
+            required:
+                - items
+            type: object
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/ArticleClassListResponse_Item'
+            description: 文章分类列表接口响应参数
+        ArticleClassListResponse_Item:
+            required:
+                - id
+                - className
+                - isDefault
+                - count
+            type: object
+            properties:
+                id:
+                    type: integer
+                    format: int32
+                className:
+                    type: string
+                isDefault:
+                    type: integer
+                    format: int32
+                count:
+                    type: integer
+                    format: int32
+        ArticleClassSortRequest:
+            required:
+                - classifyIds
+            type: object
+            properties:
+                classifyIds:
+                    type: array
+                    items:
+                        type: integer
+                        format: int32
+                    description: 排序后的分类ID列表
+            description: 文章分类排序接口请求参数
+        ArticleClassSortResponse:
+            type: object
+            properties: {}
+            description: 文章分类排序接口响应参数
+        ArticleDeleteRequest:
+            type: object
+            properties:
+                articleId:
+                    type: integer
+                    format: int32
+            description: 文章删除接口请求参数
+        ArticleDeleteResponse:
+            type: object
+            properties: {}
+            description: 文章删除接口响应参数
+        ArticleDetailRequest:
+            type: object
+            properties:
+                articleId:
+                    type: integer
+                    format: int32
+            description: 文章详情接口请求参数
+        ArticleDetailResponse:
+            required:
+                - articleId
+                - classifyId
+                - title
+                - mdContent
+                - isAsterisk
+                - createdAt
+                - updatedAt
+                - tagIds
+                - annexList
+            type: object
+            properties:
+                articleId:
+                    type: integer
+                    format: int32
+                classifyId:
+                    type: integer
+                    format: int32
+                title:
+                    type: string
+                mdContent:
+                    type: string
+                isAsterisk:
+                    type: integer
+                    format: int32
+                createdAt:
+                    type: string
+                updatedAt:
+                    type: string
+                tagIds:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/ArticleDetailResponse_Tag'
+                    description: 标签列表
+                annexList:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/ArticleDetailResponse_AnnexFile'
+                    description: 附件列表
+            description: 文章详情接口响应参数
+        ArticleDetailResponse_AnnexFile:
+            required:
+                - annexId
+                - annexName
+                - annexSize
+                - createdAt
+            type: object
+            properties:
+                annexId:
+                    type: integer
+                    format: int32
+                annexName:
+                    type: string
+                annexSize:
+                    type: integer
+                    format: int32
+                createdAt:
+                    type: string
+        ArticleDetailResponse_Tag:
+            required:
+                - id
+            type: object
+            properties:
+                id:
+                    type: integer
+                    format: int32
+        ArticleEditRequest:
+            type: object
+            properties:
+                articleId:
+                    type: integer
+                    description: 文章ID
+                    format: int32
+                classifyId:
+                    type: integer
+                    description: 分类ID
+                    format: int32
+                title:
+                    type: string
+                    description: 标题
+                abstract:
+                    type: string
+                    description: 摘要
+                mdContent:
+                    type: string
+                    description: 内容
+            description: 文章编辑接口请求参数
+        ArticleEditResponse:
+            required:
+                - articleId
+                - title
+                - abstract
+                - image
+            type: object
+            properties:
+                articleId:
+                    type: integer
+                    format: int32
+                title:
+                    type: string
+                abstract:
+                    type: string
+                image:
+                    type: string
+            description: 文章编辑接口响应参数
+        ArticleForeverDeleteRequest:
+            type: object
+            properties:
+                articleId:
+                    type: integer
+                    format: int32
+        ArticleForeverDeleteResponse:
+            type: object
+            properties: {}
+        ArticleListRequest:
+            type: object
+            properties:
+                keyword:
+                    type: string
+                findType:
+                    type: integer
+                    description: 查找类型 1:关键字查询 2:分类查询 3:标签查询 4:最近修改
+                    format: int32
+                classifyId:
+                    type: integer
+                    format: int32
+                tagId:
+                    type: integer
+                    format: int32
+            description: 文章列表接口请求参数
+        ArticleListResponse:
+            required:
+                - items
+            type: object
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/ArticleListResponse_Item'
+            description: 文章列表请求接口响应参数
+        ArticleListResponse_Item:
+            required:
+                - articleId
+                - classifyId
+                - tagsId
+                - title
+                - className
+                - image
+                - isAsterisk
+                - status
+                - createdAt
+                - updatedAt
+                - abstract
+            type: object
+            properties:
+                articleId:
+                    type: integer
+                    format: int32
+                classifyId:
+                    type: integer
+                    format: int32
+                tagsId:
+                    type: string
+                title:
+                    type: string
+                className:
+                    type: string
+                image:
+                    type: string
+                isAsterisk:
+                    type: integer
+                    format: int32
+                status:
+                    type: integer
+                    format: int32
+                createdAt:
+                    type: string
+                updatedAt:
+                    type: string
+                abstract:
+                    type: string
+        ArticleMoveRequest:
+            type: object
+            properties:
+                articleId:
+                    type: integer
+                    format: int32
+                classifyId:
+                    type: integer
+                    format: int32
+            description: 文章移动分类接口请求参数
+        ArticleMoveResponse:
+            type: object
+            properties: {}
+            description: 文章移动分类接口响应参数
+        ArticleRecoverListRequest:
+            type: object
+            properties:
+                page:
+                    type: integer
+                    format: int32
+            description: 文章附件回收站列表接口请求参数
+        ArticleRecoverListResponse:
+            required:
+                - items
+            type: object
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/ArticleRecoverListResponse_Item'
+            description: 文章附件回收站列表接口响应参数
+        ArticleRecoverListResponse_Item:
+            required:
+                - articleId
+                - classifyId
+                - classifyName
+                - title
+                - abstract
+                - image
+                - createdAt
+                - deletedAt
+                - day
+            type: object
+            properties:
+                articleId:
+                    type: integer
+                    format: int32
+                classifyId:
+                    type: integer
+                    format: int32
+                classifyName:
+                    type: string
+                title:
+                    type: string
+                abstract:
+                    type: string
+                image:
+                    type: string
+                createdAt:
+                    type: string
+                deletedAt:
+                    type: string
+                day:
+                    type: integer
+                    format: int32
+        ArticleRecoverRequest:
+            type: object
+            properties:
+                articleId:
+                    type: integer
+                    format: int32
+        ArticleRecoverResponse:
+            type: object
+            properties: {}
+        ArticleTagsRequest:
+            type: object
+            properties:
+                articleId:
+                    type: integer
+                    format: int32
+                tagIds:
+                    type: array
+                    items:
+                        type: integer
+                        format: int32
+        ArticleTagsResponse:
+            type: object
+            properties: {}
+        AuthForgetRequest:
+            required:
+                - mobile
+                - password
+                - smsCode
+            type: object
+            properties:
+                mobile:
+                    type: string
+                    description: 手机号
+                password:
+                    type: string
+                    description: 登录密码
+                smsCode:
+                    type: string
+                    description: 短信验证码
+            description: 找回密码接口请求参数
+        AuthForgetResponse:
+            type: object
+            properties: {}
+            description: 找回密码接口响应参数
+        AuthLoginRequest:
+            required:
+                - mobile
+                - password
+                - platform
+            type: object
+            properties:
+                mobile:
+                    type: string
+                    description: 登录手机号
+                password:
+                    type: string
+                    description: 登录密码
+                platform:
+                    type: string
+                    description: 登录平台
+            description: 登录接口请求参数
+        AuthLoginResponse:
+            required:
+                - type
+                - accessToken
+                - expiresIn
+            type: object
+            properties:
+                type:
+                    type: string
+                    description: Token 类型
+                accessToken:
+                    type: string
+                    description: token
+                expiresIn:
+                    type: integer
+                    description: 过期时间
+                    format: int32
+            description: 登录接口响应参数
+        AuthOAuthBindRequest:
+            required:
+                - bindToken
+                - mobile
+                - smsCode
+            type: object
+            properties:
+                bindToken:
+                    type: string
+                mobile:
+                    type: string
+                smsCode:
+                    type: string
+        AuthOAuthBindResponse:
+            required:
+                - authorize
+            type: object
+            properties:
+                authorize:
+                    $ref: '#/components/schemas/Authorize'
+        AuthOauthLoginRequest:
+            required:
+                - oauthType
+                - code
+                - state
+            type: object
+            properties:
+                oauthType:
+                    type: string
+                code:
+                    type: string
+                state:
+                    type: string
+        AuthOauthLoginResponse:
+            required:
+                - isAuthorize
+                - authorize
+                - bindToken
+            type: object
+            properties:
+                isAuthorize:
+                    type: string
+                authorize:
+                    $ref: '#/components/schemas/Authorize'
+                bindToken:
+                    type: string
+        AuthOauthRequest:
+            required:
+                - oauthType
+            type: object
+            properties:
+                oauthType:
+                    type: string
+        AuthOauthResponse:
+            required:
+                - uri
+            type: object
+            properties:
+                uri:
+                    type: string
+        AuthRegisterRequest:
+            type: object
+            properties:
+                nickname:
+                    type: string
+                    description: 登录手机号
+                mobile:
+                    type: string
+                    description: 登录手机号
+                password:
+                    type: string
+                    description: 登录密码
+                platform:
+                    type: string
+                    description: 登录平台
+                smsCode:
+                    type: string
+                    description: 短信验证码
+            description: 注册接口请求参数
+        AuthRegisterResponse:
+            required:
+                - type
+                - accessToken
+                - expiresIn
+            type: object
+            properties:
+                type:
+                    type: string
+                    description: Token 类型
+                accessToken:
+                    type: string
+                    description: token
+                expiresIn:
+                    type: integer
+                    description: 过期时间
+                    format: int32
+            description: 注册接口响应参数
+        Authorize:
+            required:
+                - accessToken
+                - expiresIn
+                - type
+            type: object
+            properties:
+                accessToken:
+                    type: string
+                expiresIn:
+                    type: integer
+                    format: int32
+                type:
+                    type: string
+        CommonSendEmailRequest:
+            type: object
+            properties:
+                email:
+                    type: string
+            description: 发送邮件验证码接口请求参数
+        CommonSendEmailResponse:
+            type: object
+            properties: {}
+            description: 发送邮件验证码接口响应参数
+        CommonSendSmsRequest:
+            type: object
+            properties:
+                mobile:
+                    type: string
+                channel:
+                    type: string
+            description: 发送短信验证码接口请求参数
+        CommonSendSmsResponse:
+            type: object
+            properties:
+                smsCode:
+                    type: string
+            description: 发送短信验证码接口响应参数
+        CommonSendTestRequest:
+            type: object
+            properties:
+                email:
+                    type: string
+            description: 发送邮件验证码接口请求参数
+        CommonSendTestResponse:
+            type: object
+            properties: {}
+            description: 发送邮件验证码接口响应参数
+        ContactApplyAcceptRequest:
+            type: object
+            properties:
+                applyId:
+                    type: integer
+                    format: int32
+                remark:
+                    type: string
+            description: 同意联系人申请接口请求参数
+        ContactApplyAcceptResponse:
+            type: object
+            properties: {}
+            description: 同意联系人申请接口响应参数
+        ContactApplyCreateRequest:
+            type: object
+            properties:
+                userId:
+                    type: integer
+                    format: int32
+                remark:
+                    type: string
+            description: 添加联系人申请接口请求参数
+        ContactApplyCreateResponse:
+            type: object
+            properties: {}
+            description: 添加联系人申请接口响应参数
+        ContactApplyDeclineRequest:
+            type: object
+            properties:
+                applyId:
+                    type: integer
+                    format: int32
+                remark:
+                    type: string
+            description: 拒绝联系人申请接口请求参数
+        ContactApplyDeclineResponse:
+            type: object
+            properties: {}
+            description: 拒绝联系人申请接口响应参数
+        ContactApplyListRequest:
+            type: object
+            properties: {}
+            description: 联系人申请列表接口请求参数
+        ContactApplyListResponse:
+            required:
+                - items
+            type: object
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/ContactApplyListResponse_Item'
+            description: 联系人申请列表接口响应参数
+        ContactApplyListResponse_Item:
+            required:
+                - id
+                - userId
+                - friendId
+                - remark
+                - nickname
+                - avatar
+                - createdAt
+            type: object
+            properties:
+                id:
+                    type: integer
+                    format: int32
+                userId:
+                    type: integer
+                    format: int32
+                friendId:
+                    type: integer
+                    format: int32
+                remark:
+                    type: string
+                nickname:
+                    type: string
+                avatar:
+                    type: string
+                createdAt:
+                    type: string
+        ContactApplyUnreadNumRequest:
+            type: object
+            properties: {}
+        ContactApplyUnreadNumResponse:
+            required:
+                - num
+            type: object
+            properties:
+                num:
+                    type: integer
+                    format: int32
+        ContactChangeGroupRequest:
+            required:
+                - userId
+            type: object
+            properties:
+                userId:
+                    type: integer
+                    format: int32
+                groupId:
+                    type: integer
+                    format: int32
+            description: 修改联系人分组接口请求参数
+        ContactChangeGroupResponse:
+            type: object
+            properties: {}
+            description: 修改联系人分组接口响应参数
+        ContactDeleteRequest:
+            required:
+                - userId
+            type: object
+            properties:
+                userId:
+                    type: integer
+                    format: int32
+            description: 联系人删除接口请求参数
+        ContactDeleteResponse:
+            type: object
+            properties: {}
+            description: 联系人删除接口响应参数
+        ContactDetailRequest:
+            required:
+                - userId
+            type: object
+            properties:
+                userId:
+                    type: integer
+                    format: int32
+            description: 联系人详情接口请求参数
+        ContactDetailResponse:
+            required:
+                - userId
+                - mobile
+                - nickname
+                - avatar
+                - gender
+                - motto
+                - email
+                - relation
+                - contactRemark
+                - contactGroupId
+                - onlineStatus
+            type: object
+            properties:
+                userId:
+                    type: integer
+                    format: int32
+                mobile:
+                    type: string
+                nickname:
+                    type: string
+                avatar:
+                    type: string
+                gender:
+                    type: integer
+                    format: int32
+                motto:
+                    type: string
+                email:
+                    type: string
+                relation:
+                    type: integer
+                    format: int32
+                contactRemark:
+                    type: string
+                contactGroupId:
+                    type: integer
+                    format: int32
+                onlineStatus:
+                    type: string
+            description: 联系人详情接口响应参数
+        ContactEditRemarkRequest:
+            required:
+                - userId
+            type: object
+            properties:
+                userId:
+                    type: integer
+                    format: int32
+                remark:
+                    type: string
+            description: 联系人备注修改接口请求参数
+        ContactEditRemarkResponse:
+            type: object
+            properties: {}
+            description: 联系人备注修改接口响应参数
+        ContactGroupListRequest:
+            type: object
+            properties: {}
+            description: 联系人分组列表接口请求参数
+        ContactGroupListResponse:
+            required:
+                - items
+            type: object
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/ContactGroupListResponse_Item'
+                    description: 分组列表
+            description: 联系人分组列表接口响应参数
+        ContactGroupListResponse_Item:
+            required:
+                - id
+                - name
+                - count
+                - sort
+            type: object
+            properties:
+                id:
+                    type: integer
+                    description: 分组ID
+                    format: int32
+                name:
+                    type: string
+                    description: 分组名称
+                count:
+                    type: integer
+                    description: 联系人数
+                    format: int32
+                sort:
+                    type: integer
+                    description: 分组排序
+                    format: int32
+        ContactGroupSaveRequest:
+            type: object
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/ContactGroupSaveRequest_Item'
+            description: 保存联系人分组接口请求参数
+        ContactGroupSaveRequest_Item:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    format: int32
+                sort:
+                    type: integer
+                    format: int32
+                name:
+                    type: string
+        ContactGroupSaveResponse:
+            type: object
+            properties: {}
+            description: 保存联系人分组接口响应参数
+        ContactListRequest:
+            type: object
+            properties: {}
+            description: 联系人列表接口请求参数
+        ContactListResponse:
+            required:
+                - items
+            type: object
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/ContactListResponse_Item'
+            description: 联系人列表接口响应参数
+        ContactListResponse_Item:
+            required:
+                - userId
+                - nickname
+                - gender
+                - motto
+                - avatar
+                - remark
+                - groupId
+            type: object
+            properties:
+                userId:
+                    type: integer
+                    description: 用户ID
+                    format: int32
+                nickname:
+                    type: string
+                    description: 昵称
+                gender:
+                    type: integer
+                    description: 性别[0:未知;1:男;2:女;]
+                    format: int32
+                motto:
+                    type: string
+                    description: 座右铭
+                avatar:
+                    type: string
+                    description: 头像
+                remark:
+                    type: string
+                    description: 备注
+                groupId:
+                    type: integer
+                    description: 联系人分组ID
+                    format: int32
+        ContactOnlineStatusRequest:
+            required:
+                - userId
+            type: object
+            properties:
+                userId:
+                    type: integer
+                    format: int32
+            description: 获取联系人在线状态请求参数
+        ContactOnlineStatusResponse:
+            required:
+                - onlineStatus
+            type: object
+            properties:
+                onlineStatus:
+                    type: string
+                    description: 在线状态 [N:离线;Y:在线;]
+            description: 获取联系人在线状态响应参数
+        ContactSearchRequest:
+            required:
+                - mobile
+            type: object
+            properties:
+                mobile:
+                    type: string
+            description: 联系人搜索接口请求参数
+        ContactSearchResponse:
+            required:
+                - userId
+                - mobile
+                - nickname
+                - avatar
+                - gender
+                - motto
+            type: object
+            properties:
+                userId:
+                    type: integer
+                    format: int32
+                mobile:
+                    type: string
+                nickname:
+                    type: string
+                avatar:
+                    type: string
+                gender:
+                    type: integer
+                    format: int32
+                motto:
+                    type: string
+            description: 联系人搜索接口响应参数
+        EmoticonCreateRequest:
+            type: object
+            properties:
+                url:
+                    type: string
+            description: 创建表情包接口请求参数
+        EmoticonCreateResponse:
+            type: object
+            properties:
+                emoticonId:
+                    type: integer
+                    format: int32
+                url:
+                    type: string
+            description: 创建表情包接口响应参数
+        EmoticonDeleteRequest:
+            type: object
+            properties:
+                emoticonId:
+                    type: integer
+                    format: int32
+            description: 删除表情包接口请求参数
+        EmoticonDeleteResponse:
+            type: object
+            properties: {}
+            description: 删除表情包接口响应参数
+        EmoticonItem:
+            type: object
+            properties:
+                emoticonId:
+                    type: integer
+                    format: int32
+                url:
+                    type: string
+        EmoticonListRequest:
+            type: object
+            properties: {}
+            description: 用户表情包列表接口请求参数
+        EmoticonListResponse:
+            type: object
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/EmoticonItem'
+            description: 用户表情包列表接口响应参数
+        GetInviteFriendsRequest:
+            type: object
+            properties:
+                groupId:
+                    type: integer
+                    format: int32
+            description: 获取可邀请好友列表请求参数
+        GetInviteFriendsResponse:
+            required:
+                - items
+            type: object
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/GetInviteFriendsResponse_Item'
+            description: 获取可邀请好友列表响应参数
+        GetInviteFriendsResponse_Item:
+            required:
+                - userId
+                - nickname
+                - avatar
+                - gender
+                - remark
+            type: object
+            properties:
+                userId:
+                    type: integer
+                    format: int32
+                nickname:
+                    type: string
+                avatar:
+                    type: string
+                gender:
+                    type: integer
+                    format: int32
+                remark:
+                    type: string
+        GoogleProtobufAny:
+            type: object
+            properties:
+                '@type':
+                    type: string
+                    description: The type of the serialized message.
+            additionalProperties: true
+            description: Contains an arbitrary serialized message along with a @type that describes the type of the serialized message.
+        GroupApplyAgreeRequest:
+            type: object
+            properties:
+                applyId:
+                    type: integer
+                    format: int32
+            description: 同意群组申请接口请求参数
+        GroupApplyAgreeResponse:
+            type: object
+            properties: {}
+            description: 同意群组申请接口响应参数
+        GroupApplyAllRequest:
+            type: object
+            properties: {}
+            description: 所有群组申请列表接口请求参数
+        GroupApplyAllResponse:
+            required:
+                - items
+            type: object
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/GroupApplyAllResponse_Item'
+            description: 所有群组申请列表接口响应参数
+        GroupApplyAllResponse_Item:
+            required:
+                - id
+                - userId
+                - groupId
+                - groupName
+                - remark
+                - avatar
+                - nickname
+                - createdAt
+            type: object
+            properties:
+                id:
+                    type: integer
+                    format: int32
+                userId:
+                    type: integer
+                    format: int32
+                groupId:
+                    type: integer
+                    format: int32
+                groupName:
+                    type: string
+                remark:
+                    type: string
+                avatar:
+                    type: string
+                nickname:
+                    type: string
+                createdAt:
+                    type: string
+        GroupApplyCreateRequest:
+            type: object
+            properties:
+                groupId:
+                    type: integer
+                    format: int32
+                remark:
+                    type: string
+            description: 创建群组申请接口请求参数
+        GroupApplyCreateResponse:
+            type: object
+            properties: {}
+            description: 创建群组申请接口响应参数
+        GroupApplyDeclineRequest:
+            type: object
+            properties:
+                applyId:
+                    type: integer
+                    format: int32
+                remark:
+                    type: string
+            description: 拒绝群组申请接口请求参数
+        GroupApplyDeclineResponse:
+            type: object
+            properties: {}
+            description: 拒绝群组申请接口响应参数
+        GroupApplyDeleteRequest:
+            type: object
+            properties:
+                applyId:
+                    type: integer
+                    format: int32
+            description: 删除群组申请接口请求参数
+        GroupApplyDeleteResponse:
+            type: object
+            properties: {}
+            description: 删除群组申请接口响应参数
+        GroupApplyListRequest:
+            type: object
+            properties:
+                groupId:
+                    type: integer
+                    format: int32
+            description: 群组申请列表接口请求参数
+        GroupApplyListResponse:
+            type: object
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/GroupApplyListResponse_Item'
+            description: 群组申请列表接口响应参数
+        GroupApplyListResponse_Item:
+            required:
+                - id
+                - userId
+                - groupId
+                - remark
+                - avatar
+                - nickname
+                - createdAt
+            type: object
+            properties:
+                id:
+                    type: integer
+                    format: int32
+                userId:
+                    type: integer
+                    format: int32
+                groupId:
+                    type: integer
+                    format: int32
+                remark:
+                    type: string
+                avatar:
+                    type: string
+                nickname:
+                    type: string
+                createdAt:
+                    type: string
+        GroupApplyUnreadNumRequest:
+            type: object
+            properties: {}
+        GroupApplyUnreadNumResponse:
+            required:
+                - num
+            type: object
+            properties:
+                num:
+                    type: integer
+                    format: int32
+        GroupAssignAdminRequest:
+            type: object
+            properties:
+                groupId:
+                    type: integer
+                    format: int32
+                userId:
+                    type: integer
+                    format: int32
+                action:
+                    type: integer
+                    format: int32
+            description: 分配管理员接口请求参数
+        GroupAssignAdminResponse:
+            type: object
+            properties: {}
+            description: 分配管理员接口响应参数
+        GroupCreateRequest:
+            type: object
+            properties:
+                name:
+                    type: string
+                userIds:
+                    type: array
+                    items:
+                        type: integer
+                        format: int32
+            description: 创建群聊接口请求参数
+        GroupCreateResponse:
+            required:
+                - groupId
+            type: object
+            properties:
+                groupId:
+                    type: integer
+                    format: int32
+            description: 创建群聊接口响应参数
+        GroupDetailRequest:
+            type: object
+            properties:
+                groupId:
+                    type: integer
+                    format: int32
+            description: 群聊详情接口请求参数
+        GroupDetailResponse:
+            required:
+                - groupId
+                - groupName
+                - profile
+                - avatar
+                - createdAt
+                - isManager
+                - isDisturb
+                - visitCard
+                - isMute
+                - isOvert
+            type: object
+            properties:
+                groupId:
+                    type: integer
+                    format: int32
+                groupName:
+                    type: string
+                profile:
+                    type: string
+                avatar:
+                    type: string
+                createdAt:
+                    type: string
+                isManager:
+                    type: boolean
+                isDisturb:
+                    type: integer
+                    format: int32
+                visitCard:
+                    type: string
+                isMute:
+                    type: integer
+                    format: int32
+                isOvert:
+                    type: integer
+                    format: int32
+                notice:
+                    $ref: '#/components/schemas/GroupDetailResponse_Notice'
+            description: 群聊详情接口响应参数
+        GroupDetailResponse_Notice:
+            type: object
+            properties:
+                content:
+                    type: string
+                createdAt:
+                    type: string
+                updatedAt:
+                    type: string
+                modifyUserName:
+                    type: string
+        GroupDismissRequest:
+            type: object
+            properties:
+                groupId:
+                    type: integer
+                    format: int32
+            description: 解散群聊接口请求参数
+        GroupDismissResponse:
+            type: object
+            properties: {}
+            description: 解散群聊接口响应参数
+        GroupHandoverRequest:
+            type: object
+            properties:
+                groupId:
+                    type: integer
+                    format: int32
+                userId:
+                    type: integer
+                    format: int32
+            description: 群主更换接口请求参数
+        GroupHandoverResponse:
+            type: object
+            properties: {}
+            description: 群主更换接口响应参数
+        GroupInviteRequest:
+            type: object
+            properties:
+                groupId:
+                    type: integer
+                    format: int32
+                userIds:
+                    type: array
+                    items:
+                        type: integer
+                        format: int32
+            description: 加入群聊接口请求参数
+        GroupInviteResponse:
+            type: object
+            properties: {}
+            description: 加入群聊接口响应参数
+        GroupListRequest:
+            type: object
+            properties: {}
+            description: 群列表接口请求参数
+        GroupListResponse:
+            required:
+                - items
+            type: object
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/GroupListResponse_Item'
+            description: 群列表接口响应参数
+        GroupListResponse_Item:
+            required:
+                - groupId
+                - groupName
+                - avatar
+                - profile
+                - leader
+                - creatorId
+            type: object
+            properties:
+                groupId:
+                    type: integer
+                    format: int32
+                groupName:
+                    type: string
+                avatar:
+                    type: string
+                profile:
+                    type: string
+                leader:
+                    type: integer
+                    format: int32
+                creatorId:
+                    type: integer
+                    format: int32
+        GroupMemberListRequest:
+            type: object
+            properties:
+                groupId:
+                    type: integer
+                    format: int32
+            description: 群成员列表接口请求参数
+        GroupMemberListResponse:
+            required:
+                - items
+            type: object
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/GroupMemberListResponse_Item'
+            description: 群成员列表接口响应参数
+        GroupMemberListResponse_Item:
+            required:
+                - userId
+                - nickname
+                - avatar
+                - gender
+                - leader
+                - isMute
+                - remark
+                - motto
+            type: object
+            properties:
+                userId:
+                    type: integer
+                    format: int32
+                nickname:
+                    type: string
+                avatar:
+                    type: string
+                gender:
+                    type: integer
+                    format: int32
+                leader:
+                    type: integer
+                    format: int32
+                isMute:
+                    type: integer
+                    format: int32
+                remark:
+                    type: string
+                motto:
+                    type: string
+        GroupMuteRequest:
+            type: object
+            properties:
+                groupId:
+                    type: integer
+                    format: int32
+                action:
+                    type: integer
+                    description: 操作方式  1:开启全员禁言  2:解除全员禁言
+                    format: int32
+            description: 群禁言接口请求参数
+        GroupMuteResponse:
+            type: object
+            properties: {}
+            description: 群禁言接口响应参数
+        GroupNoSpeakRequest:
+            type: object
+            properties:
+                groupId:
+                    type: integer
+                    format: int32
+                userId:
+                    type: integer
+                    format: int32
+                action:
+                    type: integer
+                    format: int32
+            description: 群成员禁言接口请求参数
+        GroupNoSpeakResponse:
+            type: object
+            properties: {}
+            description: 群成员禁言接口响应参数
+        GroupNoticeEditRequest:
+            type: object
+            properties:
+                groupId:
+                    type: integer
+                    format: int32
+                content:
+                    type: string
+            description: 编辑群组公告接口请求参数
+        GroupNoticeEditResponse:
+            type: object
+            properties: {}
+            description: 编辑群组公告接口响应参数
+        GroupOvertListRequest:
+            type: object
+            properties:
+                page:
+                    type: integer
+                    format: int32
+                name:
+                    type: string
+            description: 公开群聊列表请求参数
+        GroupOvertListResponse:
+            required:
+                - items
+                - next
+            type: object
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/GroupOvertListResponse_Item'
+                next:
+                    type: boolean
+            description: 公开群聊列表响应参数
+        GroupOvertListResponse_Item:
+            required:
+                - groupId
+                - type
+                - name
+                - avatar
+                - profile
+                - count
+                - maxNum
+                - isMember
+                - createdAt
+            type: object
+            properties:
+                groupId:
+                    type: integer
+                    format: int32
+                type:
+                    type: integer
+                    format: int32
+                name:
+                    type: string
+                avatar:
+                    type: string
+                profile:
+                    type: string
+                count:
+                    type: integer
+                    format: int32
+                maxNum:
+                    type: integer
+                    format: int32
+                isMember:
+                    type: boolean
+                createdAt:
+                    type: string
+        GroupOvertRequest:
+            type: object
+            properties:
+                groupId:
+                    type: integer
+                    format: int32
+                action:
+                    type: integer
+                    description: 操作方式 1:关闭  2:开启
+                    format: int32
+            description: 群公开修改接口请求参数
+        GroupOvertResponse:
+            type: object
+            properties: {}
+            description: 群公开修改接口响应参数
+        GroupRemarkUpdateRequest:
+            type: object
+            properties:
+                groupId:
+                    type: integer
+                    format: int32
+                remark:
+                    type: string
+            description: 群聊名片更新接口请求参数
+        GroupRemarkUpdateResponse:
+            type: object
+            properties: {}
+            description: 群聊名片更新接口响应参数
+        GroupRemoveMemberRequest:
+            type: object
+            properties:
+                groupId:
+                    type: integer
+                    format: int32
+                userIds:
+                    type: array
+                    items:
+                        type: integer
+                        format: int32
+            description: 移出群成员接口请求参数
+        GroupRemoveMemberResponse:
+            type: object
+            properties: {}
+            description: 移出群成员接口响应参数
+        GroupSecedeRequest:
+            type: object
+            properties:
+                groupId:
+                    type: integer
+                    format: int32
+            description: 退出群聊接口请求参数
+        GroupSecedeResponse:
+            type: object
+            properties: {}
+            description: 退出群聊接口响应参数
+        GroupSettingRequest:
+            type: object
+            properties:
+                groupId:
+                    type: integer
+                    format: int32
+                groupName:
+                    type: string
+                avatar:
+                    type: string
+                profile:
+                    type: string
+            description: 设置群聊接口请求参数
+        GroupSettingResponse:
+            type: object
+            properties: {}
+            description: 设置群聊接口响应参数
+        GroupVoteCreateRequest:
+            type: object
+            properties:
+                groupId:
+                    type: integer
+                    format: int32
+                title:
+                    type: string
+                mode:
+                    type: integer
+                    format: int32
+                isAnonymous:
+                    type: integer
+                    format: int32
+                options:
+                    type: array
+                    items:
+                        type: string
+            description: 创建群组投票接口请求参数
+        GroupVoteCreateResponse:
+            type: object
+            properties: {}
+            description: 创建群组投票接口响应参数
+        GroupVoteDetailRequest:
+            type: object
+            properties:
+                voteId:
+                    type: integer
+                    format: int32
+            description: 获取群组投票详情接口请求参数
+        GroupVoteDetailResponse:
+            required:
+                - voteId
+                - title
+                - answerMode
+                - answerOptions
+                - answerNum
+                - answeredNum
+                - isAnonymous
+                - answeredUsers
+                - isSubmit
+            type: object
+            properties:
+                voteId:
+                    type: integer
+                    format: int32
+                title:
+                    type: string
+                answerMode:
+                    type: integer
+                    format: int32
+                answerOptions:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/GroupVoteDetailResponse_AnswerOption'
+                answerNum:
+                    type: integer
+                    format: int32
+                answeredNum:
+                    type: integer
+                    format: int32
+                isAnonymous:
+                    type: integer
+                    format: int32
+                answeredUsers:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/GroupVoteDetailResponse_AnsweredUser'
+                isSubmit:
+                    type: boolean
+            description: 获取群组投票详情接口响应参数
+        GroupVoteDetailResponse_AnswerOption:
+            required:
+                - key
+                - value
+            type: object
+            properties:
+                key:
+                    type: string
+                value:
+                    type: string
+        GroupVoteDetailResponse_AnsweredUser:
+            required:
+                - userId
+                - nickname
+                - options
+                - answerTime
+            type: object
+            properties:
+                userId:
+                    type: integer
+                    format: int32
+                nickname:
+                    type: string
+                options:
+                    type: array
+                    items:
+                        type: string
+                answerTime:
+                    type: string
+        GroupVoteSubmitRequest:
+            type: object
+            properties:
+                voteId:
+                    type: integer
+                    format: int32
+                options:
+                    type: array
+                    items:
+                        type: string
+            description: 提交群组投票接口请求参数
+        GroupVoteSubmitResponse:
+            type: object
+            properties: {}
+            description: 提交群组投票接口响应参数
+        MessageDeleteRequest:
+            required:
+                - talkMode
+                - toFromId
+                - msgIds
+            type: object
+            properties:
+                talkMode:
+                    type: integer
+                    format: int32
+                toFromId:
+                    type: integer
+                    format: int32
+                msgIds:
+                    type: array
+                    items:
+                        type: string
+        MessageDeleteResponse:
+            type: object
+            properties: {}
+        MessageForwardRecordsRequest:
+            type: object
+            properties:
+                talkMode:
+                    type: integer
+                    format: int32
+                msgIds:
+                    type: array
+                    items:
+                        type: string
+        MessageHistoryRecordsRequest:
+            required:
+                - talkMode
+                - toFromId
+                - cursor
+                - limit
+                - msgType
+            type: object
+            properties:
+                talkMode:
+                    type: integer
+                    format: int32
+                toFromId:
+                    type: integer
+                    format: int32
+                cursor:
+                    type: integer
+                    format: int32
+                limit:
+                    type: integer
+                    format: int32
+                msgType:
+                    type: integer
+                    format: int32
+        MessageHistoryRecordsResponse:
+            required:
+                - items
+                - cursor
+            type: object
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/MessageRecord'
+                cursor:
+                    type: integer
+                    format: int32
+        MessageRecord:
+            required:
+                - msgId
+                - sequence
+                - msgType
+                - fromId
+                - nickname
+                - avatar
+                - isRevoked
+                - sendTime
+                - extra
+                - quote
+            type: object
+            properties:
+                msgId:
+                    type: string
+                sequence:
+                    type: integer
+                    format: int32
+                msgType:
+                    type: integer
+                    format: int32
+                fromId:
+                    type: integer
+                    format: int32
+                nickname:
+                    type: string
+                avatar:
+                    type: string
+                isRevoked:
+                    type: integer
+                    format: int32
+                sendTime:
+                    type: string
+                extra:
+                    type: string
+                quote:
+                    type: string
+        MessageRecordsClearResponse:
+            required:
+                - items
+            type: object
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/MessageRecord'
+        MessageRecordsRequest:
+            required:
+                - talkMode
+                - toFromId
+                - cursor
+                - limit
+            type: object
+            properties:
+                talkMode:
+                    type: integer
+                    format: int32
+                toFromId:
+                    type: integer
+                    format: int32
+                cursor:
+                    type: integer
+                    format: int32
+                limit:
+                    type: integer
+                    format: int32
+        MessageRecordsResponse:
+            required:
+                - items
+                - cursor
+            type: object
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/MessageRecord'
+                cursor:
+                    type: integer
+                    format: int32
+        MessageRevokeRequest:
+            required:
+                - talkMode
+                - toFromId
+                - msgId
+            type: object
+            properties:
+                talkMode:
+                    type: integer
+                    format: int32
+                toFromId:
+                    type: integer
+                    format: int32
+                msgId:
+                    type: string
+        MessageRevokeResponse:
+            type: object
+            properties: {}
+        OrganizeDepartmentListRequest:
+            type: object
+            properties: {}
+            description: 组织部门列表接口请求参数
+        OrganizeDepartmentListResponse:
+            required:
+                - items
+            type: object
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/OrganizeDepartmentListResponse_Item'
+            description: 组织部门列表接口响应参数
+        OrganizeDepartmentListResponse_Item:
+            required:
+                - deptId
+                - parentId
+                - deptName
+                - ancestors
+                - count
+            type: object
+            properties:
+                deptId:
+                    type: integer
+                    format: int32
+                parentId:
+                    type: integer
+                    format: int32
+                deptName:
+                    type: string
+                ancestors:
+                    type: string
+                count:
+                    type: integer
+                    format: int32
+        OrganizePersonnelListRequest:
+            type: object
+            properties: {}
+            description: 组织人员列表接口请求参数
+        OrganizePersonnelListResponse:
+            required:
+                - items
+            type: object
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/OrganizePersonnelListResponse_Item'
+            description: 组织人员列表接口响应参数
+        OrganizePersonnelListResponse_Dept:
+            required:
+                - deptId
+                - deptName
+                - ancestors
+            type: object
+            properties:
+                deptId:
+                    type: integer
+                    format: int32
+                deptName:
+                    type: string
+                ancestors:
+                    type: string
+        OrganizePersonnelListResponse_Item:
+            required:
+                - userId
+                - nickname
+                - gender
+                - positionItems
+                - deptItem
+                - avatar
+            type: object
+            properties:
+                userId:
+                    type: integer
+                    format: int32
+                nickname:
+                    type: string
+                gender:
+                    type: integer
+                    format: int32
+                positionItems:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/OrganizePersonnelListResponse_Position'
+                deptItem:
+                    $ref: '#/components/schemas/OrganizePersonnelListResponse_Dept'
+                avatar:
+                    type: string
+        OrganizePersonnelListResponse_Position:
+            required:
+                - code
+                - name
+                - sort
+            type: object
+            properties:
+                code:
+                    type: string
+                name:
+                    type: string
+                sort:
+                    type: integer
+                    format: int32
+        Paginate:
+            type: object
+            properties:
+                page:
+                    type: integer
+                    format: int32
+                size:
+                    type: integer
+                    format: int32
+                total:
+                    type: integer
+                    format: int32
+        Status:
+            type: object
+            properties:
+                code:
+                    type: integer
+                    description: The status code, which should be an enum value of [google.rpc.Code][google.rpc.Code].
+                    format: int32
+                message:
+                    type: string
+                    description: A developer-facing error message, which should be in English. Any user-facing error message should be localized and sent in the [google.rpc.Status.details][google.rpc.Status.details] field, or localized by the client.
+                details:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/GoogleProtobufAny'
+                    description: A list of messages that carry the error details.  There is a common set of message types for APIs to use.
+            description: 'The `Status` type defines a logical error model that is suitable for different programming environments, including REST APIs and RPC APIs. It is used by [gRPC](https://github.com/grpc). Each `Status` message contains three pieces of data: error code, error message, and error details. You can find out more about this error model and how to work with it in the [API Design Guide](https://cloud.google.com/apis/design/errors).'
+        TalkSessionClearUnreadNumRequest:
+            type: object
+            properties:
+                talkMode:
+                    type: integer
+                    format: int32
+                toFromId:
+                    type: integer
+                    format: int32
+            description: 会话未读数清除接口请求参数
+        TalkSessionClearUnreadNumResponse:
+            type: object
+            properties: {}
+            description: 会话未读数清除接口响应参数
+        TalkSessionCreateRequest:
+            type: object
+            properties:
+                talkMode:
+                    type: integer
+                    description: 1:私聊 2:群聊
+                    format: int32
+                toFromId:
+                    type: integer
+                    description: 对方ID
+                    format: int32
+            description: 会话创建接口请求参数
+        TalkSessionCreateResponse:
+            required:
+                - id
+                - talkMode
+                - toFromId
+                - isTop
+                - isDisturb
+                - isOnline
+                - isRobot
+                - name
+                - avatar
+                - remark
+                - unreadNum
+                - msgText
+                - updatedAt
+            type: object
+            properties:
+                id:
+                    type: integer
+                    format: int32
+                talkMode:
+                    type: integer
+                    format: int32
+                toFromId:
+                    type: integer
+                    format: int32
+                isTop:
+                    type: integer
+                    format: int32
+                isDisturb:
+                    type: integer
+                    format: int32
+                isOnline:
+                    type: integer
+                    format: int32
+                isRobot:
+                    type: integer
+                    format: int32
+                name:
+                    type: string
+                avatar:
+                    type: string
+                remark:
+                    type: string
+                unreadNum:
+                    type: integer
+                    format: int32
+                msgText:
+                    type: string
+                updatedAt:
+                    type: string
+            description: 会话创建接口响应参数
+        TalkSessionDeleteRequest:
+            type: object
+            properties:
+                talkMode:
+                    type: integer
+                    format: int32
+                toFromId:
+                    type: integer
+                    format: int32
+            description: 会话删除接口请求参数
+        TalkSessionDeleteResponse:
+            type: object
+            properties: {}
+            description: 会话删除接口响应参数
+        TalkSessionDisturbRequest:
+            type: object
+            properties:
+                talkMode:
+                    type: integer
+                    format: int32
+                toFromId:
+                    type: integer
+                    format: int32
+                action:
+                    type: integer
+                    format: int32
+            description: 会话免打扰接口请求参数
+        TalkSessionDisturbResponse:
+            type: object
+            properties: {}
+            description: 会话免打扰接口响应参数
+        TalkSessionItem:
+            required:
+                - id
+                - talkMode
+                - toFromId
+                - isTop
+                - isDisturb
+                - isRobot
+                - name
+                - avatar
+                - remark
+                - unreadNum
+                - msgText
+                - updatedAt
+            type: object
+            properties:
+                id:
+                    type: integer
+                    format: int32
+                talkMode:
+                    type: integer
+                    format: int32
+                toFromId:
+                    type: integer
+                    format: int32
+                isTop:
+                    type: integer
+                    format: int32
+                isDisturb:
+                    type: integer
+                    format: int32
+                isRobot:
+                    type: integer
+                    format: int32
+                name:
+                    type: string
+                avatar:
+                    type: string
+                remark:
+                    type: string
+                unreadNum:
+                    type: integer
+                    format: int32
+                msgText:
+                    type: string
+                updatedAt:
+                    type: string
+            description: 会话列表项
+        TalkSessionListRequest:
+            type: object
+            properties: {}
+            description: 会话列表接口请求参数
+        TalkSessionListResponse:
+            type: object
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/TalkSessionItem'
+            description: 会话列表接口响应参数
+        TalkSessionTopRequest:
+            type: object
+            properties:
+                talkMode:
+                    type: integer
+                    format: int32
+                toFromId:
+                    type: integer
+                    format: int32
+                action:
+                    type: integer
+                    format: int32
+            description: 会话置顶接口请求参数
+        TalkSessionTopResponse:
+            type: object
+            properties: {}
+            description: 会话置顶接口响应参数
+        UserDetailRequest:
+            type: object
+            properties: {}
+            description: 登录用户详情接口请求参数
+        UserDetailResponse:
+            required:
+                - id
+                - mobile
+                - nickname
+                - avatar
+                - gender
+                - motto
+                - email
+                - birthday
+            type: object
+            properties:
+                id:
+                    type: integer
+                    format: int32
+                mobile:
+                    type: string
+                nickname:
+                    type: string
+                avatar:
+                    type: string
+                gender:
+                    type: integer
+                    format: int32
+                motto:
+                    type: string
+                email:
+                    type: string
+                birthday:
+                    type: string
+            description: 登录用户详情接口响应参数
+        UserDetailUpdateRequest:
+            type: object
+            properties:
+                avatar:
+                    type: string
+                nickname:
+                    type: string
+                gender:
+                    type: integer
+                    format: int32
+                motto:
+                    type: string
+                birthday:
+                    type: string
+            description: 用户信息更新接口请求参数
+        UserDetailUpdateResponse:
+            type: object
+            properties: {}
+            description: 用户信息更新接口响应参数
+        UserEmailUpdateRequest:
+            type: object
+            properties:
+                email:
+                    type: string
+                password:
+                    type: string
+                code:
+                    type: string
+            description: 用户邮箱更新接口请求参数
+        UserEmailUpdateResponse:
+            type: object
+            properties: {}
+            description: 用户邮箱更新接口响应参数
+        UserMobileUpdateRequest:
+            type: object
+            properties:
+                mobile:
+                    type: string
+                password:
+                    type: string
+                smsCode:
+                    type: string
+            description: 用户手机号更新接口请求参数
+        UserMobileUpdateResponse:
+            type: object
+            properties: {}
+            description: 用户手机号更新接口响应参数
+        UserPasswordUpdateRequest:
+            type: object
+            properties:
+                oldPassword:
+                    type: string
+                newPassword:
+                    type: string
+            description: 用户密码更新接口请求参数
+        UserPasswordUpdateResponse:
+            type: object
+            properties: {}
+            description: 用户密码更新接口响应参数
+        UserSettingRequest:
+            type: object
+            properties: {}
+            description: 用户配置信息请求参数
+        UserSettingResponse:
+            required:
+                - userInfo
+                - setting
+            type: object
+            properties:
+                userInfo:
+                    $ref: '#/components/schemas/UserSettingResponse_UserInfo'
+                setting:
+                    $ref: '#/components/schemas/UserSettingResponse_ConfigInfo'
+            description: 用户配置信息响应参数
+        UserSettingResponse_ConfigInfo:
+            required:
+                - themeMode
+                - themeBagImg
+                - themeColor
+                - notifyCueTone
+                - keyboardEventNotify
+            type: object
+            properties:
+                themeMode:
+                    type: string
+                themeBagImg:
+                    type: string
+                themeColor:
+                    type: string
+                notifyCueTone:
+                    type: string
+                keyboardEventNotify:
+                    type: string
+        UserSettingResponse_UserInfo:
+            required:
+                - uid
+                - nickname
+                - avatar
+                - motto
+                - gender
+                - isQiye
+                - mobile
+                - email
+            type: object
+            properties:
+                uid:
+                    type: integer
+                    format: int32
+                nickname:
+                    type: string
+                avatar:
+                    type: string
+                motto:
+                    type: string
+                gender:
+                    type: integer
+                    format: int32
+                isQiye:
+                    type: boolean
+                mobile:
+                    type: string
+                email:
+                    type: string
+tags:
+    - name: Article
+      description: 文章服务
+    - name: ArticleAnnex
+      description: 文章附件服务
+    - name: ArticleClass
+      description: 文章分类服务
+    - name: Auth
+      description: Wen 授权服务
+    - name: Common
+      description: 通用服务
+    - name: Contact
+      description: 联系人服务
+    - name: ContactApply
+      description: 联系人申请服务
+    - name: ContactGroup
+      description: 联系人分组服务
+    - name: Emoticon
+      description: 表情包服务
+    - name: Group
+      description: 群组服务
+    - name: GroupApply
+      description: 群组申请服务
+    - name: GroupNotice
+      description: 群组公告服务
+    - name: GroupVote
+      description: 群组投票服务
+    - name: Message
+      description: 消息服务
+    - name: Organize
+      description: 组织架构服务
+    - name: Talk
+      description: 会话服务
+    - name: User
+      description: 用户服务
