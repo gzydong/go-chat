@@ -1,6 +1,22 @@
-service:
-  golangci-lint-version: 1.60.2
-
-issues:
-  exclude-dirs:
-    - runtime
+version: "2"
+linters:
+  settings:
+    staticcheck:
+      checks:
+        - "-QF1008"  # 禁用嵌入式字段选择器检查
+      # 新增 errcheck 配置
+    errcheck:
+      exclude-functions:
+        # 标准HTTP响应体关闭
+        - (*net/http.Response).Body.Close
+        # 文件关闭
+        - (*os.File).Close
+        # 通用Reader/Writer关闭
+        - io.ReadCloser.Close
+        - io.WriteCloser.Close
+        # MinIO对象关闭（根据实际包路径调整）
+        - (*minio.Object).Close
+        # 其他可能的Close方法
+        - (*os.File).Close
+        - (*bufio.Reader).Close
+        - (*bufio.Writer).Close

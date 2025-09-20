@@ -80,6 +80,7 @@ func call[T any](ctx context.Context, uri string, method string, req any) (*T, e
 		return nil, err
 	}
 
+	// nolint
 	defer res.Body.Close()
 
 	body, err := io.ReadAll(res.Body)

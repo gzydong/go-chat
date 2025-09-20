@@ -84,7 +84,7 @@ func (t *TalkService) DeleteRecord(ctx context.Context, opt *TalkDeleteRecordOpt
 
 // Revoke 撤回消息
 func (t *TalkService) Revoke(ctx context.Context, opt *TalkRevokeOption) (err error) {
-	db := t.Db().WithContext(ctx)
+	db := t.Source.Db().WithContext(ctx)
 
 	var (
 		fromId   int

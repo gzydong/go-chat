@@ -88,8 +88,9 @@ func (u *User) DetailUpdate(ctx context.Context, req *web.UserDetailUpdateReques
 	}
 
 	uid := session.UserId
+
 	_, err := u.UsersRepo.UpdateById(ctx, uid, map[string]any{
-		"nickname": strings.TrimSpace(strings.Replace(req.Nickname, " ", "", -1)),
+		"nickname": strings.TrimSpace(strings.ReplaceAll(req.Nickname, " ", "")),
 		"avatar":   req.Avatar,
 		"gender":   req.Gender,
 		"motto":    req.Motto,

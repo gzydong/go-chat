@@ -129,7 +129,7 @@ func (s *ArticleClassService) Sort(ctx context.Context, uid int32, ids []int32) 
 		}
 	}
 
-	return s.Db().Transaction(func(tx *gorm.DB) error {
+	return s.Source.Db().Transaction(func(tx *gorm.DB) error {
 		for k, v := range sortItems {
 			err = tx.Table("article_class").Where("id = ?", k).Update("sort", v).Error
 

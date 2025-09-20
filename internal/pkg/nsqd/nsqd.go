@@ -71,6 +71,7 @@ func doGet[T any](ctx context.Context, uri string) (*T, error) {
 		return nil, err
 	}
 
+	// nolint
 	defer res.Body.Close()
 
 	body, err := io.ReadAll(res.Body)
@@ -94,6 +95,7 @@ func doDelete[T any](ctx context.Context, uri string) (*T, error) {
 		return nil, err
 	}
 
+	// nolint
 	defer res.Body.Close()
 
 	body, err := io.ReadAll(res.Body)

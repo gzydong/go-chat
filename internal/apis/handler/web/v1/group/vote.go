@@ -38,10 +38,7 @@ func (v *Vote) Create(ctx context.Context, in *web.GroupVoteCreateRequest) (*web
 		return nil, errorx.NewInvalidParams("options 选项不能超过6个")
 	}
 
-	isAnonymous := false
-	if in.IsAnonymous == 1 {
-		isAnonymous = true
-	}
+	isAnonymous := in.IsAnonymous == 1
 
 	voteId, err := v.GroupVoteService.Create(ctx, &service.GroupVoteCreateOpt{
 		UserId:        uid,

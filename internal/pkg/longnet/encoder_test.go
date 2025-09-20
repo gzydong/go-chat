@@ -2,7 +2,6 @@ package longnet
 
 import (
 	"bytes"
-	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -11,8 +10,7 @@ import (
 func TestEncoder_Encode(t *testing.T) {
 	encoder := NewEncoder(EncoderOptions{}, &SnappyCompress{}, nil)
 	message := NewCustomizePacket(1001, []byte("hello world"))
-	body, err := encoder.Pack(message)
-	fmt.Println(body)
+	_, err := encoder.Pack(message)
 	assert.NoError(t, err)
 }
 

@@ -19,12 +19,12 @@ func (s *Service) CreateGroupMessage(ctx context.Context, option CreateGroupMess
 
 	if option.QuoteId != "" {
 		quoteRecord := &model.TalkGroupMessage{}
-		if err := s.Db().First(quoteRecord, "msg_id = ?", option.QuoteId).Error; err != nil {
+		if err := s.Source.Db().First(quoteRecord, "msg_id = ?", option.QuoteId).Error; err != nil {
 			return err
 		}
 
 		user := &model.Users{}
-		if err := s.Db().First(user, "id = ?", quoteRecord.FromId).Error; err != nil {
+		if err := s.Source.Db().First(user, "id = ?", quoteRecord.FromId).Error; err != nil {
 			return err
 		}
 
@@ -50,7 +50,7 @@ func (s *Service) CreateGroupMessage(ctx context.Context, option CreateGroupMess
 		SendTime:  time.Now(),
 	}
 
-	if err := s.Db().WithContext(ctx).Create(item).Error; err != nil {
+	if err := s.Source.Db().WithContext(ctx).Create(item).Error; err != nil {
 		return err
 	}
 

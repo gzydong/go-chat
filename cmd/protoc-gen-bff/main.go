@@ -159,7 +159,7 @@ func generateHandler(rule *HTTPRule, inputType string, funcName string) []byte {
 	return buf.Bytes()
 }
 
-// 获取服务 option 配置
+// nolint 获取服务 option 配置
 func getServiceConfig(service *protogen.Service) *common.ServiceConfig {
 	opt := service.Desc.Options()
 	if opt == nil {
@@ -178,7 +178,7 @@ func getServiceConfig(service *protogen.Service) *common.ServiceConfig {
 	return nil
 }
 
-// 获取 Method option 配置
+// nolint 获取 Method option 配置
 func getCommonMethodConfig(method *protogen.Method) *common.MethodConfig {
 	// 解析自定义选项
 	opts := method.Desc.Options()

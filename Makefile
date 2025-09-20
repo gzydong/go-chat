@@ -17,7 +17,7 @@ generate:
 	go generate ./...
 
 lint:
-	golangci-lint run --timeout=5m --config ./.golangci.yml
+	golangci-lint run --config ./.golangci.yml
 
 test:
 	go test -v ./...

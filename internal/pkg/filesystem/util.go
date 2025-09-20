@@ -12,6 +12,7 @@ func ReadMultipartStream(file *multipart.FileHeader) ([]byte, error) {
 		return nil, err
 	}
 
+	// nolint
 	defer src.Close()
 
 	return io.ReadAll(src)

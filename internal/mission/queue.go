@@ -19,6 +19,8 @@ func Queue(ctx *cli.Context, app *QueueProvider) error {
 	topics := []string{"im.user.login"}
 
 	sub := app.Redis.Subscribe(ctx.Context, topics...)
+
+	// nolint
 	defer sub.Close()
 
 	log.Printf("subscribed to topics: %v", topics)

@@ -24,12 +24,12 @@ func (s *Service) CreatePrivateMessage(ctx context.Context, option CreatePrivate
 
 	if option.QuoteId != "" {
 		quoteRecord := &model.TalkUserMessage{}
-		if err := s.Db().First(quoteRecord, "msg_id = ?", option.QuoteId).Error; err != nil {
+		if err := s.Source.Db().First(quoteRecord, "msg_id = ?", option.QuoteId).Error; err != nil {
 			return err
 		}
 
 		user := &model.Users{}
-		if err := s.Db().First(user, "id = ?", quoteRecord.FromId).Error; err != nil {
+		if err := s.Source.Db().First(user, "id = ?", quoteRecord.FromId).Error; err != nil {
 			return err
 		}
 

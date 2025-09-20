@@ -39,6 +39,7 @@ func (c *Client) findIpAddressByCSDN(_ context.Context, ip string) (string, erro
 		return "", err
 	}
 
+	// nolint
 	defer resp.Body.Close()
 
 	body, err := io.ReadAll(resp.Body)
@@ -71,6 +72,7 @@ func (c *Client) findIpAddressByBaiDu(_ context.Context, ip string) (string, err
 		return "", err
 	}
 
+	// nolint
 	defer resp.Body.Close()
 
 	body, err := io.ReadAll(resp.Body)

@@ -13,7 +13,7 @@ func NewNsqProducer(conf *config.Config) *nsq.Producer {
 	nsqConfig := nsq.NewConfig()
 	producer, err := nsq.NewProducer(conf.Nsq.Addr, nsqConfig)
 	if err != nil {
-		panic(fmt.Errorf("create producer failed, err:%v\n", err))
+		panic(fmt.Sprintf("create producer failed, err:%s\n", err.Error()))
 	}
 
 	return producer

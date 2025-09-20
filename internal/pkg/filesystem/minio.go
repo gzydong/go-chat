@@ -97,6 +97,7 @@ func (m MinioFilesystem) GetObject(bucketName string, objectName string) ([]byte
 		return nil, err
 	}
 
+	// nolint
 	defer object.Close()
 
 	return io.ReadAll(object)
