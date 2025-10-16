@@ -18,7 +18,7 @@ type Config struct {
 	Filesystem *Filesystem `json:"filesystem" yaml:"filesystem"`
 	Email      *Email      `json:"email" yaml:"email"`
 	Server     *Server     `json:"server" yaml:"server"`
-	Nsq        *Nsq        `json:"nsq" yaml:"nsq"` // 目前没用到
+	Nsq        *Nsq        `json:"nsq" yaml:"nsq"`
 	OAuth      *OAuth      `json:"oauth" yaml:"oauth"`
 }
 
@@ -29,14 +29,13 @@ type Server struct {
 }
 
 func New(filename string) *Config {
-
 	content, err := os.ReadFile(filename)
 	if err != nil {
-		panic(err)
+		panic(fmt.Sprintf("读取配置文件失败: %v", err))
 	}
 
 	var conf Config
-	if yaml.Unmarshal(content, &conf) != nil {
+	if err := yaml.Unmarshal(content, &conf); err != nil {
 		panic(fmt.Sprintf("解析 config.yaml 读取错误: %v", err))
 	}
 
@@ -45,5 +44,5 @@ func New(filename string) *Config {
 
 // Debug 调试模式
 func (c *Config) Debug() bool {
-	return c.App.Debug
+	return c.App != nil && c.App.Debug
 }
