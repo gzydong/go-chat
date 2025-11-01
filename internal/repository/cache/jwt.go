@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/gzydong/go-chat/internal/pkg/encrypt"
 	"github.com/redis/go-redis/v9"
-	"go-chat/internal/pkg/encrypt"
 )
 
 type JwtTokenStorage struct {

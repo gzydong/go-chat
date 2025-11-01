@@ -10,8 +10,8 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/gzydong/go-chat/internal/pkg/longnet/adapter/encoding"
 	"github.com/pkg/errors"
-	"go-chat/internal/pkg/longnet/adapter/encoding"
 )
 
 var ErrClientClosed = errors.New("client closed")

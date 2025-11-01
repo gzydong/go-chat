@@ -8,13 +8,13 @@ import (
 	"os/signal"
 	"syscall"
 
-	"go-chat/internal/mission/cron"
-	"go-chat/internal/pkg/logger"
+	"github.com/gzydong/go-chat/internal/mission/cron"
+	"github.com/gzydong/go-chat/internal/pkg/logger"
 
+	"github.com/gzydong/go-chat/config"
+	"github.com/gzydong/go-chat/internal/pkg/core/crontab"
 	ctb "github.com/robfig/cron/v3"
 	"github.com/urfave/cli/v2"
-	"go-chat/config"
-	"go-chat/internal/pkg/core/crontab"
 )
 
 type CronProvider struct {

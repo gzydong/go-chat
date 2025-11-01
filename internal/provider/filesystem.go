@@ -1,8 +1,8 @@
 package provider
 
 import (
-	"go-chat/config"
-	"go-chat/internal/pkg/filesystem"
+	"github.com/gzydong/go-chat/config"
+	"github.com/gzydong/go-chat/internal/pkg/filesystem"
 )
 
 func NewFilesystem(conf *config.Config) filesystem.IFilesystem {

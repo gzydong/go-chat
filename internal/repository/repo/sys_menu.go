@@ -4,9 +4,9 @@ import (
 	"sort"
 	"time"
 
+	"github.com/gzydong/go-chat/internal/pkg/core"
+	"github.com/gzydong/go-chat/internal/repository/model"
 	"github.com/samber/lo"
-	"go-chat/internal/pkg/core"
-	"go-chat/internal/repository/model"
 	"gorm.io/gorm"
 )
 

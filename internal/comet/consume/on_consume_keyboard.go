@@ -5,8 +5,8 @@ import (
 	"encoding/json"
 	"log/slog"
 
-	"go-chat/internal/entity"
-	"go-chat/internal/pkg/logger"
+	"github.com/gzydong/go-chat/internal/entity"
+	"github.com/gzydong/go-chat/internal/pkg/logger"
 )
 
 // 键盘输入事件消息

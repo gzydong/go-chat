@@ -8,15 +8,15 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/gzydong/go-chat/config"
+	"github.com/gzydong/go-chat/internal/entity"
+	"github.com/gzydong/go-chat/internal/pkg/thirdsdk/gitee"
+	"github.com/gzydong/go-chat/internal/pkg/thirdsdk/github"
+	"github.com/gzydong/go-chat/internal/pkg/utils"
+	"github.com/gzydong/go-chat/internal/repository/model"
+	"github.com/gzydong/go-chat/internal/repository/repo"
 	"github.com/redis/go-redis/v9"
 	"github.com/samber/lo"
-	"go-chat/config"
-	"go-chat/internal/entity"
-	"go-chat/internal/pkg/thirdsdk/gitee"
-	"go-chat/internal/pkg/thirdsdk/github"
-	"go-chat/internal/pkg/utils"
-	"go-chat/internal/repository/model"
-	"go-chat/internal/repository/repo"
 
 	"golang.org/x/oauth2"
 )

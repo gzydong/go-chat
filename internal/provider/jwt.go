@@ -1,9 +1,9 @@
 package provider
 
 import (
-	"go-chat/config"
-	"go-chat/internal/entity"
-	"go-chat/internal/pkg/jwtutil"
+	"github.com/gzydong/go-chat/config"
+	"github.com/gzydong/go-chat/internal/entity"
+	"github.com/gzydong/go-chat/internal/pkg/jwtutil"
 )
 
 type UserJwtAuthorize jwtutil.IJwtAuthorize[entity.WebClaims]

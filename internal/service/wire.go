@@ -2,7 +2,7 @@ package service
 
 import (
 	"github.com/google/wire"
-	"go-chat/internal/service/message"
+	"github.com/gzydong/go-chat/internal/service/message"
 )
 
 var ProviderSet = wire.NewSet(

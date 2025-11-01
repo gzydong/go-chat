@@ -13,7 +13,7 @@ import (
 	"net"
 	"time"
 
-	"go-chat/internal/pkg/longnet/adapter"
+	"github.com/gzydong/go-chat/internal/pkg/longnet/adapter"
 )
 
 type TcpServer struct {

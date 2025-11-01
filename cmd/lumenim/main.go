@@ -1,14 +1,14 @@
 package main
 
 import (
+	"github.com/gzydong/go-chat/config"
+	"github.com/gzydong/go-chat/internal/apis"
+	"github.com/gzydong/go-chat/internal/mission"
+	"github.com/gzydong/go-chat/internal/pkg/core"
+	"github.com/gzydong/go-chat/internal/pkg/logger"
+	"github.com/gzydong/go-chat/internal/pkg/longnet"
+	_ "github.com/gzydong/go-chat/internal/pkg/server"
 	"github.com/urfave/cli/v2"
-	"go-chat/config"
-	"go-chat/internal/apis"
-	"go-chat/internal/mission"
-	"go-chat/internal/pkg/core"
-	"go-chat/internal/pkg/logger"
-	"go-chat/internal/pkg/longnet"
-	_ "go-chat/internal/pkg/server"
 )
 
 // Version 服务版本号（默认）

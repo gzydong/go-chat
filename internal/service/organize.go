@@ -1,7 +1,7 @@
 package service
 
 import (
-	"go-chat/internal/repository/repo"
+	"github.com/gzydong/go-chat/internal/repository/repo"
 )
 
 type OrganizeService struct {

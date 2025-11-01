@@ -6,11 +6,11 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	admin2 "go-chat/api/pb/admin/v1"
-	"go-chat/internal/apis/handler/admin"
-	"go-chat/internal/entity"
-	"go-chat/internal/pkg/core/middleware"
-	"go-chat/internal/pkg/jwtutil"
+	admin2 "github.com/gzydong/go-chat/api/pb/admin/v1"
+	"github.com/gzydong/go-chat/internal/apis/handler/admin"
+	"github.com/gzydong/go-chat/internal/entity"
+	"github.com/gzydong/go-chat/internal/pkg/core/middleware"
+	"github.com/gzydong/go-chat/internal/pkg/jwtutil"
 )
 
 // RegisterAdminRoute 注册 Admin 路由

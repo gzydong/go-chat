@@ -7,7 +7,7 @@ import "google/protobuf/descriptor.proto";
 package common;
 
 // 生成Go代码的包路径（根据实际项目调整）
-option go_package = "go-chat/api/pb/common;common";
+option go_package = "github.com/gzydong/go-chat/api/pb/common;common";
 
 // 1. 定义服务级别的自定义选项（可选）
 message ServiceConfig {

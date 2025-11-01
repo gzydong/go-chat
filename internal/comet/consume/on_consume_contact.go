@@ -6,10 +6,10 @@ import (
 	"log/slog"
 	"time"
 
-	"go-chat/internal/entity"
-	"go-chat/internal/pkg/logger"
-	"go-chat/internal/pkg/sliceutil"
-	"go-chat/internal/repository/model"
+	"github.com/gzydong/go-chat/internal/entity"
+	"github.com/gzydong/go-chat/internal/pkg/logger"
+	"github.com/gzydong/go-chat/internal/pkg/sliceutil"
+	"github.com/gzydong/go-chat/internal/repository/model"
 )
 
 // 用户上线或下线消息

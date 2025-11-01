@@ -3,10 +3,10 @@ package service
 import (
 	"context"
 
-	"go-chat/internal/pkg/filesystem"
-	"go-chat/internal/pkg/timeutil"
-	"go-chat/internal/repository/model"
-	"go-chat/internal/repository/repo"
+	"github.com/gzydong/go-chat/internal/pkg/filesystem"
+	"github.com/gzydong/go-chat/internal/pkg/timeutil"
+	"github.com/gzydong/go-chat/internal/repository/model"
+	"github.com/gzydong/go-chat/internal/repository/repo"
 )
 
 type IArticleAnnexService interface {

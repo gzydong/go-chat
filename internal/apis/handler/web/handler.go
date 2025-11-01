@@ -1,12 +1,12 @@
 package web
 
 import (
-	v1 "go-chat/internal/apis/handler/web/v1"
-	"go-chat/internal/apis/handler/web/v1/article"
-	"go-chat/internal/apis/handler/web/v1/contact"
-	"go-chat/internal/apis/handler/web/v1/group"
-	"go-chat/internal/apis/handler/web/v1/talk"
-	"go-chat/internal/repository/repo"
+	v1 "github.com/gzydong/go-chat/internal/apis/handler/web/v1"
+	"github.com/gzydong/go-chat/internal/apis/handler/web/v1/article"
+	"github.com/gzydong/go-chat/internal/apis/handler/web/v1/contact"
+	"github.com/gzydong/go-chat/internal/apis/handler/web/v1/group"
+	"github.com/gzydong/go-chat/internal/apis/handler/web/v1/talk"
+	"github.com/gzydong/go-chat/internal/repository/repo"
 )
 
 type V1 struct {

@@ -4,17 +4,17 @@ import (
 	"context"
 	"strings"
 
+	"github.com/gzydong/go-chat/api/pb/web/v1"
+	"github.com/gzydong/go-chat/internal/entity"
+	"github.com/gzydong/go-chat/internal/pkg/core/errorx"
+	"github.com/gzydong/go-chat/internal/pkg/core/middleware"
+	"github.com/gzydong/go-chat/internal/pkg/encrypt"
+	"github.com/gzydong/go-chat/internal/pkg/encrypt/rsautil"
+	"github.com/gzydong/go-chat/internal/pkg/timeutil"
+	"github.com/gzydong/go-chat/internal/repository/repo"
+	"github.com/gzydong/go-chat/internal/service"
 	"github.com/redis/go-redis/v9"
 	"github.com/samber/lo"
-	"go-chat/api/pb/web/v1"
-	"go-chat/internal/entity"
-	"go-chat/internal/pkg/core/errorx"
-	"go-chat/internal/pkg/core/middleware"
-	"go-chat/internal/pkg/encrypt"
-	"go-chat/internal/pkg/encrypt/rsautil"
-	"go-chat/internal/pkg/timeutil"
-	"go-chat/internal/repository/repo"
-	"go-chat/internal/service"
 )
 
 var _ web.IUserHandler = (*User)(nil)

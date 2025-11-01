@@ -7,7 +7,7 @@ import (
 	"net"
 	"time"
 
-	"go-chat/internal/pkg/longnet/adapter/encoding"
+	"github.com/gzydong/go-chat/internal/pkg/longnet/adapter/encoding"
 )
 
 //+-------------------+-------------------+-------------------+-------------------+-----------------------------------+

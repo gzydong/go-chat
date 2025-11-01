@@ -3,9 +3,9 @@ package repo
 import (
 	"context"
 
+	"github.com/gzydong/go-chat/internal/pkg/core"
+	"github.com/gzydong/go-chat/internal/repository/model"
 	"github.com/redis/go-redis/v9"
-	"go-chat/internal/pkg/core"
-	"go-chat/internal/repository/model"
 	"gorm.io/gorm"
 )
 

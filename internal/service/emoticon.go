@@ -6,10 +6,10 @@ import (
 	"strconv"
 	"strings"
 
-	"go-chat/internal/pkg/filesystem"
-	"go-chat/internal/pkg/sliceutil"
-	"go-chat/internal/repository/model"
-	"go-chat/internal/repository/repo"
+	"github.com/gzydong/go-chat/internal/pkg/filesystem"
+	"github.com/gzydong/go-chat/internal/pkg/sliceutil"
+	"github.com/gzydong/go-chat/internal/repository/model"
+	"github.com/gzydong/go-chat/internal/repository/repo"
 )
 
 var _ IEmoticonService = (*EmoticonService)(nil)

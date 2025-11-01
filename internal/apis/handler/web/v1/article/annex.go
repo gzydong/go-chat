@@ -10,15 +10,15 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"go-chat/api/pb/web/v1"
-	"go-chat/internal/entity"
-	"go-chat/internal/pkg/core/errorx"
-	"go-chat/internal/pkg/core/middleware"
-	"go-chat/internal/pkg/filesystem"
-	"go-chat/internal/pkg/strutil"
-	"go-chat/internal/repository/model"
-	"go-chat/internal/repository/repo"
-	"go-chat/internal/service"
+	"github.com/gzydong/go-chat/api/pb/web/v1"
+	"github.com/gzydong/go-chat/internal/entity"
+	"github.com/gzydong/go-chat/internal/pkg/core/errorx"
+	"github.com/gzydong/go-chat/internal/pkg/core/middleware"
+	"github.com/gzydong/go-chat/internal/pkg/filesystem"
+	"github.com/gzydong/go-chat/internal/pkg/strutil"
+	"github.com/gzydong/go-chat/internal/repository/model"
+	"github.com/gzydong/go-chat/internal/repository/repo"
+	"github.com/gzydong/go-chat/internal/service"
 )
 
 var _ web.IArticleAnnexHandler = (*Annex)(nil)

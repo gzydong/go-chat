@@ -4,11 +4,11 @@ import (
 	"context"
 	"errors"
 
-	"go-chat/internal/entity"
-	"go-chat/internal/pkg/sliceutil"
-	"go-chat/internal/repository/cache"
-	"go-chat/internal/repository/model"
-	"go-chat/internal/repository/repo"
+	"github.com/gzydong/go-chat/internal/entity"
+	"github.com/gzydong/go-chat/internal/pkg/sliceutil"
+	"github.com/gzydong/go-chat/internal/repository/cache"
+	"github.com/gzydong/go-chat/internal/repository/model"
+	"github.com/gzydong/go-chat/internal/repository/repo"
 	"gorm.io/gorm"
 )
 

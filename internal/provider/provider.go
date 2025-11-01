@@ -1,6 +1,6 @@
 package provider
 
-import "go-chat/internal/pkg/email"
+import "github.com/gzydong/go-chat/internal/pkg/email"
 
 type Providers struct {
 	EmailClient *email.Client

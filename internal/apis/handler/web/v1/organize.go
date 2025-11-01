@@ -6,12 +6,12 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/gzydong/go-chat/api/pb/web/v1"
+	"github.com/gzydong/go-chat/internal/entity"
+	"github.com/gzydong/go-chat/internal/pkg/core/middleware"
+	"github.com/gzydong/go-chat/internal/repository/model"
+	"github.com/gzydong/go-chat/internal/repository/repo"
 	"github.com/samber/lo"
-	"go-chat/api/pb/web/v1"
-	"go-chat/internal/entity"
-	"go-chat/internal/pkg/core/middleware"
-	"go-chat/internal/repository/model"
-	"go-chat/internal/repository/repo"
 )
 
 var _ web.IOrganizeHandler = (*Organize)(nil)

@@ -2,8 +2,8 @@ package admin
 
 import (
 	"github.com/google/wire"
-	"go-chat/internal/apis/handler/admin/system"
-	"go-chat/internal/apis/handler/admin/user"
+	"github.com/gzydong/go-chat/internal/apis/handler/admin/system"
+	"github.com/gzydong/go-chat/internal/apis/handler/admin/user"
 )
 
 var ProviderSet = wire.NewSet(

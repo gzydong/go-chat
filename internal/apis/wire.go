@@ -3,12 +3,12 @@ package apis
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/wire"
-	"go-chat/config"
-	"go-chat/internal/apis/handler"
-	"go-chat/internal/apis/handler/admin"
-	"go-chat/internal/apis/handler/open"
-	"go-chat/internal/apis/handler/web"
-	"go-chat/internal/apis/router"
+	"github.com/gzydong/go-chat/config"
+	"github.com/gzydong/go-chat/internal/apis/handler"
+	"github.com/gzydong/go-chat/internal/apis/handler/admin"
+	"github.com/gzydong/go-chat/internal/apis/handler/open"
+	"github.com/gzydong/go-chat/internal/apis/handler/web"
+	"github.com/gzydong/go-chat/internal/apis/router"
 )
 
 type Provider struct {

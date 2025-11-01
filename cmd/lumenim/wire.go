@@ -5,15 +5,15 @@ package main
 
 import (
 	"github.com/google/wire"
-	"go-chat/config"
-	"go-chat/internal/apis"
-	"go-chat/internal/comet"
-	"go-chat/internal/logic"
-	"go-chat/internal/mission"
-	"go-chat/internal/provider"
-	"go-chat/internal/repository/cache"
-	"go-chat/internal/repository/repo"
-	"go-chat/internal/service"
+	"github.com/gzydong/go-chat/config"
+	"github.com/gzydong/go-chat/internal/apis"
+	"github.com/gzydong/go-chat/internal/comet"
+	"github.com/gzydong/go-chat/internal/logic"
+	"github.com/gzydong/go-chat/internal/mission"
+	"github.com/gzydong/go-chat/internal/provider"
+	"github.com/gzydong/go-chat/internal/repository/cache"
+	"github.com/gzydong/go-chat/internal/repository/repo"
+	"github.com/gzydong/go-chat/internal/service"
 )
 
 var providerSet = wire.NewSet(

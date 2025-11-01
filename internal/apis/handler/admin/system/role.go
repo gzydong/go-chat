@@ -4,9 +4,9 @@ import (
 	"context"
 	"time"
 
-	"go-chat/api/pb/admin/v1"
-	"go-chat/internal/repository/model"
-	"go-chat/internal/repository/repo"
+	"github.com/gzydong/go-chat/api/pb/admin/v1"
+	"github.com/gzydong/go-chat/internal/repository/model"
+	"github.com/gzydong/go-chat/internal/repository/repo"
 
 	"github.com/samber/lo"
 	"gorm.io/gorm"

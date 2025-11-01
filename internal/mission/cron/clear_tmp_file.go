@@ -5,9 +5,9 @@ import (
 	"path"
 	"time"
 
-	"go-chat/internal/pkg/core/crontab"
-	"go-chat/internal/pkg/filesystem"
-	"go-chat/internal/repository/model"
+	"github.com/gzydong/go-chat/internal/pkg/core/crontab"
+	"github.com/gzydong/go-chat/internal/pkg/filesystem"
+	"github.com/gzydong/go-chat/internal/repository/model"
 	"gorm.io/gorm"
 )
 

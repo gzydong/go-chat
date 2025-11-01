@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"time"
 
-	"go-chat/internal/pkg/strutil"
-	"go-chat/internal/repository/cache"
+	"github.com/gzydong/go-chat/internal/pkg/strutil"
+	"github.com/gzydong/go-chat/internal/repository/cache"
 )
 
 var _ ISmsService = (*SmsService)(nil)

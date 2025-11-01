@@ -5,9 +5,9 @@ import (
 	"log"
 	"time"
 
+	"github.com/gzydong/go-chat/internal/mission/queue"
 	"github.com/redis/go-redis/v9"
 	"github.com/urfave/cli/v2"
-	"go-chat/internal/mission/queue"
 )
 
 type QueueProvider struct {

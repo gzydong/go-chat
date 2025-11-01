@@ -9,7 +9,7 @@ import (
 	"os/signal"
 	"syscall"
 
-	"go-chat/internal/pkg/server"
+	"github.com/gzydong/go-chat/internal/pkg/server"
 	"golang.org/x/sync/errgroup"
 )
 

@@ -8,7 +8,7 @@ import (
 	"os"
 	"strings"
 
-	"go-chat/api/pb/common"
+	"github.com/gzydong/go-chat/api/pb/common"
 	"google.golang.org/genproto/googleapis/api/annotations"
 	"google.golang.org/protobuf/compiler/protogen"
 	"google.golang.org/protobuf/types/descriptorpb"

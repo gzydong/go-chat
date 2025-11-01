@@ -3,9 +3,9 @@ package logic
 import (
 	"context"
 
+	"github.com/gzydong/go-chat/internal/entity"
+	"github.com/gzydong/go-chat/internal/pkg/jsonutil"
 	"github.com/redis/go-redis/v9"
-	"go-chat/internal/entity"
-	"go-chat/internal/pkg/jsonutil"
 )
 
 type PushMessage struct {

@@ -1,7 +1,7 @@
 package entity
 
 import (
-	"go-chat/internal/pkg/core/errorx"
+	"github.com/gzydong/go-chat/internal/pkg/core/errorx"
 )
 
 var (

@@ -5,12 +5,12 @@ import (
 	"encoding/json"
 	"log"
 
-	"go-chat/internal/pkg/longnet"
+	"github.com/gzydong/go-chat/internal/pkg/longnet"
 
-	"go-chat/config"
-	"go-chat/internal/entity"
-	"go-chat/internal/repository/repo"
-	"go-chat/internal/service"
+	"github.com/gzydong/go-chat/config"
+	"github.com/gzydong/go-chat/internal/entity"
+	"github.com/gzydong/go-chat/internal/repository/repo"
+	"github.com/gzydong/go-chat/internal/service"
 )
 
 var handlers map[string]func(ctx context.Context, data []byte)

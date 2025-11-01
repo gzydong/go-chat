@@ -5,12 +5,12 @@ import (
 	"errors"
 	"time"
 
+	"github.com/gzydong/go-chat/internal/entity"
+	"github.com/gzydong/go-chat/internal/pkg/encrypt"
+	"github.com/gzydong/go-chat/internal/pkg/utils"
+	"github.com/gzydong/go-chat/internal/repository/model"
+	"github.com/gzydong/go-chat/internal/repository/repo"
 	"github.com/samber/lo"
-	"go-chat/internal/entity"
-	"go-chat/internal/pkg/encrypt"
-	"go-chat/internal/pkg/utils"
-	"go-chat/internal/repository/model"
-	"go-chat/internal/repository/repo"
 	"gorm.io/gorm"
 )
 

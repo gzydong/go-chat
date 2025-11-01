@@ -3,7 +3,7 @@ package model
 import (
 	"time"
 
-	"go-chat/internal/pkg/encrypt"
+	"github.com/gzydong/go-chat/internal/pkg/encrypt"
 )
 
 const (

@@ -6,7 +6,7 @@ import (
 	"slices"
 
 	"github.com/gin-gonic/gin"
-	"go-chat/internal/pkg/core/errorx"
+	"github.com/gzydong/go-chat/internal/pkg/core/errorx"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
 )

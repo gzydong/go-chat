@@ -1,8 +1,8 @@
 package temp
 
 import (
+	"github.com/gzydong/go-chat/internal/repository/repo"
 	"github.com/urfave/cli/v2"
-	"go-chat/internal/repository/repo"
 )
 
 type TestCommand struct {

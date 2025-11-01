@@ -4,12 +4,12 @@ import (
 	"context"
 	"encoding/json"
 
-	"go-chat/api/pb/queue/v1"
-	"go-chat/internal/entity"
-	"go-chat/internal/pkg/core/consumer"
-	"go-chat/internal/repository/repo"
-	"go-chat/internal/service"
-	"go-chat/internal/service/message"
+	"github.com/gzydong/go-chat/api/pb/queue/v1"
+	"github.com/gzydong/go-chat/internal/entity"
+	"github.com/gzydong/go-chat/internal/pkg/core/consumer"
+	"github.com/gzydong/go-chat/internal/repository/repo"
+	"github.com/gzydong/go-chat/internal/service"
+	"github.com/gzydong/go-chat/internal/service/message"
 )
 
 var _ consumer.IConsumerHandle = (*UserLoginConsumer)(nil)

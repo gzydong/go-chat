@@ -8,7 +8,7 @@ import (
 	"log/slog"
 	"net/http"
 
-	"go-chat/internal/pkg/longnet/adapter"
+	"github.com/gzydong/go-chat/internal/pkg/longnet/adapter"
 )
 
 type WssServer struct {

@@ -4,16 +4,16 @@ import (
 	"context"
 	"errors"
 
+	"github.com/gzydong/go-chat/api/pb/web/v1"
+	"github.com/gzydong/go-chat/internal/pkg/core/middleware"
+	"github.com/gzydong/go-chat/internal/repository/cache"
+	"github.com/gzydong/go-chat/internal/repository/repo"
+	message2 "github.com/gzydong/go-chat/internal/service/message"
 	"github.com/samber/lo"
-	"go-chat/api/pb/web/v1"
-	"go-chat/internal/pkg/core/middleware"
-	"go-chat/internal/repository/cache"
-	"go-chat/internal/repository/repo"
-	message2 "go-chat/internal/service/message"
 	"gorm.io/gorm"
 
-	"go-chat/internal/entity"
-	"go-chat/internal/service"
+	"github.com/gzydong/go-chat/internal/entity"
+	"github.com/gzydong/go-chat/internal/service"
 )
 
 var _ web.IContactHandler = (*Contact)(nil)

@@ -1,7 +1,7 @@
 package mission
 
 import (
-	"go-chat/internal/mission/temp"
+	"github.com/gzydong/go-chat/internal/mission/temp"
 )
 
 type TempProvider struct {

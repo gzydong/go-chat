@@ -2,7 +2,7 @@ package comet
 
 import (
 	"github.com/google/wire"
-	"go-chat/internal/comet/consume"
+	"github.com/gzydong/go-chat/internal/comet/consume"
 )
 
 var ProviderSet = wire.NewSet(

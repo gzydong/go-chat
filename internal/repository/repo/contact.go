@@ -4,9 +4,9 @@ import (
 	"context"
 	"strconv"
 
-	"go-chat/internal/pkg/core"
-	"go-chat/internal/repository/cache"
-	"go-chat/internal/repository/model"
+	"github.com/gzydong/go-chat/internal/pkg/core"
+	"github.com/gzydong/go-chat/internal/repository/cache"
+	"github.com/gzydong/go-chat/internal/repository/model"
 	"gorm.io/gorm"
 )
 

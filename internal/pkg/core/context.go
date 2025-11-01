@@ -9,9 +9,9 @@ import (
 	"slices"
 
 	"github.com/gin-gonic/gin"
-	"go-chat/internal/pkg/core/errorx"
-	"go-chat/internal/pkg/core/middleware"
-	"go-chat/internal/pkg/core/validator"
+	"github.com/gzydong/go-chat/internal/pkg/core/errorx"
+	"github.com/gzydong/go-chat/internal/pkg/core/middleware"
+	"github.com/gzydong/go-chat/internal/pkg/core/validator"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
 )

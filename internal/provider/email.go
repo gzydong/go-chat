@@ -1,8 +1,8 @@
 package provider
 
 import (
-	"go-chat/config"
-	"go-chat/internal/pkg/email"
+	"github.com/gzydong/go-chat/config"
+	"github.com/gzydong/go-chat/internal/pkg/email"
 )
 
 func NewEmailClient(conf *config.Config) *email.Client {

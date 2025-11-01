@@ -7,12 +7,12 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gzydong/go-chat/internal/entity"
 	"github.com/samber/lo"
-	"go-chat/internal/entity"
 
-	"go-chat/internal/pkg/timeutil"
-	"go-chat/internal/repository/model"
-	"go-chat/internal/repository/repo"
+	"github.com/gzydong/go-chat/internal/pkg/timeutil"
+	"github.com/gzydong/go-chat/internal/repository/model"
+	"github.com/gzydong/go-chat/internal/repository/repo"
 	"gorm.io/gorm"
 )
 

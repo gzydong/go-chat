@@ -3,9 +3,9 @@ package comet
 import (
 	"context"
 
-	"go-chat/config"
-	"go-chat/internal/pkg/longnet"
-	"go-chat/internal/provider"
+	"github.com/gzydong/go-chat/config"
+	"github.com/gzydong/go-chat/internal/pkg/longnet"
+	"github.com/gzydong/go-chat/internal/provider"
 )
 
 type Server struct {

@@ -3,8 +3,8 @@ package provider
 import (
 	"fmt"
 
+	"github.com/gzydong/go-chat/config"
 	"github.com/nsqio/go-nsq"
-	"go-chat/config"
 )
 
 // NewNsqProducer 初始化生产者

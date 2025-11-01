@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/gzydong/go-chat/internal/pkg/logger"
 	"github.com/redis/go-redis/v9"
-	"go-chat/internal/pkg/logger"
 )
 
 const tableCacheExpiration = 10 * time.Minute // 缓存过期时间常量

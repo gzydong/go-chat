@@ -5,13 +5,13 @@ import (
 	"log"
 	"time"
 
-	logger2 "go-chat/internal/pkg/logger"
+	logger2 "github.com/gzydong/go-chat/internal/pkg/logger"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 	"gorm.io/gorm/schema"
 
-	"go-chat/config"
+	"github.com/gzydong/go-chat/config"
 )
 
 func NewMySQLClient(conf *config.Config) *gorm.DB {

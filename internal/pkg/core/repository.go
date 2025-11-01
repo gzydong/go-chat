@@ -3,7 +3,7 @@ package core
 import (
 	"context"
 
-	"go-chat/internal/repository/model"
+	"github.com/gzydong/go-chat/internal/repository/model"
 	"gorm.io/gorm"
 )
 

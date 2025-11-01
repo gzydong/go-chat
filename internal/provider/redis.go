@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/gzydong/go-chat/config"
 	"github.com/redis/go-redis/v9"
-	"go-chat/config"
 )
 
 func NewRedisClient(conf *config.Config) *redis.Client {

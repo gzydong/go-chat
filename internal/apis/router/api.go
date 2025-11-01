@@ -5,11 +5,11 @@ import (
 	"errors"
 
 	"github.com/gin-gonic/gin"
-	web2 "go-chat/api/pb/web/v1"
-	"go-chat/internal/apis/handler/web"
-	"go-chat/internal/entity"
-	"go-chat/internal/pkg/core/middleware"
-	"go-chat/internal/pkg/jwtutil"
+	web2 "github.com/gzydong/go-chat/api/pb/web/v1"
+	"github.com/gzydong/go-chat/internal/apis/handler/web"
+	"github.com/gzydong/go-chat/internal/entity"
+	"github.com/gzydong/go-chat/internal/pkg/core/middleware"
+	"github.com/gzydong/go-chat/internal/pkg/jwtutil"
 )
 
 // RegisterWebRoute 注册 Web 路由

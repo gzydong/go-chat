@@ -7,9 +7,9 @@ import (
 	"log/slog"
 	"time"
 
-	"go-chat/internal/entity"
-	"go-chat/internal/pkg/logger"
-	"go-chat/internal/repository/model"
+	"github.com/gzydong/go-chat/internal/entity"
+	"github.com/gzydong/go-chat/internal/pkg/logger"
+	"github.com/gzydong/go-chat/internal/repository/model"
 )
 
 // 聊天消息事件

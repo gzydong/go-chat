@@ -3,8 +3,8 @@ package service
 import (
 	"context"
 
-	"go-chat/internal/repository/model"
-	"go-chat/internal/repository/repo"
+	"github.com/gzydong/go-chat/internal/repository/model"
+	"github.com/gzydong/go-chat/internal/repository/repo"
 	"gorm.io/gorm"
 )
 

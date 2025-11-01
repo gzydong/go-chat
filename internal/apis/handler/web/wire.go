@@ -2,11 +2,11 @@ package web
 
 import (
 	"github.com/google/wire"
-	v1 "go-chat/internal/apis/handler/web/v1"
-	"go-chat/internal/apis/handler/web/v1/article"
-	"go-chat/internal/apis/handler/web/v1/contact"
-	"go-chat/internal/apis/handler/web/v1/group"
-	"go-chat/internal/apis/handler/web/v1/talk"
+	v1 "github.com/gzydong/go-chat/internal/apis/handler/web/v1"
+	"github.com/gzydong/go-chat/internal/apis/handler/web/v1/article"
+	"github.com/gzydong/go-chat/internal/apis/handler/web/v1/contact"
+	"github.com/gzydong/go-chat/internal/apis/handler/web/v1/group"
+	"github.com/gzydong/go-chat/internal/apis/handler/web/v1/talk"
 )
 
 var ProviderSet = wire.NewSet(

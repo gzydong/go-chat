@@ -2,9 +2,9 @@ package mission
 
 import (
 	"github.com/google/wire"
-	"go-chat/internal/mission/cron"
-	"go-chat/internal/mission/queue"
-	"go-chat/internal/mission/temp"
+	"github.com/gzydong/go-chat/internal/mission/cron"
+	"github.com/gzydong/go-chat/internal/mission/queue"
+	"github.com/gzydong/go-chat/internal/mission/temp"
 )
 
 var CronProviderSet = wire.NewSet(

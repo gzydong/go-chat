@@ -6,14 +6,14 @@ import (
 	"fmt"
 	"slices"
 
-	"go-chat/internal/pkg/logger"
-	"go-chat/internal/repository/model"
-	"go-chat/internal/repository/repo"
+	"github.com/gzydong/go-chat/internal/pkg/logger"
+	"github.com/gzydong/go-chat/internal/repository/model"
+	"github.com/gzydong/go-chat/internal/repository/repo"
 	"gorm.io/gorm"
 
-	"go-chat/internal/pkg/sliceutil"
-	"go-chat/internal/pkg/strutil"
-	"go-chat/internal/pkg/timeutil"
+	"github.com/gzydong/go-chat/internal/pkg/sliceutil"
+	"github.com/gzydong/go-chat/internal/pkg/strutil"
+	"github.com/gzydong/go-chat/internal/pkg/timeutil"
 )
 
 var _ IArticleService = (*ArticleService)(nil)

@@ -3,9 +3,9 @@ package service
 import (
 	"context"
 
-	"go-chat/config"
-	"go-chat/internal/pkg/ipaddress"
-	"go-chat/internal/repository/repo"
+	"github.com/gzydong/go-chat/config"
+	"github.com/gzydong/go-chat/internal/pkg/ipaddress"
+	"github.com/gzydong/go-chat/internal/repository/repo"
 )
 
 var _ IIpAddressService = (*IpAddressService)(nil)

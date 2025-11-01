@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/gzydong/go-chat/internal/pkg/jsonutil"
 	"github.com/redis/go-redis/v9"
-	"go-chat/internal/pkg/jsonutil"
 )
 
 const lastMessageCacheKey = "im:message:last_message"

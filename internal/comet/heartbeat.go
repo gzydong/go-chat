@@ -4,10 +4,10 @@ import (
 	"context"
 	"time"
 
+	"github.com/gzydong/go-chat/internal/pkg/jsonutil"
+	"github.com/gzydong/go-chat/internal/pkg/longnet"
+	"github.com/gzydong/go-chat/internal/repository/cache"
 	"github.com/redis/go-redis/v9"
-	"go-chat/internal/pkg/jsonutil"
-	"go-chat/internal/pkg/longnet"
-	"go-chat/internal/repository/cache"
 )
 
 type Heartbeat struct {

@@ -10,7 +10,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
-	"go-chat/internal/pkg/jwtutil"
+	"github.com/gzydong/go-chat/internal/pkg/jwtutil"
 )
 
 const JWTAuthID = "__JWT_AUTH_ID__"

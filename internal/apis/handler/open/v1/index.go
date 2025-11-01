@@ -1,9 +1,9 @@
 package v1
 
 import (
-	"go-chat/api/pb/open/v1"
-	"go-chat/api/pb/web/v1"
-	"go-chat/internal/pkg/core"
+	"github.com/gzydong/go-chat/api/pb/open/v1"
+	"github.com/gzydong/go-chat/api/pb/web/v1"
+	"github.com/gzydong/go-chat/internal/pkg/core"
 )
 
 type Index struct {

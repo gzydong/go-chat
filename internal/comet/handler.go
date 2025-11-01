@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"log/slog"
 
+	"github.com/gzydong/go-chat/internal/logic"
+	"github.com/gzydong/go-chat/internal/pkg/longnet"
+	"github.com/gzydong/go-chat/internal/pkg/server"
+	"github.com/gzydong/go-chat/internal/repository/cache"
 	"github.com/tidwall/gjson"
-	"go-chat/internal/logic"
-	"go-chat/internal/pkg/longnet"
-	"go-chat/internal/pkg/server"
-	"go-chat/internal/repository/cache"
 )
 
 var _ longnet.IHandler = (*Handler)(nil)

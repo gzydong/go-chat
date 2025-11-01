@@ -1,6 +1,6 @@
 package config
 
-import "go-chat/internal/pkg/filesystem"
+import "github.com/gzydong/go-chat/internal/pkg/filesystem"
 
 type Filesystem struct {
 	Default string                       `json:"default" yaml:"default"`

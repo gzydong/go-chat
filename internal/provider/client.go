@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"time"
 
-	"go-chat/internal/pkg/ipaddress"
+	"github.com/gzydong/go-chat/internal/pkg/ipaddress"
 )
 
 func NewHttpClient() *http.Client {

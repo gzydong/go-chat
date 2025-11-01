@@ -4,13 +4,13 @@ import (
 	"context"
 	"time"
 
+	"github.com/gzydong/go-chat/internal/entity"
+	"github.com/gzydong/go-chat/internal/pkg/jsonutil"
+	"github.com/gzydong/go-chat/internal/pkg/logger"
+	"github.com/gzydong/go-chat/internal/pkg/strutil"
+	"github.com/gzydong/go-chat/internal/repository/model"
+	"github.com/gzydong/go-chat/internal/repository/repo"
 	"github.com/samber/lo"
-	"go-chat/internal/entity"
-	"go-chat/internal/pkg/jsonutil"
-	"go-chat/internal/pkg/logger"
-	"go-chat/internal/pkg/strutil"
-	"go-chat/internal/repository/model"
-	"go-chat/internal/repository/repo"
 )
 
 type ForwardMessageOpt struct {

@@ -1,8 +1,8 @@
 package provider
 
 import (
+	"github.com/gzydong/go-chat/internal/repository/cache"
 	"github.com/mojocn/base64Captcha"
-	"go-chat/internal/repository/cache"
 )
 
 func NewBase64Captcha(captcha *cache.CaptchaStorage) *base64Captcha.Captcha {

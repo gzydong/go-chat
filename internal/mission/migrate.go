@@ -6,8 +6,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gzydong/go-chat/config"
 	"github.com/urfave/cli/v2"
-	"go-chat/config"
 	"gorm.io/gorm"
 )
 

@@ -1,9 +1,9 @@
 package article
 
 import (
-	"go-chat/api/pb/web/v1"
-	"go-chat/internal/pkg/core"
-	"go-chat/internal/service"
+	"github.com/gzydong/go-chat/api/pb/web/v1"
+	"github.com/gzydong/go-chat/internal/pkg/core"
+	"github.com/gzydong/go-chat/internal/service"
 )
 
 type Tag struct {

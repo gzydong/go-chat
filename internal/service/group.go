@@ -5,19 +5,19 @@ import (
 	"errors"
 	"time"
 
+	"github.com/gzydong/go-chat/internal/logic"
 	"github.com/samber/lo"
-	"go-chat/internal/logic"
 
-	"go-chat/internal/pkg/strutil"
-	"go-chat/internal/repository/cache"
-	"go-chat/internal/repository/model"
-	"go-chat/internal/repository/repo"
+	"github.com/gzydong/go-chat/internal/pkg/strutil"
+	"github.com/gzydong/go-chat/internal/repository/cache"
+	"github.com/gzydong/go-chat/internal/repository/model"
+	"github.com/gzydong/go-chat/internal/repository/repo"
 	"gorm.io/gorm"
 
-	"go-chat/internal/entity"
-	"go-chat/internal/pkg/jsonutil"
-	"go-chat/internal/pkg/sliceutil"
-	"go-chat/internal/pkg/timeutil"
+	"github.com/gzydong/go-chat/internal/entity"
+	"github.com/gzydong/go-chat/internal/pkg/jsonutil"
+	"github.com/gzydong/go-chat/internal/pkg/sliceutil"
+	"github.com/gzydong/go-chat/internal/pkg/timeutil"
 )
 
 var _ IGroupService = (*GroupService)(nil)

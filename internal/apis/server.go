@@ -11,8 +11,8 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/gzydong/go-chat/internal/pkg/server"
 	"github.com/urfave/cli/v2"
-	"go-chat/internal/pkg/server"
 	"golang.org/x/sync/errgroup"
 )
 

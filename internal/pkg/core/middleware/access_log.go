@@ -15,7 +15,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"go-chat/internal/pkg/jsonutil"
+	"github.com/gzydong/go-chat/internal/pkg/jsonutil"
 )
 
 type RequestInfo struct {

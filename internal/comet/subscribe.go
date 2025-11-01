@@ -6,13 +6,13 @@ import (
 	"fmt"
 	"log/slog"
 
+	"github.com/gzydong/go-chat/internal/comet/consume"
+	"github.com/gzydong/go-chat/internal/entity"
+	"github.com/gzydong/go-chat/internal/pkg/longnet"
+	"github.com/gzydong/go-chat/internal/pkg/server"
+	"github.com/gzydong/go-chat/internal/pkg/utils"
 	"github.com/redis/go-redis/v9"
 	"github.com/sourcegraph/conc/pool"
-	"go-chat/internal/comet/consume"
-	"go-chat/internal/entity"
-	"go-chat/internal/pkg/longnet"
-	"go-chat/internal/pkg/server"
-	"go-chat/internal/pkg/utils"
 )
 
 var _ longnet.IProcess = &Subscribe{}

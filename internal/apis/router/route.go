@@ -4,12 +4,12 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/gzydong/go-chat/config"
+	"github.com/gzydong/go-chat/internal/apis/handler"
+	"github.com/gzydong/go-chat/internal/pkg/core/middleware"
+	"github.com/gzydong/go-chat/internal/pkg/logger"
+	"github.com/gzydong/go-chat/internal/repository/cache"
 	"github.com/tidwall/sjson"
-	"go-chat/config"
-	"go-chat/internal/apis/handler"
-	"go-chat/internal/pkg/core/middleware"
-	"go-chat/internal/pkg/logger"
-	"go-chat/internal/repository/cache"
 )
 
 // NewRouter 初始化配置路由

@@ -4,9 +4,9 @@ import (
 	"sort"
 	"time"
 
+	"github.com/gzydong/go-chat/api/pb/admin/v1"
+	"github.com/gzydong/go-chat/internal/repository/model"
 	"github.com/samber/lo"
-	"go-chat/api/pb/admin/v1"
-	"go-chat/internal/repository/model"
 )
 
 type MenuTree struct {

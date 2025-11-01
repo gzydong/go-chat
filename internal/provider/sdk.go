@@ -3,8 +3,8 @@ package provider
 import (
 	"net/http"
 
-	"go-chat/internal/pkg/thirdsdk/gitee"
-	"go-chat/internal/pkg/thirdsdk/github"
+	"github.com/gzydong/go-chat/internal/pkg/thirdsdk/gitee"
+	"github.com/gzydong/go-chat/internal/pkg/thirdsdk/github"
 )
 
 func NewGiteeClient(c *http.Client) gitee.IClient {

@@ -4,10 +4,10 @@ import (
 	"context"
 	"slices"
 
-	"go-chat/api/pb/admin/v1"
-	"go-chat/internal/pkg/core/errorx"
-	"go-chat/internal/repository/model"
-	"go-chat/internal/repository/repo"
+	"github.com/gzydong/go-chat/api/pb/admin/v1"
+	"github.com/gzydong/go-chat/internal/pkg/core/errorx"
+	"github.com/gzydong/go-chat/internal/repository/model"
+	"github.com/gzydong/go-chat/internal/repository/repo"
 	"gorm.io/gorm"
 
 	"github.com/samber/lo"

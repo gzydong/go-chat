@@ -4,7 +4,7 @@ import (
 	"log/slog"
 	"time"
 
-	"go-chat/internal/pkg/longnet/timewheel"
+	"github.com/gzydong/go-chat/internal/pkg/longnet/timewheel"
 )
 
 var _ IHeartbeat = (*Heartbeat)(nil)

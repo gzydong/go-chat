@@ -8,15 +8,15 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"go-chat/api/pb/web/v1"
-	"go-chat/config"
-	"go-chat/internal/entity"
-	"go-chat/internal/pkg/core/errorx"
-	"go-chat/internal/pkg/core/middleware"
-	"go-chat/internal/pkg/filesystem"
-	"go-chat/internal/pkg/strutil"
-	"go-chat/internal/pkg/utils"
-	"go-chat/internal/service"
+	"github.com/gzydong/go-chat/api/pb/web/v1"
+	"github.com/gzydong/go-chat/config"
+	"github.com/gzydong/go-chat/internal/entity"
+	"github.com/gzydong/go-chat/internal/pkg/core/errorx"
+	"github.com/gzydong/go-chat/internal/pkg/core/middleware"
+	"github.com/gzydong/go-chat/internal/pkg/filesystem"
+	"github.com/gzydong/go-chat/internal/pkg/strutil"
+	"github.com/gzydong/go-chat/internal/pkg/utils"
+	"github.com/gzydong/go-chat/internal/service"
 )
 
 type Upload struct {

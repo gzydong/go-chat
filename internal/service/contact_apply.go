@@ -6,14 +6,14 @@ import (
 	"fmt"
 	"time"
 
-	"go-chat/internal/logic"
+	"github.com/gzydong/go-chat/internal/logic"
 
-	"go-chat/internal/repository/model"
-	"go-chat/internal/repository/repo"
+	"github.com/gzydong/go-chat/internal/repository/model"
+	"github.com/gzydong/go-chat/internal/repository/repo"
 	"gorm.io/gorm"
 
-	"go-chat/internal/entity"
-	"go-chat/internal/pkg/jsonutil"
+	"github.com/gzydong/go-chat/internal/entity"
+	"github.com/gzydong/go-chat/internal/pkg/jsonutil"
 )
 
 var _ IContactApplyService = (*ContactApplyService)(nil)

@@ -2,8 +2,8 @@ package router
 
 import (
 	"github.com/gin-gonic/gin"
-	"go-chat/internal/apis/handler/open"
-	"go-chat/internal/pkg/core"
+	"github.com/gzydong/go-chat/internal/apis/handler/open"
+	"github.com/gzydong/go-chat/internal/pkg/core"
 )
 
 // RegisterOpenRoute 注册 Open 路由

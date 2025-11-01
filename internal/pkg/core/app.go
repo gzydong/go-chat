@@ -3,8 +3,8 @@ package core
 import (
 	"os"
 
+	"github.com/gzydong/go-chat/config"
 	"github.com/urfave/cli/v2"
-	"go-chat/config"
 )
 
 type App struct {

@@ -6,12 +6,12 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
-	"go-chat/internal/entity"
-	"go-chat/internal/pkg/core/errorx"
-	"go-chat/internal/pkg/core/middleware"
-	"go-chat/internal/pkg/logger"
-	"go-chat/internal/service"
-	"go-chat/internal/service/message"
+	"github.com/gzydong/go-chat/internal/entity"
+	"github.com/gzydong/go-chat/internal/pkg/core/errorx"
+	"github.com/gzydong/go-chat/internal/pkg/core/middleware"
+	"github.com/gzydong/go-chat/internal/pkg/logger"
+	"github.com/gzydong/go-chat/internal/service"
+	"github.com/gzydong/go-chat/internal/service/message"
 )
 
 var mapping map[string]func(ctx *gin.Context) error
