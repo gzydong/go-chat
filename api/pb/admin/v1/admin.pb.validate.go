@@ -546,22 +546,22 @@ var _ interface {
 	ErrorName() string
 } = AdminCreateResponseValidationError{}
 
-// Validate checks the field values on AdminStatusRequest with the rules
+// Validate checks the field values on AdminUpdateStatusRequest with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
-func (m *AdminStatusRequest) Validate() error {
+func (m *AdminUpdateStatusRequest) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on AdminStatusRequest with the rules
-// defined in the proto definition for this message. If any rules are
+// ValidateAll checks the field values on AdminUpdateStatusRequest with the
+// rules defined in the proto definition for this message. If any rules are
 // violated, the result is a list of violation errors wrapped in
-// AdminStatusRequestMultiError, or nil if none found.
-func (m *AdminStatusRequest) ValidateAll() error {
+// AdminUpdateStatusRequestMultiError, or nil if none found.
+func (m *AdminUpdateStatusRequest) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *AdminStatusRequest) validate(all bool) error {
+func (m *AdminUpdateStatusRequest) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -569,7 +569,7 @@ func (m *AdminStatusRequest) validate(all bool) error {
 	var errors []error
 
 	if m.GetId() <= 0 {
-		err := AdminStatusRequestValidationError{
+		err := AdminUpdateStatusRequestValidationError{
 			field:  "Id",
 			reason: "value must be greater than 0",
 		}
@@ -579,8 +579,8 @@ func (m *AdminStatusRequest) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
-	if _, ok := _AdminStatusRequest_Status_InLookup[m.GetStatus()]; !ok {
-		err := AdminStatusRequestValidationError{
+	if _, ok := _AdminUpdateStatusRequest_Status_InLookup[m.GetStatus()]; !ok {
+		err := AdminUpdateStatusRequestValidationError{
 			field:  "Status",
 			reason: "value must be in list [1 2]",
 		}
@@ -591,19 +591,19 @@ func (m *AdminStatusRequest) validate(all bool) error {
 	}
 
 	if len(errors) > 0 {
-		return AdminStatusRequestMultiError(errors)
+		return AdminUpdateStatusRequestMultiError(errors)
 	}
 
 	return nil
 }
 
-// AdminStatusRequestMultiError is an error wrapping multiple validation errors
-// returned by AdminStatusRequest.ValidateAll() if the designated constraints
-// aren't met.
-type AdminStatusRequestMultiError []error
+// AdminUpdateStatusRequestMultiError is an error wrapping multiple validation
+// errors returned by AdminUpdateStatusRequest.ValidateAll() if the designated
+// constraints aren't met.
+type AdminUpdateStatusRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m AdminStatusRequestMultiError) Error() string {
+func (m AdminUpdateStatusRequestMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -612,11 +612,11 @@ func (m AdminStatusRequestMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m AdminStatusRequestMultiError) AllErrors() []error { return m }
+func (m AdminUpdateStatusRequestMultiError) AllErrors() []error { return m }
 
-// AdminStatusRequestValidationError is the validation error returned by
-// AdminStatusRequest.Validate if the designated constraints aren't met.
-type AdminStatusRequestValidationError struct {
+// AdminUpdateStatusRequestValidationError is the validation error returned by
+// AdminUpdateStatusRequest.Validate if the designated constraints aren't met.
+type AdminUpdateStatusRequestValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -624,24 +624,24 @@ type AdminStatusRequestValidationError struct {
 }
 
 // Field function returns field value.
-func (e AdminStatusRequestValidationError) Field() string { return e.field }
+func (e AdminUpdateStatusRequestValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e AdminStatusRequestValidationError) Reason() string { return e.reason }
+func (e AdminUpdateStatusRequestValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e AdminStatusRequestValidationError) Cause() error { return e.cause }
+func (e AdminUpdateStatusRequestValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e AdminStatusRequestValidationError) Key() bool { return e.key }
+func (e AdminUpdateStatusRequestValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e AdminStatusRequestValidationError) ErrorName() string {
-	return "AdminStatusRequestValidationError"
+func (e AdminUpdateStatusRequestValidationError) ErrorName() string {
+	return "AdminUpdateStatusRequestValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e AdminStatusRequestValidationError) Error() string {
+func (e AdminUpdateStatusRequestValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -653,14 +653,14 @@ func (e AdminStatusRequestValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sAdminStatusRequest.%s: %s%s",
+		"invalid %sAdminUpdateStatusRequest.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = AdminStatusRequestValidationError{}
+var _ error = AdminUpdateStatusRequestValidationError{}
 
 var _ interface {
 	Field() string
@@ -668,29 +668,29 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = AdminStatusRequestValidationError{}
+} = AdminUpdateStatusRequestValidationError{}
 
-var _AdminStatusRequest_Status_InLookup = map[int32]struct{}{
+var _AdminUpdateStatusRequest_Status_InLookup = map[int32]struct{}{
 	1: {},
 	2: {},
 }
 
-// Validate checks the field values on AdminStatusResponse with the rules
+// Validate checks the field values on AdminUpdateStatusResponse with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
-func (m *AdminStatusResponse) Validate() error {
+func (m *AdminUpdateStatusResponse) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on AdminStatusResponse with the rules
-// defined in the proto definition for this message. If any rules are
+// ValidateAll checks the field values on AdminUpdateStatusResponse with the
+// rules defined in the proto definition for this message. If any rules are
 // violated, the result is a list of violation errors wrapped in
-// AdminStatusResponseMultiError, or nil if none found.
-func (m *AdminStatusResponse) ValidateAll() error {
+// AdminUpdateStatusResponseMultiError, or nil if none found.
+func (m *AdminUpdateStatusResponse) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *AdminStatusResponse) validate(all bool) error {
+func (m *AdminUpdateStatusResponse) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -700,19 +700,19 @@ func (m *AdminStatusResponse) validate(all bool) error {
 	// no validation rules for Id
 
 	if len(errors) > 0 {
-		return AdminStatusResponseMultiError(errors)
+		return AdminUpdateStatusResponseMultiError(errors)
 	}
 
 	return nil
 }
 
-// AdminStatusResponseMultiError is an error wrapping multiple validation
-// errors returned by AdminStatusResponse.ValidateAll() if the designated
-// constraints aren't met.
-type AdminStatusResponseMultiError []error
+// AdminUpdateStatusResponseMultiError is an error wrapping multiple validation
+// errors returned by AdminUpdateStatusResponse.ValidateAll() if the
+// designated constraints aren't met.
+type AdminUpdateStatusResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m AdminStatusResponseMultiError) Error() string {
+func (m AdminUpdateStatusResponseMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -721,11 +721,11 @@ func (m AdminStatusResponseMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m AdminStatusResponseMultiError) AllErrors() []error { return m }
+func (m AdminUpdateStatusResponseMultiError) AllErrors() []error { return m }
 
-// AdminStatusResponseValidationError is the validation error returned by
-// AdminStatusResponse.Validate if the designated constraints aren't met.
-type AdminStatusResponseValidationError struct {
+// AdminUpdateStatusResponseValidationError is the validation error returned by
+// AdminUpdateStatusResponse.Validate if the designated constraints aren't met.
+type AdminUpdateStatusResponseValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -733,24 +733,24 @@ type AdminStatusResponseValidationError struct {
 }
 
 // Field function returns field value.
-func (e AdminStatusResponseValidationError) Field() string { return e.field }
+func (e AdminUpdateStatusResponseValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e AdminStatusResponseValidationError) Reason() string { return e.reason }
+func (e AdminUpdateStatusResponseValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e AdminStatusResponseValidationError) Cause() error { return e.cause }
+func (e AdminUpdateStatusResponseValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e AdminStatusResponseValidationError) Key() bool { return e.key }
+func (e AdminUpdateStatusResponseValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e AdminStatusResponseValidationError) ErrorName() string {
-	return "AdminStatusResponseValidationError"
+func (e AdminUpdateStatusResponseValidationError) ErrorName() string {
+	return "AdminUpdateStatusResponseValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e AdminStatusResponseValidationError) Error() string {
+func (e AdminUpdateStatusResponseValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -762,14 +762,14 @@ func (e AdminStatusResponseValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sAdminStatusResponse.%s: %s%s",
+		"invalid %sAdminUpdateStatusResponse.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = AdminStatusResponseValidationError{}
+var _ error = AdminUpdateStatusResponseValidationError{}
 
 var _ interface {
 	Field() string
@@ -777,7 +777,7 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = AdminStatusResponseValidationError{}
+} = AdminUpdateStatusResponseValidationError{}
 
 // Validate checks the field values on AdminResetPasswordRequest with the rules
 // defined in the proto definition for this message. If any rules are

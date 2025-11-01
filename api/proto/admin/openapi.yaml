@@ -5,6 +5,1665 @@ openapi: 3.0.3
 info:
     title: ""
     version: "3"
-paths: {}
+paths:
+    /backend/admin/create:
+        post:
+            tags:
+                - Admin
+            description: 创建管理员接口
+            operationId: Admin_Create
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/AdminCreateRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AdminCreateResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /backend/admin/list:
+        post:
+            tags:
+                - Admin
+            description: 管理员列表接口
+            operationId: Admin_List
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/AdminListRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AdminListResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /backend/admin/reset-password:
+        post:
+            tags:
+                - Admin
+            description: 重置管理员密码接口
+            operationId: Admin_ResetPassword
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/AdminResetPasswordRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AdminResetPasswordResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /backend/admin/update-status:
+        post:
+            tags:
+                - Admin
+            description: 更新管理员状态接口
+            operationId: Admin_UpdateStatus
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/AdminUpdateStatusRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AdminUpdateStatusResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /backend/auth/captcha:
+        post:
+            tags:
+                - Auth
+            description: 获取图形验证码接口
+            operationId: Auth_Captcha
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/AuthCaptchaRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AuthCaptchaResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /backend/auth/detail:
+        post:
+            tags:
+                - Auth
+            description: 获取管理员详情接口
+            operationId: Auth_Detail
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/AuthDetailRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AuthDetailResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /backend/auth/login:
+        post:
+            tags:
+                - Auth
+            description: 管理员登录接口
+            operationId: Auth_Login
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/AuthLoginRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AuthLoginResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /backend/auth/logout:
+        post:
+            tags:
+                - Auth
+            description: 管理员注销登录接口
+            operationId: Auth_Logout
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/AuthLogoutRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AuthLogoutResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /backend/auth/menus:
+        post:
+            tags:
+                - Auth
+            operationId: Auth_Menus
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/AuthMenusRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AuthMenusResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /backend/auth/refresh:
+        post:
+            tags:
+                - Auth
+            description: 管理员刷新Token接口
+            operationId: Auth_Refresh
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/AuthRefreshRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AuthRefreshResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /backend/auth/update-detail:
+        post:
+            tags:
+                - Auth
+            description: 更新管理员详情接口
+            operationId: Auth_UpdateDetail
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/AuthUpdateDetailRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AuthUpdateDetailResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /backend/auth/update-password:
+        post:
+            tags:
+                - Auth
+            description: 更新管理员密码接口
+            operationId: Auth_UpdatePassword
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/AuthUpdatePasswordRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AuthUpdatePasswordResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /backend/menu/create:
+        post:
+            tags:
+                - Menu
+            description: 创建菜单接口
+            operationId: Menu_Create
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/MenuCreateRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/MenuCreateResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /backend/menu/delete:
+        post:
+            tags:
+                - Menu
+            description: 删除菜单接口
+            operationId: Menu_Delete
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/MenuDeleteRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/MenuDeleteResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /backend/menu/list:
+        post:
+            tags:
+                - Menu
+            operationId: Menu_List
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/MenuListRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/MenuListResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /backend/menu/update:
+        post:
+            tags:
+                - Menu
+            description: 更新菜单接口
+            operationId: Menu_Update
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/MenuUpdateRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/MenuUpdateResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /backend/resource/create:
+        post:
+            tags:
+                - Resource
+            description: 创建资源接口
+            operationId: Resource_Create
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/ResourceCreateRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ResourceCreateResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /backend/resource/delete:
+        post:
+            tags:
+                - Resource
+            description: 删除资源接口
+            operationId: Resource_Delete
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/ResourceDeleteRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ResourceDeleteResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /backend/resource/list:
+        post:
+            tags:
+                - Resource
+            description: 资源列表接口
+            operationId: Resource_List
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/ResourceListRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ResourceListResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /backend/resource/update:
+        post:
+            tags:
+                - Resource
+            description: 更新资源接口
+            operationId: Resource_Update
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/ResourceUpdateRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ResourceUpdateResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /backend/role/create:
+        post:
+            tags:
+                - Role
+            description: 创建角色接口
+            operationId: Role_Create
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/RoleCreateRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/RoleCreateResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /backend/role/list:
+        post:
+            tags:
+                - Role
+            description: 角色列表接口
+            operationId: Role_List
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/RoleListRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/RoleListResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /backend/role/update:
+        post:
+            tags:
+                - Role
+            description: 更新角色接口
+            operationId: Role_Update
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/RoleUpdateRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/RoleUpdateResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /backend/totp/close:
+        post:
+            tags:
+                - Totp
+            description: 关闭双因子认证接口
+            operationId: Totp_Close
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/TotpCloseRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/TotpCloseResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /backend/totp/init:
+        post:
+            tags:
+                - Totp
+            description: 初始化双因子认证接口
+            operationId: Totp_Init
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/TotpInitRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/TotpInitResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /backend/totp/qrcode:
+        post:
+            tags:
+                - Totp
+            description: 获取双因子认证二维码接口
+            operationId: Totp_Qrcode
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/TotpQrcodeRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/TotpQrcodeResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /backend/totp/status:
+        post:
+            tags:
+                - Totp
+            description: 获取双因子认证状态接口
+            operationId: Totp_Status
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/TotpStatusRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/TotpStatusResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /backend/totp/submit:
+        post:
+            tags:
+                - Totp
+            description: 提交双因子认证接口
+            operationId: Totp_Submit
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/TotpSubmitRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/TotpSubmitResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /backend/user/detail:
+        get:
+            tags:
+                - User
+            description: 获取用户详情接口
+            operationId: User_Detail
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/UserDetailRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UserDetailResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /backend/user/list:
+        post:
+            tags:
+                - User
+            description: 用户列表接口
+            operationId: User_List
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/UserListRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UserListResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /backend/user/update:
+        post:
+            tags:
+                - User
+            description: 更新用户接口
+            operationId: User_Update
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/UserUpdateRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UserUpdateResponse'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
 components:
-    schemas: {}
+    schemas:
+        AccessToken:
+            required:
+                - type
+                - accessToken
+                - expiresIn
+            type: object
+            properties:
+                type:
+                    type: string
+                    description: Token 类型
+                accessToken:
+                    type: string
+                    description: token
+                expiresIn:
+                    type: integer
+                    description: 过期时间
+                    format: int32
+        AdminCreateRequest:
+            type: object
+            properties:
+                username:
+                    type: string
+                email:
+                    type: string
+                password:
+                    type: string
+        AdminCreateResponse:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    format: int32
+        AdminListRequest:
+            type: object
+            properties:
+                page:
+                    type: integer
+                    description: 页码
+                    format: int32
+                pageSize:
+                    type: integer
+                    description: 每页数量
+                    format: int32
+                username:
+                    type: string
+                    description: 用户名
+                status:
+                    type: integer
+                    description: 状态
+                    format: int32
+                email:
+                    type: string
+                    description: 邮箱
+        AdminListResponse:
+            type: object
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/AdminListResponse_Item'
+                total:
+                    type: integer
+                    format: int32
+                page:
+                    type: integer
+                    format: int32
+                pageSize:
+                    type: integer
+                    format: int32
+                pageTotal:
+                    type: integer
+                    format: int32
+        AdminListResponse_Item:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    format: int32
+                username:
+                    type: string
+                avatar:
+                    type: string
+                mobile:
+                    type: string
+                email:
+                    type: string
+                status:
+                    type: integer
+                    format: int32
+                createdAt:
+                    type: string
+                updatedAt:
+                    type: string
+                lastLoginAt:
+                    type: string
+                roleName:
+                    type: string
+        AdminResetPasswordRequest:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    format: int32
+                password:
+                    type: string
+        AdminResetPasswordResponse:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    format: int32
+        AdminUpdateStatusRequest:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    format: int32
+                status:
+                    type: integer
+                    format: int32
+        AdminUpdateStatusResponse:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    format: int32
+        AuthCaptchaRequest:
+            type: object
+            properties: {}
+        AuthCaptchaResponse:
+            required:
+                - voucher
+                - captcha
+            type: object
+            properties:
+                voucher:
+                    type: string
+                    description: 验证码唯一凭证
+                captcha:
+                    type: string
+                    description: 验证码图像 base64
+        AuthDetailRequest:
+            type: object
+            properties: {}
+        AuthDetailResponse:
+            type: object
+            properties:
+                username:
+                    type: string
+                    description: 用户名
+                email:
+                    type: string
+                    description: 邮箱
+                mobile:
+                    type: string
+                    description: 手机号
+                address:
+                    type: string
+                    description: 地址
+                twoFactorEnable:
+                    type: string
+                    description: 是否启用双因子认证
+        AuthLoginRequest:
+            type: object
+            properties:
+                username:
+                    type: string
+                    description: 登录账号
+                password:
+                    type: string
+                    description: 登录密码
+                captcha:
+                    type: string
+                    description: 图形验证码
+                captchaVoucher:
+                    type: string
+                    description: 图形验证码凭证
+        AuthLoginResponse:
+            required:
+                - auth
+                - username
+            type: object
+            properties:
+                auth:
+                    $ref: '#/components/schemas/AccessToken'
+                username:
+                    type: string
+                    description: 用户名
+        AuthLogoutRequest:
+            type: object
+            properties: {}
+        AuthLogoutResponse:
+            type: object
+            properties: {}
+        AuthMenusRequest:
+            type: object
+            properties: {}
+        AuthMenusResponse:
+            required:
+                - items
+            type: object
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/Menus'
+        AuthRefreshRequest:
+            type: object
+            properties: {}
+        AuthRefreshResponse:
+            type: object
+            properties:
+                token:
+                    type: string
+                    description: 授权 token
+                expireIn:
+                    type: integer
+                    description: 过期时间 单位秒
+                    format: int32
+        AuthUpdateDetailRequest:
+            type: object
+            properties:
+                username:
+                    type: string
+                    description: 用户名
+                mobile:
+                    type: string
+                    description: 手机号
+                address:
+                    type: string
+                    description: 地址
+        AuthUpdateDetailResponse:
+            type: object
+            properties: {}
+        AuthUpdatePasswordRequest:
+            type: object
+            properties:
+                oldPassword:
+                    type: string
+                    description: 旧密码
+                newPassword:
+                    type: string
+                    description: 新密码
+        AuthUpdatePasswordResponse:
+            type: object
+            properties:
+                username:
+                    type: string
+                    description: 用户名
+                email:
+                    type: string
+                    description: 邮箱
+                mobile:
+                    type: string
+                    description: 手机号
+        GoogleProtobufAny:
+            type: object
+            properties:
+                '@type':
+                    type: string
+                    description: The type of the serialized message.
+            additionalProperties: true
+            description: Contains an arbitrary serialized message along with a @type that describes the type of the serialized message.
+        MenuCreateRequest:
+            type: object
+            properties:
+                parentId:
+                    type: integer
+                    description: 父级菜单ID
+                    format: int32
+                name:
+                    type: string
+                    description: 菜单名称
+                menuType:
+                    type: integer
+                    description: 菜单类型
+                    format: int32
+                icon:
+                    type: string
+                    description: 菜单图标
+                path:
+                    type: string
+                    description: 菜单路径
+                sort:
+                    type: integer
+                    description: 排序
+                    format: int32
+                hidden:
+                    type: string
+                    description: 是否隐藏
+                useLayout:
+                    type: string
+                    description: 是否使用布局
+                authCode:
+                    type: string
+                    description: 权限代码
+        MenuCreateResponse:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    format: int32
+        MenuDeleteRequest:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    description: 菜单ID
+                    format: int32
+        MenuDeleteResponse:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    format: int32
+        MenuItem:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    description: 菜单ID
+                    format: int32
+                parentId:
+                    type: integer
+                    description: 父级菜单ID
+                    format: int32
+                name:
+                    type: string
+                    description: 菜单名称
+                menuType:
+                    type: integer
+                    description: 菜单类型
+                    format: int32
+                icon:
+                    type: string
+                    description: 菜单图标
+                path:
+                    type: string
+                    description: 菜单路径
+                sort:
+                    type: integer
+                    description: 排序
+                    format: int32
+                status:
+                    type: integer
+                    description: 状态
+                    format: int32
+                hidden:
+                    type: string
+                    description: 是否隐藏
+                useLayout:
+                    type: string
+                    description: 是否使用布局
+                authCode:
+                    type: string
+                    description: 权限代码
+                createdAt:
+                    type: string
+                    description: 创建时间
+                updatedAt:
+                    type: string
+                    description: 更新时间
+                children:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/MenuItem'
+                    description: 子菜单
+        MenuListRequest:
+            type: object
+            properties: {}
+        MenuListResponse:
+            type: object
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/MenuItem'
+        MenuUpdateRequest:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    description: 菜单ID
+                    format: int32
+                name:
+                    type: string
+                    description: 菜单名称
+                icon:
+                    type: string
+                    description: 菜单图标
+                path:
+                    type: string
+                    description: 菜单路径
+                sort:
+                    type: integer
+                    description: 排序
+                    format: int32
+                hidden:
+                    type: string
+                    description: 是否隐藏
+                status:
+                    type: integer
+                    description: 状态
+                    format: int32
+                parentId:
+                    type: integer
+                    description: 父级菜单ID
+                    format: int32
+                useLayout:
+                    type: string
+                    description: 是否使用布局
+                authCode:
+                    type: string
+                    description: 权限代码
+        MenuUpdateResponse:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    format: int32
+        Menus:
+            required:
+                - path
+                - name
+                - meta
+            type: object
+            properties:
+                path:
+                    type: string
+                    description: 路径
+                name:
+                    type: string
+                    description: 名称
+                meta:
+                    $ref: '#/components/schemas/Meta'
+                children:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/Menus'
+                    description: 子菜单
+        Meta:
+            type: object
+            properties:
+                icon:
+                    type: string
+                    description: 图标
+                title:
+                    type: string
+                    description: 标题
+                sort:
+                    type: integer
+                    description: 排序
+                    format: int32
+                hidden:
+                    type: string
+                    description: 是否隐藏
+                useLayout:
+                    type: string
+                    description: 是否使用布局
+                frameSrc:
+                    type: string
+                    description: 框架源地址
+        ResourceCreateRequest:
+            type: object
+            properties:
+                name:
+                    type: string
+                    description: 资源名称
+                uri:
+                    type: string
+                    description: 资源URI
+                type:
+                    type: integer
+                    description: 资源类型
+                    format: int32
+        ResourceCreateResponse:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    format: int32
+        ResourceDeleteRequest:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    format: int32
+        ResourceDeleteResponse:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    format: int32
+        ResourceListRequest:
+            type: object
+            properties:
+                page:
+                    type: integer
+                    description: 页码
+                    format: int32
+                pageSize:
+                    type: integer
+                    description: 每页数量
+                    format: int32
+                uri:
+                    type: string
+                    description: URI
+                name:
+                    type: string
+                    description: 资源名称
+                status:
+                    type: integer
+                    description: 状态
+                    format: int32
+                type:
+                    type: integer
+                    description: 类型
+                    format: int32
+        ResourceListResponse:
+            type: object
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/ResourceListResponse_Item'
+                total:
+                    type: integer
+                    format: int32
+                page:
+                    type: integer
+                    format: int32
+                pageSize:
+                    type: integer
+                    format: int32
+                pageTotal:
+                    type: integer
+                    format: int32
+        ResourceListResponse_Item:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    format: int32
+                name:
+                    type: string
+                uri:
+                    type: string
+                status:
+                    type: integer
+                    format: int32
+                createdAt:
+                    type: string
+                updatedAt:
+                    type: string
+                type:
+                    type: integer
+                    format: int32
+        ResourceUpdateRequest:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    description: 资源ID
+                    format: int32
+                name:
+                    type: string
+                    description: 资源名称
+                uri:
+                    type: string
+                    description: 资源URI
+                status:
+                    type: integer
+                    description: 状态
+                    format: int32
+        ResourceUpdateResponse:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    format: int32
+        RoleCreateRequest:
+            type: object
+            properties:
+                roleName:
+                    type: string
+                    description: 角色名称
+                explain:
+                    type: string
+                    description: 角色说明
+        RoleCreateResponse:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    format: int32
+        RoleListRequest:
+            type: object
+            properties:
+                page:
+                    type: integer
+                    description: 页码
+                    format: int32
+                pageSize:
+                    type: integer
+                    description: 每页数量
+                    format: int32
+                roleName:
+                    type: string
+                    description: 角色名称
+                status:
+                    type: integer
+                    description: 状态
+                    format: int32
+        RoleListResponse:
+            type: object
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/RoleListResponse_Item'
+                total:
+                    type: integer
+                    format: int32
+                page:
+                    type: integer
+                    format: int32
+                pageSize:
+                    type: integer
+                    format: int32
+                pageTotal:
+                    type: integer
+                    format: int32
+        RoleListResponse_Item:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    format: int32
+                roleName:
+                    type: string
+                status:
+                    type: integer
+                    format: int32
+                createdAt:
+                    type: string
+                updatedAt:
+                    type: string
+                explain:
+                    type: string
+        RoleUpdateRequest:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    description: 角色ID
+                    format: int32
+                roleName:
+                    type: string
+                    description: 角色名称
+                explain:
+                    type: string
+                    description: 角色说明
+        RoleUpdateResponse:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    format: int32
+        Status:
+            type: object
+            properties:
+                code:
+                    type: integer
+                    description: The status code, which should be an enum value of [google.rpc.Code][google.rpc.Code].
+                    format: int32
+                message:
+                    type: string
+                    description: A developer-facing error message, which should be in English. Any user-facing error message should be localized and sent in the [google.rpc.Status.details][google.rpc.Status.details] field, or localized by the client.
+                details:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/GoogleProtobufAny'
+                    description: A list of messages that carry the error details.  There is a common set of message types for APIs to use.
+            description: 'The `Status` type defines a logical error model that is suitable for different programming environments, including REST APIs and RPC APIs. It is used by [gRPC](https://github.com/grpc). Each `Status` message contains three pieces of data: error code, error message, and error details. You can find out more about this error model and how to work with it in the [API Design Guide](https://cloud.google.com/apis/design/errors).'
+        TotpCloseRequest:
+            type: object
+            properties:
+                password:
+                    type: string
+                    description: 密码
+        TotpCloseResponse:
+            type: object
+            properties: {}
+        TotpInitRequest:
+            type: object
+            properties:
+                password:
+                    type: string
+                    description: 密码
+        TotpInitResponse:
+            type: object
+            properties:
+                qrcodeUri:
+                    type: string
+                    description: 二维码URI
+                secret:
+                    type: string
+                    description: 密钥
+        TotpQrcodeRequest:
+            type: object
+            properties:
+                password:
+                    type: string
+                    description: 密码
+        TotpQrcodeResponse:
+            type: object
+            properties:
+                qrcodeUri:
+                    type: string
+                    description: 二维码URI
+        TotpStatusRequest:
+            type: object
+            properties: {}
+        TotpStatusResponse:
+            type: object
+            properties:
+                enable:
+                    type: string
+                    description: 是否启用
+        TotpSubmitRequest:
+            type: object
+            properties:
+                code:
+                    type: string
+                    description: 验证码
+                session:
+                    type: string
+                    description: 会话ID
+        TotpSubmitResponse:
+            type: object
+            properties:
+                oneTimeCode:
+                    type: array
+                    items:
+                        type: string
+                    description: 一次性备用码
+        UserDetailRequest:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    description: 用户ID
+                    format: int32
+        UserDetailResponse:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    description: 用户ID
+                    format: int32
+                username:
+                    type: string
+                    description: 用户名
+                email:
+                    type: string
+                    description: 邮箱
+                mobile:
+                    type: string
+                    description: 手机号
+                status:
+                    type: integer
+                    description: 状态
+                    format: int32
+                createdAt:
+                    type: string
+                    description: 创建时间
+                updatedAt:
+                    type: string
+                    description: 更新时间
+        UserListRequest:
+            type: object
+            properties:
+                page:
+                    type: integer
+                    description: 页码
+                    format: int32
+                pageSize:
+                    type: integer
+                    description: 每页数量
+                    format: int32
+                mobile:
+                    type: string
+                    description: 手机号
+                status:
+                    type: integer
+                    description: 状态筛选
+                    format: int32
+                email:
+                    type: string
+                    description: 邮箱
+        UserListResponse:
+            type: object
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/UserListResponse_Item'
+                total:
+                    type: integer
+                    format: int32
+                page:
+                    type: integer
+                    format: int32
+                pageSize:
+                    type: integer
+                    format: int32
+                pageTotal:
+                    type: integer
+                    format: int32
+        UserListResponse_Item:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    description: 用户ID
+                    format: int32
+                username:
+                    type: string
+                    description: 用户名
+                email:
+                    type: string
+                    description: 邮箱
+                mobile:
+                    type: string
+                    description: 手机号
+                status:
+                    type: integer
+                    description: 状态
+                    format: int32
+                createdAt:
+                    type: string
+                    description: 创建时间
+                updatedAt:
+                    type: string
+                    description: 更新时间
+                lastLoginAt:
+                    type: string
+                    description: 最后登录时间
+                avatar:
+                    type: string
+                    description: 头像
+        UserUpdateRequest:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    description: 用户ID
+                    format: int32
+                username:
+                    type: string
+                    description: 用户名
+                email:
+                    type: string
+                    description: 邮箱
+                mobile:
+                    type: string
+                    description: 手机号
+                status:
+                    type: integer
+                    description: 状态
+                    format: int32
+        UserUpdateResponse:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    description: 用户ID
+                    format: int32
+tags:
+    - name: Admin
+    - name: Auth
+    - name: Menu
+    - name: Resource
+    - name: Role
+    - name: Totp
+    - name: User

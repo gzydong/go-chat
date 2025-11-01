@@ -1,28 +1,26 @@
 package system
 
 import (
+	"context"
 	"time"
 
-	"github.com/samber/lo"
 	"go-chat/api/pb/admin/v1"
-	"go-chat/internal/pkg/core"
 	"go-chat/internal/pkg/core/errorx"
 	"go-chat/internal/repository/model"
 	"go-chat/internal/repository/repo"
+
+	"github.com/samber/lo"
 	"gorm.io/gorm"
 )
+
+var _ admin.IResourceHandler = (*Resource)(nil)
 
 type Resource struct {
 	SysResourceRepo *repo.SysResource
 }
 
-func (a *Resource) List(ctx *core.Context) error {
-	var in admin.ResourceListRequest
-	if err := ctx.ShouldBindProto(&in); err != nil {
-		return ctx.InvalidParams(err)
-	}
-
-	total, conditions, err := a.SysResourceRepo.Pagination(ctx.GetContext(), int(in.Page), int(in.PageSize), func(tx *gorm.DB) *gorm.DB {
+func (a *Resource) List(ctx context.Context, in *admin.ResourceListRequest) (*admin.ResourceListResponse, error) {
+	total, conditions, err := a.SysResourceRepo.Pagination(ctx, int(in.Page), int(in.PageSize), func(tx *gorm.DB) *gorm.DB {
 		if in.Uri != "" {
 			// 这里使用模糊查询
 			tx = tx.Where("uri like ?", in.Uri+"%")
@@ -44,7 +42,7 @@ func (a *Resource) List(ctx *core.Context) error {
 	})
 
 	if err != nil {
-		return ctx.Error(err)
+		return nil, err
 	}
 
 	items := lo.Map(conditions, func(item *model.SysResource, index int) *admin.ResourceListResponse_Item {
@@ -59,21 +57,16 @@ func (a *Resource) List(ctx *core.Context) error {
 		}
 	})
 
-	return ctx.Success(&admin.ResourceListResponse{
+	return &admin.ResourceListResponse{
 		Items:     items,
 		Total:     int32(total),
 		Page:      in.Page,
 		PageSize:  in.PageSize,
 		PageTotal: int32(total) / in.PageSize,
-	})
+	}, nil
 }
 
-func (a *Resource) Create(ctx *core.Context) error {
-	var in admin.ResourceCreateRequest
-	if err := ctx.ShouldBindProto(&in); err != nil {
-		return ctx.InvalidParams(err)
-	}
-
+func (a *Resource) Create(ctx context.Context, in *admin.ResourceCreateRequest) (*admin.ResourceCreateResponse, error) {
 	data := &model.SysResource{
 		Name:   in.Name,
 		Uri:    in.Uri,
@@ -81,52 +74,42 @@ func (a *Resource) Create(ctx *core.Context) error {
 		Status: 1,
 	}
 
-	err := a.SysResourceRepo.Create(ctx.GetContext(), data)
+	err := a.SysResourceRepo.Create(ctx, data)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	return ctx.Success(admin.AdminCreateResponse{Id: data.Id})
+	return &admin.ResourceCreateResponse{Id: data.Id}, nil
 }
 
-func (a *Resource) Update(ctx *core.Context) error {
-	var in admin.ResourceUpdateRequest
-	if err := ctx.ShouldBindProto(&in); err != nil {
-		return ctx.InvalidParams(err)
-	}
-
-	_, err := a.SysResourceRepo.UpdateById(ctx.GetContext(), in.GetId(), map[string]any{
+func (a *Resource) Update(ctx context.Context, in *admin.ResourceUpdateRequest) (*admin.ResourceUpdateResponse, error) {
+	_, err := a.SysResourceRepo.UpdateById(ctx, in.GetId(), map[string]any{
 		"status": in.Status,
 		"name":   in.Name,
 		"uri":    in.Uri,
 	})
 
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	return ctx.Success(admin.ResourceUpdateResponse{Id: in.Id})
+	return &admin.ResourceUpdateResponse{Id: in.Id}, nil
 }
 
-func (a *Resource) Delete(ctx *core.Context) error {
-	var in admin.ResourceDeleteRequest
-	if err := ctx.ShouldBindProto(&in); err != nil {
-		return ctx.InvalidParams(err)
-	}
-
-	resource, err := a.SysResourceRepo.FindById(ctx.GetContext(), in.Id)
+func (a *Resource) Delete(ctx context.Context, in *admin.ResourceDeleteRequest) (*admin.ResourceDeleteResponse, error) {
+	resource, err := a.SysResourceRepo.FindById(ctx, in.Id)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	if resource.Status == model.ResourceStatusNormal {
-		return errorx.New(400, "该资源已启用，请先禁用后进行删除")
+		return nil, errorx.New(400, "该资源已启用，请先禁用后进行删除")
 	}
 
-	err = a.SysResourceRepo.Delete(ctx.GetContext(), resource.Id)
+	err = a.SysResourceRepo.Delete(ctx, resource.Id)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	return ctx.Success(admin.ResourceDeleteResponse{Id: in.Id})
+	return &admin.ResourceDeleteResponse{Id: in.Id}, nil
 }

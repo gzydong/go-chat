@@ -1,0 +1,117 @@
+syntax = "proto3";
+package admin;
+
+option go_package = "admin/v1;admin";
+
+import "validate/validate.proto";
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+
+service User {
+  // 用户列表接口
+  rpc List(UserListRequest) returns (UserListResponse) {
+    option (google.api.http) = {
+      post: "/backend/user/list",
+      body: "*"
+    };
+  }
+
+  // 更新用户接口
+  rpc Update(UserUpdateRequest) returns (UserUpdateResponse) {
+    option (google.api.http) = {
+      post: "/backend/user/update"
+      body: "*"
+    };
+  }
+
+  // 获取用户详情接口
+  rpc Detail(UserDetailRequest) returns (UserDetailResponse) {
+    option (google.api.http) = {
+      get: "/backend/user/detail",
+      body: "*"
+    };
+  }
+}
+
+message UserListRequest {
+  // 页码
+  int32 page = 1 [(validate.rules).int32.gt = 0];
+  // 每页数量
+  int32 page_size = 2 [(validate.rules).int32.gt = 0];
+  // 手机号
+  string mobile = 3;
+  // 状态筛选
+  int32 status = 4;
+  // 邮箱
+  string email = 5;
+}
+
+message UserListResponse {
+  message Item {
+    // 用户ID
+    int32 id = 1;
+    // 用户名
+    string username = 2;
+    // 邮箱
+    string email = 3;
+    // 手机号
+    string mobile = 4;
+    // 状态
+    int32 status = 5;
+    // 创建时间
+    string created_at = 6;
+    // 更新时间
+    string updated_at = 7;
+    // 最后登录时间
+    string last_login_at = 8;
+    // 头像
+    string avatar = 9;
+  }
+
+  repeated Item items = 1;
+  int32 total = 2;
+  int32 page = 3;
+  int32 page_size = 4;
+  int32 page_total = 5;
+}
+
+
+message UserUpdateRequest {
+  // 用户ID
+  int32 id = 1 [(validate.rules).int32.gt = 0];
+  // 用户名
+  string username = 2 [(validate.rules).string = {min_len: 1}];
+  // 邮箱
+  string email = 3 [(validate.rules).string.email = true];
+  // 手机号
+  string mobile = 4 [(validate.rules).string = {pattern: "^1[0-9]{10}$"}];
+  // 状态
+  int32 status = 5 [(validate.rules).int32 = {in: [1, 2]}];
+}
+
+message UserUpdateResponse {
+  // 用户ID
+  int32 id = 1;
+}
+
+message UserDetailRequest {
+  // 用户ID
+  int32 id = 1 [(validate.rules).int32.gt = 0];
+}
+
+message UserDetailResponse {
+  // 用户ID
+  int32 id = 1;
+  // 用户名
+  string username = 2;
+  // 邮箱
+  string email = 3;
+  // 手机号
+  string mobile = 4;
+  // 状态
+  int32 status = 5;
+  // 创建时间
+  string created_at = 6;
+  // 更新时间
+  string updated_at = 7;
+}

@@ -843,17 +843,6 @@ func (m *ResourceDeleteRequest) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
-	if _, ok := _ResourceDeleteRequest_Status_InLookup[m.GetStatus()]; !ok {
-		err := ResourceDeleteRequestValidationError{
-			field:  "Status",
-			reason: "value must be in list [1 2]",
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
-	}
-
 	if len(errors) > 0 {
 		return ResourceDeleteRequestMultiError(errors)
 	}
@@ -933,11 +922,6 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = ResourceDeleteRequestValidationError{}
-
-var _ResourceDeleteRequest_Status_InLookup = map[int32]struct{}{
-	1: {},
-	2: {},
-}
 
 // Validate checks the field values on ResourceDeleteResponse with the rules
 // defined in the proto definition for this message. If any rules are

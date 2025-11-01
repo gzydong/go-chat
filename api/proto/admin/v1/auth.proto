@@ -4,57 +4,118 @@ package admin;
 option go_package = "admin/v1;admin";
 
 import "validate/validate.proto";
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+
+service Auth{
+  // 管理员登录接口
+  rpc Login(AuthLoginRequest) returns (AuthLoginResponse) {
+    option (google.api.http) = {
+      post: "/backend/auth/login"
+      body: "*"
+    };
+  }
+
+  // 获取图形验证码接口
+  rpc Captcha(AuthCaptchaRequest) returns (AuthCaptchaResponse) {
+    option (google.api.http) = {
+      post: "/backend/auth/captcha",
+      body: "*"
+    };
+  }
+
+  // 管理员注销登录接口
+  rpc Logout(AuthLogoutRequest) returns (AuthLogoutResponse) {
+    option (google.api.http) = {
+      post: "/backend/auth/logout"
+      body: "*"
+    };
+  }
+
+  // 管理员刷新Token接口
+  rpc Refresh(AuthRefreshRequest) returns (AuthRefreshResponse) {
+    option (google.api.http) = {
+      post: "/backend/auth/refresh"
+      body: "*"
+    };
+  }
+
+  // 获取管理员详情接口
+  rpc Detail(AuthDetailRequest) returns (AuthDetailResponse) {
+    option (google.api.http) = {
+      post: "/backend/auth/detail",
+      body: "*"
+    };
+  }
+
+  // 更新管理员密码接口
+  rpc UpdatePassword(AuthUpdatePasswordRequest) returns (AuthUpdatePasswordResponse) {
+    option (google.api.http) = {
+      post: "/backend/auth/update-password"
+      body: "*"
+    };
+  }
+
+  // 更新管理员详情接口
+  rpc UpdateDetail(AuthUpdateDetailRequest) returns (AuthUpdateDetailResponse) {
+    option (google.api.http) = {
+      post: "/backend/auth/update-detail"
+      body: "*"
+    };
+  }
+
+  rpc Menus(AuthMenusRequest) returns (AuthMenusResponse) {
+    option (google.api.http) = {
+      post: "/backend/auth/menus"
+      body: "*"
+    };
+  }
+}
 
 message AccessToken{
   // Token 类型
-  string type = 1;
+  string type = 1[(google.api.field_behavior) = REQUIRED];
   // token
-  string access_token = 2;
+  string access_token = 2[(google.api.field_behavior) = REQUIRED];
   // 过期时间
-  int32 expires_in = 3;
+  int32 expires_in = 3[(google.api.field_behavior) = REQUIRED];
 }
 
-// 管理员登录接口请求参数
 message AuthLoginRequest{
   // 登录账号
-  string username = 1 [(validate.rules).string.min_len = 1];
+  string username = 1 [(validate.rules).string = {min_len: 1}];
   // 登录密码
-  string password = 2 [(validate.rules).string.min_len = 1];
+  string password = 2 [(validate.rules).string = {min_len: 1}];
   // 图形验证码
-  string captcha = 3 [(validate.rules).string.min_len = 1];
-  // 图形验证码
-  string captcha_voucher = 4 [(validate.rules).string.min_len = 1];
+  string captcha = 3 [(validate.rules).string = {min_len: 1}];
+  // 图形验证码凭证
+  string captcha_voucher = 4 [(validate.rules).string = {min_len: 1}];
 }
 
-// 管理员登录接口请求参数
 message AuthLoginResponse{
-  string username = 2;
-  AccessToken auth = 1;
+  // 授权信息
+  AccessToken auth = 1[(google.api.field_behavior) = REQUIRED];
+  // 用户名
+  string username = 2[(google.api.field_behavior) = REQUIRED];
 }
 
 
-// 图形验证接口请求参数
 message AuthCaptchaRequest{}
 
-// 图形验证接口响应参数
 message AuthCaptchaResponse{
   // 验证码唯一凭证
-  string voucher = 1;
+  string voucher = 1[(google.api.field_behavior) = REQUIRED];
   // 验证码图像 base64
-  string captcha = 2;
+  string captcha = 2[(google.api.field_behavior) = REQUIRED];
 }
 
 
-// 管理员注销登录接口请求参数
 message AuthLogoutRequest{}
 
-// 管理员注销登录接口请求参数
 message AuthLogoutResponse{}
 
-// 管理员刷新Token接口请求参数
 message AuthRefreshRequest{}
 
-// 管理员刷新Token接口请求参数
 message AuthRefreshResponse{
   // 授权 token
   string token = 1;
@@ -63,40 +124,84 @@ message AuthRefreshResponse{
 }
 
 
-// 管理员刷新Token接口请求参数
 message AuthDetailRequest{}
 
-// 管理员刷新Token接口请求参数
 message AuthDetailResponse{
+  // 用户名
   string username = 1;
+  // 邮箱
   string email = 2;
+  // 手机号
   string mobile = 3;
+  // 地址
   string address = 4;
+  // 是否启用双因子认证
   string two_factor_enable = 5;
 }
 
 
-// 管理员刷新Token接口请求参数
 message AuthUpdatePasswordRequest{
-  string old_password = 1 [(validate.rules).string.min_len = 6];
-  string new_password = 2 [(validate.rules).string.min_len = 6];
+  // 旧密码
+  string old_password = 1 [(validate.rules).string = {min_len: 6}];
+  // 新密码
+  string new_password = 2 [(validate.rules).string = {min_len: 6}];
 }
 
-// 管理员刷新Token接口请求参数
 message AuthUpdatePasswordResponse{
+  // 用户名
   string username = 1;
+  // 邮箱
   string email = 2;
+  // 手机号
   string mobile = 3;
 }
 
 
 
 message AuthUpdateDetailRequest{
+  // 用户名
   string username = 1;
+  // 手机号
   string mobile = 3;
+  // 地址
   string address = 4;
 }
 
 message AuthUpdateDetailResponse{
 
+}
+
+
+
+
+message Menus {
+  // 路径
+  string path = 1 [(google.api.field_behavior) = REQUIRED];
+  // 名称
+  string name = 2 [(google.api.field_behavior) = REQUIRED];
+  // 元数据
+  Meta meta = 3 [(google.api.field_behavior) = REQUIRED];
+  // 子菜单
+  repeated Menus children = 4;
+}
+
+message Meta {
+  // 图标
+  string icon = 1;
+  // 标题
+  string title = 2;
+  // 排序
+  int32 sort = 3;
+  // 是否隐藏
+  string hidden = 4;
+  // 是否使用布局
+  string use_layout = 5;
+  // 框架源地址
+  string frame_src = 6;
+}
+
+message AuthMenusRequest{}
+
+message AuthMenusResponse{
+  repeated Menus items = 1 [(google.api.field_behavior) = REQUIRED];
 }

@@ -13,6 +13,7 @@ import (
 	"go-chat/internal/apis/handler"
 	"go-chat/internal/apis/handler/admin"
 	"go-chat/internal/apis/handler/admin/system"
+	"go-chat/internal/apis/handler/admin/user"
 	"go-chat/internal/apis/handler/open"
 	v1_2 "go-chat/internal/apis/handler/open/v1"
 	"go-chat/internal/apis/handler/web"
@@ -61,7 +62,7 @@ func NewHttpInjector(c *config.Config) *apis.Provider {
 		SmsService:  smsService,
 		UserService: userService,
 	}
-	jwtTokenStorage := cache.NewTokenSessionStorage(client)
+	jwtTokenStorage := cache.NewJwtTokenStorage(client)
 	redisLock := cache.NewRedisLock(client)
 	robot := repo.NewRobot(db)
 	source := repo.NewSource(db, client)
@@ -99,7 +100,7 @@ func NewHttpInjector(c *config.Config) *apis.Provider {
 		AesUtil:             iAesUtil,
 	}
 	organize := repo.NewOrganize(db)
-	user := &v1.User{
+	v1User := &v1.User{
 		Redis:        client,
 		UsersRepo:    users,
 		OrganizeRepo: organize,
@@ -368,7 +369,7 @@ func NewHttpInjector(c *config.Config) *apis.Provider {
 	webV1 := &web.V1{
 		Common:       common,
 		Auth:         auth,
-		User:         user,
+		User:         v1User,
 		Organize:     v1Organize,
 		Talk:         session,
 		TalkMessage:  talkMessage,
@@ -392,11 +393,13 @@ func NewHttpInjector(c *config.Config) *apis.Provider {
 		UserRepo: users,
 	}
 	repoAdmin := repo.NewAdmin(db)
+	sysMenu := repo.NewSysMenu(db)
 	captchaStorage := cache.NewCaptchaStorage(client)
 	captcha := provider.NewBase64Captcha(captchaStorage)
 	adminAuth := &admin.Auth{
 		Config:          c,
 		AdminRepo:       repoAdmin,
+		SysMenuRepo:     sysMenu,
 		JwtTokenStorage: jwtTokenStorage,
 		ICaptcha:        captcha,
 		Rsa:             iRsa,
@@ -418,9 +421,11 @@ func NewHttpInjector(c *config.Config) *apis.Provider {
 	resource := &system.Resource{
 		SysResourceRepo: sysResource,
 	}
-	sysMenu := repo.NewSysMenu(db)
 	menu := &system.Menu{
 		SysMenuRepo: sysMenu,
+	}
+	userUser := &user.User{
+		UserRepo: users,
 	}
 	adminHandler := &admin.Handler{
 		Auth:      adminAuth,
@@ -430,6 +435,7 @@ func NewHttpInjector(c *config.Config) *apis.Provider {
 		Resource:  resource,
 		Menu:      menu,
 		AdminRepo: repoAdmin,
+		User:      userUser,
 	}
 	index := v1_2.NewIndex()
 	openV1 := &open.V1{

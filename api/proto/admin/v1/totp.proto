@@ -4,41 +4,95 @@ package admin;
 option go_package = "admin/v1;admin";
 
 import "validate/validate.proto";
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+
+service Totp{
+  // 获取双因子认证状态接口
+  rpc Status(TotpStatusRequest) returns (TotpStatusResponse) {
+    option (google.api.http) = {
+      post: "/backend/totp/status",
+      body: "*"
+    };
+  }
+
+  // 关闭双因子认证接口
+  rpc Close(TotpCloseRequest) returns (TotpCloseResponse) {
+    option (google.api.http) = {
+      post: "/backend/totp/close"
+      body: "*"
+    };
+  }
+
+  // 初始化双因子认证接口
+  rpc Init(TotpInitRequest) returns (TotpInitResponse) {
+    option (google.api.http) = {
+      post: "/backend/totp/init"
+      body: "*"
+    };
+  }
+
+  // 提交双因子认证接口
+  rpc Submit(TotpSubmitRequest) returns (TotpSubmitResponse) {
+    option (google.api.http) = {
+      post: "/backend/totp/submit"
+      body: "*"
+    };
+  }
+
+  // 获取双因子认证二维码接口
+  rpc Qrcode(TotpQrcodeRequest) returns (TotpQrcodeResponse) {
+    option (google.api.http) = {
+      post: "/backend/totp/qrcode"
+      body: "*"
+    };
+  }
+}
 
 message TotpStatusRequest{}
 
 message TotpStatusResponse{
+  // 是否启用
   string enable = 1;
 }
 
 message TotpCloseRequest{
-  string password = 1[(validate.rules).string.min_len = 1];
+  // 密码
+  string password = 1 [(validate.rules).string = {min_len: 1}];
 }
 
 message TotpCloseResponse{}
 
 message TotpInitRequest{
-  string password = 1[(validate.rules).string.min_len = 1];
+  // 密码
+  string password = 1 [(validate.rules).string = {min_len: 1}];
 }
 
 message TotpInitResponse{
+  // 二维码URI
   string qrcode_uri = 1;
+  // 密钥
   string secret = 3;
 }
 
 message TotpSubmitRequest{
-  string code = 1[(validate.rules).string.min_len = 1];
-  string session = 2[(validate.rules).string.min_len = 1];
+  // 验证码
+  string code = 1 [(validate.rules).string = {min_len: 1}];
+  // 会话ID
+  string session = 2 [(validate.rules).string = {min_len: 1}];
 }
 
 message TotpSubmitResponse{
+  // 一次性备用码
   repeated string one_time_code = 3;
 }
 
 message TotpQrcodeRequest{
-  string password = 1[(validate.rules).string.min_len = 1];
+  // 密码
+  string password = 1 [(validate.rules).string = {min_len: 1}];
 }
 
 message TotpQrcodeResponse{
+  // 二维码URI
   string qrcode_uri = 2;
 }

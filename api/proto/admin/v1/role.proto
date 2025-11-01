@@ -4,15 +4,46 @@ package admin;
 option go_package = "admin/v1;admin";
 
 import "validate/validate.proto";
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+
+service Role{
+  // 角色列表接口
+  rpc List(RoleListRequest) returns (RoleListResponse) {
+    option (google.api.http) = {
+      post: "/backend/role/list",
+      body: "*"
+    };
+  }
+
+  // 创建角色接口
+  rpc Create(RoleCreateRequest) returns (RoleCreateResponse) {
+    option (google.api.http) = {
+      post: "/backend/role/create"
+      body: "*"
+    };
+  }
+
+  // 更新角色接口
+  rpc Update(RoleUpdateRequest) returns (RoleUpdateResponse) {
+    option (google.api.http) = {
+      post: "/backend/role/update"
+      body: "*"
+    };
+  }
+}
 
 message RoleListRequest{
-  int32 page = 1[(validate.rules).int32.gt = 0];
-  int32 page_size = 2[(validate.rules).int32.gt = 0];
+  // 页码
+  int32 page = 1 [(validate.rules).int32.gt = 0];
+  // 每页数量
+  int32 page_size = 2 [(validate.rules).int32.gt = 0];
+  // 角色名称
   string role_name = 3;
+  // 状态
   int32 status = 4;
 }
 
-// 管理员登录接口请求参数
 message RoleListResponse{
   message Item{
     int32 id = 1;
@@ -32,22 +63,25 @@ message RoleListResponse{
 
 
 message RoleCreateRequest{
+  // 角色名称
   string role_name = 2 [(validate.rules).string = {min_len: 1}];
+  // 角色说明
   string explain = 3 [(validate.rules).string = {max_len: 100}];
 }
 
-// 管理员登录接口请求参数
 message RoleCreateResponse{
   int32 id = 1;
 }
 
 message RoleUpdateRequest{
-  int32 id = 1[(validate.rules).int32.gt = 0];
+  // 角色ID
+  int32 id = 1 [(validate.rules).int32.gt = 0];
+  // 角色名称
   string role_name = 2 [(validate.rules).string = {min_len: 1}];
+  // 角色说明
   string explain = 3 [(validate.rules).string = {max_len: 100}];
 }
 
-// 管理员登录接口请求参数
 message RoleUpdateResponse{
   int32 id = 1;
 }

@@ -4,20 +4,58 @@ package admin;
 option go_package = "admin/v1;admin";
 
 import "validate/validate.proto";
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+
+service Resource{
+  // 资源列表接口
+  rpc List(ResourceListRequest) returns (ResourceListResponse) {
+    option (google.api.http) = {
+      post: "/backend/resource/list",
+      body: "*"
+    };
+  }
+
+  // 创建资源接口
+  rpc Create(ResourceCreateRequest) returns (ResourceCreateResponse) {
+    option (google.api.http) = {
+      post: "/backend/resource/create"
+      body: "*"
+    };
+  }
+
+  // 更新资源接口
+  rpc Update(ResourceUpdateRequest) returns (ResourceUpdateResponse) {
+    option (google.api.http) = {
+      post: "/backend/resource/update"
+      body: "*"
+    };
+  }
+
+  // 删除资源接口
+  rpc Delete(ResourceDeleteRequest) returns (ResourceDeleteResponse) {
+    option (google.api.http) = {
+      post: "/backend/resource/delete"
+      body: "*"
+    };
+  }
+}
 
 message ResourceListRequest{
-  // Token 类型
+  // 页码
   int32 page = 1 [(validate.rules).int32.gt = 0];
-  // token
+  // 每页数量
   int32 page_size = 2 [(validate.rules).int32.gt = 0];
-  // 过期时间
+  // URI
   string uri = 3;
+  // 资源名称
   string name = 4;
+  // 状态
   int32 status = 5;
+  // 类型
   int32 type = 6;
 }
 
-// 管理员登录接口请求参数
 message ResourceListResponse{
   message Item{
     int32 id = 1;
@@ -38,34 +76,37 @@ message ResourceListResponse{
 
 
 message ResourceCreateRequest{
+  // 资源名称
   string name = 1 [(validate.rules).string = {min_len: 1}];
+  // 资源URI
   string uri = 2 [(validate.rules).string = {min_len: 1}];
+  // 资源类型
   int32 type = 3 [(validate.rules).int32 = {in: [1, 2]}];
 }
 
-// 管理员登录接口请求参数
 message ResourceCreateResponse{
   int32 id = 1;
 }
 
 message ResourceUpdateRequest{
+  // 资源ID
   int32 id = 1 [(validate.rules).int32.gt = 0];
+  // 资源名称
   string name = 2 [(validate.rules).string = {min_len: 1}];
+  // 资源URI
   string uri = 3 [(validate.rules).string = {min_len: 1}];
+  // 状态
   int32 status = 4 [(validate.rules).int32 = {in: [1, 2]}];
 }
 
-// 管理员登录接口请求参数
 message ResourceUpdateResponse{
   int32 id = 1;
 }
 
 message ResourceDeleteRequest{
   int32 id = 1 [(validate.rules).int32.gt = 0];
-  int32 status = 2 [(validate.rules).int32 = {in: [1, 2]}];
 }
 
-// 管理员登录接口请求参数
 message ResourceDeleteResponse{
   int32 id = 1;
 }

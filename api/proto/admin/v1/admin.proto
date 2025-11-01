@@ -4,19 +4,56 @@ package admin;
 option go_package = "admin/v1;admin";
 
 import "validate/validate.proto";
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+
+service Admin{
+  // 创建管理员接口
+  rpc Create(AdminCreateRequest) returns (AdminCreateResponse) {
+    option (google.api.http) = {
+      post: "/backend/admin/create"
+      body: "*"
+    };
+  }
+
+  // 管理员列表接口
+  rpc List(AdminListRequest) returns (AdminListResponse) {
+    option (google.api.http) = {
+      post: "/backend/admin/list",
+      body: "*"
+    };
+  }
+
+  // 更新管理员状态接口
+  rpc UpdateStatus(AdminUpdateStatusRequest) returns (AdminUpdateStatusResponse) {
+    option (google.api.http) = {
+      post: "/backend/admin/update-status"
+      body: "*"
+    };
+  }
+
+  // 重置管理员密码接口
+  rpc ResetPassword(AdminResetPasswordRequest) returns (AdminResetPasswordResponse) {
+    option (google.api.http) = {
+      post: "/backend/admin/reset-password"
+      body: "*"
+    };
+  }
+}
 
 message AdminListRequest{
-  // Token 类型
+  // 页码
   int32 page = 1 [(validate.rules).int32.gt = 0];
-  // token
+  // 每页数量
   int32 page_size = 2 [(validate.rules).int32.gt = 0];
-  // 过期时间
+  // 用户名
   string username = 3;
+  // 状态
   int32 status = 4;
+  // 邮箱
   string email = 5;
 }
 
-// 管理员登录接口请求参数
 message AdminListResponse{
   message Item{
     int32 id = 1;
@@ -38,36 +75,30 @@ message AdminListResponse{
   int32 page_total = 5;
 }
 
-
 message AdminCreateRequest{
   string username = 2 [(validate.rules).string = {min_len: 6}];
   string email = 6 [(validate.rules).string = {min_len: 6}];
   string password = 5 [(validate.rules).string = {min_len: 6}];
 }
 
-// 管理员登录接口请求参数
 message AdminCreateResponse{
   int32 id = 1;
 }
 
-
-message AdminStatusRequest{
+message AdminUpdateStatusRequest{
   int32 id = 1 [(validate.rules).int32.gt = 0];
   int32 status = 2 [(validate.rules).int32 = {in: [1, 2]}];
 }
 
-// 管理员登录接口请求参数
-message AdminStatusResponse{
+message AdminUpdateStatusResponse{
   int32 id = 1;
 }
-
 
 message AdminResetPasswordRequest{
   int32 id = 1 [(validate.rules).int32.gt = 1];
   string password = 2 [(validate.rules).string = {min_len: 6}];
 }
 
-// 管理员登录接口请求参数
 message AdminResetPasswordResponse{
   int32 id = 1;
 }

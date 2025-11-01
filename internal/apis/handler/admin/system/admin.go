@@ -1,28 +1,44 @@
 package system
 
 import (
+	"context"
 	"time"
 
-	"github.com/samber/lo"
 	"go-chat/api/pb/admin/v1"
-	"go-chat/internal/pkg/core"
 	"go-chat/internal/pkg/encrypt"
 	"go-chat/internal/repository/model"
 	"go-chat/internal/repository/repo"
+
+	"github.com/samber/lo"
 	"gorm.io/gorm"
 )
+
+var _ admin.IAdminHandler = (*Admin)(nil)
 
 type Admin struct {
 	AdminRepo *repo.Admin
 }
 
-func (a *Admin) List(ctx *core.Context) error {
-	var in admin.AdminListRequest
-	if err := ctx.ShouldBindProto(&in); err != nil {
-		return ctx.InvalidParams(err)
+func (a *Admin) Create(ctx context.Context, in *admin.AdminCreateRequest) (*admin.AdminCreateResponse, error) {
+	data := &model.Admin{
+		Username:    in.Username,
+		Password:    encrypt.HashPassword(in.Password),
+		Gender:      3,
+		Email:       in.Email,
+		Status:      1,
+		LastLoginAt: time.Now(),
 	}
 
-	total, conditions, err := a.AdminRepo.Pagination(ctx.GetContext(), int(in.Page), int(in.PageSize), func(tx *gorm.DB) *gorm.DB {
+	err := a.AdminRepo.Create(ctx, data)
+	if err != nil {
+		return nil, err
+	}
+
+	return &admin.AdminCreateResponse{Id: int32(data.Id)}, nil
+}
+
+func (a *Admin) List(ctx context.Context, in *admin.AdminListRequest) (*admin.AdminListResponse, error) {
+	total, conditions, err := a.AdminRepo.Pagination(ctx, int(in.Page), int(in.PageSize), func(tx *gorm.DB) *gorm.DB {
 		if in.Username != "" {
 			tx = tx.Where("username = ?", in.Username)
 		}
@@ -39,7 +55,7 @@ func (a *Admin) List(ctx *core.Context) error {
 	})
 
 	if err != nil {
-		return ctx.Error(err)
+		return nil, err
 	}
 
 	items := lo.Map(conditions, func(item *model.Admin, index int) *admin.AdminListResponse_Item {
@@ -57,69 +73,35 @@ func (a *Admin) List(ctx *core.Context) error {
 		}
 	})
 
-	return ctx.Success(&admin.AdminListResponse{
+	return &admin.AdminListResponse{
 		Items:     items,
 		Total:     int32(total),
 		Page:      in.Page,
 		PageSize:  in.PageSize,
 		PageTotal: int32(total) / in.PageSize,
-	})
+	}, nil
 }
 
-func (a *Admin) Create(ctx *core.Context) error {
-	var in admin.AdminCreateRequest
-	if err := ctx.ShouldBindProto(&in); err != nil {
-		return ctx.InvalidParams(err)
-	}
-
-	data := &model.Admin{
-		Username:    in.Username,
-		Password:    encrypt.HashPassword(in.Password),
-		Gender:      3,
-		Email:       in.Email,
-		Status:      1,
-		LastLoginAt: time.Now(),
-	}
-
-	err := a.AdminRepo.Create(ctx.GetContext(), data)
-	if err != nil {
-		return err
-	}
-
-	return ctx.Success(admin.AdminCreateResponse{Id: int32(data.Id)})
-}
-
-func (a *Admin) UpdateStatus(ctx *core.Context) error {
-	var in admin.AdminStatusRequest
-	if err := ctx.ShouldBindProto(&in); err != nil {
-		return ctx.InvalidParams(err)
-	}
-
-	_, err := a.AdminRepo.UpdateById(ctx.GetContext(), in.GetId(), map[string]any{
+func (a *Admin) UpdateStatus(ctx context.Context, in *admin.AdminUpdateStatusRequest) (*admin.AdminUpdateStatusResponse, error) {
+	_, err := a.AdminRepo.UpdateById(ctx, in.GetId(), map[string]any{
 		"status": in.Status,
 	})
 
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	return ctx.Success(admin.AdminStatusResponse{Id: in.Id})
+	return &admin.AdminUpdateStatusResponse{Id: in.Id}, nil
 }
 
-func (a *Admin) ResetPassword(ctx *core.Context) error {
-	var in admin.AdminResetPasswordRequest
-
-	if err := ctx.ShouldBindProto(&in); err != nil {
-		return ctx.InvalidParams(err)
-	}
-
-	_, err := a.AdminRepo.UpdateById(ctx.GetContext(), in.GetId(), map[string]any{
+func (a *Admin) ResetPassword(ctx context.Context, in *admin.AdminResetPasswordRequest) (*admin.AdminResetPasswordResponse, error) {
+	_, err := a.AdminRepo.UpdateById(ctx, in.GetId(), map[string]any{
 		"password": encrypt.HashPassword(in.Password),
 	})
 
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	return ctx.Success(admin.AdminResetPasswordResponse{Id: in.Id})
+	return &admin.AdminResetPasswordResponse{Id: in.Id}, nil
 }

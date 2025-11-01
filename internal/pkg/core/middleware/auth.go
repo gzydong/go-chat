@@ -41,7 +41,7 @@ func GetAuthToken(c *gin.Context) string {
 
 type JwtMiddlewareOption struct {
 	// 访客路由
-	VisitorPath []string
+	ExclusionPaths []string
 }
 
 func NewJwtMiddleware[T IClaims](
@@ -59,8 +59,10 @@ func NewJwtMiddleware[T IClaims](
 	return func(c *gin.Context) {
 		token := GetAuthToken(c)
 
+		//c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"code": 401, "message": "授权异常，请登录后操作!"})
+		//return
 		if token == "" {
-			if slices.Contains(option.VisitorPath, c.Request.URL.Path) {
+			if slices.Contains(option.ExclusionPaths, c.Request.URL.Path) {
 				c.Next()
 				return
 			}

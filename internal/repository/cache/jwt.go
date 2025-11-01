@@ -13,7 +13,7 @@ type JwtTokenStorage struct {
 	redis *redis.Client
 }
 
-func NewTokenSessionStorage(redis *redis.Client) *JwtTokenStorage {
+func NewJwtTokenStorage(redis *redis.Client) *JwtTokenStorage {
 	return &JwtTokenStorage{redis}
 }
 

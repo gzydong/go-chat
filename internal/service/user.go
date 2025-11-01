@@ -45,13 +45,10 @@ func (s *UserService) Register(ctx context.Context, opt *UserRegisterOpt) (*mode
 	user := &model.Users{
 		Mobile:    lo.ToPtr(opt.Mobile),
 		Nickname:  opt.Nickname,
-		Avatar:    "",
 		Gender:    model.UsersGenderDefault,
 		Password:  encrypt.HashPassword(opt.Password),
-		Motto:     "",
-		Email:     "",
-		Birthday:  "",
 		IsRobot:   model.No,
+		Status:    model.UsersStatusNormal,
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	}

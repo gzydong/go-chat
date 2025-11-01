@@ -306,8 +306,6 @@ func (m *AuthLoginResponse) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for Username
-
 	if all {
 		switch v := interface{}(m.GetAuth()).(type) {
 		case interface{ ValidateAll() error }:
@@ -336,6 +334,8 @@ func (m *AuthLoginResponse) validate(all bool) error {
 			}
 		}
 	}
+
+	// no validation rules for Username
 
 	if len(errors) > 0 {
 		return AuthLoginResponseMultiError(errors)
@@ -1692,3 +1692,514 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = AuthUpdateDetailResponseValidationError{}
+
+// Validate checks the field values on Menus with the rules defined in the
+// proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
+func (m *Menus) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on Menus with the rules defined in the
+// proto definition for this message. If any rules are violated, the result is
+// a list of violation errors wrapped in MenusMultiError, or nil if none found.
+func (m *Menus) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *Menus) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Path
+
+	// no validation rules for Name
+
+	if all {
+		switch v := interface{}(m.GetMeta()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, MenusValidationError{
+					field:  "Meta",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, MenusValidationError{
+					field:  "Meta",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetMeta()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return MenusValidationError{
+				field:  "Meta",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	for idx, item := range m.GetChildren() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, MenusValidationError{
+						field:  fmt.Sprintf("Children[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, MenusValidationError{
+						field:  fmt.Sprintf("Children[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return MenusValidationError{
+					field:  fmt.Sprintf("Children[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	if len(errors) > 0 {
+		return MenusMultiError(errors)
+	}
+
+	return nil
+}
+
+// MenusMultiError is an error wrapping multiple validation errors returned by
+// Menus.ValidateAll() if the designated constraints aren't met.
+type MenusMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m MenusMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m MenusMultiError) AllErrors() []error { return m }
+
+// MenusValidationError is the validation error returned by Menus.Validate if
+// the designated constraints aren't met.
+type MenusValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e MenusValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e MenusValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e MenusValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e MenusValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e MenusValidationError) ErrorName() string { return "MenusValidationError" }
+
+// Error satisfies the builtin error interface
+func (e MenusValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sMenus.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = MenusValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = MenusValidationError{}
+
+// Validate checks the field values on Meta with the rules defined in the proto
+// definition for this message. If any rules are violated, the first error
+// encountered is returned, or nil if there are no violations.
+func (m *Meta) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on Meta with the rules defined in the
+// proto definition for this message. If any rules are violated, the result is
+// a list of violation errors wrapped in MetaMultiError, or nil if none found.
+func (m *Meta) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *Meta) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Icon
+
+	// no validation rules for Title
+
+	// no validation rules for Sort
+
+	// no validation rules for Hidden
+
+	// no validation rules for UseLayout
+
+	// no validation rules for FrameSrc
+
+	if len(errors) > 0 {
+		return MetaMultiError(errors)
+	}
+
+	return nil
+}
+
+// MetaMultiError is an error wrapping multiple validation errors returned by
+// Meta.ValidateAll() if the designated constraints aren't met.
+type MetaMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m MetaMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m MetaMultiError) AllErrors() []error { return m }
+
+// MetaValidationError is the validation error returned by Meta.Validate if the
+// designated constraints aren't met.
+type MetaValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e MetaValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e MetaValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e MetaValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e MetaValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e MetaValidationError) ErrorName() string { return "MetaValidationError" }
+
+// Error satisfies the builtin error interface
+func (e MetaValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sMeta.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = MetaValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = MetaValidationError{}
+
+// Validate checks the field values on AuthMenusRequest with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// first error encountered is returned, or nil if there are no violations.
+func (m *AuthMenusRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on AuthMenusRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// AuthMenusRequestMultiError, or nil if none found.
+func (m *AuthMenusRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *AuthMenusRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(errors) > 0 {
+		return AuthMenusRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// AuthMenusRequestMultiError is an error wrapping multiple validation errors
+// returned by AuthMenusRequest.ValidateAll() if the designated constraints
+// aren't met.
+type AuthMenusRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m AuthMenusRequestMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m AuthMenusRequestMultiError) AllErrors() []error { return m }
+
+// AuthMenusRequestValidationError is the validation error returned by
+// AuthMenusRequest.Validate if the designated constraints aren't met.
+type AuthMenusRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e AuthMenusRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e AuthMenusRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e AuthMenusRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e AuthMenusRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e AuthMenusRequestValidationError) ErrorName() string { return "AuthMenusRequestValidationError" }
+
+// Error satisfies the builtin error interface
+func (e AuthMenusRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sAuthMenusRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = AuthMenusRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = AuthMenusRequestValidationError{}
+
+// Validate checks the field values on AuthMenusResponse with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// first error encountered is returned, or nil if there are no violations.
+func (m *AuthMenusResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on AuthMenusResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// AuthMenusResponseMultiError, or nil if none found.
+func (m *AuthMenusResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *AuthMenusResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	for idx, item := range m.GetItems() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, AuthMenusResponseValidationError{
+						field:  fmt.Sprintf("Items[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, AuthMenusResponseValidationError{
+						field:  fmt.Sprintf("Items[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return AuthMenusResponseValidationError{
+					field:  fmt.Sprintf("Items[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	if len(errors) > 0 {
+		return AuthMenusResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// AuthMenusResponseMultiError is an error wrapping multiple validation errors
+// returned by AuthMenusResponse.ValidateAll() if the designated constraints
+// aren't met.
+type AuthMenusResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m AuthMenusResponseMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m AuthMenusResponseMultiError) AllErrors() []error { return m }
+
+// AuthMenusResponseValidationError is the validation error returned by
+// AuthMenusResponse.Validate if the designated constraints aren't met.
+type AuthMenusResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e AuthMenusResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e AuthMenusResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e AuthMenusResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e AuthMenusResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e AuthMenusResponseValidationError) ErrorName() string {
+	return "AuthMenusResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e AuthMenusResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sAuthMenusResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = AuthMenusResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = AuthMenusResponseValidationError{}

@@ -5,9 +5,10 @@ import (
 	"errors"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
+	admin2 "go-chat/api/pb/admin/v1"
 	"go-chat/internal/apis/handler/admin"
 	"go-chat/internal/entity"
-	"go-chat/internal/pkg/core"
 	"go-chat/internal/pkg/core/middleware"
 	"go-chat/internal/pkg/jwtutil"
 )
@@ -33,60 +34,34 @@ func RegisterAdminRoute(secret string, router *gin.Engine, handler *admin.Handle
 
 			return nil
 		},
+		func(option *middleware.JwtMiddlewareOption) {
+			option.ExclusionPaths = []string{
+				"/backend/auth/login",
+				"/backend/auth/captcha",
+			}
+		},
 	)
 
-	// v1 接口
-	v1 := router.Group("/admin/v1")
-	{
-		auth := v1.Group("/auth")
-		{
-			auth.POST("/login", core.HandlerFunc(handler.Auth.Login))
-			auth.POST("/captcha", core.HandlerFunc(handler.Auth.Captcha))
-			auth.GET("/logout", authorize, core.HandlerFunc(handler.Auth.Logout))
-			auth.POST("/detail", authorize, core.HandlerFunc(handler.Auth.Detail))
-			auth.POST("/update-password", authorize, core.HandlerFunc(handler.Auth.UpdatePassword))
-			auth.POST("/update-detail", authorize, core.HandlerFunc(handler.Auth.UpdateDetail))
-		}
+	resp := &Response{}
 
-		admins := v1.Group("/admin", authorize)
-		{
-			admins.POST("/list", core.HandlerFunc(handler.Admin.List))
-			admins.POST("/create", core.HandlerFunc(handler.Admin.Create))
-			admins.POST("/update-status", core.HandlerFunc(handler.Admin.UpdateStatus))
-			admins.POST("/reset-password", core.HandlerFunc(handler.Admin.ResetPassword))
-		}
+	group := router.Group("/").Use(authorize)
 
-		role := v1.Group("/role", authorize)
-		{
-			role.POST("/list", core.HandlerFunc(handler.Role.List))
-			role.POST("/create", core.HandlerFunc(handler.Role.Create))
-			role.POST("/update", core.HandlerFunc(handler.Role.Update))
-		}
+	admin2.RegisterTotpHandler(group, resp, handler.Totp)
+	admin2.RegisterAuthHandler(group, resp, handler.Auth)
+	admin2.RegisterMenuHandler(group, resp, handler.Menu)
+	admin2.RegisterResourceHandler(group, resp, handler.Resource)
+	admin2.RegisterAdminHandler(group, resp, handler.Admin)
+	admin2.RegisterRoleHandler(group, resp, handler.Role)
+	admin2.RegisterUserHandler(group, resp, handler.User)
 
-		resource := v1.Group("/resource", authorize)
-		{
-			resource.POST("/list", core.HandlerFunc(handler.Resource.List))
-			resource.POST("/create", core.HandlerFunc(handler.Resource.Create))
-			resource.POST("/update", core.HandlerFunc(handler.Resource.Update))
-			resource.POST("/delete", core.HandlerFunc(handler.Resource.Delete))
-		}
+	registerAdminCustomApiRouter(resp, group, handler)
 
-		menu := v1.Group("/menu", authorize)
-		{
-			menu.POST("/list", core.HandlerFunc(handler.Menu.List))
-			menu.POST("/create", core.HandlerFunc(handler.Menu.Create))
-			menu.POST("/update", core.HandlerFunc(handler.Menu.Update))
-			menu.POST("/delete", core.HandlerFunc(handler.Menu.Delete))
-			menu.POST("/user", core.HandlerFunc(handler.Menu.GetUserMenus))
-		}
+}
 
-		totp := v1.Group("/totp", authorize)
-		{
-			totp.POST("/status", core.HandlerFunc(handler.Totp.Status))
-			totp.POST("/init", core.HandlerFunc(handler.Totp.Init))
-			totp.POST("/submit", core.HandlerFunc(handler.Totp.Submit))
-			totp.POST("/qrcode", core.HandlerFunc(handler.Totp.Qrcode))
-			totp.POST("/close", core.HandlerFunc(handler.Totp.Close))
-		}
-	}
+func registerAdminCustomApiRouter(resp *Response, api gin.IRoutes, handler *admin.Handler) {
+	api.POST("/backend/upload/file", HandlerFunc(resp, func(c *gin.Context) (any, error) {
+		return map[string]any{
+			"url": "https://www.cox.com/" + uuid.NewString(),
+		}, nil
+	}))
 }
