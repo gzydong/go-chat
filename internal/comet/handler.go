@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"log/slog"
 
+	"github.com/gzydong/go-chat/internal/entity"
 	"github.com/gzydong/go-chat/internal/logic"
+	"github.com/gzydong/go-chat/internal/pkg/jsonutil"
 	"github.com/gzydong/go-chat/internal/pkg/longnet"
 	"github.com/gzydong/go-chat/internal/pkg/server"
 	"github.com/gzydong/go-chat/internal/repository/cache"
@@ -37,6 +39,15 @@ func (h *Handler) OnMessage(smg longnet.ISessionManager, c longnet.ISession, mes
 	case "ping":
 		_ = h.UserClient.Bind(context.Background(), server.ID(), c.ConnId(), c.UserId())
 		_ = c.Write([]byte(`{"event":"pong"}`))
+
+	case "im.message.keyboard":
+		_ = h.PushMessage.Push(context.Background(), entity.ImTopicChat, &entity.SubscribeMessage{
+			Event: entity.SubEventImMessageKeyboard,
+			Payload: jsonutil.Encode(entity.SubEventImMessageKeyboardPayload{
+				FromId:   int(c.UserId()),
+				ToFromId: int(gjson.GetBytes(message, "payload.to_from_id").Int()),
+			}),
+		})
 	}
 }
 

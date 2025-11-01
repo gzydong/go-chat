@@ -170,16 +170,16 @@ func (s *ArticleService) List(ctx context.Context, opt *ArticleListOpt) ([]*mode
 	// 查找类型 1:最近修改 2:我的收藏 3:分类查询 4:标签查询
 	switch opt.FindType {
 	case 1:
-		query.Order("article.updated_at desc").Limit(20)
+		query.Limit(20)
 	case 2:
 		query.Where("article.is_asterisk = ?", model.Yes)
 	case 3:
 		query.Where("article.class_id = ?", opt.ClassifyId)
 	case 4:
 		query.Where("FIND_IN_SET(?,article.tags_id)", opt.TagId)
-	default:
-		query.Order("article.id desc")
 	}
+
+	query.Order("article.updated_at desc")
 
 	items := make([]*model.ArticleListItem, 0)
 	if err := query.Scan(&items).Error; err != nil {

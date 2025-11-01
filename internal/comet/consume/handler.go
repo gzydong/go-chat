@@ -47,6 +47,7 @@ func (h *Handler) Call(ctx context.Context, event string, data []byte) {
 		h.init()
 	}
 
+	//log.Printf("consume chat event: [%s]\n", event)
 	if call, ok := handlers[event]; ok {
 		call(ctx, data)
 	} else {
