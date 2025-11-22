@@ -7,7 +7,7 @@
 package admin
 
 import (
-	_ "github.com/envoyproxy/protoc-gen-validate/validate"
+	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -1043,17 +1043,17 @@ var File_admin_v1_auth_proto protoreflect.FileDescriptor
 
 const file_admin_v1_auth_proto_rawDesc = "" +
 	"\n" +
-	"\x13admin/v1/auth.proto\x12\x05admin\x1a\x17validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\"u\n" +
+	"\x13admin/v1/auth.proto\x12\x05admin\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\"u\n" +
 	"\vAccessToken\x12\x18\n" +
 	"\x04type\x18\x01 \x01(\tB\x04\xe2A\x01\x02R\x04type\x12'\n" +
 	"\faccess_token\x18\x02 \x01(\tB\x04\xe2A\x01\x02R\vaccessToken\x12#\n" +
 	"\n" +
 	"expires_in\x18\x03 \x01(\x05B\x04\xe2A\x01\x02R\texpiresIn\"\xb1\x01\n" +
 	"\x10AuthLoginRequest\x12#\n" +
-	"\busername\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\busername\x12#\n" +
-	"\bpassword\x18\x02 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\bpassword\x12!\n" +
-	"\acaptcha\x18\x03 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\acaptcha\x120\n" +
-	"\x0fcaptcha_voucher\x18\x04 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x0ecaptchaVoucher\"c\n" +
+	"\busername\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\busername\x12#\n" +
+	"\bpassword\x18\x02 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\bpassword\x12!\n" +
+	"\acaptcha\x18\x03 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\acaptcha\x120\n" +
+	"\x0fcaptcha_voucher\x18\x04 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x0ecaptchaVoucher\"c\n" +
 	"\x11AuthLoginResponse\x12,\n" +
 	"\x04auth\x18\x01 \x01(\v2\x12.admin.AccessTokenB\x04\xe2A\x01\x02R\x04auth\x12 \n" +
 	"\busername\x18\x02 \x01(\tB\x04\xe2A\x01\x02R\busername\"\x14\n" +
@@ -1075,8 +1075,8 @@ const file_admin_v1_auth_proto_rawDesc = "" +
 	"\aaddress\x18\x04 \x01(\tR\aaddress\x12*\n" +
 	"\x11two_factor_enable\x18\x05 \x01(\tR\x0ftwoFactorEnable\"s\n" +
 	"\x19AuthUpdatePasswordRequest\x12*\n" +
-	"\fold_password\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x06R\voldPassword\x12*\n" +
-	"\fnew_password\x18\x02 \x01(\tB\a\xfaB\x04r\x02\x10\x06R\vnewPassword\"f\n" +
+	"\fold_password\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x06R\voldPassword\x12*\n" +
+	"\fnew_password\x18\x02 \x01(\tB\a\xbaH\x04r\x02\x10\x06R\vnewPassword\"f\n" +
 	"\x1aAuthUpdatePasswordResponse\x12\x1a\n" +
 	"\busername\x18\x01 \x01(\tR\busername\x12\x14\n" +
 	"\x05email\x18\x02 \x01(\tR\x05email\x12\x16\n" +

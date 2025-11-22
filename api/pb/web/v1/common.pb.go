@@ -7,7 +7,7 @@
 package web
 
 import (
-	_ "github.com/envoyproxy/protoc-gen-validate/validate"
+	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -289,18 +289,18 @@ var File_web_v1_common_proto protoreflect.FileDescriptor
 
 const file_web_v1_common_proto_rawDesc = "" +
 	"\n" +
-	"\x13web/v1/common.proto\x12\x03web\x1a\x17validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\"\x96\x01\n" +
+	"\x13web/v1/common.proto\x12\x03web\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\"\x96\x01\n" +
 	"\x14CommonSendSmsRequest\x12 \n" +
-	"\x06mobile\x18\x01 \x01(\tB\b\xfaB\x05r\x03\x98\x01\vR\x06mobile\x12\\\n" +
-	"\achannel\x18\x02 \x01(\tBB\xfaB?r=R\x05loginR\bregisterR\x0eforget_accountR\x0echange_accountR\n" +
+	"\x06mobile\x18\x01 \x01(\tB\b\xbaH\x05r\x03\x98\x01\vR\x06mobile\x12\\\n" +
+	"\achannel\x18\x02 \x01(\tBB\xbaH?r=R\x05loginR\bregisterR\x0eforget_accountR\x0echange_accountR\n" +
 	"oauth_bindR\achannel\"2\n" +
 	"\x15CommonSendSmsResponse\x12\x19\n" +
 	"\bsms_code\x18\x01 \x01(\tR\asmsCode\"7\n" +
 	"\x16CommonSendEmailRequest\x12\x1d\n" +
-	"\x05email\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x06R\x05email\"\x19\n" +
+	"\x05email\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x06R\x05email\"\x19\n" +
 	"\x17CommonSendEmailResponse\"6\n" +
 	"\x15CommonSendTestRequest\x12\x1d\n" +
-	"\x05email\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x06R\x05email\"\x18\n" +
+	"\x05email\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x06R\x05email\"\x18\n" +
 	"\x16CommonSendTestResponse2\xc2\x02\n" +
 	"\x06Common\x12d\n" +
 	"\aSendSms\x12\x19.web.CommonSendSmsRequest\x1a\x1a.web.CommonSendSmsResponse\"\"\x82\xd3\xe4\x93\x02\x1c:\x01*\"\x17/api/v1/common/send-sms\x12l\n" +

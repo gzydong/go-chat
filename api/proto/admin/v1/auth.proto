@@ -3,7 +3,7 @@ package admin;
 
 option go_package = "admin/v1;admin";
 
-import "validate/validate.proto";
+import "buf/validate/validate.proto";
 import "google/api/annotations.proto";
 import "google/api/field_behavior.proto";
 
@@ -83,13 +83,13 @@ message AccessToken{
 
 message AuthLoginRequest{
   // 登录账号
-  string username = 1 [(validate.rules).string = {min_len: 1}];
+  string username = 1 [(buf.validate.field).string = {min_len: 1}];
   // 登录密码
-  string password = 2 [(validate.rules).string = {min_len: 1}];
+  string password = 2 [(buf.validate.field).string = {min_len: 1}];
   // 图形验证码
-  string captcha = 3 [(validate.rules).string = {min_len: 1}];
+  string captcha = 3 [(buf.validate.field).string = {min_len: 1}];
   // 图形验证码凭证
-  string captcha_voucher = 4 [(validate.rules).string = {min_len: 1}];
+  string captcha_voucher = 4 [(buf.validate.field).string = {min_len: 1}];
 }
 
 message AuthLoginResponse{
@@ -142,9 +142,9 @@ message AuthDetailResponse{
 
 message AuthUpdatePasswordRequest{
   // 旧密码
-  string old_password = 1 [(validate.rules).string = {min_len: 6}];
+  string old_password = 1 [(buf.validate.field).string = {min_len: 6}];
   // 新密码
-  string new_password = 2 [(validate.rules).string = {min_len: 6}];
+  string new_password = 2 [(buf.validate.field).string = {min_len: 6}];
 }
 
 message AuthUpdatePasswordResponse{

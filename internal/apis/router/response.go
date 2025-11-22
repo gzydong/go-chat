@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"slices"
 
+	"buf.build/go/protovalidate"
 	"github.com/gin-gonic/gin"
 	"github.com/gzydong/go-chat/internal/pkg/core/errorx"
 	"google.golang.org/protobuf/encoding/protojson"
@@ -16,15 +17,15 @@ var ProtoJson = protojson.MarshalOptions{
 	EmitUnpopulated: true, // 空值也返回
 }
 
-type Response struct{}
+type Interceptor struct{}
 
-func (r *Response) ShouldProto(ctx *gin.Context, in any) error {
+func (i *Interceptor) ShouldProto(ctx *gin.Context, in any) error {
 	if err := ctx.ShouldBind(in); err != nil {
 		return errorx.New(400, err.Error())
 	}
 
-	if v, ok := in.(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
+	if v, ok := in.(proto.Message); ok {
+		if err := protovalidate.Validate(v); err != nil {
 			return errorx.New(400, err.Error())
 		}
 	}
@@ -32,7 +33,28 @@ func (r *Response) ShouldProto(ctx *gin.Context, in any) error {
 	return nil
 }
 
-func (r *Response) ErrorResponse(c *gin.Context, err error) {
+func (i *Interceptor) Do(fn func(ctx *gin.Context) (any, error)) func(c *gin.Context) {
+	return func(c *gin.Context) {
+		data, err := fn(c)
+		if err == nil {
+			i.Success(c, data)
+		} else {
+			i.Error(c, err)
+		}
+	}
+}
+
+func (i *Interceptor) Success(c *gin.Context, data any) {
+	// 检测是否是 proto 对象
+	if value, ok := data.(proto.Message); ok {
+		body, _ := ProtoJson.Marshal(value)
+		c.Data(http.StatusOK, "application/json", body)
+	} else {
+		c.JSON(http.StatusOK, data)
+	}
+}
+
+func (i *Interceptor) Error(c *gin.Context, err error) {
 	// 这里需要断言这个错误是否是指定错误码
 	var e *errorx.Error
 	if errors.As(err, &e) {
@@ -43,15 +65,5 @@ func (r *Response) ErrorResponse(c *gin.Context, err error) {
 		}
 	} else {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"code": 500, "message": err.Error()})
-	}
-}
-
-func (r *Response) SuccessResponse(c *gin.Context, data any) {
-	// 检测是否是 proto 对象
-	if value, ok := data.(proto.Message); ok {
-		body, _ := ProtoJson.Marshal(value)
-		c.Data(http.StatusOK, "application/json", body)
-	} else {
-		c.JSON(http.StatusOK, data)
 	}
 }

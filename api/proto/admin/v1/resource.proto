@@ -3,7 +3,7 @@ package admin;
 
 option go_package = "admin/v1;admin";
 
-import "validate/validate.proto";
+import "buf/validate/validate.proto";
 import "google/api/annotations.proto";
 import "google/api/field_behavior.proto";
 
@@ -43,9 +43,9 @@ service Resource{
 
 message ResourceListRequest{
   // 页码
-  int32 page = 1 [(validate.rules).int32.gt = 0];
+  int32 page = 1 [(buf.validate.field).int32.gt = 0];
   // 每页数量
-  int32 page_size = 2 [(validate.rules).int32.gt = 0];
+  int32 page_size = 2 [(buf.validate.field).int32.gt = 0];
   // URI
   string uri = 3;
   // 资源名称
@@ -77,11 +77,11 @@ message ResourceListResponse{
 
 message ResourceCreateRequest{
   // 资源名称
-  string name = 1 [(validate.rules).string = {min_len: 1}];
+  string name = 1 [(buf.validate.field).string = {min_len: 1}];
   // 资源URI
-  string uri = 2 [(validate.rules).string = {min_len: 1}];
+  string uri = 2 [(buf.validate.field).string = {min_len: 1}];
   // 资源类型
-  int32 type = 3 [(validate.rules).int32 = {in: [1, 2]}];
+  int32 type = 3 [(buf.validate.field).int32 = {in: [1, 2]}];
 }
 
 message ResourceCreateResponse{
@@ -90,13 +90,13 @@ message ResourceCreateResponse{
 
 message ResourceUpdateRequest{
   // 资源ID
-  int32 id = 1 [(validate.rules).int32.gt = 0];
+  int32 id = 1 [(buf.validate.field).int32.gt = 0];
   // 资源名称
-  string name = 2 [(validate.rules).string = {min_len: 1}];
+  string name = 2 [(buf.validate.field).string = {min_len: 1}];
   // 资源URI
-  string uri = 3 [(validate.rules).string = {min_len: 1}];
+  string uri = 3 [(buf.validate.field).string = {min_len: 1}];
   // 状态
-  int32 status = 4 [(validate.rules).int32 = {in: [1, 2]}];
+  int32 status = 4 [(buf.validate.field).int32 = {in: [1, 2]}];
 }
 
 message ResourceUpdateResponse{
@@ -104,7 +104,7 @@ message ResourceUpdateResponse{
 }
 
 message ResourceDeleteRequest{
-  int32 id = 1 [(validate.rules).int32.gt = 0];
+  int32 id = 1 [(buf.validate.field).int32.gt = 0];
 }
 
 message ResourceDeleteResponse{

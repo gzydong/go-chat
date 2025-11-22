@@ -7,7 +7,7 @@
 package admin
 
 import (
-	_ "github.com/envoyproxy/protoc-gen-validate/validate"
+	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -477,26 +477,26 @@ var File_admin_v1_totp_proto protoreflect.FileDescriptor
 
 const file_admin_v1_totp_proto_rawDesc = "" +
 	"\n" +
-	"\x13admin/v1/totp.proto\x12\x05admin\x1a\x17validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\"\x13\n" +
+	"\x13admin/v1/totp.proto\x12\x05admin\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\"\x13\n" +
 	"\x11TotpStatusRequest\",\n" +
 	"\x12TotpStatusResponse\x12\x16\n" +
 	"\x06enable\x18\x01 \x01(\tR\x06enable\"7\n" +
 	"\x10TotpCloseRequest\x12#\n" +
-	"\bpassword\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\bpassword\"\x13\n" +
+	"\bpassword\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\bpassword\"\x13\n" +
 	"\x11TotpCloseResponse\"6\n" +
 	"\x0fTotpInitRequest\x12#\n" +
-	"\bpassword\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\bpassword\"I\n" +
+	"\bpassword\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\bpassword\"I\n" +
 	"\x10TotpInitResponse\x12\x1d\n" +
 	"\n" +
 	"qrcode_uri\x18\x01 \x01(\tR\tqrcodeUri\x12\x16\n" +
 	"\x06secret\x18\x03 \x01(\tR\x06secret\"S\n" +
 	"\x11TotpSubmitRequest\x12\x1b\n" +
-	"\x04code\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x04code\x12!\n" +
-	"\asession\x18\x02 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\asession\"8\n" +
+	"\x04code\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x04code\x12!\n" +
+	"\asession\x18\x02 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\asession\"8\n" +
 	"\x12TotpSubmitResponse\x12\"\n" +
 	"\rone_time_code\x18\x03 \x03(\tR\voneTimeCode\"8\n" +
 	"\x11TotpQrcodeRequest\x12#\n" +
-	"\bpassword\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\bpassword\"3\n" +
+	"\bpassword\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\bpassword\"3\n" +
 	"\x12TotpQrcodeResponse\x12\x1d\n" +
 	"\n" +
 	"qrcode_uri\x18\x02 \x01(\tR\tqrcodeUri2\xda\x03\n" +

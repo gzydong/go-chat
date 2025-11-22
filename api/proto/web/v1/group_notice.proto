@@ -3,7 +3,7 @@ package web;
 
 option go_package = "web/v1;web";
 
-import "validate/validate.proto";
+import "buf/validate/validate.proto";
 import "google/api/annotations.proto";
 
 // 群组公告服务
@@ -19,8 +19,8 @@ service GroupNotice {
 
 // 编辑群组公告接口请求参数
 message GroupNoticeEditRequest{
-  int32 group_id = 1 [(validate.rules).int32.gte = 1];
-  string content = 4 [(validate.rules).string.min_len = 1];
+  int32 group_id = 1 [(buf.validate.field).int32.gte = 1];
+  string content = 4 [(buf.validate.field).string.min_len = 1];
 }
 
 // 编辑群组公告接口响应参数

@@ -7,7 +7,7 @@
 package open
 
 import (
-	_ "github.com/envoyproxy/protoc-gen-validate/validate"
+	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
@@ -78,10 +78,10 @@ var File_open_v1_index_proto protoreflect.FileDescriptor
 
 const file_open_v1_index_proto_rawDesc = "" +
 	"\n" +
-	"\x13open/v1/index.proto\x12\x03web\x1a\x17validate/validate.proto\"T\n" +
+	"\x13open/v1/index.proto\x12\x03web\x1a\x1bbuf/validate/validate.proto\"T\n" +
 	"\fIndexRequest\x12\"\n" +
-	"\bgroup_id\x18\x01 \x01(\x05B\a\xfaB\x04\x1a\x02(\x01R\agroupId\x12 \n" +
-	"\auser_id\x18\x02 \x01(\x05B\a\xfaB\x04\x1a\x02(\x01R\x06userIdB\x0eZ\fopen/v1;openb\x06proto3"
+	"\bgroup_id\x18\x01 \x01(\x05B\a\xbaH\x04\x1a\x02(\x01R\agroupId\x12 \n" +
+	"\auser_id\x18\x02 \x01(\x05B\a\xbaH\x04\x1a\x02(\x01R\x06userIdB\x0eZ\fopen/v1;openb\x06proto3"
 
 var (
 	file_open_v1_index_proto_rawDescOnce sync.Once

@@ -11,135 +11,97 @@ import (
 
 // IContactHandler BFF 接口
 type IContactHandler interface {
-	List(ctx context.Context, req *ContactListRequest) (*ContactListResponse, error)
-	Delete(ctx context.Context, req *ContactDeleteRequest) (*ContactDeleteResponse, error)
-	EditRemark(ctx context.Context, req *ContactEditRemarkRequest) (*ContactEditRemarkResponse, error)
-	Detail(ctx context.Context, req *ContactDetailRequest) (*ContactDetailResponse, error)
-	Search(ctx context.Context, req *ContactSearchRequest) (*ContactSearchResponse, error)
-	ChangeGroup(ctx context.Context, req *ContactChangeGroupRequest) (*ContactChangeGroupResponse, error)
-	OnlineStatus(ctx context.Context, req *ContactOnlineStatusRequest) (*ContactOnlineStatusResponse, error)
+
+	// 联系人列表接口
+	List(ctx context.Context, in *ContactListRequest) (*ContactListResponse, error)
+	// 联系人删除接口
+	Delete(ctx context.Context, in *ContactDeleteRequest) (*ContactDeleteResponse, error)
+	// 联系人备注修改接口
+	EditRemark(ctx context.Context, in *ContactEditRemarkRequest) (*ContactEditRemarkResponse, error)
+	// 联系人详情接口
+	Detail(ctx context.Context, in *ContactDetailRequest) (*ContactDetailResponse, error)
+	// 联系人搜索接口
+	Search(ctx context.Context, in *ContactSearchRequest) (*ContactSearchResponse, error)
+	// 修改联系人分组接口
+	ChangeGroup(ctx context.Context, in *ContactChangeGroupRequest) (*ContactChangeGroupResponse, error)
+	// 获取联系人在线状态接口
+	OnlineStatus(ctx context.Context, in *ContactOnlineStatusRequest) (*ContactOnlineStatusResponse, error)
 }
 
 // RegisterContactHandler 注册服务路由处理器
-func RegisterContactHandler(r gin.IRoutes, s interface {
+func RegisterContactHandler(r gin.IRoutes, interceptor interface {
 	ShouldProto(c *gin.Context, in any) error
-	ErrorResponse(c *gin.Context, err error)
-	SuccessResponse(c *gin.Context, data any)
+	Do(fn func(ctx *gin.Context) (any, error)) func(c *gin.Context)
 }, handler IContactHandler) {
+	if interceptor == nil {
+		panic("interceptor is nil")
+	}
+
 	if handler == nil {
 		panic("handler is nil")
 	}
 
-	r.POST("/api/v1/contact/list", func(c *gin.Context) {
+	r.POST("/api/v1/contact/list", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in ContactListRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.List(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
+		return handler.List(ctx.Request.Context(), &in)
+	}))
 
-		s.SuccessResponse(c, data)
-	})
-
-	r.POST("/api/v1/contact/delete", func(c *gin.Context) {
+	r.POST("/api/v1/contact/delete", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in ContactDeleteRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.Delete(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
+		return handler.Delete(ctx.Request.Context(), &in)
+	}))
 
-		s.SuccessResponse(c, data)
-	})
-
-	r.POST("/api/v1/contact/edit-remark", func(c *gin.Context) {
+	r.POST("/api/v1/contact/edit-remark", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in ContactEditRemarkRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.EditRemark(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
+		return handler.EditRemark(ctx.Request.Context(), &in)
+	}))
 
-		s.SuccessResponse(c, data)
-	})
-
-	r.POST("/api/v1/contact/detail", func(c *gin.Context) {
+	r.POST("/api/v1/contact/detail", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in ContactDetailRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.Detail(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
+		return handler.Detail(ctx.Request.Context(), &in)
+	}))
 
-		s.SuccessResponse(c, data)
-	})
-
-	r.POST("/api/v1/contact/search", func(c *gin.Context) {
+	r.POST("/api/v1/contact/search", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in ContactSearchRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.Search(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
+		return handler.Search(ctx.Request.Context(), &in)
+	}))
 
-		s.SuccessResponse(c, data)
-	})
-
-	r.POST("/api/v1/contact/change-group", func(c *gin.Context) {
+	r.POST("/api/v1/contact/change-group", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in ContactChangeGroupRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.ChangeGroup(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
+		return handler.ChangeGroup(ctx.Request.Context(), &in)
+	}))
 
-		s.SuccessResponse(c, data)
-	})
-
-	r.POST("/api/v1/contact/online-status", func(c *gin.Context) {
+	r.POST("/api/v1/contact/online-status", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in ContactOnlineStatusRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.OnlineStatus(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
-
-		s.SuccessResponse(c, data)
-	})
+		return handler.OnlineStatus(ctx.Request.Context(), &in)
+	}))
 
 }

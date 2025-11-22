@@ -11,67 +11,54 @@ import (
 
 // ICommonHandler BFF 接口
 type ICommonHandler interface {
-	SendSms(ctx context.Context, req *CommonSendSmsRequest) (*CommonSendSmsResponse, error)
-	SendEmail(ctx context.Context, req *CommonSendEmailRequest) (*CommonSendEmailResponse, error)
-	Test(ctx context.Context, req *CommonSendTestRequest) (*CommonSendTestResponse, error)
+
+	// 发送短信验证码接口
+	//    @Summary 发送短信验证码111222
+	SendSms(ctx context.Context, in *CommonSendSmsRequest) (*CommonSendSmsResponse, error)
+	// 发送邮件验证码接口
+	SendEmail(ctx context.Context, in *CommonSendEmailRequest) (*CommonSendEmailResponse, error)
+	//俺们就开始的那
+	Test(ctx context.Context, in *CommonSendTestRequest) (*CommonSendTestResponse, error)
 }
 
 // RegisterCommonHandler 注册服务路由处理器
-func RegisterCommonHandler(r gin.IRoutes, s interface {
+func RegisterCommonHandler(r gin.IRoutes, interceptor interface {
 	ShouldProto(c *gin.Context, in any) error
-	ErrorResponse(c *gin.Context, err error)
-	SuccessResponse(c *gin.Context, data any)
+	Do(fn func(ctx *gin.Context) (any, error)) func(c *gin.Context)
 }, handler ICommonHandler) {
+	if interceptor == nil {
+		panic("interceptor is nil")
+	}
+
 	if handler == nil {
 		panic("handler is nil")
 	}
 
-	r.POST("/api/v1/common/send-sms", func(c *gin.Context) {
+	r.POST("/api/v1/common/send-sms", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in CommonSendSmsRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.SendSms(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
+		return handler.SendSms(ctx.Request.Context(), &in)
+	}))
 
-		s.SuccessResponse(c, data)
-	})
-
-	r.POST("/api/v1/common/send-email", func(c *gin.Context) {
+	r.POST("/api/v1/common/send-email", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in CommonSendEmailRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.SendEmail(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
+		return handler.SendEmail(ctx.Request.Context(), &in)
+	}))
 
-		s.SuccessResponse(c, data)
-	})
-
-	r.POST("/api/v1/common/send-test", func(c *gin.Context) {
+	r.POST("/api/v1/common/send-test", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in CommonSendTestRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.Test(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
-
-		s.SuccessResponse(c, data)
-	})
+		return handler.Test(ctx.Request.Context(), &in)
+	}))
 
 }

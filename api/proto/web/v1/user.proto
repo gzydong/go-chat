@@ -3,7 +3,7 @@ package web;
 
 option go_package = "web/v1;web";
 
-import "validate/validate.proto";
+import "buf/validate/validate.proto";
 import "google/api/annotations.proto";
 import "google/api/field_behavior.proto";
 
@@ -104,9 +104,9 @@ message UserSettingResponse{
 // 用户信息更新接口请求参数
 message UserDetailUpdateRequest{
   string avatar = 1;
-  string nickname = 2 [(validate.rules).string.max_len = 30];
-  int32 gender = 3 [(validate.rules).int32 = {in:[0, 1, 2, 3]}];
-  string motto = 4 [(validate.rules).string.max_len = 255];
+  string nickname = 2 [(buf.validate.field).string.max_len = 30];
+  int32 gender = 3 [(buf.validate.field).int32 = {in:[0, 1, 2, 3]}];
+  string motto = 4 [(buf.validate.field).string.max_len = 255];
   string birthday = 5;
 }
 
@@ -115,8 +115,8 @@ message UserDetailUpdateResponse{}
 
 // 用户密码更新接口请求参数
 message UserPasswordUpdateRequest{
-  string old_password = 1 [(validate.rules).string.min_len = 1];
-  string new_password = 2 [(validate.rules).string.min_len = 1];
+  string old_password = 1 [(buf.validate.field).string.min_len = 1];
+  string new_password = 2 [(buf.validate.field).string.min_len = 1];
 }
 
 // 用户密码更新接口响应参数
@@ -124,9 +124,9 @@ message UserPasswordUpdateResponse{}
 
 // 用户手机号更新接口请求参数
 message UserMobileUpdateRequest{
-  string mobile = 1 [(validate.rules).string.min_len = 1];
-  string password = 2 [(validate.rules).string.min_len = 1];
-  string sms_code = 3 [(validate.rules).string.len = 6];
+  string mobile = 1 [(buf.validate.field).string.min_len = 1];
+  string password = 2 [(buf.validate.field).string.min_len = 1];
+  string sms_code = 3 [(buf.validate.field).string.len = 6];
 }
 
 // 用户手机号更新接口响应参数
@@ -134,9 +134,9 @@ message UserMobileUpdateResponse{}
 
 // 用户邮箱更新接口请求参数
 message UserEmailUpdateRequest{
-  string email = 1 [(validate.rules).string.min_len = 1];
-  string password = 2 [(validate.rules).string.min_len = 1];
-  string code = 3 [(validate.rules).string.len = 6];
+  string email = 1 [(buf.validate.field).string.min_len = 1];
+  string password = 2 [(buf.validate.field).string.min_len = 1];
+  string code = 3 [(buf.validate.field).string.len = 6];
 }
 
 // 用户邮箱更新接口响应参数

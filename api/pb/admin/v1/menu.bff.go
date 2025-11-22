@@ -11,84 +11,64 @@ import (
 
 // IMenuHandler BFF 接口
 type IMenuHandler interface {
-	Create(ctx context.Context, req *MenuCreateRequest) (*MenuCreateResponse, error)
-	Update(ctx context.Context, req *MenuUpdateRequest) (*MenuUpdateResponse, error)
-	Delete(ctx context.Context, req *MenuDeleteRequest) (*MenuDeleteResponse, error)
-	List(ctx context.Context, req *MenuListRequest) (*MenuListResponse, error)
+
+	// 创建菜单接口
+	Create(ctx context.Context, in *MenuCreateRequest) (*MenuCreateResponse, error)
+	// 更新菜单接口
+	Update(ctx context.Context, in *MenuUpdateRequest) (*MenuUpdateResponse, error)
+	// 删除菜单接口
+	Delete(ctx context.Context, in *MenuDeleteRequest) (*MenuDeleteResponse, error)
+
+	List(ctx context.Context, in *MenuListRequest) (*MenuListResponse, error)
 }
 
 // RegisterMenuHandler 注册服务路由处理器
-func RegisterMenuHandler(r gin.IRoutes, s interface {
+func RegisterMenuHandler(r gin.IRoutes, interceptor interface {
 	ShouldProto(c *gin.Context, in any) error
-	ErrorResponse(c *gin.Context, err error)
-	SuccessResponse(c *gin.Context, data any)
+	Do(fn func(ctx *gin.Context) (any, error)) func(c *gin.Context)
 }, handler IMenuHandler) {
+	if interceptor == nil {
+		panic("interceptor is nil")
+	}
+
 	if handler == nil {
 		panic("handler is nil")
 	}
 
-	r.POST("/backend/menu/create", func(c *gin.Context) {
+	r.POST("/backend/menu/create", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in MenuCreateRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.Create(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
+		return handler.Create(ctx.Request.Context(), &in)
+	}))
 
-		s.SuccessResponse(c, data)
-	})
-
-	r.POST("/backend/menu/update", func(c *gin.Context) {
+	r.POST("/backend/menu/update", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in MenuUpdateRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.Update(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
+		return handler.Update(ctx.Request.Context(), &in)
+	}))
 
-		s.SuccessResponse(c, data)
-	})
-
-	r.POST("/backend/menu/delete", func(c *gin.Context) {
+	r.POST("/backend/menu/delete", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in MenuDeleteRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.Delete(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
+		return handler.Delete(ctx.Request.Context(), &in)
+	}))
 
-		s.SuccessResponse(c, data)
-	})
-
-	r.POST("/backend/menu/list", func(c *gin.Context) {
+	r.POST("/backend/menu/list", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in MenuListRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.List(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
-
-		s.SuccessResponse(c, data)
-	})
+		return handler.List(ctx.Request.Context(), &in)
+	}))
 
 }

@@ -11,33 +11,31 @@ import (
 
 // IGroupNoticeHandler BFF 接口
 type IGroupNoticeHandler interface {
-	Edit(ctx context.Context, req *GroupNoticeEditRequest) (*GroupNoticeEditResponse, error)
+
+	// 编辑群组公告接口
+	Edit(ctx context.Context, in *GroupNoticeEditRequest) (*GroupNoticeEditResponse, error)
 }
 
 // RegisterGroupNoticeHandler 注册服务路由处理器
-func RegisterGroupNoticeHandler(r gin.IRoutes, s interface {
+func RegisterGroupNoticeHandler(r gin.IRoutes, interceptor interface {
 	ShouldProto(c *gin.Context, in any) error
-	ErrorResponse(c *gin.Context, err error)
-	SuccessResponse(c *gin.Context, data any)
+	Do(fn func(ctx *gin.Context) (any, error)) func(c *gin.Context)
 }, handler IGroupNoticeHandler) {
+	if interceptor == nil {
+		panic("interceptor is nil")
+	}
+
 	if handler == nil {
 		panic("handler is nil")
 	}
 
-	r.POST("/api/v1/group-notice/edit", func(c *gin.Context) {
+	r.POST("/api/v1/group-notice/edit", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in GroupNoticeEditRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.Edit(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
-
-		s.SuccessResponse(c, data)
-	})
+		return handler.Edit(ctx.Request.Context(), &in)
+	}))
 
 }

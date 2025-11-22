@@ -7,7 +7,7 @@
 package web
 
 import (
-	_ "github.com/envoyproxy/protoc-gen-validate/validate"
+	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -815,23 +815,23 @@ var File_web_v1_group_apply_proto protoreflect.FileDescriptor
 
 const file_web_v1_group_apply_proto_rawDesc = "" +
 	"\n" +
-	"\x18web/v1/group_apply.proto\x12\x03web\x1a\x17validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\"^\n" +
+	"\x18web/v1/group_apply.proto\x12\x03web\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\"^\n" +
 	"\x17GroupApplyCreateRequest\x12\"\n" +
-	"\bgroup_id\x18\x01 \x01(\x05B\a\xfaB\x04\x1a\x02(\x01R\agroupId\x12\x1f\n" +
-	"\x06remark\x18\x02 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x06remark\"\x1a\n" +
+	"\bgroup_id\x18\x01 \x01(\x05B\a\xbaH\x04\x1a\x02(\x01R\agroupId\x12\x1f\n" +
+	"\x06remark\x18\x02 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x06remark\"\x1a\n" +
 	"\x18GroupApplyCreateResponse\"=\n" +
 	"\x17GroupApplyDeleteRequest\x12\"\n" +
-	"\bapply_id\x18\x01 \x01(\x05B\a\xfaB\x04\x1a\x02(\x01R\aapplyId\"\x1a\n" +
+	"\bapply_id\x18\x01 \x01(\x05B\a\xbaH\x04\x1a\x02(\x01R\aapplyId\"\x1a\n" +
 	"\x18GroupApplyDeleteResponse\"<\n" +
 	"\x16GroupApplyAgreeRequest\x12\"\n" +
-	"\bapply_id\x18\x01 \x01(\x05B\a\xfaB\x04\x1a\x02(\x01R\aapplyId\"\x19\n" +
+	"\bapply_id\x18\x01 \x01(\x05B\a\xbaH\x04\x1a\x02(\x01R\aapplyId\"\x19\n" +
 	"\x17GroupApplyAgreeResponse\"_\n" +
 	"\x18GroupApplyDeclineRequest\x12\"\n" +
-	"\bapply_id\x18\x01 \x01(\x05B\a\xfaB\x04\x1a\x02(\x01R\aapplyId\x12\x1f\n" +
-	"\x06remark\x18\x02 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x06remark\"\x1b\n" +
+	"\bapply_id\x18\x01 \x01(\x05B\a\xbaH\x04\x1a\x02(\x01R\aapplyId\x12\x1f\n" +
+	"\x06remark\x18\x02 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x06remark\"\x1b\n" +
 	"\x19GroupApplyDeclineResponse\";\n" +
 	"\x15GroupApplyListRequest\x12\"\n" +
-	"\bgroup_id\x18\x01 \x01(\x05B\a\xfaB\x04\x1a\x02(\x01R\agroupId\"\xb2\x02\n" +
+	"\bgroup_id\x18\x01 \x01(\x05B\a\xbaH\x04\x1a\x02(\x01R\agroupId\"\xb2\x02\n" +
 	"\x16GroupApplyListResponse\x126\n" +
 	"\x05items\x18\x01 \x03(\v2 .web.GroupApplyListResponse.ItemR\x05items\x1a\xdf\x01\n" +
 	"\x04Item\x12\x14\n" +

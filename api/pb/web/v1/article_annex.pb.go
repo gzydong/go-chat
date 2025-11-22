@@ -7,7 +7,7 @@
 package web
 
 import (
-	_ "github.com/envoyproxy/protoc-gen-validate/validate"
+	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -659,10 +659,10 @@ var File_web_v1_article_annex_proto protoreflect.FileDescriptor
 
 const file_web_v1_article_annex_proto_rawDesc = "" +
 	"\n" +
-	"\x1aweb/v1/article_annex.proto\x12\x03web\x1a\x15web/v1/paginate.proto\x1a\x17validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\"C\n" +
+	"\x1aweb/v1/article_annex.proto\x12\x03web\x1a\x15web/v1/paginate.proto\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\"C\n" +
 	"\x19ArticleAnnexUploadRequest\x12&\n" +
 	"\n" +
-	"article_id\x18\x01 \x01(\x05B\a\xfaB\x04\x1a\x02(\x01R\tarticleId\"\x94\x01\n" +
+	"article_id\x18\x01 \x01(\x05B\a\xbaH\x04\x1a\x02(\x01R\tarticleId\"\x94\x01\n" +
 	"\x1aArticleAnnexUploadResponse\x12\x19\n" +
 	"\bannex_id\x18\x01 \x01(\x05R\aannexId\x12\x1d\n" +
 	"\n" +
@@ -672,16 +672,16 @@ const file_web_v1_article_annex_proto_rawDesc = "" +
 	"\n" +
 	"created_at\x18\x04 \x01(\tR\tcreatedAt\"?\n" +
 	"\x19ArticleAnnexDeleteRequest\x12\"\n" +
-	"\bannex_id\x18\x01 \x01(\x05B\a\xfaB\x04\x1a\x02(\x01R\aannexId\"\x1c\n" +
+	"\bannex_id\x18\x01 \x01(\x05B\a\xbaH\x04\x1a\x02(\x01R\aannexId\"\x1c\n" +
 	"\x1aArticleAnnexDeleteResponse\"@\n" +
 	"\x1aArticleAnnexRecoverRequest\x12\"\n" +
-	"\bannex_id\x18\x01 \x01(\x05B\a\xfaB\x04\x1a\x02(\x01R\aannexId\"\x1d\n" +
+	"\bannex_id\x18\x01 \x01(\x05B\a\xbaH\x04\x1a\x02(\x01R\aannexId\"\x1d\n" +
 	"\x1bArticleAnnexRecoverResponse\"F\n" +
 	" ArticleAnnexForeverDeleteRequest\x12\"\n" +
-	"\bannex_id\x18\x01 \x01(\x05B\a\xfaB\x04\x1a\x02(\x01R\aannexId\"#\n" +
+	"\bannex_id\x18\x01 \x01(\x05B\a\xbaH\x04\x1a\x02(\x01R\aannexId\"#\n" +
 	"!ArticleAnnexForeverDeleteResponse\"A\n" +
 	"\x1bArticleAnnexDownloadRequest\x12\"\n" +
-	"\bannex_id\x18\x01 \x01(\x05B\a\xfaB\x04\x1a\x02(\x01R\aannexId\"\x1e\n" +
+	"\bannex_id\x18\x01 \x01(\x05B\a\xbaH\x04\x1a\x02(\x01R\aannexId\"\x1e\n" +
 	"\x1cArticleAnnexDownloadResponse\"4\n" +
 	"\x1eArticleAnnexRecoverListRequest\x12\x12\n" +
 	"\x04page\x18\x01 \x01(\x05R\x04page\"\xe4\x02\n" +

@@ -7,7 +7,7 @@
 package admin
 
 import (
-	_ "github.com/envoyproxy/protoc-gen-validate/validate"
+	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -464,10 +464,10 @@ var File_admin_v1_role_proto protoreflect.FileDescriptor
 
 const file_admin_v1_role_proto_rawDesc = "" +
 	"\n" +
-	"\x13admin/v1/role.proto\x12\x05admin\x1a\x17validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\"\x89\x01\n" +
+	"\x13admin/v1/role.proto\x12\x05admin\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\"\x89\x01\n" +
 	"\x0fRoleListRequest\x12\x1b\n" +
-	"\x04page\x18\x01 \x01(\x05B\a\xfaB\x04\x1a\x02 \x00R\x04page\x12$\n" +
-	"\tpage_size\x18\x02 \x01(\x05B\a\xfaB\x04\x1a\x02 \x00R\bpageSize\x12\x1b\n" +
+	"\x04page\x18\x01 \x01(\x05B\a\xbaH\x04\x1a\x02 \x00R\x04page\x12$\n" +
+	"\tpage_size\x18\x02 \x01(\x05B\a\xbaH\x04\x1a\x02 \x00R\bpageSize\x12\x1b\n" +
 	"\trole_name\x18\x03 \x01(\tR\broleName\x12\x16\n" +
 	"\x06status\x18\x04 \x01(\x05R\x06status\"\xd2\x02\n" +
 	"\x10RoleListResponse\x122\n" +
@@ -488,14 +488,14 @@ const file_admin_v1_role_proto_rawDesc = "" +
 	"\aexplain\x18\n" +
 	" \x01(\tR\aexplain\"\\\n" +
 	"\x11RoleCreateRequest\x12$\n" +
-	"\trole_name\x18\x02 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\broleName\x12!\n" +
-	"\aexplain\x18\x03 \x01(\tB\a\xfaB\x04r\x02\x18dR\aexplain\"$\n" +
+	"\trole_name\x18\x02 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\broleName\x12!\n" +
+	"\aexplain\x18\x03 \x01(\tB\a\xbaH\x04r\x02\x18dR\aexplain\"$\n" +
 	"\x12RoleCreateResponse\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x05R\x02id\"u\n" +
 	"\x11RoleUpdateRequest\x12\x17\n" +
-	"\x02id\x18\x01 \x01(\x05B\a\xfaB\x04\x1a\x02 \x00R\x02id\x12$\n" +
-	"\trole_name\x18\x02 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\broleName\x12!\n" +
-	"\aexplain\x18\x03 \x01(\tB\a\xfaB\x04r\x02\x18dR\aexplain\"$\n" +
+	"\x02id\x18\x01 \x01(\x05B\a\xbaH\x04\x1a\x02 \x00R\x02id\x12$\n" +
+	"\trole_name\x18\x02 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\broleName\x12!\n" +
+	"\aexplain\x18\x03 \x01(\tB\a\xbaH\x04r\x02\x18dR\aexplain\"$\n" +
 	"\x12RoleUpdateResponse\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x05R\x02id2\x9e\x02\n" +
 	"\x04Role\x12V\n" +

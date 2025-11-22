@@ -2,7 +2,7 @@ syntax = "proto3";
 package web;
 option go_package = "web/v1;web";
 
-import "validate/validate.proto";
+import "buf/validate/validate.proto";
 import "google/api/annotations.proto";
 import "google/api/field_behavior.proto";
 
@@ -76,9 +76,9 @@ message TalkSessionItem{
 // 会话创建接口请求参数
 message TalkSessionCreateRequest{
   // 1:私聊 2:群聊
-  int32 talk_mode = 1 [(validate.rules).int32 = {in:[1, 2]}];
+  int32 talk_mode = 1 [(buf.validate.field).int32 = {in:[1, 2]}];
   // 对方ID
-  int32 to_from_id = 2 [(validate.rules).int32.gte = 1];
+  int32 to_from_id = 2 [(buf.validate.field).int32.gte = 1];
 }
 
 // 会话创建接口响应参数
@@ -100,8 +100,8 @@ message TalkSessionCreateResponse{
 
 // 会话删除接口请求参数
 message TalkSessionDeleteRequest{
-  int32 talk_mode = 1 [(validate.rules).int32 = {in:[1, 2]}];
-  int32 to_from_id = 2 [(validate.rules).int32.gte = 1];
+  int32 talk_mode = 1 [(buf.validate.field).int32 = {in:[1, 2]}];
+  int32 to_from_id = 2 [(buf.validate.field).int32.gte = 1];
 }
 
 // 会话删除接口响应参数
@@ -109,9 +109,9 @@ message TalkSessionDeleteResponse{}
 
 // 会话置顶接口请求参数
 message TalkSessionTopRequest{
-  int32 talk_mode = 1 [(validate.rules).int32 = {in:[1, 2]}];
-  int32 to_from_id = 2 [(validate.rules).int32.gte = 1];
-  int32 action = 3 [(validate.rules).int32 = {in:[1, 2]}];
+  int32 talk_mode = 1 [(buf.validate.field).int32 = {in:[1, 2]}];
+  int32 to_from_id = 2 [(buf.validate.field).int32.gte = 1];
+  int32 action = 3 [(buf.validate.field).int32 = {in:[1, 2]}];
 }
 
 // 会话置顶接口响应参数
@@ -119,9 +119,9 @@ message TalkSessionTopResponse{}
 
 // 会话免打扰接口请求参数
 message TalkSessionDisturbRequest{
-  int32 talk_mode = 1 [(validate.rules).int32 = {in:[1, 2]}];
-  int32 to_from_id = 2 [(validate.rules).int32.gte = 1];
-  int32 action = 3 [(validate.rules).int32 = {in:[1, 2]}];
+  int32 talk_mode = 1 [(buf.validate.field).int32 = {in:[1, 2]}];
+  int32 to_from_id = 2 [(buf.validate.field).int32.gte = 1];
+  int32 action = 3 [(buf.validate.field).int32 = {in:[1, 2]}];
 }
 
 // 会话免打扰接口响应参数
@@ -137,8 +137,8 @@ message TalkSessionListResponse{
 
 // 会话未读数清除接口请求参数
 message TalkSessionClearUnreadNumRequest{
-  int32 talk_mode = 1 [(validate.rules).int32 = {in:[1, 2]}];
-  int32 to_from_id = 2 [(validate.rules).int32.gte = 1];
+  int32 talk_mode = 1 [(buf.validate.field).int32 = {in:[1, 2]}];
+  int32 to_from_id = 2 [(buf.validate.field).int32.gte = 1];
 }
 
 // 会话未读数清除接口响应参数

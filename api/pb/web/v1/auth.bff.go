@@ -11,118 +11,86 @@ import (
 
 // IAuthHandler BFF 接口
 type IAuthHandler interface {
-	Login(ctx context.Context, req *AuthLoginRequest) (*AuthLoginResponse, error)
-	Register(ctx context.Context, req *AuthRegisterRequest) (*AuthRegisterResponse, error)
-	Forget(ctx context.Context, req *AuthForgetRequest) (*AuthForgetResponse, error)
-	Oauth(ctx context.Context, req *AuthOauthRequest) (*AuthOauthResponse, error)
-	OauthBind(ctx context.Context, req *AuthOAuthBindRequest) (*AuthOAuthBindResponse, error)
-	OauthLogin(ctx context.Context, req *AuthOauthLoginRequest) (*AuthOauthLoginResponse, error)
+
+	// 登录接口
+	Login(ctx context.Context, in *AuthLoginRequest) (*AuthLoginResponse, error)
+	// 注册接口
+	Register(ctx context.Context, in *AuthRegisterRequest) (*AuthRegisterResponse, error)
+	// 找回密码接口
+	Forget(ctx context.Context, in *AuthForgetRequest) (*AuthForgetResponse, error)
+	// 获取 oauth2.0 跳转地址
+	Oauth(ctx context.Context, in *AuthOauthRequest) (*AuthOauthResponse, error)
+	// 绑定第三方登录接口
+	OauthBind(ctx context.Context, in *AuthOAuthBindRequest) (*AuthOAuthBindResponse, error)
+	// 第三方登录接口
+	OauthLogin(ctx context.Context, in *AuthOauthLoginRequest) (*AuthOauthLoginResponse, error)
 }
 
 // RegisterAuthHandler 注册服务路由处理器
-func RegisterAuthHandler(r gin.IRoutes, s interface {
+func RegisterAuthHandler(r gin.IRoutes, interceptor interface {
 	ShouldProto(c *gin.Context, in any) error
-	ErrorResponse(c *gin.Context, err error)
-	SuccessResponse(c *gin.Context, data any)
+	Do(fn func(ctx *gin.Context) (any, error)) func(c *gin.Context)
 }, handler IAuthHandler) {
+	if interceptor == nil {
+		panic("interceptor is nil")
+	}
+
 	if handler == nil {
 		panic("handler is nil")
 	}
 
-	r.POST("/api/v1/auth/login", func(c *gin.Context) {
+	r.POST("/api/v1/auth/login", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in AuthLoginRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.Login(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
+		return handler.Login(ctx.Request.Context(), &in)
+	}))
 
-		s.SuccessResponse(c, data)
-	})
-
-	r.POST("/api/v1/auth/register", func(c *gin.Context) {
+	r.POST("/api/v1/auth/register", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in AuthRegisterRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.Register(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
+		return handler.Register(ctx.Request.Context(), &in)
+	}))
 
-		s.SuccessResponse(c, data)
-	})
-
-	r.POST("/api/v1/auth/forget", func(c *gin.Context) {
+	r.POST("/api/v1/auth/forget", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in AuthForgetRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.Forget(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
+		return handler.Forget(ctx.Request.Context(), &in)
+	}))
 
-		s.SuccessResponse(c, data)
-	})
-
-	r.POST("/api/v1/auth/oauth", func(c *gin.Context) {
+	r.POST("/api/v1/auth/oauth", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in AuthOauthRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.Oauth(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
+		return handler.Oauth(ctx.Request.Context(), &in)
+	}))
 
-		s.SuccessResponse(c, data)
-	})
-
-	r.POST("/api/v1/auth/oauth/bind", func(c *gin.Context) {
+	r.POST("/api/v1/auth/oauth/bind", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in AuthOAuthBindRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.OauthBind(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
+		return handler.OauthBind(ctx.Request.Context(), &in)
+	}))
 
-		s.SuccessResponse(c, data)
-	})
-
-	r.POST("/api/v1/auth/oauth/login", func(c *gin.Context) {
+	r.POST("/api/v1/auth/oauth/login", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in AuthOauthLoginRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.OauthLogin(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
-
-		s.SuccessResponse(c, data)
-	})
+		return handler.OauthLogin(ctx.Request.Context(), &in)
+	}))
 
 }

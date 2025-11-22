@@ -11,67 +11,53 @@ import (
 
 // IUserHandler BFF 接口
 type IUserHandler interface {
-	List(ctx context.Context, req *UserListRequest) (*UserListResponse, error)
-	Update(ctx context.Context, req *UserUpdateRequest) (*UserUpdateResponse, error)
-	Detail(ctx context.Context, req *UserDetailRequest) (*UserDetailResponse, error)
+
+	// 用户列表接口
+	List(ctx context.Context, in *UserListRequest) (*UserListResponse, error)
+	// 更新用户接口
+	Update(ctx context.Context, in *UserUpdateRequest) (*UserUpdateResponse, error)
+	// 获取用户详情接口
+	Detail(ctx context.Context, in *UserDetailRequest) (*UserDetailResponse, error)
 }
 
 // RegisterUserHandler 注册服务路由处理器
-func RegisterUserHandler(r gin.IRoutes, s interface {
+func RegisterUserHandler(r gin.IRoutes, interceptor interface {
 	ShouldProto(c *gin.Context, in any) error
-	ErrorResponse(c *gin.Context, err error)
-	SuccessResponse(c *gin.Context, data any)
+	Do(fn func(ctx *gin.Context) (any, error)) func(c *gin.Context)
 }, handler IUserHandler) {
+	if interceptor == nil {
+		panic("interceptor is nil")
+	}
+
 	if handler == nil {
 		panic("handler is nil")
 	}
 
-	r.POST("/backend/user/list", func(c *gin.Context) {
+	r.POST("/backend/user/list", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in UserListRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.List(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
+		return handler.List(ctx.Request.Context(), &in)
+	}))
 
-		s.SuccessResponse(c, data)
-	})
-
-	r.POST("/backend/user/update", func(c *gin.Context) {
+	r.POST("/backend/user/update", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in UserUpdateRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.Update(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
+		return handler.Update(ctx.Request.Context(), &in)
+	}))
 
-		s.SuccessResponse(c, data)
-	})
-
-	r.POST("/backend/user/detail", func(c *gin.Context) {
+	r.POST("/backend/user/detail", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in UserDetailRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.Detail(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
-
-		s.SuccessResponse(c, data)
-	})
+		return handler.Detail(ctx.Request.Context(), &in)
+	}))
 
 }

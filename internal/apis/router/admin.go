@@ -42,7 +42,7 @@ func RegisterAdminRoute(secret string, router *gin.Engine, handler *admin.Handle
 		},
 	)
 
-	resp := &Response{}
+	resp := &Interceptor{}
 
 	group := router.Group("/").Use(authorize)
 
@@ -58,7 +58,7 @@ func RegisterAdminRoute(secret string, router *gin.Engine, handler *admin.Handle
 
 }
 
-func registerAdminCustomApiRouter(resp *Response, api gin.IRoutes, handler *admin.Handler) {
+func registerAdminCustomApiRouter(resp *Interceptor, api gin.IRoutes, handler *admin.Handler) {
 	api.POST("/backend/upload/file", HandlerFunc(resp, func(c *gin.Context) (any, error) {
 		return map[string]any{
 			"url": "https://www.cox.com/" + uuid.NewString(),

@@ -37,7 +37,7 @@ func RegisterWebRoute(secret string, router *gin.Engine, handler *web.Handler, s
 
 	api := router.Group("/").Use(authorize)
 
-	resp := &Response{}
+	resp := &Interceptor{}
 
 	web2.RegisterAuthHandler(router, resp, handler.V1.Auth)
 	web2.RegisterCommonHandler(router, resp, handler.V1.Common)
@@ -60,7 +60,7 @@ func RegisterWebRoute(secret string, router *gin.Engine, handler *web.Handler, s
 	registerCustomApiRouter(resp, api, handler)
 }
 
-func registerCustomApiRouter(resp *Response, api gin.IRoutes, handler *web.Handler) {
+func registerCustomApiRouter(resp *Interceptor, api gin.IRoutes, handler *web.Handler) {
 	api.POST("/api/v1/emoticon/customize/upload", HandlerFunc(resp, func(c *gin.Context) (any, error) {
 		return handler.V1.Emoticon.Upload(c, &web2.EmoticonUploadRequest{})
 	}))
@@ -72,7 +72,7 @@ func registerCustomApiRouter(resp *Response, api gin.IRoutes, handler *web.Handl
 	api.GET("/api/v1/article-annex/download", func(c *gin.Context) {
 		_, err := handler.V1.ArticleAnnex.Download(c, nil)
 		if err != nil {
-			resp.ErrorResponse(c, err)
+			resp.Error(c, err)
 		}
 	})
 
@@ -90,7 +90,7 @@ func registerCustomApiRouter(resp *Response, api gin.IRoutes, handler *web.Handl
 
 	api.GET("/api/v1/talk/file-download", func(c *gin.Context) {
 		if err := handler.V1.TalkMessage.Download(c); err != nil {
-			resp.ErrorResponse(c, err)
+			resp.Error(c, err)
 		}
 	})
 

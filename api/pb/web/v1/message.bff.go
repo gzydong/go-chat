@@ -11,101 +11,73 @@ import (
 
 // IMessageHandler BFF 接口
 type IMessageHandler interface {
-	Revoke(ctx context.Context, req *MessageRevokeRequest) (*MessageRevokeResponse, error)
-	Delete(ctx context.Context, req *MessageDeleteRequest) (*MessageDeleteResponse, error)
-	Records(ctx context.Context, req *MessageRecordsRequest) (*MessageRecordsResponse, error)
-	HistoryRecords(ctx context.Context, req *MessageHistoryRecordsRequest) (*MessageHistoryRecordsResponse, error)
-	ForwardRecords(ctx context.Context, req *MessageForwardRecordsRequest) (*MessageRecordsClearResponse, error)
+	Revoke(ctx context.Context, in *MessageRevokeRequest) (*MessageRevokeResponse, error)
+
+	Delete(ctx context.Context, in *MessageDeleteRequest) (*MessageDeleteResponse, error)
+	// 获取会话消息记录
+	Records(ctx context.Context, in *MessageRecordsRequest) (*MessageRecordsResponse, error)
+	// 获取会话历史消息记录
+	HistoryRecords(ctx context.Context, in *MessageHistoryRecordsRequest) (*MessageHistoryRecordsResponse, error)
+	// 转发消息记录
+	ForwardRecords(ctx context.Context, in *MessageForwardRecordsRequest) (*MessageRecordsClearResponse, error)
 }
 
 // RegisterMessageHandler 注册服务路由处理器
-func RegisterMessageHandler(r gin.IRoutes, s interface {
+func RegisterMessageHandler(r gin.IRoutes, interceptor interface {
 	ShouldProto(c *gin.Context, in any) error
-	ErrorResponse(c *gin.Context, err error)
-	SuccessResponse(c *gin.Context, data any)
+	Do(fn func(ctx *gin.Context) (any, error)) func(c *gin.Context)
 }, handler IMessageHandler) {
+	if interceptor == nil {
+		panic("interceptor is nil")
+	}
+
 	if handler == nil {
 		panic("handler is nil")
 	}
 
-	r.POST("/api/v1/message/revoke", func(c *gin.Context) {
+	r.POST("/api/v1/message/revoke", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in MessageRevokeRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.Revoke(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
+		return handler.Revoke(ctx.Request.Context(), &in)
+	}))
 
-		s.SuccessResponse(c, data)
-	})
-
-	r.POST("/api/v1/message/delete", func(c *gin.Context) {
+	r.POST("/api/v1/message/delete", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in MessageDeleteRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.Delete(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
+		return handler.Delete(ctx.Request.Context(), &in)
+	}))
 
-		s.SuccessResponse(c, data)
-	})
-
-	r.POST("/api/v1/message/records", func(c *gin.Context) {
+	r.POST("/api/v1/message/records", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in MessageRecordsRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.Records(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
+		return handler.Records(ctx.Request.Context(), &in)
+	}))
 
-		s.SuccessResponse(c, data)
-	})
-
-	r.POST("/api/v1/message/history-records", func(c *gin.Context) {
+	r.POST("/api/v1/message/history-records", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in MessageHistoryRecordsRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.HistoryRecords(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
+		return handler.HistoryRecords(ctx.Request.Context(), &in)
+	}))
 
-		s.SuccessResponse(c, data)
-	})
-
-	r.POST("/api/v1/message/forward-records", func(c *gin.Context) {
+	r.POST("/api/v1/message/forward-records", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in MessageForwardRecordsRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.ForwardRecords(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
-
-		s.SuccessResponse(c, data)
-	})
+		return handler.ForwardRecords(ctx.Request.Context(), &in)
+	}))
 
 }

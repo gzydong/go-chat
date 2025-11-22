@@ -11,101 +11,75 @@ import (
 
 // IContactApplyHandler BFF 接口
 type IContactApplyHandler interface {
-	Create(ctx context.Context, req *ContactApplyCreateRequest) (*ContactApplyCreateResponse, error)
-	Accept(ctx context.Context, req *ContactApplyAcceptRequest) (*ContactApplyAcceptResponse, error)
-	Decline(ctx context.Context, req *ContactApplyDeclineRequest) (*ContactApplyDeclineResponse, error)
-	List(ctx context.Context, req *ContactApplyListRequest) (*ContactApplyListResponse, error)
-	UnreadNum(ctx context.Context, req *ContactApplyUnreadNumRequest) (*ContactApplyUnreadNumResponse, error)
+
+	// 添加联系人申请接口
+	Create(ctx context.Context, in *ContactApplyCreateRequest) (*ContactApplyCreateResponse, error)
+	// 同意联系人申请接口
+	Accept(ctx context.Context, in *ContactApplyAcceptRequest) (*ContactApplyAcceptResponse, error)
+	// 拒绝联系人申请接口
+	Decline(ctx context.Context, in *ContactApplyDeclineRequest) (*ContactApplyDeclineResponse, error)
+	// 联系人申请列表接口
+	List(ctx context.Context, in *ContactApplyListRequest) (*ContactApplyListResponse, error)
+	// 获取申请未读数
+	UnreadNum(ctx context.Context, in *ContactApplyUnreadNumRequest) (*ContactApplyUnreadNumResponse, error)
 }
 
 // RegisterContactApplyHandler 注册服务路由处理器
-func RegisterContactApplyHandler(r gin.IRoutes, s interface {
+func RegisterContactApplyHandler(r gin.IRoutes, interceptor interface {
 	ShouldProto(c *gin.Context, in any) error
-	ErrorResponse(c *gin.Context, err error)
-	SuccessResponse(c *gin.Context, data any)
+	Do(fn func(ctx *gin.Context) (any, error)) func(c *gin.Context)
 }, handler IContactApplyHandler) {
+	if interceptor == nil {
+		panic("interceptor is nil")
+	}
+
 	if handler == nil {
 		panic("handler is nil")
 	}
 
-	r.POST("/api/v1/contact-apply/create", func(c *gin.Context) {
+	r.POST("/api/v1/contact-apply/create", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in ContactApplyCreateRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.Create(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
+		return handler.Create(ctx.Request.Context(), &in)
+	}))
 
-		s.SuccessResponse(c, data)
-	})
-
-	r.POST("/api/v1/contact-apply/accept", func(c *gin.Context) {
+	r.POST("/api/v1/contact-apply/accept", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in ContactApplyAcceptRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.Accept(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
+		return handler.Accept(ctx.Request.Context(), &in)
+	}))
 
-		s.SuccessResponse(c, data)
-	})
-
-	r.POST("/api/v1/contact-apply/decline", func(c *gin.Context) {
+	r.POST("/api/v1/contact-apply/decline", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in ContactApplyDeclineRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.Decline(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
+		return handler.Decline(ctx.Request.Context(), &in)
+	}))
 
-		s.SuccessResponse(c, data)
-	})
-
-	r.POST("/api/v1/contact-apply/list", func(c *gin.Context) {
+	r.POST("/api/v1/contact-apply/list", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in ContactApplyListRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.List(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
+		return handler.List(ctx.Request.Context(), &in)
+	}))
 
-		s.SuccessResponse(c, data)
-	})
-
-	r.POST("/api/v1/contact-apply/unread-num", func(c *gin.Context) {
+	r.POST("/api/v1/contact-apply/unread-num", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in ContactApplyUnreadNumRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.UnreadNum(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
-
-		s.SuccessResponse(c, data)
-	})
+		return handler.UnreadNum(ctx.Request.Context(), &in)
+	}))
 
 }

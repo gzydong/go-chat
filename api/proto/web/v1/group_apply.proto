@@ -3,7 +3,7 @@ package web;
 
 option go_package = "web/v1;web";
 
-import "validate/validate.proto";
+import "buf/validate/validate.proto";
 import "google/api/annotations.proto";
 import "google/api/field_behavior.proto";
 
@@ -68,8 +68,8 @@ service GroupApply {
 
 // 创建群组申请接口请求参数
 message GroupApplyCreateRequest{
-  int32 group_id = 1 [(validate.rules).int32.gte = 1];
-  string remark = 2 [(validate.rules).string.min_len = 1];
+  int32 group_id = 1 [(buf.validate.field).int32.gte = 1];
+  string remark = 2 [(buf.validate.field).string.min_len = 1];
 }
 
 // 创建群组申请接口响应参数
@@ -77,7 +77,7 @@ message GroupApplyCreateResponse{}
 
 // 删除群组申请接口请求参数
 message GroupApplyDeleteRequest{
-  int32 apply_id = 1 [(validate.rules).int32.gte = 1];
+  int32 apply_id = 1 [(buf.validate.field).int32.gte = 1];
 }
 
 // 删除群组申请接口响应参数
@@ -85,7 +85,7 @@ message GroupApplyDeleteResponse{}
 
 // 同意群组申请接口请求参数
 message GroupApplyAgreeRequest{
-  int32 apply_id = 1 [(validate.rules).int32.gte = 1];
+  int32 apply_id = 1 [(buf.validate.field).int32.gte = 1];
 }
 
 // 同意群组申请接口响应参数
@@ -93,8 +93,8 @@ message GroupApplyAgreeResponse{}
 
 // 拒绝群组申请接口请求参数
 message GroupApplyDeclineRequest{
-  int32 apply_id = 1 [(validate.rules).int32.gte = 1];
-  string remark = 2 [(validate.rules).string.min_len = 1];
+  int32 apply_id = 1 [(buf.validate.field).int32.gte = 1];
+  string remark = 2 [(buf.validate.field).string.min_len = 1];
 }
 
 // 拒绝群组申请接口响应参数
@@ -102,7 +102,7 @@ message GroupApplyDeclineResponse{}
 
 // 群组申请列表接口请求参数
 message GroupApplyListRequest{
-  int32 group_id = 1 [(validate.rules).int32.gte = 1];
+  int32 group_id = 1 [(buf.validate.field).int32.gte = 1];
 }
 
 // 群组申请列表接口响应参数

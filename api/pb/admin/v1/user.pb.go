@@ -7,7 +7,7 @@
 package admin
 
 import (
-	_ "github.com/envoyproxy/protoc-gen-validate/validate"
+	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -571,10 +571,10 @@ var File_admin_v1_user_proto protoreflect.FileDescriptor
 
 const file_admin_v1_user_proto_rawDesc = "" +
 	"\n" +
-	"\x13admin/v1/user.proto\x12\x05admin\x1a\x17validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\"\x9a\x01\n" +
+	"\x13admin/v1/user.proto\x12\x05admin\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\"\x9a\x01\n" +
 	"\x0fUserListRequest\x12\x1b\n" +
-	"\x04page\x18\x01 \x01(\x05B\a\xfaB\x04\x1a\x02 \x00R\x04page\x12$\n" +
-	"\tpage_size\x18\x02 \x01(\x05B\a\xfaB\x04\x1a\x02 \x00R\bpageSize\x12\x16\n" +
+	"\x04page\x18\x01 \x01(\x05B\a\xbaH\x04\x1a\x02 \x00R\x04page\x12$\n" +
+	"\tpage_size\x18\x02 \x01(\x05B\a\xbaH\x04\x1a\x02 \x00R\bpageSize\x12\x16\n" +
 	"\x06mobile\x18\x03 \x01(\tR\x06mobile\x12\x16\n" +
 	"\x06status\x18\x04 \x01(\x05R\x06status\x12\x14\n" +
 	"\x05email\x18\x05 \x01(\tR\x05email\"\xa1\x03\n" +
@@ -598,15 +598,15 @@ const file_admin_v1_user_proto_rawDesc = "" +
 	"\rlast_login_at\x18\b \x01(\tR\vlastLoginAt\x12\x16\n" +
 	"\x06avatar\x18\t \x01(\tR\x06avatar\"\xc0\x01\n" +
 	"\x11UserUpdateRequest\x12\x17\n" +
-	"\x02id\x18\x01 \x01(\x05B\a\xfaB\x04\x1a\x02 \x00R\x02id\x12#\n" +
-	"\busername\x18\x02 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\busername\x12\x1d\n" +
-	"\x05email\x18\x03 \x01(\tB\a\xfaB\x04r\x02`\x01R\x05email\x12+\n" +
-	"\x06mobile\x18\x04 \x01(\tB\x13\xfaB\x10r\x0e2\f^1[0-9]{10}$R\x06mobile\x12!\n" +
-	"\x06status\x18\x05 \x01(\x05B\t\xfaB\x06\x1a\x040\x010\x02R\x06status\"$\n" +
+	"\x02id\x18\x01 \x01(\x05B\a\xbaH\x04\x1a\x02 \x00R\x02id\x12#\n" +
+	"\busername\x18\x02 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\busername\x12\x1d\n" +
+	"\x05email\x18\x03 \x01(\tB\a\xbaH\x04r\x02`\x01R\x05email\x12+\n" +
+	"\x06mobile\x18\x04 \x01(\tB\x13\xbaH\x10r\x0e2\f^1[0-9]{10}$R\x06mobile\x12!\n" +
+	"\x06status\x18\x05 \x01(\x05B\t\xbaH\x06\x1a\x040\x010\x02R\x06status\"$\n" +
 	"\x12UserUpdateResponse\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x05R\x02id\",\n" +
 	"\x11UserDetailRequest\x12\x17\n" +
-	"\x02id\x18\x01 \x01(\x05B\a\xfaB\x04\x1a\x02 \x00R\x02id\"\xc4\x01\n" +
+	"\x02id\x18\x01 \x01(\x05B\a\xbaH\x04\x1a\x02 \x00R\x02id\"\xc4\x01\n" +
 	"\x12UserDetailResponse\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x05R\x02id\x12\x1a\n" +
 	"\busername\x18\x02 \x01(\tR\busername\x12\x14\n" +

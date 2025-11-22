@@ -7,7 +7,7 @@
 package admin
 
 import (
-	_ "github.com/envoyproxy/protoc-gen-validate/validate"
+	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -689,35 +689,35 @@ var File_admin_v1_menu_proto protoreflect.FileDescriptor
 
 const file_admin_v1_menu_proto_rawDesc = "" +
 	"\n" +
-	"\x13admin/v1/menu.proto\x12\x05admin\x1a\x17validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\"\x98\x02\n" +
+	"\x13admin/v1/menu.proto\x12\x05admin\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\"\x98\x02\n" +
 	"\x11MenuCreateRequest\x12\x1b\n" +
 	"\tparent_id\x18\x01 \x01(\x05R\bparentId\x12\x1b\n" +
-	"\x04name\x18\x02 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x04name\x12\x1b\n" +
+	"\x04name\x18\x02 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x04name\x12\x1b\n" +
 	"\tmenu_type\x18\x03 \x01(\x05R\bmenuType\x12\x12\n" +
 	"\x04icon\x18\x04 \x01(\tR\x04icon\x12\x12\n" +
 	"\x04path\x18\x05 \x01(\tR\x04path\x12\x12\n" +
 	"\x04sort\x18\x06 \x01(\x05R\x04sort\x12%\n" +
-	"\x06hidden\x18\a \x01(\tB\r\xfaB\n" +
+	"\x06hidden\x18\a \x01(\tB\r\xbaH\n" +
 	"r\bR\x00R\x01YR\x01NR\x06hidden\x12,\n" +
 	"\n" +
-	"use_layout\x18\b \x01(\tB\r\xfaB\n" +
+	"use_layout\x18\b \x01(\tB\r\xbaH\n" +
 	"r\bR\x00R\x01YR\x01NR\tuseLayout\x12\x1b\n" +
 	"\tauth_code\x18\t \x01(\tR\bauthCode\"$\n" +
 	"\x12MenuCreateResponse\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x05R\x02id\"\xae\x02\n" +
 	"\x11MenuUpdateRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x05R\x02id\x12\x1b\n" +
-	"\x04name\x18\x02 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x04name\x12\x12\n" +
+	"\x04name\x18\x02 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x04name\x12\x12\n" +
 	"\x04icon\x18\x04 \x01(\tR\x04icon\x12\x12\n" +
 	"\x04path\x18\x05 \x01(\tR\x04path\x12\x12\n" +
 	"\x04sort\x18\x06 \x01(\x05R\x04sort\x12%\n" +
-	"\x06hidden\x18\a \x01(\tB\r\xfaB\n" +
+	"\x06hidden\x18\a \x01(\tB\r\xbaH\n" +
 	"r\bR\x00R\x01YR\x01NR\x06hidden\x12!\n" +
-	"\x06status\x18\b \x01(\x05B\t\xfaB\x06\x1a\x040\x010\x02R\x06status\x12\x1b\n" +
+	"\x06status\x18\b \x01(\x05B\t\xbaH\x06\x1a\x040\x010\x02R\x06status\x12\x1b\n" +
 	"\tparent_id\x18\t \x01(\x05R\bparentId\x12,\n" +
 	"\n" +
 	"use_layout\x18\n" +
-	" \x01(\tB\r\xfaB\n" +
+	" \x01(\tB\r\xbaH\n" +
 	"r\bR\x00R\x01YR\x01NR\tuseLayout\x12\x1b\n" +
 	"\tauth_code\x18\v \x01(\tR\bauthCode\"$\n" +
 	"\x12MenuUpdateResponse\x12\x0e\n" +

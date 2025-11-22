@@ -1,7 +1,7 @@
 syntax = "proto3";
 package web;
 option go_package = "web/v1;web";
-import "validate/validate.proto";
+import "buf/validate/validate.proto";
 
 // 头像上传接口请求参数
 message UploadAvatarRequest{}
@@ -22,8 +22,8 @@ message UploadImageResponse{
 
 // 批量上传文件初始化接口请求参数
 message UploadInitiateMultipartRequest{
-  string file_name = 1 [(validate.rules).string.min_len = 1];
-  int64 file_size = 2 [(validate.rules).int64.gte = 1];
+  string file_name = 1 [(buf.validate.field).string.min_len = 1];
+  int64 file_size = 2 [(buf.validate.field).int64.gte = 1];
 }
 
 // 批量上传文件初始化接口响应参数
@@ -36,9 +36,9 @@ message UploadInitiateMultipartResponse{
 
 // 批量上传文件接口请求参数
 message UploadMultipartRequest{
-  string upload_id = 1 [(validate.rules).string.min_len = 1];
-  int32 split_index = 2 [(validate.rules).int32.gt = 0];
-  int32 split_num = 3 [(validate.rules).int32.gt = 0];
+  string upload_id = 1 [(buf.validate.field).string.min_len = 1];
+  int32 split_index = 2 [(buf.validate.field).int32.gt = 0];
+  int32 split_num = 3 [(buf.validate.field).int32.gt = 0];
 }
 
 // 批量上传文件接口请求参数

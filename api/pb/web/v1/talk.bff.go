@@ -11,118 +11,86 @@ import (
 
 // ITalkHandler BFF 接口
 type ITalkHandler interface {
-	SessionCreate(ctx context.Context, req *TalkSessionCreateRequest) (*TalkSessionCreateResponse, error)
-	SessionDelete(ctx context.Context, req *TalkSessionDeleteRequest) (*TalkSessionDeleteResponse, error)
-	SessionTop(ctx context.Context, req *TalkSessionTopRequest) (*TalkSessionTopResponse, error)
-	SessionDisturb(ctx context.Context, req *TalkSessionDisturbRequest) (*TalkSessionDisturbResponse, error)
-	SessionList(ctx context.Context, req *TalkSessionListRequest) (*TalkSessionListResponse, error)
-	SessionClearUnreadNum(ctx context.Context, req *TalkSessionClearUnreadNumRequest) (*TalkSessionClearUnreadNumResponse, error)
+
+	// 会话创建接口
+	SessionCreate(ctx context.Context, in *TalkSessionCreateRequest) (*TalkSessionCreateResponse, error)
+	// 会话删除接口
+	SessionDelete(ctx context.Context, in *TalkSessionDeleteRequest) (*TalkSessionDeleteResponse, error)
+	// 会话置顶接口
+	SessionTop(ctx context.Context, in *TalkSessionTopRequest) (*TalkSessionTopResponse, error)
+	// 会话免打扰接口
+	SessionDisturb(ctx context.Context, in *TalkSessionDisturbRequest) (*TalkSessionDisturbResponse, error)
+	// 会话列表接口
+	SessionList(ctx context.Context, in *TalkSessionListRequest) (*TalkSessionListResponse, error)
+	// 会话未读数清除接口
+	SessionClearUnreadNum(ctx context.Context, in *TalkSessionClearUnreadNumRequest) (*TalkSessionClearUnreadNumResponse, error)
 }
 
 // RegisterTalkHandler 注册服务路由处理器
-func RegisterTalkHandler(r gin.IRoutes, s interface {
+func RegisterTalkHandler(r gin.IRoutes, interceptor interface {
 	ShouldProto(c *gin.Context, in any) error
-	ErrorResponse(c *gin.Context, err error)
-	SuccessResponse(c *gin.Context, data any)
+	Do(fn func(ctx *gin.Context) (any, error)) func(c *gin.Context)
 }, handler ITalkHandler) {
+	if interceptor == nil {
+		panic("interceptor is nil")
+	}
+
 	if handler == nil {
 		panic("handler is nil")
 	}
 
-	r.POST("/api/v1/talk/session-create", func(c *gin.Context) {
+	r.POST("/api/v1/talk/session-create", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in TalkSessionCreateRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.SessionCreate(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
+		return handler.SessionCreate(ctx.Request.Context(), &in)
+	}))
 
-		s.SuccessResponse(c, data)
-	})
-
-	r.POST("/api/v1/talk/session-delete", func(c *gin.Context) {
+	r.POST("/api/v1/talk/session-delete", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in TalkSessionDeleteRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.SessionDelete(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
+		return handler.SessionDelete(ctx.Request.Context(), &in)
+	}))
 
-		s.SuccessResponse(c, data)
-	})
-
-	r.POST("/api/v1/talk/session-top", func(c *gin.Context) {
+	r.POST("/api/v1/talk/session-top", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in TalkSessionTopRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.SessionTop(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
+		return handler.SessionTop(ctx.Request.Context(), &in)
+	}))
 
-		s.SuccessResponse(c, data)
-	})
-
-	r.POST("/api/v1/talk/session-disturb", func(c *gin.Context) {
+	r.POST("/api/v1/talk/session-disturb", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in TalkSessionDisturbRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.SessionDisturb(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
+		return handler.SessionDisturb(ctx.Request.Context(), &in)
+	}))
 
-		s.SuccessResponse(c, data)
-	})
-
-	r.POST("/api/v1/talk/session-list", func(c *gin.Context) {
+	r.POST("/api/v1/talk/session-list", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in TalkSessionListRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.SessionList(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
+		return handler.SessionList(ctx.Request.Context(), &in)
+	}))
 
-		s.SuccessResponse(c, data)
-	})
-
-	r.POST("/api/v1/talk/session-clear-unread-num", func(c *gin.Context) {
+	r.POST("/api/v1/talk/session-clear-unread-num", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in TalkSessionClearUnreadNumRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.SessionClearUnreadNum(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
-
-		s.SuccessResponse(c, data)
-	})
+		return handler.SessionClearUnreadNum(ctx.Request.Context(), &in)
+	}))
 
 }

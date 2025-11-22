@@ -62,13 +62,13 @@ func NewRouter(conf *config.Config, handler *handler.Handler, session *cache.Jwt
 	return router
 }
 
-func HandlerFunc(resp *Response, fn func(ctx *gin.Context) (any, error)) gin.HandlerFunc {
+func HandlerFunc(resp *Interceptor, fn func(ctx *gin.Context) (any, error)) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		data, err := fn(c)
 		if err != nil {
-			resp.ErrorResponse(c, err)
+			resp.Error(c, err)
 		} else if data != nil {
-			resp.SuccessResponse(c, data)
+			resp.Success(c, data)
 		}
 	}
 }

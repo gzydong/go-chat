@@ -7,7 +7,7 @@
 package web
 
 import (
-	_ "github.com/envoyproxy/protoc-gen-validate/validate"
+	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
@@ -348,7 +348,7 @@ var File_web_v1_article_tag_proto protoreflect.FileDescriptor
 
 const file_web_v1_article_tag_proto_rawDesc = "" +
 	"\n" +
-	"\x18web/v1/article_tag.proto\x12\x03web\x1a\x17validate/validate.proto\"\x17\n" +
+	"\x18web/v1/article_tag.proto\x12\x03web\x1a\x1bbuf/validate/validate.proto\"\x17\n" +
 	"\x15ArticleTagListRequest\"\x97\x01\n" +
 	"\x16ArticleTagListResponse\x124\n" +
 	"\x04tags\x18\x01 \x03(\v2 .web.ArticleTagListResponse.ItemR\x04tags\x1aG\n" +
@@ -358,11 +358,11 @@ const file_web_v1_article_tag_proto_rawDesc = "" +
 	"\x05count\x18\x04 \x01(\x05R\x05count\"R\n" +
 	"\x15ArticleTagEditRequest\x12\x15\n" +
 	"\x06tag_id\x18\x01 \x01(\x05R\x05tagId\x12\"\n" +
-	"\btag_name\x18\x02 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\atagName\"/\n" +
+	"\btag_name\x18\x02 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\atagName\"/\n" +
 	"\x16ArticleTagEditResponse\x12\x15\n" +
 	"\x06tag_id\x18\x01 \x01(\x05R\x05tagId\"9\n" +
 	"\x17ArticleTagDeleteRequest\x12\x1e\n" +
-	"\x06tag_id\x18\x01 \x01(\x05B\a\xfaB\x04\x1a\x02(\x01R\x05tagId\"\x1a\n" +
+	"\x06tag_id\x18\x01 \x01(\x05B\a\xbaH\x04\x1a\x02(\x01R\x05tagId\"\x1a\n" +
 	"\x18ArticleTagDeleteResponseB\fZ\n" +
 	"web/v1;webb\x06proto3"
 

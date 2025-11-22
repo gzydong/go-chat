@@ -3,7 +3,7 @@ package web;
 
 option go_package = "web/v1;web";
 
-import "validate/validate.proto";
+import "buf/validate/validate.proto";
 import "google/api/annotations.proto";
 import "google/api/field_behavior.proto";
 
@@ -165,8 +165,8 @@ message GroupListResponse{
 
 // 创建群聊接口请求参数
 message GroupCreateRequest{
-  string name = 1 [(validate.rules).string.min_len = 1];
-  repeated int32 user_ids = 2 [(validate.rules).repeated.min_items = 1];
+  string name = 1 [(buf.validate.field).string.min_len = 1];
+  repeated int32 user_ids = 2 [(buf.validate.field).repeated.min_items = 1];
 }
 
 // 创建群聊接口响应参数
@@ -176,7 +176,7 @@ message GroupCreateResponse{
 
 // 群聊详情接口请求参数
 message GroupDetailRequest{
-  int32 group_id = 1 [(validate.rules).int32.gte = 1];
+  int32 group_id = 1 [(buf.validate.field).int32.gte = 1];
 }
 
 // 群聊详情接口响应参数
@@ -203,7 +203,7 @@ message GroupDetailResponse{
 
 // 群成员列表接口请求参数
 message GroupMemberListRequest{
-  int32 group_id = 1 [(validate.rules).int32.gte = 1];
+  int32 group_id = 1 [(buf.validate.field).int32.gte = 1];
 }
 
 // 群成员列表接口响应参数
@@ -224,7 +224,7 @@ message GroupMemberListResponse{
 
 // 解散群聊接口请求参数
 message GroupDismissRequest{
-  int32 group_id = 1 [(validate.rules).int32.gte = 1];
+  int32 group_id = 1 [(buf.validate.field).int32.gte = 1];
 }
 
 // 解散群聊接口响应参数
@@ -232,8 +232,8 @@ message GroupDismissResponse{}
 
 // 加入群聊接口请求参数
 message GroupInviteRequest{
-  int32 group_id = 1 [(validate.rules).int32.gte = 1];
-  repeated int32 user_ids = 2 [(validate.rules).repeated.min_items = 1];
+  int32 group_id = 1 [(buf.validate.field).int32.gte = 1];
+  repeated int32 user_ids = 2 [(buf.validate.field).repeated.min_items = 1];
 }
 
 // 加入群聊接口响应参数
@@ -241,7 +241,7 @@ message GroupInviteResponse{}
 
 // 获取可邀请好友列表请求参数
 message GetInviteFriendsRequest{
-  int32 group_id = 1 [(validate.rules).int32.gte = 0];
+  int32 group_id = 1 [(buf.validate.field).int32.gte = 0];
 }
 
 // 获取可邀请好友列表响应参数
@@ -259,7 +259,7 @@ message GetInviteFriendsResponse{
 
 // 退出群聊接口请求参数
 message GroupSecedeRequest{
-  int32 group_id = 1 [(validate.rules).int32.gte = 1];
+  int32 group_id = 1 [(buf.validate.field).int32.gte = 1];
 }
 
 // 退出群聊接口响应参数
@@ -267,10 +267,10 @@ message GroupSecedeResponse{}
 
 // 设置群聊接口请求参数
 message GroupSettingRequest{
-  int32 group_id = 1 [(validate.rules).int32.gte = 1];
-  string group_name = 2 [(validate.rules).string.min_len = 1];
+  int32 group_id = 1 [(buf.validate.field).int32.gte = 1];
+  string group_name = 2 [(buf.validate.field).string.min_len = 1];
   string avatar = 3;
-  string profile = 4 [(validate.rules).string.max_len = 255];
+  string profile = 4 [(buf.validate.field).string.max_len = 255];
 }
 
 // 设置群聊接口响应参数
@@ -278,7 +278,7 @@ message GroupSettingResponse{}
 
 // 群聊名片更新接口请求参数
 message GroupRemarkUpdateRequest{
-  int32 group_id = 1 [(validate.rules).int32.gte = 1];
+  int32 group_id = 1 [(buf.validate.field).int32.gte = 1];
   string remark = 2;
 }
 
@@ -287,8 +287,8 @@ message GroupRemarkUpdateResponse{}
 
 // 移出群成员接口请求参数
 message GroupRemoveMemberRequest{
-  int32 group_id = 1 [(validate.rules).int32.gte = 1];
-  repeated int32 user_ids = 2 [(validate.rules).repeated.min_items = 1];
+  int32 group_id = 1 [(buf.validate.field).int32.gte = 1];
+  repeated int32 user_ids = 2 [(buf.validate.field).repeated.min_items = 1];
 }
 
 // 移出群成员接口响应参数
@@ -296,7 +296,7 @@ message GroupRemoveMemberResponse{}
 
 // 公开群聊列表请求参数
 message GroupOvertListRequest{
-  int32 page = 1 [(validate.rules).int32.gte = 1];
+  int32 page = 1 [(buf.validate.field).int32.gte = 1];
   string name = 2;
 }
 
@@ -320,8 +320,8 @@ message GroupOvertListResponse{
 
 // 群主更换接口请求参数
 message GroupHandoverRequest{
-  int32 group_id = 1 [(validate.rules).int32.gte = 1];
-  int32 user_id = 2 [(validate.rules).int32.gte = 1];
+  int32 group_id = 1 [(buf.validate.field).int32.gte = 1];
+  int32 user_id = 2 [(buf.validate.field).int32.gte = 1];
 }
 
 // 群主更换接口响应参数
@@ -329,9 +329,9 @@ message GroupHandoverResponse{}
 
 // 分配管理员接口请求参数
 message GroupAssignAdminRequest{
-  int32 group_id = 1 [(validate.rules).int32.gte = 1];
-  int32 user_id = 2 [(validate.rules).int32.gte = 1];
-  int32 action = 3 [(validate.rules).int32 = {in:[1, 2]}];
+  int32 group_id = 1 [(buf.validate.field).int32.gte = 1];
+  int32 user_id = 2 [(buf.validate.field).int32.gte = 1];
+  int32 action = 3 [(buf.validate.field).int32 = {in:[1, 2]}];
 }
 
 // 分配管理员接口响应参数
@@ -339,9 +339,9 @@ message GroupAssignAdminResponse{}
 
 // 群成员禁言接口请求参数
 message GroupNoSpeakRequest{
-  int32 group_id = 1 [(validate.rules).int32.gte = 1];
-  int32 user_id = 2 [(validate.rules).int32.gte = 1];
-  int32 action = 3 [(validate.rules).int32 = {in:[1, 2]}];
+  int32 group_id = 1 [(buf.validate.field).int32.gte = 1];
+  int32 user_id = 2 [(buf.validate.field).int32.gte = 1];
+  int32 action = 3 [(buf.validate.field).int32 = {in:[1, 2]}];
 }
 
 // 群成员禁言接口响应参数
@@ -349,9 +349,9 @@ message GroupNoSpeakResponse{}
 
 // 群禁言接口请求参数
 message GroupMuteRequest{
-  int32 group_id = 1 [(validate.rules).int32.gte = 1];
+  int32 group_id = 1 [(buf.validate.field).int32.gte = 1];
   // 操作方式  1:开启全员禁言  2:解除全员禁言
-  int32 action = 3 [(validate.rules).int32 = {in:[1, 2]}];
+  int32 action = 3 [(buf.validate.field).int32 = {in:[1, 2]}];
 }
 
 // 群禁言接口响应参数
@@ -359,9 +359,9 @@ message GroupMuteResponse{}
 
 // 群公开修改接口请求参数
 message GroupOvertRequest{
-  int32 group_id = 1 [(validate.rules).int32.gte = 1];
+  int32 group_id = 1 [(buf.validate.field).int32.gte = 1];
   // 操作方式 1:关闭  2:开启
-  int32 action = 3 [(validate.rules).int32 = {in:[1, 2]}];
+  int32 action = 3 [(buf.validate.field).int32 = {in:[1, 2]}];
 }
 
 // 群公开修改接口响应参数

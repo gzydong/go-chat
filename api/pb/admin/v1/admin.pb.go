@@ -7,7 +7,7 @@
 package admin
 
 import (
-	_ "github.com/envoyproxy/protoc-gen-validate/validate"
+	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -596,10 +596,10 @@ var File_admin_v1_admin_proto protoreflect.FileDescriptor
 
 const file_admin_v1_admin_proto_rawDesc = "" +
 	"\n" +
-	"\x14admin/v1/admin.proto\x12\x05admin\x1a\x17validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\"\x9f\x01\n" +
+	"\x14admin/v1/admin.proto\x12\x05admin\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\"\x9f\x01\n" +
 	"\x10AdminListRequest\x12\x1b\n" +
-	"\x04page\x18\x01 \x01(\x05B\a\xfaB\x04\x1a\x02 \x00R\x04page\x12$\n" +
-	"\tpage_size\x18\x02 \x01(\x05B\a\xfaB\x04\x1a\x02 \x00R\bpageSize\x12\x1a\n" +
+	"\x04page\x18\x01 \x01(\x05B\a\xbaH\x04\x1a\x02 \x00R\x04page\x12$\n" +
+	"\tpage_size\x18\x02 \x01(\x05B\a\xbaH\x04\x1a\x02 \x00R\bpageSize\x12\x1a\n" +
 	"\busername\x18\x03 \x01(\tR\busername\x12\x16\n" +
 	"\x06status\x18\x04 \x01(\x05R\x06status\x12\x14\n" +
 	"\x05email\x18\x05 \x01(\tR\x05email\"\xc0\x03\n" +
@@ -625,19 +625,19 @@ const file_admin_v1_admin_proto_rawDesc = "" +
 	" \x01(\tR\vlastLoginAt\x12\x1b\n" +
 	"\trole_name\x18\v \x01(\tR\broleName\"}\n" +
 	"\x12AdminCreateRequest\x12#\n" +
-	"\busername\x18\x02 \x01(\tB\a\xfaB\x04r\x02\x10\x06R\busername\x12\x1d\n" +
-	"\x05email\x18\x06 \x01(\tB\a\xfaB\x04r\x02\x10\x06R\x05email\x12#\n" +
-	"\bpassword\x18\x05 \x01(\tB\a\xfaB\x04r\x02\x10\x06R\bpassword\"%\n" +
+	"\busername\x18\x02 \x01(\tB\a\xbaH\x04r\x02\x10\x06R\busername\x12\x1d\n" +
+	"\x05email\x18\x06 \x01(\tB\a\xbaH\x04r\x02\x10\x06R\x05email\x12#\n" +
+	"\bpassword\x18\x05 \x01(\tB\a\xbaH\x04r\x02\x10\x06R\bpassword\"%\n" +
 	"\x13AdminCreateResponse\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x05R\x02id\"V\n" +
 	"\x18AdminUpdateStatusRequest\x12\x17\n" +
-	"\x02id\x18\x01 \x01(\x05B\a\xfaB\x04\x1a\x02 \x00R\x02id\x12!\n" +
-	"\x06status\x18\x02 \x01(\x05B\t\xfaB\x06\x1a\x040\x010\x02R\x06status\"+\n" +
+	"\x02id\x18\x01 \x01(\x05B\a\xbaH\x04\x1a\x02 \x00R\x02id\x12!\n" +
+	"\x06status\x18\x02 \x01(\x05B\t\xbaH\x06\x1a\x040\x010\x02R\x06status\"+\n" +
 	"\x19AdminUpdateStatusResponse\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x05R\x02id\"Y\n" +
 	"\x19AdminResetPasswordRequest\x12\x17\n" +
-	"\x02id\x18\x01 \x01(\x05B\a\xfaB\x04\x1a\x02 \x01R\x02id\x12#\n" +
-	"\bpassword\x18\x02 \x01(\tB\a\xfaB\x04r\x02\x10\x06R\bpassword\",\n" +
+	"\x02id\x18\x01 \x01(\x05B\a\xbaH\x04\x1a\x02 \x01R\x02id\x12#\n" +
+	"\bpassword\x18\x02 \x01(\tB\a\xbaH\x04r\x02\x10\x06R\bpassword\",\n" +
 	"\x1aAdminResetPasswordResponse\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x05R\x02id2\xc1\x03\n" +
 	"\x05Admin\x12a\n" +

@@ -3,7 +3,7 @@ package admin;
 
 option go_package = "admin/v1;admin";
 
-import "validate/validate.proto";
+import "buf/validate/validate.proto";
 import "google/api/annotations.proto";
 import "google/api/field_behavior.proto";
 
@@ -35,9 +35,9 @@ service User {
 
 message UserListRequest {
   // 页码
-  int32 page = 1 [(validate.rules).int32.gt = 0];
+  int32 page = 1 [(buf.validate.field).int32.gt = 0];
   // 每页数量
-  int32 page_size = 2 [(validate.rules).int32.gt = 0];
+  int32 page_size = 2 [(buf.validate.field).int32.gt = 0];
   // 手机号
   string mobile = 3;
   // 状态筛选
@@ -78,15 +78,15 @@ message UserListResponse {
 
 message UserUpdateRequest {
   // 用户ID
-  int32 id = 1 [(validate.rules).int32.gt = 0];
+  int32 id = 1 [(buf.validate.field).int32.gt = 0];
   // 用户名
-  string username = 2 [(validate.rules).string = {min_len: 1}];
+  string username = 2 [(buf.validate.field).string = {min_len: 1}];
   // 邮箱
-  string email = 3 [(validate.rules).string.email = true];
+  string email = 3 [(buf.validate.field).string.email = true];
   // 手机号
-  string mobile = 4 [(validate.rules).string = {pattern: "^1[0-9]{10}$"}];
+  string mobile = 4 [(buf.validate.field).string = {pattern: "^1[0-9]{10}$"}];
   // 状态
-  int32 status = 5 [(validate.rules).int32 = {in: [1, 2]}];
+  int32 status = 5 [(buf.validate.field).int32 = {in: [1, 2]}];
 }
 
 message UserUpdateResponse {
@@ -96,7 +96,7 @@ message UserUpdateResponse {
 
 message UserDetailRequest {
   // 用户ID
-  int32 id = 1 [(validate.rules).int32.gt = 0];
+  int32 id = 1 [(buf.validate.field).int32.gt = 0];
 }
 
 message UserDetailResponse {

@@ -11,118 +11,86 @@ import (
 
 // IUserHandler BFF 接口
 type IUserHandler interface {
-	Detail(ctx context.Context, req *UserDetailRequest) (*UserDetailResponse, error)
-	Setting(ctx context.Context, req *UserSettingRequest) (*UserSettingResponse, error)
-	DetailUpdate(ctx context.Context, req *UserDetailUpdateRequest) (*UserDetailUpdateResponse, error)
-	PasswordUpdate(ctx context.Context, req *UserPasswordUpdateRequest) (*UserPasswordUpdateResponse, error)
-	MobileUpdate(ctx context.Context, req *UserMobileUpdateRequest) (*UserMobileUpdateResponse, error)
-	EmailUpdate(ctx context.Context, req *UserEmailUpdateRequest) (*UserEmailUpdateResponse, error)
+
+	// 获取登录用户详情接口
+	Detail(ctx context.Context, in *UserDetailRequest) (*UserDetailResponse, error)
+	// 获取用户配置信息接口
+	Setting(ctx context.Context, in *UserSettingRequest) (*UserSettingResponse, error)
+	// 更新用户信息接口
+	DetailUpdate(ctx context.Context, in *UserDetailUpdateRequest) (*UserDetailUpdateResponse, error)
+	// 更新用户密码接口
+	PasswordUpdate(ctx context.Context, in *UserPasswordUpdateRequest) (*UserPasswordUpdateResponse, error)
+	// 更新用户手机号接口
+	MobileUpdate(ctx context.Context, in *UserMobileUpdateRequest) (*UserMobileUpdateResponse, error)
+	// 更新用户邮箱接口
+	EmailUpdate(ctx context.Context, in *UserEmailUpdateRequest) (*UserEmailUpdateResponse, error)
 }
 
 // RegisterUserHandler 注册服务路由处理器
-func RegisterUserHandler(r gin.IRoutes, s interface {
+func RegisterUserHandler(r gin.IRoutes, interceptor interface {
 	ShouldProto(c *gin.Context, in any) error
-	ErrorResponse(c *gin.Context, err error)
-	SuccessResponse(c *gin.Context, data any)
+	Do(fn func(ctx *gin.Context) (any, error)) func(c *gin.Context)
 }, handler IUserHandler) {
+	if interceptor == nil {
+		panic("interceptor is nil")
+	}
+
 	if handler == nil {
 		panic("handler is nil")
 	}
 
-	r.POST("/api/v1/user/detail", func(c *gin.Context) {
+	r.POST("/api/v1/user/detail", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in UserDetailRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.Detail(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
+		return handler.Detail(ctx.Request.Context(), &in)
+	}))
 
-		s.SuccessResponse(c, data)
-	})
-
-	r.POST("/api/v1/user/setting", func(c *gin.Context) {
+	r.POST("/api/v1/user/setting", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in UserSettingRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.Setting(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
+		return handler.Setting(ctx.Request.Context(), &in)
+	}))
 
-		s.SuccessResponse(c, data)
-	})
-
-	r.POST("/api/v1/user/detail-update", func(c *gin.Context) {
+	r.POST("/api/v1/user/detail-update", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in UserDetailUpdateRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.DetailUpdate(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
+		return handler.DetailUpdate(ctx.Request.Context(), &in)
+	}))
 
-		s.SuccessResponse(c, data)
-	})
-
-	r.POST("/api/v1/user/password-update", func(c *gin.Context) {
+	r.POST("/api/v1/user/password-update", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in UserPasswordUpdateRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.PasswordUpdate(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
+		return handler.PasswordUpdate(ctx.Request.Context(), &in)
+	}))
 
-		s.SuccessResponse(c, data)
-	})
-
-	r.POST("/api/v1/user/mobile-update", func(c *gin.Context) {
+	r.POST("/api/v1/user/mobile-update", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in UserMobileUpdateRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.MobileUpdate(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
+		return handler.MobileUpdate(ctx.Request.Context(), &in)
+	}))
 
-		s.SuccessResponse(c, data)
-	})
-
-	r.POST("/api/v1/user/email-update", func(c *gin.Context) {
+	r.POST("/api/v1/user/email-update", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in UserEmailUpdateRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.EmailUpdate(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
-
-		s.SuccessResponse(c, data)
-	})
+		return handler.EmailUpdate(ctx.Request.Context(), &in)
+	}))
 
 }

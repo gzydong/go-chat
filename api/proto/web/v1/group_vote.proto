@@ -3,7 +3,7 @@ package web;
 
 option go_package = "web/v1;web";
 
-import "validate/validate.proto";
+import "buf/validate/validate.proto";
 import "google/api/annotations.proto";
 import "google/api/field_behavior.proto";
 
@@ -36,11 +36,11 @@ service GroupVote {
 
 // 创建群组投票接口请求参数
 message GroupVoteCreateRequest{
-  int32 group_id = 1 [(validate.rules).int32.gte = 1];
-  string title = 3 [(validate.rules).string.min_len = 1];  // 标题
-  int32 mode = 4  [(validate.rules).int32 = {in: [1, 2]}]; // 投票模式
-  int32 is_anonymous = 5 [(validate.rules).int32 = {in: [1, 2]}]; // 匿名投票
-  repeated string options = 6 [(validate.rules).repeated.min_items = 1]; // 投票选项
+  int32 group_id = 1 [(buf.validate.field).int32.gte = 1];
+  string title = 3 [(buf.validate.field).string.min_len = 1];  // 标题
+  int32 mode = 4  [(buf.validate.field).int32 = {in: [1, 2]}]; // 投票模式
+  int32 is_anonymous = 5 [(buf.validate.field).int32 = {in: [1, 2]}]; // 匿名投票
+  repeated string options = 6 [(buf.validate.field).repeated.min_items = 1]; // 投票选项
 }
 
 // 创建群组投票接口响应参数
@@ -48,8 +48,8 @@ message GroupVoteCreateResponse{}
 
 // 提交群组投票接口请求参数
 message GroupVoteSubmitRequest{
-  int32 vote_id = 1 [(validate.rules).int32.gte = 1];
-  repeated string options = 6 [(validate.rules).repeated.min_items = 1]; // 投票选项
+  int32 vote_id = 1 [(buf.validate.field).int32.gte = 1];
+  repeated string options = 6 [(buf.validate.field).repeated.min_items = 1]; // 投票选项
 }
 
 // 提交群组投票接口响应参数
@@ -57,7 +57,7 @@ message GroupVoteSubmitResponse{}
 
 // 获取群组投票详情接口请求参数
 message GroupVoteDetailRequest{
-  int32 vote_id = 1 [(validate.rules).int32.gte = 1];
+  int32 vote_id = 1 [(buf.validate.field).int32.gte = 1];
 }
 
 // 获取群组投票详情接口响应参数

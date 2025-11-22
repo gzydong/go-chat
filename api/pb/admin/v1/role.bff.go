@@ -11,67 +11,53 @@ import (
 
 // IRoleHandler BFF 接口
 type IRoleHandler interface {
-	List(ctx context.Context, req *RoleListRequest) (*RoleListResponse, error)
-	Create(ctx context.Context, req *RoleCreateRequest) (*RoleCreateResponse, error)
-	Update(ctx context.Context, req *RoleUpdateRequest) (*RoleUpdateResponse, error)
+
+	// 角色列表接口
+	List(ctx context.Context, in *RoleListRequest) (*RoleListResponse, error)
+	// 创建角色接口
+	Create(ctx context.Context, in *RoleCreateRequest) (*RoleCreateResponse, error)
+	// 更新角色接口
+	Update(ctx context.Context, in *RoleUpdateRequest) (*RoleUpdateResponse, error)
 }
 
 // RegisterRoleHandler 注册服务路由处理器
-func RegisterRoleHandler(r gin.IRoutes, s interface {
+func RegisterRoleHandler(r gin.IRoutes, interceptor interface {
 	ShouldProto(c *gin.Context, in any) error
-	ErrorResponse(c *gin.Context, err error)
-	SuccessResponse(c *gin.Context, data any)
+	Do(fn func(ctx *gin.Context) (any, error)) func(c *gin.Context)
 }, handler IRoleHandler) {
+	if interceptor == nil {
+		panic("interceptor is nil")
+	}
+
 	if handler == nil {
 		panic("handler is nil")
 	}
 
-	r.POST("/backend/role/list", func(c *gin.Context) {
+	r.POST("/backend/role/list", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in RoleListRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.List(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
+		return handler.List(ctx.Request.Context(), &in)
+	}))
 
-		s.SuccessResponse(c, data)
-	})
-
-	r.POST("/backend/role/create", func(c *gin.Context) {
+	r.POST("/backend/role/create", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in RoleCreateRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.Create(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
+		return handler.Create(ctx.Request.Context(), &in)
+	}))
 
-		s.SuccessResponse(c, data)
-	})
-
-	r.POST("/backend/role/update", func(c *gin.Context) {
+	r.POST("/backend/role/update", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in RoleUpdateRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.Update(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
-
-		s.SuccessResponse(c, data)
-	})
+		return handler.Update(ctx.Request.Context(), &in)
+	}))
 
 }

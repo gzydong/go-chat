@@ -3,7 +3,7 @@ package web;
 
 option go_package = "web/v1;web";
 
-import "validate/validate.proto";
+import "buf/validate/validate.proto";
 import "google/api/annotations.proto";
 import "google/api/field_behavior.proto";
 
@@ -93,7 +93,7 @@ message ContactListResponse{
 
 // 联系人删除接口请求参数
 message ContactDeleteRequest{
-  int32 user_id = 1 [(validate.rules).int32.gte = 1, (google.api.field_behavior) = REQUIRED];
+  int32 user_id = 1 [(buf.validate.field).int32.gte = 1, (google.api.field_behavior) = REQUIRED];
 }
 
 // 联系人删除接口响应参数
@@ -101,7 +101,7 @@ message ContactDeleteResponse{}
 
 // 联系人备注修改接口请求参数
 message ContactEditRemarkRequest{
-  int32 user_id = 1 [(validate.rules).int32.gte = 1, (google.api.field_behavior) = REQUIRED];
+  int32 user_id = 1 [(buf.validate.field).int32.gte = 1, (google.api.field_behavior) = REQUIRED];
   string remark = 2;
 }
 
@@ -110,7 +110,7 @@ message ContactEditRemarkResponse{}
 
 // 联系人详情接口请求参数
 message ContactDetailRequest{
-  int32 user_id = 1 [(validate.rules).int32.gte = 1, (google.api.field_behavior) = REQUIRED];
+  int32 user_id = 1 [(buf.validate.field).int32.gte = 1, (google.api.field_behavior) = REQUIRED];
 }
 
 // 联系人详情接口响应参数
@@ -130,7 +130,7 @@ message ContactDetailResponse{
 
 // 联系人搜索接口请求参数
 message ContactSearchRequest{
-  string mobile = 2 [(validate.rules).string.min_len = 1, (google.api.field_behavior) = REQUIRED];
+  string mobile = 2 [(buf.validate.field).string.min_len = 1, (google.api.field_behavior) = REQUIRED];
 }
 
 // 联系人搜索接口响应参数
@@ -145,7 +145,7 @@ message ContactSearchResponse{
 
 // 修改联系人分组接口请求参数
 message ContactChangeGroupRequest{
-  int32 user_id = 1 [(validate.rules).int32.gte = 1, (google.api.field_behavior) = REQUIRED];
+  int32 user_id = 1 [(buf.validate.field).int32.gte = 1, (google.api.field_behavior) = REQUIRED];
   int32 group_id = 2;
 }
 
@@ -154,7 +154,7 @@ message ContactChangeGroupResponse{}
 
 // 获取联系人在线状态请求参数
 message ContactOnlineStatusRequest{
-  int32 user_id = 1 [(validate.rules).int32.gte = 1, (google.api.field_behavior) = REQUIRED];
+  int32 user_id = 1 [(buf.validate.field).int32.gte = 1, (google.api.field_behavior) = REQUIRED];
 }
 
 // 获取联系人在线状态响应参数

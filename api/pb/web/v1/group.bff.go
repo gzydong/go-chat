@@ -11,305 +11,207 @@ import (
 
 // IGroupHandler BFF 接口
 type IGroupHandler interface {
-	List(ctx context.Context, req *GroupListRequest) (*GroupListResponse, error)
-	Create(ctx context.Context, req *GroupCreateRequest) (*GroupCreateResponse, error)
-	Detail(ctx context.Context, req *GroupDetailRequest) (*GroupDetailResponse, error)
-	MemberList(ctx context.Context, req *GroupMemberListRequest) (*GroupMemberListResponse, error)
-	Dismiss(ctx context.Context, req *GroupDismissRequest) (*GroupDismissResponse, error)
-	Invite(ctx context.Context, req *GroupInviteRequest) (*GroupInviteResponse, error)
-	GetInviteFriends(ctx context.Context, req *GetInviteFriendsRequest) (*GetInviteFriendsResponse, error)
-	Secede(ctx context.Context, req *GroupSecedeRequest) (*GroupSecedeResponse, error)
-	Setting(ctx context.Context, req *GroupSettingRequest) (*GroupSettingResponse, error)
-	RemarkUpdate(ctx context.Context, req *GroupRemarkUpdateRequest) (*GroupRemarkUpdateResponse, error)
-	RemoveMember(ctx context.Context, req *GroupRemoveMemberRequest) (*GroupRemoveMemberResponse, error)
-	OvertList(ctx context.Context, req *GroupOvertListRequest) (*GroupOvertListResponse, error)
-	Handover(ctx context.Context, req *GroupHandoverRequest) (*GroupHandoverResponse, error)
-	AssignAdmin(ctx context.Context, req *GroupAssignAdminRequest) (*GroupAssignAdminResponse, error)
-	NoSpeak(ctx context.Context, req *GroupNoSpeakRequest) (*GroupNoSpeakResponse, error)
-	Mute(ctx context.Context, req *GroupMuteRequest) (*GroupMuteResponse, error)
-	Overt(ctx context.Context, req *GroupOvertRequest) (*GroupOvertResponse, error)
+
+	// 群列表接口
+	List(ctx context.Context, in *GroupListRequest) (*GroupListResponse, error)
+	// 创建群聊接口
+	Create(ctx context.Context, in *GroupCreateRequest) (*GroupCreateResponse, error)
+	// 群聊详情接口
+	Detail(ctx context.Context, in *GroupDetailRequest) (*GroupDetailResponse, error)
+	// 群成员列表接口
+	MemberList(ctx context.Context, in *GroupMemberListRequest) (*GroupMemberListResponse, error)
+	// 解散群聊接口
+	Dismiss(ctx context.Context, in *GroupDismissRequest) (*GroupDismissResponse, error)
+	// 邀请加入群聊接口
+	Invite(ctx context.Context, in *GroupInviteRequest) (*GroupInviteResponse, error)
+	// 获取可邀请好友列表接口
+	GetInviteFriends(ctx context.Context, in *GetInviteFriendsRequest) (*GetInviteFriendsResponse, error)
+	// 退出群聊接口
+	Secede(ctx context.Context, in *GroupSecedeRequest) (*GroupSecedeResponse, error)
+	// 设置群聊接口
+	Setting(ctx context.Context, in *GroupSettingRequest) (*GroupSettingResponse, error)
+	// 群聊名片更新接口
+	RemarkUpdate(ctx context.Context, in *GroupRemarkUpdateRequest) (*GroupRemarkUpdateResponse, error)
+	// 移出群成员接口
+	RemoveMember(ctx context.Context, in *GroupRemoveMemberRequest) (*GroupRemoveMemberResponse, error)
+	// 公开群聊列表接口
+	OvertList(ctx context.Context, in *GroupOvertListRequest) (*GroupOvertListResponse, error)
+	// 群主更换接口
+	Handover(ctx context.Context, in *GroupHandoverRequest) (*GroupHandoverResponse, error)
+	// 分配管理员接口
+	AssignAdmin(ctx context.Context, in *GroupAssignAdminRequest) (*GroupAssignAdminResponse, error)
+	// 群成员禁言接口
+	NoSpeak(ctx context.Context, in *GroupNoSpeakRequest) (*GroupNoSpeakResponse, error)
+	// 群禁言接口
+	Mute(ctx context.Context, in *GroupMuteRequest) (*GroupMuteResponse, error)
+	// 群公开修改接口
+	Overt(ctx context.Context, in *GroupOvertRequest) (*GroupOvertResponse, error)
 }
 
 // RegisterGroupHandler 注册服务路由处理器
-func RegisterGroupHandler(r gin.IRoutes, s interface {
+func RegisterGroupHandler(r gin.IRoutes, interceptor interface {
 	ShouldProto(c *gin.Context, in any) error
-	ErrorResponse(c *gin.Context, err error)
-	SuccessResponse(c *gin.Context, data any)
+	Do(fn func(ctx *gin.Context) (any, error)) func(c *gin.Context)
 }, handler IGroupHandler) {
+	if interceptor == nil {
+		panic("interceptor is nil")
+	}
+
 	if handler == nil {
 		panic("handler is nil")
 	}
 
-	r.POST("/api/v1/group/list", func(c *gin.Context) {
+	r.POST("/api/v1/group/list", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in GroupListRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.List(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
+		return handler.List(ctx.Request.Context(), &in)
+	}))
 
-		s.SuccessResponse(c, data)
-	})
-
-	r.POST("/api/v1/group/create", func(c *gin.Context) {
+	r.POST("/api/v1/group/create", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in GroupCreateRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.Create(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
+		return handler.Create(ctx.Request.Context(), &in)
+	}))
 
-		s.SuccessResponse(c, data)
-	})
-
-	r.POST("/api/v1/group/detail", func(c *gin.Context) {
+	r.POST("/api/v1/group/detail", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in GroupDetailRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.Detail(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
+		return handler.Detail(ctx.Request.Context(), &in)
+	}))
 
-		s.SuccessResponse(c, data)
-	})
-
-	r.POST("/api/v1/group/member-list", func(c *gin.Context) {
+	r.POST("/api/v1/group/member-list", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in GroupMemberListRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.MemberList(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
+		return handler.MemberList(ctx.Request.Context(), &in)
+	}))
 
-		s.SuccessResponse(c, data)
-	})
-
-	r.POST("/api/v1/group/dismiss", func(c *gin.Context) {
+	r.POST("/api/v1/group/dismiss", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in GroupDismissRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.Dismiss(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
+		return handler.Dismiss(ctx.Request.Context(), &in)
+	}))
 
-		s.SuccessResponse(c, data)
-	})
-
-	r.POST("/api/v1/group/invite", func(c *gin.Context) {
+	r.POST("/api/v1/group/invite", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in GroupInviteRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.Invite(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
+		return handler.Invite(ctx.Request.Context(), &in)
+	}))
 
-		s.SuccessResponse(c, data)
-	})
-
-	r.POST("/api/v1/group/get-invite-friends", func(c *gin.Context) {
+	r.POST("/api/v1/group/get-invite-friends", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in GetInviteFriendsRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.GetInviteFriends(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
+		return handler.GetInviteFriends(ctx.Request.Context(), &in)
+	}))
 
-		s.SuccessResponse(c, data)
-	})
-
-	r.POST("/api/v1/group/secede", func(c *gin.Context) {
+	r.POST("/api/v1/group/secede", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in GroupSecedeRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.Secede(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
+		return handler.Secede(ctx.Request.Context(), &in)
+	}))
 
-		s.SuccessResponse(c, data)
-	})
-
-	r.POST("/api/v1/group/setting", func(c *gin.Context) {
+	r.POST("/api/v1/group/setting", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in GroupSettingRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.Setting(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
+		return handler.Setting(ctx.Request.Context(), &in)
+	}))
 
-		s.SuccessResponse(c, data)
-	})
-
-	r.POST("/api/v1/group/remark-update", func(c *gin.Context) {
+	r.POST("/api/v1/group/remark-update", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in GroupRemarkUpdateRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.RemarkUpdate(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
+		return handler.RemarkUpdate(ctx.Request.Context(), &in)
+	}))
 
-		s.SuccessResponse(c, data)
-	})
-
-	r.POST("/api/v1/group/remove-member", func(c *gin.Context) {
+	r.POST("/api/v1/group/remove-member", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in GroupRemoveMemberRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.RemoveMember(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
+		return handler.RemoveMember(ctx.Request.Context(), &in)
+	}))
 
-		s.SuccessResponse(c, data)
-	})
-
-	r.POST("/api/v1/group/overt-list", func(c *gin.Context) {
+	r.POST("/api/v1/group/overt-list", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in GroupOvertListRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.OvertList(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
+		return handler.OvertList(ctx.Request.Context(), &in)
+	}))
 
-		s.SuccessResponse(c, data)
-	})
-
-	r.POST("/api/v1/group/handover", func(c *gin.Context) {
+	r.POST("/api/v1/group/handover", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in GroupHandoverRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.Handover(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
+		return handler.Handover(ctx.Request.Context(), &in)
+	}))
 
-		s.SuccessResponse(c, data)
-	})
-
-	r.POST("/api/v1/group/assign-admin", func(c *gin.Context) {
+	r.POST("/api/v1/group/assign-admin", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in GroupAssignAdminRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.AssignAdmin(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
+		return handler.AssignAdmin(ctx.Request.Context(), &in)
+	}))
 
-		s.SuccessResponse(c, data)
-	})
-
-	r.POST("/api/v1/group/no-speak", func(c *gin.Context) {
+	r.POST("/api/v1/group/no-speak", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in GroupNoSpeakRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.NoSpeak(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
+		return handler.NoSpeak(ctx.Request.Context(), &in)
+	}))
 
-		s.SuccessResponse(c, data)
-	})
-
-	r.POST("/api/v1/group/mute", func(c *gin.Context) {
+	r.POST("/api/v1/group/mute", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in GroupMuteRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.Mute(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
+		return handler.Mute(ctx.Request.Context(), &in)
+	}))
 
-		s.SuccessResponse(c, data)
-	})
-
-	r.POST("/api/v1/group/overt", func(c *gin.Context) {
+	r.POST("/api/v1/group/overt", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in GroupOvertRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.Overt(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
-
-		s.SuccessResponse(c, data)
-	})
+		return handler.Overt(ctx.Request.Context(), &in)
+	}))
 
 }

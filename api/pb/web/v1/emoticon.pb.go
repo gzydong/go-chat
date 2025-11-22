@@ -7,7 +7,7 @@
 package web
 
 import (
-	_ "github.com/envoyproxy/protoc-gen-validate/validate"
+	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -431,13 +431,13 @@ var File_web_v1_emoticon_proto protoreflect.FileDescriptor
 
 const file_web_v1_emoticon_proto_rawDesc = "" +
 	"\n" +
-	"\x15web/v1/emoticon.proto\x12\x03web\x1a\x17validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\"A\n" +
+	"\x15web/v1/emoticon.proto\x12\x03web\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\"A\n" +
 	"\fEmoticonItem\x12\x1f\n" +
 	"\vemoticon_id\x18\x01 \x01(\x05R\n" +
 	"emoticonId\x12\x10\n" +
 	"\x03url\x18\x02 \x01(\tR\x03url\"A\n" +
 	"\x15EmoticonDeleteRequest\x12(\n" +
-	"\vemoticon_id\x18\x01 \x01(\x05B\a\xfaB\x04\x1a\x02(\x01R\n" +
+	"\vemoticon_id\x18\x01 \x01(\x05B\a\xbaH\x04\x1a\x02(\x01R\n" +
 	"emoticonId\"\x18\n" +
 	"\x16EmoticonDeleteResponse\"\x15\n" +
 	"\x13EmoticonListRequest\"?\n" +
@@ -449,7 +449,7 @@ const file_web_v1_emoticon_proto_rawDesc = "" +
 	"emoticonId\x12\x10\n" +
 	"\x03url\x18\x02 \x01(\tR\x03url\"2\n" +
 	"\x15EmoticonCreateRequest\x12\x19\n" +
-	"\x03url\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x03url\"K\n" +
+	"\x03url\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x03url\"K\n" +
 	"\x16EmoticonCreateResponse\x12\x1f\n" +
 	"\vemoticon_id\x18\x01 \x01(\x05R\n" +
 	"emoticonId\x12\x10\n" +

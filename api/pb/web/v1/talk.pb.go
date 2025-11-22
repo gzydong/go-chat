@@ -7,7 +7,7 @@
 package web
 
 import (
-	_ "github.com/envoyproxy/protoc-gen-validate/validate"
+	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -814,7 +814,7 @@ var File_web_v1_talk_proto protoreflect.FileDescriptor
 
 const file_web_v1_talk_proto_rawDesc = "" +
 	"\n" +
-	"\x11web/v1/talk.proto\x12\x03web\x1a\x17validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\"\x92\x03\n" +
+	"\x11web/v1/talk.proto\x12\x03web\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\"\x92\x03\n" +
 	"\x0fTalkSessionItem\x12\x14\n" +
 	"\x02id\x18\x01 \x01(\x05B\x04\xe2A\x01\x02R\x02id\x12!\n" +
 	"\ttalk_mode\x18\x02 \x01(\x05B\x04\xe2A\x01\x02R\btalkMode\x12\"\n" +
@@ -834,9 +834,9 @@ const file_web_v1_talk_proto_rawDesc = "" +
 	"\n" +
 	"updated_at\x18\r \x01(\tB\x04\xe2A\x01\x02R\tupdatedAt\"i\n" +
 	"\x18TalkSessionCreateRequest\x12&\n" +
-	"\ttalk_mode\x18\x01 \x01(\x05B\t\xfaB\x06\x1a\x040\x010\x02R\btalkMode\x12%\n" +
+	"\ttalk_mode\x18\x01 \x01(\x05B\t\xbaH\x06\x1a\x040\x010\x02R\btalkMode\x12%\n" +
 	"\n" +
-	"to_from_id\x18\x02 \x01(\x05B\a\xfaB\x04\x1a\x02(\x01R\btoFromId\"\xbf\x03\n" +
+	"to_from_id\x18\x02 \x01(\x05B\a\xbaH\x04\x1a\x02(\x01R\btoFromId\"\xbf\x03\n" +
 	"\x19TalkSessionCreateResponse\x12\x14\n" +
 	"\x02id\x18\x01 \x01(\x05B\x04\xe2A\x01\x02R\x02id\x12!\n" +
 	"\ttalk_mode\x18\x02 \x01(\x05B\x04\xe2A\x01\x02R\btalkMode\x12\"\n" +
@@ -857,29 +857,29 @@ const file_web_v1_talk_proto_rawDesc = "" +
 	"\n" +
 	"updated_at\x18\r \x01(\tB\x04\xe2A\x01\x02R\tupdatedAt\"i\n" +
 	"\x18TalkSessionDeleteRequest\x12&\n" +
-	"\ttalk_mode\x18\x01 \x01(\x05B\t\xfaB\x06\x1a\x040\x010\x02R\btalkMode\x12%\n" +
+	"\ttalk_mode\x18\x01 \x01(\x05B\t\xbaH\x06\x1a\x040\x010\x02R\btalkMode\x12%\n" +
 	"\n" +
-	"to_from_id\x18\x02 \x01(\x05B\a\xfaB\x04\x1a\x02(\x01R\btoFromId\"\x1b\n" +
+	"to_from_id\x18\x02 \x01(\x05B\a\xbaH\x04\x1a\x02(\x01R\btoFromId\"\x1b\n" +
 	"\x19TalkSessionDeleteResponse\"\x89\x01\n" +
 	"\x15TalkSessionTopRequest\x12&\n" +
-	"\ttalk_mode\x18\x01 \x01(\x05B\t\xfaB\x06\x1a\x040\x010\x02R\btalkMode\x12%\n" +
+	"\ttalk_mode\x18\x01 \x01(\x05B\t\xbaH\x06\x1a\x040\x010\x02R\btalkMode\x12%\n" +
 	"\n" +
-	"to_from_id\x18\x02 \x01(\x05B\a\xfaB\x04\x1a\x02(\x01R\btoFromId\x12!\n" +
-	"\x06action\x18\x03 \x01(\x05B\t\xfaB\x06\x1a\x040\x010\x02R\x06action\"\x18\n" +
+	"to_from_id\x18\x02 \x01(\x05B\a\xbaH\x04\x1a\x02(\x01R\btoFromId\x12!\n" +
+	"\x06action\x18\x03 \x01(\x05B\t\xbaH\x06\x1a\x040\x010\x02R\x06action\"\x18\n" +
 	"\x16TalkSessionTopResponse\"\x8d\x01\n" +
 	"\x19TalkSessionDisturbRequest\x12&\n" +
-	"\ttalk_mode\x18\x01 \x01(\x05B\t\xfaB\x06\x1a\x040\x010\x02R\btalkMode\x12%\n" +
+	"\ttalk_mode\x18\x01 \x01(\x05B\t\xbaH\x06\x1a\x040\x010\x02R\btalkMode\x12%\n" +
 	"\n" +
-	"to_from_id\x18\x02 \x01(\x05B\a\xfaB\x04\x1a\x02(\x01R\btoFromId\x12!\n" +
-	"\x06action\x18\x03 \x01(\x05B\t\xfaB\x06\x1a\x040\x010\x02R\x06action\"\x1c\n" +
+	"to_from_id\x18\x02 \x01(\x05B\a\xbaH\x04\x1a\x02(\x01R\btoFromId\x12!\n" +
+	"\x06action\x18\x03 \x01(\x05B\t\xbaH\x06\x1a\x040\x010\x02R\x06action\"\x1c\n" +
 	"\x1aTalkSessionDisturbResponse\"\x18\n" +
 	"\x16TalkSessionListRequest\"E\n" +
 	"\x17TalkSessionListResponse\x12*\n" +
 	"\x05items\x18\x01 \x03(\v2\x14.web.TalkSessionItemR\x05items\"q\n" +
 	" TalkSessionClearUnreadNumRequest\x12&\n" +
-	"\ttalk_mode\x18\x01 \x01(\x05B\t\xfaB\x06\x1a\x040\x010\x02R\btalkMode\x12%\n" +
+	"\ttalk_mode\x18\x01 \x01(\x05B\t\xbaH\x06\x1a\x040\x010\x02R\btalkMode\x12%\n" +
 	"\n" +
-	"to_from_id\x18\x02 \x01(\x05B\a\xfaB\x04\x1a\x02(\x01R\btoFromId\"#\n" +
+	"to_from_id\x18\x02 \x01(\x05B\a\xbaH\x04\x1a\x02(\x01R\btoFromId\"#\n" +
 	"!TalkSessionClearUnreadNumResponse2\xe9\x05\n" +
 	"\x04Talk\x12v\n" +
 	"\rSessionCreate\x12\x1d.web.TalkSessionCreateRequest\x1a\x1e.web.TalkSessionCreateResponse\"&\x82\xd3\xe4\x93\x02 :\x01*\"\x1b/api/v1/talk/session-create\x12v\n" +

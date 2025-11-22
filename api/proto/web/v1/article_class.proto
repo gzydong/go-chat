@@ -1,7 +1,7 @@
 syntax = "proto3";
 package web;
 option go_package = "web/v1;web";
-import "validate/validate.proto";
+import "buf/validate/validate.proto";
 
 import "google/api/annotations.proto";
 import "google/api/field_behavior.proto";
@@ -59,7 +59,7 @@ message ArticleClassListResponse{
 // 文章分类编辑接口请求参数
 message ArticleClassEditRequest{
   int32 classify_id = 1;
-  string name = 2 [(validate.rules).string.min_len = 1, (google.api.field_behavior) = REQUIRED];
+  string name = 2 [(buf.validate.field).string.min_len = 1, (google.api.field_behavior) = REQUIRED];
 }
 
 // 文章分类编辑接口响应参数
@@ -69,7 +69,7 @@ message ArticleClassEditResponse{
 
 // 文章分类删除接口请求参数
 message ArticleClassDeleteRequest{
-  int32 classify_id = 1 [(validate.rules).int32.gte = 1, (google.api.field_behavior) = REQUIRED];
+  int32 classify_id = 1 [(buf.validate.field).int32.gte = 1, (google.api.field_behavior) = REQUIRED];
 }
 
 // 文章分类删除接口响应参数
@@ -78,7 +78,7 @@ message ArticleClassDeleteResponse{}
 // 文章分类排序接口请求参数
 message ArticleClassSortRequest{
   // 排序后的分类ID列表
-  repeated int32 classify_ids = 1 [(validate.rules).repeated.min_items = 1, (google.api.field_behavior) = REQUIRED];
+  repeated int32 classify_ids = 1 [(buf.validate.field).repeated.min_items = 1, (google.api.field_behavior) = REQUIRED];
 }
 
 // 文章分类排序接口响应参数

@@ -7,7 +7,7 @@
 package web
 
 import (
-	_ "github.com/envoyproxy/protoc-gen-validate/validate"
+	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -324,7 +324,7 @@ var File_web_v1_contact_group_proto protoreflect.FileDescriptor
 
 const file_web_v1_contact_group_proto_rawDesc = "" +
 	"\n" +
-	"\x1aweb/v1/contact_group.proto\x12\x03web\x1a\x17validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\"\x19\n" +
+	"\x1aweb/v1/contact_group.proto\x12\x03web\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\"\x19\n" +
 	"\x17ContactGroupListRequest\"\xc8\x01\n" +
 	"\x18ContactGroupListResponse\x12>\n" +
 	"\x05items\x18\x01 \x03(\v2\".web.ContactGroupListResponse.ItemB\x04\xe2A\x01\x02R\x05items\x1al\n" +
@@ -336,9 +336,9 @@ const file_web_v1_contact_group_proto_rawDesc = "" +
 	"\x17ContactGroupSaveRequest\x127\n" +
 	"\x05items\x18\x01 \x03(\v2!.web.ContactGroupSaveRequest.ItemR\x05items\x1aY\n" +
 	"\x04Item\x12\x17\n" +
-	"\x02id\x18\x01 \x01(\x05B\a\xfaB\x04\x1a\x02(\x00R\x02id\x12\x1b\n" +
-	"\x04sort\x18\x02 \x01(\x05B\a\xfaB\x04\x1a\x02 \x00R\x04sort\x12\x1b\n" +
-	"\x04name\x18\x03 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x04name\"\x1a\n" +
+	"\x02id\x18\x01 \x01(\x05B\a\xbaH\x04\x1a\x02(\x00R\x02id\x12\x1b\n" +
+	"\x04sort\x18\x02 \x01(\x05B\a\xbaH\x04\x1a\x02 \x00R\x04sort\x12\x1b\n" +
+	"\x04name\x18\x03 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x04name\"\x1a\n" +
 	"\x18ContactGroupSaveResponse2\xe6\x01\n" +
 	"\fContactGroup\x12j\n" +
 	"\x04List\x12\x1c.web.ContactGroupListRequest\x1a\x1d.web.ContactGroupListResponse\"%\x82\xd3\xe4\x93\x02\x1f:\x01*\"\x1a/api/v1/contact-group/list\x12j\n" +

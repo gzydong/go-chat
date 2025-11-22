@@ -11,50 +11,42 @@ import (
 
 // IContactGroupHandler BFF 接口
 type IContactGroupHandler interface {
-	List(ctx context.Context, req *ContactGroupListRequest) (*ContactGroupListResponse, error)
-	Save(ctx context.Context, req *ContactGroupSaveRequest) (*ContactGroupSaveResponse, error)
+
+	// 联系人分组列表接口
+	List(ctx context.Context, in *ContactGroupListRequest) (*ContactGroupListResponse, error)
+	// 保存联系人分组接口
+	Save(ctx context.Context, in *ContactGroupSaveRequest) (*ContactGroupSaveResponse, error)
 }
 
 // RegisterContactGroupHandler 注册服务路由处理器
-func RegisterContactGroupHandler(r gin.IRoutes, s interface {
+func RegisterContactGroupHandler(r gin.IRoutes, interceptor interface {
 	ShouldProto(c *gin.Context, in any) error
-	ErrorResponse(c *gin.Context, err error)
-	SuccessResponse(c *gin.Context, data any)
+	Do(fn func(ctx *gin.Context) (any, error)) func(c *gin.Context)
 }, handler IContactGroupHandler) {
+	if interceptor == nil {
+		panic("interceptor is nil")
+	}
+
 	if handler == nil {
 		panic("handler is nil")
 	}
 
-	r.POST("/api/v1/contact-group/list", func(c *gin.Context) {
+	r.POST("/api/v1/contact-group/list", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in ContactGroupListRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.List(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
+		return handler.List(ctx.Request.Context(), &in)
+	}))
 
-		s.SuccessResponse(c, data)
-	})
-
-	r.POST("/api/v1/contact-group/save", func(c *gin.Context) {
+	r.POST("/api/v1/contact-group/save", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in ContactGroupSaveRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.Save(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
-
-		s.SuccessResponse(c, data)
-	})
+		return handler.Save(ctx.Request.Context(), &in)
+	}))
 
 }

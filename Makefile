@@ -5,7 +5,6 @@ install:
 	go install github.com/google/wire/cmd/wire@latest
 	go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
 	go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
-	go install github.com/envoyproxy/protoc-gen-validate@latest
 	go install github.com/google/gnostic/cmd/protoc-gen-openapi@latest
 
 .PHONY: conf
@@ -43,7 +42,7 @@ proto: protoc-gen-bff
 		--proto_path=./third_party \
 		--go_out=paths=source_relative:./api/pb/ \
 		--bff_out=./api/pb/ \
-		--validate_out=paths=source_relative,lang=go:./api/pb/ $(PROTO_FILES) \
+		$(PROTO_FILES) \
 	 && echo "protoc generate success"; \
 	fi
 	make proto-openapi

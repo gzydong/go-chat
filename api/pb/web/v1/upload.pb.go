@@ -7,7 +7,7 @@
 package web
 
 import (
-	_ "github.com/envoyproxy/protoc-gen-validate/validate"
+	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
@@ -418,7 +418,7 @@ var File_web_v1_upload_proto protoreflect.FileDescriptor
 
 const file_web_v1_upload_proto_rawDesc = "" +
 	"\n" +
-	"\x13web/v1/upload.proto\x12\x03web\x1a\x17validate/validate.proto\"\x15\n" +
+	"\x13web/v1/upload.proto\x12\x03web\x1a\x1bbuf/validate/validate.proto\"\x15\n" +
 	"\x13UploadAvatarRequest\".\n" +
 	"\x14UploadAvatarResponse\x12\x16\n" +
 	"\x06avatar\x18\x01 \x01(\tR\x06avatar\"\x15\n" +
@@ -426,18 +426,18 @@ const file_web_v1_upload_proto_rawDesc = "" +
 	"\x13UploadImageResponse\x12\x10\n" +
 	"\x03src\x18\x01 \x01(\tR\x03src\"l\n" +
 	"\x1eUploadInitiateMultipartRequest\x12$\n" +
-	"\tfile_name\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\bfileName\x12$\n" +
-	"\tfile_size\x18\x02 \x01(\x03B\a\xfaB\x04\"\x02(\x01R\bfileSize\"z\n" +
+	"\tfile_name\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\bfileName\x12$\n" +
+	"\tfile_size\x18\x02 \x01(\x03B\a\xbaH\x04\"\x02(\x01R\bfileSize\"z\n" +
 	"\x1fUploadInitiateMultipartResponse\x12\x1b\n" +
 	"\tupload_id\x18\x01 \x01(\tR\buploadId\x12\x1d\n" +
 	"\n" +
 	"shard_size\x18\x02 \x01(\x05R\tshardSize\x12\x1b\n" +
 	"\tshard_num\x18\x03 \x01(\x05R\bshardNum\"\x8e\x01\n" +
 	"\x16UploadMultipartRequest\x12$\n" +
-	"\tupload_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\buploadId\x12(\n" +
-	"\vsplit_index\x18\x02 \x01(\x05B\a\xfaB\x04\x1a\x02 \x00R\n" +
+	"\tupload_id\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\buploadId\x12(\n" +
+	"\vsplit_index\x18\x02 \x01(\x05B\a\xbaH\x04\x1a\x02 \x00R\n" +
 	"splitIndex\x12$\n" +
-	"\tsplit_num\x18\x03 \x01(\x05B\a\xfaB\x04\x1a\x02 \x00R\bsplitNum\"Q\n" +
+	"\tsplit_num\x18\x03 \x01(\x05B\a\xbaH\x04\x1a\x02 \x00R\bsplitNum\"Q\n" +
 	"\x17UploadMultipartResponse\x12\x1b\n" +
 	"\tupload_id\x18\x01 \x01(\tR\buploadId\x12\x19\n" +
 	"\bis_merge\x18\x02 \x01(\bR\aisMergeB\fZ\n" +

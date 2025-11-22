@@ -11,135 +11,97 @@ import (
 
 // IGroupApplyHandler BFF 接口
 type IGroupApplyHandler interface {
-	Create(ctx context.Context, req *GroupApplyCreateRequest) (*GroupApplyCreateResponse, error)
-	Delete(ctx context.Context, req *GroupApplyDeleteRequest) (*GroupApplyDeleteResponse, error)
-	Agree(ctx context.Context, req *GroupApplyAgreeRequest) (*GroupApplyAgreeResponse, error)
-	Decline(ctx context.Context, req *GroupApplyDeclineRequest) (*GroupApplyDeclineResponse, error)
-	List(ctx context.Context, req *GroupApplyListRequest) (*GroupApplyListResponse, error)
-	All(ctx context.Context, req *GroupApplyAllRequest) (*GroupApplyAllResponse, error)
-	UnreadNum(ctx context.Context, req *GroupApplyUnreadNumRequest) (*GroupApplyUnreadNumResponse, error)
+
+	// 创建群组申请接口
+	Create(ctx context.Context, in *GroupApplyCreateRequest) (*GroupApplyCreateResponse, error)
+	// 删除群组申请接口
+	Delete(ctx context.Context, in *GroupApplyDeleteRequest) (*GroupApplyDeleteResponse, error)
+	// 同意群组申请接口
+	Agree(ctx context.Context, in *GroupApplyAgreeRequest) (*GroupApplyAgreeResponse, error)
+	// 拒绝群组申请接口
+	Decline(ctx context.Context, in *GroupApplyDeclineRequest) (*GroupApplyDeclineResponse, error)
+	// 群组申请列表接口
+	List(ctx context.Context, in *GroupApplyListRequest) (*GroupApplyListResponse, error)
+	// 所有群组申请列表接口
+	All(ctx context.Context, in *GroupApplyAllRequest) (*GroupApplyAllResponse, error)
+	// 获取群组申请未读数
+	UnreadNum(ctx context.Context, in *GroupApplyUnreadNumRequest) (*GroupApplyUnreadNumResponse, error)
 }
 
 // RegisterGroupApplyHandler 注册服务路由处理器
-func RegisterGroupApplyHandler(r gin.IRoutes, s interface {
+func RegisterGroupApplyHandler(r gin.IRoutes, interceptor interface {
 	ShouldProto(c *gin.Context, in any) error
-	ErrorResponse(c *gin.Context, err error)
-	SuccessResponse(c *gin.Context, data any)
+	Do(fn func(ctx *gin.Context) (any, error)) func(c *gin.Context)
 }, handler IGroupApplyHandler) {
+	if interceptor == nil {
+		panic("interceptor is nil")
+	}
+
 	if handler == nil {
 		panic("handler is nil")
 	}
 
-	r.POST("/api/v1/group-apply/create", func(c *gin.Context) {
+	r.POST("/api/v1/group-apply/create", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in GroupApplyCreateRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.Create(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
+		return handler.Create(ctx.Request.Context(), &in)
+	}))
 
-		s.SuccessResponse(c, data)
-	})
-
-	r.POST("/api/v1/group-apply/delete", func(c *gin.Context) {
+	r.POST("/api/v1/group-apply/delete", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in GroupApplyDeleteRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.Delete(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
+		return handler.Delete(ctx.Request.Context(), &in)
+	}))
 
-		s.SuccessResponse(c, data)
-	})
-
-	r.POST("/api/v1/group-apply/agree", func(c *gin.Context) {
+	r.POST("/api/v1/group-apply/agree", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in GroupApplyAgreeRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.Agree(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
+		return handler.Agree(ctx.Request.Context(), &in)
+	}))
 
-		s.SuccessResponse(c, data)
-	})
-
-	r.POST("/api/v1/group-apply/decline", func(c *gin.Context) {
+	r.POST("/api/v1/group-apply/decline", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in GroupApplyDeclineRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.Decline(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
+		return handler.Decline(ctx.Request.Context(), &in)
+	}))
 
-		s.SuccessResponse(c, data)
-	})
-
-	r.POST("/api/v1/group-apply/list", func(c *gin.Context) {
+	r.POST("/api/v1/group-apply/list", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in GroupApplyListRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.List(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
+		return handler.List(ctx.Request.Context(), &in)
+	}))
 
-		s.SuccessResponse(c, data)
-	})
-
-	r.POST("/api/v1/group-apply/all", func(c *gin.Context) {
+	r.POST("/api/v1/group-apply/all", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in GroupApplyAllRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.All(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
+		return handler.All(ctx.Request.Context(), &in)
+	}))
 
-		s.SuccessResponse(c, data)
-	})
-
-	r.POST("/api/v1/group-apply/unread-num", func(c *gin.Context) {
+	r.POST("/api/v1/group-apply/unread-num", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in GroupApplyUnreadNumRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.UnreadNum(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
-
-		s.SuccessResponse(c, data)
-	})
+		return handler.UnreadNum(ctx.Request.Context(), &in)
+	}))
 
 }

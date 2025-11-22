@@ -7,7 +7,7 @@
 package web
 
 import (
-	_ "github.com/envoyproxy/protoc-gen-validate/validate"
+	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -440,7 +440,7 @@ var File_web_v1_article_class_proto protoreflect.FileDescriptor
 
 const file_web_v1_article_class_proto_rawDesc = "" +
 	"\n" +
-	"\x1aweb/v1/article_class.proto\x12\x03web\x1a\x17validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\"\x19\n" +
+	"\x1aweb/v1/article_class.proto\x12\x03web\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\"\x19\n" +
 	"\x17ArticleClassListRequest\"\xdf\x01\n" +
 	"\x18ArticleClassListResponse\x12>\n" +
 	"\x05items\x18\x01 \x03(\v2\".web.ArticleClassListResponse.ItemB\x04\xe2A\x01\x02R\x05items\x1a\x82\x01\n" +
@@ -454,16 +454,16 @@ const file_web_v1_article_class_proto_rawDesc = "" +
 	"\x17ArticleClassEditRequest\x12\x1f\n" +
 	"\vclassify_id\x18\x01 \x01(\x05R\n" +
 	"classifyId\x12\x1f\n" +
-	"\x04name\x18\x02 \x01(\tB\v\xe2A\x01\x02\xfaB\x04r\x02\x10\x01R\x04name\"A\n" +
+	"\x04name\x18\x02 \x01(\tB\v\xe2A\x01\x02\xbaH\x04r\x02\x10\x01R\x04name\"A\n" +
 	"\x18ArticleClassEditResponse\x12%\n" +
 	"\vclassify_id\x18\x01 \x01(\x05B\x04\xe2A\x01\x02R\n" +
 	"classifyId\"I\n" +
 	"\x19ArticleClassDeleteRequest\x12,\n" +
-	"\vclassify_id\x18\x01 \x01(\x05B\v\xe2A\x01\x02\xfaB\x04\x1a\x02(\x01R\n" +
+	"\vclassify_id\x18\x01 \x01(\x05B\v\xe2A\x01\x02\xbaH\x04\x1a\x02(\x01R\n" +
 	"classifyId\"\x1c\n" +
 	"\x1aArticleClassDeleteResponse\"J\n" +
 	"\x17ArticleClassSortRequest\x12/\n" +
-	"\fclassify_ids\x18\x01 \x03(\x05B\f\xe2A\x01\x02\xfaB\x05\x92\x01\x02\b\x01R\vclassifyIds\"\x1a\n" +
+	"\fclassify_ids\x18\x01 \x03(\x05B\f\xe2A\x01\x02\xbaH\x05\x92\x01\x02\b\x01R\vclassifyIds\"\x1a\n" +
 	"\x18ArticleClassSortResponse2\xd2\x03\n" +
 	"\fArticleClass\x12m\n" +
 	"\x04List\x12\x1c.web.ArticleClassListRequest\x1a\x1d.web.ArticleClassListResponse\"(\x82\xd3\xe4\x93\x02\":\x01*\"\x1d/api/v1/article/classify/list\x12m\n" +

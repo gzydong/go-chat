@@ -11,67 +11,53 @@ import (
 
 // IEmoticonHandler BFF 接口
 type IEmoticonHandler interface {
-	Delete(ctx context.Context, req *EmoticonDeleteRequest) (*EmoticonDeleteResponse, error)
-	List(ctx context.Context, req *EmoticonListRequest) (*EmoticonListResponse, error)
-	Create(ctx context.Context, req *EmoticonCreateRequest) (*EmoticonCreateResponse, error)
+
+	// 删除表情包接口
+	Delete(ctx context.Context, in *EmoticonDeleteRequest) (*EmoticonDeleteResponse, error)
+	// 用户表情包列表接口
+	List(ctx context.Context, in *EmoticonListRequest) (*EmoticonListResponse, error)
+	// 创建表情包接口
+	Create(ctx context.Context, in *EmoticonCreateRequest) (*EmoticonCreateResponse, error)
 }
 
 // RegisterEmoticonHandler 注册服务路由处理器
-func RegisterEmoticonHandler(r gin.IRoutes, s interface {
+func RegisterEmoticonHandler(r gin.IRoutes, interceptor interface {
 	ShouldProto(c *gin.Context, in any) error
-	ErrorResponse(c *gin.Context, err error)
-	SuccessResponse(c *gin.Context, data any)
+	Do(fn func(ctx *gin.Context) (any, error)) func(c *gin.Context)
 }, handler IEmoticonHandler) {
+	if interceptor == nil {
+		panic("interceptor is nil")
+	}
+
 	if handler == nil {
 		panic("handler is nil")
 	}
 
-	r.POST("/api/v1/emoticon/customize/delete", func(c *gin.Context) {
+	r.POST("/api/v1/emoticon/customize/delete", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in EmoticonDeleteRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.Delete(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
+		return handler.Delete(ctx.Request.Context(), &in)
+	}))
 
-		s.SuccessResponse(c, data)
-	})
-
-	r.POST("/api/v1/emoticon/customize/list", func(c *gin.Context) {
+	r.POST("/api/v1/emoticon/customize/list", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in EmoticonListRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.List(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
+		return handler.List(ctx.Request.Context(), &in)
+	}))
 
-		s.SuccessResponse(c, data)
-	})
-
-	r.POST("/api/v1/emoticon/customize/create", func(c *gin.Context) {
+	r.POST("/api/v1/emoticon/customize/create", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in EmoticonCreateRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.Create(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
-
-		s.SuccessResponse(c, data)
-	})
+		return handler.Create(ctx.Request.Context(), &in)
+	}))
 
 }

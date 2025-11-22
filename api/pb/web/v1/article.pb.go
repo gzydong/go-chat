@@ -7,7 +7,7 @@
 package web
 
 import (
-	_ "github.com/envoyproxy/protoc-gen-validate/validate"
+	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -1393,16 +1393,16 @@ var File_web_v1_article_proto protoreflect.FileDescriptor
 
 const file_web_v1_article_proto_rawDesc = "" +
 	"\n" +
-	"\x14web/v1/article.proto\x12\x03web\x1a\x17validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\"\xb7\x01\n" +
+	"\x14web/v1/article.proto\x12\x03web\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\"\xb7\x01\n" +
 	"\x12ArticleEditRequest\x12\x1d\n" +
 	"\n" +
 	"article_id\x18\x01 \x01(\x05R\tarticleId\x12\x1f\n" +
 	"\vclassify_id\x18\x02 \x01(\x05R\n" +
 	"classifyId\x12\x1d\n" +
-	"\x05title\x18\x03 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x05title\x12\x1a\n" +
+	"\x05title\x18\x03 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x05title\x12\x1a\n" +
 	"\babstract\x18\x04 \x01(\tR\babstract\x12&\n" +
 	"\n" +
-	"md_content\x18\x05 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\tmdContent\"\x94\x01\n" +
+	"md_content\x18\x05 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\tmdContent\"\x94\x01\n" +
 	"\x13ArticleEditResponse\x12#\n" +
 	"\n" +
 	"article_id\x18\x01 \x01(\x05B\x04\xe2A\x01\x02R\tarticleId\x12\x1a\n" +
@@ -1411,7 +1411,7 @@ const file_web_v1_article_proto_rawDesc = "" +
 	"\x05image\x18\x04 \x01(\tB\x04\xe2A\x01\x02R\x05image\">\n" +
 	"\x14ArticleDetailRequest\x12&\n" +
 	"\n" +
-	"article_id\x18\x01 \x01(\x05B\a\xfaB\x04\x1a\x02(\x01R\tarticleId\"\xda\x04\n" +
+	"article_id\x18\x01 \x01(\x05B\a\xbaH\x04\x1a\x02(\x01R\tarticleId\"\xda\x04\n" +
 	"\x15ArticleDetailResponse\x12#\n" +
 	"\n" +
 	"article_id\x18\x01 \x01(\x05B\x04\xe2A\x01\x02R\tarticleId\x12%\n" +
@@ -1469,31 +1469,31 @@ const file_web_v1_article_proto_rawDesc = "" +
 	"\babstract\x18\v \x01(\tB\x04\xe2A\x01\x02R\babstract\">\n" +
 	"\x14ArticleDeleteRequest\x12&\n" +
 	"\n" +
-	"article_id\x18\x01 \x01(\x05B\a\xfaB\x04\x1a\x02(\x01R\tarticleId\"\x17\n" +
+	"article_id\x18\x01 \x01(\x05B\a\xbaH\x04\x1a\x02(\x01R\tarticleId\"\x17\n" +
 	"\x15ArticleDeleteResponse\"?\n" +
 	"\x15ArticleRecoverRequest\x12&\n" +
 	"\n" +
-	"article_id\x18\x01 \x01(\x05B\a\xfaB\x04\x1a\x02(\x01R\tarticleId\"\x18\n" +
+	"article_id\x18\x01 \x01(\x05B\a\xbaH\x04\x1a\x02(\x01R\tarticleId\"\x18\n" +
 	"\x16ArticleRecoverResponse\"f\n" +
 	"\x12ArticleMoveRequest\x12&\n" +
 	"\n" +
-	"article_id\x18\x01 \x01(\x05B\a\xfaB\x04\x1a\x02(\x01R\tarticleId\x12(\n" +
-	"\vclassify_id\x18\x02 \x01(\x05B\a\xfaB\x04\x1a\x02(\x01R\n" +
+	"article_id\x18\x01 \x01(\x05B\a\xbaH\x04\x1a\x02(\x01R\tarticleId\x12(\n" +
+	"\vclassify_id\x18\x02 \x01(\x05B\a\xbaH\x04\x1a\x02(\x01R\n" +
 	"classifyId\"\x15\n" +
 	"\x13ArticleMoveResponse\"c\n" +
 	"\x16ArticleAsteriskRequest\x12&\n" +
 	"\n" +
-	"article_id\x18\x01 \x01(\x05B\a\xfaB\x04\x1a\x02(\x01R\tarticleId\x12!\n" +
-	"\x06action\x18\x02 \x01(\x05B\t\xfaB\x06\x1a\x040\x010\x02R\x06action\"\x19\n" +
+	"article_id\x18\x01 \x01(\x05B\a\xbaH\x04\x1a\x02(\x01R\tarticleId\x12!\n" +
+	"\x06action\x18\x02 \x01(\x05B\t\xbaH\x06\x1a\x040\x010\x02R\x06action\"\x19\n" +
 	"\x17ArticleAsteriskResponse\"U\n" +
 	"\x12ArticleTagsRequest\x12&\n" +
 	"\n" +
-	"article_id\x18\x01 \x01(\x05B\a\xfaB\x04\x1a\x02(\x01R\tarticleId\x12\x17\n" +
+	"article_id\x18\x01 \x01(\x05B\a\xbaH\x04\x1a\x02(\x01R\tarticleId\x12\x17\n" +
 	"\atag_ids\x18\x02 \x03(\x05R\x06tagIds\"\x15\n" +
 	"\x13ArticleTagsResponse\"E\n" +
 	"\x1bArticleForeverDeleteRequest\x12&\n" +
 	"\n" +
-	"article_id\x18\x01 \x01(\x05B\a\xfaB\x04\x1a\x02(\x01R\tarticleId\"\x1e\n" +
+	"article_id\x18\x01 \x01(\x05B\a\xbaH\x04\x1a\x02(\x01R\tarticleId\"\x1e\n" +
 	"\x1cArticleForeverDeleteResponse\"/\n" +
 	"\x19ArticleRecoverListRequest\x12\x12\n" +
 	"\x04page\x18\x01 \x01(\x05R\x04page\"\x9a\x03\n" +

@@ -1,0 +1,37 @@
+import (
+	"context"
+
+	"github.com/gin-gonic/gin"
+)
+
+// I{{.ServiceName}}Handler BFF 接口
+type I{{.ServiceName}}Handler interface {
+    {{range .Methods}}
+    {{.Comment}}
+	{{.Name}}(ctx context.Context, in *{{.Request}}) (*{{.Response}}, error){{end}}
+}
+
+// Register{{.ServiceName}}Handler 注册服务路由处理器
+func Register{{.ServiceName}}Handler(r gin.IRoutes, interceptor interface {
+    ShouldProto(c *gin.Context, in any) error
+	Do(fn func(ctx *gin.Context) (any, error)) func(c *gin.Context)
+}, handler I{{.ServiceName}}Handler) {
+	if interceptor == nil {
+		panic("interceptor is nil")
+	}
+
+	if handler == nil {
+        panic("handler is nil")
+    }
+
+    {{range .Methods}}
+	r.POST("{{.Path}}", interceptor.Do(func(ctx *gin.Context) (any, error) {
+		var in {{.Request}}
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
+		}
+
+		return handler.{{.Name}}(ctx.Request.Context(), &in)
+	}))
+	{{end}}
+}

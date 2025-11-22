@@ -3,7 +3,7 @@ package web;
 
 option go_package = "web/v1;web";
 
-import "validate/validate.proto";
+import "buf/validate/validate.proto";
 import "google/api/annotations.proto";
 import "google/api/field_behavior.proto";
 
@@ -49,9 +49,9 @@ message ContactGroupListResponse{
 // 保存联系人分组接口请求参数
 message ContactGroupSaveRequest{
   message Item{
-    int32 id = 1 [(validate.rules).int32.gte = 0];
-    int32 sort = 2 [(validate.rules).int32.gt = 0];
-    string name = 3 [(validate.rules).string.min_len = 1];
+    int32 id = 1 [(buf.validate.field).int32.gte = 0];
+    int32 sort = 2 [(buf.validate.field).int32.gt = 0];
+    string name = 3 [(buf.validate.field).string.min_len = 1];
   }
 
   repeated Item items = 1;

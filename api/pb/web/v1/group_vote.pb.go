@@ -7,7 +7,7 @@
 package web
 
 import (
-	_ "github.com/envoyproxy/protoc-gen-validate/validate"
+	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -505,20 +505,20 @@ var File_web_v1_group_vote_proto protoreflect.FileDescriptor
 
 const file_web_v1_group_vote_proto_rawDesc = "" +
 	"\n" +
-	"\x17web/v1/group_vote.proto\x12\x03web\x1a\x17validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\"\xcc\x01\n" +
+	"\x17web/v1/group_vote.proto\x12\x03web\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\"\xcc\x01\n" +
 	"\x16GroupVoteCreateRequest\x12\"\n" +
-	"\bgroup_id\x18\x01 \x01(\x05B\a\xfaB\x04\x1a\x02(\x01R\agroupId\x12\x1d\n" +
-	"\x05title\x18\x03 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x05title\x12\x1d\n" +
-	"\x04mode\x18\x04 \x01(\x05B\t\xfaB\x06\x1a\x040\x010\x02R\x04mode\x12,\n" +
-	"\fis_anonymous\x18\x05 \x01(\x05B\t\xfaB\x06\x1a\x040\x010\x02R\visAnonymous\x12\"\n" +
-	"\aoptions\x18\x06 \x03(\tB\b\xfaB\x05\x92\x01\x02\b\x01R\aoptions\"\x19\n" +
+	"\bgroup_id\x18\x01 \x01(\x05B\a\xbaH\x04\x1a\x02(\x01R\agroupId\x12\x1d\n" +
+	"\x05title\x18\x03 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x05title\x12\x1d\n" +
+	"\x04mode\x18\x04 \x01(\x05B\t\xbaH\x06\x1a\x040\x010\x02R\x04mode\x12,\n" +
+	"\fis_anonymous\x18\x05 \x01(\x05B\t\xbaH\x06\x1a\x040\x010\x02R\visAnonymous\x12\"\n" +
+	"\aoptions\x18\x06 \x03(\tB\b\xbaH\x05\x92\x01\x02\b\x01R\aoptions\"\x19\n" +
 	"\x17GroupVoteCreateResponse\"^\n" +
 	"\x16GroupVoteSubmitRequest\x12 \n" +
-	"\avote_id\x18\x01 \x01(\x05B\a\xfaB\x04\x1a\x02(\x01R\x06voteId\x12\"\n" +
-	"\aoptions\x18\x06 \x03(\tB\b\xfaB\x05\x92\x01\x02\b\x01R\aoptions\"\x19\n" +
+	"\avote_id\x18\x01 \x01(\x05B\a\xbaH\x04\x1a\x02(\x01R\x06voteId\x12\"\n" +
+	"\aoptions\x18\x06 \x03(\tB\b\xbaH\x05\x92\x01\x02\b\x01R\aoptions\"\x19\n" +
 	"\x17GroupVoteSubmitResponse\":\n" +
 	"\x16GroupVoteDetailRequest\x12 \n" +
-	"\avote_id\x18\x01 \x01(\x05B\a\xfaB\x04\x1a\x02(\x01R\x06voteId\"\xa2\x05\n" +
+	"\avote_id\x18\x01 \x01(\x05B\a\xbaH\x04\x1a\x02(\x01R\x06voteId\"\xa2\x05\n" +
 	"\x17GroupVoteDetailResponse\x12\x1d\n" +
 	"\avote_id\x18\x01 \x01(\x05B\x04\xe2A\x01\x02R\x06voteId\x12\x1a\n" +
 	"\x05title\x18\x02 \x01(\tB\x04\xe2A\x01\x02R\x05title\x12%\n" +

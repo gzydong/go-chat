@@ -11,67 +11,53 @@ import (
 
 // IGroupVoteHandler BFF 接口
 type IGroupVoteHandler interface {
-	Create(ctx context.Context, req *GroupVoteCreateRequest) (*GroupVoteCreateResponse, error)
-	Submit(ctx context.Context, req *GroupVoteSubmitRequest) (*GroupVoteSubmitResponse, error)
-	Detail(ctx context.Context, req *GroupVoteDetailRequest) (*GroupVoteDetailResponse, error)
+
+	// 创建群组投票接口
+	Create(ctx context.Context, in *GroupVoteCreateRequest) (*GroupVoteCreateResponse, error)
+	// 提交群组投票接口
+	Submit(ctx context.Context, in *GroupVoteSubmitRequest) (*GroupVoteSubmitResponse, error)
+	// 获取群组投票详情接口
+	Detail(ctx context.Context, in *GroupVoteDetailRequest) (*GroupVoteDetailResponse, error)
 }
 
 // RegisterGroupVoteHandler 注册服务路由处理器
-func RegisterGroupVoteHandler(r gin.IRoutes, s interface {
+func RegisterGroupVoteHandler(r gin.IRoutes, interceptor interface {
 	ShouldProto(c *gin.Context, in any) error
-	ErrorResponse(c *gin.Context, err error)
-	SuccessResponse(c *gin.Context, data any)
+	Do(fn func(ctx *gin.Context) (any, error)) func(c *gin.Context)
 }, handler IGroupVoteHandler) {
+	if interceptor == nil {
+		panic("interceptor is nil")
+	}
+
 	if handler == nil {
 		panic("handler is nil")
 	}
 
-	r.POST("/api/v1/group-vote/create", func(c *gin.Context) {
+	r.POST("/api/v1/group-vote/create", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in GroupVoteCreateRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.Create(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
+		return handler.Create(ctx.Request.Context(), &in)
+	}))
 
-		s.SuccessResponse(c, data)
-	})
-
-	r.POST("/api/v1/group-vote/submit", func(c *gin.Context) {
+	r.POST("/api/v1/group-vote/submit", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in GroupVoteSubmitRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.Submit(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
+		return handler.Submit(ctx.Request.Context(), &in)
+	}))
 
-		s.SuccessResponse(c, data)
-	})
-
-	r.POST("/api/v1/group-vote/detail", func(c *gin.Context) {
+	r.POST("/api/v1/group-vote/detail", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in GroupVoteDetailRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.Detail(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
-
-		s.SuccessResponse(c, data)
-	})
+		return handler.Detail(ctx.Request.Context(), &in)
+	}))
 
 }

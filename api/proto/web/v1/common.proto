@@ -2,7 +2,7 @@ syntax = "proto3";
 package web;
 
 option go_package = "web/v1;web";
-import "validate/validate.proto";
+import "buf/validate/validate.proto";
 import "google/api/annotations.proto";
 
 // 通用服务
@@ -35,8 +35,8 @@ service Common {
 
 // 发送短信验证码接口请求参数
 message CommonSendSmsRequest{
-  string mobile = 1 [(validate.rules).string.len = 11];
-  string channel = 2 [(validate.rules).string = {in: ["login", "register", "forget_account", "change_account", "oauth_bind"]}];
+  string mobile = 1 [(buf.validate.field).string.len = 11];
+  string channel = 2 [(buf.validate.field).string = {in: ["login", "register", "forget_account", "change_account", "oauth_bind"]}];
 }
 
 // 发送短信验证码接口响应参数
@@ -46,7 +46,7 @@ message CommonSendSmsResponse{
 
 // 发送邮件验证码接口请求参数
 message CommonSendEmailRequest{
-  string email = 1  [(validate.rules).string.min_len = 6];
+  string email = 1  [(buf.validate.field).string.min_len = 6];
 }
 
 // 发送邮件验证码接口响应参数
@@ -54,7 +54,7 @@ message CommonSendEmailResponse{}
 
 // 发送邮件验证码接口请求参数
 message CommonSendTestRequest{
-  string email = 1  [(validate.rules).string.min_len = 6];
+  string email = 1  [(buf.validate.field).string.min_len = 6];
 }
 
 // 发送邮件验证码接口响应参数

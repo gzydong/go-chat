@@ -7,7 +7,7 @@
 package web
 
 import (
-	_ "github.com/envoyproxy/protoc-gen-validate/validate"
+	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -117,10 +117,10 @@ var File_web_v1_group_notice_proto protoreflect.FileDescriptor
 
 const file_web_v1_group_notice_proto_rawDesc = "" +
 	"\n" +
-	"\x19web/v1/group_notice.proto\x12\x03web\x1a\x17validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\"_\n" +
+	"\x19web/v1/group_notice.proto\x12\x03web\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\"_\n" +
 	"\x16GroupNoticeEditRequest\x12\"\n" +
-	"\bgroup_id\x18\x01 \x01(\x05B\a\xfaB\x04\x1a\x02(\x01R\agroupId\x12!\n" +
-	"\acontent\x18\x04 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\acontent\"\x19\n" +
+	"\bgroup_id\x18\x01 \x01(\x05B\a\xbaH\x04\x1a\x02(\x01R\agroupId\x12!\n" +
+	"\acontent\x18\x04 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\acontent\"\x19\n" +
 	"\x17GroupNoticeEditResponse2v\n" +
 	"\vGroupNotice\x12g\n" +
 	"\x04Edit\x12\x1b.web.GroupNoticeEditRequest\x1a\x1c.web.GroupNoticeEditResponse\"$\x82\xd3\xe4\x93\x02\x1e:\x01*\"\x19/api/v1/group-notice/editB\fZ\n" +

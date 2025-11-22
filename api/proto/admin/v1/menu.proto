@@ -3,7 +3,7 @@ package admin;
 
 option go_package = "admin/v1;admin";
 
-import "validate/validate.proto";
+import "buf/validate/validate.proto";
 import "google/api/annotations.proto";
 import "google/api/field_behavior.proto";
 
@@ -44,7 +44,7 @@ message MenuCreateRequest{
   // 父级菜单ID
   int32 parent_id = 1;
   // 菜单名称
-  string name = 2 [(validate.rules).string = {min_len: 1}];
+  string name = 2 [(buf.validate.field).string = {min_len: 1}];
   // 菜单类型
   int32 menu_type = 3;
   // 菜单图标
@@ -54,9 +54,9 @@ message MenuCreateRequest{
   // 排序
   int32 sort = 6;
   // 是否隐藏
-  string hidden = 7 [(validate.rules).string = {in: ["", "Y", "N"]}];
+  string hidden = 7 [(buf.validate.field).string = {in: ["", "Y", "N"]}];
   // 是否使用布局
-  string use_layout = 8 [(validate.rules).string = {in: ["", "Y", "N"]}];
+  string use_layout = 8 [(buf.validate.field).string = {in: ["", "Y", "N"]}];
   // 权限代码
   string auth_code = 9;
 }
@@ -69,7 +69,7 @@ message MenuUpdateRequest{
   // 菜单ID
   int32 id = 1;
   // 菜单名称
-  string name = 2 [(validate.rules).string = {min_len: 1}];
+  string name = 2 [(buf.validate.field).string = {min_len: 1}];
   // 菜单图标
   string icon = 4;
   // 菜单路径
@@ -77,13 +77,13 @@ message MenuUpdateRequest{
   // 排序
   int32 sort = 6;
   // 是否隐藏
-  string hidden = 7 [(validate.rules).string = {in: ["", "Y", "N"]}];
+  string hidden = 7 [(buf.validate.field).string = {in: ["", "Y", "N"]}];
   // 状态
-  int32 status = 8 [(validate.rules).int32 = {in: [1, 2]}];
+  int32 status = 8 [(buf.validate.field).int32 = {in: [1, 2]}];
   // 父级菜单ID
   int32 parent_id = 9;
   // 是否使用布局
-  string use_layout = 10 [(validate.rules).string = {in: ["", "Y", "N"]}];
+  string use_layout = 10 [(buf.validate.field).string = {in: ["", "Y", "N"]}];
   // 权限代码
   string auth_code = 11;
 }

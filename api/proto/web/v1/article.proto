@@ -2,7 +2,7 @@ syntax = "proto3";
 package web;
 option go_package = "web/v1;web";
 
-import "validate/validate.proto";
+import "buf/validate/validate.proto";
 import "google/api/annotations.proto";
 import "google/api/field_behavior.proto";
 
@@ -97,11 +97,11 @@ message ArticleEditRequest{
   // 分类ID
   int32 classify_id = 2;
   // 标题
-  string title = 3  [(validate.rules).string.min_len = 1];
+  string title = 3  [(buf.validate.field).string.min_len = 1];
   // 摘要
   string abstract = 4;
   // 内容
-  string md_content = 5  [(validate.rules).string.min_len = 1];
+  string md_content = 5  [(buf.validate.field).string.min_len = 1];
 }
 
 // 文章编辑接口响应参数
@@ -114,7 +114,7 @@ message ArticleEditResponse{
 
 // 文章详情接口请求参数
 message ArticleDetailRequest{
-  int32 article_id = 1 [(validate.rules).int32.gte = 1];
+  int32 article_id = 1 [(buf.validate.field).int32.gte = 1];
 }
 
 // 文章详情接口响应参数
@@ -175,22 +175,22 @@ message ArticleListResponse{
 
 // 文章删除接口请求参数
 message ArticleDeleteRequest{
-  int32 article_id = 1 [(validate.rules).int32.gte = 1];
+  int32 article_id = 1 [(buf.validate.field).int32.gte = 1];
 }
 
 // 文章删除接口响应参数
 message ArticleDeleteResponse{}
 
 message ArticleRecoverRequest{
-  int32 article_id = 1 [(validate.rules).int32.gte = 1];
+  int32 article_id = 1 [(buf.validate.field).int32.gte = 1];
 }
 
 message ArticleRecoverResponse{}
 
 // 文章移动分类接口请求参数
 message ArticleMoveRequest{
-  int32 article_id = 1 [(validate.rules).int32.gte = 1];
-  int32 classify_id = 2 [(validate.rules).int32.gte = 1];
+  int32 article_id = 1 [(buf.validate.field).int32.gte = 1];
+  int32 classify_id = 2 [(buf.validate.field).int32.gte = 1];
 }
 
 // 文章移动分类接口响应参数
@@ -198,15 +198,15 @@ message ArticleMoveResponse{}
 
 message ArticleAsteriskRequest{
   // 文章ID
-  int32 article_id = 1 [(validate.rules).int32.gte = 1];
+  int32 article_id = 1 [(buf.validate.field).int32.gte = 1];
   // 操作方式 1:收藏 2:取消收藏
-  int32 action = 2 [(validate.rules).int32 = {in: [1, 2]}];
+  int32 action = 2 [(buf.validate.field).int32 = {in: [1, 2]}];
 }
 
 message ArticleAsteriskResponse{}
 
 message ArticleTagsRequest{
-  int32 article_id = 1 [(validate.rules).int32.gte = 1];
+  int32 article_id = 1 [(buf.validate.field).int32.gte = 1];
   repeated int32 tag_ids = 2;
 }
 
@@ -214,7 +214,7 @@ message ArticleTagsResponse{}
 
 
 message ArticleForeverDeleteRequest{
-  int32 article_id = 1 [(validate.rules).int32.gte = 1];
+  int32 article_id = 1 [(buf.validate.field).int32.gte = 1];
 }
 
 message ArticleForeverDeleteResponse{}

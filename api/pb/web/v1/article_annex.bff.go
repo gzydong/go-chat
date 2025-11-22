@@ -11,84 +11,64 @@ import (
 
 // IArticleAnnexHandler BFF 接口
 type IArticleAnnexHandler interface {
-	Delete(ctx context.Context, req *ArticleAnnexDeleteRequest) (*ArticleAnnexDeleteResponse, error)
-	Recover(ctx context.Context, req *ArticleAnnexRecoverRequest) (*ArticleAnnexRecoverResponse, error)
-	ForeverDelete(ctx context.Context, req *ArticleAnnexForeverDeleteRequest) (*ArticleAnnexForeverDeleteResponse, error)
-	RecoverList(ctx context.Context, req *ArticleAnnexRecoverListRequest) (*ArticleAnnexRecoverListResponse, error)
+
+	// 文章附件删除接口
+	Delete(ctx context.Context, in *ArticleAnnexDeleteRequest) (*ArticleAnnexDeleteResponse, error)
+	// 文章附件恢复删除接口
+	Recover(ctx context.Context, in *ArticleAnnexRecoverRequest) (*ArticleAnnexRecoverResponse, error)
+	// 文章附件永久删除接口
+	ForeverDelete(ctx context.Context, in *ArticleAnnexForeverDeleteRequest) (*ArticleAnnexForeverDeleteResponse, error)
+	// 文章附件回收站列表接口
+	RecoverList(ctx context.Context, in *ArticleAnnexRecoverListRequest) (*ArticleAnnexRecoverListResponse, error)
 }
 
 // RegisterArticleAnnexHandler 注册服务路由处理器
-func RegisterArticleAnnexHandler(r gin.IRoutes, s interface {
+func RegisterArticleAnnexHandler(r gin.IRoutes, interceptor interface {
 	ShouldProto(c *gin.Context, in any) error
-	ErrorResponse(c *gin.Context, err error)
-	SuccessResponse(c *gin.Context, data any)
+	Do(fn func(ctx *gin.Context) (any, error)) func(c *gin.Context)
 }, handler IArticleAnnexHandler) {
+	if interceptor == nil {
+		panic("interceptor is nil")
+	}
+
 	if handler == nil {
 		panic("handler is nil")
 	}
 
-	r.POST("/api/v1/article-annex/delete", func(c *gin.Context) {
+	r.POST("/api/v1/article-annex/delete", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in ArticleAnnexDeleteRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.Delete(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
+		return handler.Delete(ctx.Request.Context(), &in)
+	}))
 
-		s.SuccessResponse(c, data)
-	})
-
-	r.POST("/api/v1/article-annex/recover", func(c *gin.Context) {
+	r.POST("/api/v1/article-annex/recover", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in ArticleAnnexRecoverRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.Recover(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
+		return handler.Recover(ctx.Request.Context(), &in)
+	}))
 
-		s.SuccessResponse(c, data)
-	})
-
-	r.POST("/api/v1/article-annex/forever-delete", func(c *gin.Context) {
+	r.POST("/api/v1/article-annex/forever-delete", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in ArticleAnnexForeverDeleteRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.ForeverDelete(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
+		return handler.ForeverDelete(ctx.Request.Context(), &in)
+	}))
 
-		s.SuccessResponse(c, data)
-	})
-
-	r.POST("/api/v1/article-annex/recover-list", func(c *gin.Context) {
+	r.POST("/api/v1/article-annex/recover-list", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in ArticleAnnexRecoverListRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.RecoverList(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
-
-		s.SuccessResponse(c, data)
-	})
+		return handler.RecoverList(ctx.Request.Context(), &in)
+	}))
 
 }

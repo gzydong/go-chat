@@ -11,152 +11,108 @@ import (
 
 // IAuthHandler BFF 接口
 type IAuthHandler interface {
-	Login(ctx context.Context, req *AuthLoginRequest) (*AuthLoginResponse, error)
-	Captcha(ctx context.Context, req *AuthCaptchaRequest) (*AuthCaptchaResponse, error)
-	Logout(ctx context.Context, req *AuthLogoutRequest) (*AuthLogoutResponse, error)
-	Refresh(ctx context.Context, req *AuthRefreshRequest) (*AuthRefreshResponse, error)
-	Detail(ctx context.Context, req *AuthDetailRequest) (*AuthDetailResponse, error)
-	UpdatePassword(ctx context.Context, req *AuthUpdatePasswordRequest) (*AuthUpdatePasswordResponse, error)
-	UpdateDetail(ctx context.Context, req *AuthUpdateDetailRequest) (*AuthUpdateDetailResponse, error)
-	Menus(ctx context.Context, req *AuthMenusRequest) (*AuthMenusResponse, error)
+
+	// 管理员登录接口
+	Login(ctx context.Context, in *AuthLoginRequest) (*AuthLoginResponse, error)
+	// 获取图形验证码接口
+	Captcha(ctx context.Context, in *AuthCaptchaRequest) (*AuthCaptchaResponse, error)
+	// 管理员注销登录接口
+	Logout(ctx context.Context, in *AuthLogoutRequest) (*AuthLogoutResponse, error)
+	// 管理员刷新Token接口
+	Refresh(ctx context.Context, in *AuthRefreshRequest) (*AuthRefreshResponse, error)
+	// 获取管理员详情接口
+	Detail(ctx context.Context, in *AuthDetailRequest) (*AuthDetailResponse, error)
+	// 更新管理员密码接口
+	UpdatePassword(ctx context.Context, in *AuthUpdatePasswordRequest) (*AuthUpdatePasswordResponse, error)
+	// 更新管理员详情接口
+	UpdateDetail(ctx context.Context, in *AuthUpdateDetailRequest) (*AuthUpdateDetailResponse, error)
+
+	Menus(ctx context.Context, in *AuthMenusRequest) (*AuthMenusResponse, error)
 }
 
 // RegisterAuthHandler 注册服务路由处理器
-func RegisterAuthHandler(r gin.IRoutes, s interface {
+func RegisterAuthHandler(r gin.IRoutes, interceptor interface {
 	ShouldProto(c *gin.Context, in any) error
-	ErrorResponse(c *gin.Context, err error)
-	SuccessResponse(c *gin.Context, data any)
+	Do(fn func(ctx *gin.Context) (any, error)) func(c *gin.Context)
 }, handler IAuthHandler) {
+	if interceptor == nil {
+		panic("interceptor is nil")
+	}
+
 	if handler == nil {
 		panic("handler is nil")
 	}
 
-	r.POST("/backend/auth/login", func(c *gin.Context) {
+	r.POST("/backend/auth/login", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in AuthLoginRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.Login(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
+		return handler.Login(ctx.Request.Context(), &in)
+	}))
 
-		s.SuccessResponse(c, data)
-	})
-
-	r.POST("/backend/auth/captcha", func(c *gin.Context) {
+	r.POST("/backend/auth/captcha", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in AuthCaptchaRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.Captcha(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
+		return handler.Captcha(ctx.Request.Context(), &in)
+	}))
 
-		s.SuccessResponse(c, data)
-	})
-
-	r.POST("/backend/auth/logout", func(c *gin.Context) {
+	r.POST("/backend/auth/logout", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in AuthLogoutRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.Logout(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
+		return handler.Logout(ctx.Request.Context(), &in)
+	}))
 
-		s.SuccessResponse(c, data)
-	})
-
-	r.POST("/backend/auth/refresh", func(c *gin.Context) {
+	r.POST("/backend/auth/refresh", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in AuthRefreshRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.Refresh(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
+		return handler.Refresh(ctx.Request.Context(), &in)
+	}))
 
-		s.SuccessResponse(c, data)
-	})
-
-	r.POST("/backend/auth/detail", func(c *gin.Context) {
+	r.POST("/backend/auth/detail", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in AuthDetailRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.Detail(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
+		return handler.Detail(ctx.Request.Context(), &in)
+	}))
 
-		s.SuccessResponse(c, data)
-	})
-
-	r.POST("/backend/auth/update-password", func(c *gin.Context) {
+	r.POST("/backend/auth/update-password", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in AuthUpdatePasswordRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.UpdatePassword(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
+		return handler.UpdatePassword(ctx.Request.Context(), &in)
+	}))
 
-		s.SuccessResponse(c, data)
-	})
-
-	r.POST("/backend/auth/update-detail", func(c *gin.Context) {
+	r.POST("/backend/auth/update-detail", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in AuthUpdateDetailRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.UpdateDetail(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
+		return handler.UpdateDetail(ctx.Request.Context(), &in)
+	}))
 
-		s.SuccessResponse(c, data)
-	})
-
-	r.POST("/backend/auth/menus", func(c *gin.Context) {
+	r.POST("/backend/auth/menus", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in AuthMenusRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.Menus(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
-
-		s.SuccessResponse(c, data)
-	})
+		return handler.Menus(ctx.Request.Context(), &in)
+	}))
 
 }

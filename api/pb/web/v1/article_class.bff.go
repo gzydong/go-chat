@@ -11,84 +11,64 @@ import (
 
 // IArticleClassHandler BFF 接口
 type IArticleClassHandler interface {
-	List(ctx context.Context, req *ArticleClassListRequest) (*ArticleClassListResponse, error)
-	Edit(ctx context.Context, req *ArticleClassEditRequest) (*ArticleClassEditResponse, error)
-	Delete(ctx context.Context, req *ArticleClassDeleteRequest) (*ArticleClassDeleteResponse, error)
-	Sort(ctx context.Context, req *ArticleClassSortRequest) (*ArticleClassSortResponse, error)
+
+	// 获取文章分类列表接口
+	List(ctx context.Context, in *ArticleClassListRequest) (*ArticleClassListResponse, error)
+	// 文章分类编辑接口
+	Edit(ctx context.Context, in *ArticleClassEditRequest) (*ArticleClassEditResponse, error)
+	// 文章分类删除接口
+	Delete(ctx context.Context, in *ArticleClassDeleteRequest) (*ArticleClassDeleteResponse, error)
+	// 文章分类排序接口
+	Sort(ctx context.Context, in *ArticleClassSortRequest) (*ArticleClassSortResponse, error)
 }
 
 // RegisterArticleClassHandler 注册服务路由处理器
-func RegisterArticleClassHandler(r gin.IRoutes, s interface {
+func RegisterArticleClassHandler(r gin.IRoutes, interceptor interface {
 	ShouldProto(c *gin.Context, in any) error
-	ErrorResponse(c *gin.Context, err error)
-	SuccessResponse(c *gin.Context, data any)
+	Do(fn func(ctx *gin.Context) (any, error)) func(c *gin.Context)
 }, handler IArticleClassHandler) {
+	if interceptor == nil {
+		panic("interceptor is nil")
+	}
+
 	if handler == nil {
 		panic("handler is nil")
 	}
 
-	r.POST("/api/v1/article/classify/list", func(c *gin.Context) {
+	r.POST("/api/v1/article/classify/list", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in ArticleClassListRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.List(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
+		return handler.List(ctx.Request.Context(), &in)
+	}))
 
-		s.SuccessResponse(c, data)
-	})
-
-	r.POST("/api/v1/article/classify/edit", func(c *gin.Context) {
+	r.POST("/api/v1/article/classify/edit", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in ArticleClassEditRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.Edit(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
+		return handler.Edit(ctx.Request.Context(), &in)
+	}))
 
-		s.SuccessResponse(c, data)
-	})
-
-	r.POST("/api/v1/article/classify/delete", func(c *gin.Context) {
+	r.POST("/api/v1/article/classify/delete", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in ArticleClassDeleteRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.Delete(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
+		return handler.Delete(ctx.Request.Context(), &in)
+	}))
 
-		s.SuccessResponse(c, data)
-	})
-
-	r.POST("/api/v1/article/classify/sort", func(c *gin.Context) {
+	r.POST("/api/v1/article/classify/sort", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in ArticleClassSortRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.Sort(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
-
-		s.SuccessResponse(c, data)
-	})
+		return handler.Sort(ctx.Request.Context(), &in)
+	}))
 
 }

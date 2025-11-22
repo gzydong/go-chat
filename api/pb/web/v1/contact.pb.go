@@ -7,7 +7,7 @@
 package web
 
 import (
-	_ "github.com/envoyproxy/protoc-gen-validate/validate"
+	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -861,7 +861,7 @@ var File_web_v1_contact_proto protoreflect.FileDescriptor
 
 const file_web_v1_contact_proto_rawDesc = "" +
 	"\n" +
-	"\x14web/v1/contact.proto\x12\x03web\x1a\x17validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\"\x14\n" +
+	"\x14web/v1/contact.proto\x12\x03web\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\"\x14\n" +
 	"\x12ContactListRequest\"\xb1\x02\n" +
 	"\x13ContactListResponse\x129\n" +
 	"\x05items\x18\x01 \x03(\v2\x1d.web.ContactListResponse.ItemB\x04\xe2A\x01\x02R\x05items\x1a\xde\x01\n" +
@@ -874,14 +874,14 @@ const file_web_v1_contact_proto_rawDesc = "" +
 	"\x06remark\x18\a \x01(\tB\x04\xe2A\x01\x02R\x06remark\x12\x1f\n" +
 	"\bgroup_id\x18\b \x01(\x05B\x04\xe2A\x01\x02R\agroupId\"<\n" +
 	"\x14ContactDeleteRequest\x12$\n" +
-	"\auser_id\x18\x01 \x01(\x05B\v\xe2A\x01\x02\xfaB\x04\x1a\x02(\x01R\x06userId\"\x17\n" +
+	"\auser_id\x18\x01 \x01(\x05B\v\xe2A\x01\x02\xbaH\x04\x1a\x02(\x01R\x06userId\"\x17\n" +
 	"\x15ContactDeleteResponse\"X\n" +
 	"\x18ContactEditRemarkRequest\x12$\n" +
-	"\auser_id\x18\x01 \x01(\x05B\v\xe2A\x01\x02\xfaB\x04\x1a\x02(\x01R\x06userId\x12\x16\n" +
+	"\auser_id\x18\x01 \x01(\x05B\v\xe2A\x01\x02\xbaH\x04\x1a\x02(\x01R\x06userId\x12\x16\n" +
 	"\x06remark\x18\x02 \x01(\tR\x06remark\"\x1b\n" +
 	"\x19ContactEditRemarkResponse\"<\n" +
 	"\x14ContactDetailRequest\x12$\n" +
-	"\auser_id\x18\x01 \x01(\x05B\v\xe2A\x01\x02\xfaB\x04\x1a\x02(\x01R\x06userId\"\x94\x03\n" +
+	"\auser_id\x18\x01 \x01(\x05B\v\xe2A\x01\x02\xbaH\x04\x1a\x02(\x01R\x06userId\"\x94\x03\n" +
 	"\x15ContactDetailResponse\x12\x1d\n" +
 	"\auser_id\x18\x01 \x01(\x05B\x04\xe2A\x01\x02R\x06userId\x12\x1c\n" +
 	"\x06mobile\x18\x02 \x01(\tB\x04\xe2A\x01\x02R\x06mobile\x12 \n" +
@@ -896,7 +896,7 @@ const file_web_v1_contact_proto_rawDesc = "" +
 	"\x10contact_group_id\x18\f \x01(\x05B\x04\xe2A\x01\x02R\x0econtactGroupId\x12)\n" +
 	"\ronline_status\x18\r \x01(\tB\x04\xe2A\x01\x02R\fonlineStatus\";\n" +
 	"\x14ContactSearchRequest\x12#\n" +
-	"\x06mobile\x18\x02 \x01(\tB\v\xe2A\x01\x02\xfaB\x04r\x02\x10\x01R\x06mobile\"\xce\x01\n" +
+	"\x06mobile\x18\x02 \x01(\tB\v\xe2A\x01\x02\xbaH\x04r\x02\x10\x01R\x06mobile\"\xce\x01\n" +
 	"\x15ContactSearchResponse\x12\x1d\n" +
 	"\auser_id\x18\x01 \x01(\x05B\x04\xe2A\x01\x02R\x06userId\x12\x1c\n" +
 	"\x06mobile\x18\x02 \x01(\tB\x04\xe2A\x01\x02R\x06mobile\x12 \n" +
@@ -905,11 +905,11 @@ const file_web_v1_contact_proto_rawDesc = "" +
 	"\x06gender\x18\x06 \x01(\x05B\x04\xe2A\x01\x02R\x06gender\x12\x1a\n" +
 	"\x05motto\x18\a \x01(\tB\x04\xe2A\x01\x02R\x05motto\"\\\n" +
 	"\x19ContactChangeGroupRequest\x12$\n" +
-	"\auser_id\x18\x01 \x01(\x05B\v\xe2A\x01\x02\xfaB\x04\x1a\x02(\x01R\x06userId\x12\x19\n" +
+	"\auser_id\x18\x01 \x01(\x05B\v\xe2A\x01\x02\xbaH\x04\x1a\x02(\x01R\x06userId\x12\x19\n" +
 	"\bgroup_id\x18\x02 \x01(\x05R\agroupId\"\x1c\n" +
 	"\x1aContactChangeGroupResponse\"B\n" +
 	"\x1aContactOnlineStatusRequest\x12$\n" +
-	"\auser_id\x18\x01 \x01(\x05B\v\xe2A\x01\x02\xfaB\x04\x1a\x02(\x01R\x06userId\"H\n" +
+	"\auser_id\x18\x01 \x01(\x05B\v\xe2A\x01\x02\xbaH\x04\x1a\x02(\x01R\x06userId\"H\n" +
 	"\x1bContactOnlineStatusResponse\x12)\n" +
 	"\ronline_status\x18\x01 \x01(\tB\x04\xe2A\x01\x02R\fonlineStatus2\xfc\x05\n" +
 	"\aContact\x12Z\n" +

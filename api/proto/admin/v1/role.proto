@@ -3,7 +3,7 @@ package admin;
 
 option go_package = "admin/v1;admin";
 
-import "validate/validate.proto";
+import "buf/validate/validate.proto";
 import "google/api/annotations.proto";
 import "google/api/field_behavior.proto";
 
@@ -35,9 +35,9 @@ service Role{
 
 message RoleListRequest{
   // 页码
-  int32 page = 1 [(validate.rules).int32.gt = 0];
+  int32 page = 1 [(buf.validate.field).int32.gt = 0];
   // 每页数量
-  int32 page_size = 2 [(validate.rules).int32.gt = 0];
+  int32 page_size = 2 [(buf.validate.field).int32.gt = 0];
   // 角色名称
   string role_name = 3;
   // 状态
@@ -64,9 +64,9 @@ message RoleListResponse{
 
 message RoleCreateRequest{
   // 角色名称
-  string role_name = 2 [(validate.rules).string = {min_len: 1}];
+  string role_name = 2 [(buf.validate.field).string = {min_len: 1}];
   // 角色说明
-  string explain = 3 [(validate.rules).string = {max_len: 100}];
+  string explain = 3 [(buf.validate.field).string = {max_len: 100}];
 }
 
 message RoleCreateResponse{
@@ -75,11 +75,11 @@ message RoleCreateResponse{
 
 message RoleUpdateRequest{
   // 角色ID
-  int32 id = 1 [(validate.rules).int32.gt = 0];
+  int32 id = 1 [(buf.validate.field).int32.gt = 0];
   // 角色名称
-  string role_name = 2 [(validate.rules).string = {min_len: 1}];
+  string role_name = 2 [(buf.validate.field).string = {min_len: 1}];
   // 角色说明
-  string explain = 3 [(validate.rules).string = {max_len: 100}];
+  string explain = 3 [(buf.validate.field).string = {max_len: 100}];
 }
 
 message RoleUpdateResponse{

@@ -11,84 +11,64 @@ import (
 
 // IAdminHandler BFF 接口
 type IAdminHandler interface {
-	Create(ctx context.Context, req *AdminCreateRequest) (*AdminCreateResponse, error)
-	List(ctx context.Context, req *AdminListRequest) (*AdminListResponse, error)
-	UpdateStatus(ctx context.Context, req *AdminUpdateStatusRequest) (*AdminUpdateStatusResponse, error)
-	ResetPassword(ctx context.Context, req *AdminResetPasswordRequest) (*AdminResetPasswordResponse, error)
+
+	// 创建管理员接口
+	Create(ctx context.Context, in *AdminCreateRequest) (*AdminCreateResponse, error)
+	// 管理员列表接口
+	List(ctx context.Context, in *AdminListRequest) (*AdminListResponse, error)
+	// 更新管理员状态接口
+	UpdateStatus(ctx context.Context, in *AdminUpdateStatusRequest) (*AdminUpdateStatusResponse, error)
+	// 重置管理员密码接口
+	ResetPassword(ctx context.Context, in *AdminResetPasswordRequest) (*AdminResetPasswordResponse, error)
 }
 
 // RegisterAdminHandler 注册服务路由处理器
-func RegisterAdminHandler(r gin.IRoutes, s interface {
+func RegisterAdminHandler(r gin.IRoutes, interceptor interface {
 	ShouldProto(c *gin.Context, in any) error
-	ErrorResponse(c *gin.Context, err error)
-	SuccessResponse(c *gin.Context, data any)
+	Do(fn func(ctx *gin.Context) (any, error)) func(c *gin.Context)
 }, handler IAdminHandler) {
+	if interceptor == nil {
+		panic("interceptor is nil")
+	}
+
 	if handler == nil {
 		panic("handler is nil")
 	}
 
-	r.POST("/backend/admin/create", func(c *gin.Context) {
+	r.POST("/backend/admin/create", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in AdminCreateRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.Create(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
+		return handler.Create(ctx.Request.Context(), &in)
+	}))
 
-		s.SuccessResponse(c, data)
-	})
-
-	r.POST("/backend/admin/list", func(c *gin.Context) {
+	r.POST("/backend/admin/list", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in AdminListRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.List(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
+		return handler.List(ctx.Request.Context(), &in)
+	}))
 
-		s.SuccessResponse(c, data)
-	})
-
-	r.POST("/backend/admin/update-status", func(c *gin.Context) {
+	r.POST("/backend/admin/update-status", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in AdminUpdateStatusRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.UpdateStatus(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
+		return handler.UpdateStatus(ctx.Request.Context(), &in)
+	}))
 
-		s.SuccessResponse(c, data)
-	})
-
-	r.POST("/backend/admin/reset-password", func(c *gin.Context) {
+	r.POST("/backend/admin/reset-password", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in AdminResetPasswordRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.ResetPassword(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
-
-		s.SuccessResponse(c, data)
-	})
+		return handler.ResetPassword(ctx.Request.Context(), &in)
+	}))
 
 }

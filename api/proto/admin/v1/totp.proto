@@ -3,7 +3,7 @@ package admin;
 
 option go_package = "admin/v1;admin";
 
-import "validate/validate.proto";
+import "buf/validate/validate.proto";
 import "google/api/annotations.proto";
 import "google/api/field_behavior.proto";
 
@@ -58,14 +58,14 @@ message TotpStatusResponse{
 
 message TotpCloseRequest{
   // 密码
-  string password = 1 [(validate.rules).string = {min_len: 1}];
+  string password = 1 [(buf.validate.field).string = {min_len: 1}];
 }
 
 message TotpCloseResponse{}
 
 message TotpInitRequest{
   // 密码
-  string password = 1 [(validate.rules).string = {min_len: 1}];
+  string password = 1 [(buf.validate.field).string = {min_len: 1}];
 }
 
 message TotpInitResponse{
@@ -77,9 +77,9 @@ message TotpInitResponse{
 
 message TotpSubmitRequest{
   // 验证码
-  string code = 1 [(validate.rules).string = {min_len: 1}];
+  string code = 1 [(buf.validate.field).string = {min_len: 1}];
   // 会话ID
-  string session = 2 [(validate.rules).string = {min_len: 1}];
+  string session = 2 [(buf.validate.field).string = {min_len: 1}];
 }
 
 message TotpSubmitResponse{
@@ -89,7 +89,7 @@ message TotpSubmitResponse{
 
 message TotpQrcodeRequest{
   // 密码
-  string password = 1 [(validate.rules).string = {min_len: 1}];
+  string password = 1 [(buf.validate.field).string = {min_len: 1}];
 }
 
 message TotpQrcodeResponse{

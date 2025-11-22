@@ -11,186 +11,130 @@ import (
 
 // IArticleHandler BFF 接口
 type IArticleHandler interface {
-	Edit(ctx context.Context, req *ArticleEditRequest) (*ArticleEditResponse, error)
-	Detail(ctx context.Context, req *ArticleDetailRequest) (*ArticleDetailResponse, error)
-	List(ctx context.Context, req *ArticleListRequest) (*ArticleListResponse, error)
-	Delete(ctx context.Context, req *ArticleDeleteRequest) (*ArticleDeleteResponse, error)
-	Recover(ctx context.Context, req *ArticleRecoverRequest) (*ArticleRecoverResponse, error)
-	ForeverDelete(ctx context.Context, req *ArticleForeverDeleteRequest) (*ArticleForeverDeleteResponse, error)
-	Move(ctx context.Context, req *ArticleMoveRequest) (*ArticleMoveResponse, error)
-	Asterisk(ctx context.Context, req *ArticleAsteriskRequest) (*ArticleAsteriskResponse, error)
-	SetTags(ctx context.Context, req *ArticleTagsRequest) (*ArticleTagsResponse, error)
-	RecoverList(ctx context.Context, req *ArticleRecoverListRequest) (*ArticleRecoverListResponse, error)
+
+	// 文章编辑接口
+	Edit(ctx context.Context, in *ArticleEditRequest) (*ArticleEditResponse, error)
+	// 获取文章详情接口
+	Detail(ctx context.Context, in *ArticleDetailRequest) (*ArticleDetailResponse, error)
+	// 获取文章列表接口
+	List(ctx context.Context, in *ArticleListRequest) (*ArticleListResponse, error)
+	// 删除文章接口
+	Delete(ctx context.Context, in *ArticleDeleteRequest) (*ArticleDeleteResponse, error)
+	// 恢复文章接口
+	Recover(ctx context.Context, in *ArticleRecoverRequest) (*ArticleRecoverResponse, error)
+	// 永久删除文章接口
+	ForeverDelete(ctx context.Context, in *ArticleForeverDeleteRequest) (*ArticleForeverDeleteResponse, error)
+	// 移动文章分类接口
+	Move(ctx context.Context, in *ArticleMoveRequest) (*ArticleMoveResponse, error)
+	// 收藏/取消收藏文章接口
+	Asterisk(ctx context.Context, in *ArticleAsteriskRequest) (*ArticleAsteriskResponse, error)
+	// 设置文章标签接口
+	SetTags(ctx context.Context, in *ArticleTagsRequest) (*ArticleTagsResponse, error)
+	// 获取回收站文章列表接口
+	RecoverList(ctx context.Context, in *ArticleRecoverListRequest) (*ArticleRecoverListResponse, error)
 }
 
 // RegisterArticleHandler 注册服务路由处理器
-func RegisterArticleHandler(r gin.IRoutes, s interface {
+func RegisterArticleHandler(r gin.IRoutes, interceptor interface {
 	ShouldProto(c *gin.Context, in any) error
-	ErrorResponse(c *gin.Context, err error)
-	SuccessResponse(c *gin.Context, data any)
+	Do(fn func(ctx *gin.Context) (any, error)) func(c *gin.Context)
 }, handler IArticleHandler) {
+	if interceptor == nil {
+		panic("interceptor is nil")
+	}
+
 	if handler == nil {
 		panic("handler is nil")
 	}
 
-	r.POST("/api/v1/article/editor", func(c *gin.Context) {
+	r.POST("/api/v1/article/editor", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in ArticleEditRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.Edit(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
+		return handler.Edit(ctx.Request.Context(), &in)
+	}))
 
-		s.SuccessResponse(c, data)
-	})
-
-	r.POST("/api/v1/article/detail", func(c *gin.Context) {
+	r.POST("/api/v1/article/detail", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in ArticleDetailRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.Detail(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
+		return handler.Detail(ctx.Request.Context(), &in)
+	}))
 
-		s.SuccessResponse(c, data)
-	})
-
-	r.POST("/api/v1/article/list", func(c *gin.Context) {
+	r.POST("/api/v1/article/list", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in ArticleListRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.List(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
+		return handler.List(ctx.Request.Context(), &in)
+	}))
 
-		s.SuccessResponse(c, data)
-	})
-
-	r.POST("/api/v1/article/delete", func(c *gin.Context) {
+	r.POST("/api/v1/article/delete", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in ArticleDeleteRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.Delete(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
+		return handler.Delete(ctx.Request.Context(), &in)
+	}))
 
-		s.SuccessResponse(c, data)
-	})
-
-	r.POST("/api/v1/article/recover", func(c *gin.Context) {
+	r.POST("/api/v1/article/recover", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in ArticleRecoverRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.Recover(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
+		return handler.Recover(ctx.Request.Context(), &in)
+	}))
 
-		s.SuccessResponse(c, data)
-	})
-
-	r.POST("/api/v1/article/forever-delete", func(c *gin.Context) {
+	r.POST("/api/v1/article/forever-delete", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in ArticleForeverDeleteRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.ForeverDelete(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
+		return handler.ForeverDelete(ctx.Request.Context(), &in)
+	}))
 
-		s.SuccessResponse(c, data)
-	})
-
-	r.POST("/api/v1/article/move", func(c *gin.Context) {
+	r.POST("/api/v1/article/move", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in ArticleMoveRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.Move(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
+		return handler.Move(ctx.Request.Context(), &in)
+	}))
 
-		s.SuccessResponse(c, data)
-	})
-
-	r.POST("/api/v1/article/asterisk", func(c *gin.Context) {
+	r.POST("/api/v1/article/asterisk", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in ArticleAsteriskRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.Asterisk(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
+		return handler.Asterisk(ctx.Request.Context(), &in)
+	}))
 
-		s.SuccessResponse(c, data)
-	})
-
-	r.POST("/api/v1/article/tags", func(c *gin.Context) {
+	r.POST("/api/v1/article/tags", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in ArticleTagsRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.SetTags(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
+		return handler.SetTags(ctx.Request.Context(), &in)
+	}))
 
-		s.SuccessResponse(c, data)
-	})
-
-	r.POST("/api/v1/article/recover-list", func(c *gin.Context) {
+	r.POST("/api/v1/article/recover-list", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in ArticleRecoverListRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.RecoverList(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
-
-		s.SuccessResponse(c, data)
-	})
+		return handler.RecoverList(ctx.Request.Context(), &in)
+	}))
 
 }

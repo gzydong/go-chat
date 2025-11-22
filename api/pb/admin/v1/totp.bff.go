@@ -11,101 +11,75 @@ import (
 
 // ITotpHandler BFF 接口
 type ITotpHandler interface {
-	Status(ctx context.Context, req *TotpStatusRequest) (*TotpStatusResponse, error)
-	Close(ctx context.Context, req *TotpCloseRequest) (*TotpCloseResponse, error)
-	Init(ctx context.Context, req *TotpInitRequest) (*TotpInitResponse, error)
-	Submit(ctx context.Context, req *TotpSubmitRequest) (*TotpSubmitResponse, error)
-	Qrcode(ctx context.Context, req *TotpQrcodeRequest) (*TotpQrcodeResponse, error)
+
+	// 获取双因子认证状态接口
+	Status(ctx context.Context, in *TotpStatusRequest) (*TotpStatusResponse, error)
+	// 关闭双因子认证接口
+	Close(ctx context.Context, in *TotpCloseRequest) (*TotpCloseResponse, error)
+	// 初始化双因子认证接口
+	Init(ctx context.Context, in *TotpInitRequest) (*TotpInitResponse, error)
+	// 提交双因子认证接口
+	Submit(ctx context.Context, in *TotpSubmitRequest) (*TotpSubmitResponse, error)
+	// 获取双因子认证二维码接口
+	Qrcode(ctx context.Context, in *TotpQrcodeRequest) (*TotpQrcodeResponse, error)
 }
 
 // RegisterTotpHandler 注册服务路由处理器
-func RegisterTotpHandler(r gin.IRoutes, s interface {
+func RegisterTotpHandler(r gin.IRoutes, interceptor interface {
 	ShouldProto(c *gin.Context, in any) error
-	ErrorResponse(c *gin.Context, err error)
-	SuccessResponse(c *gin.Context, data any)
+	Do(fn func(ctx *gin.Context) (any, error)) func(c *gin.Context)
 }, handler ITotpHandler) {
+	if interceptor == nil {
+		panic("interceptor is nil")
+	}
+
 	if handler == nil {
 		panic("handler is nil")
 	}
 
-	r.POST("/backend/totp/status", func(c *gin.Context) {
+	r.POST("/backend/totp/status", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in TotpStatusRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.Status(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
+		return handler.Status(ctx.Request.Context(), &in)
+	}))
 
-		s.SuccessResponse(c, data)
-	})
-
-	r.POST("/backend/totp/close", func(c *gin.Context) {
+	r.POST("/backend/totp/close", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in TotpCloseRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.Close(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
+		return handler.Close(ctx.Request.Context(), &in)
+	}))
 
-		s.SuccessResponse(c, data)
-	})
-
-	r.POST("/backend/totp/init", func(c *gin.Context) {
+	r.POST("/backend/totp/init", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in TotpInitRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.Init(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
+		return handler.Init(ctx.Request.Context(), &in)
+	}))
 
-		s.SuccessResponse(c, data)
-	})
-
-	r.POST("/backend/totp/submit", func(c *gin.Context) {
+	r.POST("/backend/totp/submit", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in TotpSubmitRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.Submit(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
+		return handler.Submit(ctx.Request.Context(), &in)
+	}))
 
-		s.SuccessResponse(c, data)
-	})
-
-	r.POST("/backend/totp/qrcode", func(c *gin.Context) {
+	r.POST("/backend/totp/qrcode", interceptor.Do(func(ctx *gin.Context) (any, error) {
 		var in TotpQrcodeRequest
-		if err := s.ShouldProto(c, &in); err != nil {
-			s.ErrorResponse(c, err)
-			return
+		if err := interceptor.ShouldProto(ctx, &in); err != nil {
+			return nil, err
 		}
 
-		data, err := handler.Qrcode(c.Request.Context(), &in)
-		if err != nil {
-			s.ErrorResponse(c, err)
-			return
-		}
-
-		s.SuccessResponse(c, data)
-	})
+		return handler.Qrcode(ctx.Request.Context(), &in)
+	}))
 
 }

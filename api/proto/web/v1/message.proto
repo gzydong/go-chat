@@ -3,7 +3,7 @@ package web;
 
 option go_package = "web/v1;web";
 
-import "validate/validate.proto";
+import "buf/validate/validate.proto";
 import "google/api/annotations.proto";
 import "google/api/field_behavior.proto";
 
@@ -49,18 +49,18 @@ service Message {
 }
 
 message MessageRevokeRequest{
-  int32 talk_mode = 1 [(validate.rules).int32.gte = 1, (google.api.field_behavior) = REQUIRED];
-  int32 to_from_id = 2 [(validate.rules).int32.gte = 1, (google.api.field_behavior) = REQUIRED];
-  string msg_id = 3 [(validate.rules).string.min_len = 1, (google.api.field_behavior) = REQUIRED];
+  int32 talk_mode = 1 [(buf.validate.field).int32.gte = 1, (google.api.field_behavior) = REQUIRED];
+  int32 to_from_id = 2 [(buf.validate.field).int32.gte = 1, (google.api.field_behavior) = REQUIRED];
+  string msg_id = 3 [(buf.validate.field).string.min_len = 1, (google.api.field_behavior) = REQUIRED];
 }
 
 message MessageRevokeResponse{
 }
 
 message MessageDeleteRequest{
-  int32 talk_mode = 1 [(validate.rules).int32.gte = 1, (google.api.field_behavior) = REQUIRED];
-  int32 to_from_id = 2 [(validate.rules).int32.gte = 1, (google.api.field_behavior) = REQUIRED];
-  repeated string msg_ids = 3 [(validate.rules).repeated.min_items = 1, (google.api.field_behavior) = REQUIRED];
+  int32 talk_mode = 1 [(buf.validate.field).int32.gte = 1, (google.api.field_behavior) = REQUIRED];
+  int32 to_from_id = 2 [(buf.validate.field).int32.gte = 1, (google.api.field_behavior) = REQUIRED];
+  repeated string msg_ids = 3 [(buf.validate.field).repeated.min_items = 1, (google.api.field_behavior) = REQUIRED];
 }
 
 message MessageDeleteResponse{}

@@ -7,7 +7,7 @@
 package web
 
 import (
-	_ "github.com/envoyproxy/protoc-gen-validate/validate"
+	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -831,7 +831,7 @@ var File_web_v1_user_proto protoreflect.FileDescriptor
 
 const file_web_v1_user_proto_rawDesc = "" +
 	"\n" +
-	"\x11web/v1/user.proto\x12\x03web\x1a\x17validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\"\x13\n" +
+	"\x11web/v1/user.proto\x12\x03web\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\"\x13\n" +
 	"\x11UserDetailRequest\"\x80\x02\n" +
 	"\x12UserDetailResponse\x12\x14\n" +
 	"\x02id\x18\x01 \x01(\x05B\x04\xe2A\x01\x02R\x02id\x12\x1c\n" +
@@ -866,25 +866,25 @@ const file_web_v1_user_proto_rawDesc = "" +
 	"\x15keyboard_event_notify\x18\x05 \x01(\tB\x04\xe2A\x01\x02R\x13keyboardEventNotify\"\xb9\x01\n" +
 	"\x17UserDetailUpdateRequest\x12\x16\n" +
 	"\x06avatar\x18\x01 \x01(\tR\x06avatar\x12#\n" +
-	"\bnickname\x18\x02 \x01(\tB\a\xfaB\x04r\x02\x18\x1eR\bnickname\x12%\n" +
-	"\x06gender\x18\x03 \x01(\x05B\r\xfaB\n" +
+	"\bnickname\x18\x02 \x01(\tB\a\xbaH\x04r\x02\x18\x1eR\bnickname\x12%\n" +
+	"\x06gender\x18\x03 \x01(\x05B\r\xbaH\n" +
 	"\x1a\b0\x000\x010\x020\x03R\x06gender\x12\x1e\n" +
-	"\x05motto\x18\x04 \x01(\tB\b\xfaB\x05r\x03\x18\xff\x01R\x05motto\x12\x1a\n" +
+	"\x05motto\x18\x04 \x01(\tB\b\xbaH\x05r\x03\x18\xff\x01R\x05motto\x12\x1a\n" +
 	"\bbirthday\x18\x05 \x01(\tR\bbirthday\"\x1a\n" +
 	"\x18UserDetailUpdateResponse\"s\n" +
 	"\x19UserPasswordUpdateRequest\x12*\n" +
-	"\fold_password\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\voldPassword\x12*\n" +
-	"\fnew_password\x18\x02 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\vnewPassword\"\x1c\n" +
+	"\fold_password\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\voldPassword\x12*\n" +
+	"\fnew_password\x18\x02 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\vnewPassword\"\x1c\n" +
 	"\x1aUserPasswordUpdateResponse\"\x84\x01\n" +
 	"\x17UserMobileUpdateRequest\x12\x1f\n" +
-	"\x06mobile\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x06mobile\x12#\n" +
-	"\bpassword\x18\x02 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\bpassword\x12#\n" +
-	"\bsms_code\x18\x03 \x01(\tB\b\xfaB\x05r\x03\x98\x01\x06R\asmsCode\"\x1a\n" +
+	"\x06mobile\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x06mobile\x12#\n" +
+	"\bpassword\x18\x02 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\bpassword\x12#\n" +
+	"\bsms_code\x18\x03 \x01(\tB\b\xbaH\x05r\x03\x98\x01\x06R\asmsCode\"\x1a\n" +
 	"\x18UserMobileUpdateResponse\"z\n" +
 	"\x16UserEmailUpdateRequest\x12\x1d\n" +
-	"\x05email\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x05email\x12#\n" +
-	"\bpassword\x18\x02 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\bpassword\x12\x1c\n" +
-	"\x04code\x18\x03 \x01(\tB\b\xfaB\x05r\x03\x98\x01\x06R\x04code\"\x19\n" +
+	"\x05email\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x05email\x12#\n" +
+	"\bpassword\x18\x02 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\bpassword\x12\x1c\n" +
+	"\x04code\x18\x03 \x01(\tB\b\xbaH\x05r\x03\x98\x01\x06R\x04code\"\x19\n" +
 	"\x17UserEmailUpdateResponse2\x94\x05\n" +
 	"\x04User\x12Y\n" +
 	"\x06Detail\x12\x16.web.UserDetailRequest\x1a\x17.web.UserDetailResponse\"\x1e\x82\xd3\xe4\x93\x02\x18:\x01*\"\x13/api/v1/user/detail\x12]\n" +

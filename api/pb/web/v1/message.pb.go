@@ -7,7 +7,7 @@
 package web
 
 import (
-	_ "github.com/envoyproxy/protoc-gen-validate/validate"
+	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -679,18 +679,18 @@ var File_web_v1_message_proto protoreflect.FileDescriptor
 
 const file_web_v1_message_proto_rawDesc = "" +
 	"\n" +
-	"\x14web/v1/message.proto\x12\x03web\x1a\x17validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\"\x8f\x01\n" +
+	"\x14web/v1/message.proto\x12\x03web\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/api/field_behavior.proto\"\x8f\x01\n" +
 	"\x14MessageRevokeRequest\x12(\n" +
-	"\ttalk_mode\x18\x01 \x01(\x05B\v\xe2A\x01\x02\xfaB\x04\x1a\x02(\x01R\btalkMode\x12)\n" +
+	"\ttalk_mode\x18\x01 \x01(\x05B\v\xe2A\x01\x02\xbaH\x04\x1a\x02(\x01R\btalkMode\x12)\n" +
 	"\n" +
-	"to_from_id\x18\x02 \x01(\x05B\v\xe2A\x01\x02\xfaB\x04\x1a\x02(\x01R\btoFromId\x12\"\n" +
-	"\x06msg_id\x18\x03 \x01(\tB\v\xe2A\x01\x02\xfaB\x04r\x02\x10\x01R\x05msgId\"\x17\n" +
+	"to_from_id\x18\x02 \x01(\x05B\v\xe2A\x01\x02\xbaH\x04\x1a\x02(\x01R\btoFromId\x12\"\n" +
+	"\x06msg_id\x18\x03 \x01(\tB\v\xe2A\x01\x02\xbaH\x04r\x02\x10\x01R\x05msgId\"\x17\n" +
 	"\x15MessageRevokeResponse\"\x92\x01\n" +
 	"\x14MessageDeleteRequest\x12(\n" +
-	"\ttalk_mode\x18\x01 \x01(\x05B\v\xe2A\x01\x02\xfaB\x04\x1a\x02(\x01R\btalkMode\x12)\n" +
+	"\ttalk_mode\x18\x01 \x01(\x05B\v\xe2A\x01\x02\xbaH\x04\x1a\x02(\x01R\btalkMode\x12)\n" +
 	"\n" +
-	"to_from_id\x18\x02 \x01(\x05B\v\xe2A\x01\x02\xfaB\x04\x1a\x02(\x01R\btoFromId\x12%\n" +
-	"\amsg_ids\x18\x03 \x03(\tB\f\xe2A\x01\x02\xfaB\x05\x92\x01\x02\b\x01R\x06msgIds\"\x17\n" +
+	"to_from_id\x18\x02 \x01(\x05B\v\xe2A\x01\x02\xbaH\x04\x1a\x02(\x01R\btoFromId\x12%\n" +
+	"\amsg_ids\x18\x03 \x03(\tB\f\xe2A\x01\x02\xbaH\x05\x92\x01\x02\b\x01R\x06msgIds\"\x17\n" +
 	"\x15MessageDeleteResponse\"\x98\x01\n" +
 	"\x15MessageRecordsRequest\x12!\n" +
 	"\ttalk_mode\x18\x01 \x01(\x05B\x04\xe2A\x01\x02R\btalkMode\x12\"\n" +

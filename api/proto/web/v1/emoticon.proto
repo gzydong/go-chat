@@ -2,7 +2,7 @@ syntax = "proto3";
 package web;
 
 option go_package = "web/v1;web";
-import "validate/validate.proto";
+import "buf/validate/validate.proto";
 import "google/api/annotations.proto";
 
 // 表情包服务
@@ -40,7 +40,7 @@ message EmoticonItem{
 
 // 删除表情包接口请求参数
 message EmoticonDeleteRequest{
-  int32 emoticon_id = 1 [(validate.rules).int32.gte = 1];
+  int32 emoticon_id = 1 [(buf.validate.field).int32.gte = 1];
 }
 
 // 删除表情包接口响应参数
@@ -65,7 +65,7 @@ message EmoticonUploadResponse{
 
 // 创建表情包接口请求参数
 message EmoticonCreateRequest{
-  string url = 1 [(validate.rules).string.min_len = 1];
+  string url = 1 [(buf.validate.field).string.min_len = 1];
 }
 
 // 创建表情包接口响应参数
