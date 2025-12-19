@@ -67,7 +67,7 @@ func (s *WssServer) Start(ctx context.Context) error {
 
 	go func() {
 		if err := server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
-			log.Printf("failed to start listening: %s", err)
+			log.Fatalf("failed to start listening: %s\n", err)
 		}
 	}()
 

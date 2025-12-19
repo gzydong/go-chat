@@ -51,7 +51,7 @@ app:
 server:
   http_addr: ":9501"
   websocket_addr: ":9502"
-  tcp_addr: ":9503"
+  tcp_addr: ":9505"
 
 # 日志配置
 log:
