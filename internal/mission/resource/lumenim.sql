@@ -515,7 +515,7 @@ CREATE TABLE `users` (
  UNIQUE KEY `uk_mobile` (`mobile`) USING BTREE,
  KEY `idx_created_at` (`created_at`) USING BTREE,
  KEY `idx_updated_at` (`updated_at`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=4531 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC COMMENT='用户表';;
+) ENGINE=InnoDB AUTO_INCREMENT=4531 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC COMMENT='用户表';;
 
 CREATE TABLE IF NOT EXISTS `users_emoticon`
 (
